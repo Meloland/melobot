@@ -41,10 +41,9 @@ BOT_KERNEL_INFO = {
     'VERSION': '1.1.3',
     # 可以更改，但请同时注明 律回MelodyEcho 的名字
     'DEVELOPER': '律回MelodyEcho',
-    # 区别于配置文件中的 bot name，这里主要指项目名
-    'BOT_NAME_INFO': 'Qbot-MeloTide（律汐）',
     # 也可以更改，但请同时保留原地址或注明原项目名
-    'PROJ_URL': 'https://github.com/AiCorein/Qbot-MeloTide',
+    'PROJ_NAME': 'Qbot-MeloBot',
+    'PROJ_URL': 'https://github.com/AiCorein/Qbot-MeloBot',
     'KERNEL_TIMEOUT': 5,
     'PRIOR_QUEUE_LEN': 2,
     "EVENT_HANDLER_NUM": 8,

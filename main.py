@@ -8,7 +8,7 @@ from handler import BotHandler
 from linker import BotLinker
 
 
-class MeloTideBot(Singleton):
+class MeloBot(Singleton):
     """
     bot 单例类，负责启动和管理所有子模块 ow<
     """
@@ -20,7 +20,7 @@ class MeloTideBot(Singleton):
         装载 bot 核心实例与异步核心任务至 Monitor，并交由 Monitor 启动和管理
         """
         BOT_LOGGER.debug('本次运行日志开始...')
-        BOT_LOGGER.info("Qbot-MeloTide 版本：v{}, developer: {}".format(\
+        BOT_LOGGER.info("MeloBot 版本：v{}, developer: {}".format(\
             BOT_STORE['kernel']['VERSION'], BOT_STORE['kernel']['DEVELOPER'])
         )
         BOT_LOGGER.info('bot 世界观形成中...  (=´ω｀=)')
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     aio.set_event_loop(the_loop)
     # 键盘中断无法在协程中捕获，因此外层处理
     try:
-        aio.run(MeloTideBot().main())
+        aio.run(MeloBot().main())
     except KeyboardInterrupt:
         BOT_LOGGER.debug("接收到键盘中断...")
     BOT_LOGGER.debug("本次运行日志结束...")

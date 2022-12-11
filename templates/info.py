@@ -8,12 +8,13 @@ comment = 'bot 信息'
                     paramsTip='无参数')
 def info(event: dict) -> dict:
     info_list = [
-        BOT_STORE['kernel']['BOT_NAME_INFO'],
+        BOT_STORE['custom']['BOT_NAME'],
+        BOT_STORE['kernel']['PROJ_NAME'],
         BOT_STORE['kernel']['VERSION'],
         BOT_STORE['kernel']['DEVELOPER'],
         BOT_STORE['kernel']['PROJ_URL'],        
     ]
-    info_str = "bot 信息：\n名称：{}\n版本：v{}\n开发者：{}\n项目地址：{} ".format(*info_list)
+    info_str = "\nbot 名称：{}\n项目名称：{}\n版本：v{}\n开发者：{}\n项目地址：{} ".format(*info_list)
     
     action = Builder.build(
         msg_send_packer.pack(
