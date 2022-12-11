@@ -14,7 +14,7 @@ def info(event: dict) -> dict:
         BOT_STORE['kernel']['DEVELOPER'],
         BOT_STORE['kernel']['PROJ_URL'],        
     ]
-    info_str = "\nbot 名称：{}\n项目名称：{}\n版本：v{}\n开发者：{}\n项目地址：{} ".format(*info_list)
+    info_str = "bot 名称：{}\n项目名称：{}\n版本：v{}\n开发者：{}\n项目地址：{} ".format(*info_list)
     
     action = Builder.build(
         msg_send_packer.pack(
