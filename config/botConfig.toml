@@ -1,0 +1,81 @@
+# 以下所有列出的配置项都是必需配置项，删除将会影响正常工作
+
+# bot 工作流程配置（目前与 cq 的通信暂时只支持正向 ws）
+[operation]
+# cq 正向 ws 的 host
+CONNECT_HOST = "localhost"
+# cq 正向 ws 的 port
+CONNECT_PORT = 8080
+# bot 待处理任务队列的最大长度
+WORK_QUEUE_LEN = 20
+# 日志等级
+LOG_LEVEL = "DEBUG"
+# bot 任务超时时间，超过此时间将会放弃任务（单位：秒）
+TASK_TIMEOUT = 15
+# bot 发送每条消息的冷却时间（单位：秒）
+COOLDOWN_TIME = 1
+# bot 工作多长时间后定时关闭（单位：秒），-1 为永久运行直至手动或命令停止
+WORKING_TIME = -1
+
+
+# 数据库相关配置
+[db]
+# 消息数据库功能 是否开启
+MSG_DB_OPEN = true
+# 数据库连接配置
+MSG_DB_HOST = "localhost"
+MSG_DB_PORT = 3306
+# 数据库登录配置
+MSG_DB_USER = "root"
+MSG_DB_PWD = "Al#includehmiku1"
+
+
+# 个性化配置
+[custom]
+# 权限设置采用分级制，任何人的有效权限等级取决于他拥有的最高权限
+# 但如果 id 在黑名单内，拥有多高的权限都会拒绝响应
+# 注意除 nick_name 外，以下所有变量均只支持数字量，不要使用字符串
+#
+# bot owner（只能设置一个人），拥有最高权限，只有 owner 可以发送优先命令和一些生命周期命令
+OWNER = 1574260633
+# 可以执行大多数命令的 SU
+SUPER_USER = [1574260633]
+# 全局白名单，比普通 user 权限更高
+WHITE_LIST = [1574260633]
+# 全局黑名单，会拒绝所有命令和响应
+BLACK_LIST = []
+# 群聊使用白名单机制：必须白名单内的群才能触发 bot 行为
+WHITE_GROUP_LIST = [174720233]
+# sys 级权限是否可获取，该选项仅对 OWNER 有效
+ENABLE_SYS_ROLE = true
+# 给 bot 的可爱称呼 awa ~
+NICK_NAME = ["MeloTide", "MelodyTide", "律汐", "律汐汐", "律汐子"]
+# bot 对自己的称呼
+BOT_NAME = "律汐"
+
+
+# 命令功能配置，注意：以下配置对优先命令也生效
+[cmd]
+# 注意：命令起始符和命令分隔符都不能包含以下任意字符之一：
+# (引号，逗号，各种括号，反斜杠，数字，英文，空格和控制字符)
+# 默认支持多命令解析，即可从一条消息中解析出多条命令，
+# 但如果起始符和分隔符有重复符号，此时将混合使用起始符与分隔符，而此时只会解析出一条命令
+#
+# 示例：
+# 对于消息 "\n\t   这是没用的前置消息 /lifecycle.restart~setting#init!123  \t\n"
+# COMMAND_START = ['/', '~'], COMMAND_SEP = ['.', '#'] 时解析为序列：
+# [ ['lifecycle', 'restart'], ['setting', 'init!123'] ]
+# 对于消息 "\n\t\t   这依然是没用的前置消息 #lifecycle.sys~action.restart    \t\n\n\t\n"
+# COMMAND_START = ['.', '~'], COMMAND_SEP = ['#', '.'] 时解析为序列：
+# [ ['lifecycle', 'sys', 'action', 'restart'] ]
+# 
+# 同时，起始符和分隔符也是支持字符串的，例如:
+# COMMAND_START = ['./', '!/'], COMMAND_SEP = [',/', '#/']
+# 但无论是使用字符还是字符串，必须保证不同组的标志是首字符可区分的，下面是示例：
+# COMMAND_START = ['./', '.!'], COMMAND_SEP = [',/', '#/']      合法√
+# COMMAND_START = ['./', '!#'], COMMAND_SEP = ['.*', '#~']      不合法x，点号导致冲突
+#
+# 命令起始符
+COMMAND_START = ['$', '~']
+# 子命令分隔符
+COMMAND_SEP = ['&', '#']

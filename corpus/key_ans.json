@@ -1,0 +1,41 @@
+[
+  {
+    "keys": ["MeloTide", "MelodyTide", "律汐"],
+    "prob": 0.8,
+    "ans": [
+      {"sentence": "律汐最棒了~ awa"},
+      {"sentence": "嗯？是谁在叫我呀 owo（探头）"},
+      {"sentence": "（律汐探头）"}
+    ]
+  },
+  {
+    "keys": ["好耶"],
+    "prob": 1,
+    "ans": [
+      {
+        "sentence": "好耶", 
+        "ending-repeat": [0, 6],
+        "total-repeat": [0, 3]
+      }
+    ]
+  },
+  {
+    "keys": ["hhh", "哈哈哈"],
+    "prob": 1,
+    "ans": [
+      {
+        "sentence": "hhh", 
+        "total-repeat": [0, 3]
+      }
+    ]
+  },
+  {
+    "keys": ["律回", "MelodyEcho"],
+    "prob": 0.8,
+    "ans": [
+      {"sentence": "律回姐姐最棒！"},
+      {"sentence": "律回姐姐最好了 >w<！"},
+      {"sentence": "有人在讨论律回姐姐呢（偷听）"}
+    ]
+  }
+]
