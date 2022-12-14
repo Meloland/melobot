@@ -10,7 +10,7 @@ def rand_image(event: dict) -> dict:
         msg_send_packer.pack(
             event,
             [Encoder.image(
-                fileName='https://api.ixiaowai.cn/api/api.php',
+                file='https://api.ixiaowai.cn/api/api.php',
                 cache='0'
             )],
         )

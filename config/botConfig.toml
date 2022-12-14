@@ -18,24 +18,8 @@ COOLDOWN_TIME = 1
 WORKING_TIME = -1
 
 
-# 数据库相关配置
-[db]
-# 消息数据库功能 是否开启
-MSG_DB_OPEN = true
-# 数据库连接配置
-MSG_DB_HOST = "localhost"
-MSG_DB_PORT = 3306
-# 数据库登录配置
-MSG_DB_USER = "root"
-MSG_DB_PWD = "Al#includehmiku1"
-
-
 # 个性化配置
 [custom]
-# 权限设置采用分级制，任何人的有效权限等级取决于他拥有的最高权限
-# 但如果 id 在黑名单内，拥有多高的权限都会拒绝响应
-# 注意除 nick_name 外，以下所有变量均只支持数字量，不要使用字符串
-#
 # bot owner（只能设置一个人），拥有最高权限，只有 owner 可以发送优先命令和一些生命周期命令
 OWNER = 1574260633
 # 可以执行大多数命令的 SU
@@ -58,22 +42,6 @@ BOT_NAME = "律汐"
 [cmd]
 # 注意：命令起始符和命令分隔符都不能包含以下任意字符之一：
 # (引号，逗号，各种括号，反斜杠，数字，英文，空格和控制字符)
-# 默认支持多命令解析，即可从一条消息中解析出多条命令，
-# 但如果起始符和分隔符有重复符号，此时将混合使用起始符与分隔符，而此时只会解析出一条命令
-#
-# 示例：
-# 对于消息 "\n\t   这是没用的前置消息 /lifecycle.restart~setting#init!123  \t\n"
-# COMMAND_START = ['/', '~'], COMMAND_SEP = ['.', '#'] 时解析为序列：
-# [ ['lifecycle', 'restart'], ['setting', 'init!123'] ]
-# 对于消息 "\n\t\t   这依然是没用的前置消息 #lifecycle.sys~action.restart    \t\n\n\t\n"
-# COMMAND_START = ['.', '~'], COMMAND_SEP = ['#', '.'] 时解析为序列：
-# [ ['lifecycle', 'sys', 'action', 'restart'] ]
-# 
-# 同时，起始符和分隔符也是支持字符串的，例如:
-# COMMAND_START = ['./', '!/'], COMMAND_SEP = [',/', '#/']
-# 但无论是使用字符还是字符串，必须保证不同组的标志是首字符可区分的，下面是示例：
-# COMMAND_START = ['./', '.!'], COMMAND_SEP = [',/', '#/']      合法√
-# COMMAND_START = ['./', '!#'], COMMAND_SEP = ['.*', '#~']      不合法x，点号导致冲突
 #
 # 命令起始符
 COMMAND_START = ['$', '~']

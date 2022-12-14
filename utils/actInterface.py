@@ -179,21 +179,18 @@ class CQEncoder(Singleton):
             if image: base['data']['image'] = image
             return base
     
-    def image(self, fileName: str=None, picType: Literal["flash", "show"]=None, 
-                url: str=None, subType: Literal[0, 1]=None, cache: int=1,
+    def image(self, file: str, picType: Literal["flash", "show"]=None, 
+                subType: Literal[0, 1]=None, cache: Literal[0, 1]=1,
                 mode: Literal["str", "dict"]="str"):
         """
         图片消息。
-        flash 为闪照，show 为普通图片。
+        picType flash 为闪照，show 为秀图，不填为普通图片。
         subType 只出现在群聊，0 为正常图片，1 为表情包
         """
         if mode == "str":
-            if fileName: fileName = self.escape(fileName)
-            if url: url = self.escape(url)
-            base = f"[CQ:image"
-            if fileName: base += f",file={fileName}"
+            file = self.escape(file)
+            base = f"[CQ:image,file={file}"
             if picType: base += f",type={picType}"
-            if url: base += f",url={url}"
             if subType: base += f",subType={subType}"
             if cache: base += f",cache={cache}"
             base += ']'
@@ -201,11 +198,11 @@ class CQEncoder(Singleton):
         else:
             base = {
                 "type": "image",
-                "data": {}
+                "data": {
+                    "file": file,
+                }
             }
-            if fileName: base['data']['file'] = fileName
             if picType: base['data']['type'] = picType
-            if url: base['data']['url'] = url
             if subType: base['data']['subType'] = subType
             if cache: base['data']['cache'] = cache
             return base

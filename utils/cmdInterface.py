@@ -61,6 +61,24 @@ class ExecInterface(Singleton):
         """
         return self.cmd_map[cmdName].__alias__.copy()
 
+    def get_cmd_auth(self, cmdName: str) -> au.UserLevel:
+        """
+        供外部获取指定命令的权限限制值
+        """
+        return self.cmd_map[cmdName].__auth__
+
+    def get_cmd_comment(self, cmdName: str) -> str:
+        """
+        供外部获取指定命令的注释
+        """
+        return self.cmd_map[cmdName].__comment__
+
+    def get_cmd_paramsTip(self, cmdName: str) -> str:
+        """
+        供外部获取指定命令的参数说明
+        """
+        return self.cmd_map[cmdName].__params__
+
     def sync_method(self, alias: list=None, userLevel: au.UserLevel=au.USER, lock: bool=False, \
                         prefix: bool=False, comment: str='', paramsTip: str='无说明') -> Callable:
         """
