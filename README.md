@@ -1,6 +1,6 @@
-<div style="text-align: center;">
+<div align="center">
 <img width=200 src="https://proj.glowmem.com/MeloBot/images/icon.png" />
-<p style="font-size: 2.125rem;">MeloBot</p>
+<h1>MeloBot</p>
 </div>
 
 ## 关于 MeloBot
@@ -22,7 +22,7 @@ MeloBot 目前的接口设计，可以帮助使用者实现一些自定义的需
 ## 版本支持
 - python >= 3.8
 - go-cqhttp >= 1.0.0
-- platform = x64
+- platform == x64
 
 ## 更多
 请参阅文档：[MeloBot 文档](https://proj.glowmem.com/MeloBot/)
