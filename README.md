@@ -1,6 +1,7 @@
 <div align="center">
 <img width=200 src="https://proj.glowmem.com/MeloBot/images/icon.png" />
-<h1>MeloBot</p>
+<h1>MeloBot</h1>
+<p><strong>基于 go-cqhttp 前端，python 的 qbot 实现</strong></p>
 </div>
 
 ## 关于 MeloBot
