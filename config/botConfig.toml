@@ -9,7 +9,7 @@ CONNECT_PORT = 8080
 # bot 待处理任务队列的最大长度
 WORK_QUEUE_LEN = 20
 # 日志等级
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 # bot 任务超时时间，超过此时间将会放弃任务（单位：秒）
 TASK_TIMEOUT = 15
 # bot 发送每条消息的冷却时间（单位：秒）
