@@ -27,3 +27,5 @@ MeloBot 目前的接口设计，可以帮助使用者实现一些自定义的需
 
 ## 更多
 请参阅文档：[MeloBot 文档](https://proj.glowmem.com/MeloBot/)
+
+文档开源：[MeloBot-docs](https://github.com/AiCorein/Qbot-MeloBot-docs)

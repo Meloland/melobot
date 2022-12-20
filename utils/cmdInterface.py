@@ -79,7 +79,7 @@ class ExecInterface(Singleton):
         """
         return self.cmd_map[cmdName].__params__
 
-    def sync_method(self, alias: list=None, userLevel: au.UserLevel=au.USER, lock: bool=False, \
+    def sync_method(self, alias: list=[], userLevel: au.UserLevel=au.USER, lock: bool=False, \
                         prefix: bool=False, comment: str='', paramsTip: str='无说明') -> Callable:
         """
         供命令模板使用的装饰器接口，适用于同步方法，
@@ -156,7 +156,7 @@ class ExecInterface(Singleton):
             return after_cmd_func
         return warpper_exec
 
-    def async_method(self, alias: list=None, userLevel: au.UserLevel=au.USER, lock: bool=False, \
+    def async_method(self, alias: list=[], userLevel: au.UserLevel=au.USER, lock: bool=False, \
                         prefix: bool=False, comment: str='', paramsTip: str='无说明') -> Callable:
         """
         供命令模板使用的装饰器接口，适用于异步方法。

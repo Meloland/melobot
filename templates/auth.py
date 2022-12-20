@@ -11,6 +11,8 @@ def auth(event: dict) -> dict:
 
     if event['message_type'] == 'group':
         u_nickname = event['sender']['card']
+        if u_nickname == '':
+            u_nickname = event['sender']['nickname']
     elif event['message_type'] == 'private':
         u_nickname = event['sender']['nickname']
 

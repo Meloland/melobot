@@ -93,24 +93,26 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         else:
             self.parse = self.multi_parse
     
-    def single_parse(self, text: str) -> list:
+    def single_parse(self, text: str, textFilter=True) -> list:
         """
         解析 text，获得命令列表，其中每个命令又是一个包含子命令的列表
         模式：单解析模式
         注意：结果可能为一个两层空列表
         """
-        pure_string = self.filter.purify(text)
+        if textFilter: pure_string = self.filter.purify(text)
+        else: pure_string = text
         cmd_strings = self.split_string(pure_string, self.uninted_parse_regex)
         return [cmd_strings] if len(cmd_strings) else [[]]
 
     
-    def multi_parse(self, text: str) -> list:
+    def multi_parse(self, text: str, textFilter=True) -> list:
         """
         解析 text，获得命令列表，其中每个命令又是一个包含子命令的列表
         模式：多解析模式
         注意：结果可能为一个两层空列表
         """
-        pure_string = self.filter.purify(text)
+        if textFilter: pure_string = self.filter.purify(text)
+        else: pure_string = text
         cmd_strings = self.split_string(pure_string, self.start_parse_regex)
         cmd_list = [self.split_string(s, self.sep_parse_regex, False) for s in cmd_strings]
         cmd_list = list(filter(lambda x: x != [], cmd_list))

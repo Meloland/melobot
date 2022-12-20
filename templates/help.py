@@ -39,10 +39,11 @@ def help_detail(event: dict, queryCmdName: str) -> dict:
     if queryCmdName not in ExeI.cmd_map.keys(): return '命令不存在'
     if u_lvl < ExeI.cmd_map[queryCmdName].__auth__: return '无权访问的命令'
     
+    cmd_method = ExeI.cmd_map[queryCmdName]
     return "命令名：{}\n别称：{}\n说明：{}\n参数：{}\n注：方框参数为可选，括号参数为必选".format(
         queryCmdName,
-        " / ".join(ExeI.cmd_map[queryCmdName].__alias__),
-        ExeI.cmd_map[queryCmdName].__comment__,
-        ExeI.cmd_map[queryCmdName].__params__
+        " / ".join(cmd_method.__alias__) if cmd_method.__alias__ != [] else '无',
+        cmd_method.__comment__,
+        cmd_method.__params__
     )
 

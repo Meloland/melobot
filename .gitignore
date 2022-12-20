@@ -1,0 +1,11 @@
+*.pyc
+__pycache__
+*/__pycache__
+
+logs
+private
+go-cqhttp
+
+templates/py.py
+templates/weather.py
+templates/translate.py

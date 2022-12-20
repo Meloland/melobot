@@ -22,6 +22,15 @@ class CQEncoder(Singleton):
                     .replace('[', '&#91;')\
                     .replace(']', '&#93;')\
                     .replace(',', '&#44;')
+
+    def anti_escape(self, text: str) -> str:
+        """
+        cq 字符逆转义
+        """
+        return text.replace('&amp;', '&')\
+                    .replace('&#91;', '[')\
+                    .replace('&#93;', ']')\
+                    .replace('&#44;', ',')
     
     def text(self, text: str, fromEvent: bool=True, mode: Literal["str", "dict"]="str"):
         """

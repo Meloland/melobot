@@ -29,7 +29,7 @@ WHITE_LIST = [1574260633]
 # 全局黑名单，会拒绝所有命令和响应
 BLACK_LIST = []
 # 群聊使用白名单机制：必须白名单内的群才能触发 bot 行为
-WHITE_GROUP_LIST = [174720233]
+WHITE_GROUP_LIST = [174720233, 734106713]
 # sys 级权限是否可获取，该选项仅对 OWNER 有效
 ENABLE_SYS_ROLE = true
 # 给 bot 的可爱称呼 awa ~
