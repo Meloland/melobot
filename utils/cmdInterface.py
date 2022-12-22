@@ -97,7 +97,11 @@ class ExecInterface(Singleton):
                         return
                 else:
                     # 只进行发送者权限的校验，更复杂的校验目标，应该由前端模块提前完成
-                    if self.msg_checker.isMsgReport(event):
+
+                    # 若在黑名单中，什么也不做
+                    if self.msg_checker.get_event_lvl(event) == self.role.BLACK:
+                        return None
+                    elif self.msg_checker.isMsgReport(event):
                         if not self.msg_checker.check(userLevel, event):
                             return await self.sys_call('echo', event, \
                                 f'需要 {self.msg_checker.auth_str_map[userLevel]} 权限，权限不够呢 qwq')
@@ -172,7 +176,11 @@ class ExecInterface(Singleton):
                         return
                 else:
                     # 只进行发送者权限的校验，更复杂的校验目标，应该由前端模块提前完成
-                    if self.msg_checker.isMsgReport(event):
+                    
+                    # 若在黑名单中，什么也不做
+                    if self.msg_checker.get_event_lvl(event) == self.role.BLACK:
+                        return None
+                    elif self.msg_checker.isMsgReport(event):
                         if not self.msg_checker.check(userLevel, event):
                             return await self.sys_call('echo', event, \
                                 f'需要 {self.msg_checker.auth_str_map[userLevel]} 权限，权限不够呢 qwq')

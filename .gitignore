@@ -1,11 +1,15 @@
 *.pyc
 __pycache__
 */__pycache__
+*.bak
 
 logs
 private
 go-cqhttp
 
 templates/py.py
+templates/cpp.py
 templates/weather.py
 templates/translate.py
+templates/summon.py
+config/botConfig.toml
