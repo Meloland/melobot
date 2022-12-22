@@ -2,8 +2,7 @@ import asyncio as aio
 import traceback
 import time as t
 import datetime as dt
-import websockets.exceptions as wse
-from typing import Coroutine
+from typing import Coroutine, List
 from utils.globalPattern import *
 from utils.globalData import BOT_STORE
 from utils.botLogger import BOT_LOGGER
@@ -103,8 +102,20 @@ class BotMonitor(Singleton):
         """
         获取运行时间
         """
-        worked_time = t.time() - self.start_time
-        return t.strftime("%H:%M:%S", t.gmtime(worked_time))
+        def format_nums(*timeNum: List[int]) -> str:
+            alist = []
+            for num in timeNum:
+                alist.append(str(num) if num >= 10 else '0' + str(num))
+            return alist
+        
+        worked_time = int(t.time() - self.start_time)
+        days = worked_time // 3600 // 24
+        hours = worked_time // 3600 % 24
+        mins = worked_time // 60 % 60
+        secs = worked_time % 60
+        time_str_list = format_nums(days, hours, mins, secs)
+        
+        return ":".join(time_str_list)
 
 
 MONITOR = BotMonitor()
