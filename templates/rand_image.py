@@ -2,7 +2,7 @@ from utils.cmdInterface import ExeI
 from utils.actInterface import Builder, Encoder, msg_send_packer
 
 
-comment = '随机图'
+comment = '随机图（普通横屏图）'
 @ExeI.sync_method(alias=['随机图'], userLevel=ExeI.role.USER, comment=comment, 
                     paramsTip='无参数')
 def rand_image(event: dict) -> dict:

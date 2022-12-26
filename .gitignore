@@ -12,4 +12,7 @@ templates/cpp.py
 templates/weather.py
 templates/translate.py
 templates/summon.py
+templates/usage.py
+templates/sese.py
+
 config/botConfig.toml

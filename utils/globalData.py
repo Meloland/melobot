@@ -1,18 +1,14 @@
 import os
-import toml
 import json
 from .globalPattern import *
+from .config import ConfigManager
 
 
 BOT_STORE = {}
 
 
 # 加载基本配置
-config_path = os.path.join(
-    os.path.dirname(__file__), '..', 'config', 'botConfig.toml'
-)
-with open(config_path, encoding='utf-8') as fp:
-    BOT_STORE = toml.load(fp)
+BOT_STORE = ConfigManager().get_config()
 
 
 # 加载关键词词表并简单处理
@@ -38,7 +34,7 @@ if BOT_STORE['operation']['WORKING_TIME'] <= 0:
     BOT_STORE['operation']['WORKING_TIME'] = None
 
 BOT_KERNEL_INFO = {
-    'VERSION': '1.1.5',
+    'VERSION': '1.2.0',
     # 可以更改，但请同时注明 律回MelodyEcho 的名字
     'DEVELOPER': '律回MelodyEcho',
     # 也可以更改，但请同时保留原地址或注明原项目名

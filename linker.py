@@ -85,6 +85,8 @@ class BotLinker(Singleton):
             while True:
                 try:
                     res = await self.ws.recv()
+                    # 有时 go-cqhttp 会因为无法解析特殊字符问题，导致返回消息为空，这里需要做一次判断
+                    if res == "": continue
                     event = self.event_formatter.format(res)
 
                     # 如果识别到优先事件，分拣处理
