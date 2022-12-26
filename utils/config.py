@@ -82,7 +82,7 @@ class ConfigManager(Singleton):
             self.configDir, 'botConfig.toml'
         )
 
-    def get_config(self) -> None:
+    def get_config(self) -> dict:
         """
         获取配置文件
         """
