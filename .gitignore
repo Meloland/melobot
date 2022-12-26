@@ -6,6 +6,7 @@ __pycache__
 logs
 private
 go-cqhttp
+config
 
 templates/py.py
 templates/cpp.py
@@ -14,5 +15,3 @@ templates/translate.py
 templates/summon.py
 templates/usage.py
 templates/sese.py
-
-config/botConfig.toml
