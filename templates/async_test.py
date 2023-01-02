@@ -4,9 +4,12 @@ from utils.cmdInterface import ExeI
 from utils.actInterface import Builder, Encoder, msg_send_packer
 
 
-comment = '异步测试'
-@ExeI.async_method(alias=['异步测试', 'atest'], userLevel=ExeI.role.OWNER, comment=comment,
-                    paramsTip='[测试秒数，默认为 5]')
+@ExeI.template(
+    aliases=['异步测试', 'atest'], 
+    userLevel=ExeI.role.SU, 
+    comment='异步测试', 
+    prompt='[测试秒数，默认为 5]'
+)
 async def async_test(event: dict, time: str='5') -> dict:
     await aio.sleep(int(time))
     action = Builder.build(

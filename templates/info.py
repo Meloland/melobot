@@ -3,16 +3,19 @@ from utils.actInterface import Builder, Encoder, msg_send_packer
 from utils.globalData import BOT_STORE
 
 
-comment = 'bot 信息'
-@ExeI.sync_method(alias=['信息'], userLevel=ExeI.role.USER, comment=comment, 
-                    paramsTip='无参数')
+@ExeI.template(
+    aliases=['信息'], 
+    userLevel=ExeI.role.USER, 
+    comment='获取 bot 信息', 
+    prompt='无参数'
+)
 def info(event: dict) -> dict:
     info_list = [
         BOT_STORE['custom']['BOT_NAME'],
         BOT_STORE['kernel']['PROJ_NAME'],
         BOT_STORE['kernel']['VERSION'],
         BOT_STORE['kernel']['DEVELOPER'],
-        BOT_STORE['kernel']['PROJ_URL'],        
+        BOT_STORE['kernel']['PROJ_URL'],
     ]
     info_str = "bot 名称：{}\n项目名称：{}\n版本：v{}\n开发者：{}\n项目地址：{} ".format(*info_list)
     

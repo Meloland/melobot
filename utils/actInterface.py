@@ -258,6 +258,29 @@ class CQEncoder(Singleton):
                     "text": text,
                 }
             }
+    
+    def forward(self, nickname: str, qqId: int, cqEncodeMsgs: List[Union[str, dict]]):
+        """
+        转发类型消息，返回结果为转发结点列表。返回结果只支持 dict 模式。
+        """
+        qqId = str(qqId)
+        res = []
+        for content in cqEncodeMsgs:
+            # 如果 msg 是 单独的一个 dict，则包装为列表；字符串情况或 dict 列表，可以直接使用
+            if isinstance(content, dict):
+                content = [content]
+            elif isinstance(content, list):
+                if isinstance(content[0], str):
+                    content = ''.join(content)
+            res.append({
+                "type": "node",
+                "data": {
+                    "name": nickname,
+                    "uin": qqId,
+                    "content": content
+                }
+            })
+        return res
 
 
 class ActionPacker(Singleton, ABC):
@@ -351,6 +374,71 @@ class MsgSendPacker(ActionPacker, Singleton):
         return packed
 
 
+class ForwardSendPacker(ActionPacker, Singleton):
+    """
+    转发消息 action packer
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.__package = {
+            "action_type": "",
+            "params": {}
+        }
+    
+    def private_pack(self, forwardNodes: List[dict], 
+                userId: int, isPureText: bool=False) -> dict:
+        """
+        私聊转发消息包装
+
+        isPureText 为假，则告诉 cq 自动解析字符串中的 CQ 格式字符串。
+        一般除特殊情况，不推荐设置为 True。
+        """
+        packed = self.__package.copy()
+        packed['action_type'] = 'send_private_forward_msg'
+        packed['params']['messages'] = forwardNodes
+        if isPureText: packed['params']['auto_escape'] = True
+        packed['params']['user_id'] = userId
+        return packed
+    
+    def group_pack(self, forwardNodes: List[dict], 
+                groupId: int, isPureText: bool=False) -> dict:
+        """
+        群聊转发消息包装
+
+        isPureText 为假，则告诉 cq 自动解析字符串中的 CQ 格式字符串。
+        一般除特殊情况，不推荐设置为 True。
+        """
+        packed = self.__package.copy()
+        packed['action_type'] = 'send_group_forward_msg'
+        packed['params']['messages'] = forwardNodes
+        if isPureText: packed['params']['auto_escape'] = True
+        packed['params']['group_id'] = groupId
+        return packed
+
+    def pack(self, event: dict, forwardNodes: List[dict], 
+                isPureText: bool=False) -> dict:
+        """
+        消息包装，根据 event 自动判断应该发送何种消息
+
+        isPureText 为假，则告诉 cq 自动解析字符串中的 CQ 格式字符串。
+        一般除特殊情况，不推荐设置为 True。
+        """
+        packed = {}
+        if event['post_type'] == 'message' in event.keys() and event['message_type'] == 'group':
+            packed =  self.group_pack(forwardNodes, event['group_id'], isPureText)
+        elif event['post_type'] == 'message' and event['message_type'] == 'private':
+            packed = self.private_pack(forwardNodes, event['user_id'], isPureText)
+        elif event['post_type'] == 'notice' and event['sub_type'] == 'poke':
+            if 'group_id' in event:
+                packed = self.group_pack(forwardNodes, event['group_id'], isPureText)
+            else:
+                packed = self.private_pack(forwardNodes, event['user_id'], isPureText)
+        else:
+            BOT_LOGGER.error(f"消息 action 封装错误，事件 {event} 不合法！")
+            raise BotUnexpectedEvent("预期之外的 event 事件")
+        return packed
+
+
 
 class MsgDelPacker(ActionPacker, Singleton):
     """
@@ -373,14 +461,14 @@ class MsgDelPacker(ActionPacker, Singleton):
         return packed
 
 
-class GetLoginfoPacker(ActionPacker, Singleton):
+class GetBotInfoPacker(ActionPacker, Singleton):
     """
     获取 bot 号信息 action packer
     """
     def __init__(self) -> None:
         super().__init__()
         self.__package = {
-            "action_type": "",
+            "action_type": "get_login_info",
             "params": {}
         }
 
@@ -389,7 +477,6 @@ class GetLoginfoPacker(ActionPacker, Singleton):
         无需参数，用于查询 bot id 和昵称
         """
         packed = self.__package.copy()
-        packed['action_type'] = 'get_login_info'
         return packed
 
 
@@ -424,3 +511,5 @@ Builder = ActionBuilder()
 Encoder = CQEncoder()
 msg_del_packer = MsgDelPacker()
 msg_send_packer = MsgSendPacker()
+forward_send_packer = ForwardSendPacker()
+bot_info_packer = GetBotInfoPacker()

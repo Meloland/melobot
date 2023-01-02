@@ -17,7 +17,6 @@ class BotHandler:
     def __init__(self, action_queue: Queue, event_queue: Queue, \
                 prior_action_queue: Queue, prior_event_queue: Queue) -> None:
         super().__init__()
-        
         self.action_q = action_queue
         self.event_q = event_queue
         self.prior_action_q = prior_action_queue
@@ -38,7 +37,7 @@ class BotHandler:
                         t = aio.create_task(self.put_action(action))
                         await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
                         BOT_LOGGER.info(
-                            f"在 {name} 调度器，命令 {action['cmd_name']} | {' | '.join(action['cmd_args'])} 执行成功√"
+                            f"在 {name} 调度器，命令 {action['cmd_name']} {' | '.join(action['cmd_args'])} 执行成功√"
                         )
                 except aio.TimeoutError:
                     pass
@@ -75,7 +74,7 @@ class BotHandler:
                         t = aio.create_task(self.put_prior_action(prior_action))
                         await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
                         BOT_LOGGER.info(
-                            f"在 {name} 调度器，命令 {prior_action['cmd_name']} | {' | '.join(prior_action['cmd_args'])} 执行成功√"
+                            f"在 {name} 调度器，命令 {prior_action['cmd_name']} {' | '.join(prior_action['cmd_args'])} 执行成功√"
                         )
                 except aio.TimeoutError:
                     pass

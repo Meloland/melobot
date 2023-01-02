@@ -21,9 +21,9 @@ class BaseCmdExecutor(ABC, Singleton):
     
     async def exec_cmd_list(self, event: dict, cmd_list: list) -> list:
         """
-        低级 api，执行一组命令，自动忽略 cmd_list 中无效的命令，
+        基类方法。执行一组命令，自动忽略 cmd_list 中无效的命令，
         内部实现超时控制和异常处理。
-        应尽量调用 execute 方法
+        用于各类命令执行器内部发起命令执行
         """
         action_list = []
         tasklist = []
@@ -48,10 +48,10 @@ class BaseCmdExecutor(ABC, Singleton):
         # 若有超时异常，则替换为提示信息
         for idx, action in enumerate(action_list):
             if isinstance(action, aio.exceptions.TimeoutError):
-                action_list[idx] = await self.ExeI.sys_call(
+                action_list[idx] = await self.ExeI._ExecInterface__ret_sys_call(
                     'echo', 
                     event, 
-                    f'命令：{" ".join(cmd_list[idx])}\n\n✘ 等待超时，已经放弃执行\n(；′⌒`)'
+                    f'命令：{" ".join(cmd_list[idx])}\n✘ 等待超时，已经放弃执行\n(；′⌒`)'
                 )
         return list(filter(lambda x: x != None, action_list))
 
@@ -88,7 +88,6 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
     """
     模糊命令执行器，实现关键词触发命令，依赖于外部规则文件
     """
-    # TODO: 完成模糊命令执行器
     def __init__(self) -> None:
         super().__init__()
         self.ExeI = ExeI
@@ -175,17 +174,23 @@ class EventFilter(Singleton):
         pass
 
     # 内核事件判断
-    def isKernelReport(self, event: dict) -> bool: return event['post_type'] in BOT_STORE['kernel']['EVENT_TYPE'].values()
+    def isKernelReport(self, event: dict) -> bool: 
+        return event['post_type'] in BOT_STORE['kernel']['EVENT_TYPE'].values()
     # 响应事件判断
-    def isResp(self, event: dict) -> bool: return 'retcode' in event.keys()
+    def isResp(self, event: dict) -> bool: 
+        return 'retcode' in event.keys()
     # 元上报判断
-    def isMetaReport(self, event: dict) -> bool: return event['post_type'] == 'meta_event'
+    def isMetaReport(self, event: dict) -> bool: 
+        return event['post_type'] == 'meta_event'
     # 请求上报判断
-    def isReqReport(self, event: dict) -> bool: return event['post_type'] == 'request'
+    def isReqReport(self, event: dict) -> bool: 
+        return event['post_type'] == 'request'
     # 通知上报判断
-    def isNoticeReport(self, event: dict) -> bool: return event['post_type'] == 'notice'
+    def isNoticeReport(self, event: dict) -> bool: 
+        return event['post_type'] == 'notice'
     # 消息上报判断
-    def isMsgReport(self, event: dict) -> bool: return event['post_type'] == 'message'
+    def isMsgReport(self, event: dict) -> bool: 
+        return event['post_type'] == 'message'
 
 
 class KernelManager(Singleton):
@@ -204,10 +209,9 @@ class KernelManager(Singleton):
         res = []
         # kernelEvent 是二次包装事件，使用 origin 获得原事件对象
         if self.isQfullEvent(event):
-            # 系统级事件，可以使用 sys_call
-            res = await self.ExeI.sys_call(
+            res.append(await self.ExeI._ExecInterface__ret_sys_call(
                 'echo', event['origin'], '任务太多啦，等会儿叭 qwq'
-            )
+            ))
         return res
 
 
@@ -222,10 +226,19 @@ class RespManager(Singleton):
     def isOkResp(self, event: dict) -> bool:
         return event['retcode'] == 0 or event['retcode'] == 1
     
+    def isBotInfoResp(self, event: dict) -> bool:
+        if not 'data' in event.keys(): return False
+        e_data = event['data']
+        return len(e_data.keys()) == 2 and \
+            'nickname' in e_data.keys() and 'user_id' in e_data.keys()
+    
     async def handle(self, event: dict) -> list:
         res = []
         if not self.isOkResp(event):
             BOT_LOGGER.error(f'收到错误响应：{event}')
+        elif self.isBotInfoResp(event):
+            BOT_STORE['kernel']['NICKNAME'] = event['data']['nickname']
+            BOT_STORE['kernel']['BOT_ID'] = event['data']['user_id']
         return res
 
 
@@ -264,6 +277,7 @@ class NoticeManager(Singleton):
         super().__init__()
         self.exact_exec = exact_executor
         self.notice_checker = au.NOTICE_CHECKER
+        self.ExeI = ExeI
     
     # 戳一戳判断
     def isPokeNotice(self, event: dict) -> bool: 
@@ -275,8 +289,7 @@ class NoticeManager(Singleton):
             # 如果被戳者是自己，触发 poke 命令
             # 除这里的校验外，还会在 cmdInterface 模块对消息发起者进行权限校验 
             if event["target_id"] == event["self_id"]:
-                # 不调用命令接口的 sys_call，因为这是用户级命令调用
-                res =  await self.exact_exec.exec_cmd_list(event, [['poke']])
+                res.append(await self.ExeI._ExecInterface__ret_sys_call('poke', event))
         return res
 
 
@@ -291,7 +304,7 @@ class MsgManager(Singleton):
         self.time_exec = time_executor
         self.ExeI = ExeI
         # 保存 lifecycle 指令所有别称和正式名称
-        cmd_name_list = self.ExeI.get_cmd_alias('lifecycle')
+        cmd_name_list = self.ExeI.get_cmd_aliases('lifecycle')
         cmd_name_list.append('lifecycle')
         self.lifecycle_cmd_name = cmd_name_list
 
@@ -353,6 +366,9 @@ class EventProcesser(Singleton):
     def __init__(self) -> None:
         super().__init__()
         self.f = EventFilter()
+        self.ExeI = ExeI
+        # 该方法用于初始化需要在循环启动后获得的变量
+        self.ExeI.after_loop_init()
         # 对应调度策略不会增减，所以不使用策略模式
         self.kernel_m = KernelManager()
         self.resp_m = RespManager()

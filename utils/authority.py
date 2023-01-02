@@ -39,9 +39,6 @@ class BaseAuthChecker(ABC):
     # 消息上报判断
     def isMsgReport(self, event: dict) -> bool: return event['post_type'] == 'message'
     
-    # 系统事件判断
-    def isSysEvent(self, event: dict) -> bool: return 'sys_pass' in event and event['sys_pass'] == 1
-    
     @abstractclassmethod
     def check(self, threshold_lvl: int, event: dict):
         pass
@@ -97,14 +94,6 @@ class MsgAuthChecker(BaseAuthChecker, Singleton):
         # 等级检查
         return 0 < e_lvl and e_lvl >= threshold_lvl
 
-    def enableSysRole(self, event: dict) -> bool:
-        """
-        检查是否可以使用 sys 权限角色
-        """
-        if BOT_STORE['custom']['ENABLE_SYS_ROLE']:
-            return self.check(OWNER, event)
-        else: return False
-
 
 class NoticeAuthChecker(BaseAuthChecker, Singleton):
     """
@@ -143,14 +132,6 @@ class NoticeAuthChecker(BaseAuthChecker, Singleton):
         """
         lvl = self.get_event_lvl(event[condition[0]])
         return 0 < lvl and lvl >= condition[1]
-
-    def enableSysRole(self, event: dict) -> bool:
-        """
-        检查是否可以使用 sys 权限角色
-        """
-        if BOT_STORE['custom']['ENABLE_SYS_ROLE']:
-            return self.check(('user_id', OWNER), event)
-        else: return False
 
 
 MSG_CHECKER = MsgAuthChecker(BOT_STORE['custom']['OWNER'], \

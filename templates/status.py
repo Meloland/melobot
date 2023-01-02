@@ -3,9 +3,12 @@ from utils.actInterface import Builder, Encoder, msg_send_packer
 from utils.globalData import BOT_STORE
 
 
-comment = 'bot 状态'
-@ExeI.sync_method(alias=['stat', '状态'], userLevel=ExeI.role.USER, comment=comment,
-                    paramsTip='无参数')
+@ExeI.template(
+    aliases=['stat', '状态'], 
+    userLevel=ExeI.role.SU, 
+    comment='bot 状态',
+    prompt='无参数'
+)
 def status(event: dict) -> dict:
     stat_list = [
         BOT_STORE['operation']['TASK_TIMEOUT'],
@@ -28,7 +31,7 @@ def status(event: dict) -> dict:
  ● 命令解析模式：{} \n\
  ● 任务缓冲区长度：{} \n\
  ● 优先任务缓冲区长度：{} \n\
- ● 线程池可用线程数：{} \n\
+ ● 线程池最大线程数：{} \n\
  ● 可工作的调度器数：{} \n\
     \n启动时间：{} \n已运行时间：{}".format(*stat_list)
 

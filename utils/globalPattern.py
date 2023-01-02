@@ -8,6 +8,14 @@ class Singleton:
         return cls._instance
 
 
+class BotEvent(dict):
+    pass
+
+
+class BotAction(dict):
+    pass
+
+
 class BotException(Exception):
     """
     bot 异常基类
@@ -36,7 +44,7 @@ class BotUnexpectedEvent(BotException):
         super().__init__(err)
 
 
-class BotCmdWrongParams(BotException):
+class BotCmdExecFailed(BotException):
     def __init__(self, err: str):
         super().__init__(err)
 

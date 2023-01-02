@@ -20,7 +20,7 @@ class MeloBot(Singleton):
         装载 bot 核心实例与异步核心任务至 Monitor，并交由 Monitor 启动和管理
         """
         BOT_LOGGER.debug('本次运行日志开始...')
-        BOT_LOGGER.info("Qbot-MeloBot 版本：v{}, developer: {}".format(\
+        BOT_LOGGER.info("Qbot-MeloBot 版本：v{}, developer: {}".format(
             BOT_STORE['kernel']['VERSION'], BOT_STORE['kernel']['DEVELOPER'])
         )
         BOT_LOGGER.info('bot 世界观形成中...  (=´ω｀=)')
@@ -40,6 +40,7 @@ class MeloBot(Singleton):
         coro_list.extend(bot_handler.coro_getter())
 
         # 交给 Monitor 管理
+        MONITOR.get_loop()
         MONITOR.bind(bot_linker, bot_handler)
         MONITOR.hold_coros(*coro_list)
         

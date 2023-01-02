@@ -8,8 +8,7 @@ private
 go-cqhttp
 config
 
-templates/py.py
-templates/cpp.py
+templates/code.py
 templates/weather.py
 templates/translate.py
 templates/summon.py

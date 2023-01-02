@@ -55,13 +55,12 @@ defaultConfig = {
         "WHITE_LIST": [],
         "BLACK_LIST": [],
         "WHITE_GROUP_LIST": [],
-        "ENABLE_SYS_ROLE": False,
         "NICK_NAME": [],
         "BOT_NAME": 'MeloBot'
     },
     "cmd": {
-        "COMMAND_START": [],
-        "COMMAND_SEP": []
+        "COMMAND_START": ['~'],
+        "COMMAND_SEP": ['#']
     }
 }
 
@@ -101,7 +100,7 @@ class ConfigManager(Singleton):
             with open(self.configPath, 'w', encoding='utf-8') as fp:
                 fp.write(self.defaultConfigText)
             print("未检测到配置文件，已自动生成，请填写配置后重启 bot")
-            sys.exit(1)
+            sys.exit(0)
         else:
             with open(self.configPath, encoding='utf-8') as fp:
                 self.config = toml.load(fp)

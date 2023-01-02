@@ -40,10 +40,11 @@ BOT_KERNEL_INFO = {
     # 也可以更改，但请同时保留原地址或注明原项目名
     'PROJ_NAME': 'Qbot-MeloBot',
     'PROJ_URL': 'https://github.com/AiCorein/Qbot-MeloBot',
+    'ROOT_PATH': '\\'.join(os.path.dirname(__file__).split('\\')[:-1]),
     'KERNEL_TIMEOUT': 5,
     'PRIOR_QUEUE_LEN': 2,
     "EVENT_HANDLER_NUM": 8,
-    'THREAD_NUM': 8,
+    'THREAD_NUM': 20,
     'WORKING_STATUS': True,
     'EVENT_TYPE': {
         'eq_full': 'bot_eventq_full',
