@@ -5,8 +5,6 @@ from .config import ConfigManager
 
 
 BOT_STORE = {}
-
-
 # 加载基本配置
 BOT_STORE = ConfigManager().get_config()
 
@@ -46,10 +44,6 @@ BOT_KERNEL_INFO = {
     "EVENT_HANDLER_NUM": 8,
     'THREAD_NUM': 20,
     'WORKING_STATUS': True,
-    'EVENT_TYPE': {
-        'eq_full': 'bot_eventq_full',
-    },
-    'ACTION_TYPE': {},
 }
 BOT_STORE['kernel'] = BOT_KERNEL_INFO
 # kernel 键下，为 bot 内核信息，不对外提供配置，但需要在内部或命令模板中使用

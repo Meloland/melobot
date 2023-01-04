@@ -2,6 +2,7 @@ import asyncio as aio
 import traceback
 from asyncio import Queue
 from utils.globalPattern import *
+from utils.botEvent import *
 from utils.globalData import BOT_STORE
 from utils.botLogger import BOT_LOGGER
 from utils.eventProcess import EventProcesser
@@ -30,7 +31,7 @@ class BotHandler:
         try:
             while True:
                 try:
-                    event = await self.event_q.get()
+                    event: BotEvent = await self.event_q.get()
                     actions = await self.e_manager.handle(event)
                     if actions == []: continue
                     for action in actions:
@@ -42,13 +43,14 @@ class BotHandler:
                 except aio.TimeoutError:
                     pass
                 except BotUnknownEvent:
-                    BOT_LOGGER.warning(f'出现 bot 未知事件：{event}')
+                    BOT_LOGGER.warning(f'出现 bot 未知事件：{event.raw}')
                 except Exception as e:
                     BOT_LOGGER.debug(traceback.format_exc())
-                    BOT_LOGGER.error(f'{name} 调度器内部发生预期外的异常：{e}，事件对象为：{event}（bot 仍在运行）')
+                    BOT_LOGGER.error(f'{name} 调度器内部发生预期外的异常：{e}，事件为：{event.raw}（bot 仍在运行）')
         except aio.CancelledError:
                 BOT_LOGGER.debug(f'handler.get_event {name} 已被卸载')
 
+    # TODO: action 未来重写部分
     async def put_action(self, action: dict) -> None:
         """
         放置指定的 action 到 action 队列
@@ -67,26 +69,27 @@ class BotHandler:
         try:
             while True:
                 try:
-                    prior_event = await self.prior_event_q.get()
+                    prior_event: BotEvent = await self.prior_event_q.get()
                     prior_actions = await self.e_manager.handle(prior_event)
                     if prior_actions == []: continue
                     for prior_action in prior_actions:
                         t = aio.create_task(self.put_prior_action(prior_action))
                         await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
+                        # TODO: action 未来重写部分
                         BOT_LOGGER.info(
                             f"在 {name} 调度器，命令 {prior_action['cmd_name']} {' | '.join(prior_action['cmd_args'])} 执行成功√"
                         )
                 except aio.TimeoutError:
                     pass
                 except BotUnknownEvent:
-                    BOT_LOGGER.warning(f'出现 bot 未知事件：{prior_event}')
+                    BOT_LOGGER.warning(f'出现 bot 未知事件：{prior_event.raw}')
                 except Exception as e:
                     BOT_LOGGER.debug(traceback.format_exc())
-                    BOT_LOGGER.error(f'{name} 调度器内部发生预期外的异常：{e}，优先事件对象为：{prior_event}（bot 仍在运行）')
+                    BOT_LOGGER.error(f'{name} 调度器内部发生预期外的异常：{e}，优先事件对象为：{prior_event.raw}（bot 仍在运行）')
         except aio.CancelledError:
             BOT_LOGGER.debug(f'handler.get_prior_event {name} 已被卸载')
         
-
+    # TODO: action 未来重写部分
     async def put_prior_action(self, prior_action: dict) -> None:
         """
         放置指定的优先 action 到 优先 action 队列

@@ -1,4 +1,3 @@
-import sys
 import os
 import time as t
 import asyncio as aio
@@ -6,12 +5,15 @@ import importlib.util as iplu
 from asyncio import Lock as aioLock, iscoroutinefunction
 from threading import Lock as tLock, current_thread, main_thread
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, Union, Optional
+from typing import Callable, Union
 from .globalPattern import *
 from .globalData import BOT_STORE
 from .botLogger import BOT_LOGGER
+from .botEvent import *
 from . import authority as au
-from . import cmdParser as cp
+
+
+__all__ = ['AuthRole', 'ExeI']
 
 
 class Role(Singleton):
@@ -28,6 +30,9 @@ class Role(Singleton):
         self.BLACK = au.BLACK
 
 
+AuthRole = Role()
+
+
 class ExecInterface(Singleton):
     """
     命令执行接口类，提供供命令模板使用的装饰器接口。
@@ -35,13 +40,8 @@ class ExecInterface(Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.role = Role()
         self.msg_checker = au.MSG_CHECKER
         self.notice_checker = au.NOTICE_CHECKER
-        self.ec_parser = cp.EC_PARSER
-        self.fc_parser = cp.FC_PARSER
-        self.tc_parser = cp.TC_PARSER
-        self.logger = BOT_LOGGER
         self.pool = ThreadPoolExecutor(max_workers=BOT_STORE['kernel']['THREAD_NUM'])
         # 装入全局，方便 Monitor 管理
         BOT_STORE['kernel']['POOL'] = self.pool
@@ -58,41 +58,46 @@ class ExecInterface(Singleton):
                 self.loop.call_later, delay, func, *args
             )
 
-    async def __cmd_auth_check(self, event: dict, userLevel: au.UserLevel) -> bool:
+    async def __cmd_auth_check(self, event: BotEvent, userLevel: au.UserLevel) -> bool:
         """
         命令权限校验。
-        当返回 True 时，可以继续执行；当返回 False 或 dict 时，不能继续执行。
-        返回 dict 时，作为 action 直接返回
+        当返回 True 时，可以继续执行；当返回 False 时，不能继续执行。
         """
         # 只进行发送者权限的校验，更复杂的校验目标，应该由前端模块提前完成
         # 若在黑名单中，什么也不做
-        if self.msg_checker.get_event_lvl(event) == self.role.BLACK:
-            return False
-        elif self.msg_checker.isMsgReport(event):
+        if event.is_msg():
+            if self.msg_checker.get_event_lvl(event) == AuthRole.BLACK:
+                return False
             if not self.msg_checker.check(userLevel, event):
                 await self.__sys_call('echo', event, '权限不够呢 qwq')
                 return False
-        elif self.notice_checker.isNoticeReport(event):
-            if not self.notice_checker.check(("user_id", userLevel), event):
+        elif event.is_notice() and event.notice.is_poke():
+            if self.notice_checker.get_event_lvl(event) == AuthRole.BLACK:
+                return False
+            if not self.notice_checker.check(userLevel, event.notice.user_id):
                 await self.__sys_call('echo', event, '权限不够呢 qwq')
                 return False
         else:
             BOT_LOGGER.error(f"bot 权限校验中遇到了预期外的事件类型：{event}")
             raise BotUnexpectedEvent("权限校验中遇到了预期外的事件类型")
+        return True
 
-    async def __run_cmd(self, event: dict, cmd_func: Callable, *args, **kwargs) -> dict:
+    async def __run_cmd(self, event: BotEvent, cmd_func: Callable, *args, **kwargs) -> dict:
         """
         命令运行方法。
         仅供 tempalte 装饰函数内部使用，用户态运行命令应该使用 call 方法
         """
-        if iscoroutinefunction(cmd_func):
-            action = await cmd_func(event , *args, **kwargs)
-        else:
-            action = await self.loop.run_in_executor(
-                self.pool, cmd_func, event, *args, **kwargs
-            )
-        # 保存本次结束时间点至 cmd store
-        BOT_STORE['cmd'][cmd_func.__name__]['state']['LAST_CALL'] = t.time()
+        action = None
+        # 只有 bot 处于工作状态或指令为生命周期指令时，才执行指令
+        if self.is_bot_working() or cmd_func.__name__ == 'lifecycle':
+            if iscoroutinefunction(cmd_func):
+                action = await cmd_func(event , *args, **kwargs)
+            else:
+                action = await self.loop.run_in_executor(
+                    self.pool, cmd_func, event, *args, **kwargs
+                )
+            # 保存本次结束时间点至 cmd store
+            BOT_STORE['cmd'][cmd_func.__name__]['state']['LAST_CALL'] = t.time()
         return action
 
     def __get_rest_time(self, name: str, interval: int) -> float:
@@ -111,8 +116,8 @@ class ExecInterface(Singleton):
     
     def template(
             self, 
-            aliases: Optional[list]=None, 
-            userLevel: au.UserLevel=au.USER,
+            aliases: list=None, 
+            userLevel: au.UserLevel=AuthRole.USER,
             isLocked: bool=False,
             interval: int=0,
             hasPrefix: bool=False, 
@@ -123,7 +128,7 @@ class ExecInterface(Singleton):
         供命令模板使用的装饰器接口，内部会自动判断方法类型。
         同步任务内部使用 thread_pool 转化为异步任务。
         `aliases`: 命令别称。注意不同命令的别称不能相同
-        `userLevel`: 权限等级。接受 `ExeI.role` 字面量
+        `userLevel`: 权限等级。接受 `AuthRole` 字面量
         `isLocked`: 是否加锁。若需要更细粒度的加锁，在模板内部使用 `ExeI.get_cmd_lock()` 方法获得锁
         `interval`: 命令冷却时间（单位 秒），注意：冷却时间 >0，默认会加锁任务
         `hasPrefix`: 是否添加前缀
@@ -131,7 +136,7 @@ class ExecInterface(Singleton):
         `prompt`: 供帮助使用的命令参数提示
         """
         def warpper(cmd_func: Callable) -> Callable:
-            async def warpped_cmd_func(event: dict, *args, **kwargs) -> dict:
+            async def warpped_cmd_func(event: BotEvent, *args, **kwargs) -> dict:
                 action = None
                 cmd_name = cmd_func.__name__
                 state = BOT_STORE['cmd'][cmd_name]['state']
@@ -174,11 +179,9 @@ class ExecInterface(Singleton):
                     BOT_LOGGER.error(f_cmd_args_str + f'执行失败，原因：预期之外的异常 {e}')
                     return await self.__ret_sys_call('echo', event, f"内部发生异常：[{str(e.__class__.__name__)}] {e}")
                 return action
-
-            nonlocal aliases
-            if aliases is None: aliases = []
+            
             # 命令别称
-            warpped_cmd_func.__aliases__ = aliases
+            warpped_cmd_func.__aliases__ = aliases if aliases is not None else []
             # 权限级别
             warpped_cmd_func.__auth__ = userLevel
             # 用于帮助的注释
@@ -194,7 +197,7 @@ class ExecInterface(Singleton):
             return warpped_cmd_func
         return warpper
 
-    async def call(self, name: str, event: dict, *args, **kwargs) -> dict:
+    async def call(self, name: str, event: BotEvent, *args, **kwargs) -> dict:
         """
         为 bot 内部或命令模板提供调用其他命令的方法，结果 action 会返回给调用方，
         不会直接作为 action  向外部发送。name 参数可传递命令名或别称
@@ -207,7 +210,7 @@ class ExecInterface(Singleton):
         action = await self.cmd_map[cmdName](event, *args, **kwargs)
         return action
 
-    async def __sys_call(self, cmdName: str, event: dict, *args, **kwargs) -> None:
+    async def __sys_call(self, cmdName: str, event: BotEvent, *args, **kwargs) -> None:
         """
         调用系统功能。系统功能调用也是通过命令执行实现。
         一般供 bot 内部在 “在执行非外部命令任务” 时使用，实现更好的逻辑分离。
@@ -217,11 +220,13 @@ class ExecInterface(Singleton):
         if iscoroutinefunction(cmd_func):
             action = await cmd_func(event, *args, **kwargs)
         else:
-            action = cmd_func(event, *args, **kwargs)
+            action = await self.loop.run_in_executor(
+                self.pool, cmd_func, event, *args, **kwargs
+            )
         monitor = BOT_STORE['kernel']['MONITOR']
         await monitor.place_action(action)
     
-    async def __ret_sys_call(self, cmdName: str, event: dict, *args, **kwargs) -> dict:
+    async def __ret_sys_call(self, cmdName: str, event: BotEvent, *args, **kwargs) -> dict:
         """
         和 `__sys_call` 方法类似，但有 action 返回值，而不是直接发送 action
         """
@@ -229,7 +234,9 @@ class ExecInterface(Singleton):
         if iscoroutinefunction(cmd_func):
             action = await cmd_func(event, *args, **kwargs)
         else:
-            action = cmd_func(event, *args, **kwargs)
+            action = await self.loop.run_in_executor(
+                self.pool, cmd_func, event, *args, **kwargs
+            )
         action['cmd_name'] = cmd_func.__name__
         action['cmd_args'] = args
         return action
@@ -267,7 +274,7 @@ class ExecInterface(Singleton):
                 'state': {},
             }
     
-    def load_cmd_funcs(self, cmdMap: dict, sysCmdMap: dict, aliasMap: dict) -> None:
+    def __load_cmd_funcs(self, cmdMap: dict, sysCmdMap: dict, aliasMap: dict) -> None:
         """
         加载命令模板/方法到类中
         """
@@ -277,7 +284,7 @@ class ExecInterface(Singleton):
         self.alias_map = aliasMap
         self.__build_cmd_store()
 
-    def after_loop_init(self) -> None:
+    def __after_loop_init(self) -> None:
         """
         初始化需要在事件循环启动后获得或构建的变量
         """
@@ -289,6 +296,12 @@ class ExecInterface(Singleton):
             # 命令加锁选项为 True 或命令启用冷却机制，都需要在为该命令初始化命令锁
             if cmd_func.__enable_lock__ or cmd_func.__enable_cd__: 
                 state['LOCK'] = aioLock()
+
+    def is_bot_working(self):
+        """
+        判断 bot 是否在工作
+        """
+        return BOT_STORE['kernel']['WORKING_STATUS']
 
     def get_cmd_name(self, name: str) -> str:
         """
@@ -367,8 +380,6 @@ class CmdMapper(Singleton):
         """
         加载模板，即具体的命令执行方法
         """
-        # 提前导入上层路径，这样加载命令模板时，命令模块的内部模块引用就可以正常找到
-        sys.path.append('..')
         templates_path = os.path.join(
             os.path.dirname(__file__), '..', 'templates'
         )
@@ -423,4 +434,4 @@ ExeI = ExecInterface()
 CMD_MAP = CmdMapper().exec_map
 ALIAS_MAP = CmdMapper().alias_map
 SYS_CMD_MAP = CmdMapper().sys_exec_map
-ExeI.load_cmd_funcs(CMD_MAP, SYS_CMD_MAP, ALIAS_MAP)
+ExeI._ExecInterface__load_cmd_funcs(CMD_MAP, SYS_CMD_MAP, ALIAS_MAP)

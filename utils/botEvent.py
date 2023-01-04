@@ -1,4 +1,7 @@
 import re
+import json
+import time as t
+from typing import Union
 
 
 __all__ = ['BotEvent', 'KernelEvent']
@@ -141,7 +144,7 @@ class Msg:
         return False if not hasattr(self, '_Msg__rawEvent') else True
 
     def is_private(self) -> bool:
-        """是否为私聊消息（注意群临时会话不属于该类别）"""
+        """是否为私聊消息（注意群临时会话属于该类别）"""
         if not self.__is_msg(): return False
         return self.__rawEvent['message_type'] == 'private'
 
@@ -152,12 +155,12 @@ class Msg:
             self.__rawEvent['sub_type'] == 'friend'
 
     def is_group(self) -> bool:
-        """是否为群消息（正常群消息、群临时会话、群匿名消息、群自身消息、群系统消息属于该类型）"""
+        """是否为群消息（正常群消息、群匿名消息、群自身消息、群系统消息属于该类型）"""
         if not self.__is_msg(): return False
         return self.__rawEvent['message_type'] == 'group'
 
     def is_group_normal(self) -> bool:
-        """是否为正常消息"""
+        """是否为正常群消息"""
         if not self.__is_msg(): return False
         return self.__rawEvent['message_type'] == 'group' and \
             self.__rawEvent['sub_type'] == 'normal'
@@ -175,10 +178,15 @@ class Msg:
             self.__rawEvent['sub_type'] == 'group_self'
 
     def is_group_temp(self) -> bool:
-        """是否为群临时会话"""
+        """是否为群临时会话（属于私聊的一种）"""
         if not self.__is_msg(): return False
-        return self.__rawEvent['message_type'] == 'group' and \
+        return self.__rawEvent['message_type'] == 'private' and \
             self.__rawEvent['sub_type'] == 'group'
+
+    def is_temp(self) -> bool:
+        """是否为临时会话（属于私聊的一种）"""
+        if not self.__is_msg(): return False
+        return 'temp_source' in self.__rawEvent.keys()
 
     def is_group_notice(self) -> bool:
         """是否为群系统消息"""
@@ -512,7 +520,10 @@ class Kernel:
         """
         # 与其他信息类不同，这里需要取出原事件对象，并转化为 BotEvent
         self.__rawEvent = rawEvent
-        self.origin_event = BotEvent(rawEvent['origin_event'])
+        if rawEvent['origin_event'] is None or isinstance(rawEvent['origin_event'], BotEvent):
+            self.origin_event = rawEvent['origin_event']
+        else:
+            self.origin_event = BotEvent(rawEvent['origin_event'])
 
     def __is_kernel(self) -> None:
         """是否为该类型事件"""
@@ -521,25 +532,97 @@ class Kernel:
     def is_queue_full(self) -> bool:
         """是否为队列满事件"""
         if not self.__is_kernel(): return False
-        return self.__rawEvent['kernel_type'] == 'eq_full'
+        return self.__rawEvent['sub_type'] == 'eq_full'
+
+
+class Resp:
+    """
+    响应事件信息类。
+    具体的响应数据处理不由该类负责，由行为模块内部负责
+    """
+    def __init__(self) -> None:
+        # 响应标识符
+        self.id: str = None
+        # 状态码
+        self.status: int = None
+        # 错误
+        self.err: str = None
+        # 错误提示
+        self.err_prompt: str = None
+        # 响应数据
+        self.data: dict = None
+
+    def __build(self, rawEvent: dict=None) -> None:
+        """
+        外部确认为该类型事件时，调用此方法。
+        """
+        self.__rawEvent = rawEvent
+        if rawEvent['retcode'] == 0: self.status = 200
+        elif rawEvent['retcode'] == 1: self.status = 202
+        else: 
+            self.status = 500
+            self.err = rawEvent['msg']
+            self.err_prompt = rawEvent['wording']
+        if 'echo' in rawEvent.keys(): self.id = rawEvent['echo']
+        if 'data' in rawEvent.keys(): self.data = rawEvent['data']
+
+    def __is_resp(self) -> bool:
+        """是否为该类型事件"""
+        return False if not hasattr(self, '_Resp__rawEvent') else True
+
+    def is_ok(self) -> Union[bool, None]:
+        """
+        判断是否为成功响应
+        （注意由于响应事件一般失败、成功都要处理，此处若不是响应事件，则返回 None，而不是 False）
+        """
+        if not self.__is_resp(): return None
+        return self.status == 200
+
+    def is_processing(self) -> Union[bool, None]:
+        """
+        判断响应是否在被异步处理，即未完成但在处理中
+        （注意由于响应事件一般失败、成功都要处理，此处若不是响应事件，则返回 None，而不是 False）
+        """
+        if not self.__is_resp(): return None
+        return self.status == 202
+
+    def is_failed(self) -> Union[bool, None]:
+        """
+        判断是否为失败响应
+        （注意由于响应事件一般失败、成功都要处理，此处若不是响应事件，则返回 None，而不是 False）
+        """
+        if not self.__is_resp(): return None
+        return self.status == 500
 
 
 class BotEvent:
     """
     Bot 事件类
     """
-    def __init__(self, rawEvent: dict) -> None:
-        self.raw_event: dict = rawEvent
-        self.time: float = rawEvent['time']
-        self.bot_id: int = rawEvent['self_id']
-        self.type: str = rawEvent['post_type']
-        # 为方便各种事件类型的判断，所有类型的信息类都初始化，这样可以暴露各种事件判断的方法接口
+    def __init__(self, rawEvent: Union[dict, str]) -> None:
+        self.raw: dict = rawEvent if isinstance(rawEvent, dict) else json.loads(rawEvent)
+        self.time: float
+        self.bot_id: int
+        self.type: str
+
+        # 响应事件不会有 time、post_type、self_id
+        # 内核事件不会有 self_id
+        if 'post_type' in self.raw.keys():
+            self.time = self.raw['time']
+            self.type = self.raw['post_type']
+        if 'self_id' in self.raw.keys():
+            self.bot_id = self.raw['self_id']
+        # 响应事件判断
+        if 'retcode' in self.raw.keys():
+            self.type = 'response'
+        # 为方便各种事件类型的判断，所有类型的信息类都初始化。这样可以暴露各种事件判断的方法接口
         # 比如外部进行私聊消息判断，就只需要: BotEvent(e).msg.is_private()
         self.msg: Msg = Msg()
         self.req: Req = Req()
         self.notice: Notice = Notice()
         self.meta: Meta = Meta()
         self.kernel: Kernel = Kernel()
+        self.resp: Resp = Resp()
 
         self.__build()
 
@@ -548,49 +631,51 @@ class BotEvent:
         根据类型，构建对应类型的信息
         """
         if self.type == 'message':
-            self.msg._Msg__build(self.raw_event)
+            self.msg._Msg__build(self.raw)
         elif self.type == 'request':
-            self.req._Req__build(self.raw_event)
+            self.req._Req__build(self.raw)
         elif self.type == 'notice':
-            self.notice._Notice__build(self.raw_event)
+            self.notice._Notice__build(self.raw)
         elif self.type == 'meta_event':
-            self.meta._Meta__build(self.raw_event)
+            self.meta._Meta__build(self.raw)
         elif self.type == 'kernel_event':
-            self.kernel._Kernel__build(self.raw_event)
+            self.kernel._Kernel__build(self.raw)
+        elif self.type == 'response':
+            self.resp._Resp__build(self.raw)
+        else:
+            raise ValueError(f"预期之外的事件类型：{self.type}")
     
-    def is_msg(self) -> None:
+    def is_msg(self) -> bool:
         """是否为消息事件"""
         return self.type == 'message'
-    def is_req(self) -> None:
+    def is_req(self) -> bool:
         """是否为请求事件"""
         return self.type == 'request'
-    def is_notice(self) -> None:
+    def is_notice(self) -> bool:
         """是否为通知事件"""
         return self.type == 'notice'
-    def is_meta(self) -> None:
+    def is_meta(self) -> bool:
         """是否为元事件"""
         return self.type == 'meta_event'
-    def is_kernel(self) -> None:
+    def is_kernel(self) -> bool:
         """是否为内核事件"""
         return self.type == 'kernel_event'
+    def is_resp(self) -> bool:
+        """是否为响应事件"""
+        return self.type == 'response'
 
 
 class KernelEvent(BotEvent):
     """
     内核事件类。
-    用于生成内核事件，可以携带触发该内核事件的原事件
+    用于生成内核事件，可以选择携带触发该内核事件的原事件
     """
-    def __init__(self, kernelType: str, rawEvent: dict=None) -> None:
-        self.__origin_event: dict = rawEvent
+    def __init__(self, eventType: str, originEvent: Union[dict, BotEvent, str]=None) -> None:
+        origin_e = json.loads(originEvent) if isinstance(originEvent, str) else originEvent
         self.__raw_e = {
-            'origin_event': self.__origin_event,
-            'time': rawEvent['time'],
-            'self_id': rawEvent['self_id'],
+            'origin_event': origin_e,
+            'time': int(t.time()),
             'post_type': 'kernel_event',
-            'kernel_type': kernelType,
+            'sub_type': eventType,
         }
         super().__init__(self.__raw_e)
-
-
-if __name__ == "__main__":
-    print()

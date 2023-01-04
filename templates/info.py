@@ -1,15 +1,16 @@
-from utils.cmdInterface import ExeI
-from utils.actInterface import Builder, Encoder, msg_send_packer
+from utils.cmdInterface import ExeI, AuthRole
+from utils.botEvent import *
+from utils.botAction import Builder, Encoder, msg_send_packer
 from utils.globalData import BOT_STORE
 
 
 @ExeI.template(
     aliases=['信息'], 
-    userLevel=ExeI.role.USER, 
+    userLevel=AuthRole.USER, 
     comment='获取 bot 信息', 
     prompt='无参数'
 )
-def info(event: dict) -> dict:
+def info(event: BotEvent) -> dict:
     info_list = [
         BOT_STORE['custom']['BOT_NAME'],
         BOT_STORE['kernel']['PROJ_NAME'],

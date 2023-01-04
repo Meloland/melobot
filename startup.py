@@ -2,7 +2,7 @@ import time
 import asyncio as aio
 from monitor import MONITOR
 from utils.globalData import BOT_STORE
-from utils.actInterface import Builder, bot_info_packer, msg_send_packer, Encoder
+from utils.botAction import Builder, bot_info_packer, msg_send_packer, Encoder
 
 
 async def startup():
@@ -17,6 +17,7 @@ async def get_bot_info():
     """
     发送获取 bot 信息的 action
     """
+    # TODO: action 未来重写部分
     action = Builder.build(bot_info_packer.pack())
     await MONITOR.place_prior_action(action)
 
@@ -42,6 +43,7 @@ def schedule_tasks():
         t = get_duration(time.time(), 12, 0, 0)
         aio.sleep(t+3)
         while True:
+            # TODO: action 未来重写部分
             action = Builder.build(
                 msg_send_packer.private_pack(
                     [Encoder.text("中午十二点啦~")],

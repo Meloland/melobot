@@ -35,7 +35,7 @@ BOT_NAME = "MeloBot"
 # 命令起始符
 COMMAND_START = ['~']
 # 命令分隔符
-COMMAND_SEP = ['#']
+COMMAND_SEP = ['#'] 
 """
 
 

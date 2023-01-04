@@ -77,8 +77,7 @@ LOG_CONFIG = {
 
 BOT_LOGGER = log_level = BOT_STORE['operation']['LOG_LEVEL']
 if log_level != None and log_level != "":
-    LOG_CONFIG['handlers']['console_handler']['level'] = \
-        LOG_LEVEL_MAP[log_level]
+    LOG_CONFIG['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[log_level]
 logging.config.dictConfig(LOG_CONFIG)
 BOT_LOGGER = logging.getLogger('the_logger')
 

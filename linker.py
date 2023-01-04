@@ -1,13 +1,14 @@
 import sys
 import websockets
 import traceback
-import json
 import asyncio as aio
 from asyncio import Queue
 import websockets.exceptions as wse
 from utils.globalPattern import *
+from utils.botEvent import *
 from utils.globalData import BOT_STORE
 from utils.botLogger import BOT_LOGGER
+from utils.botAction import action_to_str
 from utils import cmdParser as cp
 from utils import authority as au
 
@@ -31,8 +32,6 @@ class BotLinker(Singleton):
         self.prior_action_q = prior_action_queue
         self.prior_event_q = prior_event_queue
 
-        self.action_formatter = ActionFormatter()
-        self.event_formatter = EventFormatter()
         self.prior_filter = PriorEventFilter()
 
     async def start(self) -> None:
@@ -64,8 +63,9 @@ class BotLinker(Singleton):
         try:
             while True:
                 try:
-                    res = await self.action_q.get()
-                    action = self.action_formatter.format(res)
+                    raw_a = await self.action_q.get()
+                    # TODO: action 未来重写部分
+                    action = action_to_str(raw_a)
                     await self.ws.send(action)
                     await aio.sleep(BOT_STORE['operation']['COOLDOWN_TIME'])
                 except Exception as e:
@@ -84,10 +84,10 @@ class BotLinker(Singleton):
         try:
             while True:
                 try:
-                    res = await self.ws.recv()
+                    raw_e = await self.ws.recv()
                     # 有时 go-cqhttp 会因为无法解析特殊字符问题，导致返回消息为空，这里需要做一次判断
-                    if res == "": continue
-                    event = self.event_formatter.format(res)
+                    if raw_e == "": continue
+                    event = BotEvent(raw_e)
 
                     # 如果识别到优先事件，分拣处理
                     if self.prior_filter.is_prior(event): 
@@ -106,11 +106,8 @@ class BotLinker(Singleton):
                     if self.event_q.full():
                         try:
                             BOT_LOGGER.debug('队满响应机制已触发，生成队满响应事件并尝试放置中...')
-                            temp_event = {
-                                'post_type': BOT_STORE['kernel']['EVENT_TYPE']['eq_full'],
-                                'origin': event
-                            }
-                            t = aio.create_task(self.put_prior_event(temp_event))
+                            ke = KernelEvent('eq_full', originEvent=event)
+                            t = aio.create_task(self.put_prior_event(ke))
                             await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
                             BOT_LOGGER.debug('队满响应事件已成功放置~')
                         except aio.TimeoutError:
@@ -140,8 +137,9 @@ class BotLinker(Singleton):
         try:
             while True:
                 try:
-                    res = await self.prior_action_q.get()
-                    action = self.action_formatter.format(res)
+                    raw_a = await self.prior_action_q.get()
+                    # TODO: action 未来重写部分
+                    action = action_to_str(raw_a)
                     await self.ws.send(action)
                     await aio.sleep(BOT_STORE['operation']['COOLDOWN_TIME'])
                 except Exception as e:
@@ -152,7 +150,7 @@ class BotLinker(Singleton):
         except wse.ConnectionClosedOK:
             pass
 
-    async def put_prior_event(self, event: dict) -> None:
+    async def put_prior_event(self, event: BotEvent) -> None:
         """
         获得来自 put_event 的优先 event，并立即放入优先 event 队列
         """
@@ -175,28 +173,6 @@ class BotLinker(Singleton):
         ]
 
 
-class ActionFormatter(Singleton):
-    """
-    行为格式化类
-    """
-    def __init__(self) -> None:
-        pass
-
-    def format(self, action: dict) -> str:
-        return json.dumps(action)
-
-
-class EventFormatter(Singleton):
-    """
-    事件格式化类
-    """
-    def __init__(self) -> None:
-        pass
-
-    def format(self, event: str) -> dict:
-        return json.loads(event)
-
-
 class PriorEventFilter(Singleton):
     """
     优先事件分拣器
@@ -204,14 +180,11 @@ class PriorEventFilter(Singleton):
     def __init__(self) -> None:
         pass
 
-    def is_prior(self, event: dict) -> bool:
+    def is_prior(self, event: BotEvent) -> bool:
         # 优先事件判断，但不对事件进行修改，事件将由 handler 模块转交给 eventExec 模块负责
-        # 判断流程：是否是上报 > 是否是消息 > 是否是文本消息 > 是否具有 owner 权限 > 是否是优先消息
-        if 'post_type' in event.keys() and \
-            event['post_type'] == 'message' and \
-            event['message'][0]['type'] == 'text' and \
-            au.MSG_CHECKER.check(au.OWNER, event):
-            return cp.EC_PARSER.prior_check(event['raw_message'])
+        # 判断流程：是否是消息 > 文本消息是否为空 > 是否具有 owner 权限 > 是否是优先消息
+        if event.is_msg() and event.msg.text != '' and au.MSG_CHECKER.check(au.SU, event):
+            return cp.EC_PARSER.prior_check(event.msg.text)
 
 
 if __name__ == "__main__":

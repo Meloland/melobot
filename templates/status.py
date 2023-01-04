@@ -1,15 +1,16 @@
-from utils.cmdInterface import ExeI
-from utils.actInterface import Builder, Encoder, msg_send_packer
+from utils.cmdInterface import ExeI, AuthRole
+from utils.botEvent import *
+from utils.botAction import Builder, Encoder, msg_send_packer
 from utils.globalData import BOT_STORE
 
 
 @ExeI.template(
     aliases=['stat', '状态'], 
-    userLevel=ExeI.role.SU, 
+    userLevel=AuthRole.SU, 
     comment='bot 状态',
     prompt='无参数'
 )
-def status(event: dict) -> dict:
+def status(event: BotEvent) -> dict:
     stat_list = [
         BOT_STORE['operation']['TASK_TIMEOUT'],
         BOT_STORE['operation']['COOLDOWN_TIME'],

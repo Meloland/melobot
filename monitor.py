@@ -140,10 +140,7 @@ class BotMonitor(Singleton):
         获取运行时间
         """
         def format_nums(*timeNum: List[int]) -> str:
-            alist = []
-            for num in timeNum:
-                alist.append(str(num) if num >= 10 else '0' + str(num))
-            return alist
+            return [str(num) if num >= 10 else '0' + str(num) for num in timeNum]
         
         worked_time = int(t.time() - self.start_time)
         days = worked_time // 3600 // 24
@@ -151,9 +148,9 @@ class BotMonitor(Singleton):
         mins = worked_time // 60 % 60
         secs = worked_time % 60
         time_str_list = format_nums(days, hours, mins, secs)
-        
         return ":".join(time_str_list)
 
+    # TODO: action 未来重写部分
     async def place_action(self, action: dict) -> None:
         """
         通过 Monitor 暴露的此接口，直接发送 action。
@@ -161,6 +158,7 @@ class BotMonitor(Singleton):
         """
         await self.linker.action_q.put(action)
 
+    # TODO: action 未来重写部分
     async def place_prior_action(self, action: dict) -> None:
         """
         通过 Monitor 暴露的此接口，直接发送 prior action。

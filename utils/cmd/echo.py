@@ -1,4 +1,4 @@
-from utils.actInterface import Builder, Encoder, msg_send_packer
+from utils.botAction import Builder, Encoder, msg_send_packer
 
 
 def echo(event: dict, text: str) -> dict:

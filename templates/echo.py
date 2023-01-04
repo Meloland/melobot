@@ -1,14 +1,15 @@
-from utils.cmdInterface import ExeI
-from utils.actInterface import Builder, Encoder, msg_send_packer
+from utils.cmdInterface import ExeI, AuthRole
+from utils.botEvent import *
+from utils.botAction import Builder, Encoder, msg_send_packer
 
 
 @ExeI.template(
     aliases=['print', '复读'], 
-    userLevel=ExeI.role.USER, 
+    userLevel=AuthRole.USER, 
     comment='复读',
     prompt='无参数'
 )
-def echo(event: dict, text: str) -> dict:
+def echo(event: BotEvent, text: str) -> dict:
     action = Builder.build(
         msg_send_packer.pack(
             event,

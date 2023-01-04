@@ -1,9 +1,11 @@
 from .globalPattern import *
 from .botLogger import BOT_LOGGER
+from .botEvent import *
 from abc import abstractclassmethod, ABC
 from typing import Literal, List, Union
 from copy import deepcopy
 import time as t
+import json
 
 
 class CQEncoder(Singleton):
@@ -16,7 +18,7 @@ class CQEncoder(Singleton):
 
     def escape(self, text: str) -> str:
         """
-        cq 字符转义
+        cq 码特殊字符转义
         """
         return text.replace('&', '&amp;')\
                     .replace('[', '&#91;')\
@@ -25,20 +27,25 @@ class CQEncoder(Singleton):
 
     def anti_escape(self, text: str) -> str:
         """
-        cq 字符逆转义
+        cq 码特殊字符逆转义
         """
         return text.replace('&amp;', '&')\
                     .replace('&#91;', '[')\
                     .replace('&#93;', ']')\
                     .replace('&#44;', ',')
     
-    def text(self, text: str, fromEvent: bool=True, mode: Literal["str", "dict"]="str"):
+    def text(
+        self, 
+        text: str, 
+        fromEvent: bool=True, 
+        isDictRet: bool=True
+    ):
         """
         普通文本消息。
         注意字符串如果是来自事件中的，则不需要转义，因为 cq 传给 bot 时已经转义。
         但如果是来自 bot 内部的，最好转义。
         """
-        if mode == "str":
+        if not isDictRet:
             if fromEvent: return text
             else: return text.replace('&', '&amp;')\
                     .replace('[', '&#91;')\
@@ -50,11 +57,15 @@ class CQEncoder(Singleton):
             }
         }
 
-    def face(self, icon_id: int, mode: Literal["str", "dict"]="str"):
+    def face(
+        self, 
+        icon_id: int, 
+        isDictRet: bool=True
+    ):
         """
         QQ 表情
         """
-        if mode == "str":
+        if not isDictRet:
             return f"[CQ:face,id={icon_id}]"
         else: 
             return {
@@ -64,12 +75,17 @@ class CQEncoder(Singleton):
                 }
             }
     
-    def record(self, url: str, timeout: int=None, 
-                magic: bool=False, mode: Literal["str", "dict"]="str"):
+    def record(
+        self, 
+        url: str, 
+        timeout: int=None, 
+        magic: bool=False, 
+        isDictRet: bool=True
+    ):
         """
         语音消息
         """
-        if mode == "str": 
+        if not isDictRet: 
             url = self.escape(url)
             base = f"[CQ:record,file={url}"
             if magic: base += ',magic=1'
@@ -87,15 +103,19 @@ class CQEncoder(Singleton):
             if timeout: base['data']['timeout'] = timeout
             return base
 
-    def at(self, qq:Union[int ,Literal['all']], notInName: str=None, 
-            mode: Literal["str", "dict"]="str"):
+    def at(
+        self, 
+        qqId:Union[int ,Literal['all']], 
+        notInName: str=None, 
+        isDictRet: bool=True
+    ):
         """
         at 消息。
-        at 所有人时，qq 传 "all"
+        at 所有人时，`qqId` 传 "all"
         """
-        if mode == "str": 
+        if not isDictRet: 
             if notInName: notInName = self.escape(notInName)
-            base =  f"[CQ:at,qq={qq}"
+            base =  f"[CQ:at,qq={qqId}"
             if notInName: base += ',name={notInName}'
             base += ']'
             return base
@@ -103,19 +123,25 @@ class CQEncoder(Singleton):
             base = {
                 "type": "at",
                 "data": {
-                    "qq": qq,
+                    "qq": qqId,
                 }
             }
             if notInName: base['data']['name'] = notInName
             return base
 
-    def share(self, url: str, title: str, content: str=None, 
-                image: str=None, mode: Literal["str", "dict"]="str"):
+    def share(
+        self, 
+        url: str, 
+        title: str, 
+        content: str=None, 
+        image: str=None, 
+        isDictRet: bool=True
+    ):
         """
         链接分享卡片消息。
-        content 为描述语
+        `content` 为描述语
         """
-        if mode == "str": 
+        if not isDictRet:
             url = self.escape(url)
             title = self.escape(title)
             if content: content = self.escape(content)
@@ -139,12 +165,16 @@ class CQEncoder(Singleton):
             return base
     
 
-    def music(self, platType: Literal["qq", "163", "xm"],
-                songId: str, mode: Literal["str", "dict"]="str"):
+    def music(
+        self, 
+        platType: Literal["qq", "163", "xm"],
+        songId: str, 
+        isDictRet: bool=True
+    ):
         """
         音乐分享卡片消息（专有平台）
         """
-        if mode == "str":
+        if not isDictRet:
             return f"[CQ:music,type={platType},id={songId}]"
         else:
             return {
@@ -155,14 +185,20 @@ class CQEncoder(Singleton):
                 }
             }
     
-    def custom_music(self, url: str, audio: str, title: str, 
-                        content: str=None, image: str=None, 
-                        mode: Literal["str", "dict"]="str"):
+    def custom_music(
+        self, 
+        url: str, 
+        audio: str, 
+        title: str, 
+        content: str=None, 
+        image: str=None, 
+        isDictRet: bool=True
+    ):
         """
         自定义音乐分享卡片。
-        url 为主页或网站起始页
+        `url` 为主页或网站起始页
         """
-        if mode == "str": 
+        if not isDictRet: 
             url = self.escape(url)
             audio = self.escape(audio)
             title = self.escape(title)
@@ -188,17 +224,22 @@ class CQEncoder(Singleton):
             if image: base['data']['image'] = image
             return base
     
-    def image(self, file: str, picType: Literal["flash", "show"]=None, 
-                subType: Literal[0, 1]=None, cache: Literal[0, 1]=1,
-                mode: Literal["str", "dict"]="str"):
+    def image(
+        self, 
+        url: str, 
+        picType: Literal["flash", "show"]=None, 
+        subType: Literal[0, 1]=None, 
+        cache: Literal[0, 1]=1,
+        isDictRet: bool=True
+    ):
         """
         图片消息。
-        picType flash 为闪照，show 为秀图，不填为普通图片。
-        subType 只出现在群聊，0 为正常图片，1 为表情包
+        `picType`：flash 为闪照，show 为秀图，不填为普通图片。
+        `subType`：只出现在群聊，0 为正常图片，1 为表情包
         """
-        if mode == "str":
-            file = self.escape(file)
-            base = f"[CQ:image,file={file}"
+        if not isDictRet:
+            url = self.escape(url)
+            base = f"[CQ:image,file={url}"
             if picType: base += f",type={picType}"
             if subType: base += f",subType={subType}"
             if cache: base += f",cache={cache}"
@@ -208,7 +249,7 @@ class CQEncoder(Singleton):
             base = {
                 "type": "image",
                 "data": {
-                    "file": file,
+                    "file": url,
                 }
             }
             if picType: base['data']['type'] = picType
@@ -216,11 +257,15 @@ class CQEncoder(Singleton):
             if cache: base['data']['cache'] = cache
             return base
     
-    def reply(self, messageId: int, mode: Literal["str", "dict"]="str"):
+    def reply(
+        self, 
+        messageId: int, 
+        isDictRet: bool=True
+    ):
         """
         回复消息
         """
-        if mode == "str":
+        if not isDictRet:
             return f"[CQ:reply,id={messageId}]"
         else:
             return {
@@ -230,11 +275,15 @@ class CQEncoder(Singleton):
                 }
             }
 
-    def poke(self, qqId: int, mode: Literal["str", "dict"]="str"):
+    def poke(
+        self, 
+        qqId: int, 
+        isDictRet: bool=True
+    ):
         """
         戳一戳消息
         """
-        if mode == "str":
+        if not isDictRet:
             return f"[CQ:poke,qq={qqId}]"
         else:
             return {
@@ -244,11 +293,15 @@ class CQEncoder(Singleton):
                 }
             }
     
-    def tts(self, text: str, mode: Literal["str", "dict"]="str"):
+    def tts(
+        self, 
+        text: str, 
+        isDictRet: bool=True
+    ):
         """
         腾讯自带 tts 语音消息
         """
-        if mode == "str":
+        if not isDictRet:
             text = self.escape(text)
             return f"[CQ:tts,text={text}]"
         else:
@@ -259,7 +312,12 @@ class CQEncoder(Singleton):
                 }
             }
     
-    def forward(self, nickname: str, qqId: int, cqEncodeMsgs: List[Union[str, dict]]):
+    def forward(
+        self, 
+        nickname: str, 
+        qqId: int, 
+        cqEncodeMsgs: List[Union[str, dict]]
+    ):
         """
         转发类型消息，返回结果为转发结点列表。返回结果只支持 dict 模式。
         """
@@ -314,8 +372,12 @@ class MsgSendPacker(ActionPacker, Singleton):
             "params": {}
         }
     
-    def private_pack(self, cqEncodeMsgs: List[Union[str, dict]], 
-                userId: int, isPureText: bool=False) -> dict:
+    def private_pack(
+        self, 
+        cqEncodeMsgs: List[Union[str, dict]], 
+        userId: int, 
+        isPureText: bool=False
+    ) -> dict:
         """
         私聊消息包装
 
@@ -332,8 +394,12 @@ class MsgSendPacker(ActionPacker, Singleton):
         packed['params']['user_id'] = userId
         return packed
     
-    def group_pack(self, cqEncodeMsgs: List[Union[str, dict]], 
-                groupId: int, isPureText: bool=False) -> dict:
+    def group_pack(
+        self, 
+        cqEncodeMsgs: List[Union[str, dict]], 
+        groupId: int, 
+        isPureText: bool=False
+    ) -> dict:
         """
         群聊消息包装
 
@@ -350,8 +416,12 @@ class MsgSendPacker(ActionPacker, Singleton):
         packed['params']['group_id'] = groupId
         return packed
 
-    def pack(self, event: dict, cqEncodeMsgs: List[Union[str, dict]], 
-                isPureText: bool=False) -> dict:
+    def pack(
+        self, 
+        event: BotEvent, 
+        cqEncodeMsgs: List[Union[str, dict]], 
+        isPureText: bool=False
+    ) -> dict:
         """
         消息包装，根据 event 自动判断应该发送何种消息
 
@@ -359,17 +429,17 @@ class MsgSendPacker(ActionPacker, Singleton):
         一般除特殊情况，不推荐设置为 True。
         """
         packed = {}
-        if event['post_type'] == 'message' in event.keys() and event['message_type'] == 'group':
-            packed =  self.group_pack(cqEncodeMsgs, event['group_id'], isPureText)
-        elif event['post_type'] == 'message' and event['message_type'] == 'private':
-            packed = self.private_pack(cqEncodeMsgs, event['user_id'], isPureText)
-        elif event['post_type'] == 'notice' and event['sub_type'] == 'poke':
-            if 'group_id' in event:
-                packed = self.group_pack(cqEncodeMsgs, event['group_id'], isPureText)
+        if event.msg.is_group():
+            packed =  self.group_pack(cqEncodeMsgs, event.msg.group_id, isPureText)
+        elif event.msg.is_private():
+            packed = self.private_pack(cqEncodeMsgs, event.msg.sender.id, isPureText)
+        elif event.notice.is_poke():
+            if hasattr(event.notice, 'group_id'):
+                packed = self.group_pack(cqEncodeMsgs, event.notice.group_id, isPureText)
             else:
-                packed = self.private_pack(cqEncodeMsgs, event['user_id'], isPureText)
+                packed = self.private_pack(cqEncodeMsgs, event.notice.user_id, isPureText)
         else:
-            BOT_LOGGER.error(f"消息 action 封装错误，事件 {event} 不合法！")
+            BOT_LOGGER.error(f"消息 action 封装错误，事件 {event.raw} 不合法！")
             raise BotUnexpectedEvent("预期之外的 event 事件")
         return packed
 
@@ -385,8 +455,12 @@ class ForwardSendPacker(ActionPacker, Singleton):
             "params": {}
         }
     
-    def private_pack(self, forwardNodes: List[dict], 
-                userId: int, isPureText: bool=False) -> dict:
+    def private_pack(
+        self, 
+        forwardNodes: List[dict], 
+        userId: int, 
+        isPureText: bool=False
+    ) -> dict:
         """
         私聊转发消息包装
 
@@ -400,8 +474,12 @@ class ForwardSendPacker(ActionPacker, Singleton):
         packed['params']['user_id'] = userId
         return packed
     
-    def group_pack(self, forwardNodes: List[dict], 
-                groupId: int, isPureText: bool=False) -> dict:
+    def group_pack(
+        self, 
+        forwardNodes: List[dict], 
+        groupId: int, 
+        isPureText: bool=False
+    ) -> dict:
         """
         群聊转发消息包装
 
@@ -415,8 +493,12 @@ class ForwardSendPacker(ActionPacker, Singleton):
         packed['params']['group_id'] = groupId
         return packed
 
-    def pack(self, event: dict, forwardNodes: List[dict], 
-                isPureText: bool=False) -> dict:
+    def pack(
+        self, 
+        event: BotEvent, 
+        forwardNodes: List[dict], 
+        isPureText: bool=False
+    ) -> dict:
         """
         消息包装，根据 event 自动判断应该发送何种消息
 
@@ -424,17 +506,17 @@ class ForwardSendPacker(ActionPacker, Singleton):
         一般除特殊情况，不推荐设置为 True。
         """
         packed = {}
-        if event['post_type'] == 'message' in event.keys() and event['message_type'] == 'group':
-            packed =  self.group_pack(forwardNodes, event['group_id'], isPureText)
-        elif event['post_type'] == 'message' and event['message_type'] == 'private':
-            packed = self.private_pack(forwardNodes, event['user_id'], isPureText)
-        elif event['post_type'] == 'notice' and event['sub_type'] == 'poke':
-            if 'group_id' in event:
-                packed = self.group_pack(forwardNodes, event['group_id'], isPureText)
+        if event.msg.is_group():
+            packed =  self.group_pack(forwardNodes, event.msg.group_id, isPureText)
+        elif event.msg.is_private():
+            packed = self.private_pack(forwardNodes, event.msg.sender.id, isPureText)
+        elif event.notice.is_poke():
+            if hasattr(event.notice, 'gruop_id'):
+                packed = self.group_pack(forwardNodes, event.notice.group_id, isPureText)
             else:
-                packed = self.private_pack(forwardNodes, event['user_id'], isPureText)
+                packed = self.private_pack(forwardNodes, event.notice.user_id, isPureText)
         else:
-            BOT_LOGGER.error(f"消息 action 封装错误，事件 {event} 不合法！")
+            BOT_LOGGER.error(f"消息 action 封装错误，事件 {event.raw} 不合法！")
             raise BotUnexpectedEvent("预期之外的 event 事件")
         return packed
 
@@ -505,6 +587,13 @@ class ActionBuilder(Singleton):
         resp['params'] = package['params']
         # 一定要 deepcopy，因为这里的类是单例，不拷贝多个 action 将会交叉引用！
         return deepcopy(resp)
+
+
+def action_to_str(action: dict):
+    """
+    转化 action 为字符串，主要供连接器使用
+    """
+    return json.dumps(action)
 
 
 Builder = ActionBuilder()

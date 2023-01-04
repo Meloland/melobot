@@ -1,4 +1,5 @@
 import asyncio as aio
+import sys
 from asyncio import Queue
 from utils.globalPattern import *
 from utils.globalData import BOT_STORE
@@ -6,6 +7,7 @@ from utils.botLogger import BOT_LOGGER
 from monitor import MONITOR
 from handler import BotHandler
 from linker import BotLinker
+sys.path.append('.')
 
 
 class MeloBot(Singleton):
@@ -19,7 +21,6 @@ class MeloBot(Singleton):
         """
         装载 bot 核心实例与异步核心任务至 Monitor，并交由 Monitor 启动和管理
         """
-        BOT_LOGGER.debug('本次运行日志开始...')
         BOT_LOGGER.info("Qbot-MeloBot 版本：v{}, developer: {}".format(
             BOT_STORE['kernel']['VERSION'], BOT_STORE['kernel']['DEVELOPER'])
         )
@@ -52,6 +53,7 @@ class MeloBot(Singleton):
 
 
 if __name__ == "__main__":
+    BOT_LOGGER.debug('本次运行日志开始...')
     the_loop = aio.new_event_loop()
     aio.set_event_loop(the_loop)
     # 键盘中断无法在协程中捕获，因此外层处理
@@ -60,4 +62,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         BOT_LOGGER.debug("接收到键盘中断...")
     BOT_LOGGER.debug("本次运行日志结束...")
-

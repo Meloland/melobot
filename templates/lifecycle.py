@@ -1,6 +1,7 @@
 import asyncio as aio
-from utils.cmdInterface import ExeI
-from utils.actInterface import Builder, Encoder, msg_send_packer
+from utils.cmdInterface import ExeI, AuthRole
+from utils.botEvent import *
+from utils.botAction import Builder, Encoder, msg_send_packer
 from utils.globalPattern import BotCmdExecFailed
 from utils.globalData import BOT_STORE
 from utils.botLogger import BOT_LOGGER
@@ -8,12 +9,12 @@ from utils.botLogger import BOT_LOGGER
 
 @ExeI.template(
     aliases=['life', 'lc'], 
-    userLevel=ExeI.role.SU, 
+    userLevel=AuthRole.SU, 
     isLocked=True,
     comment='生命周期控制',
     prompt='[on / off / close]'
 )
-async def lifecycle(event: dict, subCmd: str) -> dict:
+async def lifecycle(event: BotEvent, subCmd: str) -> dict:
     if subCmd == 'on': 
         return lifecycle_on(event)
     elif subCmd == 'off': 
@@ -24,7 +25,7 @@ async def lifecycle(event: dict, subCmd: str) -> dict:
         raise BotCmdExecFailed("无效的子指令")
 
 
-def lifecycle_on(event: dict) -> dict:
+def lifecycle_on(event: BotEvent) -> dict:
     """
     开启响应功能
     """
@@ -38,7 +39,7 @@ def lifecycle_on(event: dict) -> dict:
     return action
 
 
-def lifecycle_off(event: dict) -> dict:
+def lifecycle_off(event: BotEvent) -> dict:
     """
     关闭响应功能
     """
@@ -52,7 +53,7 @@ def lifecycle_off(event: dict) -> dict:
         return action
 
 
-async def lifecycle_close(event: dict) -> dict:
+async def lifecycle_close(event: BotEvent) -> dict:
     """
     关闭 bot
     """
@@ -68,7 +69,7 @@ async def lifecycle_close(event: dict) -> dict:
     return
 
 
-def text_action(event: dict, text: str) -> dict:
+def text_action(event: BotEvent, text: str) -> dict:
     return Builder.build(
         msg_send_packer.pack(
             event,

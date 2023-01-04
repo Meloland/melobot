@@ -8,6 +8,7 @@ private
 go-cqhttp
 config
 
+dev_plan.todo
 templates/code.py
 templates/weather.py
 templates/translate.py

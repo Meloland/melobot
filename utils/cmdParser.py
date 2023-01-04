@@ -11,7 +11,6 @@ import time
 class StringFilter():
     """
     字符串过滤器，主要用于精确命令解析，对可能干扰命令解析的字符进行过滤
-    但非单例，也可由外部再实例化
     """
     def __init__(self, pattern: str=r'[\'\"\\\r\n\t]') -> None:
         super().__init__()
@@ -24,7 +23,7 @@ class StringFilter():
 class BaseCmdParser(Singleton, ABC):
     """
     命令解析器基类，所有子类应该实现 parse 方法，
-    但注意：parse 方法可以返回空列表，代表没有有效的命令触发
+    但注意：parse 方法可以返回二维空列表，代表没有有效的命令触发
     """
     @abstractmethod
     def parse(self, text: str) -> list:
@@ -35,20 +34,19 @@ class ExactCmdParser(BaseCmdParser, Singleton):
     """
     精确命令解析器，根据消息中指定的命令标志进行解析
     """
-    def __init__(self, cmd_start: list, cmd_sep: list, logger: Logger) -> None:
+    def __init__(self, cmd_start: list, cmd_sep: list) -> None:
         super().__init__()
         self.start_tokens = cmd_start
         self.sep_tokens = cmd_sep
         self.ban_regex = re.compile(r'[\'\"\\ \,\(\)\[\]\{\}a-zA-Z0-9]')
         self.filter = StringFilter()
-        self.LOGGER = logger
         self.single_parse_flag = False
         self.build_parse_regex()
         self.bind_parse_func()
 
         # 命令起始符和命令间隔符不允许包含 引号，逗号，各种括号，反斜杠，数字，英文，空格
         if self.ban_regex.findall(''.join(cmd_sep+cmd_start)):
-            self.LOGGER.error('发生异常：不支持的命令起始符或命令间隔符！')
+            BOT_LOGGER.error('发生异常：不支持的命令起始符或命令间隔符！')
             raise BotUnsupportCmdFlag('不支持的命令起始符或命令间隔符！')
 
     def build_parse_regex(self):
@@ -77,7 +75,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
     
     def parse(self, text: str) -> list:
         """
-        解析 text，获得命令列表，其中每个命令又是一个包含子命令的列表。
+        解析 text，获得命令列表，其中每个命令又是一个包含命令名、参数项的列表。
         注意：结果可能为一个两层空列表
         """
         # 这里留空，具体逻辑将会动态指定
@@ -185,9 +183,9 @@ class TimeCmdParser(BaseCmdParser, Singleton):
         return lowerBound <= time.localtime(unixSec)[3] <= upperBound
 
 
-EC_PARSER = ExactCmdParser(BOT_STORE['cmd']['COMMAND_START'], \
-    BOT_STORE['cmd']['COMMAND_SEP'], \
-    BOT_LOGGER
+EC_PARSER = ExactCmdParser(
+    BOT_STORE['cmd']['COMMAND_START'],
+    BOT_STORE['cmd']['COMMAND_SEP']
 )
 FC_PARSER = FuzzyCmdParser()
 TC_PARSER = TimeCmdParser()
@@ -200,20 +198,20 @@ if __name__ == "__main__":
     from time import perf_counter
     a = perf_counter()
 
-    print(cp.parse("""
-    这是没用的前置消息
-    ~/主命令1#/子命令1!/子命令2
-    ~/主命令2!!/子命令3#/子命令4/#
-    ./主命令3#/#子命令5/!/子命令6////
-    \t\n\n\n\t\t\t\t\n
+    # print(cp.parse("""
+    # 这是没用的前置消息
+    # ~/主命令1#/子命令1!/子命令2
+    # ~/主命令2!!/子命令3#/子命令4/#
+    # ./主命令3#/#子命令5/!/子命令6////
+    # \t\n\n\n\t\t\t\t\n
 
-    """))
-    # print(cp.parse('alsdjfl;ajf'))
+    # """))
+    print(cp.parse(''))
     # print(fp.parse('12341234', '4'))
     # print(tp.parse(time.time(), 6, 21))
 
     b = perf_counter()
 
-    cp = ExactCmdParser(['.', '~'], ['#', '.'], None)
-    print(cp.parse('\n\t   这是没用的前置消息 #prior.restart,setting.init!123  \t\n'))
+    # cp = ExactCmdParser(['.', '~'], ['#', '.'], None)
+    # print(cp.parse('\n\t   这是没用的前置消息 #prior.restart,setting.init!123  \t\n'))
     print(b-a)

@@ -1,16 +1,16 @@
-from utils.cmdInterface import ExeI
-from utils.actInterface import Builder, Encoder, msg_send_packer
-from utils.globalData import BOT_STORE
+from utils.cmdInterface import ExeI, AuthRole
+from utils.botEvent import *
+from utils.botAction import Builder, Encoder, msg_send_packer
 from utils.globalPattern import *
 
 
 @ExeI.template(
     aliases=['帮助', 'h'], 
-    userLevel=ExeI.role.USER, 
+    userLevel=AuthRole.USER, 
     comment='获取帮助',
     prompt='[命令名]'
 )
-def help(event: dict, queryCmdName: str=None) -> dict:
+def help(event: BotEvent, queryCmdName: str=None) -> dict:
     if not queryCmdName:
         u_lvl = ExeI.msg_checker.get_event_lvl(event)
 
@@ -35,7 +35,7 @@ def help(event: dict, queryCmdName: str=None) -> dict:
     )
 
 
-def help_detail(event: dict, queryName: str) -> dict:
+def help_detail(event: BotEvent, queryName: str) -> dict:
     u_lvl = ExeI.msg_checker.get_event_lvl(event)
 
     try:
