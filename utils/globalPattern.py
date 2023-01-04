@@ -8,14 +8,6 @@ class Singleton:
         return cls._instance
 
 
-class BotEvent(dict):
-    pass
-
-
-class BotAction(dict):
-    pass
-
-
 class BotException(Exception):
     """
     bot 异常基类
