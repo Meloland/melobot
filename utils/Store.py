@@ -1,7 +1,7 @@
 import os
 import json
-from .globalPattern import *
-from .config import ConfigManager
+from .Definition import *
+from .Config import ConfigManager
 
 
 BOT_STORE = {}

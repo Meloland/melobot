@@ -1,7 +1,7 @@
-from utils.cmdInterface import ExeI, AuthRole
-from utils.botEvent import *
-from utils.botAction import Builder, Encoder, msg_send_packer
-from utils.globalPattern import *
+from utils.Interface import ExeI, AuthRole
+from utils.Event import *
+from utils.Action import Builder, Encoder, msg_send_packer
+from utils.Definition import *
 
 
 @ExeI.template(

@@ -1,10 +1,10 @@
 import asyncio as aio
-from utils.cmdInterface import ExeI, AuthRole
-from utils.botEvent import *
-from utils.botAction import Builder, Encoder, msg_send_packer
-from utils.globalPattern import BotCmdExecFailed
-from utils.globalData import BOT_STORE
-from utils.botLogger import BOT_LOGGER
+from utils.Interface import ExeI, AuthRole
+from utils.Event import *
+from utils.Action import Builder, Encoder, msg_send_packer
+from utils.Definition import BotCmdExecFailed
+from utils.Store import BOT_STORE
+from utils.Logger import BOT_LOGGER
 
 
 @ExeI.template(

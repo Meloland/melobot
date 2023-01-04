@@ -1,6 +1,6 @@
-from .globalPattern import *
-from .globalData import BOT_STORE
-from .botLogger import BOT_LOGGER
+from .Definition import *
+from .Store import BOT_STORE
+from .Logger import BOT_LOGGER
 from logging import Logger
 from re import Pattern
 from abc import abstractmethod, ABC

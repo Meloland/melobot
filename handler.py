@@ -1,11 +1,11 @@
 import asyncio as aio
 import traceback
 from asyncio import Queue
-from utils.globalPattern import *
-from utils.botEvent import *
-from utils.globalData import BOT_STORE
-from utils.botLogger import BOT_LOGGER
-from utils.eventProcess import EventProcesser
+from utils.Definition import *
+from utils.Event import *
+from utils.Store import BOT_STORE
+from utils.Logger import BOT_LOGGER
+from utils.Processor import EventProcesser
 
 
 class BotHandler:
@@ -38,7 +38,7 @@ class BotHandler:
                         t = aio.create_task(self.put_action(action))
                         await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
                         BOT_LOGGER.info(
-                            f"在 {name} 调度器，命令 {action['cmd_name']} {' | '.join(action['cmd_args'])} 执行成功√"
+                            f"命令 {action['cmd_name']} {' | '.join(action['cmd_args'])} 执行成功√"
                         )
                 except aio.TimeoutError:
                     pass
@@ -46,7 +46,7 @@ class BotHandler:
                     BOT_LOGGER.warning(f'出现 bot 未知事件：{event.raw}')
                 except Exception as e:
                     BOT_LOGGER.debug(traceback.format_exc())
-                    BOT_LOGGER.error(f'{name} 调度器内部发生预期外的异常：{e}，事件为：{event.raw}（bot 仍在运行）')
+                    BOT_LOGGER.error(f'内部发生预期外的异常：{e}，事件为：{event.raw}（bot 仍在运行）')
         except aio.CancelledError:
                 BOT_LOGGER.debug(f'handler.get_event {name} 已被卸载')
 
@@ -77,7 +77,7 @@ class BotHandler:
                         await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
                         # TODO: action 未来重写部分
                         BOT_LOGGER.info(
-                            f"在 {name} 调度器，命令 {prior_action['cmd_name']} {' | '.join(prior_action['cmd_args'])} 执行成功√"
+                            f"命令 {prior_action['cmd_name']} {' | '.join(prior_action['cmd_args'])} 执行成功√"
                         )
                 except aio.TimeoutError:
                     pass
@@ -85,7 +85,7 @@ class BotHandler:
                     BOT_LOGGER.warning(f'出现 bot 未知事件：{prior_event.raw}')
                 except Exception as e:
                     BOT_LOGGER.debug(traceback.format_exc())
-                    BOT_LOGGER.error(f'{name} 调度器内部发生预期外的异常：{e}，优先事件对象为：{prior_event.raw}（bot 仍在运行）')
+                    BOT_LOGGER.error(f'内部发生预期外的异常：{e}，优先事件对象为：{prior_event.raw}（bot 仍在运行）')
         except aio.CancelledError:
             BOT_LOGGER.debug(f'handler.get_prior_event {name} 已被卸载')
         

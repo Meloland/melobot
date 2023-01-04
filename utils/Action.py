@@ -1,6 +1,6 @@
-from .globalPattern import *
-from .botLogger import BOT_LOGGER
-from .botEvent import *
+from .Definition import *
+from .Logger import BOT_LOGGER
+from .Event import *
 from abc import abstractclassmethod, ABC
 from typing import Literal, List, Union
 from copy import deepcopy

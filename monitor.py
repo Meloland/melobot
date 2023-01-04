@@ -5,11 +5,11 @@ import datetime as dt
 import os
 import importlib.util as iplu
 from typing import Coroutine, List
-from utils.globalPattern import *
-from utils.globalData import BOT_STORE
-from utils.botLogger import BOT_LOGGER
-from linker import BotLinker
-from handler import BotHandler
+from utils.Definition import *
+from utils.Store import BOT_STORE
+from utils.Logger import BOT_LOGGER
+from Linker import BotLinker
+from Handler import BotHandler
 
 
 class BotMonitor(Singleton):
@@ -89,7 +89,7 @@ class BotMonitor(Singleton):
         spec = iplu.spec_from_file_location(
             'foo',
             os.path.join(
-                os.path.dirname(__file__), 'startup.py'
+                os.path.dirname(__file__), 'Startup.py'
             )
         )
         foo = iplu.module_from_spec(spec)

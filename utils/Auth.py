@@ -1,6 +1,6 @@
-from .globalPattern import *
-from .globalData import BOT_STORE
-from .botEvent import *
+from .Definition import *
+from .Store import BOT_STORE
+from .Event import *
 from abc import abstractclassmethod, ABC
 from typing import NewType, List
 
@@ -17,7 +17,7 @@ BLACK = UserLevel(-1)
 
 class BaseAuthChecker(ABC):
     """
-    权限校验器基类，所有权限校验器子类应该实现 check 方法
+    权限校验器基类
     """
     def __init__(self) -> None:
         super().__init__()
@@ -29,11 +29,6 @@ class BaseAuthChecker(ABC):
             USER: 'user',
             BLACK: 'black'
         }
-    
-    @abstractclassmethod
-    def check(self, threshold_lvl: int, event: BotEvent):
-        pass
-
 
 class MsgAuthChecker(BaseAuthChecker, Singleton):
     """

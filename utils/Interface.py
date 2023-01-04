@@ -6,11 +6,11 @@ from asyncio import Lock as aioLock, iscoroutinefunction
 from threading import Lock as tLock, current_thread, main_thread
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Union
-from .globalPattern import *
-from .globalData import BOT_STORE
-from .botLogger import BOT_LOGGER
-from .botEvent import *
-from . import authority as au
+from .Definition import *
+from .Store import BOT_STORE
+from .Logger import BOT_LOGGER
+from .Event import *
+from . import Auth as au
 
 
 __all__ = ['AuthRole', 'ExeI']
@@ -69,13 +69,11 @@ class ExecInterface(Singleton):
             if self.msg_checker.get_event_lvl(event) == AuthRole.BLACK:
                 return False
             if not self.msg_checker.check(userLevel, event):
-                await self.__sys_call('echo', event, '权限不够呢 qwq')
                 return False
         elif event.is_notice() and event.notice.is_poke():
             if self.notice_checker.get_event_lvl(event) == AuthRole.BLACK:
                 return False
             if not self.notice_checker.check(userLevel, event.notice.user_id):
-                await self.__sys_call('echo', event, '权限不够呢 qwq')
                 return False
         else:
             BOT_LOGGER.error(f"bot 权限校验中遇到了预期外的事件类型：{event}")

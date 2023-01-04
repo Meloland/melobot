@@ -1,12 +1,12 @@
 import asyncio as aio
 from random import random, choice
 from abc import abstractmethod, ABC
-from .globalPattern import *
-from .globalData import BOT_STORE
-from .botEvent import *
-from .botLogger import BOT_LOGGER
-from . import cmdParser as cp
-from .cmdInterface import ExeI
+from .Definition import *
+from .Store import BOT_STORE
+from .Event import *
+from .Logger import BOT_LOGGER
+from . import Parser as cp
+from .Interface import ExeI
 
 
 class BaseCmdExecutor(ABC, Singleton):

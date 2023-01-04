@@ -1,7 +1,7 @@
 import os
 import sys
 import toml
-from .globalPattern import *
+from .Definition import *
 
 
 defaultConfigText = \
@@ -18,7 +18,7 @@ CONNECT_PORT = 8080
 
 # 个性化配置
 [custom]
-# bot owner（只能设置一个人），拥有最高权限，只有 owner 可以发送优先命令和一些生命周期命令
+# bot owner（只能设置一个人），拥有最高权限
 OWNER = -1
 # 群聊使用白名单机制：必须白名单内的群才能触发 bot 行为
 WHITE_GROUP_LIST = []

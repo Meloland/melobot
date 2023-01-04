@@ -2,8 +2,8 @@ import logging.handlers
 import logging.config
 import logging
 from logging import DEBUG, INFO, WARN, WARNING, ERROR, CRITICAL
-from .globalPattern import *
-from .globalData import BOT_STORE
+from .Definition import *
+from .Store import BOT_STORE
 
 
 BOT_LOGGER = None

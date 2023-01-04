@@ -4,13 +4,13 @@ import traceback
 import asyncio as aio
 from asyncio import Queue
 import websockets.exceptions as wse
-from utils.globalPattern import *
-from utils.botEvent import *
-from utils.globalData import BOT_STORE
-from utils.botLogger import BOT_LOGGER
-from utils.botAction import action_to_str
-from utils import cmdParser as cp
-from utils import authority as au
+from utils.Definition import *
+from utils.Event import *
+from utils.Store import BOT_STORE
+from utils.Logger import BOT_LOGGER
+from utils.Action import action_to_str
+from utils import Parser as cp
+from utils import Auth as au
 
 
 class BotLinker(Singleton):
