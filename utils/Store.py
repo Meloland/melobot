@@ -32,7 +32,7 @@ if BOT_STORE['operation']['WORKING_TIME'] <= 0:
     BOT_STORE['operation']['WORKING_TIME'] = None
 
 BOT_KERNEL_INFO = {
-    'VERSION': '1.2.0',
+    'VERSION': '2-dev#618dd5f',
     # 可以更改，但请同时注明 律回MelodyEcho 的名字
     'DEVELOPER': '律回MelodyEcho',
     # 也可以更改，但请同时保留原地址或注明原项目名

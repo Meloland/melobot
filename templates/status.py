@@ -1,6 +1,6 @@
 from utils.Interface import ExeI, AuthRole
 from utils.Event import *
-from utils.Action import Builder, Encoder, msg_send_packer
+from utils.Action import BotAction, msg_action
 from utils.Store import BOT_STORE
 
 
@@ -10,7 +10,7 @@ from utils.Store import BOT_STORE
     comment='bot 状态',
     prompt='无参数'
 )
-def status(event: BotEvent) -> dict:
+def status(event: BotEvent) -> BotAction:
     stat_list = [
         BOT_STORE['operation']['TASK_TIMEOUT'],
         BOT_STORE['operation']['COOLDOWN_TIME'],
@@ -36,10 +36,10 @@ def status(event: BotEvent) -> dict:
  ● 可工作的调度器数：{} \n\
     \n启动时间：{} \n已运行时间：{}".format(*stat_list)
 
-    action = Builder.build(
-        msg_send_packer.pack(
-            event,
-            [Encoder.text(stat_str, fromEvent=False)],
-        )
+    return msg_action(
+        stat_str,
+        event.msg.is_private(),
+        event.msg.sender.id,
+        event.msg.group_id,
+        True
     )
-    return action

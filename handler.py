@@ -1,8 +1,10 @@
 import asyncio as aio
 import traceback
 from asyncio import Queue
+from typing import List, Coroutine
 from utils.Definition import *
 from utils.Event import *
+from utils.Action import BotAction
 from utils.Store import BOT_STORE
 from utils.Logger import BOT_LOGGER
 from utils.Processor import EventProcesser
@@ -37,9 +39,10 @@ class BotHandler:
                     for action in actions:
                         t = aio.create_task(self.put_action(action))
                         await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
-                        BOT_LOGGER.info(
-                            f"命令 {action['cmd_name']} {' | '.join(action['cmd_args'])} 执行成功√"
-                        )
+
+                        cmd_args = ' | '.join(action.cmd_args)
+                        if len(cmd_args) > 30: cmd_args = cmd_args[:40] + '...'
+                        BOT_LOGGER.info(f"命令 {action.cmd_name} {cmd_args} 执行成功√")
                 except aio.TimeoutError:
                     pass
                 except BotUnknownEvent:
@@ -50,8 +53,7 @@ class BotHandler:
         except aio.CancelledError:
                 BOT_LOGGER.debug(f'handler.get_event {name} 已被卸载')
 
-    # TODO: action 未来重写部分
-    async def put_action(self, action: dict) -> None:
+    async def put_action(self, action: BotAction) -> None:
         """
         放置指定的 action 到 action 队列
         """
@@ -75,9 +77,11 @@ class BotHandler:
                     for prior_action in prior_actions:
                         t = aio.create_task(self.put_prior_action(prior_action))
                         await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
-                        # TODO: action 未来重写部分
+
+                        cmd_args = ' | '.join(prior_action.cmd_args)
+                        if len(cmd_args) > 30: cmd_args = cmd_args[:30] + '...'
                         BOT_LOGGER.info(
-                            f"命令 {prior_action['cmd_name']} {' | '.join(prior_action['cmd_args'])} 执行成功√"
+                            f"命令 {prior_action.cmd_name} {cmd_args} 执行成功√"
                         )
                 except aio.TimeoutError:
                     pass
@@ -89,8 +93,7 @@ class BotHandler:
         except aio.CancelledError:
             BOT_LOGGER.debug(f'handler.get_prior_event {name} 已被卸载')
         
-    # TODO: action 未来重写部分
-    async def put_prior_action(self, prior_action: dict) -> None:
+    async def put_prior_action(self, prior_action: BotAction) -> None:
         """
         放置指定的优先 action 到 优先 action 队列
         """
@@ -102,15 +105,15 @@ class BotHandler:
             BOT_LOGGER.debug('优先行为放置因超时而被取消')
     
 
-    def coro_getter(self) -> None:
+    def coro_getter(self) -> List[Coroutine]:
         """
         返回 handler 所有核心的异步协程给主模块，
         多开一些协程，以尽可能实现对大量事件的异步响应。
         """
         num = BOT_STORE['kernel']['EVENT_HANDLER_NUM']
         coro_list = []
-        for i in range(int(num)):
-            coro_list.append(self.get_event(name=f"h{i+1}"))
-        for j in range(int(num/4)):
-            coro_list.append(self.get_prior_event(name=f"ph{j+1}"))
+        for _ in range(int(num)):
+            coro_list.append(self.get_event(name=f"h{_+1}"))
+        for _ in range(int(num/4)):
+            coro_list.append(self.get_prior_event(name=f"ph{_+1}"))
         return coro_list

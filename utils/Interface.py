@@ -5,11 +5,13 @@ import importlib.util as iplu
 from asyncio import Lock as aioLock, iscoroutinefunction
 from threading import Lock as tLock, current_thread, main_thread
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, Union
+from typing import Callable, Union, List
+from copy import deepcopy
 from .Definition import *
 from .Store import BOT_STORE
 from .Logger import BOT_LOGGER
 from .Event import *
+from .Action import BotAction
 from . import Auth as au
 
 
@@ -77,10 +79,10 @@ class ExecInterface(Singleton):
                 return False
         else:
             BOT_LOGGER.error(f"bot 权限校验中遇到了预期外的事件类型：{event}")
-            raise BotUnexpectedEvent("权限校验中遇到了预期外的事件类型")
+            raise BotUnexpectEvent("权限校验中遇到了预期外的事件类型")
         return True
 
-    async def __run_cmd(self, event: BotEvent, cmd_func: Callable, *args, **kwargs) -> dict:
+    async def __run_cmd(self, event: BotEvent, cmd_func: Callable, *args, **kwargs) -> BotAction:
         """
         命令运行方法。
         仅供 tempalte 装饰函数内部使用，用户态运行命令应该使用 call 方法
@@ -134,7 +136,7 @@ class ExecInterface(Singleton):
         `prompt`: 供帮助使用的命令参数提示
         """
         def warpper(cmd_func: Callable) -> Callable:
-            async def warpped_cmd_func(event: BotEvent, *args, **kwargs) -> dict:
+            async def warpped_cmd_func(event: BotEvent, *args, **kwargs) -> BotAction:
                 action = None
                 cmd_name = cmd_func.__name__
                 state = BOT_STORE['cmd'][cmd_name]['state']
@@ -161,10 +163,10 @@ class ExecInterface(Singleton):
                             action = await self.__run_cmd(event, cmd_func, *args, **kwargs)
 
                     if action != None:
-                        self.__add_prefix(action, [cmd_name, *args]) if hasPrefix else None
+                        action = self.__add_prefix(action, [cmd_name, *args]) if hasPrefix else action
                         # 在 action 中封装 cmd_name 和 cmd_args，方便后续模块日志调用
-                        action['cmd_name'] = cmd_name
-                        action['cmd_args'] = args
+                        action.cmd_name = cmd_name
+                        action.cmd_args = args
                 except aio.CancelledError:
                     BOT_LOGGER.error(f_cmd_args_str + '执行失败，原因：超时，尝试发送提示消息中...')
                 except (TypeError, ValueError):
@@ -195,7 +197,7 @@ class ExecInterface(Singleton):
             return warpped_cmd_func
         return warpper
 
-    async def call(self, name: str, event: BotEvent, *args, **kwargs) -> dict:
+    async def call(self, name: str, event: BotEvent, *args, **kwargs) -> BotAction:
         """
         为 bot 内部或命令模板提供调用其他命令的方法，结果 action 会返回给调用方，
         不会直接作为 action  向外部发送。name 参数可传递命令名或别称
@@ -224,7 +226,7 @@ class ExecInterface(Singleton):
         monitor = BOT_STORE['kernel']['MONITOR']
         await monitor.place_action(action)
     
-    async def __ret_sys_call(self, cmdName: str, event: BotEvent, *args, **kwargs) -> dict:
+    async def __ret_sys_call(self, cmdName: str, event: BotEvent, *args, **kwargs) -> BotAction:
         """
         和 `__sys_call` 方法类似，但有 action 返回值，而不是直接发送 action
         """
@@ -235,16 +237,18 @@ class ExecInterface(Singleton):
             action = await self.loop.run_in_executor(
                 self.pool, cmd_func, event, *args, **kwargs
             )
-        action['cmd_name'] = cmd_func.__name__
-        action['cmd_args'] = args
+        action.cmd_name = cmd_func.__name__
+        action.cmd_args = args
         return action
 
-    def __add_prefix(self, action: dict, cmd_seq: list) -> None:
+    def __add_prefix(self, action: BotAction, cmd_seq: list) -> BotAction:
         """
         为每个 action 添加原指令名称和参数的 prefix，方便区分结果来源于哪条指令
         直接修改，不返回结果
         """ 
+        origin_a = deepcopy(action)
         # 只有为消息 action 时才触发
+        action = action.extract()
         if 'message' in action['params'].keys():
             origin_ans = action['params']['message']
             prefix = f"[cmd]: {cmd_seq[0]}\n[args]: [{'] ['.join(cmd_seq[1:])}]\n\n"
@@ -261,6 +265,8 @@ class ExecInterface(Singleton):
             # 为 dict list 时
             else:
                 action['params']['message'].insert(0, {"type": "text","data": {"text": prefix,}})
+            origin_a.params = action['params']
+        return origin_a
 
     def __build_cmd_store(self) -> None:
         """
@@ -312,7 +318,7 @@ class ExecInterface(Singleton):
         else:
             raise BotUnknownCmdName("无效的命令名或命令别称")
 
-    def get_cmd_aliases(self, name: str) -> list:
+    def get_cmd_aliases(self, name: str) -> List[str]:
         """
         供外部获取指定命令的所有别称，可使用命令名或别称
         """

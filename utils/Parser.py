@@ -1,7 +1,7 @@
 from .Definition import *
 from .Store import BOT_STORE
 from .Logger import BOT_LOGGER
-from logging import Logger
+from typing import List, Union
 from re import Pattern
 from abc import abstractmethod, ABC
 import re
@@ -26,7 +26,7 @@ class BaseCmdParser(Singleton, ABC):
     但注意：parse 方法可以返回二维空列表，代表没有有效的命令触发
     """
     @abstractmethod
-    def parse(self, text: str) -> list:
+    def parse(self, text: str) -> List[List[str]]:
         pass
 
 
@@ -47,7 +47,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         # 命令起始符和命令间隔符不允许包含 引号，逗号，各种括号，反斜杠，数字，英文，空格
         if self.ban_regex.findall(''.join(cmd_sep+cmd_start)):
             BOT_LOGGER.error('发生异常：不支持的命令起始符或命令间隔符！')
-            raise BotUnsupportCmdFlag('不支持的命令起始符或命令间隔符！')
+            raise BotWrongCmdFlag('不支持的命令起始符或命令间隔符！')
 
     def build_parse_regex(self):
         """
@@ -73,7 +73,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         else:
             BOT_STORE['kernel']['CMD_MODE'] = 'multiple'
     
-    def parse(self, text: str) -> list:
+    def parse(self, text: str) -> List[List[str]]:
         """
         解析 text，获得命令列表，其中每个命令又是一个包含命令名、参数项的列表。
         注意：结果可能为一个两层空列表
@@ -91,7 +91,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         else:
             self.parse = self.multi_parse
     
-    def single_parse(self, text: str, textFilter=True) -> list:
+    def single_parse(self, text: str, textFilter=True) -> List[List[str]]:
         """
         解析 text，获得命令列表，其中每个命令又是一个包含子命令的列表
         模式：单解析模式
@@ -103,7 +103,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         return [cmd_strings] if len(cmd_strings) else [[]]
 
     
-    def multi_parse(self, text: str, textFilter=True) -> list:
+    def multi_parse(self, text: str, textFilter=True) -> List[List[str]]:
         """
         解析 text，获得命令列表，其中每个命令又是一个包含子命令的列表
         模式：多解析模式
@@ -116,7 +116,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         cmd_list = list(filter(lambda x: x != [], cmd_list))
         return cmd_list if len(cmd_list) else [[]]
     
-    def split_string(self, string: str, regex: Pattern, popFirst=True) -> list:
+    def split_string(self, string: str, regex: Pattern, popFirst=True) -> List[str]:
         """
         按照指定正则 pattern，对 string 进行分割
         """

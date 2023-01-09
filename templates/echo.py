@@ -1,6 +1,7 @@
 from utils.Interface import ExeI, AuthRole
+from utils.Definition import *
 from utils.Event import *
-from utils.Action import Builder, Encoder, msg_send_packer
+from utils.Action import msg_action, BotAction
 
 
 @ExeI.template(
@@ -9,11 +10,11 @@ from utils.Action import Builder, Encoder, msg_send_packer
     comment='复读',
     prompt='无参数'
 )
-def echo(event: BotEvent, text: str) -> dict:
-    action = Builder.build(
-        msg_send_packer.pack(
-            event,
-            [Encoder.text(text)],
-        )
+def echo(event: BotEvent, text: str) -> BotAction:
+    return msg_action(
+        text,
+        event.msg.is_private(),
+        event.msg.sender.id,
+        event.msg.group_id,
+        True
     )
-    return action

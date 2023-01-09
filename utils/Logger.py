@@ -4,6 +4,8 @@ import logging
 from logging import DEBUG, INFO, WARN, WARNING, ERROR, CRITICAL
 from .Definition import *
 from .Store import BOT_STORE
+from typing import Callable, List, Union
+from functools import wraps
 
 
 BOT_LOGGER = None
@@ -76,8 +78,6 @@ LOG_CONFIG = {
 
 
 BOT_LOGGER = log_level = BOT_STORE['operation']['LOG_LEVEL']
-if log_level != None and log_level != "":
-    LOG_CONFIG['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[log_level]
+LOG_CONFIG['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[log_level]
 logging.config.dictConfig(LOG_CONFIG)
 BOT_LOGGER = logging.getLogger('the_logger')
-

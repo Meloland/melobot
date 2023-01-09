@@ -1,6 +1,6 @@
 from utils.Interface import ExeI, AuthRole
 from utils.Event import *
-from utils.Action import Builder, Encoder, msg_send_packer
+from utils.Action import msg_action, BotAction
 from utils.Store import BOT_STORE
 
 
@@ -10,7 +10,7 @@ from utils.Store import BOT_STORE
     comment='权限检查',
     prompt='无参数'
 )
-def auth(event: BotEvent) -> dict:
+def auth(event: BotEvent) -> BotAction:
     u_lvl = ExeI.msg_checker.get_event_lvl(event)
 
     if event.msg.is_group():
@@ -32,12 +32,10 @@ def auth(event: BotEvent) -> dict:
     auth_str = "{} 对 {} 拥有权限：\
     \nowner：{}\nsuperuser：{}\nwhite：{}\nuser：{}".format(*alist)
 
-    action = Builder.build(
-        msg_send_packer.pack(
-            event,
-            [
-                Encoder.text(auth_str)
-            ],
-        )
+    return msg_action(
+        auth_str,
+        event.msg.is_private(),
+        event.msg.sender.id,
+        event.msg.group_id,
+        True
     )
-    return action

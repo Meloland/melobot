@@ -1,11 +1,12 @@
-import asyncio as aio
-import traceback
-import time as t
-import datetime as dt
 import os
+import traceback
+import time as time
+import asyncio as aio
+import datetime as dt
 import importlib.util as iplu
 from typing import Coroutine, List
 from utils.Definition import *
+from utils.Action import BotAction
 from utils.Store import BOT_STORE
 from utils.Logger import BOT_LOGGER
 from Linker import BotLinker
@@ -19,7 +20,7 @@ class BotMonitor(Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.start_time = t.time()
+        self.start_time = time.time()
         self.format_start_time = dt.datetime.now().strftime('%m-%d %H:%M:%S')
         self.linker = None
         self.handler = None
@@ -142,7 +143,7 @@ class BotMonitor(Singleton):
         def format_nums(*timeNum: List[int]) -> str:
             return [str(num) if num >= 10 else '0' + str(num) for num in timeNum]
         
-        worked_time = int(t.time() - self.start_time)
+        worked_time = int(time.time() - self.start_time)
         days = worked_time // 3600 // 24
         hours = worked_time // 3600 % 24
         mins = worked_time // 60 % 60
@@ -150,16 +151,14 @@ class BotMonitor(Singleton):
         time_str_list = format_nums(days, hours, mins, secs)
         return ":".join(time_str_list)
 
-    # TODO: action 未来重写部分
-    async def place_action(self, action: dict) -> None:
+    async def place_action(self, action: BotAction) -> None:
         """
         通过 Monitor 暴露的此接口，直接发送 action。
         一般用于非命令执行中的行为发送
         """
         await self.linker.action_q.put(action)
 
-    # TODO: action 未来重写部分
-    async def place_prior_action(self, action: dict) -> None:
+    async def place_prior_action(self, action: BotAction) -> None:
         """
         通过 Monitor 暴露的此接口，直接发送 prior action。
         一般用于非命令执行中的行为发送

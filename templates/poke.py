@@ -1,6 +1,6 @@
 from utils.Interface import ExeI, AuthRole
 from utils.Event import *
-from utils.Action import Builder, Encoder, msg_send_packer
+from utils.Action import msg_action, poke_msg, BotAction
 
 @ExeI.template(
     aliases=['戳'],
@@ -8,15 +8,15 @@ from utils.Action import Builder, Encoder, msg_send_packer
     comment='让 bot 戳一戳你',
     prompt='无参数'
 )
-def poke(event: BotEvent) -> dict:
+def poke(event: BotEvent) -> BotAction:
     if event.is_msg():
         user_id = event.msg.sender.id
     elif event.is_notice():
         user_id = event.notice.operator_id
-    action = Builder.build(
-        msg_send_packer.pack(
-            event,
-            [Encoder.poke(user_id, "dict")]
-        )
+    return msg_action(
+        poke_msg(user_id),
+        event.msg.is_private(),
+        user_id,
+        event.msg.group_id,
+        True
     )
-    return action

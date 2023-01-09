@@ -1,9 +1,11 @@
 import asyncio as aio
 from random import random, choice
 from abc import abstractmethod, ABC
+from typing import List
 from .Definition import *
 from .Store import BOT_STORE
 from .Event import *
+from .Action import BotAction
 from .Logger import BOT_LOGGER
 from . import Parser as cp
 from .Interface import ExeI
@@ -19,7 +21,7 @@ class BaseCmdExecutor(ABC, Singleton):
         super().__init__()
         self.ExeI = ExeI
     
-    async def exec_cmd_list(self, event: BotEvent, cmd_list: list) -> list:
+    async def exec_cmd_list(self, event: BotEvent, cmd_list: list) -> List[BotAction]:
         """
         基类方法。执行一组命令，自动忽略 cmd_list 中无效的命令，
         内部实现超时控制和异常处理。
@@ -56,7 +58,7 @@ class BaseCmdExecutor(ABC, Singleton):
         return list(filter(lambda x: x != None, action_list))
 
     @abstractmethod
-    async def execute(self, event: dict) -> list:
+    async def execute(self, event: dict) -> List[BotAction]:
         """
         抽象方法，指定 event 传入时如何识别到命令并执行
         """
@@ -71,7 +73,7 @@ class ExactCmdExecutor(BaseCmdExecutor, Singleton):
         super().__init__()
         self.ec_parser = cp.EC_PARSER
 
-    async def execute(self, event: BotEvent) -> list:
+    async def execute(self, event: BotEvent) -> List[BotAction]:
         """
         精确命令执行方法，内部对事件进行精确命令列表解析。
         若存在精确命令，则执行。
@@ -93,7 +95,7 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
         self.ExeI = ExeI
         self.ans_dict = BOT_STORE['data']['KEY_ANS']
 
-    async def process_answers(self, event: BotEvent, ans_list: list) -> dict:
+    async def process_answers(self, event: BotEvent, ans_list: list) -> List[BotAction]:
         """
         根据 ans 中的配置，预处理应答句子，
         再通过 echo 命令封装为 action
@@ -116,7 +118,7 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
             echo_cmd_list.append(['echo', ans_str])
         return await self.exec_cmd_list(event, echo_cmd_list)
 
-    async def answer(self, event: BotEvent, key_list: list) -> dict:
+    async def answer(self, event: BotEvent, key_list: list) -> List[BotAction]:
         """
         给定关键词，返回应答句子的 action。
         由于回复概率设置，可能返回为空。
@@ -133,7 +135,7 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
         return await self.process_answers(event, ans_list)
         
 
-    async def execute(self, event: BotEvent) -> list:
+    async def execute(self, event: BotEvent) -> List[BotAction]:
         """
         模糊命令执行方法，消息包含关键词（组合），且满足出现频率要求，
         就执行规则中指定的命令。返回为 action 列表
@@ -152,7 +154,7 @@ class TimeCmdExecutor(BaseCmdExecutor, Singleton):
         super().__init__()
     
 
-    async def execute(self, event: BotEvent) -> list:
+    async def execute(self, event: BotEvent) -> List[BotAction]:
         """
         时间命令执行方法，消息满足指定时间要求，就执行规则中指定的命令。
         返回为 action 列表
@@ -173,7 +175,7 @@ class KernelManager(Singleton):
         super().__init__()
         self.ExeI = ExeI
     
-    async def handle(self, event: BotEvent) -> list:
+    async def handle(self, event: BotEvent) -> List[BotAction]:
         res = []
         if event.kernel.is_queue_full():
             res.append(await self.ExeI._ExecInterface__ret_sys_call(
@@ -196,7 +198,7 @@ class RespManager(Singleton):
         return len(e_data.keys()) == 2 and \
             'nickname' in e_data.keys() and 'user_id' in e_data.keys()
     
-    async def handle(self, event: BotEvent) -> list:
+    async def handle(self, event: BotEvent) -> List[BotAction]:
         res = []
         if event.resp.is_failed():
             BOT_LOGGER.error(f'收到失败响应：{event.raw}')
@@ -218,7 +220,7 @@ class MetaEventManager(Singleton):
         super().__init__()
         self.exact_exec = exact_executor
     
-    async def handle(self, event: BotEvent) -> list:
+    async def handle(self, event: BotEvent) -> List[BotAction]:
         res = []
         return res
 
@@ -231,7 +233,7 @@ class ReqManager(Singleton):
         super().__init__()
         self.exact_exec = exact_executor
     
-    async def handle(self, event: BotEvent) -> list:
+    async def handle(self, event: BotEvent) -> List[BotAction]:
         res = []
         return res
 
@@ -245,7 +247,7 @@ class NoticeManager(Singleton):
         self.exact_exec = exact_executor
         self.ExeI = ExeI
     
-    async def handle(self, event: BotEvent) -> list:
+    async def handle(self, event: BotEvent) -> List[BotAction]:
         res = []
         if event.notice.is_poke() and event.notice.user_id == event.bot_id:
             # 如果被戳者是自己，触发 poke 命令
@@ -265,7 +267,7 @@ class MsgManager(Singleton):
         self.time_exec = time_executor
         self.ExeI = ExeI
     
-    async def handle(self, event: BotEvent):
+    async def handle(self, event: BotEvent) -> List[BotAction]:
         res = []
         # 若没有文本消息，返回空的 action 列表
         if event.msg.text == '': return res
@@ -300,7 +302,7 @@ class EventProcesser(Singleton):
         self.msg_m = MsgManager()
         
 
-    async def handle(self, event: BotEvent) -> None:
+    async def handle(self, event: BotEvent) -> List[BotAction]:
         """
         对传入的事件进行响应
         """

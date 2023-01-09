@@ -1,6 +1,6 @@
 from utils.Interface import ExeI, AuthRole
 from utils.Event import *
-from utils.Action import Builder, Encoder, msg_send_packer
+from utils.Action import msg_action, BotAction
 from utils.Definition import *
 
 
@@ -10,7 +10,7 @@ from utils.Definition import *
     comment='获取帮助',
     prompt='[命令名]'
 )
-def help(event: BotEvent, queryCmdName: str=None) -> dict:
+def help(event: BotEvent, queryCmdName: str=None) -> BotAction:
     if not queryCmdName:
         u_lvl = ExeI.msg_checker.get_event_lvl(event)
 
@@ -27,15 +27,16 @@ def help(event: BotEvent, queryCmdName: str=None) -> dict:
     else:
         help_str = help_detail(event, queryCmdName)
 
-    return Builder.build(
-        msg_send_packer.pack(
-            event,
-            [Encoder.text(help_str)],
-        )
+    return msg_action(
+        help_str,
+        event.msg.is_private(),
+        event.msg.sender.id,
+        event.msg.group_id,
+        True
     )
 
 
-def help_detail(event: BotEvent, queryName: str) -> dict:
+def help_detail(event: BotEvent, queryName: str) -> str:
     u_lvl = ExeI.msg_checker.get_event_lvl(event)
 
     try:

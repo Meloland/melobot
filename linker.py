@@ -3,12 +3,13 @@ import websockets
 import traceback
 import asyncio as aio
 from asyncio import Queue
+from typing import List, Coroutine
 import websockets.exceptions as wse
 from utils.Definition import *
 from utils.Event import *
+from utils.Action import BotAction
 from utils.Store import BOT_STORE
 from utils.Logger import BOT_LOGGER
-from utils.Action import action_to_str
 from utils import Parser as cp
 from utils import Auth as au
 
@@ -63,10 +64,9 @@ class BotLinker(Singleton):
         try:
             while True:
                 try:
-                    raw_a = await self.action_q.get()
-                    # TODO: action 未来重写部分
-                    action = action_to_str(raw_a)
-                    await self.ws.send(action)
+                    action: BotAction = await self.action_q.get()
+                    astr = action.flatten()
+                    await self.ws.send(astr)
                     await aio.sleep(BOT_STORE['operation']['COOLDOWN_TIME'])
                 except Exception as e:
                     BOT_LOGGER.debug(traceback.format_exc())
@@ -137,10 +137,9 @@ class BotLinker(Singleton):
         try:
             while True:
                 try:
-                    raw_a = await self.prior_action_q.get()
-                    # TODO: action 未来重写部分
-                    action = action_to_str(raw_a)
-                    await self.ws.send(action)
+                    action: BotAction = await self.prior_action_q.get()
+                    astr = action.flatten()
+                    await self.ws.send(astr)
                     await aio.sleep(BOT_STORE['operation']['COOLDOWN_TIME'])
                 except Exception as e:
                     BOT_LOGGER.debug(traceback.format_exc())
@@ -162,7 +161,7 @@ class BotLinker(Singleton):
         except aio.CancelledError:
             BOT_LOGGER.debug('优先事件放置因超时被取消')
     
-    def coro_getter(self) -> list:
+    def coro_getter(self) -> List[Coroutine]:
         """
         返回 linker 所有核心的异步协程给主模块
         """
