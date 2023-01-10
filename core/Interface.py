@@ -5,14 +5,15 @@ import importlib.util as iplu
 from asyncio import Lock as aioLock, iscoroutinefunction
 from threading import Lock as tLock, current_thread, main_thread
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, Union, List
 from copy import deepcopy
-from .Definition import *
-from .Store import BOT_STORE
-from .Logger import BOT_LOGGER
-from .Event import *
-from .Action import BotAction
-from . import Auth as au
+from common.Typing import *
+from common.Global import *
+from common.Event import BotEvent
+from common.Action import BotAction
+from common.Store import BOT_STORE
+from common.Logger import BOT_LOGGER
+from common.Exceptions import *
+from components import Access as ac
 
 
 __all__ = ['AuthRole', 'ExeI']
@@ -24,12 +25,12 @@ class Role(Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.SYS = au.SYS
-        self.OWNER = au.OWNER
-        self.SU = au.SU
-        self.WHITE = au.WHITE
-        self.USER = au.USER
-        self.BLACK = au.BLACK
+        self.SYS = ac.SYS
+        self.OWNER = ac.OWNER
+        self.SU = ac.SU
+        self.WHITE = ac.WHITE
+        self.USER = ac.USER
+        self.BLACK = ac.BLACK
 
 
 AuthRole = Role()
@@ -42,8 +43,8 @@ class ExecInterface(Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.msg_checker = au.MSG_CHECKER
-        self.notice_checker = au.NOTICE_CHECKER
+        self.msg_checker = ac.MSG_CHECKER
+        self.notice_checker = ac.NOTICE_CHECKER
         self.pool = ThreadPoolExecutor(max_workers=BOT_STORE['kernel']['THREAD_NUM'])
         # 装入全局，方便 Monitor 管理
         BOT_STORE['kernel']['POOL'] = self.pool
@@ -60,7 +61,7 @@ class ExecInterface(Singleton):
                 self.loop.call_later, delay, func, *args
             )
 
-    async def __cmd_auth_check(self, event: BotEvent, userLevel: au.UserLevel) -> bool:
+    async def __cmd_auth_check(self, event: BotEvent, userLevel: ac.UserLevel) -> bool:
         """
         命令权限校验。
         当返回 True 时，可以继续执行；当返回 False 时，不能继续执行。
@@ -117,7 +118,7 @@ class ExecInterface(Singleton):
     def template(
             self, 
             aliases: list=None, 
-            userLevel: au.UserLevel=AuthRole.USER,
+            userLevel: ac.UserLevel=AuthRole.USER,
             isLocked: bool=False,
             interval: int=0,
             hasPrefix: bool=False, 
@@ -325,7 +326,7 @@ class ExecInterface(Singleton):
         cmdName = self.get_cmd_name(name)
         return self.cmd_map[cmdName].__aliases__.copy()
 
-    def get_cmd_auth(self, name: str) -> au.UserLevel:
+    def get_cmd_auth(self, name: str) -> ac.UserLevel:
         """
         供外部获取指定命令的权限限制值，可使用命令名或别称
         """
@@ -385,7 +386,7 @@ class CmdMapper(Singleton):
         加载模板，即具体的命令执行方法
         """
         templates_path = os.path.join(
-            os.path.dirname(__file__), '..', 'templates'
+            BOT_STORE['kernel']['ROOT_PATH'], 'templates'
         )
         
         # 加载用户级 cmd
@@ -395,7 +396,7 @@ class CmdMapper(Singleton):
                 spec = iplu.spec_from_file_location(
                     'foo',
                     os.path.join(
-                        os.path.dirname(__file__), '..', 'templates', pypath
+                        templates_path, pypath
                     )
                 )
                 foo = iplu.module_from_spec(spec)
@@ -408,7 +409,7 @@ class CmdMapper(Singleton):
         """
         # 加载系统级 cmd
         sys_cmd_path = os.path.join(
-            os.path.dirname(__file__), 'cmd'
+            BOT_STORE['kernel']['ROOT_PATH'], 'cmd'
         )
         for pypath in os.listdir(sys_cmd_path):
             if pypath != "__init__.py" and pypath != "__pycache__" and pypath.endswith(".py"):
@@ -416,7 +417,7 @@ class CmdMapper(Singleton):
                 spec = iplu.spec_from_file_location(
                     'foo',
                     os.path.join(
-                        os.path.dirname(__file__), 'cmd', pypath
+                        sys_cmd_path, pypath
                     )
                 )
                 foo = iplu.module_from_spec(spec)

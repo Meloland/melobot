@@ -1,7 +1,6 @@
-from utils.Interface import ExeI, AuthRole
-from utils.Definition import *
-from utils.Event import *
-from utils.Action import msg_action, BotAction
+from core.Interface import ExeI, AuthRole
+from common import *
+from common.Action import msg_action
 
 
 @ExeI.template(

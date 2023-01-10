@@ -1,13 +1,14 @@
 import asyncio as aio
 from random import random, choice
 from abc import abstractmethod, ABC
-from typing import List
-from .Definition import *
-from .Store import BOT_STORE
-from .Event import *
-from .Action import BotAction
-from .Logger import BOT_LOGGER
-from . import Parser as cp
+from common.Typing import *
+from common.Global import *
+from common.Event import BotEvent
+from common.Action import BotAction
+from common.Store import BOT_STORE
+from common.Logger import BOT_LOGGER
+from common.Exceptions import *
+from components import Parser
 from .Interface import ExeI
 
 
@@ -71,7 +72,7 @@ class ExactCmdExecutor(BaseCmdExecutor, Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.ec_parser = cp.EC_PARSER
+        self.ec_parser = Parser.EC_PARSER
 
     async def execute(self, event: BotEvent) -> List[BotAction]:
         """

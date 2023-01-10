@@ -1,36 +1,105 @@
 import json
 from . import Encoder as ec
 from .Event import *
-from .Definition import *
-from typing import Union, NewType, List, Dict, Literal
+from .Global import *
+from .Exceptions import *
+from .Snowflake import ID_WORKER
+from .Typing import *
 from abc import ABC
 
 
 __all__ = [
     'BotAction', 
-    'msg_action', 'text_msg', 'face_msg', 'record_msg', 'at_msg', 'share_msg', 'music_msg', 'custom_music_msg', 'image_msg', 'reply_msg', 'poke_msg', 'tts_msg',
-    'cq_escape', 'cq_anti_escape','forward_msg_action', 'custom_msg_node', 'refer_msg_node',
-    'msg_del_action','get_msg_action','get_forward_msg_action','get_image_action','mark_msg_read_action','group_kick_action',
-    'group_ban_action','group_anonym_ban_action','group_whole_ban_action','set_group_admin_action','set_group_card_action',
-    'set_group_name_action','group_leave_action','set_group_title_action','group_sign_action','set_friend_add_action',
-    'set_group_add_action','get_login_info_action','set_login_profile_action','get_stranger_info_action','get_friend_list_action',
-    'get_undirect_friend_action','delete_friend_action','get_group_info_action','get_group_list_action','get_group_member_info_action',
-    'get_group_member_list_action','get_group_honor_action','check_send_image_action','check_send_record_action','get_cq_version_action',
-    'set_group_portrait_action','ocr_action','get_group_sys_msg_action','upload_file_action','get_group_filesys_info_action',
-    'get_group_root_files_action','get_group_files_byfolder_action','create_group_folder_action','delete_group_folder_action',
-    'delete_group_file_action','get_group_file_url_action','get_cq_status_action','get_atall_remain_action','quick_handle_action',
-    'set_group_notice_action','get_group_notice_action','download_file_action','get_online_clients_action','get_group_msg_history_action',
-    'set_group_essence_action','get_group_essence_list_action', 'get_model_show_action','set_model_show_action', 'del_undirect_friend_action',
+
+    # 消息构造方法
+    'text_msg', 
+    'face_msg', 
+    'record_msg', 
+    'at_msg', 
+    'share_msg', 
+    'music_msg', 
+    'custom_music_msg', 
+    'image_msg', 
+    'reply_msg', 
+    'poke_msg', 
+    'tts_msg',
+
+    # cq 编码相关
+    'cq_escape', 
+    'cq_anti_escape',
+    
+    # 消息发送、处理相关
+    'msg_action', 
+    'forward_msg_action', 
+    'custom_msg_node', 
+    'refer_msg_node',
+    'msg_del_action',
+    'get_msg_action',
+    'get_forward_msg_action',
+    'mark_msg_read_action',
+    
+    # 群相关
+    'group_kick_action',
+    'group_ban_action',
+    'group_anonym_ban_action',
+    'group_whole_ban_action',
+    'group_leave_action',
+    'group_sign_action',
+    'get_group_info_action',
+    'get_group_list_action',
+    'get_group_member_info_action',
+    'get_group_member_list_action',
+    'get_group_honor_action',
+    'get_group_filesys_info_action',
+    'get_group_root_files_action',
+    'get_group_files_byfolder_action',
+    'get_group_file_url_action',
+    'get_group_sys_msg_action',
+    'get_group_notice_action',
+    'get_group_msg_history_action',
+    'get_group_essence_list_action',
+    'set_group_admin_action',
+    'set_group_card_action',
+    'set_group_name_action',
+    'set_group_title_action',
+    'set_group_add_action',
+    'set_group_portrait_action',
+    'set_group_notice_action',
+    'set_group_essence_action',
+    'create_group_folder_action',
+    'delete_group_folder_action',
+    'delete_group_file_action',
+    
+    # 私聊相关
+    'get_friend_list_action',
+    'get_undirect_friend_action',
+    'get_stranger_info_action',
+    'set_friend_add_action',
+    'delete_friend_action',
+    'delete_undirect_friend_action',
+    
+    # bot 前后端相关
+    'get_login_info_action',
+    'set_login_profile_action',
+    'check_send_image_action',
+    'check_send_record_action',
+    'get_cq_status_action',
+    'get_cq_version_action',
+    'quick_handle_action',
+    
+    # 其他操作
+    'get_image_action',
+    'download_file_action',
+    'ocr_action',
+    'upload_file_action',
+    'get_atall_remain_action',
+    
+    # 登录设备和机型相关
+    'get_online_clients_action',
+    'get_model_show_action',
+    'set_model_show_action',
+    
 ]
-
-
-MsgSegment = NewType('MsgSegment', List[ec.Msg])
-MsgNode = NewType('MsgNode', Dict[
-    str, Union[
-        str, Dict[str, Union[str, MsgSegment]]
-    ]
-])
-MsgNodeList = NewType('MsgNodeList', List[MsgNode])
 
 
 # 用于 msg action 构造的一些函数
@@ -1973,7 +2042,7 @@ def set_model_show_action(
     )
 
 
-class DelUndirectFriendPack(ActionPack):
+class DeleteUndirectFriendPack(ActionPack):
     """
     删除单向好友 action 信息构造类
     """
@@ -1987,7 +2056,7 @@ class DelUndirectFriendPack(ActionPack):
             'user_id': userId
         }
 
-def del_undirect_friend_action(
+def delete_undirect_friend_action(
     userId: int,
     respWaited: bool=False,
     triggerEvent: BotEvent=None
@@ -1996,7 +2065,7 @@ def del_undirect_friend_action(
     删除单向好友 action 构造方法
     """
     return BotAction(
-        DelUndirectFriendPack(userId),
+        DeleteUndirectFriendPack(userId),
         respWaited=respWaited,
         triggerEvent=triggerEvent
     )

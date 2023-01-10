@@ -1,14 +1,12 @@
-*.pyc
 __pycache__
 */__pycache__
-*.bak
-
 logs
 private
 go-cqhttp
 config
+docs
 
-dev_plan.todo
+*.bak
 templates/code.py
 templates/weather.py
 templates/translate.py

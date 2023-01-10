@@ -1,11 +1,9 @@
-from .Definition import *
-from .Store import BOT_STORE
-from .Event import *
-from abc import abstractclassmethod, ABC
-from typing import NewType, List
+from common import *
+from common.Typing import *
+from abc import ABC
 
 
-UserLevel = NewType('UserLevel', int)
+
 # 权限等级
 SYS = UserLevel(101)
 OWNER = UserLevel(100)

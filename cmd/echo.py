@@ -1,4 +1,4 @@
-from utils.Action import BotAction, msg_action
+from common.Action import msg_action, BotAction
 
 
 def echo(event: dict, text: str) -> BotAction:

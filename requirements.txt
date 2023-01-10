@@ -1,4 +1,3 @@
 toml
 colorlog
 websockets
-aiohttp

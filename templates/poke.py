@@ -1,6 +1,6 @@
-from utils.Interface import ExeI, AuthRole
-from utils.Event import *
-from utils.Action import msg_action, poke_msg, BotAction
+from core.Interface import ExeI, AuthRole
+from common import *
+from common.Action import msg_action, poke_msg
 
 @ExeI.template(
     aliases=['戳'],

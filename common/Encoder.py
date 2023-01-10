@@ -1,10 +1,6 @@
 from itertools import chain, zip_longest
-from typing import Union, Literal, NewType, Dict
-from .Definition import *
+from .Typing import *
 import re
-
-
-Msg = NewType('Msg', Dict[str, any])
 
 
 def escape(text: str) -> str:
@@ -188,12 +184,9 @@ def image(
 ) -> Msg:
     """
     图片消息。
-
-    `url`：图片 url。可以为本地路径，如：`file:///C:/users/15742/desktop/QQ图片20230108225606.jpg`；也可以为网络 url；还可以为 image id。
-    
-    `picType`：flash 为闪照，show 为秀图，不填为普通图片。
-    
-    `subType`：只出现在群聊，0 为正常图片，1 为表情包
+    `url`: 图片 url。可以为本地路径，如：`file:///C:/users/15742/desktop/QQ图片20230108225606.jpg`；也可以为网络 url；还可以为 image id。
+    `picType`: flash 为闪照，show 为秀图，不填为普通图片。
+    `subType`: 只出现在群聊，0 为正常图片，1 为表情包
     """
     base = {
         "type": "image",

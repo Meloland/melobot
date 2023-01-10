@@ -1,13 +1,12 @@
-import asyncio as aio
 import sys
-from asyncio import Queue
-from utils.Definition import *
-from utils.Store import BOT_STORE
-from utils.Logger import BOT_LOGGER
-from Monitor import MONITOR
-from Handler import BotHandler
-from Linker import BotLinker
 sys.path.append('.')
+import asyncio as aio
+from asyncio import Queue
+from common.Global import *
+from common.Store import BOT_STORE
+from common.Logger import BOT_LOGGER
+from common.Exceptions import *
+from core import BotLinker, BotHandler, MONITOR
 
 
 class MeloBot(Singleton):

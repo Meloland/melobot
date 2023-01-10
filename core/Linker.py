@@ -2,16 +2,16 @@ import sys
 import websockets
 import traceback
 import asyncio as aio
-from asyncio import Queue
-from typing import List, Coroutine
 import websockets.exceptions as wse
-from utils.Definition import *
-from utils.Event import *
-from utils.Action import BotAction
-from utils.Store import BOT_STORE
-from utils.Logger import BOT_LOGGER
-from utils import Parser as cp
-from utils import Auth as au
+from asyncio import Queue
+from components import Parser
+from components import Access
+from common.Typing import *
+from common.Global import *
+from common.Event import BotEvent, KernelEvent
+from common.Action import BotAction
+from common.Store import BOT_STORE
+from common.Logger import BOT_LOGGER
 
 
 class BotLinker(Singleton):
@@ -182,8 +182,8 @@ class PriorEventFilter(Singleton):
     def is_prior(self, event: BotEvent) -> bool:
         # 优先事件判断，但不对事件进行修改，事件将由 handler 模块转交给 eventExec 模块负责
         # 判断流程：是否是消息 > 文本消息是否为空 > 是否具有 owner 权限 > 是否是优先消息
-        if event.is_msg() and event.msg.text != '' and au.MSG_CHECKER.check(au.SU, event):
-            return cp.EC_PARSER.prior_check(event.msg.text)
+        if event.is_msg() and event.msg.text != '' and Access.MSG_CHECKER.check(Access.SU, event):
+            return Parser.EC_PARSER.prior_check(event.msg.text)
 
 
 if __name__ == "__main__":

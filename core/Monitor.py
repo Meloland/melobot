@@ -1,16 +1,15 @@
-import os
 import traceback
 import time as time
 import asyncio as aio
 import datetime as dt
-import importlib.util as iplu
-from typing import Coroutine, List
-from utils.Definition import *
-from utils.Action import BotAction
-from utils.Store import BOT_STORE
-from utils.Logger import BOT_LOGGER
-from Linker import BotLinker
-from Handler import BotHandler
+import importlib as ipl
+from common.Typing import *
+from common.Global import *
+from common.Action import BotAction
+from common.Store import BOT_STORE
+from common.Logger import BOT_LOGGER
+from .Linker import BotLinker
+from .Handler import BotHandler
 
 
 class BotMonitor(Singleton):
@@ -87,15 +86,8 @@ class BotMonitor(Singleton):
         """
         载入自启任务，并执行
         """
-        spec = iplu.spec_from_file_location(
-            'foo',
-            os.path.join(
-                os.path.dirname(__file__), 'Startup.py'
-            )
-        )
-        foo = iplu.module_from_spec(spec)
-        spec.loader.exec_module(foo)
-        await vars(foo)['startup']()
+        the_module = ipl.import_module('.Startup', __package__)
+        await the_module.startup()
 
     async def run_bot(self) -> None:
         """

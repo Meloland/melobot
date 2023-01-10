@@ -1,7 +1,7 @@
 import os
 import sys
 import toml
-from .Definition import *
+from .Global import Singleton
 
 
 defaultConfigText = \
@@ -69,14 +69,12 @@ class ConfigManager(Singleton):
     """
     配置管理器
     """
-    def __init__(self) -> None:
+    def __init__(self, ConfigDirPath: str) -> None:
         super().__init__()
         self.config = {}
         self.defaultConfig = defaultConfig
         self.defaultConfigText = defaultConfigText
-        self.configDir = os.path.join(
-            os.path.dirname(__file__), '..', 'config'
-        )
+        self.configDir = ConfigDirPath
         self.configPath = os.path.join(
             self.configDir, 'botConfig.toml'
         )
@@ -87,6 +85,7 @@ class ConfigManager(Singleton):
         """
         self.init_config()
         self.fill_defaults()
+        self.process_config()
         return self.config
 
     def init_config(self) -> None:
@@ -115,3 +114,10 @@ class ConfigManager(Singleton):
             for item, val in self.defaultConfig[configClass].items():
                 if item not in self.config[configClass]:
                     self.config[configClass][item] = val
+
+    def process_config(self) -> None:
+        """
+        对配置项进行一些处理
+        """
+        if self.config['operation']['WORKING_TIME'] <= 0:
+            self.config['operation']['WORKING_TIME'] = None

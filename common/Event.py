@@ -1,10 +1,13 @@
 import re
 import json
 import time as t
-from typing import Union
+from .Typing import *
 
 
-__all__ = ['BotEvent', 'KernelEvent']
+__all__ = [
+    'BotEvent', 
+    'KernelEvent'
+]
 
 
 class BotEvent:
@@ -210,6 +213,8 @@ class Msg:
         self.font = rawEvent['font']
         self.text = self.__get_text()
 
+        # 初始化为 None，方便外部取值判断
+        self.temp_src = None
         if 'temp_source' in rawEvent.keys():
             self.temp_src = TEMP_SRC_MAP[rawEvent['temp_source']]
         self.sender = MsgSenderInfo(
@@ -217,7 +222,7 @@ class Msg:
             isGroup=self.is_group(),
             isGroupAnonym=self.is_group_anonym()
         )
-        # 群号初始化为 None，方便 action 构建时传参，有则使用，无则为 None 会被 action 构建忽略
+        # 初始化为 None，方便外部取值判断
         self.group_id = None
         if self.is_group():
             self.group_id = rawEvent['group_id']
