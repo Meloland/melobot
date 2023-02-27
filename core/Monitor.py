@@ -82,6 +82,17 @@ class BotMonitor(Singleton):
         pool.shutdown(wait=False)
         BOT_LOGGER.debug(f"bot 同步任务辅助线程池已关闭")
 
+    async def dispose_cmd_sources(self) -> None:
+        """
+        释放命令模板自定义依赖的资源
+        """
+        async_disposes =  BOT_STORE['cmd']['ASYNC_DISPOSE']
+        sync_disposes =  BOT_STORE['cmd']['SYNC_DISPOSE']
+        for method_name in sync_disposes.keys():
+            sync_disposes[method_name]()
+        for method_name in async_disposes.keys():
+            await async_disposes[method_name]()
+
     async def run_startup(self) -> None:
         """
         载入自启任务，并执行
@@ -108,6 +119,7 @@ class BotMonitor(Singleton):
         finally:
             await self.close_link()
             await self.close_pool()
+            await self.dispose_cmd_sources()
 
     async def stop_bot(self) -> None:
         """

@@ -7,7 +7,7 @@ from common.Action import msg_action
     aliases=['print', '复读'], 
     userLevel=AuthRole.USER, 
     comment='复读',
-    prompt='无参数'
+    prompt='无参数',
 )
 def echo(event: BotEvent, text: str) -> BotAction:
     return msg_action(

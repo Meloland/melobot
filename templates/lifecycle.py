@@ -2,6 +2,7 @@ import asyncio as aio
 from core.Interface import ExeI, AuthRole
 from common import *
 from common.Action import msg_action
+from common.Exceptions import BotCmdExecFailed
 
 
 @ExeI.template(
@@ -19,7 +20,7 @@ async def lifecycle(event: BotEvent, subCmd: str) -> BotAction:
     elif subCmd == 'close': 
         return await lifecycle_close(event)
     else:
-        raise BotCmdExecFailed("无效的子指令")
+        raise BotCmdExecFailed("无效的控制参数")
 
 
 def lifecycle_on(event: BotEvent) -> BotAction:

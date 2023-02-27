@@ -5,11 +5,12 @@ private
 go-cqhttp
 config
 docs
+main.build
+main.dist
 
 *.bak
 templates/code.py
 templates/weather.py
 templates/translate.py
 templates/summon.py
-templates/usage.py
-templates/sese.py
+templates/matlab.py

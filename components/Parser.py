@@ -13,7 +13,7 @@ class StringFilter():
     """
     字符串过滤器，主要用于精确命令解析，对可能干扰命令解析的字符进行过滤
     """
-    def __init__(self, pattern: str=r'[\'\"\\\r\n\t]') -> None:
+    def __init__(self, pattern: str=r'[\\\r\n]') -> None:
         super().__init__()
         self.filter_regex = re.compile(pattern)
 
@@ -121,9 +121,9 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         """
         按照指定正则 pattern，对 string 进行分割
         """
-        # 将复杂的各种分隔符替换为 双引号，方便分割
-        temp_string = regex.sub('\"', string)
-        temp_list = re.split('\"', temp_string)
+        # 将复杂的各种分隔符替换为 特殊字符，方便分割
+        temp_string = regex.sub('\u0000', string)
+        temp_list = re.split('\u0000', temp_string)
         if popFirst: temp_list.pop(0)
         return list(filter(lambda x:x != '', temp_list))
     

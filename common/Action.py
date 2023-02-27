@@ -159,12 +159,7 @@ class BotAction:
         """
         将对象序列化为标准 cq action json 字符串，一般供连接器使用
         """
-        obj = {
-            'action': self.type,
-            "params": self.params,
-        }
-        if self.respId: obj['echo'] = self.respId
-        return json.dumps(obj, ensure_ascii=False)
+        return json.dumps(self.extract(), ensure_ascii=False)
 
 
 class MsgPack(ActionPack):

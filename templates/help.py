@@ -1,6 +1,7 @@
 from core.Interface import ExeI, AuthRole
 from common import *
 from common.Action import msg_action
+from common.Exceptions import BotUnknownCmdName
 
 
 @ExeI.template(

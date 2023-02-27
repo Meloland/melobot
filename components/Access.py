@@ -1,4 +1,6 @@
-from common import *
+from common.Global import *
+from common.Event import BotEvent
+from common.Store import BOT_STORE
 from common.Typing import *
 from abc import ABC
 

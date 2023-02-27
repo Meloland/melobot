@@ -31,6 +31,7 @@ class BotHandler:
         监控 event 队列，交给 eventProcesser 处理
         """
         try:
+            await self.e_manager.build_ExeI()
             while True:
                 try:
                     event: BotEvent = await self.event_q.get()
@@ -69,6 +70,7 @@ class BotHandler:
         监控优先 event 队列，并交给 eventProcesser 处理
         """
         try:
+            await self.e_manager.build_ExeI()
             while True:
                 try:
                     prior_event: BotEvent = await self.prior_event_q.get()

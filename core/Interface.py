@@ -117,11 +117,12 @@ class ExecInterface(Singleton):
     
     def template(
             self, 
-            aliases: list=None, 
+            aliases: List[str]=None, 
             userLevel: ac.UserLevel=AuthRole.USER,
             isLocked: bool=False,
             interval: int=0,
             hasPrefix: bool=False, 
+            preLoad: Tuple[str, Callable[..., object], Callable[..., object]]=None,
             comment: str='无', 
             prompt: str='无',
         ) -> Callable:
@@ -133,6 +134,8 @@ class ExecInterface(Singleton):
         `isLocked`: 是否加锁。若需要更细粒度的加锁，在模板内部使用 `ExeI.get_cmd_lock()` 方法获得锁
         `interval`: 命令冷却时间（单位 秒），注意：冷却时间 >0，默认会加锁任务
         `hasPrefix`: 是否添加前缀
+        `preLoad`: 元组。预加载资源在 `BOT_STORE['cmd'][具体命令名]` 字典的访问键，
+        资源预加载方法（必须返回一个对象），资源释放方法（不指定可以传递 None）
         `comment`: 供帮助使用的命令注释
         `prompt`: 供帮助使用的命令参数提示
         """
@@ -155,7 +158,7 @@ class ExecInterface(Singleton):
                             action = await self.__run_cmd(event, cmd_func, *args, **kwargs)
                     else:
                         if state['LOCK'].locked():
-                            return await self.__sys_call('echo', event, '该命令不允许多执行，请等待前一次命令完成~')
+                            return await self.__sys_call('echo', event, f'{cmd_name} 命令不允许多执行，请等待前一次执行完成~')
                         async with state['LOCK']:
                             cmd_name = cmd_name
                             rest_time = self.__get_rest_time(cmd_name, interval)
@@ -195,6 +198,8 @@ class ExecInterface(Singleton):
             warpped_cmd_func.__enable_lock__ = isLocked
             # 是否启用冷却
             warpped_cmd_func.__enable_cd__ = interval > 0
+            # 是否有预先启动的配置
+            warpped_cmd_func.__preload__ = preLoad
             return warpped_cmd_func
         return warpper
 
@@ -269,17 +274,35 @@ class ExecInterface(Singleton):
             origin_a.params = action['params']
         return origin_a
 
-    def __build_cmd_store(self) -> None:
+    async def __cmd_preset_build(self) -> None:
         """
-        在 BOT_STORE 中建立每个命令的存储，包含全局状态和 session 空间
+        在 BOT_STORE 中建立每个命令的存储，包含全局状态和 session 空间。
+        同时加载一些命令模板需要预加载的资源，并指定资源的销毁方法
         """
+        BOT_STORE['cmd']['ASYNC_DISPOSE'] = {}
+        BOT_STORE['cmd']['SYNC_DISPOSE'] = {}
+
         for cmdName in self.cmd_map.keys():
             BOT_STORE['cmd'][cmdName] = {
                 'sessions': [],
                 'state': {},
             }
+            load_info = self.cmd_map[cmdName].__preload__
+            if load_info is not None:
+                visit_key, load_method, dispose_method = load_info
+                if iscoroutinefunction(load_method):
+                    BOT_STORE['cmd'][cmdName][visit_key] = await load_method()
+                else:
+                    BOT_STORE['cmd'][cmdName][visit_key] = load_method()
+
+                if dispose_method is None: continue
+                if iscoroutinefunction(dispose_method):
+                    BOT_STORE['cmd']['ASYNC_DISPOSE'][f'{cmdName}_{visit_key}'] = dispose_method
+                else:
+                    BOT_STORE['cmd']['SYNC_DISPOSE'][f'{cmdName}_{visit_key}'] = dispose_method
+        
     
-    def __load_cmd_funcs(self, cmdMap: dict, sysCmdMap: dict, aliasMap: dict) -> None:
+    async def __load_cmd_funcs(self, cmdMap: dict, sysCmdMap: dict, aliasMap: dict) -> None:
         """
         加载命令模板/方法到类中
         """
@@ -287,7 +310,7 @@ class ExecInterface(Singleton):
         self.cmd_map = cmdMap
         self.sys_cmd_map = sysCmdMap
         self.alias_map = aliasMap
-        self.__build_cmd_store()
+        await self.__cmd_preset_build()
 
     def __after_loop_init(self) -> None:
         """
@@ -439,4 +462,3 @@ ExeI = ExecInterface()
 CMD_MAP = CmdMapper().exec_map
 ALIAS_MAP = CmdMapper().alias_map
 SYS_CMD_MAP = CmdMapper().sys_exec_map
-ExeI._ExecInterface__load_cmd_funcs(CMD_MAP, SYS_CMD_MAP, ALIAS_MAP)

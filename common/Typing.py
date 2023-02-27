@@ -7,6 +7,7 @@ from typing import (
     Coroutine, 
     Callable,
     TypedDict,
+    Tuple
 )
 
 
@@ -17,6 +18,7 @@ __all__ = [
     'Literal', 
     'Coroutine', 
     'Callable',
+    'Tuple',
 
     'Msg',
     'MsgSegment',

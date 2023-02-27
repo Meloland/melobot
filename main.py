@@ -6,6 +6,15 @@ from common.Global import *
 from common.Store import BOT_STORE
 from common.Logger import BOT_LOGGER
 from common.Exceptions import *
+
+
+BOT_LOGGER.debug('本次运行日志开始...')
+BOT_LOGGER.info("Qbot-MeloBot 版本：v{}, developer: {}".format(
+    BOT_STORE['kernel']['VERSION'], BOT_STORE['kernel']['DEVELOPER']
+))
+BOT_LOGGER.info('bot 世界观形成中...  (=´ω｀=)')
+
+
 from core import BotLinker, BotHandler, MONITOR
 
 
@@ -20,11 +29,6 @@ class MeloBot(Singleton):
         """
         装载 bot 核心实例与异步核心任务至 Monitor，并交由 Monitor 启动和管理
         """
-        BOT_LOGGER.info("Qbot-MeloBot 版本：v{}, developer: {}".format(
-            BOT_STORE['kernel']['VERSION'], BOT_STORE['kernel']['DEVELOPER']
-        ))
-        BOT_LOGGER.info('bot 世界观形成中...  (=´ω｀=)')
-
         # 核心事件队列，行为队列最大长设置为事件队列的 3 倍，以适应多命令模式
         action_q = Queue(maxsize=BOT_STORE['operation']['WORK_QUEUE_LEN']*3)
         event_q = Queue(maxsize=BOT_STORE['operation']['WORK_QUEUE_LEN'])
@@ -52,7 +56,6 @@ class MeloBot(Singleton):
 
 
 if __name__ == "__main__":
-    BOT_LOGGER.debug('本次运行日志开始...')
     the_loop = aio.new_event_loop()
     aio.set_event_loop(the_loop)
     # 键盘中断无法在协程中捕获，因此外层处理

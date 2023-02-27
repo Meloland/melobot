@@ -9,7 +9,8 @@ from common.Store import BOT_STORE
 from common.Logger import BOT_LOGGER
 from common.Exceptions import *
 from components import Parser
-from .Interface import ExeI
+from .Interface import ExeI, CMD_MAP, ALIAS_MAP, SYS_CMD_MAP
+from asyncio import Lock
 
 
 class BaseCmdExecutor(ABC, Singleton):
@@ -292,8 +293,6 @@ class EventProcesser(Singleton):
     def __init__(self) -> None:
         super().__init__()
         self.ExeI = ExeI
-        # 该方法用于初始化需要在循环启动后获得的变量
-        self.ExeI._ExecInterface__after_loop_init()
         # 对应调度策略不会增减，所以不使用策略模式
         self.kernel_m = KernelManager()
         self.resp_m = RespManager()
@@ -301,7 +300,20 @@ class EventProcesser(Singleton):
         self.req_m = ReqManager()
         self.notice_m = NoticeManager()
         self.msg_m = MsgManager()
+
+        self.ExeI_load_lock = Lock()
+        self.ExeI_load_flag = False
         
+    async def build_ExeI(self) -> None:
+        """
+        异步加载和存储命令接口的资源
+        """
+        async with self.ExeI_load_lock:
+            if self.ExeI_load_flag: return
+            self.ExeI_load_flag = True
+            await ExeI._ExecInterface__load_cmd_funcs(CMD_MAP, SYS_CMD_MAP, ALIAS_MAP)
+            # 该方法用于初始化需要在循环启动后获得的变量
+            self.ExeI._ExecInterface__after_loop_init()
 
     async def handle(self, event: BotEvent) -> List[BotAction]:
         """
