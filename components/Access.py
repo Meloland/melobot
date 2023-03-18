@@ -1,4 +1,4 @@
-from common.Global import *
+from common.Utils import *
 from common.Event import BotEvent
 from common.Store import BOT_STORE
 from common.Typing import *
@@ -124,16 +124,16 @@ class NoticeAuthChecker(BaseAuthChecker, Singleton):
         return 0 < lvl and lvl >= threshold_lvl
 
 
-MSG_CHECKER = MsgAuthChecker(BOT_STORE['custom']['OWNER'], \
-    BOT_STORE['custom']['SUPER_USER'], \
-    BOT_STORE['custom']['WHITE_LIST'], \
-    BOT_STORE['custom']['BLACK_LIST'], \
-    BOT_STORE['custom']['WHITE_GROUP_LIST'], \
+MSG_CHECKER = MsgAuthChecker(BOT_STORE.config.owner, \
+    BOT_STORE.config.super_user, \
+    BOT_STORE.config.white_list, \
+    BOT_STORE.config.black_list, \
+    BOT_STORE.config.white_group_list, \
 )
-NOTICE_CHECKER =  NoticeAuthChecker(BOT_STORE['custom']['OWNER'], \
-    BOT_STORE['custom']['SUPER_USER'], \
-    BOT_STORE['custom']['WHITE_LIST'], \
-    BOT_STORE['custom']['BLACK_LIST'], \
-    BOT_STORE['custom']['WHITE_GROUP_LIST'], \
+NOTICE_CHECKER =  NoticeAuthChecker(BOT_STORE.config.owner, \
+    BOT_STORE.config.super_user, \
+    BOT_STORE.config.white_list, \
+    BOT_STORE.config.black_list, \
+    BOT_STORE.config.white_group_list, \
 )
 

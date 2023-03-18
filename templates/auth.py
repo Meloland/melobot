@@ -21,7 +21,7 @@ def auth(event: BotEvent) -> BotAction:
 
     alist = [
         u_nickname,
-        BOT_STORE['custom']['BOT_NAME'],
+        BOT_STORE.config.bot_name,
         u_lvl >= AuthRole.OWNER,
         u_lvl >= AuthRole.SU,
         u_lvl >= AuthRole.WHITE,

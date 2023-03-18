@@ -7,7 +7,9 @@ from typing import (
     Coroutine, 
     Callable,
     TypedDict,
-    Tuple
+    Tuple,
+    Any,
+    OrderedDict 
 )
 
 
@@ -19,6 +21,9 @@ __all__ = [
     'Coroutine', 
     'Callable',
     'Tuple',
+    'Any',
+    'NewType',
+    'OrderedDict',
 
     'Msg',
     'MsgSegment',

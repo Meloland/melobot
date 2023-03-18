@@ -3,9 +3,8 @@ import time
 from re import Pattern
 from abc import abstractmethod, ABC
 from common.Typing import *
-from common.Global import *
+from common.Utils import *
 from common.Store import BOT_STORE
-from common.Logger import BOT_LOGGER
 from common.Exceptions import *
 
 
@@ -47,7 +46,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
 
         # 命令起始符和命令间隔符不允许包含 引号，逗号，各种括号，反斜杠，数字，英文，空格
         if self.ban_regex.findall(''.join(cmd_sep+cmd_start)):
-            BOT_LOGGER.error('发生异常：不支持的命令起始符或命令间隔符！')
+            BOT_STORE.logger.error('发生异常：不支持的命令起始符或命令间隔符！')
             raise BotWrongCmdFlag('不支持的命令起始符或命令间隔符！')
 
     def build_parse_regex(self):
@@ -70,9 +69,9 @@ class ExactCmdParser(BaseCmdParser, Singleton):
             self.uninted_parse_regex = re.compile(rf"{'|'.join(self.cmd_united)}")
         
         if self.single_parse_flag:
-            BOT_STORE['kernel']['CMD_MODE'] = 'single'
+            BOT_STORE.meta.__dict__['cmd_mode'] = 'single'
         else:
-            BOT_STORE['kernel']['CMD_MODE'] = 'multiple'
+            BOT_STORE.meta.__dict__['cmd_mode'] = 'multiple'
     
     def parse(self, text: str) -> List[List[str]]:
         """
@@ -185,8 +184,8 @@ class TimeCmdParser(BaseCmdParser, Singleton):
 
 
 EC_PARSER = ExactCmdParser(
-    BOT_STORE['cmd']['COMMAND_START'],
-    BOT_STORE['cmd']['COMMAND_SEP']
+    BOT_STORE.config.command_start,
+    BOT_STORE.config.command_sep
 )
 FC_PARSER = FuzzyCmdParser()
 TC_PARSER = TimeCmdParser()

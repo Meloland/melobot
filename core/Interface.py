@@ -7,11 +7,11 @@ from threading import Lock as tLock, current_thread, main_thread
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from common.Typing import *
-from common.Global import *
+from common.Utils import *
 from common.Event import BotEvent
 from common.Action import BotAction
-from common.Store import BOT_STORE
-from common.Logger import BOT_LOGGER
+from common.Store import *
+from common.Session import *
 from common.Exceptions import *
 from components import Access as ac
 
@@ -45,9 +45,10 @@ class ExecInterface(Singleton):
         super().__init__()
         self.msg_checker = ac.MSG_CHECKER
         self.notice_checker = ac.NOTICE_CHECKER
-        self.pool = ThreadPoolExecutor(max_workers=BOT_STORE['kernel']['THREAD_NUM'])
+        self.pool = ThreadPoolExecutor(max_workers=BOT_STORE.meta.thread_num)
+        self.__session_builder = SessionManager()
         # 装入全局，方便 Monitor 管理
-        BOT_STORE['kernel']['POOL'] = self.pool
+        BOT_STORE.resources.thread_pool = BotResource(self.pool, dispose=self.pool.shutdown)
         self.loop = None
         
     def callback(self, delay: float, func: Callable, *args) -> aio.TimerHandle:
@@ -79,7 +80,7 @@ class ExecInterface(Singleton):
             if not self.notice_checker.check(userLevel, event.notice.user_id):
                 return False
         else:
-            BOT_LOGGER.error(f"bot 权限校验中遇到了预期外的事件类型：{event}")
+            BOT_STORE.logger.error(f"bot 权限校验中遇到了预期外的事件类型：{event}")
             raise BotUnexpectEvent("权限校验中遇到了预期外的事件类型")
         return True
 
@@ -98,7 +99,7 @@ class ExecInterface(Singleton):
                     self.pool, cmd_func, event, *args, **kwargs
                 )
             # 保存本次结束时间点至 cmd store
-            BOT_STORE['cmd'][cmd_func.__name__]['state']['LAST_CALL'] = t.time()
+            BOT_STORE.cmd.val()[cmd_func.__name__]['state']['LAST_CALL'] = t.time()
         return action
 
     def __get_rest_time(self, name: str, interval: int) -> float:
@@ -107,7 +108,7 @@ class ExecInterface(Singleton):
         计算需要停止命令执行的时间。
         """
         cmdName = self.get_cmd_name(name)
-        state = BOT_STORE['cmd'][cmdName]['state']
+        state = BOT_STORE.cmd.val()[cmdName]['state']
         if 'LAST_CALL' not in state.keys():
             return 0
         else:
@@ -122,9 +123,10 @@ class ExecInterface(Singleton):
             isLocked: bool=False,
             interval: int=0,
             hasPrefix: bool=False, 
-            preLoad: Tuple[str, Callable[..., object], Callable[..., object]]=None,
+            preLoad: Tuple[str, Callable[..., object], Union[Callable[..., object], None]]=None,
             comment: str='无', 
             prompt: str='无',
+            sessionCheck: Union[str, Tuple[str], Callable[[BotEvent, BotEvent], bool]]=None
         ) -> Callable:
         """
         供命令模板使用的装饰器接口，内部会自动判断方法类型。
@@ -134,7 +136,7 @@ class ExecInterface(Singleton):
         `isLocked`: 是否加锁。若需要更细粒度的加锁，在模板内部使用 `ExeI.get_cmd_lock()` 方法获得锁
         `interval`: 命令冷却时间（单位 秒），注意：冷却时间 >0，默认会加锁任务
         `hasPrefix`: 是否添加前缀
-        `preLoad`: 元组。预加载资源在 `BOT_STORE['cmd'][具体命令名]` 字典的访问键，
+        `preLoad`: 元组。预加载资源在 `BOT_STORE.cmd.val()[具体命令名]` 字典的访问键，
         资源预加载方法（必须返回一个对象），资源释放方法（不指定可以传递 None）
         `comment`: 供帮助使用的命令注释
         `prompt`: 供帮助使用的命令参数提示
@@ -143,8 +145,25 @@ class ExecInterface(Singleton):
             async def warpped_cmd_func(event: BotEvent, *args, **kwargs) -> BotAction:
                 action = None
                 cmd_name = cmd_func.__name__
-                state = BOT_STORE['cmd'][cmd_name]['state']
+                state = BOT_STORE.cmd.val()[cmd_name]['state']
                 f_cmd_args_str = f'命令 {cmd_name} {" | ".join(args)}'
+
+                if sessionCheck is None:
+                    event.session = await self.__session_builder.get_session(event)
+                elif isinstance(sessionCheck, str) or isinstance(sessionCheck, tuple):
+                    event.session = await self.__session_builder.get_session(
+                        event, 
+                        BOT_STORE.cmd.val()[cmd_name]['sessions'],
+                        checkAttr=sessionCheck, 
+                        lock=self.get_cmd_lock(cmd_name)
+                    )
+                else:
+                    event.session = await self.__session_builder.get_session(
+                        event, 
+                        BOT_STORE.cmd.val()[cmd_name]['sessions'],
+                        checkMethod=sessionCheck, 
+                        lock=self.get_cmd_lock(cmd_name)
+                    )
 
                 try:
                     check_res = await self.__cmd_auth_check(event, userLevel)
@@ -172,15 +191,15 @@ class ExecInterface(Singleton):
                         action.cmd_name = cmd_name
                         action.cmd_args = args
                 except aio.CancelledError:
-                    BOT_LOGGER.error(f_cmd_args_str + '执行失败，原因：超时，尝试发送提示消息中...')
+                    BOT_STORE.logger.error(f_cmd_args_str + '执行失败，原因：超时，尝试发送提示消息中...')
                 except (TypeError, ValueError):
-                    BOT_LOGGER.warning(f_cmd_args_str + '执行失败，原因：参数格式错误，尝试发送提示消息中...')
+                    BOT_STORE.logger.warning(f_cmd_args_str + '执行失败，原因：参数格式错误，尝试发送提示消息中...')
                     return await self.__ret_sys_call('echo', event, '参数有误哦~')
                 except BotCmdExecFailed as e:
-                    BOT_LOGGER.warning(f_cmd_args_str + '执行失败，原因：内部的自定义错误，尝试发送提示消息中...')
+                    BOT_STORE.logger.warning(f_cmd_args_str + '执行失败，原因：内部的自定义错误，尝试发送提示消息中...')
                     return await self.__ret_sys_call('echo', event, e.origin_err)
                 except Exception as e:
-                    BOT_LOGGER.error(f_cmd_args_str + f'执行失败，原因：预期之外的异常 {e}')
+                    BOT_STORE.logger.error(f_cmd_args_str + f'执行失败，原因：预期之外的异常 {e}')
                     return await self.__ret_sys_call('echo', event, f"内部发生异常：[{str(e.__class__.__name__)}] {e}")
                 return action
             
@@ -229,7 +248,7 @@ class ExecInterface(Singleton):
             action = await self.loop.run_in_executor(
                 self.pool, cmd_func, event, *args, **kwargs
             )
-        monitor = BOT_STORE['kernel']['MONITOR']
+        monitor = BOT_STORE.monitor
         await monitor.place_action(action)
     
     async def __ret_sys_call(self, cmdName: str, event: BotEvent, *args, **kwargs) -> BotAction:
@@ -279,11 +298,11 @@ class ExecInterface(Singleton):
         在 BOT_STORE 中建立每个命令的存储，包含全局状态和 session 空间。
         同时加载一些命令模板需要预加载的资源，并指定资源的销毁方法
         """
-        BOT_STORE['cmd']['ASYNC_DISPOSE'] = {}
-        BOT_STORE['cmd']['SYNC_DISPOSE'] = {}
+        BOT_STORE.cmd.val()['ASYNC_DISPOSE'] = {}
+        BOT_STORE.cmd.val()['SYNC_DISPOSE'] = {}
 
         for cmdName in self.cmd_map.keys():
-            BOT_STORE['cmd'][cmdName] = {
+            BOT_STORE.cmd.val()[cmdName] = {
                 'sessions': [],
                 'state': {},
             }
@@ -291,15 +310,15 @@ class ExecInterface(Singleton):
             if load_info is not None:
                 visit_key, load_method, dispose_method = load_info
                 if iscoroutinefunction(load_method):
-                    BOT_STORE['cmd'][cmdName][visit_key] = await load_method()
+                    BOT_STORE.cmd.val()[cmdName][visit_key] = await load_method()
                 else:
-                    BOT_STORE['cmd'][cmdName][visit_key] = load_method()
+                    BOT_STORE.cmd.val()[cmdName][visit_key] = load_method()
 
                 if dispose_method is None: continue
                 if iscoroutinefunction(dispose_method):
-                    BOT_STORE['cmd']['ASYNC_DISPOSE'][f'{cmdName}_{visit_key}'] = dispose_method
+                    BOT_STORE.cmd.val()['ASYNC_DISPOSE'][f'{cmdName}_{visit_key}'] = dispose_method
                 else:
-                    BOT_STORE['cmd']['SYNC_DISPOSE'][f'{cmdName}_{visit_key}'] = dispose_method
+                    BOT_STORE.cmd.val()['SYNC_DISPOSE'][f'{cmdName}_{visit_key}'] = dispose_method
         
     
     async def __load_cmd_funcs(self, cmdMap: dict, sysCmdMap: dict, aliasMap: dict) -> None:
@@ -319,7 +338,7 @@ class ExecInterface(Singleton):
         self.loop = aio.get_running_loop()
         # 由于同步任务是线程池执行，因此同样可以使用 asyncio Lock
         for cmdName in self.cmd_map.keys():
-            state = BOT_STORE['cmd'][cmdName]['state']
+            state = BOT_STORE.cmd.val()[cmdName]['state']
             cmd_func = self.cmd_map[cmdName]
             # 命令加锁选项为 True 或命令启用冷却机制，都需要在为该命令初始化命令锁
             if cmd_func.__enable_lock__ or cmd_func.__enable_cd__: 
@@ -329,7 +348,7 @@ class ExecInterface(Singleton):
         """
         判断 bot 是否在工作
         """
-        return BOT_STORE['kernel']['WORKING_STATUS']
+        return BOT_STORE.meta.working_status
 
     def get_cmd_name(self, name: str) -> str:
         """
@@ -363,7 +382,7 @@ class ExecInterface(Singleton):
         cmdName = self.get_cmd_name(name)
         return self.cmd_map[cmdName].__comment__
 
-    def get_cmd_paramsTip(self, name: str) -> str:
+    def get_cmd_prompt(self, name: str) -> str:
         """
         供外部获取指定命令的参数说明，可使用命令名或别称
         """
@@ -379,7 +398,7 @@ class ExecInterface(Singleton):
         # 注意：用户态锁获取时，同步命令方法，不能直接返回 state 中的协程锁。此时要返回线程锁
         cmdName = self.get_cmd_name(name)
         cmd_func = self.cmd_map[cmdName]
-        state = BOT_STORE['cmd'][cmdName]['state']
+        state = BOT_STORE.cmd.val()[cmdName]['state']
         if cmd_func.__iscoro__:
             if 'LOCK' not in state.keys(): 
                 state['LOCK'] = aioLock()
@@ -409,7 +428,7 @@ class CmdMapper(Singleton):
         加载模板，即具体的命令执行方法
         """
         templates_path = os.path.join(
-            BOT_STORE['kernel']['ROOT_PATH'], 'templates'
+            BOT_STORE.meta.root_path, 'templates'
         )
         
         # 加载用户级 cmd
@@ -432,7 +451,7 @@ class CmdMapper(Singleton):
         """
         # 加载系统级 cmd
         sys_cmd_path = os.path.join(
-            BOT_STORE['kernel']['ROOT_PATH'], 'cmd'
+            BOT_STORE.meta.root_path, 'cmd'
         )
         for pypath in os.listdir(sys_cmd_path):
             if pypath != "__init__.py" and pypath != "__pycache__" and pypath.endswith(".py"):

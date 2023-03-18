@@ -16,14 +16,13 @@ def help(event: BotEvent, queryCmdName: str=None) -> BotAction:
 
         # 只显示权限内可用的命令
         help_str = '\n'.join([
-            f' ● {name}  {"（" + " / ".join(ExeI.get_cmd_aliases(name)) + "）" if ExeI.get_cmd_aliases(name) != [] else ""}'
+            f'{name}  {"(" + " / ".join(ExeI.get_cmd_aliases(name)) + ")" if ExeI.get_cmd_aliases(name) != [] else ""}'
             for name in ExeI.cmd_map.keys()
             if u_lvl >= ExeI.get_cmd_auth(name)
         ])
         if help_str != '':
-            help_str = '可用指令如下，括号内为别名：（命令可以使用别名）\n\n' \
-                + help_str \
-                + '\n\n此命令后跟命令名或别名获取详细帮助'
+            help_str = '可用指令如下。括号内为别名，~help#命令名 获取详细帮助。\n\n' \
+                + help_str
     else:
         help_str = help_detail(event, queryCmdName)
 
@@ -51,6 +50,6 @@ def help_detail(event: BotEvent, queryName: str) -> str:
         cmdName,
         " / ".join(aliases) if aliases != [] else '无',
         ExeI.get_cmd_comment(cmdName),
-        ExeI.get_cmd_paramsTip(cmdName)
+        ExeI.get_cmd_prompt(cmdName)
     )
 

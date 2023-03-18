@@ -5,6 +5,8 @@ private
 go-cqhttp
 config
 docs
+test
+.pytest_cache
 main.build
 main.dist
 
@@ -14,3 +16,4 @@ templates/weather.py
 templates/translate.py
 templates/summon.py
 templates/matlab.py
+templates/s_test.py

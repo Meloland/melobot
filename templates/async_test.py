@@ -7,7 +7,7 @@ from common.Action import msg_action
 
 @ExeI.template(
     aliases=['异步测试', 'atest'], 
-    userLevel=AuthRole.SU, 
+    userLevel=AuthRole.SU,
     comment='异步测试', 
     prompt='[测试秒数，默认为 5]'
 )

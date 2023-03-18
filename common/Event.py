@@ -6,7 +6,8 @@ from .Typing import *
 
 __all__ = [
     'BotEvent', 
-    'KernelEvent'
+    'KernelEvent',
+    'RespEvent'
 ]
 
 
@@ -81,6 +82,10 @@ class BotEvent:
     def is_resp(self) -> bool:
         """是否为响应事件"""
         return self.type == 'response'
+
+
+# 响应事件 typing
+RespEvent = NewType('RespEvent', BotEvent)
 
 
 class KernelEvent(BotEvent):

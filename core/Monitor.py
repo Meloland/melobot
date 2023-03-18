@@ -4,10 +4,9 @@ import asyncio as aio
 import datetime as dt
 import importlib as ipl
 from common.Typing import *
-from common.Global import *
+from common.Utils import *
 from common.Action import BotAction
-from common.Store import BOT_STORE
-from common.Logger import BOT_LOGGER
+from common.Store import *
 from .Linker import BotLinker
 from .Handler import BotHandler
 
@@ -74,24 +73,12 @@ class BotMonitor(Singleton):
         if self.linker.ws and not self.linker.ws.closed:
             await self.linker.close()
 
-    async def close_pool(self) -> None:
+    async def dispose_resources(self) -> None:
         """
-        关闭 bot 用于同步任务异步化的线程池
+        释放依赖的资源，包括 BOT_STORE.resources 和 BOT_STORE.plugins
         """
-        pool = BOT_STORE['kernel']['POOL']
-        pool.shutdown(wait=False)
-        BOT_LOGGER.debug(f"bot 同步任务辅助线程池已关闭")
-
-    async def dispose_cmd_sources(self) -> None:
-        """
-        释放命令模板自定义依赖的资源
-        """
-        async_disposes =  BOT_STORE['cmd']['ASYNC_DISPOSE']
-        sync_disposes =  BOT_STORE['cmd']['SYNC_DISPOSE']
-        for method_name in sync_disposes.keys():
-            sync_disposes[method_name]()
-        for method_name in async_disposes.keys():
-            await async_disposes[method_name]()
+        await BOT_STORE.resources.dispose_all()
+        await BOT_STORE.plugins.dispose_all()
 
     async def run_startup(self) -> None:
         """
@@ -109,17 +96,16 @@ class BotMonitor(Singleton):
             self.start_tasks()
             await aio.wait(
                 self.tasklist, 
-                timeout=BOT_STORE['operation']['WORKING_TIME']
+                timeout=BOT_STORE.config.working_time
             )
         except aio.CancelledError:
-            BOT_LOGGER.debug("异步核心任务被卸载")
+            BOT_STORE.logger.debug("异步核心任务被卸载")
         except Exception as e:
-            BOT_LOGGER.debug(traceback.format_exc())
-            BOT_LOGGER.error(f"bot 非正常关闭，退出原因：{e}")
+            BOT_STORE.logger.debug(traceback.format_exc())
+            BOT_STORE.logger.error(f"bot 非正常关闭，退出原因：{e}")
         finally:
             await self.close_link()
-            await self.close_pool()
-            await self.dispose_cmd_sources()
+            await self.dispose_resources()
 
     async def stop_bot(self) -> None:
         """
@@ -130,9 +116,9 @@ class BotMonitor(Singleton):
             for task in self.tasklist:
                 task.cancel()
                 await task
-            BOT_LOGGER.info("bot 所有异步核心任务已正常卸载 awa")
+            BOT_STORE.logger.info("bot 所有异步核心任务已正常卸载 awa")
         except aio.CancelledError:
-            BOT_LOGGER.debug("异步核心任务被卸载")
+            BOT_STORE.logger.debug("异步核心任务被卸载")
         # 不需要额外再做关闭连接和关闭线程池的处理，因为这里的异常最后会在 run_bot 那里捕获
 
     @property
@@ -171,4 +157,4 @@ class BotMonitor(Singleton):
 
 
 MONITOR = BotMonitor()
-BOT_STORE['kernel']['MONITOR'] = MONITOR
+BOT_STORE.monitor = MONITOR

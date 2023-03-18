@@ -5,7 +5,6 @@ from common.Typing import *
 from common.Event import BotEvent
 from common.Action import BotAction
 from common.Store import BOT_STORE
-from common.Logger import BOT_LOGGER
 from common.Exceptions import *
 from .Processor import EventProcesser
 
@@ -39,20 +38,20 @@ class BotHandler:
                     if actions == []: continue
                     for action in actions:
                         t = aio.create_task(self.put_action(action))
-                        await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
+                        await aio.wait_for(t, timeout=BOT_STORE.meta.kernel_timeout)
 
                         cmd_args = ' | '.join(action.cmd_args)
                         if len(cmd_args) > 30: cmd_args = cmd_args[:40] + '...'
-                        BOT_LOGGER.info(f"命令 {action.cmd_name} {cmd_args} 执行成功√")
+                        BOT_STORE.logger.info(f"命令 {action.cmd_name} {cmd_args} 执行成功√")
                 except aio.TimeoutError:
                     pass
                 except BotUnknownEvent:
-                    BOT_LOGGER.warning(f'出现 bot 未知事件：{event.raw}')
+                    BOT_STORE.logger.warning(f'出现 bot 未知事件：{event.raw}')
                 except Exception as e:
-                    BOT_LOGGER.debug(traceback.format_exc())
-                    BOT_LOGGER.error(f'内部发生预期外的异常：{e}，事件为：{event.raw}（bot 仍在运行）')
+                    BOT_STORE.logger.debug(traceback.format_exc())
+                    BOT_STORE.logger.error(f'内部发生预期外的异常：{e}，事件为：{event.raw}（bot 仍在运行）')
         except aio.CancelledError:
-                BOT_LOGGER.debug(f'handler.get_event {name} 已被卸载')
+                BOT_STORE.logger.debug(f'handler.get_event {name} 已被卸载')
 
     async def put_action(self, action: BotAction) -> None:
         """
@@ -60,10 +59,10 @@ class BotHandler:
         """
         try:
             if self.action_q.full():
-                BOT_LOGGER.warning("行为队列已满！短时间可能无法对任务回应")
+                BOT_STORE.logger.warning("行为队列已满！短时间可能无法对任务回应")
             await self.action_q.put(action)
         except aio.CancelledError:
-            BOT_LOGGER.debug('行为放置因超时而被取消')
+            BOT_STORE.logger.debug('行为放置因超时而被取消')
     
     async def get_prior_event(self, name: str) -> None:
         """
@@ -78,22 +77,22 @@ class BotHandler:
                     if prior_actions == []: continue
                     for prior_action in prior_actions:
                         t = aio.create_task(self.put_prior_action(prior_action))
-                        await aio.wait_for(t, timeout=BOT_STORE['kernel']['KERNEL_TIMEOUT'])
+                        await aio.wait_for(t, timeout=BOT_STORE.meta.kernel_timeout)
 
                         cmd_args = ' | '.join(prior_action.cmd_args)
                         if len(cmd_args) > 30: cmd_args = cmd_args[:30] + '...'
-                        BOT_LOGGER.info(
+                        BOT_STORE.logger.info(
                             f"命令 {prior_action.cmd_name} {cmd_args} 执行成功√"
                         )
                 except aio.TimeoutError:
                     pass
                 except BotUnknownEvent:
-                    BOT_LOGGER.warning(f'出现 bot 未知事件：{prior_event.raw}')
+                    BOT_STORE.logger.warning(f'出现 bot 未知事件：{prior_event.raw}')
                 except Exception as e:
-                    BOT_LOGGER.debug(traceback.format_exc())
-                    BOT_LOGGER.error(f'内部发生预期外的异常：{e}，优先事件对象为：{prior_event.raw}（bot 仍在运行）')
+                    BOT_STORE.logger.debug(traceback.format_exc())
+                    BOT_STORE.logger.error(f'内部发生预期外的异常：{e}，优先事件对象为：{prior_event.raw}（bot 仍在运行）')
         except aio.CancelledError:
-            BOT_LOGGER.debug(f'handler.get_prior_event {name} 已被卸载')
+            BOT_STORE.logger.debug(f'handler.get_prior_event {name} 已被卸载')
         
     async def put_prior_action(self, prior_action: BotAction) -> None:
         """
@@ -101,10 +100,10 @@ class BotHandler:
         """
         try:
             if self.prior_action_q.full():
-                BOT_LOGGER.warning("优先行为队列已满！短时间内可能无法产生优先行为")
+                BOT_STORE.logger.warning("优先行为队列已满！短时间内可能无法产生优先行为")
             await self.prior_action_q.put(prior_action)
         except aio.CancelledError:
-            BOT_LOGGER.debug('优先行为放置因超时而被取消')
+            BOT_STORE.logger.debug('优先行为放置因超时而被取消')
     
 
     def coro_getter(self) -> List[Coroutine]:
@@ -112,7 +111,7 @@ class BotHandler:
         返回 handler 所有核心的异步协程给主模块，
         多开一些协程，以尽可能实现对大量事件的异步响应。
         """
-        num = BOT_STORE['kernel']['EVENT_HANDLER_NUM']
+        num = BOT_STORE.meta.event_handler_num
         coro_list = []
         for _ in range(int(num)):
             coro_list.append(self.get_event(name=f"h{_+1}"))

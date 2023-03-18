@@ -1,12 +1,18 @@
 import os
 import sys
 import toml
-from .Global import Singleton
+from .Utils import Singleton
+from .Typing import *
+
+
+__all__ = [
+    'BotConfig'
+]
 
 
 defaultConfigText = \
 """# 以下为自动生成的默认配置文件
-# 配置项参考：https://proj.glowmem.com/MeloBot/config/botConfig/
+# 配置项参考：https://aicorein.github.io/Qbot-MeloBot-docs/config/botConfig/
 #
 # bot 工作流程配置（目前与 cq 的通信暂时只支持正向 ws）
 [operation]
@@ -121,3 +127,45 @@ class ConfigManager(Singleton):
         """
         if self.config['operation']['WORKING_TIME'] <= 0:
             self.config['operation']['WORKING_TIME'] = None
+
+
+class BotConfig:
+    """
+    配置类
+    """
+    def __init__(self) -> None:
+        self.connect_host: str = None
+        self.connect_port: int = None
+        self.work_queue_len: int = None
+        self.log_level: str = None
+        self.task_timeout: str = None
+        self.cooldown_time: int = None
+        self.working_time: int = None
+        self.owner: int = None
+        self.super_user: List[int] = None
+        self.white_list: List[int] = None
+        self.black_list: List[int] = None
+        self.white_group_list: List[int] = None
+        self.nick_name: str = None
+        self.bot_name: str = None
+        self.command_start: str = None
+        self.command_sep: str = None
+
+    def build(self, configPath: str) -> None:
+        self.__inner_dict = ConfigManager(configPath).get_config()
+        self.connect_host = self.__inner_dict['operation']['CONNECT_HOST']
+        self.connect_port = self.__inner_dict['operation']['CONNECT_PORT']
+        self.work_queue_len = self.__inner_dict['operation']['WORK_QUEUE_LEN']
+        self.log_level = self.__inner_dict['operation']['LOG_LEVEL']
+        self.task_timeout = self.__inner_dict['operation']['TASK_TIMEOUT']
+        self.cooldown_time = self.__inner_dict['operation']['COOLDOWN_TIME']
+        self.working_time = self.__inner_dict['operation']['WORKING_TIME']
+        self.owner = self.__inner_dict['custom']['OWNER']
+        self.super_user = self.__inner_dict['custom']['SUPER_USER']
+        self.white_list = self.__inner_dict['custom']['WHITE_LIST']
+        self.black_list = self.__inner_dict['custom']['BLACK_LIST']
+        self.white_group_list = self.__inner_dict['custom']['WHITE_GROUP_LIST']
+        self.nick_name = self.__inner_dict['custom']['NICK_NAME']
+        self.bot_name = self.__inner_dict['custom']['BOT_NAME']
+        self.command_start = self.__inner_dict['cmd']['COMMAND_START']
+        self.command_sep = self.__inner_dict['cmd']['COMMAND_SEP']

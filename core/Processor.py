@@ -2,11 +2,10 @@ import asyncio as aio
 from random import random, choice
 from abc import abstractmethod, ABC
 from common.Typing import *
-from common.Global import *
+from common.Utils import *
 from common.Event import BotEvent
 from common.Action import BotAction
 from common.Store import BOT_STORE
-from common.Logger import BOT_LOGGER
 from common.Exceptions import *
 from components import Parser
 from .Interface import ExeI, CMD_MAP, ALIAS_MAP, SYS_CMD_MAP
@@ -44,7 +43,7 @@ class BaseCmdExecutor(ABC, Singleton):
             tasklist.append(aio.create_task(
                 aio.wait_for(
                     self.ExeI.call(cmd_name, event, *cmd_list[idx][1:]),
-                    timeout=BOT_STORE['operation']['TASK_TIMEOUT']
+                    timeout=BOT_STORE.config.task_timeout
                 )
             ))
         # 等待命令列表执行完成
@@ -95,7 +94,7 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
     def __init__(self) -> None:
         super().__init__()
         self.ExeI = ExeI
-        self.ans_dict = BOT_STORE['data']['KEY_ANS']
+        self.ans_dict = BOT_STORE.resources.key_ans.val()
 
     async def process_answers(self, event: BotEvent, ans_list: list) -> List[BotAction]:
         """
@@ -203,14 +202,14 @@ class RespManager(Singleton):
     async def handle(self, event: BotEvent) -> List[BotAction]:
         res = []
         if event.resp.is_failed():
-            BOT_LOGGER.error(f'收到失败响应：{event.raw}')
+            BOT_STORE.logger.error(f'收到失败响应：{event.raw}')
         elif event.resp.is_processing():
-            BOT_LOGGER.warning(f'收到仍在处理的响应：{event.raw}')
+            BOT_STORE.logger.warning(f'收到仍在处理的响应：{event.raw}')
         elif event.resp.is_ok():
             if self.isBotInfoResp(event):
-                BOT_STORE['kernel']['NICKNAME'] = event.resp.data['nickname']
-                BOT_STORE['kernel']['BOT_ID'] = event.resp.data['user_id']
-                BOT_LOGGER.info("已成功获得 bot 登录号相关信息")
+                BOT_STORE.meta.__dict__['bot_nickname'] = event.resp.data['nickname']
+                BOT_STORE.meta.__dict__['bot_id'] = event.resp.data['user_id']
+                BOT_STORE.logger.info("已成功获得 bot 登录号相关信息")
         return res
 
 

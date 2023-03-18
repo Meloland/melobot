@@ -11,13 +11,15 @@ from common.Action import msg_action
 )
 def info(event: BotEvent) -> BotAction:
     info_list = [
-        BOT_STORE['custom']['BOT_NAME'],
-        BOT_STORE['kernel']['PROJ_NAME'],
-        BOT_STORE['kernel']['VERSION'],
-        BOT_STORE['kernel']['DEVELOPER'],
-        BOT_STORE['kernel']['PROJ_URL'],
+        BOT_STORE.config.bot_name,
+        BOT_STORE.meta.proj_name,
+        BOT_STORE.meta.version,
+        BOT_STORE.meta.developer,
+        BOT_STORE.meta.proj_url,
     ]
-    info_str = "bot 名称：{}\n项目名称：{}\n版本：v{}\n开发者：{}\n项目地址：{} ".format(*info_list)
+    info_str = "bot 名称：{}\n基于项目：{}\n版本：v{}\n开发信息：\n©{} \n{}".format(*info_list)
+    thanks_str = "\n特别致谢：\n@Vescrity 的创意点子\nhttps://github.com/Vescrity"
+    info_str += thanks_str
     
     return msg_action(
         info_str,

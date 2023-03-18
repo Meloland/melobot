@@ -18,7 +18,7 @@ async def shell(event: BotEvent, cmd_str: str) -> BotAction:
     )
 
     stdout, stderr = await proc.communicate()
-    if proc.returncode == 0:
+    if stderr == b'':
         ret_str = stdout.decode(encoding='gbk').strip('\r\n')
     else:
         ret_str = stderr.decode(encoding='gbk').strip('\r\n')

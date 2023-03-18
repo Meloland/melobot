@@ -18,7 +18,6 @@ from .Typing import (
 )
 from .Action import BotAction
 from .Store import BOT_STORE
-from .Logger import BOT_LOGGER
 
 
 __all__ = [
@@ -26,7 +25,6 @@ __all__ = [
     'KernelEvent', 
     'BotAction', 
     'BOT_STORE', 
-    'BOT_LOGGER',
     
     'Union', 
     'List', 

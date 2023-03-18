@@ -11,17 +11,17 @@ from common.Action import msg_action
 )
 def status(event: BotEvent) -> BotAction:
     stat_list = [
-        BOT_STORE['operation']['TASK_TIMEOUT'],
-        BOT_STORE['operation']['COOLDOWN_TIME'],
-        BOT_STORE['cmd']['COMMAND_START'],
-        BOT_STORE['cmd']['COMMAND_SEP'],
-        BOT_STORE['kernel']['CMD_MODE'],
-        BOT_STORE['operation']['WORK_QUEUE_LEN'],
-        BOT_STORE['kernel']['PRIOR_QUEUE_LEN'],
-        BOT_STORE['kernel']['THREAD_NUM'],
-        BOT_STORE['kernel']['EVENT_HANDLER_NUM'],
-        BOT_STORE['kernel']['MONITOR'].bot_start_time,
-        BOT_STORE['kernel']['MONITOR'].bot_running_time,
+        BOT_STORE.config.task_timeout,
+        BOT_STORE.config.cooldown_time,
+        BOT_STORE.config.command_start,
+        BOT_STORE.config.command_sep,
+        BOT_STORE.meta.cmd_mode,
+        BOT_STORE.config.work_queue_len,
+        BOT_STORE.meta.prior_queue_len,
+        BOT_STORE.meta.thread_num,
+        BOT_STORE.meta.event_handler_num,
+        BOT_STORE.monitor.bot_start_time,
+        BOT_STORE.monitor.bot_running_time
     ]
     stat_str = "bot 当前状态如下： \n\n\
  ● 任务超时时间：{}s \n\

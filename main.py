@@ -2,17 +2,16 @@ import sys
 sys.path.append('.')
 import asyncio as aio
 from asyncio import Queue
-from common.Global import *
+from common.Utils import *
 from common.Store import BOT_STORE
-from common.Logger import BOT_LOGGER
 from common.Exceptions import *
 
 
-BOT_LOGGER.debug('本次运行日志开始...')
-BOT_LOGGER.info("Qbot-MeloBot 版本：v{}, developer: {}".format(
-    BOT_STORE['kernel']['VERSION'], BOT_STORE['kernel']['DEVELOPER']
+BOT_STORE.logger.debug('本次运行日志开始...')
+BOT_STORE.logger.info("Qbot-MeloBot 版本：v{}, developer: {}".format(
+    BOT_STORE.meta.version, BOT_STORE.meta.developer
 ))
-BOT_LOGGER.info('bot 世界观形成中...  (=´ω｀=)')
+BOT_STORE.logger.info('bot 世界观形成中...  (=´ω｀=)')
 
 
 from core import BotLinker, BotHandler, MONITOR
@@ -30,10 +29,10 @@ class MeloBot(Singleton):
         装载 bot 核心实例与异步核心任务至 Monitor，并交由 Monitor 启动和管理
         """
         # 核心事件队列，行为队列最大长设置为事件队列的 3 倍，以适应多命令模式
-        action_q = Queue(maxsize=BOT_STORE['operation']['WORK_QUEUE_LEN']*3)
-        event_q = Queue(maxsize=BOT_STORE['operation']['WORK_QUEUE_LEN'])
-        prior_action_q = Queue(maxsize=BOT_STORE['kernel']['PRIOR_QUEUE_LEN']*3)
-        prior_event_q = Queue(maxsize=BOT_STORE['kernel']['PRIOR_QUEUE_LEN'])
+        action_q = Queue(maxsize=BOT_STORE.config.work_queue_len*3)
+        event_q = Queue(maxsize=BOT_STORE.config.work_queue_len)
+        prior_action_q = Queue(maxsize=BOT_STORE.meta.prior_queue_len*3)
+        prior_event_q = Queue(maxsize=BOT_STORE.meta.prior_queue_len)
 
         # 实例化连接对象
         bot_linker = BotLinker(action_q, event_q, prior_action_q, prior_event_q)
@@ -48,11 +47,11 @@ class MeloBot(Singleton):
         MONITOR.bind(bot_linker, bot_handler)
         MONITOR.hold_coros(*coro_list)
         
-        BOT_LOGGER.info('bot 意识形成完毕√')
-        BOT_LOGGER.info('bot 开始觉醒!~ >w<')
+        BOT_STORE.logger.info('bot 意识形成完毕√')
+        BOT_STORE.logger.info('bot 开始觉醒!~ >w<')
         await MONITOR.run_bot()
 
-        BOT_LOGGER.info("bot 已关闭，下次见哦~")
+        BOT_STORE.logger.info("bot 已关闭，下次见哦~")
 
 
 if __name__ == "__main__":
@@ -62,5 +61,5 @@ if __name__ == "__main__":
     try:
         aio.run(MeloBot().main())
     except KeyboardInterrupt:
-        BOT_LOGGER.debug("接收到键盘中断...")
-    BOT_LOGGER.debug("本次运行日志结束...")
+        BOT_STORE.logger.debug("接收到键盘中断...")
+    BOT_STORE.logger.debug("本次运行日志结束...")

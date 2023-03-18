@@ -1,7 +1,7 @@
 import json
 from . import Encoder as ec
 from .Event import *
-from .Global import *
+from .Utils import *
 from .Exceptions import *
 from .Snowflake import ID_WORKER
 from .Typing import *
@@ -98,7 +98,6 @@ __all__ = [
     'get_online_clients_action',
     'get_model_show_action',
     'set_model_show_action',
-    
 ]
 
 

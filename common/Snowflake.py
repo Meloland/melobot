@@ -1,4 +1,4 @@
-from .Global import Singleton
+from .Utils import Singleton
 import time
 
 
@@ -61,3 +61,12 @@ class IdWorker(Singleton):
 
 
 ID_WORKER = IdWorker(1, 1, 0)
+
+
+
+if __name__ == "__main__":
+    print(ID_WORKER.get_id())
+    print(ID_WORKER.get_id())
+    print(ID_WORKER.get_id())
+    print(ID_WORKER.get_id())
+    print(ID_WORKER.get_id())

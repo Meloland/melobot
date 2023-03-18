@@ -1,7 +1,7 @@
 import time
 import asyncio as aio
 from .Monitor import MONITOR
-from common.Global import *
+from common.Utils import *
 from common.Action import *
 
 
