@@ -4,13 +4,12 @@
 <p><strong>基于 go-cqhttp 前端，python 的 qbot 实现</strong></p>
 </div>
 
-## 关于 MeloBot
+## 🎉 关于 MeloBot
 
-MeloBot 是一个基于 Python 的 qbot 实现，其以实现了 Onebot 标准的 go-cqhttp 接口作为前端，通过对来自 go-cqhttp 的各种“事件”的处理，再产生“行为”，最后提交给 go-cqhttp 与 qq 服务器进行通信，完成 bot 的各种动作。
+MeloBot 是一个基于 Python 的 qbot 实现。其以实现了 Onebot 标准的 go-cqhttp 接口作为前端，通过对来自 go-cqhttp 的各种“事件”的处理，再产生“行为”，最后提交给 go-cqhttp 与 qq 服务器进行通信，实现各类复杂的功能。
+目前 v1 版本已经开发完成，现正开发 v2 版本。（详情参考 [v2-dev](https://github.com/AiCorein/Qbot-MeloBot/tree/v2-dev) 分支）
 
-MeloBot 目前的接口设计，可以帮助使用者实现一些自定义的需求。但仍不够好，不够完善，需要进一步的迭代和更新。在未来，MeloBot 的目标是成为具有高性能、高自由度、强易用性的 qbot 开发接口和工具。
-
-## MeloBot 能做到什么
+## ✨ MeloBot v1 的特点
 - 异步多协程 + 多线程的并发实现，拥有较高的处理性能
 - 独立备用队列、备用事件处理器组，保证主队列和主事件处理器组阻塞时，仍有备用选择
 - 支持多消息的事件处理，以及单消息中的多事件处理
@@ -20,12 +19,23 @@ MeloBot 目前的接口设计，可以帮助使用者实现一些自定义的需
 - 命令参数错误自动提醒
 - 可自定义命令错误执行时的反馈
 
-## 版本支持
+## 🚧 MeloBot v2 正在进行的工作
+- ✅ 封装建立内部事件、行为，高层与底层数据解耦
+- ✅ 取消线程池设计，全部使用协程设计
+- ✅ 会话控制
+- ✅ 行为对应响应事件的分发与回送
+- ⬜ 基于 aiocqhttp 开发自定义前端，不再使用 go-cq
+- ⬜ 事件各类响应接口与事件广播
+- ⬜ 响应优先级设计
+- ⬜ 权限校验、规则等中间件设计
+- ⬜ 插件化管理
+
+## 📦️ 版本支持
 - python >= 3.8
 - go-cqhttp >= 1.0.0
-- platform == x64
+- platform == All（注：除 win 外其他平台尚未测试）
 
-## 更多
+## 💬 更多
 请参阅文档：[MeloBot 文档](https://proj.glowmem.com/MeloBot/)
 
 文档开源：[MeloBot-docs](https://github.com/AiCorein/Qbot-MeloBot-docs)
