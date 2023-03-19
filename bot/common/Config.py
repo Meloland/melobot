@@ -1,7 +1,6 @@
 import os
 import sys
 import toml
-from .Utils import Singleton
 from .Typing import *
 
 
@@ -71,7 +70,7 @@ defaultConfig = {
 }
 
 
-class ConfigManager(Singleton):
+class ConfigManager:
     """
     配置管理器
     """

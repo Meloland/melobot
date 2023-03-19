@@ -4,16 +4,15 @@ import traceback
 import asyncio as aio
 import websockets.exceptions as wse
 from asyncio import Queue
-from components import Parser
-from components import Access
+from utils import Parser
+from utils import Access
 from common.Typing import *
-from common.Utils import *
 from common.Event import BotEvent, KernelEvent
 from common.Action import BotAction
 from common.Store import BOT_STORE
 
 
-class BotLinker(Singleton):
+class BotLinker:
     """
     Bot 连接模块。
     负责与 cq 建立连接，并将接收到的事件装入事件队列。
@@ -171,7 +170,7 @@ class BotLinker(Singleton):
         ]
 
 
-class PriorEventFilter(Singleton):
+class PriorEventFilter:
     """
     优先事件分拣器
     """

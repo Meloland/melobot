@@ -10,4 +10,4 @@ from common.Action import msg_action
     prompt='无参数',
 )
 async def echo(session: BotSession, text: str) -> None:
-    await session.send(text)
+    await session.send(text, waitResp=True)

@@ -4,15 +4,13 @@ import asyncio as aio
 import datetime as dt
 import importlib as ipl
 from common.Typing import *
-from common.Utils import *
-from common.Action import BotAction
 from common.Store import *
 from .Linker import BotLinker
 from .Handler import BotHandler
 from .Responder import BotResponder
 
 
-class BotMonitor(Singleton):
+class BotMonitor:
     """
     Bot 监视器，管理 bot 的所有核心异步任务，
     同时负责 bot 的开启和关闭

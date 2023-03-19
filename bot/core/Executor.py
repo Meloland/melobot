@@ -4,18 +4,17 @@ import asyncio as aio
 import importlib.util as iplu
 from asyncio import Lock as aioLock, iscoroutinefunction
 from common.Typing import *
-from common.Utils import *
 from common.Event import BotEvent
 from common.Store import *
 from common.Session import BotSession, SessionManager
 from common.Exceptions import *
-from components import Access as ac
+from utils import Access as ac
 
 
 __all__ = ['AuthRole', 'EXEC']
 
 
-class Role(Singleton):
+class Role:
     """
     角色类，包含不同权限角色的常量
     """
@@ -32,7 +31,7 @@ class Role(Singleton):
 AuthRole = Role()
 
 
-class ExecInterface(Singleton):
+class ExecInterface:
     """
     命令执行接口类，提供供命令模板使用的装饰器接口。
     同时给命令模板或 bot 内部提供与命令执行相关的方法
@@ -226,8 +225,6 @@ class ExecInterface(Singleton):
         else:
             await self.cmd_map[cmdName](session, *args, **kwargs)
             session._BotSession__activated = False
-        
-        
 
     async def __sys_call(self, cmdName: str, event: BotEvent, *args, **kwargs) -> None:
         """
@@ -339,7 +336,7 @@ class ExecInterface(Singleton):
         return state['LOCK']
 
 
-class CmdMapper(Singleton):
+class CmdMapper:
     """
     命令映射类，载入命令模板并存入映射表（具体命令执行方法）。
     同时建立 alias 到真实命令名的映射
@@ -382,7 +379,7 @@ class CmdMapper(Singleton):
         """
         # 加载系统级 cmd
         sys_cmd_path = os.path.join(
-            BOT_STORE.meta.root_path, 'cmd'
+            BOT_STORE.meta.root_path, 'core', 'cmd'
         )
         for pypath in os.listdir(sys_cmd_path):
             if pypath != "__init__.py" and pypath != "__pycache__" and pypath.endswith(".py"):

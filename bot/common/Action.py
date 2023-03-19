@@ -1,11 +1,11 @@
 import json
-from . import Encoder as ec
 from .Event import *
-from .Utils import *
 from .Exceptions import *
-from .Snowflake import ID_WORKER
+from .Store import BOT_STORE
 from .Typing import *
 from abc import ABC
+from itertools import chain, zip_longest
+import re
 
 
 __all__ = [
@@ -101,20 +101,290 @@ __all__ = [
 ]
 
 
-# 用于 msg action 构造的一些函数
-text_msg = ec.text
-face_msg = ec.face
-record_msg = ec.record
-at_msg = ec.at
-share_msg = ec.share
-music_msg = ec.music
-custom_music_msg = ec.custom_music
-image_msg = ec.image
-reply_msg = ec.reply
-poke_msg = ec.poke
-tts_msg = ec.tts
-cq_escape = ec.escape
-cq_anti_escape = ec.anti_escape
+def cq_escape(text: str) -> str:
+    """
+    cq 码特殊字符转义
+    """
+    return text.replace('&', '&amp;')\
+                .replace('[', '&#91;')\
+                .replace(']', '&#93;')\
+                .replace(',', '&#44;')
+
+
+def cq_anti_escape(text: str) -> str:
+    """
+    cq 码特殊字符逆转义
+    """
+    return text.replace('&amp;', '&')\
+                .replace('&#91;', '[')\
+                .replace('&#93;', ']')\
+                .replace('&#44;', ',')
+
+
+def text_msg(
+    text: str,
+) -> Msg:
+    """
+    普通文本消息
+    """
+    face_list = []
+    union_res = []
+    def save_and_remark(matched: re.Match) -> str:
+        face_list.append({
+            "type": "face",
+            "data": {
+                "id": matched.group(1),
+            }
+        })
+        return "&pos;"
+    
+    if '[CQ:face' not in text:
+        return {
+            "type": "text",
+            "data": {
+                "text": text,
+            }
+        }
+    else:
+        text = re.sub(r'\[CQ:face,id=(\d+?)\]', save_and_remark, text)
+        text_list = [ 
+            {
+                "type": "text",
+                "data": {
+                    "text": _
+                }
+            }
+            for _ in text.split("&pos;")
+        ]
+        union_res = list(chain.from_iterable(zip_longest(text_list, face_list, fillvalue={"type": "text","data": {"text": ""}})))
+        return union_res
+
+
+def face_msg(
+    icon_id: int, 
+) -> Msg:
+    """
+    QQ 表情
+    """
+    return {
+        "type": "face",
+        "data": {
+            "id": f"{icon_id}"
+        }
+    }
+
+
+def record_msg(
+    url: str, 
+    timeout: int=None, 
+    magic: bool=False, 
+) -> Msg:
+    """
+    语音消息
+    """
+    base =  {
+        "type": "record",
+        "data": {
+            "file": url,
+        }
+    }
+    if magic: base['data']['magic'] = 1
+    if timeout: base['data']['timeout'] = str(timeout)
+    return base
+
+
+def at_msg(
+    qqId:Union[int ,Literal['all']], 
+    notInName: str=None, 
+) -> Msg:
+    """
+    at 消息。
+    at 所有人时，`qqId` 传 "all"
+    """
+    base = {
+        "type": "at",
+        "data": {
+            "qq": qqId,
+        }
+    }
+    if notInName: base['data']['name'] = notInName
+    return base
+
+
+def share_msg(
+    url: str, 
+    title: str, 
+    content: str=None, 
+    image: str=None, 
+) -> Msg:
+    """
+    链接分享卡片消息。
+    `content` 为描述语
+    """
+    base = {
+        "type": "share",
+        "data": {
+            "url": url,
+            "title": title,
+        }
+    }
+    if content: base['data']['content'] = content
+    if image: base['data']['image'] = image
+    return base
+
+
+def music_msg(
+    platType: Literal["qq", "163", "xm"],
+    songId: str, 
+) -> Msg:
+    """
+    音乐分享卡片消息（专有平台）
+    """
+    return {
+        "type": "music",
+        "data": {
+            "type": platType,
+            "id": songId
+        }
+    }
+
+
+def custom_music_msg(
+    url: str, 
+    audio: str, 
+    title: str, 
+    content: str=None, 
+    image: str=None, 
+) -> Msg:
+    """
+    自定义音乐分享卡片。
+    `url` 为主页或网站起始页
+    """
+    base = {
+        "type": "music",
+        "data": {
+            "type": "custom",
+            "url": url,
+            "audio": audio,
+            "title": title,
+        }
+    }
+    if content: base['data']['content'] = content
+    if image: base['data']['image'] = image
+    return base
+
+
+def image_msg(
+    url: str, 
+    picType: Literal["flash", "show"]=None, 
+    subType: Literal[0, 1]=None, 
+    useCache: Literal[0, 1]=1,
+) -> Msg:
+    """
+    图片消息。
+    `url`: 图片 url。可以为本地路径，如：`file:///C:/users/15742/desktop/QQ图片20230108225606.jpg`；也可以为网络 url；还可以为 image id。
+    `picType`: flash 为闪照，show 为秀图，不填为普通图片。
+    `subType`: 只出现在群聊，0 为正常图片，1 为表情包
+    """
+    base = {
+        "type": "image",
+        "data": {
+            "file": url,
+        }
+    }
+    if picType: base['data']['type'] = picType
+    if subType: base['data']['subType'] = subType
+    if useCache: base['data']['cache'] = useCache
+    return base
+
+
+def reply_msg(
+    messageId: int, 
+) -> Msg:
+    """
+    回复消息
+    """
+    return {
+        "type": "reply",
+        "data": {
+            "id": messageId,
+        }
+    }
+
+
+def poke_msg(
+    qqId: int, 
+) -> Msg:
+    """
+    戳一戳消息
+    """
+    return {
+        "type": "poke",
+        "data": {
+            "qq": qqId,
+        }
+    }
+
+
+def tts_msg(
+    text: str, 
+) -> Msg:
+    """
+    腾讯自带 tts 语音消息
+    """
+    return {
+        "type": "tts",
+        "data": {
+            "text": text,
+        }
+    }
+
+
+def custom_msg_node(
+    content: Union[str, Msg, MsgSegment], 
+    sendName:str, 
+    sendId: int,
+    seq: str=None,
+) -> MsgNode:
+    """
+    自定义消息节点构造方法。转化字符串、消息、消息段为消息节点
+    """
+    if isinstance(content, str):
+        msgs = text_msg(content)
+        if not isinstance(msgs, list):
+            msgs = [msgs]
+    elif isinstance(content, dict):
+        msgs = [content]
+    elif isinstance(content, list):
+        temp = []
+        for _ in content:
+            if isinstance(_, list):
+                temp.extend(_)
+            else:
+                temp.append(_)
+        msgs = temp
+    ret = {
+        "type": "node", 
+        "data": {
+            "name": sendName,
+            "uin": str(sendId),
+            "content": msgs
+        }
+    }
+    if seq: ret['data']['seq'] = seq
+    return ret
+
+
+def refer_msg_node(msgId: int) -> MsgNode:
+    """
+    引用消息节点构造方法
+    """
+    return {
+        "type": "node",
+        "data": {
+            "id": str(msgId)
+        }
+    }
 
 
 class ActionPack(ABC): 
@@ -137,8 +407,9 @@ class BotAction:
         respWaited: bool=False, 
         triggerEvent: BotEvent=None
     ) -> None:
+        self.id_worker = BOT_STORE.id_worker
         # 只有 action 对应的 resp 需要被等待单独处理时（即不参与常规的事件调度），才会生成 id
-        self.respId: Union[str, None] = str(ID_WORKER.get_id()) if respWaited else None
+        self.respId: Union[str, None] = str(self.id_worker.get_id()) if respWaited else None
         self.type: str = package.type
         self.params: dict = package.params
         self.trigger_e: Union[BotEvent, None] = triggerEvent
@@ -189,7 +460,7 @@ class MsgPack(ActionPack):
             }
 
 def msg_action(
-    content: Union[str, ec.Msg, MsgSegment],
+    content: Union[str, Msg, MsgSegment],
     isPrivate: bool,
     userId: int, 
     groupId: int=None,
@@ -200,7 +471,7 @@ def msg_action(
     发送消息 action 构造方法
     """
     if isinstance(content, str):
-        msgs = ec.text(content)
+        msgs = text_msg(content)
         if not isinstance(msgs, list):
             msgs = [msgs]
     elif isinstance(content, dict):
@@ -248,51 +519,6 @@ class ForwardMsgPack(ActionPack):
                 'group_id': groupId,
                 'messages': msgs
             }
-
-def custom_msg_node(
-    content: Union[str, ec.Msg, MsgSegment], 
-    sendName:str, 
-    sendId: int,
-    seq: str=None,
-) -> MsgNode:
-    """
-    自定义消息节点构造方法。转化字符串、消息、消息段为消息节点
-    """
-    if isinstance(content, str):
-        msgs = ec.text(content)
-        if not isinstance(msgs, list):
-            msgs = [msgs]
-    elif isinstance(content, dict):
-        msgs = [content]
-    elif isinstance(content, list):
-        temp = []
-        for _ in content:
-            if isinstance(_, list):
-                temp.extend(_)
-            else:
-                temp.append(_)
-        msgs = temp
-    ret = {
-        "type": "node", 
-        "data": {
-            "name": sendName,
-            "uin": str(sendId),
-            "content": msgs
-        }
-    }
-    if seq: ret['data']['seq'] = seq
-    return ret
-
-def refer_msg_node(msgId: int) -> MsgNode:
-    """
-    引用消息节点构造方法
-    """
-    return {
-        "type": "node",
-        "data": {
-            "id": str(msgId)
-        }
-    }
 
 def forward_msg_action(
     msgNodes: MsgNodeList,

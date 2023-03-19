@@ -1,3 +1,4 @@
+from .Store import BOT_STORE
 from .Event import (
     BotEvent, 
     KernelEvent
@@ -18,7 +19,6 @@ from .Typing import (
     UserLevel
 )
 from .Action import BotAction
-from .Store import BOT_STORE
 
 
 __all__ = [

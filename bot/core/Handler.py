@@ -1,14 +1,13 @@
 import asyncio as aio
 from asyncio import Queue
 from common.Typing import *
-from common.Utils import *
 from common.Event import *
 from common.Store import BOT_STORE
 from common.Exceptions import *
 from .Processor import EventProcesser
 
 
-class BotHandler(Singleton):
+class BotHandler:
     """
     bot 调度器，从事件队列抽取事件交给事件处理器。
     """

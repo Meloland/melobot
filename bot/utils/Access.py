@@ -1,4 +1,3 @@
-from common.Utils import *
 from common.Event import BotEvent
 from common.Store import BOT_STORE
 from common.Typing import *
@@ -30,7 +29,7 @@ class BaseAuthChecker(ABC):
             BLACK: 'black'
         }
 
-class MsgAuthChecker(BaseAuthChecker, Singleton):
+class MsgAuthChecker(BaseAuthChecker):
     """
     分级权限校验器，只适用于消息事件
     """
@@ -85,7 +84,7 @@ class MsgAuthChecker(BaseAuthChecker, Singleton):
         return 0 < e_lvl and e_lvl >= threshold_lvl
 
 
-class NoticeAuthChecker(BaseAuthChecker, Singleton):
+class NoticeAuthChecker(BaseAuthChecker):
     """
     通知事件权限校验器
     """

@@ -1,4 +1,4 @@
-from common import *
+from common.Event import BotEvent
 from common.Action import msg_action, BotAction
 
 

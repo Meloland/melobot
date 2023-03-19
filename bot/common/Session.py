@@ -1,12 +1,10 @@
 from functools import wraps
 from collections import OrderedDict
-from .Utils import *
 from .Store import BOT_STORE
 from .Event import BotEvent, RespEvent
 from .Action import *
 from .Typing import *
 from .Exceptions import *
-from core.Responder import BotResponder
 import asyncio as aio
 import time
 
@@ -48,7 +46,7 @@ class BotSession:
         self.event_records: OrderedDict[BotEvent, int] = OrderedDict()
         # session 活动状态。当一 session 处于活动状态时，应该拒绝再次获取
         self.__activated = False
-        self.__responder: BotResponder = BOT_STORE.monitor.responder
+        self.__responder = BOT_STORE.monitor.responder
 
     def __add_event(self, event: BotEvent) -> None:
         if event in self.event_records.keys():
@@ -91,8 +89,6 @@ class BotSession:
             else:
                 return await self.__responder.wait_action(action)
         return wrapper
-
-
 
 
     @__action_launch
@@ -231,8 +227,6 @@ class BotSession:
             self.event
         )
 
-
-
     
     @__action_launch
     def group_kick(
@@ -341,8 +335,6 @@ class BotSession:
             waitResp,
             self.event
         )
-    
-    
     
     
     @__action_launch
@@ -542,8 +534,6 @@ class BotSession:
             True,
             self.event
         )
-
-
 
 
     @__action_launch
@@ -756,8 +746,6 @@ class BotSession:
         )
 
 
-
-
     @__action_launch
     def get_friends(
         self
@@ -847,8 +835,6 @@ class BotSession:
             self.event
         )  
     
-
-
 
     
     @__action_launch
@@ -1099,9 +1085,35 @@ class BotSession:
         )
 
 
+class Reflector:
+    """
+    通过反射获取值
+    """
+    def __init__(self) -> None:
+        super().__init__()
+
+    @classmethod
+    def get(cls, obj: object, attrs: tuple) -> object:
+        """
+        反射获取
+        """
+        val = obj
+        for attr in attrs: 
+            val = getattr(val, attr)
+        return val
+    
+    @classmethod
+    def set(cls, obj: object, attrs: tuple, val: object) -> None:
+        """
+        反射设置
+        """
+        field = obj
+        for attr in attrs[:-1]: 
+            field = getattr(field, attr)
+        setattr(field, attrs[-1], val)
 
 
-class SessionManager(Singleton):
+class SessionManager:
     """
     Bot session 管理类
     """
@@ -1132,15 +1144,11 @@ class SessionManager(Singleton):
         2. 当发生同一 session 并行 get 后，后一次获取应该被拒绝，因此返回 None
         """
         if checkMethod is not None:
-            if isinstance(lock, aio.Lock):
-                async with lock: session = self.__get_with_custom(event, cmdSessionsSpace, checkMethod)
-            else:
-                with lock: session = self.__get_with_custom(event, cmdSessionsSpace, checkMethod)
+            async with lock: 
+                session = self.__get_with_custom(event, cmdSessionsSpace, checkMethod)
         elif checkAttr is not None:
-            if isinstance(lock, aio.Lock):
-                async with lock: session = self.__get_with_attr(event, cmdSessionsSpace, checkAttr)
-            else:
-                with lock: session = self.__get_with_attr(event, cmdSessionsSpace, checkAttr)
+            async with lock: 
+                session = self.__get_with_attr(event, cmdSessionsSpace, checkAttr)
         else:
             session = BotSession(cmdSessionsSpace)
             session._BotSession__add_event(event)

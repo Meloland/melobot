@@ -3,16 +3,15 @@ import traceback
 from random import random, choice
 from abc import abstractmethod, ABC
 from common.Typing import *
-from common.Utils import *
 from common.Event import BotEvent
 from common.Store import BOT_STORE
 from common.Exceptions import *
-from components import Parser
+from utils import Parser
 from .Executor import EXEC, CMD_MAP, ALIAS_MAP, SYS_CMD_MAP
 from asyncio import Lock
 
 
-class BaseCmdExecutor(ABC, Singleton):
+class BaseCmdExecutor(ABC):
     """
     命令执行器基类，实现了具体的命令执行方法（包含优先命令），
     但所有子类应该根据实际情况实现 execute 方法，
@@ -63,7 +62,7 @@ class BaseCmdExecutor(ABC, Singleton):
         pass
 
 
-class ExactCmdExecutor(BaseCmdExecutor, Singleton):
+class ExactCmdExecutor(BaseCmdExecutor):
     """
     精确命令执行器类，实现从消息中精确解析命令，并执行
     """
@@ -86,7 +85,7 @@ class ExactCmdExecutor(BaseCmdExecutor, Singleton):
             return True
 
 
-class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
+class FuzzyCmdExecutor(BaseCmdExecutor):
     """
     模糊命令执行器，实现关键词触发命令，依赖于外部规则文件
     """
@@ -151,7 +150,7 @@ exact_executor = ExactCmdExecutor()
 fuzzy_executor = FuzzyCmdExecutor()
 
 
-class MsgManager(Singleton):
+class MsgManager:
     """
     消息上报处理器
     """
@@ -170,7 +169,7 @@ class MsgManager(Singleton):
             elif await self.fuzzy_exec.execute(event): return
 
 
-class KernelManager(Singleton):
+class KernelManager:
     """
     内核事件处理器
     """
@@ -185,7 +184,7 @@ class KernelManager(Singleton):
             )
 
 
-class MetaEventManager(Singleton):
+class MetaEventManager:
     """
     元事件上报处理器
     """
@@ -197,7 +196,7 @@ class MetaEventManager(Singleton):
         pass
 
 
-class ReqManager(Singleton):
+class ReqManager:
     """
     请求上报处理器
     """
@@ -209,7 +208,7 @@ class ReqManager(Singleton):
         pass
 
 
-class NoticeManager(Singleton):
+class NoticeManager:
     """
     通知上报处理器
     """
@@ -225,7 +224,7 @@ class NoticeManager(Singleton):
             await self.executor.call('poke', event)
 
 
-class EventProcesser(Singleton):
+class EventProcesser:
     """
     事件处理器，调度各类事件处理器以完成对事件的响应。
     """

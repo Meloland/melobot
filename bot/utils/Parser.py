@@ -3,7 +3,6 @@ import time
 from re import Pattern
 from abc import abstractmethod, ABC
 from common.Typing import *
-from common.Utils import *
 from common.Store import BOT_STORE
 from common.Exceptions import *
 
@@ -24,7 +23,7 @@ class StringFilter():
         .strip(' ') \
 
 
-class BaseCmdParser(Singleton, ABC):
+class BaseCmdParser(ABC):
     """
     命令解析器基类，所有子类应该实现 parse 方法，
     但注意：parse 方法可以返回二维空列表，代表没有有效的命令触发
@@ -34,7 +33,7 @@ class BaseCmdParser(Singleton, ABC):
         pass
 
 
-class ExactCmdParser(BaseCmdParser, Singleton):
+class ExactCmdParser(BaseCmdParser):
     """
     精确命令解析器，根据消息中指定的命令标志进行解析
     """
@@ -139,7 +138,7 @@ class ExactCmdParser(BaseCmdParser, Singleton):
         return any([True for cmd in cmd_list if cmd[0] == 'prior'])
 
 
-class FuzzyCmdParser(BaseCmdParser, Singleton):
+class FuzzyCmdParser(BaseCmdParser):
     """
     模糊命令解析器，检测消息中的特定关键词或关键词组合，返回布尔值
     """
@@ -172,7 +171,7 @@ class FuzzyCmdParser(BaseCmdParser, Singleton):
         return all([s in matches for s in condition])
 
 
-class TimeCmdParser(BaseCmdParser, Singleton):
+class TimeCmdParser(BaseCmdParser):
     """
     时间命令解析器，检测消息是否满足特定时间条件，再决定是否封装为命令
     """

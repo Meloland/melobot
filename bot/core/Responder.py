@@ -1,5 +1,4 @@
 from common.Typing import *
-from common.Utils import *
 from common.Store import BOT_STORE
 from common.Event import *
 from common.Action import BotAction
@@ -7,7 +6,7 @@ import asyncio as aio
 from asyncio import Queue, Future
 
 
-class BotResponder(Singleton):
+class BotResponder:
     """
     bot 响应器。
     负责 action 的发送和对应 resp 的分发

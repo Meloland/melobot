@@ -2,7 +2,6 @@ import sys
 sys.path.append('.')
 import asyncio as aio
 from asyncio import Queue
-from common.Utils import *
 from common.Store import BOT_STORE
 from common.Exceptions import *
 
@@ -20,7 +19,7 @@ from core.Responder import BotResponder
 from core.Monitor import MONITOR
 
 
-class MeloBot(Singleton):
+class MeloBot:
     """
     bot 单例类，负责启动和管理所有子模块 ow<
     """
