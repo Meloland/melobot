@@ -324,6 +324,10 @@ class MsgManager(Singleton):
         res = []
         # 不是有效的文本消息，返回空的 action 列表
         if not self.isLegalTextMsg(event): return res
+        # 若是群消息，而且不在白名单群聊中，直接不响应
+        if self.isGroupPublicMsg(event):
+            if event['group_id'] not in BOT_STORE['custom']['WHITE_GROUP_LIST']:
+                return res
         # 判断是否符合响应条件
         if self.isGroupPublicMsg(event) or self.isFriendMsg(event):
 
