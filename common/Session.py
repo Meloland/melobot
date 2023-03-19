@@ -1,17 +1,18 @@
 from functools import wraps
 from collections import OrderedDict
 from .Utils import *
-from .Store import BOT_STORE, BotResource
+from .Store import BOT_STORE
 from .Event import BotEvent, RespEvent
 from .Action import *
 from .Typing import *
+from .Exceptions import *
+from core.Responder import BotResponder
 import asyncio as aio
 import time
 
 
 __all__ = [
     'BotSession',
-    'SessionManager',
 
     'face_msg', 
     'text_msg', 
@@ -45,7 +46,9 @@ class BotSession:
         self.store = {}
         self.crt_time = time.time()
         self.event_records: OrderedDict[BotEvent, int] = OrderedDict()
-        self.action: BotAction = "Not attach yet"
+        # session 活动状态。当一 session 处于活动状态时，应该拒绝再次获取
+        self.__activated = False
+        self.__responder: BotResponder = BOT_STORE.monitor.responder
 
     def __add_event(self, event: BotEvent) -> None:
         if event in self.event_records.keys():
@@ -81,9 +84,12 @@ class BotSession:
         在 action 构建后进行发送，以及完成响应等待
         """
         @wraps(get_action)
-        async def wrapper(self, *args, **kwargs):
-            action = get_action(self, *args, **kwargs)
-            pass
+        async def wrapper(self: "BotSession", *args, **kwargs):
+            action: BotAction = get_action(self, *args, **kwargs)
+            if action.respId is None:
+                return await self.__responder.throw_action(action)
+            else:
+                return await self.__responder.wait_action(action)
         return wrapper
 
 
@@ -100,7 +106,7 @@ class BotSession:
         """
         return msg_action(
             content, 
-            self.event.msg.is_private,
+            self.event.msg.is_private(),
             self.event.msg.sender.id,
             self.event.msg.group_id,
             waitResp,
@@ -1106,10 +1112,10 @@ class SessionManager(Singleton):
         self, 
         event: BotEvent,
         cmdSessionsSpace: List[BotSession]=None,
-        checkAttr: Union[Tuple[str], str]=None,
+        checkAttr: Union[Tuple[str, ...], str]=None,
         checkMethod: Callable[[BotEvent, BotEvent], bool]=None,
         lock: aio.Lock=None
-    ) -> BotSession:
+    ) -> Union[BotSession, None]:
         """
         `event`: 附着的 BotEvent
         `store`: 生成 session 的 store
@@ -1121,7 +1127,9 @@ class SessionManager(Singleton):
         `UniqueCheck`: 绑定了 check_method_bind 装饰器的自定义校验方法。
         `lock`: 互斥锁，保证对全局变量的互斥性。指定校验字段或校验方法时，必须提供锁。
 
-        注：当不指定任何校验字段和校验方法，且 cmdSeesionsSpace 为空时，session 是一次性的
+        注：
+        1. 当不指定任何校验字段和校验方法，且 cmdSeesionsSpace 为空时，session 是一次性的
+        2. 当发生同一 session 并行 get 后，后一次获取应该被拒绝，因此返回 None
         """
         if checkMethod is not None:
             if isinstance(lock, aio.Lock):
@@ -1136,6 +1144,10 @@ class SessionManager(Singleton):
         else:
             session = BotSession(cmdSessionsSpace)
             session._BotSession__add_event(event)
+        
+        if session is not None:
+            session._BotSession__activated = True
+        
         return session
 
     def __get_with_custom(
@@ -1143,12 +1155,16 @@ class SessionManager(Singleton):
         event: BotEvent, 
         cmdSessionsSpace: List[BotSession],
         checkMethod: Callable[[BotEvent, BotEvent], bool]
-    ) -> BotSession:
+    ) -> Union[BotSession, None]:
         """
         自定义校验后创建 session
         """
         for session in cmdSessionsSpace:
             if checkMethod(event, session.event):
+                # 如果获取到的 session 是活跃状态，则驳回
+                if session._BotSession__activated: 
+                    return None
+
                 session._BotSession__add_event(event)
                 return session
         session = BotSession(cmdSessionsSpace)
@@ -1160,8 +1176,8 @@ class SessionManager(Singleton):
         self,
         event: BotEvent, 
         cmdSessionsSpace: List[BotSession],
-        checkAttr: Union[Tuple[str], str]
-    ) -> BotSession:
+        checkAttr: Union[Tuple[str, ...], str]
+    ) -> Union[BotSession, None]:
         """
         event 属性校验后创建 session
         """
@@ -1171,11 +1187,19 @@ class SessionManager(Singleton):
         if isinstance(checkAttr, str):
             for session in cmdSessionsSpace:
                 if getattr(session.event, checkAttr) == getattr(event, checkAttr):
+                    # 如果获取到的 session 是活跃状态，则驳回
+                    if session._BotSession__activated: 
+                        return None
+
                     session._BotSession__add_event(event)
                     return session
         else:
             for session in cmdSessionsSpace:
                 if Reflector.get(session.event, checkAttr) == Reflector.get(event, checkAttr):
+                    # 如果获取到的 session 是活跃状态，则驳回
+                    if session._BotSession__activated: 
+                        return None
+
                     session._BotSession__add_event(event)
                     return session
         session = BotSession(cmdSessionsSpace)

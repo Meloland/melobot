@@ -1,16 +1,15 @@
-from core.Interface import ExeI, AuthRole
+from core.Executor import EXEC, AuthRole
 from common import *
-from common.Action import msg_action
 import asyncio as aio
 
 
-@ExeI.template(
+@EXEC.template(
     aliases=['命令', 'command', 'cmd'], 
     userLevel=AuthRole.OWNER, 
     comment='执行一条 shell 命令',
     prompt='(命令字符串)'
 )
-async def shell(event: BotEvent, cmd_str: str) -> BotAction:
+async def shell(session: BotSession, cmd_str: str) -> None:
     proc = await aio.create_subprocess_shell(
         cmd_str,
         stderr=aio.subprocess.PIPE,
@@ -23,10 +22,4 @@ async def shell(event: BotEvent, cmd_str: str) -> BotAction:
     else:
         ret_str = stderr.decode(encoding='gbk').strip('\r\n')
 
-    return msg_action(
-        ret_str,
-        event.msg.is_private(),
-        event.msg.sender.id,
-        event.msg.group_id,
-        True
-    )
+    await session.send(ret_str)

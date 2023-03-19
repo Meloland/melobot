@@ -1,7 +1,9 @@
 import time
 import asyncio as aio
 from .Monitor import MONITOR
+from common.Store import BOT_STORE
 from common.Utils import *
+from common.Event import *
 from common.Action import *
 
 
@@ -18,7 +20,13 @@ async def get_bot_info() -> None:
     发送获取 bot 信息的 action
     """
     action = get_login_info_action(True)
-    await MONITOR.place_prior_action(action)
+    resp_e: RespEvent = await MONITOR.responder.wait_action(action, True)
+    if resp_e.resp.is_ok():
+        BOT_STORE.meta.__dict__['bot_nickname'] = resp_e.resp.data['nickname']
+        BOT_STORE.meta.__dict__['bot_id'] = resp_e.resp.data['user_id']
+        BOT_STORE.logger.info("已成功获得 bot 登录号相关信息")
+    else:
+        BOT_STORE.logger.warning("获取 bot 登录号信息失败")
 
 
 def schedule_tasks():
@@ -44,5 +52,5 @@ def schedule_tasks():
         while True:
             pass
     
-    MONITOR.add_tasks(everyday_hello())
+    MONITOR.add_rountine_tasks(everyday_hello())
         

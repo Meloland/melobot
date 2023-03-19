@@ -1,15 +1,14 @@
-from core.Interface import ExeI, AuthRole
+from core.Executor import EXEC, AuthRole
 from common import *
-from common.Action import msg_action
 
 
-@ExeI.template(
+@EXEC.template(
     aliases=['信息'], 
     userLevel=AuthRole.USER, 
     comment='获取 bot 信息', 
     prompt='无参数'
 )
-def info(event: BotEvent) -> BotAction:
+async def info(session: BotSession) -> None:
     info_list = [
         BOT_STORE.config.bot_name,
         BOT_STORE.meta.proj_name,
@@ -21,10 +20,4 @@ def info(event: BotEvent) -> BotAction:
     thanks_str = "\n特别致谢：\n@Vescrity 的创意点子\nhttps://github.com/Vescrity"
     info_str += thanks_str
     
-    return msg_action(
-        info_str,
-        event.msg.is_private(),
-        event.msg.sender.id,
-        event.msg.group_id,
-        True
-    )
+    await session.send(info_str)

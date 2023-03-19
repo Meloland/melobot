@@ -2,6 +2,7 @@ from .Event import (
     BotEvent, 
     KernelEvent
 )
+from .Session import *
 from .Typing import (
     Union, 
     List, 
@@ -25,6 +26,7 @@ __all__ = [
     'KernelEvent', 
     'BotAction', 
     'BOT_STORE', 
+    "BotSession",
     
     'Union', 
     'List', 
@@ -37,5 +39,22 @@ __all__ = [
     'MsgSegment',
     'MsgNode',
     'MsgNodeList',
-    'UserLevel'
+    'UserLevel',
+
+    'face_msg', 
+    'text_msg', 
+    'audio_msg', 
+    'at_msg', 
+    'share_msg', 
+    'music_msg', 
+    'custom_music_msg', 
+    'image_msg', 
+    'reply_msg', 
+    'poke_msg', 
+    'tts_msg',
+    'cq_escape',
+    'cq_anti_escape',
+
+    'custom_msg_node',
+    'refer_msg_node'
 ]

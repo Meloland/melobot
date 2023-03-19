@@ -1,16 +1,17 @@
-from core.Interface import ExeI, AuthRole
+from core.Executor import EXEC, AuthRole
 from common import *
 from common.Action import msg_action
 
 
-@ExeI.template(
+@EXEC.template(
     aliases=['权限'], 
     userLevel=AuthRole.USER, 
     comment='权限检查',
     prompt='无参数'
 )
-def auth(event: BotEvent) -> BotAction:
-    u_lvl = ExeI.msg_checker.get_event_lvl(event)
+async def auth(session: BotSession) -> None:
+    event = session.event
+    u_lvl = EXEC.msg_checker.get_event_lvl(event)
 
     if event.msg.is_group():
         u_nickname = event.msg.sender.group_card
@@ -31,10 +32,4 @@ def auth(event: BotEvent) -> BotAction:
     auth_str = "{} 对 {} 拥有权限：\
     \nowner：{}\nsuperuser：{}\nwhite：{}\nuser：{}".format(*alist)
 
-    return msg_action(
-        auth_str,
-        event.msg.is_private(),
-        event.msg.sender.id,
-        event.msg.group_id,
-        True
-    )
+    await session.send(auth_str)

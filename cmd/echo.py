@@ -12,5 +12,5 @@ def echo(event: BotEvent, text: str) -> BotAction:
         event.msg.is_private(),
         event.msg.sender.id,
         event.msg.group_id,
-        True
+        triggerEvent=event
     )

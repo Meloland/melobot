@@ -5,7 +5,8 @@ __all__ = [
     'BotUnexpectEvent',
     'BotCmdExecFailed', 
     'BotUnknownCmdName', 
-    'BotUnexpectFormat'
+    'BotUnexpectFormat',
+    'GetActiveSessionError'
 ]
 
 
@@ -48,5 +49,10 @@ class BotUnknownCmdName(BotException):
 
 
 class BotUnexpectFormat(BotException):
+    def __init__(self, err: str):
+        super().__init__(err)
+
+
+class GetActiveSessionError(BotException):
     def __init__(self, err: str):
         super().__init__(err)

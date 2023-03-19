@@ -56,7 +56,7 @@ class BotLinker(Singleton):
     async def __aexit__(self, exc_type:Exception, exc_val:str, exc_tb:traceback) -> None:
         await self.close()
 
-    async def get_action(self) -> None:
+    async def send_action(self) -> None:
         """
         监控 action 队列，并指派给 cq
         """
@@ -71,11 +71,11 @@ class BotLinker(Singleton):
                     BOT_STORE.logger.debug(traceback.format_exc())
                     BOT_STORE.logger.error(f'内部发生预期外的异常：{e}')
         except aio.CancelledError:
-            BOT_STORE.logger.debug('linker.get_action 已被卸载')
+            BOT_STORE.logger.debug('linker.send_action 已被卸载')
         except wse.ConnectionClosedOK:
             pass
 
-    async def put_event(self) -> None:
+    async def recv_event(self) -> None:
         """
         监控 cq 上报，并放入 event 队列，若有优先 event，
         移交给 put_prior_event 处理
@@ -92,7 +92,7 @@ class BotLinker(Singleton):
                     if self.prior_filter.is_prior(event): 
                         try:
                             BOT_STORE.logger.debug('识别到优先事件')
-                            t = aio.create_task(self.put_prior_event(event))
+                            t = aio.create_task(self.recv_prior_event(event))
                             await aio.wait_for(t, timeout=BOT_STORE.meta.kernel_timeout)
                             BOT_STORE.logger.debug('优先事件已成功放置~')
                         except aio.TimeoutError:
@@ -106,7 +106,7 @@ class BotLinker(Singleton):
                         try:
                             BOT_STORE.logger.debug('队满响应机制已触发，生成队满响应事件并尝试放置中...')
                             ke = KernelEvent('eq_full', originEvent=event)
-                            t = aio.create_task(self.put_prior_event(ke))
+                            t = aio.create_task(self.recv_prior_event(ke))
                             await aio.wait_for(t, timeout=BOT_STORE.meta.kernel_timeout)
                             BOT_STORE.logger.debug('队满响应事件已成功放置~')
                         except aio.TimeoutError:
@@ -119,17 +119,17 @@ class BotLinker(Singleton):
                 # 下面有 Exception 捕获，不方便直接传递异常到 monitor，直接终止
                 except wse.ConnectionClosedError:
                     BOT_STORE.logger.warning('cq 主动关闭连接，bot 清理资源后将自动关闭')
-                    # 直接抛出终止信号，随后会自动交由 monitor.run_bot 处理
+                    # 直接抛出终止信号，随后会自动交由 monitor.run_kernel 处理
                     sys.exit(0)
                 except Exception as e:
                     BOT_STORE.logger.debug(traceback.format_exc())
-                    BOT_STORE.logger.error(f'linker 内部发生预期外的异常：{e}，事件对象为：{event}')
+                    BOT_STORE.logger.error(f'连接器内部发生预期外的异常：{e}，事件对象为：{event}')
         except aio.CancelledError:
-            BOT_STORE.logger.debug('linker.put_event 已被卸载')
+            BOT_STORE.logger.debug('linker.recv_event 已被卸载')
         except wse.ConnectionClosedOK:
             pass
 
-    async def get_prior_action(self) -> None:
+    async def send_prior_action(self) -> None:
         """
         监控优先 action 队列，并立即指派给 cq
         """
@@ -144,11 +144,11 @@ class BotLinker(Singleton):
                     BOT_STORE.logger.debug(traceback.format_exc())
                     BOT_STORE.logger.error(f'内部发生预期外的异常：{e}')
         except aio.CancelledError:
-            BOT_STORE.logger.debug('linker.get_prior_action 已被卸载')
+            BOT_STORE.logger.debug('linker.send_prior_action 已被卸载')
         except wse.ConnectionClosedOK:
             pass
 
-    async def put_prior_event(self, event: BotEvent) -> None:
+    async def recv_prior_event(self, event: BotEvent) -> None:
         """
         获得来自 put_event 的优先 event，并立即放入优先 event 队列
         """
@@ -165,9 +165,9 @@ class BotLinker(Singleton):
         返回 linker 所有核心的异步协程给主模块
         """
         return [
-            self.put_event(),
-            self.get_prior_action(),
-            self.get_action()
+            self.recv_event(),
+            self.send_prior_action(),
+            self.send_action()
         ]
 
 

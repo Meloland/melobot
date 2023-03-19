@@ -30,23 +30,19 @@ class GlobalMeta(Singleton):
         self.root_path: str
         self.kernel_timeout: int
         self.prior_queue_len: int
-        self.event_handler_num: int
-        self.thread_num: int
 
         self.cmd_mode: str
         self.bot_id: str
         self.bot_nickname: str
 
         self.__dict__.update({
-            'version': '2.1.0-Alpha1 (non-public)',
+            'version': '2.0.0-Alpha3 (non-public)',
             'developer': 'AiCorein',
             'proj_name': 'Qbot-MeloBot',
             'proj_url': 'https://github.com/AiCorein/Qbot-MeloBot',
             'root_path': '\\'.join(os.path.dirname(__file__).split('\\')[:-1]),
             'kernel_timeout': 5,
             'prior_queue_len': 2,
-            'event_handler_num': 8,
-            'thread_num': 20,
         })
         self.working_status = True
 
@@ -154,6 +150,9 @@ class BotResource:
             self.__dict__['type'] = type
             self.load = load
             self.dispose = dispose
+            
+            self.disposed = False
+            self.loaded = False
 
         def __setattr__(self, __name: str, __value: Any) -> None:
             if __name == 'crt_time' or __name == 'type':
@@ -207,23 +206,33 @@ class BotResource:
         """
         加载该结点下所有需要加载的资源
         """
-        if self._info.load is not None: 
-            res = self._info.load(self)
-            if iscoroutine(res):
-                await res
-            self._info.__dict__['type'] = 'resource'
+        if self._info.loaded == False: 
+            if self._info.load is not None:
+                res = self._info.load()
+                if iscoroutine(res):
+                    await res
+                self._info.value = res
+                self._info.loaded = True
+                self._info.__dict__['type'] = 'resource'
+            else:
+                self._info.loaded = True
         
         for attrName, attrVal in self.__get_attrs().items():
             await attrVal.load_all()
 
     async def dispose_all(self) -> None:
         """
-        释放该结点下所有需要释放的资源
+        释放该资源结点下所有需要释放的资源
         """
-        if self._info.dispose is not None:
-            res = self._info.dispose(self)
-            if iscoroutine(res):
-                await res
+        if self._info.disposed == False:
+            if self._info.dispose is not None:
+                res = self._info.dispose(self._info.value)
+                if iscoroutine(res):
+                    await res
+                self._info.value = None
+                self._info.disposed = True
+            else:
+                self._info.disposed = True
         
         for attrName, attrVal in self.__get_attrs().items():
             await attrVal.dispose_all()

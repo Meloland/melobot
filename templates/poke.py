@@ -1,22 +1,23 @@
-from core.Interface import ExeI, AuthRole
+from core.Executor import EXEC, AuthRole
 from common import *
-from common.Action import msg_action, poke_msg
+from common.Action import poke_msg
 
-@ExeI.template(
+@EXEC.template(
     aliases=['戳'],
     userLevel=AuthRole.USER,
     comment='让 bot 戳一戳你',
     prompt='无参数'
 )
-def poke(event: BotEvent) -> BotAction:
+async def poke(session: BotSession) -> None:
+    event = session.event
+    
     if event.is_msg():
         user_id = event.msg.sender.id
-        return msg_action(
+        await session.custom_send(
             poke_msg(user_id),
             event.msg.is_private(),
             user_id,
             event.msg.group_id,
-            True
         )
     elif event.is_notice():
         user_id = event.notice.operator_id
@@ -26,11 +27,9 @@ def poke(event: BotEvent) -> BotAction:
         else:
             group_id = None
             isPrivate = True
-        return msg_action(
+        await session.custom_send(
             poke_msg(user_id),
             isPrivate,
             user_id,
             group_id,
-            True
         )
-    

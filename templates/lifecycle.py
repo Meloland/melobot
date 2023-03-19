@@ -1,43 +1,40 @@
-import asyncio as aio
-from core.Interface import ExeI, AuthRole
+from core.Executor import EXEC, AuthRole
 from common import *
-from common.Action import msg_action
 from common.Exceptions import BotCmdExecFailed
 
 
-@ExeI.template(
+@EXEC.template(
     aliases=['life', 'lc'], 
     userLevel=AuthRole.SU, 
     isLocked=True,
     comment='生命周期控制',
     prompt='[on / off / close]'
 )
-async def lifecycle(event: BotEvent, subCmd: str) -> BotAction:
+async def lifecycle(session: BotSession, subCmd: str) -> None:
     if subCmd == 'on': 
-        return lifecycle_on(event)
+        await lifecycle_on(session)
     elif subCmd == 'off': 
-        return lifecycle_off(event)
+        await lifecycle_off(session)
     elif subCmd == 'close': 
-        return await lifecycle_close(event)
+        await lifecycle_close(session)
     else:
         raise BotCmdExecFailed("无效的控制参数")
 
 
-def lifecycle_on(event: BotEvent) -> BotAction:
+async def lifecycle_on(session: BotSession) -> None:
     """
     开启响应功能
     """
     bot_name = BOT_STORE.config.bot_name 
     if BOT_STORE.meta.working_status == True:
-        action = text_action(event, f'{bot_name}已经在工作啦 >w<')
+        await session.send(f'{bot_name}已经在工作啦 >w<')
     else:
         BOT_STORE.meta.working_status = True
         BOT_STORE.logger.info('bot 工作状态变更为：on')
-        action = text_action(event, f'{bot_name}回来啦 owo')
-    return action
+        await session.send(f'{bot_name}回来啦 owo')
 
 
-def lifecycle_off(event: BotEvent) -> BotAction:
+async def lifecycle_off(session: BotSession) -> None:
     """
     关闭响应功能
     """
@@ -47,31 +44,14 @@ def lifecycle_off(event: BotEvent) -> BotAction:
     else:
         BOT_STORE.meta.working_status = False
         BOT_STORE.logger.info('bot 工作状态变更为：off')
-        action = text_action(event, f'{bot_name}去休息了~')
-        return action
+        await session.send(f'{bot_name}去休息了~')
 
 
-async def lifecycle_close(event: BotEvent) -> None:
+async def lifecycle_close(session: BotSession) -> None:
     """
     关闭 bot
     """
     bot_name = BOT_STORE.config.bot_name 
     monitor = BOT_STORE.monitor
-    pre_action = text_action(event, f'{bot_name}下班了捏')
-    # 变相让 monitor 做代理，直接向 handler 发送 action
-    # 因为关闭 bot 后，再无法发送任何 action
-    await monitor.place_prior_action(pre_action)
-    # 现在线程是加锁的状态，因此需要 IO 来切换线程，顺便给时间让 action 被发出去
-    await aio.sleep(3)
-    await monitor.stop_bot()
-    return
-
-
-def text_action(event: BotEvent, text: str) -> BotAction:
-    return msg_action(
-        text,
-        event.msg.is_private(),
-        event.msg.sender.id,
-        event.msg.group_id,
-        True
-    )
+    await session.send(f'{bot_name}下班了捏', waitResp=True)
+    await monitor.stop_kernel()

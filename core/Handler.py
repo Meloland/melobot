@@ -1,120 +1,67 @@
 import asyncio as aio
-import traceback
 from asyncio import Queue
 from common.Typing import *
-from common.Event import BotEvent
-from common.Action import BotAction
+from common.Utils import *
+from common.Event import *
 from common.Store import BOT_STORE
 from common.Exceptions import *
 from .Processor import EventProcesser
 
 
-class BotHandler:
+class BotHandler(Singleton):
     """
-    bot 事件、行为队列管理模块。
-    内部某些异步方法（协程）作为任务会创建多个副本，以实现更好的异步性能。
-    而在整个项目中，这些副本也被称作 “调度器”。
-    负责对事件处理工作的调度
+    bot 调度器，从事件队列抽取事件交给事件处理器。
     """
-    def __init__(self, action_queue: Queue, event_queue: Queue, \
-                prior_action_queue: Queue, prior_event_queue: Queue) -> None:
+    def __init__(self, event_queue: Queue, prior_event_queue: Queue, resp_queue: Queue) -> None:
         super().__init__()
-        self.action_q = action_queue
         self.event_q = event_queue
-        self.prior_action_q = prior_action_queue
         self.prior_event_q = prior_event_queue
+        self.resp_q = resp_queue
         self.e_manager = EventProcesser()
     
-    async def get_event(self, name) -> None:
+    async def recv_event(self) -> None:
         """
         监控 event 队列，交给 eventProcesser 处理
         """
         try:
-            await self.e_manager.build_ExeI()
+            await self.e_manager.build_executor()
             while True:
-                try:
-                    event: BotEvent = await self.event_q.get()
-                    actions = await self.e_manager.handle(event)
-                    if actions == []: continue
-                    for action in actions:
-                        t = aio.create_task(self.put_action(action))
-                        await aio.wait_for(t, timeout=BOT_STORE.meta.kernel_timeout)
-
-                        cmd_args = ' | '.join(action.cmd_args)
-                        if len(cmd_args) > 30: cmd_args = cmd_args[:40] + '...'
-                        BOT_STORE.logger.info(f"命令 {action.cmd_name} {cmd_args} 执行成功√")
-                except aio.TimeoutError:
-                    pass
-                except BotUnknownEvent:
-                    BOT_STORE.logger.warning(f'出现 bot 未知事件：{event.raw}')
-                except Exception as e:
-                    BOT_STORE.logger.debug(traceback.format_exc())
-                    BOT_STORE.logger.error(f'内部发生预期外的异常：{e}，事件为：{event.raw}（bot 仍在运行）')
+                event: BotEvent = await self.event_q.get()
+                if event.is_resp():
+                    await self.send_resp(event)
+                    continue
+                # 创建 task，但是此处不等待。超时和异常处理由内部 EventManager 完成
+                aio.create_task(self.e_manager.handle(event))
         except aio.CancelledError:
-                BOT_STORE.logger.debug(f'handler.get_event {name} 已被卸载')
-
-    async def put_action(self, action: BotAction) -> None:
-        """
-        放置指定的 action 到 action 队列
-        """
-        try:
-            if self.action_q.full():
-                BOT_STORE.logger.warning("行为队列已满！短时间可能无法对任务回应")
-            await self.action_q.put(action)
-        except aio.CancelledError:
-            BOT_STORE.logger.debug('行为放置因超时而被取消')
+                BOT_STORE.logger.debug(f'handler.recv_event 已被卸载')
     
-    async def get_prior_event(self, name: str) -> None:
+    async def recv_prior_event(self) -> None:
         """
         监控优先 event 队列，并交给 eventProcesser 处理
         """
         try:
-            await self.e_manager.build_ExeI()
+            await self.e_manager.build_executor()
             while True:
-                try:
-                    prior_event: BotEvent = await self.prior_event_q.get()
-                    prior_actions = await self.e_manager.handle(prior_event)
-                    if prior_actions == []: continue
-                    for prior_action in prior_actions:
-                        t = aio.create_task(self.put_prior_action(prior_action))
-                        await aio.wait_for(t, timeout=BOT_STORE.meta.kernel_timeout)
-
-                        cmd_args = ' | '.join(prior_action.cmd_args)
-                        if len(cmd_args) > 30: cmd_args = cmd_args[:30] + '...'
-                        BOT_STORE.logger.info(
-                            f"命令 {prior_action.cmd_name} {cmd_args} 执行成功√"
-                        )
-                except aio.TimeoutError:
-                    pass
-                except BotUnknownEvent:
-                    BOT_STORE.logger.warning(f'出现 bot 未知事件：{prior_event.raw}')
-                except Exception as e:
-                    BOT_STORE.logger.debug(traceback.format_exc())
-                    BOT_STORE.logger.error(f'内部发生预期外的异常：{e}，优先事件对象为：{prior_event.raw}（bot 仍在运行）')
+                prior_event: BotEvent = await self.prior_event_q.get()
+                aio.create_task(self.e_manager.handle(prior_event))
         except aio.CancelledError:
-            BOT_STORE.logger.debug(f'handler.get_prior_event {name} 已被卸载')
-        
-    async def put_prior_action(self, prior_action: BotAction) -> None:
+            BOT_STORE.logger.debug(f'handler.recv_prior_event 已被卸载')
+
+    async def send_resp(self, resp: RespEvent) -> None:
         """
-        放置指定的优先 action 到 优先 action 队列
+        将 resp 事件提交至 resp 队列，供响应器使用
         """
         try:
-            if self.prior_action_q.full():
-                BOT_STORE.logger.warning("优先行为队列已满！短时间内可能无法产生优先行为")
-            await self.prior_action_q.put(prior_action)
-        except aio.CancelledError:
-            BOT_STORE.logger.debug('优先行为放置因超时而被取消')
-    
+            t = aio.create_task(self.resp_q.put(resp))
+            await aio.wait_for(t, timeout=BOT_STORE.meta.kernel_timeout)
+        except TimeoutError:
+            BOT_STORE.logger.warning('事件队列已满！传递响应事件超时！')
 
     def coro_getter(self) -> List[Coroutine]:
         """
-        返回 handler 所有核心的异步协程给主模块，
-        多开一些协程，以尽可能实现对大量事件的异步响应。
+        返回 Handler 所有核心的异步协程
         """
-        num = BOT_STORE.meta.event_handler_num
-        coro_list = []
-        for _ in range(int(num)):
-            coro_list.append(self.get_event(name=f"h{_+1}"))
-        for _ in range(int(num/4)):
-            coro_list.append(self.get_prior_event(name=f"ph{_+1}"))
-        return coro_list
+        return [
+            self.recv_event(),
+            self.recv_prior_event()
+        ]

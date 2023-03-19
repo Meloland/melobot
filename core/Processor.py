@@ -1,14 +1,14 @@
 import asyncio as aio
+import traceback
 from random import random, choice
 from abc import abstractmethod, ABC
 from common.Typing import *
 from common.Utils import *
 from common.Event import BotEvent
-from common.Action import BotAction
 from common.Store import BOT_STORE
 from common.Exceptions import *
 from components import Parser
-from .Interface import ExeI, CMD_MAP, ALIAS_MAP, SYS_CMD_MAP
+from .Executor import EXEC, CMD_MAP, ALIAS_MAP, SYS_CMD_MAP
 from asyncio import Lock
 
 
@@ -20,15 +20,15 @@ class BaseCmdExecutor(ABC, Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.ExeI = ExeI
+        self.executor = EXEC
     
-    async def exec_cmd_list(self, event: BotEvent, cmd_list: list) -> List[BotAction]:
+    async def exec_cmd_list(self, event: BotEvent, cmd_list: list) -> None:
         """
         基类方法。执行一组命令，自动忽略 cmd_list 中无效的命令，
         内部实现超时控制和异常处理。
         用于各类命令执行器内部发起命令执行
         """
-        action_list = []
+        res_list = []
         tasklist = []
         cmd_name_list = []
 
@@ -40,26 +40,23 @@ class BaseCmdExecutor(ABC, Singleton):
             cmd_name_list.append(cmd_name)
         
         for idx, cmd_name in enumerate(cmd_name_list):
-            tasklist.append(aio.create_task(
-                aio.wait_for(
-                    self.ExeI.call(cmd_name, event, *cmd_list[idx][1:]),
-                    timeout=BOT_STORE.config.task_timeout
-                )
-            ))
-        # 等待命令列表执行完成
-        action_list = await aio.gather(*tasklist, return_exceptions=True)
-        # 若有超时异常，则替换为提示信息
-        for idx, action in enumerate(action_list):
-            if isinstance(action, aio.exceptions.TimeoutError):
-                action_list[idx] = await self.ExeI._ExecInterface__ret_sys_call(
-                    'echo', 
-                    event, 
-                    f'命令：{" ".join(cmd_list[idx])}\n✘ 等待超时，已经放弃执行\n(；′⌒`)'
-                )
-        return list(filter(lambda x: x != None, action_list))
+            tasklist.append(aio.create_task(aio.wait_for(
+                self.executor.call(cmd_name, event, *cmd_list[idx][1:]),
+                timeout=BOT_STORE.config.task_timeout
+            )))
+        # 等待命令执行完成，不理会传出的超时异常，异常都在内部执行时处理
+        res_list = await aio.gather(*tasklist, return_exceptions=True)
+        # # 若有超时异常，则替换为提示信息
+        # for idx, res in enumerate(res_list):
+        #     if isinstance(res, aio.exceptions.TimeoutError):
+        #         await self.executor._ExecInterface__sys_call(
+        #             'echo', 
+        #             event, 
+        #             f'命令：{" ".join(cmd_list[idx])}\n✘ 等待超时，已经放弃执行\n(；′⌒`)'
+        #         )
 
     @abstractmethod
-    async def execute(self, event: dict) -> List[BotAction]:
+    async def execute(self, event: dict) -> None:
         """
         抽象方法，指定 event 传入时如何识别到命令并执行
         """
@@ -74,17 +71,19 @@ class ExactCmdExecutor(BaseCmdExecutor, Singleton):
         super().__init__()
         self.ec_parser = Parser.EC_PARSER
 
-    async def execute(self, event: BotEvent) -> List[BotAction]:
+    async def execute(self, event: BotEvent) -> bool:
         """
         精确命令执行方法，内部对事件进行精确命令列表解析。
         若存在精确命令，则执行。
-        实现了单条命令执行的超时和异常控制，返回 action 列表。
+        实现了单条命令执行的超时和异常控制。
         """
         cmd_list = self.ec_parser.parse(event.msg.text)
         # 命令列表为空，什么也不做返回空列表
-        if cmd_list == [[]]: return []
-        return await self.exec_cmd_list(event, cmd_list)
-
+        if cmd_list == [[]]: 
+            return False
+        else:
+            await self.exec_cmd_list(event, cmd_list)
+            return True
 
 
 class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
@@ -93,13 +92,13 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.ExeI = ExeI
+        self.executor = EXEC
         self.ans_dict = BOT_STORE.resources.key_ans.val()
 
-    async def process_answers(self, event: BotEvent, ans_list: list) -> List[BotAction]:
+    async def process_answers(self, event: BotEvent, ans_list: list) -> None:
         """
         根据 ans 中的配置，预处理应答句子，
-        再通过 echo 命令封装为 action
+        再通过 echo 命令执行
         """
         echo_cmd_list = []
         for ans in ans_list:
@@ -117,12 +116,11 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
                 ))
             
             echo_cmd_list.append(['echo', ans_str])
-        return await self.exec_cmd_list(event, echo_cmd_list)
+        await self.exec_cmd_list(event, echo_cmd_list)
 
-    async def answer(self, event: BotEvent, key_list: list) -> List[BotAction]:
+    async def answer(self, event: BotEvent, key_list: list) -> None:
         """
-        给定关键词，返回应答句子的 action。
-        由于回复概率设置，可能返回为空。
+        给定关键词，做出应答
         """
         ans_list = []
         for key in key_list:
@@ -132,129 +130,25 @@ class FuzzyCmdExecutor(BaseCmdExecutor, Singleton):
             # 从 ans 列表中随机取一个
             ans = choice(ans_config['ans'])
             ans_list.append(ans)
-        # 交给 process_ans 处理，会读取 ans 配置，先做一些处理，最后返回 action
-        return await self.process_answers(event, ans_list)
+        # 交给 process_ans 处理，会读取 ans 配置，再执行
+        await self.process_answers(event, ans_list)
         
 
-    async def execute(self, event: BotEvent) -> List[BotAction]:
+    async def execute(self, event: BotEvent) -> bool:
         """
         模糊命令执行方法，消息包含关键词（组合），且满足出现频率要求，
-        就执行规则中指定的命令。返回为 action 列表
+        就执行规则中指定的命令。
         """
         key_list = [key for key in self.ans_dict if key in event.msg.text]
-        action_list = await self.answer(event, key_list)
-        return list(filter(lambda x: x != None, action_list))
-
-
-class TimeCmdExecutor(BaseCmdExecutor, Singleton):
-    """
-    时间命令执行器，实现对某时段消息的响应，依赖于外部规则文件
-    """
-    # TODO: 完成时间命令执行器
-    def __init__(self) -> None:
-        super().__init__()
-    
-
-    async def execute(self, event: BotEvent) -> List[BotAction]:
-        """
-        时间命令执行方法，消息满足指定时间要求，就执行规则中指定的命令。
-        返回为 action 列表
-        """
-        return []
+        if len(key_list) == 0:
+            return False
+        else:
+            await self.answer(event, key_list)
+            return True
 
 
 exact_executor = ExactCmdExecutor()
 fuzzy_executor = FuzzyCmdExecutor()
-time_executor = TimeCmdExecutor()
-
-
-class KernelManager(Singleton):
-    """
-    内核事件处理器
-    """
-    def __init__(self) -> None:
-        super().__init__()
-        self.ExeI = ExeI
-    
-    async def handle(self, event: BotEvent) -> List[BotAction]:
-        res = []
-        if event.kernel.is_queue_full():
-            res.append(await self.ExeI._ExecInterface__ret_sys_call(
-                'echo', event.kernel.origin_event, '任务太多啦，等会儿叭 qwq'
-            ))
-        return res
-
-
-class RespManager(Singleton):
-    """
-    响应事件处理器
-    """
-    def __init__(self) -> None:
-        super().__init__()
-        self.exact_exec = exact_executor
-    
-    def isBotInfoResp(self, event: BotEvent) -> bool:
-        if event.resp.data is None: return False
-        e_data = event.resp.data
-        return len(e_data.keys()) == 2 and \
-            'nickname' in e_data.keys() and 'user_id' in e_data.keys()
-    
-    async def handle(self, event: BotEvent) -> List[BotAction]:
-        res = []
-        if event.resp.is_failed():
-            BOT_STORE.logger.error(f'收到失败响应：{event.raw}')
-        elif event.resp.is_processing():
-            BOT_STORE.logger.warning(f'收到仍在处理的响应：{event.raw}')
-        elif event.resp.is_ok():
-            if self.isBotInfoResp(event):
-                BOT_STORE.meta.__dict__['bot_nickname'] = event.resp.data['nickname']
-                BOT_STORE.meta.__dict__['bot_id'] = event.resp.data['user_id']
-                BOT_STORE.logger.info("已成功获得 bot 登录号相关信息")
-        return res
-
-
-class MetaEventManager(Singleton):
-    """
-    元事件上报处理器
-    """
-    def __init__(self) -> None:
-        super().__init__()
-        self.exact_exec = exact_executor
-    
-    async def handle(self, event: BotEvent) -> List[BotAction]:
-        res = []
-        return res
-
-
-class ReqManager(Singleton):
-    """
-    请求上报处理器
-    """
-    def __init__(self) -> None:
-        super().__init__()
-        self.exact_exec = exact_executor
-    
-    async def handle(self, event: BotEvent) -> List[BotAction]:
-        res = []
-        return res
-
-
-class NoticeManager(Singleton):
-    """
-    通知上报处理器
-    """
-    def __init__(self) -> None:
-        super().__init__()
-        self.exact_exec = exact_executor
-        self.ExeI = ExeI
-    
-    async def handle(self, event: BotEvent) -> List[BotAction]:
-        res = []
-        if event.notice.is_poke() and event.notice.user_id == event.bot_id:
-            # 如果被戳者是自己，触发 poke 命令
-            # 除这里的校验外，还会在 cmdInterface 模块对消息发起者进行权限校验 
-            res.append(await self.ExeI.call('poke', event))
-        return res
 
 
 class MsgManager(Singleton):
@@ -265,24 +159,70 @@ class MsgManager(Singleton):
         super().__init__()
         self.exact_exec = exact_executor
         self.fuzzy_exec = fuzzy_executor
-        self.time_exec = time_executor
-        self.ExeI = ExeI
+        self.executor = EXEC
     
-    async def handle(self, event: BotEvent) -> List[BotAction]:
-        res = []
-        # 若没有文本消息，返回空的 action 列表
-        if event.msg.text == '': return res
+    async def handle(self, event: BotEvent) -> None:
+        if event.msg.text == '': return
         # 判断是否符合响应条件
         if event.msg.is_group_normal() or event.msg.is_friend():
-            # 依次尝试执行 精确命令 -> 模糊命令 -> 时间命令
-            res = await self.exact_exec.execute(event)
-            if res: return res
-            res = await self.fuzzy_exec.execute(event)
-            if res: return res
-            # 暂时不实现和使用时间命令解析器
-            # res = await self.time_exec.execute(event)
-            # if res: return res
-        return res
+            # 依次尝试执行 精确命令 -> 模糊命令
+            if await self.exact_exec.execute(event): return
+            elif await self.fuzzy_exec.execute(event): return
+
+
+class KernelManager(Singleton):
+    """
+    内核事件处理器
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.executor = EXEC
+    
+    async def handle(self, event: BotEvent) -> None:
+        if event.kernel.is_queue_full():
+            await self.executor._ExecInterface__sys_call(
+                'echo', event.kernel.origin_event, '任务太多啦，等会儿叭 qwq'
+            )
+
+
+class MetaEventManager(Singleton):
+    """
+    元事件上报处理器
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.exact_exec = exact_executor
+    
+    async def handle(self, event: BotEvent) -> None:
+        pass
+
+
+class ReqManager(Singleton):
+    """
+    请求上报处理器
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.exact_exec = exact_executor
+    
+    async def handle(self, event: BotEvent) -> None:
+        pass
+
+
+class NoticeManager(Singleton):
+    """
+    通知上报处理器
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.exact_exec = exact_executor
+        self.executor = EXEC
+    
+    async def handle(self, event: BotEvent) -> None:
+        if event.notice.is_poke() and event.notice.user_id == event.bot_id:
+            # 如果被戳者是自己，触发 poke 命令
+            # 除这里的校验外，还会在 cmdInterface 模块对消息发起者进行权限校验 
+            await self.executor.call('poke', event)
 
 
 class EventProcesser(Singleton):
@@ -291,45 +231,50 @@ class EventProcesser(Singleton):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.ExeI = ExeI
+        self.executor = EXEC
         # 对应调度策略不会增减，所以不使用策略模式
         self.kernel_m = KernelManager()
-        self.resp_m = RespManager()
         self.meta_m = MetaEventManager()
         self.req_m = ReqManager()
         self.notice_m = NoticeManager()
         self.msg_m = MsgManager()
 
-        self.ExeI_load_lock = Lock()
-        self.ExeI_load_flag = False
+        self.exec_load_lock = Lock()
+        self.exec_load_flag = False
         
-    async def build_ExeI(self) -> None:
+    async def build_executor(self) -> None:
         """
         异步加载和存储命令接口的资源
         """
-        async with self.ExeI_load_lock:
-            if self.ExeI_load_flag: return
-            self.ExeI_load_flag = True
-            await ExeI._ExecInterface__load_cmd_funcs(CMD_MAP, SYS_CMD_MAP, ALIAS_MAP)
+        async with self.exec_load_lock:
+            if self.exec_load_flag: 
+                return
+            self.exec_load_flag = True
+            await EXEC._ExecInterface__load_cmd_funcs(CMD_MAP, SYS_CMD_MAP, ALIAS_MAP)
             # 该方法用于初始化需要在循环启动后获得的变量
-            self.ExeI._ExecInterface__after_loop_init()
+            self.executor._ExecInterface__after_loop_init()
 
-    async def handle(self, event: BotEvent) -> List[BotAction]:
+    async def handle(self, event: BotEvent) -> None:
         """
         对传入的事件进行响应
         """
-        # 所有 handle 应该返回一个 action 列表，没有结果则是一个空列表
-        if event.is_kernel():
-            return await self.kernel_m.handle(event)
-        elif event.is_msg():
-            return await self.msg_m.handle(event)
-        elif event.is_resp():
-            return await self.resp_m.handle(event)
-        elif event.is_notice():
-            return await self.notice_m.handle(event)
-        elif event.is_req():
-            return await self.req_m.handle(event)
-        elif event.is_meta():
-            return await self.meta_m.handle(event)
-        else:
-            raise BotUnknownEvent("未知的事件类型")
+        try:
+            if event.is_kernel():
+                await self.kernel_m.handle(event)
+            elif event.is_msg():
+                await self.msg_m.handle(event)
+            elif event.is_notice():
+                await self.notice_m.handle(event)
+            elif event.is_req():
+                await self.req_m.handle(event)
+            elif event.is_meta():
+                await self.meta_m.handle(event)
+            else:
+                raise BotUnknownEvent("未知的事件类型")
+        except aio.TimeoutError:
+            pass
+        except BotUnknownEvent:
+            BOT_STORE.logger.warning(f'出现 bot 未知事件：{event.raw}')
+        except Exception as e:
+            BOT_STORE.logger.debug(traceback.format_exc())
+            BOT_STORE.logger.error(f'内部发生预期外的异常：{e}，事件为：{event.raw}（bot 仍在运行）')

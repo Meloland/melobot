@@ -12,12 +12,16 @@ class StringFilter():
     """
     字符串过滤器，主要用于精确命令解析，对可能干扰命令解析的字符进行过滤
     """
-    def __init__(self, pattern: str=r'[\\\r\n]') -> None:
+    def __init__(self, pattern: str=r'[\\]') -> None:
         super().__init__()
         self.filter_regex = re.compile(pattern)
 
     def purify(self, text: str):
-        return self.filter_regex.sub('', text).strip(' ')
+        return self.filter_regex.sub('', text).strip(' ') \
+        .strip('\r\n') \
+        .strip('\n') \
+        .strip('\r') \
+        .strip(' ') \
 
 
 class BaseCmdParser(Singleton, ABC):

@@ -9,6 +9,7 @@ from common.Action import BotAction
 from common.Store import *
 from .Linker import BotLinker
 from .Handler import BotHandler
+from .Responder import BotResponder
 
 
 class BotMonitor(Singleton):
@@ -22,26 +23,21 @@ class BotMonitor(Singleton):
         self.format_start_time = dt.datetime.now().strftime('%m-%d %H:%M:%S')
         self.linker = None
         self.handler = None
-        self.loop = None
+        self.responder = None
         self.corolist = []
         self.tasklist = []
 
-    def get_loop(self) -> None:
+    def bind_kernel(self, linker: BotLinker, handler: BotHandler, responder: BotResponder) -> None:
         """
-        获得事件循环并存储为属性
-        """
-        self.loop = aio.get_running_loop()
-
-    def bind(self, linker: BotLinker, handler: BotHandler) -> None:
-        """
-        绑定 BotLinker 和 BotHandler 实例
+        绑定 BotLinker, BotHandler 和 BotResponder 实例
         """
         self.linker = linker
         self.handler = handler
+        self.responder = responder
 
     def hold_coros(self, *coros: Coroutine) -> None:
         """
-        获得来自 BotLinker 和 BotHandler 的核心异步函数（协程）
+        获得来自 otLinker, BotHandler 和 BotResponder 的核心异步函数（协程）
         """
         for coro in coros:
             self.corolist.append(coro)
@@ -54,10 +50,9 @@ class BotMonitor(Singleton):
             t = aio.create_task(coro)
             self.tasklist.append(t)
         # 加入自启任务
-        t = aio.create_task(self.run_startup())
-        self.tasklist.append(t)
+        self.tasklist.append(aio.create_task(self.run_startup()))
 
-    def add_tasks(self, *coros: List[Coroutine]) -> None:
+    def add_rountine_tasks(self, *coros: List[Coroutine]) -> None:
         """
         通过 Monitor 将协程注册为异步任务。
         主要用于非命令执行过程中的常驻异步任务注册，在此注册便于管理
@@ -73,10 +68,11 @@ class BotMonitor(Singleton):
         if self.linker.ws and not self.linker.ws.closed:
             await self.linker.close()
 
-    async def dispose_resources(self) -> None:
+    async def bot_dispose(self) -> None:
         """
-        释放依赖的资源，包括 BOT_STORE.resources 和 BOT_STORE.plugins
+        释放依赖的资源，包括 BOT_STORE.cmd, BOT_STORE.resources 和 BOT_STORE.plugins
         """
+        await BOT_STORE.cmd.dispose_all()
         await BOT_STORE.resources.dispose_all()
         await BOT_STORE.plugins.dispose_all()
 
@@ -87,9 +83,9 @@ class BotMonitor(Singleton):
         the_module = ipl.import_module('.Startup', __package__)
         await the_module.startup()
 
-    async def run_bot(self) -> None:
+    async def run_kernel(self) -> None:
         """
-        运行 bot，并捕获处理各种运行异常
+        运行 bot 所有核心异步协程，启动 bot
         """
         try:
             await self.linker.start()
@@ -105,12 +101,13 @@ class BotMonitor(Singleton):
             BOT_STORE.logger.error(f"bot 非正常关闭，退出原因：{e}")
         finally:
             await self.close_link()
-            await self.dispose_resources()
+            await self.bot_dispose()
 
-    async def stop_bot(self) -> None:
+    async def stop_kernel(self) -> None:
         """
-        卸载 bot 所有异步任务。主要用于在命令模板中显式关闭 bot。
-        不通过该方法关闭 bot 也可以，因为 run_bot 方法有对应的异常处理
+        卸载 bot 所有所有核心异步协程。主要用于在命令模板中显式关闭 bot。
+        不通过该方法关闭 bot 也可以，因为 run_kernel 方法有对应的异常处理。
+        注：该方法的异常将会传递到 run_kernel 中
         """
         try:
             for task in self.tasklist:
@@ -119,7 +116,7 @@ class BotMonitor(Singleton):
             BOT_STORE.logger.info("bot 所有异步核心任务已正常卸载 awa")
         except aio.CancelledError:
             BOT_STORE.logger.debug("异步核心任务被卸载")
-        # 不需要额外再做关闭连接和关闭线程池的处理，因为这里的异常最后会在 run_bot 那里捕获
+        # 不需要额外再做关闭连接和关闭线程池的处理，因为这里的异常最后会在 run_kernel 那里捕获
 
     @property
     def bot_start_time(self) -> str:
@@ -140,20 +137,6 @@ class BotMonitor(Singleton):
         secs = worked_time % 60
         time_str_list = format_nums(days, hours, mins, secs)
         return ":".join(time_str_list)
-
-    async def place_action(self, action: BotAction) -> None:
-        """
-        通过 Monitor 暴露的此接口，直接发送 action。
-        一般用于非命令执行中的行为发送
-        """
-        await self.linker.action_q.put(action)
-
-    async def place_prior_action(self, action: BotAction) -> None:
-        """
-        通过 Monitor 暴露的此接口，直接发送 prior action。
-        一般用于非命令执行中的行为发送
-        """
-        await self.linker.prior_action_q.put(action)
 
 
 MONITOR = BotMonitor()
