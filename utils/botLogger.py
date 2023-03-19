@@ -1,6 +1,7 @@
 import logging.handlers
 import logging.config
 import logging
+import os
 from logging import DEBUG, INFO, WARN, WARNING, ERROR, CRITICAL
 from .globalPattern import *
 from .globalData import BOT_STORE
@@ -74,6 +75,12 @@ LOG_CONFIG = {
         },
 }
 
+# 不存在 logs 文件夹就新建
+logs_folder_path = os.path.join(
+    os.path.dirname(__file__), '..', 'logs'
+)
+if not os.path.exists(logs_folder_path):
+    os.mkdir(logs_folder_path)
 
 BOT_LOGGER = log_level = BOT_STORE['operation']['LOG_LEVEL']
 if log_level != None and log_level != "":
