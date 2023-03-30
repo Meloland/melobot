@@ -21,7 +21,6 @@ class GlobalMeta:
     全局元信息类
     """
     def __init__(self) -> None:
-        super().__init__()
         self.version: str
         self.developer: str
         self.proj_name: str
@@ -122,7 +121,6 @@ class GlobalLoggerBuilder:
     }
 
     def __init__(self) -> None:
-        super().__init__()
         if not os.path.exists('./logs'):
             os.mkdir('./logs')
     
@@ -310,7 +308,6 @@ class BotStore:
     bot 全局对象，对 Bot 的所有资源和数据进行存储、访问和修改
     """
     def __init__(self) -> None:
-        super().__init__()
         self.meta = GlobalMeta()
         self.config = self.__build_config()
         self.logger = GlobalLoggerBuilder().build(self.config.log_level)

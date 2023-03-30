@@ -11,8 +11,7 @@ class StringFilter():
     """
     字符串过滤器，主要用于精确命令解析，对可能干扰命令解析的字符进行过滤
     """
-    def __init__(self, pattern: str=r'[\\]') -> None:
-        super().__init__()
+    def __init__(self, pattern: str=r'') -> None:
         self.filter_regex = re.compile(pattern)
 
     def purify(self, text: str):
@@ -28,6 +27,9 @@ class BaseCmdParser(ABC):
     命令解析器基类，所有子类应该实现 parse 方法，
     但注意：parse 方法可以返回二维空列表，代表没有有效的命令触发
     """
+    def __init__(self) -> None:
+        super().__init__()
+    
     @abstractmethod
     def parse(self, text: str) -> List[List[str]]:
         pass

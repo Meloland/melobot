@@ -155,7 +155,6 @@ class MsgManager:
     消息上报处理器
     """
     def __init__(self) -> None:
-        super().__init__()
         self.exact_exec = exact_executor
         self.fuzzy_exec = fuzzy_executor
         self.executor = EXEC
@@ -174,7 +173,6 @@ class KernelManager:
     内核事件处理器
     """
     def __init__(self) -> None:
-        super().__init__()
         self.executor = EXEC
     
     async def handle(self, event: BotEvent) -> None:
@@ -189,7 +187,6 @@ class MetaEventManager:
     元事件上报处理器
     """
     def __init__(self) -> None:
-        super().__init__()
         self.exact_exec = exact_executor
     
     async def handle(self, event: BotEvent) -> None:
@@ -201,7 +198,6 @@ class ReqManager:
     请求上报处理器
     """
     def __init__(self) -> None:
-        super().__init__()
         self.exact_exec = exact_executor
     
     async def handle(self, event: BotEvent) -> None:
@@ -213,7 +209,6 @@ class NoticeManager:
     通知上报处理器
     """
     def __init__(self) -> None:
-        super().__init__()
         self.exact_exec = exact_executor
         self.executor = EXEC
     
@@ -229,7 +224,6 @@ class EventProcesser:
     事件处理器，调度各类事件处理器以完成对事件的响应。
     """
     def __init__(self) -> None:
-        super().__init__()
         self.executor = EXEC
         # 对应调度策略不会增减，所以不使用策略模式
         self.kernel_m = KernelManager()

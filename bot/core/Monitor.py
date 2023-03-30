@@ -16,7 +16,6 @@ class BotMonitor:
     同时负责 bot 的开启和关闭
     """
     def __init__(self) -> None:
-        super().__init__()
         self.start_time = time.time()
         self.format_start_time = dt.datetime.now().strftime('%m-%d %H:%M:%S')
         self.linker = None

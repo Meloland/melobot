@@ -19,7 +19,6 @@ class Role:
     角色类，包含不同权限角色的常量
     """
     def __init__(self) -> None:
-        super().__init__()
         self.SYS = ac.SYS
         self.OWNER = ac.OWNER
         self.SU = ac.SU
@@ -37,7 +36,6 @@ class ExecInterface:
     同时给命令模板或 bot 内部提供与命令执行相关的方法
     """
     def __init__(self) -> None:
-        super().__init__()
         self.msg_checker = ac.MSG_CHECKER
         self.notice_checker = ac.NOTICE_CHECKER
         self.__session_builder = SessionManager()
@@ -342,7 +340,6 @@ class CmdMapper:
     同时建立 alias 到真实命令名的映射
     """
     def __init__(self) -> None:
-        super().__init__()
         self.exec_map = {}
         self.alias_map = {}
         # 系统级命令封装于此

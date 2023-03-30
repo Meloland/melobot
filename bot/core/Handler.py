@@ -12,7 +12,6 @@ class BotHandler:
     bot 调度器，从事件队列抽取事件交给事件处理器。
     """
     def __init__(self, event_queue: Queue, prior_event_queue: Queue, resp_queue: Queue) -> None:
-        super().__init__()
         self.event_q = event_queue
         self.prior_event_q = prior_event_queue
         self.resp_q = resp_queue

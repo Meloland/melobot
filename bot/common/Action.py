@@ -407,9 +407,8 @@ class BotAction:
         respWaited: bool=False, 
         triggerEvent: BotEvent=None
     ) -> None:
-        self.id_worker = BOT_STORE.id_worker
         # 只有 action 对应的 resp 需要被等待单独处理时（即不参与常规的事件调度），才会生成 id
-        self.respId: Union[str, None] = str(self.id_worker.get_id()) if respWaited else None
+        self.respId: Union[str, None] = str(BOT_STORE.id_worker.get_id()) if respWaited else None
         self.type: str = package.type
         self.params: dict = package.params
         self.trigger_e: Union[BotEvent, None] = triggerEvent

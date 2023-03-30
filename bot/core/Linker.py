@@ -20,7 +20,6 @@ class BotLinker:
     """
     def __init__(self, action_queue: Queue, event_queue: Queue, \
                 prior_action_queue: Queue, prior_event_queue: Queue) -> None:
-        super().__init__()
         host, port = BOT_STORE.config.connect_host, \
                     BOT_STORE.config.connect_port
         self.url = f'ws://{host}:{port}'

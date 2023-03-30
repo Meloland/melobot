@@ -12,7 +12,6 @@ class BotResponder:
     负责 action 的发送和对应 resp 的分发
     """
     def __init__(self, action_queue: Queue, prior_action_queue: Queue, resp_queue: Queue) -> None:
-        super().__init__()
         self.prior_action_q = prior_action_queue
         self.action_q = action_queue
         self.resp_queue = resp_queue

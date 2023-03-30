@@ -1,6 +1,5 @@
 from core.Executor import EXEC, AuthRole
 from common import *
-from common.Action import msg_action
 
 
 @EXEC.template(
@@ -10,4 +9,4 @@ from common.Action import msg_action
     prompt='无参数',
 )
 async def echo(session: BotSession, text: str) -> None:
-    await session.send(text, waitResp=True)
+    await session.send(text)

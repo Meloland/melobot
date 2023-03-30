@@ -21,11 +21,8 @@ from core.Monitor import MONITOR
 
 class MeloBot:
     """
-    bot 单例类，负责启动和管理所有子模块 ow<
+    bot 类，负责启动和管理所有子模块 ow<
     """
-    def __init__(self) -> None:
-        super().__init__()
-
     async def main(self) -> None:
         """
         装载 bot 核心实例与异步核心任务至 Monitor，并交由 Monitor 启动和管理

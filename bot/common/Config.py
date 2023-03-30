@@ -75,7 +75,6 @@ class ConfigManager:
     配置管理器
     """
     def __init__(self, ConfigDirPath: str) -> None:
-        super().__init__()
         self.config = {}
         self.defaultConfig = defaultConfig
         self.defaultConfigText = defaultConfigText

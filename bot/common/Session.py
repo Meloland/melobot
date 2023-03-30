@@ -1089,9 +1089,6 @@ class Reflector:
     """
     通过反射获取值
     """
-    def __init__(self) -> None:
-        super().__init__()
-
     @classmethod
     def get(cls, obj: object, attrs: tuple) -> object:
         """
@@ -1117,9 +1114,6 @@ class SessionManager:
     """
     Bot session 管理类
     """
-    def __init__(self) -> None:
-        super().__init__()
-
     async def get_session(
         self, 
         event: BotEvent,
