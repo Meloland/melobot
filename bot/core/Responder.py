@@ -18,6 +18,9 @@ class BotResponder:
         self.resp_tables: Dict[str, Future] = {}
 
     async def recv_and_set_resp(self) -> None:
+        """
+        接受 resp 对象。如果存在 id，则查 resp 表设置 future 结果
+        """
         try:
             while True:
                 resp_event: RespEvent = await self.resp_queue.get()
@@ -73,15 +76,14 @@ class BotResponder:
         if not (action.type.endswith('msg') and action.type.startswith('send')):
             BOT_STORE.logger.info(f"成功响应 {action.type} 事件√")
 
-    async def wait_action(self, action: BotAction, isPrior: bool=False) -> RespEvent:
+    async def wait_action(self, action: BotAction, isPrior: bool=False) -> Future:
         """
-        响应器发送 action，并返回一个 future 给调用方用以等待响应
+        响应器发送 action，并记录在 resp 表中，返回一个关联的 Future 给调用方
         """
         fut = Future()
         self.resp_tables[action.respId] = fut
         await self.throw_action(action, isPrior)
-        await fut
-        return fut.result()
+        return fut
 
     def coro_getter(self) -> List[Coroutine]:
         """

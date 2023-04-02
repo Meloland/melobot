@@ -155,7 +155,7 @@ class BotResource:
 
         def __setattr__(self, __name: str, __value: Any) -> None:
             if __name == 'crt_time' or __name == 'type':
-                raise PermissionError("{__name} 属性不可变更")
+                raise PermissionError(f"{__name} 属性不可变更")
             else:
                 self.__dict__[__name] = __value
     

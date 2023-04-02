@@ -6,7 +6,7 @@ from common import *
     aliases=['print', '复读'], 
     userLevel=AuthRole.USER, 
     comment='复读',
-    prompt='无参数',
+    prompt='(复读文本)',
 )
 async def echo(session: BotSession, text: str) -> None:
     await session.send(text)

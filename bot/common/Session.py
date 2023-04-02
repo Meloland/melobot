@@ -87,7 +87,7 @@ class BotSession:
             if action.respId is None:
                 return await self.__responder.throw_action(action)
             else:
-                return await self.__responder.wait_action(action)
+                return await (await self.__responder.wait_action(action))
         return wrapper
 
 

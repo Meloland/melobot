@@ -19,7 +19,7 @@ async def get_bot_info() -> None:
     发送获取 bot 信息的 action
     """
     action = get_login_info_action(True)
-    resp_e: RespEvent = await MONITOR.responder.wait_action(action, True)
+    resp_e: RespEvent = await (await MONITOR.responder.wait_action(action, True))
     if resp_e.resp.is_ok():
         BOT_STORE.meta.__dict__['bot_nickname'] = resp_e.resp.data['nickname']
         BOT_STORE.meta.__dict__['bot_id'] = resp_e.resp.data['user_id']
