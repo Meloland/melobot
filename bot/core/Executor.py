@@ -65,7 +65,7 @@ class ExecInterface:
                 return False
         else:
             BOT_STORE.logger.error(f"bot 权限校验中遇到了预期外的事件类型：{event}")
-            raise BotUnexpectEvent("权限校验中遇到了预期外的事件类型")
+            raise BotUnexpectedEvent("权限校验中遇到了预期外的事件类型")
         return True
 
     async def __run_cmd(self, session: BotSession, cmd_func: Callable, *args, **kwargs) -> None:
@@ -214,7 +214,7 @@ class ExecInterface:
         """
         try:
             cmdName = self.get_cmd_name(name)
-        except BotUnknownCmdName:
+        except BotUnknownCmd:
             return
 
         session = await self.__get_session(cmdName, event, self.cmd_map[cmdName].__session_rule__)
@@ -293,7 +293,7 @@ class ExecInterface:
         elif name in self.cmd_map.keys():
             return name
         else:
-            raise BotUnknownCmdName("无效的命令名或命令别称")
+            raise BotUnknownCmd("无效的命令名或命令别称")
 
     def get_cmd_aliases(self, name: str) -> List[str]:
         """

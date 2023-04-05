@@ -4,6 +4,7 @@ __pycache__
 
 docs
 .pytest_cache
+logs
 
 bot/logs
 bot/config

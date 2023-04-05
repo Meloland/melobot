@@ -8,7 +8,7 @@ from common.Exceptions import BotCmdExecFailed
     userLevel=AuthRole.SU, 
     isLocked=True,
     comment='生命周期控制',
-    prompt='[on / off / close]'
+    prompt='(on / off / close)'
 )
 async def lifecycle(session: BotSession, subCmd: str) -> None:
     if subCmd == 'on': 

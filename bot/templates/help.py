@@ -1,6 +1,6 @@
 from core.Executor import EXEC, AuthRole
 from common import *
-from common.Exceptions import BotUnknownCmdName
+from common.Exceptions import BotUnknownCmd
 
 
 @EXEC.template(
@@ -35,7 +35,7 @@ def help_detail(event: BotEvent, queryName: str) -> str:
 
     try:
         cmdName = EXEC.get_cmd_name(queryName)
-    except BotUnknownCmdName:
+    except BotUnknownCmd:
         return '命令不存在'
     if u_lvl < EXEC.get_cmd_auth(cmdName):
         return '无权访问的命令'

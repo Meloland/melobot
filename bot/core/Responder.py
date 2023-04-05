@@ -2,11 +2,12 @@ from common.Typing import *
 from common.Store import BOT_STORE
 from common.Event import *
 from common.Action import BotAction
+from common.Singleton import Singleton
 import asyncio as aio
 from asyncio import Queue, Future
 
 
-class BotResponder:
+class BotResponder(Singleton):
     """
     bot 响应器。
     负责 action 的发送和对应 resp 的分发
@@ -35,7 +36,7 @@ class BotResponder:
                         BOT_STORE.logger.debug(f"不匹配的响应事件: {resp_event.raw}")
                         BOT_STORE.logger.warning("收到不匹配的响应事件！已经记录并跳过...")
         except aio.CancelledError:
-            BOT_STORE.logger.debug("responder.recv_resp 已被卸载")
+            BOT_STORE.logger.debug("responder.recv_and_set_resp 已被卸载")
 
     async def _send_prior_action(self, prior_action: BotAction) -> None:
         """

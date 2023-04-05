@@ -1,10 +1,9 @@
 from functools import wraps
 from collections import OrderedDict
-from .Store import BOT_STORE
 from .Event import BotEvent, RespEvent
 from .Action import *
 from .Typing import *
-from .Exceptions import *
+from core.Responder import BotResponder
 import asyncio as aio
 import time
 
@@ -46,7 +45,8 @@ class BotSession:
         self.event_records: OrderedDict[BotEvent, int] = OrderedDict()
         # session 活动状态。当一 session 处于活动状态时，应该拒绝再次获取
         self.__activated = False
-        self.__responder = BOT_STORE.monitor.responder
+        # BotResponder 是单例类，所以直接取单例
+        self.__sender = BotResponder.__instance__
 
     def __add_event(self, event: BotEvent) -> None:
         if event in self.event_records.keys():
@@ -83,16 +83,17 @@ class BotSession:
         """
         @wraps(get_action)
         async def wrapper(self: "BotSession", *args, **kwargs):
-            action: BotAction = get_action(self, *args, **kwargs)
+            action: BotAction = await get_action(self, *args, **kwargs)
             if action.respId is None:
-                return await self.__responder.throw_action(action)
+                return await self.__sender.throw_action(action)
             else:
-                return await (await self.__responder.wait_action(action))
+                return await (await self.__sender.wait_action(action))
         return wrapper
 
+    """以下所有 action 方法虽然本身不是异步的，但不使用 async，返回值将没有注解"""
 
     @__action_launch
-    def send(
+    async def send(
         self, 
         content: Union[str, Msg, MsgSegment], 
         waitResp: bool=False
@@ -110,7 +111,7 @@ class BotSession:
         )
 
     @__action_launch
-    def custom_send(
+    async def custom_send(
         self,
         content: Union[str, Msg, MsgSegment],
         isPrivate: bool,
@@ -131,7 +132,7 @@ class BotSession:
         )
     
     @__action_launch
-    def send_forward(
+    async def send_forward(
         self,
         msgNodes: MsgNodeList,
         waitResp: bool=False
@@ -149,7 +150,7 @@ class BotSession:
         )
         
     @__action_launch
-    def custom_send_forward(
+    async def custom_send_forward(
         self,
         msgNodes: MsgNodeList,
         isPrivate: bool,
@@ -170,7 +171,7 @@ class BotSession:
         )
     
     @__action_launch
-    def recall(
+    async def recall(
         self,
         msgId: int,
         waitResp: bool=False
@@ -185,7 +186,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_msg(
+    async def get_msg(
         self,
         msgId: int
     ) -> Union[RespEvent, None]:
@@ -199,7 +200,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_forward_msg(
+    async def get_forward_msg(
         self,
         forwardId: str,
     ) -> Union[RespEvent, None]:
@@ -213,7 +214,7 @@ class BotSession:
         )
     
     @__action_launch
-    def mark_read(
+    async def mark_read(
         self,
         msgId: int,
         waitResp: bool=False
@@ -229,7 +230,7 @@ class BotSession:
 
     
     @__action_launch
-    def group_kick(
+    async def group_kick(
         self,
         groupId: int,
         userId: int,
@@ -248,7 +249,7 @@ class BotSession:
         )
     
     @__action_launch
-    def group_ban(
+    async def group_ban(
         self,
         groupId: int,
         userId: int,
@@ -268,7 +269,7 @@ class BotSession:
         )
     
     @__action_launch
-    def group_ban_anonymous(
+    async def group_ban_anonymous(
         self,
         groupId: int,
         anonymFlag: str,
@@ -288,7 +289,7 @@ class BotSession:
         )
         
     @__action_launch
-    def group_ban_all(
+    async def group_ban_all(
         self,
         groupId: int,
         enable: bool,
@@ -305,7 +306,7 @@ class BotSession:
         )
         
     @__action_launch
-    def group_leave(
+    async def group_leave(
         self,
         groupId: int,
         isDismiss: bool,
@@ -322,7 +323,7 @@ class BotSession:
         )
     
     @__action_launch
-    def group_sign(
+    async def group_sign(
         self,
         groupId: int,
         waitResp: bool=False,
@@ -338,7 +339,7 @@ class BotSession:
     
     
     @__action_launch
-    def get_group(
+    async def get_group(
         self,
         groupId: int,
         noCache: bool,
@@ -354,7 +355,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_groups(
+    async def get_groups(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -366,7 +367,7 @@ class BotSession:
         )
         
     @__action_launch
-    def get_group_member(
+    async def get_group_member(
         self,
         groupId: int,
         userId: int,
@@ -384,7 +385,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_group_members(
+    async def get_group_members(
         self,
         groupId: int,
         noCache: bool,
@@ -400,7 +401,7 @@ class BotSession:
         )
         
     @__action_launch
-    def get_group_honor(
+    async def get_group_honor(
         self,
         groupId: int,
         type: Literal['talkative', 'performer', 'legend', 'strong_newbie', 'emotion', 'all']
@@ -416,7 +417,7 @@ class BotSession:
         )
         
     @__action_launch
-    def get_group_file_sys(
+    async def get_group_file_sys(
         self,
         groupId: int,
     ) -> Union[RespEvent, None]:
@@ -430,7 +431,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_group_root_files(
+    async def get_group_root_files(
         self,
         groupId: int,
     ) -> Union[RespEvent, None]:
@@ -444,7 +445,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_group_files_in_folder(
+    async def get_group_files_in_folder(
         self,
         groupId: int,
         folderId: str
@@ -460,7 +461,7 @@ class BotSession:
         )
         
     @__action_launch
-    def get_group_file_url(
+    async def get_group_file_url(
         self,
         groupId: int,
         fileId: str,
@@ -479,7 +480,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_group_sys_msg(
+    async def get_group_sys_msg(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -491,7 +492,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_group_notices(
+    async def get_group_notices(
         self,
         groupId: int,
     ) -> Union[RespEvent, None]:
@@ -506,7 +507,7 @@ class BotSession:
         )
         
     @__action_launch
-    def get_group_records(
+    async def get_group_records(
         self,
         msgSeq: int,
         groupId: int
@@ -522,7 +523,7 @@ class BotSession:
         )
         
     @__action_launch
-    def get_group_essences(
+    async def get_group_essences(
         self,
         groupId: int
     ) -> Union[RespEvent, None]:
@@ -537,7 +538,7 @@ class BotSession:
 
 
     @__action_launch
-    def set_group_admin(
+    async def set_group_admin(
         self,
         groupId: int,
         userId: int,
@@ -556,7 +557,7 @@ class BotSession:
         )
     
     @__action_launch
-    def set_group_card(
+    async def set_group_card(
         self,
         groupId: int,
         userId: int,
@@ -575,7 +576,7 @@ class BotSession:
         ) 
     
     @__action_launch
-    def set_group_name(
+    async def set_group_name(
         self,
         groupId: int,
         name: str,
@@ -592,7 +593,7 @@ class BotSession:
         ) 
         
     @__action_launch
-    def set_group_title(
+    async def set_group_title(
         self,
         groupId: int,
         userId: int,
@@ -613,7 +614,7 @@ class BotSession:
         )
         
     @__action_launch
-    def process_group_add(
+    async def process_group_add(
         self,
         addFlag: str,
         addType: Literal['add', 'invite'],
@@ -634,7 +635,7 @@ class BotSession:
         )
     
     @__action_launch
-    def set_group_icon(
+    async def set_group_icon(
         self,
         groupId: int,
         file: str,
@@ -655,7 +656,7 @@ class BotSession:
         )
     
     @__action_launch
-    def set_group_notice(
+    async def set_group_notice(
         self,
         groupId: int,
         content: str,
@@ -675,7 +676,7 @@ class BotSession:
         ) 
         
     @__action_launch
-    def set_group_essence(
+    async def set_group_essence(
         self,
         msgId: int,
         type: Literal['add', 'del'],
@@ -692,7 +693,7 @@ class BotSession:
         )
         
     @__action_launch
-    def create_group_folder(
+    async def create_group_folder(
         self,
         groupId: int,
         folderName: str,
@@ -709,7 +710,7 @@ class BotSession:
         )
         
     @__action_launch
-    def delete_group_folder(
+    async def delete_group_folder(
         self,
         groupId: int,
         folderId: str,
@@ -726,7 +727,7 @@ class BotSession:
         )
         
     @__action_launch
-    def delete_group_file(
+    async def delete_group_file(
         self,
         groupId: int,
         fileId: str,
@@ -747,7 +748,7 @@ class BotSession:
 
 
     @__action_launch
-    def get_friends(
+    async def get_friends(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -759,7 +760,7 @@ class BotSession:
         )
         
     @__action_launch
-    def get_undirect_friends(
+    async def get_undirect_friends(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -771,7 +772,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_user(
+    async def get_user(
         self,
         userId: int,
         noCache: bool,
@@ -787,7 +788,7 @@ class BotSession:
         )
         
     @__action_launch
-    def process_friend_add(
+    async def process_friend_add(
         self,
         addFlag: str,
         approve: bool,
@@ -806,7 +807,7 @@ class BotSession:
         ) 
     
     @__action_launch
-    def delete_friend(
+    async def delete_friend(
         self,
         userId: int,
         waitResp: bool=False
@@ -821,7 +822,7 @@ class BotSession:
         ) 
         
     @__action_launch
-    def delete_undirect_friend(
+    async def delete_undirect_friend(
         self,
         userId: int,
         waitResp: bool=False
@@ -838,7 +839,7 @@ class BotSession:
 
     
     @__action_launch
-    def get_login_info(
+    async def get_login_info(
         self,
     ) -> Union[RespEvent, None]:
         """
@@ -850,7 +851,7 @@ class BotSession:
         )
     
     @__action_launch
-    def set_login_profile(
+    async def set_login_profile(
         self,
         nickname: str,
         company: str,
@@ -873,7 +874,7 @@ class BotSession:
         )
     
     @__action_launch
-    def check_send_image(
+    async def check_send_image(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -885,7 +886,7 @@ class BotSession:
         )
         
     @__action_launch
-    def check_send_audio(
+    async def check_send_audio(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -897,7 +898,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_cq_status(
+    async def get_cq_status(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -909,7 +910,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_cq_version(
+    async def get_cq_version(
         self
     ) -> Union[RespEvent, None]:
         """
@@ -921,7 +922,7 @@ class BotSession:
         )
         
     @__action_launch
-    def quick_handle(
+    async def quick_handle(
         self,
         contextEvent: BotEvent,
         operation: dict,
@@ -939,7 +940,7 @@ class BotSession:
         # )
     
     @__action_launch
-    def get_image(
+    async def get_image(
         self,
         fileName: str
     ) -> Union[RespEvent, None]:
@@ -953,7 +954,7 @@ class BotSession:
         )
     
     @__action_launch
-    def download_file(
+    async def download_file(
         self,
         fileUrl: str,
         useThreadNum: int,
@@ -982,7 +983,7 @@ class BotSession:
         )
         
     @__action_launch
-    def ocr(
+    async def ocr(
         self,
         image: str,
     ) -> Union[RespEvent, None]:
@@ -996,7 +997,7 @@ class BotSession:
         )
     
     @__action_launch
-    def upload_file(
+    async def upload_file(
         self,
         isPrivate: bool,
         file: str,
@@ -1027,7 +1028,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_at_all_remain(
+    async def get_at_all_remain(
         self,
         groupId: int
     ) -> Union[RespEvent, None]:
@@ -1041,7 +1042,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_online_clients(
+    async def get_online_clients(
         self,
         noCache: bool,
     ) -> Union[RespEvent, None]:
@@ -1055,7 +1056,7 @@ class BotSession:
         )
     
     @__action_launch
-    def get_model_show(
+    async def get_model_show(
         self,
         model: str,
     ) -> Union[RespEvent, None]:
@@ -1069,7 +1070,7 @@ class BotSession:
         )
     
     @__action_launch
-    def set_model_show(
+    async def set_model_show(
         self,
         model: str,
         modelShow: str
