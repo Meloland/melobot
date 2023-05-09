@@ -7,9 +7,8 @@ from common.Exceptions import *
 
 
 BOT_STORE.logger.debug('本次运行日志开始...')
-BOT_STORE.logger.info("Qbot-MeloBot 版本：v{}, developer: {}".format(
-    BOT_STORE.meta.version, BOT_STORE.meta.developer
-))
+BOT_STORE.logger.info(f"核心版本：v{BOT_STORE.meta.version}")
+BOT_STORE.logger.info(f"系统环境：{BOT_STORE.meta.platform}")
 BOT_STORE.logger.info('bot 世界观形成中...  (=´ω｀=)')
 
 

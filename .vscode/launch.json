@@ -14,7 +14,7 @@
             "justMyCode": true
         },
         {
-            "name": "python 当前文件调试",
+            "name": "当前 py 脚本调试",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}",

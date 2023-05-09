@@ -1,6 +1,8 @@
 from core.Executor import EXEC, AuthRole
 from common import *
 import asyncio as aio
+import sys
+import os
 
 
 @EXEC.template(
@@ -18,8 +20,8 @@ async def shell(session: BotSession, cmd_str: str) -> None:
 
     stdout, stderr = await proc.communicate()
     if stderr == b'':
-        ret_str = stdout.decode(encoding='gbk').strip('\r\n')
+        ret_str = stdout.decode(encoding=sys.getdefaultencoding()).strip(os.linesep)
     else:
-        ret_str = stderr.decode(encoding='gbk').strip('\r\n')
+        ret_str = stderr.decode(encoding=sys.getdefaultencoding()).strip(os.linesep)
 
     await session.send(ret_str)

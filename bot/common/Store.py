@@ -3,6 +3,7 @@ import logging
 import logging.config
 import logging.handlers
 import os
+import sys
 import time
 from asyncio import iscoroutine
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
@@ -23,26 +24,32 @@ class GlobalMeta:
     """
     def __init__(self) -> None:
         self.version: str
-        self.developer: str
         self.proj_name: str
         self.proj_url: str
         self.root_path: str
+        self.platform: str
+        self.os_sep: str
+        self.os_pathsep: str
+        
         self.kernel_timeout: int
         self.prior_queue_len: int
-
         self.cmd_mode: str
         self.bot_id: str
         self.bot_nickname: str
 
         self.__dict__.update({
-            'version': '2.0.0-Alpha4 (dev-edition)',
-            'developer': 'AiCorein',
-            'proj_name': 'Qbot-MeloBot',
+            'version': '2.0.0-Alpha4',
+            'proj_name': 'MeloBot',
             'proj_url': 'https://github.com/AiCorein/Qbot-MeloBot',
-            'root_path': '\\'.join(os.path.dirname(__file__).split('\\')[:-1]),
+            'platform': sys.platform,
+            'os_sep': os.sep,
+            'os_pathsep': os.pathsep,
             'kernel_timeout': 5,
             'prior_queue_len': 2,
         })
+        self.__dict__['root_path'] = self.os_sep.join(
+            os.path.dirname(__file__).split(self.os_sep)[:-1]
+        )
         self.working_status = True
 
     def __setattr__(self, __name: str, __value: Any) -> None:

@@ -14,3 +14,4 @@ bot/templates/translate.py
 bot/templates/summon.py
 bot/templates/matlab.py
 bot/templates/s_test.py
+bot/templates/image.py
