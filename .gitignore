@@ -1,13 +1,15 @@
 __pycache__
 */__pycache__
 *.bak
+*/logs
 
 docs
 .pytest_cache
 logs
-
+bot/templates/sdapi
 bot/logs
 bot/config
+
 bot/templates/code.py
 bot/templates/weather.py
 bot/templates/translate.py
@@ -15,3 +17,6 @@ bot/templates/summon.py
 bot/templates/matlab.py
 bot/templates/s_test.py
 bot/templates/image.py
+bot/templates/draw.py
+
+private_*

@@ -9,7 +9,8 @@ from common.Action import msg_action
     aliases=['异步测试', 'atest'], 
     userLevel=AuthRole.SU,
     comment='异步测试', 
-    prompt='[测试秒数，默认为 5]'
+    prompt='[测试秒数，默认为 5]',
+    timeout=20
 )
 async def async_test(session: BotSession, time: str='5') -> None:
     await aio.sleep(int(time))

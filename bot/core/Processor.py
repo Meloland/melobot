@@ -39,9 +39,10 @@ class BaseCmdExecutor(ABC):
             cmd_name_list.append(cmd_name)
         
         for idx, cmd_name in enumerate(cmd_name_list):
+            custom_timeout = self.executor.get_cmd_timeout(cmd_name)
             tasklist.append(aio.create_task(aio.wait_for(
                 self.executor.call(cmd_name, event, *cmd_list[idx][1:]),
-                timeout=BOT_STORE.config.task_timeout
+                timeout=custom_timeout if custom_timeout is not None else BOT_STORE.config.task_timeout
             )))
         # 等待命令执行完成，不理会传出的超时异常，异常都在内部执行时处理
         res_list = await aio.gather(*tasklist, return_exceptions=True)

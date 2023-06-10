@@ -1,3 +1,6 @@
+pytest==7.2.1
+pytest-asyncio==0.21.0
+requests==2.29.0
 toml==0.10.2
-colorlog==6.7.0
 websockets==10.4
+colorlog==6.7.0

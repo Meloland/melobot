@@ -5,12 +5,10 @@ from asyncio import Queue
 from common.Store import BOT_STORE
 from common.Exceptions import *
 
-
 BOT_STORE.logger.debug('本次运行日志开始...')
 BOT_STORE.logger.info(f"核心版本：v{BOT_STORE.meta.version}")
 BOT_STORE.logger.info(f"系统环境：{BOT_STORE.meta.platform}")
 BOT_STORE.logger.info('bot 世界观形成中...  (=´ω｀=)')
-
 
 from core.Linker import BotLinker
 from core.Handler import BotHandler
@@ -20,9 +18,9 @@ from core.Monitor import MONITOR
 
 class MeloBot:
     """
-    bot 类，负责启动和管理所有子模块 ow<
+    bot 类，负责启动和管理所有子模块
     """
-    async def main(self) -> None:
+    async def run(self) -> None:
         """
         装载 bot 核心实例与异步核心任务至 Monitor，并交由 Monitor 启动和管理
         """
@@ -62,7 +60,7 @@ if __name__ == "__main__":
     aio.set_event_loop(the_loop)
     # 键盘中断无法在协程中捕获，因此外层处理
     try:
-        aio.run(MeloBot().main())
+        aio.run(MeloBot().run())
     except KeyboardInterrupt:
         BOT_STORE.logger.debug("接收到键盘中断...")
     BOT_STORE.logger.debug("本次运行日志结束...")

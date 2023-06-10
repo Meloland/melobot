@@ -126,6 +126,7 @@ class ExecInterface:
             userLevel: ac.UserLevel=AuthRole.USER,
             isLocked: bool=False,
             interval: int=0,
+            timeout: float=None,
             preLoad: Tuple[Callable[[], object], Union[Callable[[object], None], None]]=None,
             comment: str='无', 
             prompt: str='无',
@@ -137,6 +138,7 @@ class ExecInterface:
         `userLevel`: 权限等级。接受 `AuthRole` 字面量
         `isLocked`: 是否加锁。
         `interval`: 命令冷却时间（单位 秒），注意：冷却时间 >0，默认会加锁任务
+        `timeout`: 命令自定义超时时间，优先于配置文件的全局任务超时时间
         `preLoad`: 元组。资源加载方法，资源释放方法（不指定可以传递 None）
         `comment`: 供帮助使用的命令注释
         `prompt`: 供帮助使用的命令参数提示
@@ -178,7 +180,7 @@ class ExecInterface:
                     await self.__sys_call('echo', event, f'{cmd_name_args}\n✘ 等待超时，已经放弃执行\n(；′⌒`)')
                 except (TypeError, ValueError):
                     BOT_STORE.logger.warning(cmd_name_args + '执行异常，原因：参数格式错误，尝试发送提示消息中...')
-                    await self.__sys_call('echo', event, '参数有误哦~')
+                    await self.__sys_call('echo', event, '参数位置、个数或格式错误')
                 except BotCmdExecFailed as e:
                     BOT_STORE.logger.warning(cmd_name_args + '执行异常，原因：内部的自定义错误，尝试发送提示消息中...')
                     await self.__sys_call('echo', event, e.origin_err)
@@ -204,6 +206,8 @@ class ExecInterface:
             warpped_cmd_func.__preload__ = preLoad
             # 是否有 session 检验规则
             warpped_cmd_func.__session_rule__ = sessionRule
+            # 命令超时时长
+            warpped_cmd_func.__timeout__ = timeout
             return warpped_cmd_func
         return warpper
 
@@ -301,6 +305,13 @@ class ExecInterface:
         """
         cmdName = self.get_cmd_name(name)
         return self.cmd_map[cmdName].__aliases__.copy()
+
+    def get_cmd_timeout(self, name: str) -> Union[float, None]:
+        """
+        供外部获取指定命令的超时时间，如果未设置，其应该为 None
+        """
+        cmdName = self.get_cmd_name(name)
+        return self.cmd_map[cmdName].__timeout__
 
     def get_cmd_auth(self, name: str) -> ac.UserLevel:
         """
