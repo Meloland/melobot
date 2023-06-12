@@ -11,6 +11,7 @@
             "cwd": "${workspaceFolder}/bot",
             "program": "${workspaceFolder}/bot/main.py",
             "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env",
             "justMyCode": true
         },
         {
@@ -20,6 +21,7 @@
             "cwd": "${workspaceFolder}",
             "program": "${file}",
             "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env",
             "justMyCode": true
         }
     ]
