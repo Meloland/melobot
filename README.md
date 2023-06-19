@@ -23,24 +23,26 @@ MeloBot 是一个基于 Python 的 qbot 实现。其以实现了 Onebot 标准�
 ❗注意：v1 版本的更新已经停止，这意味着不会有功能新增。但其依然在维护，你仍然可以提出 issue 请求 bug 修复。
 
 ## 🚧 MeloBot v2 正在进行的工作
-- ✅ 封装建立内部事件、行为，高层与底层数据解耦
+- ✅ 架构重写，使用微内核、事件总线架构
+- ✅ 封装建立内部数据结构，与底层数据解耦
 - ✅ 取消线程池设计，全部使用协程设计
-- ✅ 全局数据模块重构，构建全局资源树管理
-- ✅ 会话控制
-- ✅ 行为对应响应事件的分发与回送
-- ⬜ 基于 aiocqhttp 开发自定义前端，不再使用 go-cq
-- ⬜ 事件各类响应接口与事件广播
-- ⬜ 响应优先级设计
-- ⬜ 权限校验、规则等中间件设计
-- ⬜ 插件化管理
+- ✅ 全局公共空间使用异步安全的读写锁
+- ✅ 事件响应的会话控制
+- ✅ cq 响应事件的分发与回送
+- ✅ 事件接口与事件分发
+- ✅ 响应优先级设计
+- ✅ 权限检查、规则校验、解析组件等中间件设计
+- ✅ 插件化管理
+- ⬜ 生命周期 hook 设计
+- ⬜ 跨插件调用与插件交互
+- ⬜ 基于 aiocqhttp 的连接前端（不再使用 go-cq）
 
-🌱 提示：为保证兼容性，v2 版本在接口设计完成前，不会发布。你可以自行克隆 [v2-dev](https://github.com/AiCorein/Qbot-MeloBot/tree/v2-dev) 分支体验新功能。<br />
-（在 [bot/templates](https://github.com/AiCorein/Qbot-MeloBot/tree/v2-dev/bot/templates) 下有许多内置模板方法，可作为使用参考）
+🌱 提示：为保证兼容性，v2 版本在所有接口实现完毕前，不会发布。你可以自行克隆 [v2-dev](https://github.com/AiCorein/Qbot-MeloBot/tree/v2-dev) 分支体验新功能。<br />
 
 ## 📦️ 版本支持
 - python >= 3.8
 - go-cqhttp >= 1.0.0
-- platform == All（注：除 win 外其他平台尚未测试）
+- platform == All（注：mac 平台尚未测试，同时 v1 版本只支持 win 平台）
 
 ## 💬 更多
 请参阅文档（目前只有 v1 版本）：[MeloBot 文档](https://proj.glowmem.com/MeloBot/)
