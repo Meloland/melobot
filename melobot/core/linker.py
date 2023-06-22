@@ -1,14 +1,14 @@
 import asyncio as aio
-import sys
 import time
 import traceback
-from asyncio import Lock
 from logging import Logger
 
 import websockets
 import websockets.exceptions as wse
 
-from ..interface.core import IEventDispatcher, IMetaDispatcher, IRespDispatcher, IActionSender
+from ..interface.core import (IActionSender, IEventDispatcher, IMetaDispatcher,
+                              IRespDispatcher)
+from ..interface.typing import *
 from ..models.action import BotAction
 from ..models.event import BotEventBuilder
 
@@ -26,8 +26,7 @@ class BotLinker(IActionSender):
         self._pre_send_time = time.time()
         self._logger = logger
 
-
-        self._send_lock = Lock()
+        self._send_lock = aio.Lock()
         self._ready_signal = aio.Event()
         self.common_dispatcher: IEventDispatcher
         self.resp_dispatcher: IRespDispatcher
@@ -42,7 +41,7 @@ class BotLinker(IActionSender):
         self.resp_dispatcher = resp_dispatcher
         self.meta_dispatcher = meta_dispatcher
         self._ready_signal.set()
-
+    
     async def _start(self) -> None:
         """
         启动连接
@@ -63,6 +62,8 @@ class BotLinker(IActionSender):
         return self
     
     async def __aexit__(self, exc_type: Exception, exc_val: str, exc_tb: traceback) -> None:
+        if exc_type == wse.ConnectionClosedError:
+            self._logger.warning("cq 主动关闭了连接, 将自动清理资源后关闭")
         await self._close()
 
     async def send(self, action: BotAction) -> None:
@@ -78,6 +79,11 @@ class BotLinker(IActionSender):
                 await aio.sleep(self.send_interval-(time.time()-self._pre_send_time))
                 await self.connector.send(action_str)
                 self._pre_send_time = time.time()
+        except aio.CancelledError:
+            # 并发度 >=3 sleep 会被取消，咱时找不到问题，但是可以通过递归重发解决
+            # 递归深度和数量在可以接收的范围内
+            self._logger.warning("发生一次递归重发")
+            await self.send(action)
         except wse.ConnectionClosed:
             self._logger.error("与 cq 的连接已经断开，无法再执行操作")
 
@@ -103,13 +109,10 @@ class BotLinker(IActionSender):
                     else:
                         aio.create_task(self.common_dispatcher.dispatch(event))
                 
-                except wse.ConnectionClosedError:
-                    self._logger.warning("cq 主动关闭了连接, 将自动清理资源后关闭")
-                    sys.exit(0)
+                except wse.ConnectionClosed:
+                    raise
                 except Exception as e:
                     self._logger.debug(traceback.format_exc())
-                    self._logger.error(f"连接模块内部异常抛出：{e}，事件对象为：{event}")
+                    self._logger.error(f"bot 运行例程抛出异常：{e.__class__.__name__} {e}，当前事件为：{raw_event}。bot 仍在运行。")
         except aio.CancelledError:
-            self._logger.debug("事件接收例程已停止")
-        except wse.ConnectionClosedOK:
-            pass
+            self._logger.debug("bot 运行例程已停止")

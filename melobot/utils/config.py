@@ -98,7 +98,7 @@ LOG_LEVEL = "INFO"
 # 消息发送冷却时间（防止发送消息过快被风控）
 COOLDOWN_TIME = 0.5
 # 日志输出目录（会在该目录初始化 app.log 文件）
-LOG_DIR_PATH = "./logs"
+LOG_DIR_PATH = "../logs"
 """
 
 
@@ -107,5 +107,5 @@ DEFAULT_CONFIG = {
     "CONNECT_PORT": 8080,
     "LOG_LEVEL": "INFO",
     "COOLDOWN_TIME": 0.5,
-    "LOG_DIR_PATH": "./logs"
+    "LOG_DIR_PATH": "../logs"
 }

@@ -1,11 +1,11 @@
 import asyncio as aio
 
 from ..interface.core import IEventDispatcher
-from ..interface.plugins import *
+from ..interface.plugin import *
 from ..interface.typing import *
 from ..models.event import BotEvent
 from ..models.exceptions import *
-from ..plugins.handler import *
+from ..core.plugin import MsgEventHandler, ReqEventHandler, NoticeEventHandler
 
 
 class BotDispatcher(IEventDispatcher):
@@ -16,47 +16,42 @@ class BotDispatcher(IEventDispatcher):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.handlers: Dict[str, List[IEventHandler]]
+        self.handlers: Dict[str, List[IEventHandler]] = {
+            'message': [],
+            'request': [],
+            'notice': []
+        }
 
         self._ready_signal = aio.Event()
-        self._locks: Dict[str, aio.Lock]
 
-    def bind(self, msg_handlers: List[MsgEventHandler], req_handlers: List[ReqEventHandler], 
-             notice_handlers: List[NoticeEventHandler]) -> None:
+    def bind_handlers(self, all_handlers: List[IEventHandler]) -> None:
         """
-        绑定事件处理器列表，列表应该是按优先级排序过的。
+        绑定事件处理器列表
         """
-        self.handlers = {
-            'message': sorted(msg_handlers, key=lambda x:x.priority, reverse=True),
-            'request': sorted(req_handlers, key=lambda x:x.priority, reverse=True),
-            'notice': sorted(notice_handlers, key=lambda x:x.priority, reverse=True)
-        }
-        self._locks = {
-            'message': aio.Lock(),
-            'request': aio.Lock(),
-            'notice': aio.Lock()
-        }
+        for handler in all_handlers:
+            if isinstance(handler, MsgEventHandler):
+                self.handlers['message'].append(handler)
+            elif isinstance(handler, ReqEventHandler):
+                self.handlers['request'].append(handler)
+            elif isinstance(handler, NoticeEventHandler):
+                self.handlers['notice'].append(handler)
+
+        for k in self.handlers.keys():
+            self.handlers[k] = sorted(self.handlers[k], key=lambda x:x.priority, reverse=True)
         self._ready_signal.set()
 
     async def dispatch(self, event: BotEvent) -> None:
         await self._ready_signal.wait()
 
-        async with self._locks[event.type]:
-            permit_priority = PriorityLevel.MIN.value
-            handlers = self.handlers[event.type]
+        permit_priority = PriorityLevel.MIN.value
+        handlers = self.handlers[event.type]
 
-            for handler in handlers:
-                # 如果被高优先级的事件处理器阻断，或已经无效、或前置验证不通过，不予处理
-                if handler.priority < permit_priority or not handler.is_valid or \
-                    not handler.verify(event):
-                    continue
+        for handler in handlers:
+            # 如果被高优先级的事件处理器阻断，不予处理
+            if handler.priority < permit_priority:
+                continue
+            if not (await handler.evoke(event)):
+                continue
 
-                aio.create_task(handler.handle(event))
-                # 一次性处理器一次处理后，更改有效标志
-                if handler.is_temp:
-                    handler.is_valid = False
-                # 更高优先级，可以更新阻断级别
-                if handler.set_block and handler.priority > permit_priority:
-                    permit_priority = handler.priority
-            
-            self.handlers[event.type] = list(filter(lambda x: x.is_valid, handlers))
+            if handler.set_block and handler.priority > permit_priority:
+                permit_priority = handler.priority

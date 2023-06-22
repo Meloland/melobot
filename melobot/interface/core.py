@@ -52,9 +52,3 @@ class IEventDispatcher(ABC):
     @abstractmethod
     async def dispatch(self, event: BotEvent) -> None:
         pass
-
-
-class IBot(ABC):
-    def __init__(self) -> None:
-        super().__init__()
-        

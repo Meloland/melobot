@@ -1,7 +1,8 @@
 import asyncio as aio
 import time
-from functools import wraps
 from abc import ABC, abstractmethod
+from contextvars import ContextVar, Token
+from functools import wraps
 
 from ..interface.core import IActionResponder
 from ..interface.typing import *
@@ -33,22 +34,31 @@ class BotSession:
         self._responder = responder
 
     def _add_event(self, event: BotEvent) -> None:
+        if event is None:
+            return
         self.event_records.append(event)
 
     @property
     def event(self) -> Union[BotEvent, None]: 
-        try: return next(reversed(self.event_records))
-        except StopIteration: return "No event attached"
+        try: 
+            return next(reversed(self.event_records))
+        except StopIteration: 
+            return None
 
-    def store_get(self, key: object) -> object: return self.store[key]
+    def store_get(self, key: object) -> object: 
+        return self.store[key]
 
-    def store_add(self, key: object, val: object) -> None: self.store[key] = val
+    def store_add(self, key: object, val: object) -> None: 
+        self.store[key] = val
 
-    def store_update(self, store: Dict) -> None: self.store.update(store)
+    def store_update(self, store: Dict) -> None: 
+        self.store.update(store)
 
-    def store_remove(self, key: object) -> None: self.store.pop(key)
+    def store_remove(self, key: object) -> None: 
+        self.store.pop(key)
 
-    def store_clear(self) -> None: self.store.clear()
+    def store_clear(self) -> None: 
+        self.store.clear()
 
     def destory(self) -> None:
         """
@@ -1142,8 +1152,8 @@ class BotSessionManager:
         return session
 
     @classmethod
-    async def _make_with_rule(cls, event: BotEvent, responder: IActionResponder, check_rule: SessionRule, session_space: List[BotSession], 
-                              conflict_wait: bool=False
+    async def _make_with_rule(cls, event: BotEvent, responder: IActionResponder, check_rule: SessionRule, 
+                              session_space: List[BotSession], conflict_wait: bool=False
                              ) -> Union[BotSession, None]:
         """
         根据规则获取 session
@@ -1167,3 +1177,35 @@ class BotSessionManager:
 
         return await cls._make(event, responder, session_space)
 
+
+_session_ctx = ContextVar("session_ctx")
+
+
+class SessionLocal:
+    """
+    session 自动上下文
+    """
+    __slots__ = tuple(
+        list(
+            filter(lambda x: not (len(x) >= 2 and x[:2] == '__'), dir(BotSession))
+        ) + ['__storage__']
+    )
+
+    def __init__(self) -> None:
+        object.__setattr__(self, '__storage__', _session_ctx)
+        self.__storage__: ContextVar[BotSession]
+
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        setattr(self.__storage__.get(), __name, __value)
+
+    def __getattr__(self, __name: str) -> Any:
+        return getattr(self.__storage__.get(), __name)
+    
+    def _add_ctx(self, ctx: BotSession) -> Token:
+        return self.__storage__.set(ctx)
+    
+    def _del_ctx(self, token: Token) -> None:
+        self.__storage__.reset(token)
+
+
+SESSION_LOCAL = SessionLocal()

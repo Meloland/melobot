@@ -1,14 +1,18 @@
 __pycache__
 */__pycache__
-
 *.bak
+
 logs
 */logs
 config
 */config
+
 */test.*
 test.*
-*/main.py
-main.py
 
 docs
+build
+*.egg-info
+
+main.py
+start.py
