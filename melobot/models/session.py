@@ -32,10 +32,11 @@ class BotSession:
         self._free_signal= aio.Event()
         self._free_signal.set()
         self._responder = responder
+        
+        # # 用于在挂起状态等待
+        # self._running_status = aio.Event()
 
     def _add_event(self, event: BotEvent) -> None:
-        if event is None:
-            return
         self.event_records.append(event)
 
     @property
@@ -62,7 +63,8 @@ class BotSession:
 
     def destory(self) -> None:
         """
-        销毁当前 session，销毁后清空 store, 无法再执行操作
+        标记销毁当前 session，清空 store, 且无法再执行操作。
+        真正的销毁操作让 BotSessionManager 执行
         """
         if not self._expired:
             self.event_records.clear()
@@ -1121,7 +1123,7 @@ class BotSessionManager:
                   ) -> Union[BotSession, None]:
         """
         当 check_rule 为空时，每次生成临时 session，且不在 session_space 中保存。
-        如果提供 check_rule，则必须同时提供 session_space
+        如果提供 check_rule，则必须同时提供 session_space。
         如果获取到的 session 在活跃状态，则返回 None。
         """
         if check_rule:
@@ -1146,7 +1148,8 @@ class BotSessionManager:
         获取一次性 session
         """
         session = BotSession(responder)
-        session._add_event(event)
+        if event:
+            session._add_event(event)
         if session_space is not None: 
             session_space.append(session)
         return session

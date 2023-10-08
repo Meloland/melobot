@@ -10,7 +10,8 @@ with open('requirements.txt') as fp:
     required = fp.read().splitlines()
 
 if sys.platform != 'win32':
-    required.extend(unixlike_uniques)
+    required.append(unixlike_uniques)
+
 
 setup(
     name='melobot',
@@ -19,5 +20,12 @@ setup(
     author='AiCorein',
     author_email='melodyecho@glowmem.com',
     packages=['melobot', 'melobot.core', 'melobot.interface', 'melobot.models', 'melobot.utils'],
-    install_requires=required,
+    package_dir={
+        'melobot': 'melobot',
+        'melobot.core': 'melobot/core',
+        'melobot.interface': 'melobot/interface',
+        'melobot.models': 'melobot/models',
+        'melobot.utils': 'melobot/utils'
+    },
+    install_requires=required
 )

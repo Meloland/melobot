@@ -26,7 +26,7 @@ class IEventHandler(ABC):
     async def evoke(self, event: BotEvent) -> bool:
         """
         接收总线分发的事件的方法。
-        此处应该进行校验、 session 建立和超时控制等一系列操作，然后再运行内部绑定的处理逻辑
+        进行校验、 session 建立和超时控制等一系列操作，然后再运行内部绑定的处理逻辑
         """
         pass
 
@@ -53,9 +53,9 @@ class PluginTemplate(ABC):
     def __init__(self) -> None:
         super().__init__()
         self.name: str = None
-        self.version: str = None
-        self.executors: List[Tuple[IEventExecutor, IEventHandler, List[str]]] = None
-        self.callers: List[Tuple[IHookCaller, IHookRunner, List[str]]] = None
+        self.version: str = '1.0.0'
+        self.executors: List[Tuple[IEventExecutor, IEventHandler, List[str]]] = []
+        self.callers: List[Tuple[IHookCaller, IHookRunner, List[str]]] = []
 
         self.rw_auth: bool=False
         self.call_auth: bool=False

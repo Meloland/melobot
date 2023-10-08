@@ -38,10 +38,10 @@ class BotStore:
         安全地设置初值
         """
         async with self._lock:
-            if self.is_set(name):
+            if not self.is_set(name):
                 self.__storage__[name] = AsyncSafeObject(val)
             else:
-                raise BotException("值已存在，请使用 read_write 通过安全读写上下文修改值")
+                raise BotException("值已存在，使用 read_write 安全读写上下文修改值")
 
     @asynccontextmanager
     async def read(self, name: str) -> AsyncIterator[AsyncSafeObject]:
@@ -49,7 +49,7 @@ class BotStore:
         安全的读取上下文
         """
         if not self.is_set(name):
-            raise BotException("值不存在")
+            raise BotException("值不存在，先通过 set 设置初值")
         
         obj = self.__storage__[name]
         async with obj.read_lock:
@@ -61,7 +61,7 @@ class BotStore:
         安全的读写上下文
         """
         if not self.is_set(name):
-            raise BotException("值不存在")
+            raise BotException("值不存在，先通过 set 设置初值")
         
         obj = self.__storage__[name]
         async with obj.write_lock:

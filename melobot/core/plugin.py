@@ -20,13 +20,13 @@ class BotPlugin:
     bot 插件类。
     bot 所有自定义功能都由插件实现。
     """
-    __always_public__ = ('name', 'version', 'rw_auth', 'call_auth')
+    __public_attrs__ = ('name', 'version', 'rw_auth', 'call_auth')
 
     def __init__(self, dir: str, template: PluginTemplate, responder: IActionResponder) -> None:
         self._template = template
         self._responder = responder
         
-        self.name: str
+        self.name: str=None
         self.dir: str=dir
         self.version: str=None
         self.rw_auth: bool=False
@@ -110,6 +110,9 @@ class PluginLoader:
         模板有效性校验
         """
         # TODO: 完善校验
+        if template.name is None:
+            raise BotException("插件必须有唯一标识的名称")
+
         if template.executors:
             for executor, handler_class, params in template.executors:
                 if not iscoroutinefunction(executor):
@@ -209,9 +212,10 @@ class MsgEventHandler(IEventHandler):
         self._plugin_ref = plugin_ref
         self._conflict_cb = conflict_callback
         self._overtime_cb = overtime_callback
-        self._wait = conflict_wait
-        self._session_space = []
+        self._wait_flag = conflict_wait
+        self._session_space: List[BotSession] = []
         self._session_lock = aio.Lock()
+        # self._suspended_sessions: List[BotSession] = []
 
         if (self.matcher is None and self.parser is None) or \
             (self.matcher and self.parser):
@@ -259,7 +263,7 @@ class MsgEventHandler(IEventHandler):
 
     async def _run(self, event: MsgEvent) -> None:
         session = await BotSessionManager.get(event, self.responder, self._session_lock, self._session_rule, 
-                                              self._session_space, self._wait)
+                                              self._session_space, self._wait_flag)
         if session is None: 
             if self._conflict_cb:
                 temp_session = await BotSessionManager.get(event, self.responder)
@@ -310,7 +314,7 @@ class ReqEventHandler(IEventHandler):
         self._plugin_ref = plugin_ref
         self._conflict_cb = conflict_callback
         self._overtime_cb = overtime_callback
-        self._wait = conflict_wait
+        self._wait_flag = conflict_wait
         self._session_space = []
         self._session_lock = aio.Lock()
 
@@ -345,7 +349,7 @@ class ReqEventHandler(IEventHandler):
 
     async def _run(self, event: RequestEvent) -> None:
         session = await BotSessionManager.get(event, self.responder, self._session_lock, self._session_rule, 
-                                              self._session_space, self._wait)
+                                              self._session_space, self._wait_flag)
         if session is None: 
             if self._conflict_cb:
                 temp_session = await BotSessionManager.get(event, self.responder)
@@ -395,7 +399,7 @@ class NoticeEventHandler(IEventHandler):
         self._plugin_ref = plugin_ref
         self._conflict_cb = conflict_callback
         self._overtime_cb = overtime_callback
-        self._wait = conflict_wait
+        self._wait_flag = conflict_wait
         self._session_space = []
         self._session_lock = aio.Lock()
 
@@ -430,7 +434,7 @@ class NoticeEventHandler(IEventHandler):
 
     async def _run(self, event: NoticeEvent) -> None:
         session = await BotSessionManager.get(event, self.responder, self._session_lock, self._session_rule, 
-                                              self._session_space, self._wait)
+                                              self._session_space, self._wait_flag)
         if session is None: 
             if self._conflict_cb:
                 temp_session = await BotSessionManager.get(event, self.responder)

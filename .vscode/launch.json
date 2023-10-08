@@ -5,16 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "MeloBot 项目调试",
-            "type": "python",
-            "request": "launch",
-            "cwd": "${workspaceFolder}/bot",
-            "program": "${workspaceFolder}/bot/main.py",
-            "console": "integratedTerminal",
-            "envFile": "${workspaceFolder}/.env",
-            "justMyCode": true
-        },
-        {
             "name": "当前 py 脚本调试",
             "type": "python",
             "request": "launch",

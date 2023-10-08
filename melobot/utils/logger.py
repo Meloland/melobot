@@ -7,19 +7,41 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
 from ..interface.typing import *
 
 __all__ = (
-    'generate_logger'
+    'get_logger'
 )
 
 
-def generate_logger(log_path: str, log_level: Literal['DEBUG', 'ERROR', 'INFO', 'WARN', 'WARNING', 'CRITICAL']) -> Logger:
-    log_path = log_path
-    if not os.path.exists(log_path):
-        os.mkdir(log_path)
-    
-    level = log_level
-    LOG_CONFIG['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[level]
-    logging.config.dictConfig(LOG_CONFIG)
-    return logging.getLogger('the_logger')
+def get_logger(log_dir: str=None, log_level: Literal['DEBUG', 'ERROR', 'INFO', 'WARN', 'WARNING', 'CRITICAL']='DEBUG') -> Logger:
+    if log_dir:
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
+        config = get_config(log_dir, log_level)
+    else:
+        config = get_fileless_config(log_level)
+    logging.config.dictConfig(config)
+    return logging.getLogger('global_logger')
+
+
+def get_fileless_config(log_level: str):
+    config = LOG_CONFIG.copy()
+    config['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[log_level]
+    return config
+
+
+def get_config(log_dir: str, log_level: str):
+    config = LOG_CONFIG.copy()
+    config['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[log_level]
+    config['handlers']['file_handler'] = {
+        'class': 'logging.handlers.RotatingFileHandler',  # 必填，处理器对应的类
+        'level': logging.DEBUG,  # 选填，处理器的日志级别，可填字符串'info'，或者logging.INFO
+        'formatter': 'myformatter2',  # 选填，这里要填写formatters字典中的键
+        'filename': os.path.join(log_dir, 'bot.log'),  # filehandler特有参数，文件名
+        'maxBytes': 1024*1024,  # 文件大小
+        'backupCount': 10,  # 备份数量
+        'encoding': 'UTF-8',  # 编码格式
+    }
+    config['loggers']['global_logger']['handlers'].append('file_handler')
+    return config
 
 
 LOG_COLOR_CONFIG = {
@@ -67,22 +89,13 @@ LOG_CONFIG = {
                 'class': 'logging.StreamHandler',  # 必填，处理器对应的类
                 'level': logging.INFO,  # 选填，处理器的日志级别，可填字符串'info'，或者logging.INFO
                 'formatter': 'myformatter1',  # 选填，这里要填写formatters字典中的键
-            },
-            'file_handler': {
-                'class': 'logging.handlers.RotatingFileHandler',  # 必填，处理器对应的类
-                'level': logging.DEBUG,  # 选填，处理器的日志级别，可填字符串'info'，或者logging.INFO
-                'formatter': 'myformatter2',  # 选填，这里要填写formatters字典中的键
-                'filename': './logs/app.log',  # filehandler特有参数，文件名
-                'maxBytes': 1024*1024,  # 文件大小
-                'backupCount': 3,  # 备份数量
-                'encoding': 'UTF-8',  # 编码格式
             }
         },
 
     'loggers':  # 记录器配置专用key，在这里配置logger，可配置复数logger
         {
-            'the_logger': {
-                'handlers': ['console_handler', 'file_handler'],  # 列表形式，元素填handlers字典中的handler
+            'global_logger': {
+                'handlers': ['console_handler'],  # 列表形式，元素填handlers字典中的handler
                 'level': logging.DEBUG,  # 选填，记录器的日志级别，不填则默认Warning级别
                 'propagate': False,  # 选填，为False时，禁止将日志消息传递给父级记录器
             }

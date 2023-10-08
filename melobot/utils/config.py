@@ -6,6 +6,7 @@ import sys
 import toml
 
 from ..interface.typing import *
+from .logger import get_logger
 
 __all__ = (
     'BOT_CONFIG'
@@ -24,6 +25,7 @@ class ConfigGenerator:
         self.config_path = os.path.join(
             self.config_dir, 'bot_config.toml'
         )
+        self.logger = get_logger()
 
     def get(self) -> dict:
         """
@@ -43,7 +45,7 @@ class ConfigGenerator:
         if not os.path.exists(self.config_path):
             with open(self.config_path, 'w', encoding='utf-8') as fp:
                 fp.write(self.default_config_text)
-            print("未检测到配置文件，已自动生成，请填写配置后重启 bot")
+            self.logger.info("未检测到配置文件，已自动生成，请填写配置后重启 bot")
             sys.exit(0)
         else:
             with open(self.config_path, encoding='utf-8') as fp:

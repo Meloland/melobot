@@ -71,7 +71,7 @@ MsgNodeList = List[MsgNode]
 
 
 class UserLevel(Enum):
-    """权限等级 enum"""
+    """权限等级枚举"""
     OWNER = 100
     SU = 90
     WHITE = 80

@@ -1,13 +1,13 @@
 import asyncio as aio
 
+from ..interface.core import IActionResponder, IActionSender, IEventDispatcher
 from ..interface.plugin import IHookCaller, IHookRunner
 from ..interface.typing import *
+from ..models.session import SESSION_LOCAL, BotSessionManager
 from ..utils.config import BotConfig
 from ..utils.store import BotStore
-from ..interface.core import IEventDispatcher, IActionSender, IActionResponder
-from .plugin import BotPlugin, PLUGIN_LOCAL
-from ..models.session import BotSessionManager, SESSION_LOCAL
-from ..interface.core import IActionResponder
+from .plugin import PLUGIN_LOCAL, BotPlugin
+
 
 class BotProxy:
     """
@@ -17,14 +17,14 @@ class BotProxy:
         self.store = BotStore()
         
         self.config: BotConfig
-        self._work: aio.Task
+        self._initd: aio.Task
         self._linker: IActionSender
         self._responder: IActionResponder
         self._dispatcher: IEventDispatcher
 
-    def bind(self, config: BotConfig, work: aio.Task, linker: IActionSender, responder: IActionResponder, dispatcher: IEventDispatcher) -> None:
+    def _bind(self, config: BotConfig, work: aio.Task, linker: IActionSender, responder: IActionResponder, dispatcher: IEventDispatcher) -> None:
         self.config = config
-        self._work = work
+        self._initd = work
         self._linker = linker
         self._responder = responder
         self._dispatcher = dispatcher
