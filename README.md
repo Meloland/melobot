@@ -4,6 +4,12 @@
 <p><strong>基于 go-cqhttp 前端，python 的 qbot 实现</strong></p>
 </div>
 
+## ❗❗❗ 2023.10.20 消息
+<h2>
+<strong><p style="color: red;">美好的时代结束啦~</p></strong>
+<strong><p>由于上游 QQ 协议解析、登录相关开源项目已停止维护。本项目也无力继续维护，将无限期停滞开发。</p></strong>
+</h2>
+
 ## 🎉 关于 MeloBot
 
 MeloBot 是一个基于 Python 的 qbot 实现。其以实现了 Onebot 标准的 go-cqhttp 接口作为前端，通过对来自 go-cqhttp 的各种“事件”的处理，再产生“行为”，最后提交给 go-cqhttp 与 qq 服务器进行通信，实现各类复杂的功能。
