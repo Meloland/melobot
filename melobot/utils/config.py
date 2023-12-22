@@ -15,7 +15,7 @@ __all__ = (
 
 class ConfigGenerator:
     """
-    配置管理器
+    配置生成器
     """
     def __init__(self, ConfigDirPath: str) -> None:
         self.config = {}
@@ -46,7 +46,7 @@ class ConfigGenerator:
             with open(self.config_path, 'w', encoding='utf-8') as fp:
                 fp.write(self.default_config_text)
             self.logger.info("未检测到配置文件，已自动生成，请填写配置后重启 bot")
-            sys.exit(0)
+            exit(0)
         else:
             with open(self.config_path, encoding='utf-8') as fp:
                 self.config = toml.load(fp)
@@ -91,9 +91,9 @@ class BotConfig:
 DEFAULT_CONFIG_TEXT = \
 """# 以下为自动生成的默认配置文件
 
-# go-cq 服务的 host
+# websocket 连接服务的 host
 CONNECT_HOST = "localhost"
-# go-cq 服务的端口
+# websocket 连接服务的端口
 CONNECT_PORT = 8080
 # 全局日志等级（LOG, INFO, DEBUG, WARN, WARNING, CRITICAL）
 LOG_LEVEL = "INFO"

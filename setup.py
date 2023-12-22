@@ -2,7 +2,7 @@ import sys
 from setuptools import setup
 
 
-unixlike_uniques = (
+linux_modules = (
     'uvloop>=0.17.0'
 )
 
@@ -10,7 +10,10 @@ with open('requirements.txt') as fp:
     required = fp.read().splitlines()
 
 if sys.platform != 'win32':
-    required.append(unixlike_uniques)
+    if isinstance(linux_modules, tuple):
+        required.extend(linux_modules)
+    else:
+        required.append(linux_modules)
 
 
 setup(

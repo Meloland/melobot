@@ -16,6 +16,7 @@ __all__ = (
 )
 
 
+# TODO: 完成事件、行为数据结构协议，和对应适配器
 class BotEvent(ABC):
     """
     Bot 事件类
@@ -91,6 +92,7 @@ class MsgEvent(BotEvent):
         
         self._cq_regex = re.compile(r'\[CQ:.*?\]')
         self.id = rawEvent['message_id']
+        # TODO: 通过结构化消息重新生成 raw_message
         self.raw_content = rawEvent['raw_message']
         self.content = rawEvent['message']
         self.font = rawEvent['font']

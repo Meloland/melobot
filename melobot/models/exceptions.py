@@ -6,7 +6,8 @@ __all__ = (
     'BotPluginDenied'
 )
 
-
+# TODO: 重新整理异常类
+# 异常分为两大类：内部和外部。外部细分，内部不细分。
 class BotException(Exception):
     """
     bot 异常基类

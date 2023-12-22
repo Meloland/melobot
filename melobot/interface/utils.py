@@ -32,8 +32,7 @@ class ParserParams:
 
 class BotParser(ABC):
     """
-    解析器基类。解析器一般用作从消息文本中按规则
-    提取指定字符串或字符串组合
+    解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合
     """
     def __init__(self) -> None:
         super().__init__()

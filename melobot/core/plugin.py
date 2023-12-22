@@ -109,7 +109,7 @@ class PluginLoader:
         """
         模板有效性校验
         """
-        # TODO: 完善校验
+        # TODO: 完善插件校验
         if template.name is None:
             raise BotException("插件必须有唯一标识的名称")
 
@@ -154,7 +154,7 @@ class PluginLocal:
     def __init__(self) -> None:
         object.__setattr__(self, '__storage__', _plugin_ctx)
         self.__storage__: ContextVar[BotPlugin]
-        # botplugin typing
+        # 对应 BotPlugin 的类型注解
         self.name: str
         self.dir: str
         self.version: str
@@ -190,6 +190,7 @@ class PluginLocal:
 PLUGIN_LOCAL = PluginLocal()
 
 
+# TODO: 考虑事件处理器是否有更多部分可以放到基类中
 class MsgEventHandler(IEventHandler):
     def __init__(self, executor: IEventExecutor, plugin_ref: BotPlugin, responder: IActionResponder, matcher: BotMatcher=None, 
                  parser: BotParser=None, checker: BotChecker=None, priority: int=PriorityLevel.MEAN.value, timeout: float=None, 
@@ -197,7 +198,7 @@ class MsgEventHandler(IEventHandler):
                  conflict_callback: Callable[[None], Coroutine]=None, overtime_callback: Callable[[None], Coroutine]=None
                  ) -> None:
         """
-        matcher_wrapper 和 parser 必须一个为 None, 另一存在。
+        matcher 和 parser 必须一个为 None, 另一存在。
         """
         super().__init__(priority, timeout, set_block, temp)
 
@@ -215,6 +216,7 @@ class MsgEventHandler(IEventHandler):
         self._wait_flag = conflict_wait
         self._session_space: List[BotSession] = []
         self._session_lock = aio.Lock()
+        # TODO: seesion 挂起的设计
         # self._suspended_sessions: List[BotSession] = []
 
         if (self.matcher is None and self.parser is None) or \
@@ -262,6 +264,9 @@ class MsgEventHandler(IEventHandler):
                 await self._run_with_ctx(self._overtime_cb(), session, self._plugin_ref)
 
     async def _run(self, event: MsgEvent) -> None:
+        """
+        获取 session 然后准备运行 executor
+        """
         session = await BotSessionManager.get(event, self.responder, self._session_lock, self._session_rule, 
                                               self._session_space, self._wait_flag)
         if session is None: 
@@ -275,7 +280,7 @@ class MsgEventHandler(IEventHandler):
 
     async def evoke(self, event: MsgEvent) -> bool:
         """
-        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断
+        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
         """
         if not self.is_valid:
             return False
@@ -348,6 +353,9 @@ class ReqEventHandler(IEventHandler):
                 await self._run_with_ctx(self._overtime_cb(), session, self._plugin_ref)
 
     async def _run(self, event: RequestEvent) -> None:
+        """
+        获取 session 然后准备运行 executor
+        """
         session = await BotSessionManager.get(event, self.responder, self._session_lock, self._session_rule, 
                                               self._session_space, self._wait_flag)
         if session is None: 
@@ -361,7 +369,7 @@ class ReqEventHandler(IEventHandler):
 
     async def evoke(self, event: RequestEvent) -> bool:
         """
-        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断
+        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
         """
         if not self.is_valid:
             return False
@@ -433,6 +441,9 @@ class NoticeEventHandler(IEventHandler):
                 await self._run_with_ctx(self._overtime_cb(), session, self._plugin_ref)
 
     async def _run(self, event: NoticeEvent) -> None:
+        """
+        获取 session 然后准备运行 executor
+        """
         session = await BotSessionManager.get(event, self.responder, self._session_lock, self._session_rule, 
                                               self._session_space, self._wait_flag)
         if session is None: 
@@ -446,7 +457,7 @@ class NoticeEventHandler(IEventHandler):
 
     async def evoke(self, event: NoticeEvent) -> bool:
         """
-        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断
+        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
         """
         if not self.is_valid:
             return False

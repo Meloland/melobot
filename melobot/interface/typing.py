@@ -1,3 +1,6 @@
+import os
+import sys
+
 from typing import (
     Union, 
     List, 
@@ -36,8 +39,16 @@ __all__ = (
     'MsgNode',
     'MsgNodeList',
     'UserLevel',
-    'PriorityLevel'
+    'PriorityLevel',
+    'METAINFO'
 )
+
+
+class Singleton:
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '__instance__'):
+            cls.__instance__ = super(Singleton, cls).__new__(cls)
+        return cls.__instance__
 
 
 class Msg(TypedDict):
@@ -70,7 +81,7 @@ class MsgNode(TypedDict):
 MsgNodeList = List[MsgNode]
 
 
-class UserLevel(Enum):
+class UserLevel(int, Enum):
     """权限等级枚举"""
     OWNER = 100
     SU = 90
@@ -79,8 +90,21 @@ class UserLevel(Enum):
     BLACK = -1
 
 
-class PriorityLevel(Enum):
+class PriorityLevel(int, Enum):
     """优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值"""
     MIN = 0
     MAX = 100
     MEAN = (MAX-MIN)//2
+
+
+class MetaInfo:
+    def __init__(self) -> None:
+        self.VER = '2.0.0-Beta1'
+        self.PROJ_NAME = 'MeloBot'
+        self.AUTHOR = 'AiCorein'
+        self.PROJ_SRC = 'https://github.com/AiCorein/Qbot-MeloBot'
+        self.PLATFORM = sys.platform
+        self.OS_SEP = os.sep
+        self.PATH_SEP = os.pathsep
+
+METAINFO = MetaInfo()

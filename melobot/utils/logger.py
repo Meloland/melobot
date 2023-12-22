@@ -12,6 +12,9 @@ __all__ = (
 
 
 def get_logger(log_dir: str=None, log_level: Literal['DEBUG', 'ERROR', 'INFO', 'WARN', 'WARNING', 'CRITICAL']='DEBUG') -> Logger:
+    """
+    无日志目录时获取只含 console 输出的 logger，否则返回含文件输出的 logger
+    """
     if log_dir:
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
@@ -23,12 +26,18 @@ def get_logger(log_dir: str=None, log_level: Literal['DEBUG', 'ERROR', 'INFO', '
 
 
 def get_fileless_config(log_level: str):
+    """
+    返回只含 console 输出的 logger
+    """
     config = LOG_CONFIG.copy()
     config['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[log_level]
     return config
 
 
 def get_config(log_dir: str, log_level: str):
+    """
+    返回含 console 输出和文件输出的 logger
+    """
     config = LOG_CONFIG.copy()
     config['handlers']['console_handler']['level'] = LOG_LEVEL_MAP[log_level]
     config['handlers']['file_handler'] = {

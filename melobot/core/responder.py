@@ -52,7 +52,6 @@ class BotResponder(IActionResponder, IRespDispatcher):
         响应器发送 action，并返回一个 Future 用于等待响应
         """
         await self._ready_signal.wait()
-
         fut = Future()
         self.resp_table[action.resp_id] = fut
         await self.action_sender.send(action)

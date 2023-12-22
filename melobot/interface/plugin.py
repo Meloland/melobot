@@ -25,8 +25,7 @@ class IEventHandler(ABC):
     @abstractmethod
     async def evoke(self, event: BotEvent) -> bool:
         """
-        接收总线分发的事件的方法。
-        进行校验、 session 建立和超时控制等一系列操作，然后再运行内部绑定的处理逻辑
+        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
         """
         pass
 
@@ -39,7 +38,8 @@ class IHookRunner(ABC):
     async def run(self) -> None:
         pass
 
-
+# TODO: executor 和 hookcaller 改为命名元组
+# TODO: hookcaller 改名为 hook
 IEventExecutor = Callable[[None], Coroutine[Any, Any, None]]
 
 IHookCaller = Callable[[None], Coroutine[Any, Any, None]]

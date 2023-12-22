@@ -41,7 +41,7 @@ class IMetaDispatcher(ABC):
         super().__init__()
 
     @abstractmethod
-    async def dispatch(self, metaEvent: MetaEvent) -> None:
+    async def dispatch(self, meta_event: MetaEvent) -> None:
         pass
 
 
