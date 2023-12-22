@@ -1,17 +1,15 @@
-*.pyc
 __pycache__
 */__pycache__
 *.bak
 
 logs
-private
-go-cqhttp
+*/logs
 config
+*/config
 
-templates/py.py
-templates/cpp.py
-templates/weather.py
-templates/translate.py
-templates/summon.py
-templates/usage.py
-templates/sese.py
+*/test.*
+test.*
+
+docs
+build
+*.egg-info
