@@ -95,7 +95,7 @@ DEFAULT_CONFIG_TEXT = \
 CONNECT_HOST = "localhost"
 # websocket 连接服务的端口
 CONNECT_PORT = 8080
-# 全局日志等级（LOG, INFO, DEBUG, WARN, WARNING, CRITICAL）
+# 全局日志等级（DEBUG, INFO, WARNING, ERROR, CRITICAL）
 LOG_LEVEL = "INFO"
 # 消息发送冷却时间（防止发送消息过快被风控）
 COOLDOWN_TIME = 0.5

@@ -22,12 +22,12 @@ class BotMatcher(ABC):
         pass
 
 
-class ParserParams:
+class ParseArgs:
     """
     解析参数类
     """
     def __init__(self, param_list: List[str]) -> None:
-        self.values = param_list
+        self.vals = param_list
 
 
 class BotParser(ABC):
@@ -38,5 +38,5 @@ class BotParser(ABC):
         super().__init__()
 
     @abstractmethod
-    def parse(self, event: MsgEvent) -> Union[List[ParserParams], None]:
+    def parse(self, event: MsgEvent) -> Union[List[ParseArgs], None]:
         pass

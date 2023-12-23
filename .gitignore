@@ -9,7 +9,9 @@ config
 
 */test.*
 test.*
+test
 
+.env
 docs
 build
 *.egg-info

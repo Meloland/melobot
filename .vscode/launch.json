@@ -8,8 +8,8 @@
             "name": "当前 py 脚本调试",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${file}",
+            "cwd": "${workspaceFolder}/test",
+            "program": "${workspaceFolder}/test/bot_run.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.env",
             "justMyCode": true

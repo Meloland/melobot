@@ -1,20 +1,22 @@
 import asyncio as aio
+import os
 import sys
 import traceback
+import importlib.util
 from logging import Logger
 
 import websockets.exceptions as wse
 
-from ..interface.core import IMetaDispatcher
+from ..interface.core import IMetaDispatcher, IActionResponder
+from ..interface.models import Plugin
 from ..interface.typing import *
 from ..models.event import MetaEvent
-from ..models.exceptions import *
+from ..interface.exceptions import *
 from ..utils.config import BotConfig
 from ..utils.logger import get_logger
 from .proxy import BOT_PROXY
 from .dispatcher import BotDispatcher
 from .linker import BotLinker
-from .plugin import BotPlugin, PluginLoader
 from .responder import BotResponder
 
 if sys.platform != 'win32':
@@ -23,12 +25,38 @@ if sys.platform != 'win32':
 
 
 # TODO: 补全元事件处理器部分
-class MetaEventHandler(IMetaDispatcher):
+class MetaEventDispatcher(IMetaDispatcher):
     def __init__(self) -> None:
         super().__init__()
 
+    # 未来重写记得加上异常日志记录
     async def dispatch(self, meta_event: MetaEvent) -> None:
         pass
+
+
+class PluginLoader:
+    @classmethod
+    def load_plugin(cls, dir: str, logger: Logger, responder: IActionResponder) -> Plugin:
+        """
+        实例化插件。并进行校验和 handlers、runners 的初始化。
+        """
+        if not os.path.exists(os.path.join(dir, 'main.py')):
+            raise BotException("缺乏入口主文件，插件无法加载")
+        main_path = os.path.join(dir, 'main.py')
+        spec = importlib.util.spec_from_file_location(os.path.basename(main_path), main_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    
+        plugin_class = None
+        for obj in module.__dict__.values():
+            if isinstance(obj, type) and issubclass(obj, Plugin) and obj.__name__ != Plugin.__name__:
+                plugin_class = obj
+                break
+        if plugin_class is None:
+            raise BotException("不存在插件类，无法加载插件")
+        plugin = plugin_class()
+        plugin.build(dir, logger, responder)
+        return plugin
 
 
 class MeloBot:
@@ -38,17 +66,18 @@ class MeloBot:
     def __init__(self) -> None:
         self.config: BotConfig
         self.meta = METAINFO
+        # 不要更改这个属性名
         self._logger: Logger=None
-        
-        self.__init_flag__ = False
-        self._initd: aio.Task=None
+
+        self.life: aio.Task=None
         self._linker: BotLinker
         self._responder: BotResponder
         self._dispatcher: BotDispatcher
-        
-        self._meta_handler = MetaEventHandler()
-        self._plugins: Dict[str, BotPlugin]={}
-        self._plugin_loader = PluginLoader
+        self._meta_dispatcher = MetaEventDispatcher()
+        self.plugins: Dict[str, Plugin]={}
+        self.loader = PluginLoader
+
+        self.__init_flag__ = False
 
     @property
     def logger(self) -> Logger:
@@ -64,10 +93,13 @@ class MeloBot:
         
         self.config = BotConfig(config_dir)
         self._logger = get_logger(self.config.log_dir_path, self.config.log_level)
-        self._linker = BotLinker(self.config.connect_host, self.config.connect_port, self.config.cooldown_time, self.logger)
-        self._responder = BotResponder()
-        self._dispatcher = BotDispatcher()
+        self._linker = BotLinker(self.config.connect_host, self.config.connect_port, self.config.cooldown_time,
+                                self.logger)
+        self._responder = BotResponder(self.logger)
+        self._dispatcher = BotDispatcher(self.logger)
 
+        self.logger.info("欢迎使用 melobot v2")
+        self.logger.info(f"本项目在 AGPL3 协议下开源发行。更多请参阅：{self.meta.PROJ_SRC}")
         self.logger.info(f"运行版本：{self.meta.VER}，平台：{self.meta.PLATFORM}")
         self.logger.info("bot 核心配置、日志器已加载，初始化完成")
         self.__init_flag__ = True
@@ -81,38 +113,36 @@ class MeloBot:
             exit(0)
         
         self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
-        plugin = self._plugin_loader.load_plugin(plugin_dir, self._responder)
-        target = self._plugins.get(plugin.name)
+        plugin = self.loader.load_plugin(plugin_dir, self.logger, self._responder)
+        target = self.plugins.get(plugin.id)
         if target is None:
-            self._plugins[plugin.name] = plugin
-            self.logger.info(f"成功加载插件：{plugin.name}")
+            self.plugins[plugin.id] = plugin
+            self.logger.info(f"成功加载插件：{plugin.id}")
         else:
             self.logger.error(f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{target.plugin_dir}")
             exit(0)
 
     async def _run(self) -> None:
-        self.logger.info("欢迎使用 melobot v2")
-        self.logger.info(f"本项目在 AGPL3 协议下开源发行。更多请参阅：{self.meta.PROJ_SRC}")
-        if len(self._plugins) == 0:
+        if len(self.plugins) == 0:
             self.logger.warning("没有加载任何插件，bot 将不会有任何操作")
         
-        all_plugins = []
-        for plugin in self._plugins.values():
-            all_plugins.extend(plugin.handlers)
-        self._dispatcher.bind_handlers(all_plugins)
+        all_handlers = []
+        for plugin in self.plugins.values():
+            all_handlers.extend(plugin.handlers)
+        self._dispatcher.bind(all_handlers)
         self._responder.bind(self._linker)
-        self._linker.bind(self._dispatcher, self._responder, self._meta_handler)
+        self._linker.bind(self._dispatcher, self._responder, self._meta_dispatcher)
         
         try:
             async with self._linker:
-                self._initd = aio.create_task(self._linker.listen())
-                BOT_PROXY._bind(self.config, self._initd, self._linker, self._responder, self._dispatcher)
-                await self._initd
+                self.life = aio.create_task(self._linker.listen())
+                BOT_PROXY._bind(self.config, self.life)
+                await self.life
         except wse.ConnectionClosed:
             pass
         except Exception as e:
-            self.logger.debug(traceback.format_exc())
             self.logger.error(f"bot 核心无法继续运行。异常：{e}")
+            self.logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
         finally:
             self.logger.info("bot 已清理运行时资源并关闭")
     
@@ -134,9 +164,9 @@ class MeloBot:
             self.logger.info("bot 已清理运行时资源并关闭")
 
     async def close(self) -> None:
-        if self._initd is None:
+        if self.life is None:
             self.logger.error("bot 尚未运行，无需停止")
             exit(0)
-        self._initd.cancel()
-        await self._initd
+        self.life.cancel()
+        await self.life
 

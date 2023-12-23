@@ -1,12 +1,10 @@
 import re
 
-from melobot.interface.typing import Union
-from melobot.interface.utils import ParserParams
-from melobot.models.event import MsgEvent
-
 from ..interface.typing import *
-from ..interface.utils import BotParser, ParserParams
-from ..models.exceptions import BotValueError
+from ..interface.utils import BotParser, ParseArgs
+from ..interface.exceptions import BotValueError
+from ..models.event import MsgEvent
+
 
 __all__ = (
     'BotParser',
@@ -61,7 +59,7 @@ class CmdParser(BotParser):
         else:
             raise BotValueError("起始符不能和间隔符重合")
 
-    def _split_string(self, string: str, regex: re.Pattern, popFirst=True) -> List[str]:
+    def _split_string(self, string: str, regex: re.Pattern, popFirst: bool=True) -> List[str]:
         """
         按照指定正则 pattern，对 string 进行分割
         """
@@ -71,7 +69,7 @@ class CmdParser(BotParser):
         if popFirst: temp_list.pop(0)
         return list(filter(lambda x:x != '', temp_list))
     
-    def _parse(self, text: str, textFilter=True) -> Union[List[List[str]], None]:
+    def _parse(self, text: str, textFilter: bool=True) -> Union[List[List[str]], None]:
         """
         解析 text
         """
@@ -82,10 +80,10 @@ class CmdParser(BotParser):
         cmd_list = list(filter(lambda x: x != [], cmd_list))
         return cmd_list if len(cmd_list) else None
 
-    def parse(self, event: MsgEvent) -> Union[List[ParserParams], None]:
+    def parse(self, event: MsgEvent) -> Union[List[ParseArgs], None]:
         params_list = self._parse(event.text)
         if params_list:
-            return [ParserParams(params) for params in params_list]
+            return [ParseArgs(params) for params in params_list]
         else:
             return None
 

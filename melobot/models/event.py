@@ -23,7 +23,7 @@ class BotEvent(ABC):
     """
     def __init__(self, rawEvent: dict) -> None:
         self.raw = rawEvent
-        self.args = None
+        self.args: List[ParserParams] = None
 
     @abstractproperty
     def time(self) -> int: pass
@@ -35,11 +35,6 @@ class BotEvent(ABC):
     def is_notice(self) -> bool: return isinstance(self, NoticeEvent)
     def is_meta(self) -> bool: return isinstance(self, MetaEvent)
     def is_resp(self) -> bool: return isinstance(self, RespEvent)
-
-    def _set_args(self, args: Any) -> None:
-        self.args = args
-
-
 
 
 class BotEventBuilder:
@@ -559,14 +554,11 @@ class RespEvent(BotEvent):
 
     def _init(self) -> None:
         rawEvent = self.raw
-        if rawEvent['retcode'] == 0: self.status = 200
-        elif rawEvent['retcode'] == 1: self.status = 202
-        else: 
-            self.status = 500
-            self.err = rawEvent['msg']
-            self.err_prompt = rawEvent['wording']
-        if 'echo' in rawEvent.keys(): self.id = rawEvent['echo']
-        if 'data' in rawEvent.keys(): self.data = rawEvent['data']
+        self.status = rawEvent['retcode']
+        if 'echo' in rawEvent.keys() and rawEvent['echo']:
+            self.id = rawEvent['echo']
+        if 'data' in rawEvent.keys() and rawEvent['data']:
+            self.data = rawEvent['data']
 
     def is_ok(self) -> bool:
         """判断是否为成功响应"""

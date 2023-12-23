@@ -6,9 +6,11 @@ from functools import wraps
 
 from ..interface.core import IActionResponder
 from ..interface.typing import *
+from ..interface.exceptions import *
+from ..utils.parser import ParseArgs
 from .action import *
 from .event import *
-from .exceptions import BotInvalidSession
+
 
 __all__ = [
     'BotSession',
@@ -22,29 +24,74 @@ class BotSession:
     """
     Bot Session 类。不需要直接实例化，必须通过 BotSessionBuilder 构造。
     """
-    def __init__(self, responder: IActionResponder) -> None:
+    def __init__(self, responder: IActionResponder, handler_ref: object) -> None:
         super().__init__()
-        self._expired = False
         self.store = {}
         self.crt_time = time.time()
-        self.event_records: List[BotEvent] = []
-        # session 是否空闲，如果空闲，则不能获取。应该等待或退出
-        self._free_signal= aio.Event()
-        self._free_signal.set()
+        self.hup_times: List[float] = []
+        self.events: List[BotEvent] = []
+        self.args_list: List[ParseArgs] = []
         self._responder = responder
-        
-        # # 用于在挂起状态等待
-        # self._running_status = aio.Event()
 
-    def _add_event(self, event: BotEvent) -> None:
-        self.event_records.append(event)
+        # session 是否空闲的标志，由 BotSessionManager 修改和管理
+        self._free_signal = aio.Event()
+        self._free_signal.set()
+        # session 是否挂起的标志，由 BotSessionManager 修改和管理。注意 session 挂起时一定是非空闲和非过期的
+        self._awake_signal = aio.Event()
+        self._awake_signal.set()
+        # session 是否过期的标志，由 BotSessionManager 修改和管理
+        self._expired = False
+        # 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是空 session（供生命周期钩子方法使用）或是一次性 session
+        self._space_tag: Union[object, None] = handler_ref
+
+    def _append_records(self, event: BotEvent) -> None:
+        """
+        添加新的记录。包含新的事件、或可能存在的事件解析参数（如果不存在，添加为 None）。
+        """
+        self.events.append(event)
+        handler = self._space_tag
+        args = handler._pop_args(event)
+        self.args_list.append(args)
 
     @property
     def event(self) -> Union[BotEvent, None]: 
         try: 
-            return next(reversed(self.event_records))
+            return next(reversed(self.events))
         except StopIteration: 
             return None
+
+    @property
+    def last_hup(self) -> Union[float, None]:
+        try:
+            return next(reversed(self.hup_times))
+        except StopIteration:
+            return None
+
+    @property
+    def args(self) -> Union[ParseArgs, None]:
+        try:
+            return next(reversed(self.args_list))
+        except StopIteration:
+            return None
+
+    async def suspend(self) -> None:
+        """
+        当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入，
+        session 所在方法便会被唤醒
+        """
+        BotSessionManager._hup(self)
+        await self._awake_signal.wait()
+
+    def destory(self) -> None:
+        """
+        标记当前 session 为 expired，清空事件缓存、挂起时间缓存和存储。
+        此方法执行后，session 所在的事件执行方法或生命周期钩子方法依然可以运行，但无法再执行 action 操作。
+        真正的销毁需要等待事件执行方法或生命周期钩子方法运行结束，由 BotSessionManager.recycle 完成。
+
+        同时特别注意：在标记销毁后，其他异步协程就不会附着到此 session，而是产生一个新的 session 替代。
+        标记销毁后如果你访问了临界区资源，则可能发生冲突。因此建议在最后执行 destory
+        """
+        BotSessionManager._expire(self)
 
     def store_get(self, key: object) -> object: 
         return self.store[key]
@@ -61,16 +108,6 @@ class BotSession:
     def store_clear(self) -> None: 
         self.store.clear()
 
-    def destory(self) -> None:
-        """
-        标记销毁当前 session，清空 store, 且无法再执行操作。
-        真正的销毁操作让 BotSessionManager 执行
-        """
-        if not self._expired:
-            self.event_records.clear()
-            self.store_clear()
-            self._expired = True
-
     # 不要更改这个方法下的所有 typing，否则会影响被装饰方法的 typing
     def _launch(get_action):
         """
@@ -79,7 +116,7 @@ class BotSession:
         """
         @wraps(get_action)
         async def wrapper(self: "BotSession", *args, **kwargs):
-            if self._expired: raise BotInvalidSession("session 已无效，无法执行操作")
+            if self._expired: raise BotInvalidSession("session 已标记过期，无法执行 action 操作")
 
             action: BotAction = await get_action(self, *args, **kwargs)
             if action.resp_id is None:
@@ -1117,68 +1154,168 @@ class SessionRule(ABC):
 
 
 class BotSessionManager:
-    @classmethod
-    async def get(cls, event: BotEvent, responder: IActionResponder, working_lock: aio.Lock=None, check_rule: SessionRule=None, 
-                  session_space: List[BotSession]=None, conflict_wait: bool=False
-                  ) -> Union[BotSession, None]:
-        """
-        当 check_rule 为空时，每次生成临时 session，且不在 session_space 中保存。
-        如果提供 check_rule，则必须同时提供 session_space。
-        如果获取到的 session 在活跃状态，则返回 None。
-        """
-        if check_rule:
-            # session_space, session free_signal 竞争，需要加锁
-            async with working_lock:
-                session = await cls._make_with_rule(event, responder, check_rule, session_space, conflict_wait)
-                if session: session._free_signal.clear()
-                return session
-        else:
-            return await cls._make(event, responder)
-        
-    @classmethod
-    def recycle(cls,session: BotSession) -> None:
-        """
-        回收当前 session，使当前 session 状态变为 free
-        """
-        session._free_signal.set()
+    STORAGE: Dict[object, Set[BotSession]] = {}
+    LOCK_STORAGE: Dict[object, aio.Lock] = {}
+    HUP_STORAGE: Dict[object, Set[BotSession]] = {}
 
     @classmethod
-    async def _make(cls, event: BotEvent, responder: IActionResponder, session_space: List[BotSession]=None) -> BotSession:
+    def register(cls, handler: object) -> None:
         """
-        获取一次性 session
+        以 handler 为键，注册 handler 对应的 session 空间、操作锁和挂起 session 空间
         """
-        session = BotSession(responder)
-        if event:
-            session._add_event(event)
-        if session_space is not None: 
-            session_space.append(session)
+        if cls.STORAGE.get(handler) is None:
+            cls.STORAGE[handler] = set()
+            cls.LOCK_STORAGE[handler] = aio.Lock()
+            cls.HUP_STORAGE[handler] = set()
+        else:
+            raise BotException("预期之外的 session 存储重复初始化")
+
+    @classmethod
+    def _hup(cls, session: BotSession) -> None:
+        """
+        挂起 session。应该由 session.suspend 调用
+        """
+        if session._space_tag is None:
+            raise BotException("一次性 session 或空 session 不支持挂起，因为缺乏 session_rule 作为唤醒标志")
+        elif session._expired:
+            raise BotException("过期的 session 不能被挂起")
+        else:
+            session.hup_times.append(time.time())
+        session._awake_signal.clear()
+        cls.STORAGE[session._space_tag].remove(session)
+        cls.HUP_STORAGE[session._space_tag].add(session)
+
+    @classmethod
+    def _rouse(cls, session: BotSession) -> None:
+        """
+        唤醒 session。应该由 cls._get_on_rule 调用
+        """
+        cls.HUP_STORAGE[session._space_tag].remove(session)
+        cls.STORAGE[session._space_tag].add(session)
+        session._awake_signal.set()
+
+    @classmethod
+    def _expire(cls, session: BotSession) -> None:
+        """
+        标记该 session 为过期状态。实际的销毁交由 cls.recycle 处理
+        """
+        if not session._expired:
+            session.events.clear()
+            session.hup_times.clear()
+            session.store_clear()
+            session._expired = True
+
+    @classmethod
+    def recycle(cls, session: BotSession) -> None:
+        """
+        事件执行方法或生命周期钩子方法运行结束后，重置 session._free_signal 使 session 变为空闲。
+        同时判断 session 是否有所属空间标记，有则需要过期检查和销毁
+        """
+        session._free_signal.set()
+        if session._space_tag is None or not session._expired:
+            return
+        cls.STORAGE[session._space_tag].remove(session)
+
+    @classmethod
+    async def get(cls, event: BotEvent, responder: IActionResponder, handler: object, forbid_rule: bool=False) -> Union[BotSession, None, Literal['attached']]:
+        """
+        handler 存在 session_rule 则表明需要映射到一个 session_space 进行存储。
+        不存在 session_rule 则会生成一次性 session 或空 session（供生命周期钩子方法使用），而不存储。
+        如果获取的 session 非空闲，且 handler 决定此时放弃本次获取，则返回 None。
+        如果附着在一个挂起 session 上，则返回 'attached'。
+
+        如果 forbid_rule 为 True，则强制不使用 session_rule
+        """
+        if handler:
+            session_rule, working_lock = handler._session_rule, cls.LOCK_STORAGE[handler]
+        else:
+            session_rule, working_lock = None, None
+
+        if forbid_rule:
+            session_rule = None
+        
+        if session_rule:
+            # session_space, session._free_signal 竞争，需要加锁
+            async with working_lock:
+                session = await cls._get_on_rule(event, responder, handler)
+                # 必须在锁的保护下修改 session._free_signal
+                if session and not isinstance(session, str): 
+                    session._free_signal.clear()
+        else:
+            session = cls._make(event, responder, handler)
+            session._free_signal.clear()
+        
         return session
 
     @classmethod
-    async def _make_with_rule(cls, event: BotEvent, responder: IActionResponder, check_rule: SessionRule, 
-                              session_space: List[BotSession], conflict_wait: bool=False
-                             ) -> Union[BotSession, None]:
+    def _make(cls, event: BotEvent, responder: IActionResponder, handler: object=None, session_space: Set[BotSession]=None) -> BotSession:
         """
-        根据规则获取 session
+        获取 session。
+        如果不存在 session_space，则返回的是一次性 session。
+        如果不存在 event，则返回的是空 session（供生命周期钩子方法使用）
         """
-        for session in session_space:
-            if check_rule.verify(session.event, event):
-                if session._free_signal.is_set():
-                    session._add_event(event)
-                    return session
-                
-                if not conflict_wait:
-                    return None
-                
-                await session._free_signal.wait()
-                if session._expired:
-                    session_space.remove(session)
-                    return await cls._make(event, responder, session_space)
-                else:
-                    session._add_event(event)
-                    return session
+        session = BotSession(responder, handler)
+        if event:
+            session._append_records(event)
+        # 必须使用 is not None，因为空容器 if 取值为 False
+        if session_space is not None:
+            session_space.add(session)
+        return session
 
-        return await cls._make(event, responder, session_space)
+    @classmethod
+    async def _get_on_rule(cls, event: BotEvent, responder: IActionResponder, handler: object) -> Union[BotSession, None, Literal['attached']]:
+        """
+        根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session。
+        或从 hup_session_space 中唤醒 session，或返回 None
+        """
+        session = None
+        check_rule, session_space, hup_session_space, conflict_wait = \
+            handler._session_rule, cls.STORAGE[handler], cls.HUP_STORAGE[handler], handler._wait_flag
+        
+        # for 循环都需要即时 break，保证遍历 session_space 时没有协程切换。因为切换后 session_space 可能发生变动
+        for s in hup_session_space:
+            # session 的挂起方法，保证 session 一定未过期，因此不进行过期检查
+            if check_rule.verify(s.event, event):
+                session = s
+                break
+        # 如果获得一个挂起的 session，它一定是可附着的，附着并唤醒后告诉外界是附着执行
+        if session:
+            session._append_records(event)
+            cls._rouse(session)
+            return 'attached'
+        # 如果不匹配任何已挂起的 session，则查看普通的 session_space（包含所有非挂起 session）
+        for s in session_space:
+            if check_rule.verify(s.event, event) and not s._expired:
+                session = s
+                break
+        
+        # 如果会话不存在，生成一个新 session 变量
+        if session is None:
+            return cls._make(event, responder, handler, session_space)
+        # 如果会话存在，且未过期，且空闲，则附着到这个 session 上
+        if session._free_signal.is_set():
+            session._append_records(event)
+            return session
+        # 如果会话存在，且未过期，但是不空闲，选择不等待
+        if not conflict_wait:
+            return None
+        # 如果会话存在，且未过期，但是不空闲，选择等待，此时就不得不陷入等待（即将发生协程切换）
+        else:
+            await session._free_signal.wait()
+
+        """
+        重新切换回本协程后，session 有可能变为过期，但此时一定是空闲的。
+        同时一定是非挂起状态。因为恢复空闲只在 cls.recycle 进行，此时一定是非挂起状态了。
+        即使该 session 因过期被所在的 session_space 清除也无妨，因为此处有引用，
+        该 session 并不会消失。且此处不操作 session_space，无需担心 session_space 变动
+        """
+        # 如果过期，生成一个新的 session 变量
+        if session._expired:
+            return cls._make(event, responder, handler, session_space)
+        # 如果未过期，则附着到这个 session 上
+        else:
+            session._append_records(event)
+            return session
 
 
 _session_ctx = ContextVar("session_ctx")

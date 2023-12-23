@@ -4,6 +4,7 @@ import sys
 from typing import (
     Union, 
     List, 
+    Set,
     Dict, 
     Literal, 
     Coroutine, 
@@ -13,7 +14,8 @@ from typing import (
     OrderedDict,
     Optional,
     TypedDict,
-    AsyncIterator
+    AsyncIterator,
+    NamedTuple
 )
 from enum import Enum
 from types import ModuleType
@@ -22,6 +24,7 @@ from types import ModuleType
 __all__ = (
     'Union', 
     'List', 
+    'Set',
     'Dict', 
     'Literal', 
     'Coroutine', 
@@ -32,6 +35,7 @@ __all__ = (
     'Optional',
     'ModuleType',
     'AsyncIterator',
+    'NamedTuple',
 
     'Enum',
     'Msg',
@@ -92,9 +96,9 @@ class UserLevel(int, Enum):
 
 class PriorityLevel(int, Enum):
     """优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值"""
-    MIN = 0
+    MIN = -100
     MAX = 100
-    MEAN = (MAX-MIN)//2
+    MEAN = (MAX+MIN)//2
 
 
 class MetaInfo:

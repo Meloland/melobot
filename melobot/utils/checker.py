@@ -36,9 +36,9 @@ class MsgAccessChecker(BotChecker):
         如果是群聊，还需要在白名单群列表内才会接受
         """
         e_level = self._get_level(event)
-        if self.white_group_list is not None \
-            and event.is_group() \
-            and event.group_id not in self.white_group_list:
+        if self.white_group_list \
+                and event.is_group() \
+                and event.group_id not in self.white_group_list:
             return False
         
         return 0 < e_level.value and e_level.value >= self.check_level.value

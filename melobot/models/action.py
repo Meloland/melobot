@@ -5,7 +5,7 @@ from copy import deepcopy
 from ..interface.typing import *
 from .base import ID_WORKER
 from .event import *
-from .exceptions import *
+from ..interface.exceptions import *
 
 __all__ = (
     'BotAction', 
@@ -230,7 +230,7 @@ def at_msg(
     base = {
         "type": "at",
         "data": {
-            "qq": qqId,
+            "qq": str(qqId),
         }
     }
     if notInName: base['data']['name'] = notInName
