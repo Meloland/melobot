@@ -44,8 +44,22 @@ __all__ = (
     'MsgNodeList',
     'UserLevel',
     'PriorityLevel',
-    'METAINFO'
+    'METAINFO',
+    'ParseArgs'
 )
+
+
+class MetaInfo:
+    def __init__(self) -> None:
+        self.VER = '2.0.0-Beta1'
+        self.PROJ_NAME = 'MeloBot'
+        self.AUTHOR = 'AiCorein'
+        self.PROJ_SRC = 'https://github.com/AiCorein/Qbot-MeloBot'
+        self.PLATFORM = sys.platform
+        self.OS_SEP = os.sep
+        self.PATH_SEP = os.pathsep
+
+METAINFO = MetaInfo()
 
 
 class Singleton:
@@ -85,6 +99,14 @@ class MsgNode(TypedDict):
 MsgNodeList = List[MsgNode]
 
 
+class ParseArgs:
+    """
+    命令解析参数类
+    """
+    def __init__(self, param_list: List[str]) -> None:
+        self.vals = param_list
+
+
 class UserLevel(int, Enum):
     """权限等级枚举"""
     OWNER = 100
@@ -99,16 +121,3 @@ class PriorityLevel(int, Enum):
     MIN = -100
     MAX = 100
     MEAN = (MAX+MIN)//2
-
-
-class MetaInfo:
-    def __init__(self) -> None:
-        self.VER = '2.0.0-Beta1'
-        self.PROJ_NAME = 'MeloBot'
-        self.AUTHOR = 'AiCorein'
-        self.PROJ_SRC = 'https://github.com/AiCorein/Qbot-MeloBot'
-        self.PLATFORM = sys.platform
-        self.OS_SEP = os.sep
-        self.PATH_SEP = os.pathsep
-
-METAINFO = MetaInfo()

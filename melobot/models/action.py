@@ -2,10 +2,11 @@ import json
 from abc import ABC
 from copy import deepcopy
 
+from ..interface.exceptions import *
 from ..interface.typing import *
 from .base import ID_WORKER
 from .event import *
-from ..interface.exceptions import *
+
 
 __all__ = (
     'BotAction', 

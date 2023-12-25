@@ -2,11 +2,11 @@ import asyncio as aio
 import traceback
 
 from ..interface.core import IEventDispatcher
+from ..interface.exceptions import *
 from ..interface.models import IEventHandler
 from ..interface.typing import *
 from ..models.event import BotEvent
-from ..interface.exceptions import *
-from ..interface.models import MsgEventHandler, ReqEventHandler, NoticeEventHandler
+from ..models.plugin import MsgEventHandler, ReqEventHandler, NoticeEventHandler
 from ..utils.logger import Logger
 
 

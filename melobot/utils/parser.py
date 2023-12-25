@@ -1,7 +1,7 @@
 import re
 
 from ..interface.typing import *
-from ..interface.utils import BotParser, ParseArgs
+from ..interface.utils import BotParser
 from ..interface.exceptions import BotValueError
 from ..models.event import MsgEvent
 

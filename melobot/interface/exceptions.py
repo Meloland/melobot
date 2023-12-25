@@ -12,30 +12,29 @@ class BotException(Exception):
     """
     bot 异常基类
     """
-    def __init__(self, err: str):
-        super().__init__(self)
-        self.err = f'[{self.__class__.__name__}] {err}'
-        self.origin_err = err
+    def __init__(self, msg: str):
+        super().__init__(self, msg)
+        self.err = msg
     
     def __str__(self):
         return self.err
 
 
 class BotUnexceptedObj(BotException):
-    def __init__(self, err: str):
-        super().__init__(err)
+    def __init__(self, msg: str):
+        super().__init__(self, msg)
 
 
 class BotValueError(BotException):
-    def __init__(self, err: str):
-        super().__init__(err)
+    def __init__(self, msg: str):
+        super().__init__(self, msg)
 
 
 class BotInvalidSession(BotException):
-    def __init__(self, err: str):
-        super().__init__(err)
+    def __init__(self, msg: str):
+        super().__init__(self, msg)
 
 
 class BotPluginDenied(BotException):
-    def __init__(self, err: str):
-        super().__init__(err)
+    def __init__(self, msg: str):
+        super().__init__(self, msg)

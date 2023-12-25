@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from logging import Logger, CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING
 
 from ..models.event import BotEvent, MsgEvent
 from .typing import *
@@ -20,14 +21,6 @@ class BotMatcher(ABC):
     @abstractmethod
     def match(self, event: MsgEvent) -> bool:
         pass
-
-
-class ParseArgs:
-    """
-    解析参数类
-    """
-    def __init__(self, param_list: List[str]) -> None:
-        self.vals = param_list
 
 
 class BotParser(ABC):

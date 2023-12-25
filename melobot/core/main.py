@@ -3,14 +3,14 @@ import os
 import sys
 import traceback
 import importlib.util
-from logging import Logger
 
 import websockets.exceptions as wse
 
 from ..interface.core import IMetaDispatcher, IActionResponder
-from ..interface.models import Plugin
 from ..interface.typing import *
+from ..interface.utils import Logger
 from ..models.event import MetaEvent
+from ..models.plugin import Plugin
 from ..interface.exceptions import *
 from ..utils.config import BotConfig
 from ..utils.logger import get_logger

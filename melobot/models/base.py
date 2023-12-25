@@ -1,4 +1,7 @@
+import asyncio as aio
 import time
+
+from ..interface.typing import *
 
 
 class IdWorker:
@@ -60,3 +63,40 @@ class IdWorker:
 
 
 ID_WORKER = IdWorker(1, 1, 0)
+
+
+class AsyncTwinEvent(aio.Event):
+    """
+    孪生 Event，会和绑定的一方时刻保持状态相反。
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self._twin: AsyncTwinEvent = None
+
+    def bind(self, twin: "AsyncTwinEvent") -> None:
+        self._twin = twin
+        if self.is_set():
+            super(AsyncTwinEvent, self._twin).clear()
+        else:
+            super(AsyncTwinEvent, self._twin).set()
+
+    def set(self) -> None:
+        super().set()
+        if self._twin:
+            super(AsyncTwinEvent, self._twin).clear()
+    
+    def clear(self) -> None:
+        super().clear()
+        if self._twin:
+            super(AsyncTwinEvent, self._twin).set()
+
+
+def get_twin_event() -> Tuple[AsyncTwinEvent, AsyncTwinEvent]:
+    """
+    获得两个时刻保持状态相反的 asyncio.Event。
+    获得的第一个为 unset，另一个为 set
+    """
+    a, b = AsyncTwinEvent(), AsyncTwinEvent()
+    a.bind(b)
+    b.bind(a)
+    return a, b

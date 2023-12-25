@@ -1,9 +1,9 @@
 import json
 import re
 import time
-from abc import ABC, abstractproperty
 
 from ..interface.typing import *
+from ..interface.models import BotEvent
 
 __all__ = (
     'BotEvent',
@@ -17,26 +17,6 @@ __all__ = (
 
 
 # TODO: 完成事件、行为数据结构协议，和对应适配器
-class BotEvent(ABC):
-    """
-    Bot 事件类
-    """
-    def __init__(self, rawEvent: dict) -> None:
-        self.raw = rawEvent
-        self.args: List[ParserParams] = None
-
-    @abstractproperty
-    def time(self) -> int: pass
-    @abstractproperty
-    def type(self) -> str: pass
-    
-    def is_msg(self) -> bool: return isinstance(self, MsgEvent)
-    def is_req(self) -> bool: return isinstance(self, RequestEvent)
-    def is_notice(self) -> bool: return isinstance(self, NoticeEvent)
-    def is_meta(self) -> bool: return isinstance(self, MetaEvent)
-    def is_resp(self) -> bool: return isinstance(self, RespEvent)
-
-
 class BotEventBuilder:
     @classmethod
     def build(cls, rawEvent: Union[dict, str]) -> BotEvent:
