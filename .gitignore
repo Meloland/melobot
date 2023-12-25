@@ -9,6 +9,7 @@ config
 
 */test.*
 test.*
+test
 
 docs
 build
