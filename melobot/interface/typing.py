@@ -15,7 +15,9 @@ from typing import (
     Optional,
     TypedDict,
     AsyncIterator,
-    NamedTuple
+    NamedTuple,
+    TypeVar,
+    Type
 )
 from enum import Enum
 from types import ModuleType
@@ -36,6 +38,8 @@ __all__ = (
     'ModuleType',
     'AsyncIterator',
     'NamedTuple',
+    'AsyncFunc',
+    'Type',
 
     'Enum',
     'Msg',
@@ -121,3 +125,7 @@ class PriorityLevel(int, Enum):
     MIN = -100
     MAX = 100
     MEAN = (MAX+MIN)//2
+
+
+T = TypeVar("T")
+AsyncFunc = Callable[..., Coroutine[Any, Any, T]]

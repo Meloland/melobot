@@ -62,11 +62,13 @@ class IHookRunner(ABC):
         pass
 
 
-# 事件方法（事件执行器）
-IEventExecutor = Callable[[None], Coroutine[Any, Any, None]]
-# 钩子方法（插件钩子）
-IHookFunc = Callable[[None], Coroutine[Any, Any, None]]
-# 事件方法（事件执行器）构造器
-HandlerCons = NamedTuple('ExecutorCons', executor=IEventExecutor, type=IEventHandler, params=List[Any])
-# 钩子方法（插件钩子）构造器
-RunnerCons = NamedTuple('HookCons', hook_func=IHookFunc, type=IHookRunner, params=List[Any])
+# 事件方法（事件执行器）构造参数
+HandlerArgs = NamedTuple('HandlerArgs', executor=AsyncFunc[None], type=IEventHandler, params=List[Any])
+# 钩子方法（插件钩子）构造参数
+RunnerArgs = NamedTuple('RunnerArgs', hook_func=AsyncFunc[None], type=IHookRunner, params=List[Any])
+# 插件共享对象构造参数
+ShareObjArgs = NamedTuple('ShareObjArgs', property=str, namespace=str, id=str)
+# 插件共享对象回调的构造参数
+ShareCbArgs = NamedTuple('ShareCbArgs', namespace=str, id=str, cb=Callable)
+# 插件信号方法构造参数
+SignalHandlerArgs = NamedTuple('SignalHandlerArgs', func=AsyncFunc[None], type=str)

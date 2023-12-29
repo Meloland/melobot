@@ -1,5 +1,6 @@
 import asyncio as aio
 import time
+from contextlib import asynccontextmanager
 
 from ..interface.typing import *
 
@@ -100,3 +101,47 @@ def get_twin_event() -> Tuple[AsyncTwinEvent, AsyncTwinEvent]:
     a.bind(b)
     b.bind(a)
     return a, b
+
+
+class RWController:
+    """
+    异步读写控制器。提供异步安全的读写上下文
+    """
+    def __init__(self, read_limit: int=None) -> None:
+        @asynccontextmanager
+        async def safe_read():
+            nonlocal read_num, read_semaphore, write_semaphore, read_num_lock
+            if read_semaphore:
+                await read_semaphore.acquire()
+            async with read_num_lock:
+                if read_num == 0:
+                    await write_semaphore.acquire()
+                read_num += 1
+            try:
+                yield
+            finally:
+                async with read_num_lock:
+                    read_num -= 1
+                    if read_num == 0:
+                        write_semaphore.release()
+                    if read_semaphore:
+                        read_semaphore.release()
+        
+        @asynccontextmanager
+        async def safe_write():
+            nonlocal write_semaphore
+            await write_semaphore.acquire()
+            try:
+                yield
+            finally:
+                write_semaphore.release()
+		
+        write_semaphore = aio.Semaphore(1)
+        if read_limit:
+            read_semaphore = aio.Semaphore(read_limit)
+        else:
+            read_semaphore = None
+        read_num = 0
+        read_num_lock = aio.Lock()
+        self.safe_read = safe_read
+        self.safe_write = safe_write

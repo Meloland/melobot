@@ -3,7 +3,8 @@ import os
 import sys
 import traceback
 import importlib.util
-
+import inspect
+import pathlib
 import websockets.exceptions as wse
 
 from ..interface.core import IMetaDispatcher, IActionResponder
@@ -11,6 +12,7 @@ from ..interface.typing import *
 from ..interface.utils import Logger
 from ..models.event import MetaEvent
 from ..models.plugin import Plugin
+from ..models.ipc import PluginBus
 from ..interface.exceptions import *
 from ..utils.config import BotConfig
 from ..utils.logger import get_logger
@@ -36,26 +38,32 @@ class MetaEventDispatcher(IMetaDispatcher):
 
 class PluginLoader:
     @classmethod
-    def load_plugin(cls, dir: str, logger: Logger, responder: IActionResponder) -> Plugin:
+    def load_plugin(cls, target: Union[str, Type[Plugin]], logger: Logger, responder: IActionResponder) -> Plugin:
         """
-        实例化插件。并进行校验和 handlers、runners 的初始化。
+        实例化插件。支持传入插件起始路径或插件类。
         """
-        if not os.path.exists(os.path.join(dir, 'main.py')):
-            raise BotException("缺乏入口主文件，插件无法加载")
-        main_path = os.path.join(dir, 'main.py')
-        spec = importlib.util.spec_from_file_location(os.path.basename(main_path), main_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        if isinstance(target, str):
+            if not os.path.exists(os.path.join(target, 'main.py')):
+                raise BotException("缺乏入口主文件，插件无法加载")
+            main_path = os.path.join(target, 'main.py')
+            spec = importlib.util.spec_from_file_location(os.path.basename(main_path), main_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
     
-        plugin_class = None
-        for obj in module.__dict__.values():
-            if isinstance(obj, type) and issubclass(obj, Plugin) and obj.__name__ != Plugin.__name__:
-                plugin_class = obj
-                break
-        if plugin_class is None:
-            raise BotException("不存在插件类，无法加载插件")
-        plugin = plugin_class()
-        plugin.build(dir, logger, responder)
+            plugin_class = None
+            for obj in module.__dict__.values():
+                if isinstance(obj, type) and issubclass(obj, Plugin) and obj.__name__ != Plugin.__name__:
+                    plugin_class = obj
+                    break
+            if plugin_class is None:
+                raise BotException("不存在插件类，无法加载插件")
+            plugin = plugin_class()
+            dir = inspect.getfile(module)
+        else:
+            plugin = target()
+            dir = inspect.getfile(target)
+        path = pathlib.Path(dir).resolve(strict=True)
+        plugin._build(path, logger, responder)
         return plugin
 
 
@@ -74,6 +82,7 @@ class MeloBot:
         self._responder: BotResponder
         self._dispatcher: BotDispatcher
         self._meta_dispatcher = MetaEventDispatcher()
+        self._plugin_bus = PluginBus
         self.plugins: Dict[str, Plugin]={}
         self.loader = PluginLoader
 
@@ -97,6 +106,7 @@ class MeloBot:
                                 self.logger)
         self._responder = BotResponder(self.logger)
         self._dispatcher = BotDispatcher(self.logger)
+        self._plugin_bus._bind(self.logger, self._responder)
 
         self.logger.info("欢迎使用 melobot v2")
         self.logger.info(f"本项目在 AGPL3 协议下开源发行。更多请参阅：{self.meta.PROJ_SRC}")
@@ -104,7 +114,7 @@ class MeloBot:
         self.logger.info("bot 核心配置、日志器已加载，初始化完成")
         self.__init_flag__ = True
 
-    def load(self, plugin_dir: str) -> None:
+    def load(self, target: Union[str, Type[Plugin]]) -> None:
         """
         为 bot 加载运行插件
         """
@@ -112,14 +122,15 @@ class MeloBot:
             self.logger.error("加载插件必须在初始化之后进行")
             exit(0)
         
+        plugin_dir = inspect.getfile(target) if not isinstance(target, str) else target
         self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
-        plugin = self.loader.load_plugin(plugin_dir, self.logger, self._responder)
-        target = self.plugins.get(plugin.id)
-        if target is None:
+        plugin = self.loader.load_plugin(target, self.logger, self._responder)
+        exist_plugin = self.plugins.get(plugin.id)
+        if exist_plugin is None:
             self.plugins[plugin.id] = plugin
             self.logger.info(f"成功加载插件：{plugin.id}")
         else:
-            self.logger.error(f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{target.plugin_dir}")
+            self.logger.error(f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{exist_plugin.plugin_dir}")
             exit(0)
 
     async def _run(self) -> None:
@@ -128,7 +139,7 @@ class MeloBot:
         
         all_handlers = []
         for plugin in self.plugins.values():
-            all_handlers.extend(plugin.handlers)
+            all_handlers.extend(plugin._handlers)
         self._dispatcher.bind(all_handlers)
         self._responder.bind(self._linker)
         self._linker.bind(self._dispatcher, self._responder, self._meta_dispatcher)

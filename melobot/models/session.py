@@ -17,8 +17,6 @@ __all__ = [
     'BotSessionManager'
 ]
 
-audio_msg = record_msg
-
 
 class BotSession:
     """
@@ -27,9 +25,9 @@ class BotSession:
     def __init__(self, responder: IActionResponder, space_tag: object=None) -> None:
         super().__init__()
         self.store = {}
-        self.crt_time = time.time()
+        self.timestamp = time.time()
         self.hup_times: List[float] = []
-        self.events: List[BotEvent] = []
+        self.events: List[Union[MsgEvent, RequestEvent, MetaEvent, RespEvent, NoticeEvent]] = []
         self._responder = responder
 
         # session 是否空闲的标志，由 BotSessionManager 修改和管理
@@ -45,10 +43,10 @@ class BotSession:
         self._space_tag: Union[object, None] = space_tag
 
         # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，必有这个属性）
-        self._handler_ref: object
+        self._handler: object
 
     @property
-    def event(self) -> Union[BotEvent, None]: 
+    def event(self) -> Union[MsgEvent, RequestEvent, MetaEvent, RespEvent, NoticeEvent, None]: 
         try: 
             return next(reversed(self.events))
         except StopIteration: 
@@ -63,8 +61,8 @@ class BotSession:
     
     @property
     def args(self) -> ParseArgs:
-        if hasattr(self, '_handler_ref') and hasattr(self.event, '_args_map'):
-            res = self.event._args_map.get(self._handler_ref, None)
+        if hasattr(self, '_handler') and hasattr(self.event, '_args_map'):
+            res = self.event._args_map.get(self._handler)
             if res is not None:
                 return res
         return None
@@ -133,6 +131,8 @@ class BotSession:
         在当前 session 上下文下发送消息。
         enable_cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
+        if self.event == None:
+            raise BotException("空 session 需要手动指定发送消息的类型")
         action = msg_action(
             content, 
             self.event.is_private(),
@@ -182,6 +182,8 @@ class BotSession:
         在当前 session 上下文下发送转发消息。
         enable_cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
+        if self.event == None:
+            raise BotException("空 session 需要手动指定发送消息的类型")
         action = forward_msg_action(
             msgNodes,
             self.event.is_private(),
@@ -1173,11 +1175,11 @@ class BotSessionManager:
             raise BotException("预期之外的 session 存储重复初始化")
 
     @classmethod
-    def bind(cls, session: BotSession, handler: object) -> None:
+    def inject(cls, session: BotSession, handler: object) -> None:
         """
         handler 内绑定 handler 引用到 session
         """
-        session._handler_ref = handler
+        session._handler = handler
 
     @classmethod
     def __attach(cls, event: BotEvent, handler: object) -> bool:
@@ -1305,14 +1307,14 @@ class BotSessionManager:
         return session
     
     @classmethod
-    async def make_empty(cls, responder: IActionResponder) -> BotSession:
+    def make_empty(cls, responder: IActionResponder) -> BotSession:
         """
         创建空 session。即不含 event 和 space_tag 标记的 session
         """
         return BotSession(responder)
     
     @classmethod
-    async def make_temp(cls, event: BotEvent, responder: IActionResponder) -> BotSession:
+    def make_temp(cls, event: BotEvent, responder: IActionResponder) -> BotSession:
         """
         创建一次性 session。确定无需 session 管理机制时可以使用。
         否则请一定使用 cls.get 方法

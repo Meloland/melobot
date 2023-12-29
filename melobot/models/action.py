@@ -14,7 +14,7 @@ __all__ = (
     # 消息构造方法
     'text_msg', 
     'face_msg', 
-    'record_msg', 
+    'audio_msg', 
     'at_msg', 
     'share_msg', 
     'music_msg', 
@@ -201,7 +201,7 @@ def face_msg(
     }
 
 
-def record_msg(
+def audio_msg(
     url: str, 
     timeout: int=None, 
     magic: bool=False, 
