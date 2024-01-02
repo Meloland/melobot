@@ -5,11 +5,6 @@ from ..interface.typing import *
 from ..interface.utils import BotParser
 from ..models.event import MsgEvent
 
-__all__ = (
-    'BotParser',
-    'CmdParser'
-)
-
 
 class CmdParser(BotParser):
     """

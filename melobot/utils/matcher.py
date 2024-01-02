@@ -4,14 +4,6 @@ from ..interface.typing import *
 from ..interface.utils import BotMatcher
 from ..models.event import MsgEvent
 
-__all__ = (
-    'BotMatcher',
-    'StartMatcher',
-    'ContainMatcher',
-    'EndMatcher',
-    'RegexMatcher'
-)
-
 
 class StartMatcher(BotMatcher):
     def __init__(self, target: str) -> None:

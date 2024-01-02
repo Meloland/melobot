@@ -8,10 +8,6 @@ import toml
 from ..interface.typing import *
 from .logger import get_logger
 
-__all__ = (
-    'BOT_CONFIG'
-)
-
 
 class ConfigGenerator:
     """

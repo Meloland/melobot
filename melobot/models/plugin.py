@@ -206,6 +206,8 @@ class MsgEventHandler(IEventHandler):
             except aio.TimeoutError:
                 if self._overtime_cb:
                     await self._run_on_ctx(self._overtime_cb(), session)
+        except BotQuickExitSignal:
+            pass
         except Exception as e:
             e_name = e.__class__.__name__
             executor_name = self.executor.__qualname__

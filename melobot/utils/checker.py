@@ -2,11 +2,6 @@ from ..interface.typing import *
 from ..interface.utils import BotChecker
 from ..models.event import MsgEvent
 
-__all__ = (
-    'BotChecker',
-    'MsgAccessChecker'
-)
-
 
 class MsgAccessChecker(BotChecker):
     """

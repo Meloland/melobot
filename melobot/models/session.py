@@ -1,8 +1,10 @@
 import asyncio as aio
 import time
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractmethod
 from contextvars import ContextVar, Token
 from functools import wraps
+
+from melobot.models.event import BotEvent
 
 from ..interface.core import IActionResponder
 from ..interface.exceptions import *
@@ -10,11 +12,6 @@ from ..interface.typing import *
 from ..models.base import get_twin_event
 from .action import *
 from .event import *
-
-__all__ = [
-    'BotSession',
-    'BotSessionManager'
-]
 
 
 class BotSession:
@@ -76,12 +73,12 @@ class BotSession:
 
     def destory(self) -> None:
         """
-        销毁方法。在空 session 中不可调用。
+        销毁方法。
         其他 session 调用会立即清空 session 存储、事件记录、挂起时间记录。
         如果调用 session 有 space_tag，还会从存储空间中移除该 session
         """
         if self.event is None:
-            raise BotRuntimeError("空 sessinon 不支持 destory() 方法")
+            pass
         else:
             BotSessionManager._expire(self)
 
@@ -1144,8 +1141,8 @@ class SessionRule(ABC):
     def __init__(self) -> None:
         super().__init__()
 
-    @abstractclassmethod
-    def verify(cls, e1: BotEvent, e2: BotEvent) -> bool:
+    @abstractmethod
+    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
         pass
 
 
@@ -1185,7 +1182,7 @@ class BotSessionManager:
         session = None
         for s in cls.HUP_STORAGE[handler]:
             # session 的挂起方法，保证 session 一定未过期，因此不进行过期检查
-            if handler._rule.verify(s.event, event):
+            if handler._rule.compare(s.event, event):
                 session = s
                 break
         # 如果获得一个挂起的 session，它一定是可附着的，附着后需要唤醒
@@ -1329,7 +1326,7 @@ class BotSessionManager:
         
         # for 循环都需要即时 break，保证遍历 session_space 时没有协程切换。因为切换后 session_space 可能发生变动
         for s in session_space:
-            if check_rule.verify(s.event, event) and not s._expired:
+            if check_rule.compare(s.event, event) and not s._expired:
                 session = s
                 break
         # 如果会话不存在，生成一个新 session 变量
@@ -1393,4 +1390,44 @@ class SessionLocal:
         self.__storage__.reset(token)
 
 
+class AttrSessionRule(SessionRule):
+    def __init__(self, *attrs) -> None:
+        super().__init__()
+        self.attrs = attrs
+
+    def _get_val(self, e: BotEvent, attrs: Tuple[str, ...]) -> Any:
+        val = e
+        try:
+            for attr in attrs:
+                val = getattr(val, attr)
+        except AttributeError:
+            raise BotValueError(f"session 规则指定的属性 {attr} 不存在")
+        return val
+
+    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
+        return self._get_val(e1, self.attrs) == self._get_val(e2, self.attrs)
+
+
 SESSION_LOCAL = SessionLocal()
+SESSION_LOCAL: BotSession
+
+async def reply(content: str) -> None:
+    """
+    回复一条消息
+    """
+    await SESSION_LOCAL.send(content)
+
+async def reply_hup(content: str) -> None:
+    """
+    回复一条消息然后挂起
+    """
+    await SESSION_LOCAL.send(content)
+    await SESSION_LOCAL.suspend()
+
+async def finish(content: str) -> None:
+    """
+    回复一条消息，然后直接结束当前事件处理方法
+    """
+    await SESSION_LOCAL.send(content)
+    SESSION_LOCAL.destory()
+    raise BotQuickExitSignal("事件处理方法被安全地提早结束，请无视这个异常")

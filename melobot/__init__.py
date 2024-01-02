@@ -9,7 +9,8 @@ from .models.event import (MetaEvent, MsgEvent, NoticeEvent, RequestEvent,
 from .models.ipc import PluginBus, PluginStore
 from .models.plugin import Plugin
 from .models.session import SESSION_LOCAL as session
-from .models.session import BotSession
+from .models.session import (AttrSessionRule, BotSession, SessionRule, finish,
+                             reply, reply_hup)
 from .utils.checker import MsgAccessChecker
 from .utils.matcher import (ContainMatcher, EndMatcher, FullMatcher,
                             RegexMatcher, StartMatcher)
@@ -56,6 +57,11 @@ __all__ = (
     "PluginStore",
     "PluginBus",
     "session",
+    "SessionRule",
+    "AttrSessionRule",
+    "reply",
+    "reply_hup",
+    "finish",
     "MsgAccessChecker",
     "StartMatcher",
     "ContainMatcher",

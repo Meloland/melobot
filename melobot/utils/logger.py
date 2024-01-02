@@ -7,10 +7,6 @@ from ..interface.typing import *
 from ..interface.utils import (CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING,
                                Logger)
 
-__all__ = (
-    'get_logger'
-)
-
 
 def get_logger(log_dir: str=None, log_level: Literal['DEBUG', 'ERROR', 'INFO', 'WARN', 'WARNING', 'CRITICAL']='DEBUG') -> Logger:
     """

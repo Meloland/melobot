@@ -5,16 +5,6 @@ import time
 from ..interface.models import BotEvent
 from ..interface.typing import *
 
-__all__ = (
-    'BotEvent',
-    'BotEventBuilder',
-    'MsgEvent', 
-    'RequestEvent', 
-    'NoticeEvent', 
-    'MetaEvent', 
-    'RespEvent'
-)
-
 
 # TODO: 完成事件、行为数据结构协议，和对应适配器
 class BotEventBuilder:
