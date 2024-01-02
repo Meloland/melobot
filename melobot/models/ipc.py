@@ -1,8 +1,6 @@
 import asyncio as aio
 import traceback
-from contextvars import ContextVar, Token
 from functools import partial
-from time import time
 from types import MethodType
 from asyncio import iscoroutinefunction
 
@@ -36,7 +34,7 @@ class ShareObject:
     @property
     def val(self) -> Any:
         """
-        获取共享对象引用的值
+        共享对象引用的值
         """
         return self.__reflect__()
     
@@ -56,9 +54,9 @@ class PluginStore:
     __store: Dict[str, Dict[str, ShareObject]] = {}
 
     @classmethod
-    def _activate_so(cls, property: str, namespace: str, id: str, plugin: object) -> None:
+    def _activate_so(cls, property: Union[str, None], namespace: str, id: str, plugin: object) -> None:
         """
-        创建共享对象
+        创建共享对象。property 为 None 时，共享对象会引用到一个 None
         """
         if namespace not in cls.__store.keys():
             cls.__store[namespace] = {}
@@ -66,7 +64,10 @@ class PluginStore:
         if obj is None:
             obj = ShareObject(namespace, id)
             cls.__store[namespace][id] = obj
-        obj._fill_ref(lambda: getattr(plugin, property))
+        if property is not None:
+            obj._fill_ref(lambda: getattr(plugin, property))
+        else:
+            obj._fill_ref(lambda: None)
     
     @classmethod
     def _bind_cb(cls, namespace: str, id: str, cb: AsyncFunc[Any], plugin: object) -> None:
@@ -80,7 +81,7 @@ class PluginStore:
         cls.__store[namespace][id]._fill_cb(partial(cb, plugin))
     
     @classmethod
-    def callback(cls, namespace: str, id: str) -> Callable:
+    def echo(cls, namespace: str, id: str) -> Callable:
         """
         为共享对象指定回调的装饰器，用于处理外部的 affect 请求。
         绑定为回调后，不提供异步安全担保
@@ -92,53 +93,15 @@ class PluginStore:
     @classmethod
     def get(cls, namespace: str, id: str) -> ShareObject:
         """
-        获取共享对象，注意：共享对象不存在或未初始化时会产生 None 引用。
-        区别是前者会一直保持 None 引用，而后者则会随后绑定映射
+        获取共享对象，注意：共享对象不存在或暂时未初始化时会产生 None 引用。
+        区别是前者会一直保持 None 引用，而后者则会随后绑定映射。
+        但注意，除上述两种情况外，共享对象定义时也可引用到 None
         """
         if namespace not in cls.__store.keys():
             cls.__store[namespace] = {}
         if id not in cls.__store[namespace].keys():
             cls.__store[namespace][id] = ShareObject(namespace, id)
         return cls.__store[namespace][id]
-
-
-class SignalSource:
-    """
-    插件信号源类型
-    """
-    def __init__(self) -> None:
-        self.timestamp = time()
-
-
-_signal_source_ctx = ContextVar("signal_source_ctx")
-
-class SignalSourceLocal:
-    """
-    插件信号源自动上下文
-    """
-    __slots__ = tuple(
-        list(
-            filter(lambda x: not (len(x) >= 2 and x[:2] == '__'), dir(SignalSource))
-        ) + ['__storage__']
-    )
-
-    def __init__(self) -> None:
-        object.__setattr__(self, '__storage__', _signal_source_ctx)
-        self.__storage__: ContextVar[SignalSource]
-
-    def __setattr__(self, __name: str, __value: Any) -> None:
-        setattr(self.__storage__.get(), __name, __value)
-
-    def __getattr__(self, __name: str) -> Any:
-        return getattr(self.__storage__.get(), __name)
-    
-    def _add_ctx(self, ctx: SignalSource) -> Token:
-        return self.__storage__.set(ctx)
-    
-    def _del_ctx(self, token: Token) -> None:
-        self.__storage__.reset(token)
-
-SIGNAL_SOURCE_LOCAL = SignalSourceLocal()
 
 
 class PluginSignalHandler:
@@ -148,8 +111,10 @@ class PluginSignalHandler:
     def __init__(self, type: str, func: Callable, plugin: Union[object, None]) -> None:
         self._func = func
         self._plugin = plugin
+        # 对应：绑定的 func 是插件类的实例方法
         if plugin:
             self.cb = partial(self._func, plugin)
+        # 对应：绑定的 func 是普通函数
         else:
             self.cb = self._func
         self.type = type
@@ -183,8 +148,11 @@ class PluginBus:
     @classmethod
     def on(cls, signal_name: str, callback: Callable) -> None:
         """
-        动态地注册信号处理方法。callback 可以是类内部方法，也可以不是。
-        callback 如果是类内部方法，请自行包裹为一个 partial 函数。
+        动态地注册信号处理方法。callback 可以是类实例方法，也可以不是。
+        callback 如果是类实例方法，请自行包裹为一个 partial 函数。
+
+        例如你的插件类是：`A`，而你需要传递一个类实例方法：`A.xxx`，
+        那么你的 callback 参数就应该是：`functools.partial(A.xxx, self)`
         """
         if isinstance(callback, SignalHandlerArgs):
             raise BotException("已注册的信号处理方法不能再注册")
@@ -192,51 +160,45 @@ class PluginBus:
             raise BotException("信号处理方法必须为异步函数")
         if (isinstance(callback, partial) and isinstance(callback.func, MethodType)) \
                 or isinstance(callback, MethodType):
-            raise BotException("callback 应该是 function，而不是 bound method。" +
-                               "如果你的 callback 参数为 self.<方法名> 或是包含 self.<方法名> 的 partial，" +
-                               "请改用 <类名>.<方法名> 传递")
+            raise BotException("callback 应该是 function，而不是 bound method。")
         handler = PluginSignalHandler(signal_name, callback, plugin=None)
         cls._register(signal_name, handler)
 
     @classmethod
-    async def _run_on_ctx(cls, handler: PluginSignalHandler, source: SignalSource, forward_sesssion: bool=False, 
-                          *args, **kwargs) -> Coroutine:
+    async def _run_on_ctx(cls, handler: PluginSignalHandler, *args, forward: bool=False, **kwargs) -> None:
         """
-        在指定的插件信号源对象下运行事件处理方法
+        在指定的上下文下运行信号处理方法
         """
-        if not forward_sesssion:
+        if not forward:
             session = BotSessionManager.make_empty(cls.__responder)
+            token = SESSION_LOCAL._add_ctx(session)
         try:
-            token1 = SIGNAL_SOURCE_LOCAL._add_ctx(source)
-            if not forward_sesssion:
-                token2 = SESSION_LOCAL._add_ctx(session)
             await handler.cb(*args, **kwargs)
         except Exception as e:
             e_name = e.__class__.__name__
             func_name = handler._func.__qualname__
-            cls.__logger.error(f"插件 {handler._plugin.id} 信号处理方法 {func_name} 发生异常：[{e_name}] {e}")
-            cls.__logger.debug(f"异常点的信号源记录为：{source.timestamp}")
+            pre_str = "插件" + handler._plugin.id if handler._plugin else "动态注册的"
+            cls.__logger.error(f"{pre_str} 信号处理方法 {func_name} 发生异常：[{e_name}] {e}")
+            cls.__logger.debug(f"信号处理方法的 args: {args} kwargs：{kwargs}")
             cls.__logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
         finally:
-            if not forward_sesssion:
-                SESSION_LOCAL._del_ctx(token2)
-            SIGNAL_SOURCE_LOCAL._del_ctx(token1)
+            if not forward:
+                SESSION_LOCAL._del_ctx(token)
     
     @classmethod
-    async def emit(cls, signal_name: str, *args, force_wait: bool=False, forward_session: bool=False, **kwargs) -> None:
+    async def emit(cls, signal_name: str, *args, wait: bool=False, forward: bool=False, **kwargs) -> None:
         """
-        触发一个插件信号。如果指定 force_wait 为 True，则会等待所有信号处理方法完成。
-        若启用 forward_session，则会将 session 从信号触发处转发到信号处理处。
-        但启用 forward_session，必须同时启用 force_wait。
+        触发一个插件信号。如果指定 wait 为 True，则会等待所有信号处理方法完成。
+        若启用 forward，则会将 session 从信号触发处转发到信号处理处。
+        但启用 forward，必须同时启用 wait。
         """
-        if forward_session and not force_wait:
-            raise BotException("在触发插件信号处理方法时传递原始 session，必须启用 force_wait")
+        if forward and not wait:
+            raise BotException("在触发插件信号处理方法时传递原始 session，必须启用 wait")
         if signal_name not in cls.__store.keys():
             return
-        source = SignalSource()
-        if not force_wait:
+        if not wait:
             for handler in cls.__store[signal_name]:
-                aio.create_task(cls._run_on_ctx(handler, source, forward_session, *args, **kwargs))
+                aio.create_task(cls._run_on_ctx(handler, forward=forward, *args, **kwargs))
         else:
             for handler in cls.__store[signal_name]:
-                await cls._run_on_ctx(handler, source, forward_session, *args, **kwargs)
+                await cls._run_on_ctx(handler, forward=forward, *args, **kwargs)

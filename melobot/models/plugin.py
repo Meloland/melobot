@@ -7,12 +7,13 @@ from pathlib import PosixPath
 from .event import MsgEvent
 from .session import SESSION_LOCAL, BotSession, BotSessionManager, SessionRule
 from .ipc import PluginStore, PluginSignalHandler, PluginBus
+from .bot import HookRunner, BotHookBus
 from ..interface.exceptions import *
 from ..interface.core import IActionResponder
 from ..interface.utils import BotChecker, BotMatcher, BotParser, Logger
 from ..interface.typing import *
-from ..interface.models import IEventHandler, IHookRunner, HandlerArgs, RunnerArgs, ShareObjArgs, \
-                                ShareCbArgs, SignalHandlerArgs
+from ..interface.models import IEventHandler, HandlerArgs, HookRunnerArgs, ShareObjArgs, \
+                                ShareCbArgs, SignalHandlerArgs, PluginProxy
 
 
 class Plugin:
@@ -26,100 +27,62 @@ class Plugin:
     def __init__(self) -> None:
         self.id: str=None
         self.version: str='1.0.0'
+        self.handlers: List[IEventHandler] = []
         self.root_path: PosixPath
+        self.proxy: PluginProxy
 
-        self._handlers: List[IEventHandler]
-        self._runners: List[IHookRunner]
-        self._exec_args: List[HandlerArgs] = []
-        self._hook_args: List[RunnerArgs] = []
-
-        self._share_obj_args: List[ShareObjArgs] = []
-        self._share_cb_args: List[ShareCbArgs] = []
-
-        self._signal_exec_args: List[SignalHandlerArgs] = []
-
-    def __gen_attrs(self) -> None:
+    def _init_(self, root_path: PosixPath, logger: Logger, responder: IActionResponder) -> None:
         """
-        收集插件内的各种构造参数 wrapper，生成对应属性
-        """
-        members = inspect.getmembers(self)
-        for attr_name, v in members:
-            if isinstance(v, HandlerArgs):
-                self._exec_args.append(v)
-            elif isinstance(v, RunnerArgs):
-                self._hook_args.append(v)
-            elif isinstance(v, ShareCbArgs):
-                self._share_cb_args.append(v)
-            elif isinstance(v, SignalHandlerArgs):
-                self._signal_exec_args.append(v)
-        for t in self.__class__.__share__:
-            self._share_obj_args.append(t)
-
-    def __verify(self) -> None:
-        """
-        插件参数检查，在 handlers 和 runners 构建前运行。
-        """
-        if self.id is None:
-            raise BotException("未初始化插件名称（id），或其为 None")
-        
-        for executor, handler_class, params in self._exec_args:
-            if not iscoroutinefunction(executor):
-                raise BotException("事件处理器必须为异步方法")
-            
-            overtime_cb, conflict_cb = params[-1], params[-2]
-            if overtime_cb and not iscoroutinefunction(overtime_cb):
-                raise BotException("超时回调方法必须为异步函数")
-            if conflict_cb and not iscoroutinefunction(conflict_cb):
-                raise BotException("冲突回调方法必须为异步函数")
-
-        for hook_func, runner_class, params in self._hook_args:
-            if not iscoroutinefunction(hook_func):
-                raise BotException("hook 方法必须为异步函数")
-            
-        attrs_map = {attr: val for attr, val in inspect.getmembers(self) if not attr.startswith('__')}
-        for property, namespace, id in self._share_obj_args:
-            if attrs_map.get(property) is None:
-                raise BotException("尝试共享一个不存在的属性")
-        for namespace, id, cb in self._share_cb_args:
-            if not iscoroutinefunction(cb):
-                raise BotException("共享对象的回调必须为异步函数")
-        for func, type in self._signal_exec_args:
-            if not iscoroutinefunction(func):
-                raise BotException("信号处理方法必须为异步函数")
-    
-    def __activate(self, logger: Logger, responder: IActionResponder) -> None:
-        """
-        创建 handler, runner。激活共享对象并附加回调。激活事件处理方法。
-        """
-        self._handlers = []
-        for executor, handler_class, params in self._exec_args:
-            handler = handler_class(executor, self, responder, logger, *params)
-            self._handlers.append(handler)
-            BotSessionManager.register(handler)
-        
-        self._runners = []
-        for hook_func, runner_class, params in self._hook_args:
-            self._runners.append(runner_class(hook_func, self, responder, logger, *params))
-
-        for property, namespace, id in self._share_obj_args:
-            PluginStore._activate_so(property, namespace, id, self)
-        for namespace, id, cb in self._share_cb_args:
-            PluginStore._bind_cb(namespace, id, cb, self)
-
-        for func, type in self._signal_exec_args:
-            handler = PluginSignalHandler(type, func, self)
-            PluginBus._register(type, handler)
-
-    def _build(self, root_path: PosixPath, logger: Logger, responder: IActionResponder) -> None:
-        """
-        build 当前插件
+        初始化当前插件
         """
         self.root_path = root_path
-        self.__gen_attrs()
-        self.__verify()
-        self.__activate(logger, responder)
+        if self.id is None:
+            raise BotException("未初始化插件 id，或其为 None")
+        members = inspect.getmembers(self)
 
-    
+        for attr_name, val in members:
+            if isinstance(val, HandlerArgs):
+                executor, handler_class, params = val
+                if not iscoroutinefunction(executor):
+                    raise BotException("事件处理器必须为异步方法")
+                overtime_cb, conflict_cb = params[-1], params[-2]
+                if overtime_cb and not iscoroutinefunction(overtime_cb):
+                    raise BotException("超时回调方法必须为异步函数")
+                if conflict_cb and not iscoroutinefunction(conflict_cb):
+                    raise BotException("冲突回调方法必须为异步函数")
+                handler = handler_class(executor, self, responder, logger, *params)
+                self.handlers.append(handler)
+                BotSessionManager.register(handler)
+
+            elif isinstance(val, HookRunnerArgs):
+                hook_func, type = val
+                if not iscoroutinefunction(hook_func):
+                    raise BotException("hook 方法必须为异步函数")
+                runner = HookRunner(type, hook_func, self)
+                BotHookBus._register(type, runner)
+            
+            elif isinstance(val, ShareCbArgs):
+                namespace, id, cb = val
+                if not iscoroutinefunction(cb):
+                    raise BotException("共享对象的回调必须为异步函数")
+                PluginStore._bind_cb(namespace, id, cb, self)
+            
+            elif isinstance(val, SignalHandlerArgs):
+                func, type = val
+                if not iscoroutinefunction(func):
+                    raise BotException("信号处理方法必须为异步函数")
+                handler = PluginSignalHandler(type, func, self)
+                PluginBus._register(type, handler)
+        
+        for val in self.__class__.__share__:
+            attrs_map = {k: v for k, v in inspect.getmembers(self) if not k.startswith('__')}
+            property, namespace, id = val
+            if attrs_map.get(property) is None and property is not None:
+                raise BotException("尝试共享一个不存在的属性")
+            PluginStore._activate_so(property, namespace, id, self)
+
+        self.proxy = PluginProxy(self)
+
     @classmethod
     def on(cls, signal_name: str) -> Callable:
         """

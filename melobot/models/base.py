@@ -92,7 +92,7 @@ class AsyncTwinEvent(aio.Event):
             super(AsyncTwinEvent, self._twin).set()
 
 
-def get_twin_event() -> Tuple[AsyncTwinEvent, AsyncTwinEvent]:
+def get_twin_event() -> Tuple[aio.Event, aio.Event]:
     """
     获得两个时刻保持状态相反的 asyncio.Event。
     获得的第一个为 unset，另一个为 set

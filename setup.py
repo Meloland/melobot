@@ -1,6 +1,8 @@
 import sys
 from setuptools import setup
 
+from melobot.interface.typing import METAINFO
+
 
 linux_modules = (
     'uvloop>=0.17.0'
@@ -18,7 +20,7 @@ if sys.platform != 'win32':
 
 setup(
     name='melobot',
-    version='2.0.0',
+    version=METAINFO.VER,
     description='A qbot module to help build your own qbot fastly.',
     author='AiCorein',
     author_email='melodyecho@glowmem.com',

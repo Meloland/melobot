@@ -40,35 +40,43 @@ class IEventHandler(ABC):
 
     @abstractmethod
     def _verify(self, event: BotEvent) -> bool:
-        """
-        前置校验逻辑，包含权限校验、尝试匹配和尝试解析
-        """
         pass
 
     @abstractmethod
     async def evoke(self, event: BotEvent) -> bool:
-        """
-        接收总线分发的事件的方法。返回校验结果，便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
-        """
         pass
 
 
-class IHookRunner(ABC):
-    def __init__(self) -> None:
-        super().__init__()
+class BotLife(Enum):
+    """
+    bot 生命周期枚举
+    """
+    LOADED = 1
+    CONNECTED = 2
+    BEFORE_CLOSE = 3
+    BEFORE_STOP = 4
+    EVENT_RECEIVED = 5
+    ACTION_PRESEND = 6
 
-    @abstractmethod
-    async def run(self) -> None:
-        pass
+
+class PluginProxy:
+    """
+    bot 插件代理类。供外部使用
+    """
+    def __init__(self, plugin: object) -> None:
+        self.id = plugin.id
+        self.version = plugin.version
+        self.root_path = plugin.root_path
+        self.shares = plugin.__share__.copy()
 
 
 # 事件方法（事件执行器）构造参数
 HandlerArgs = NamedTuple('HandlerArgs', executor=AsyncFunc[None], type=IEventHandler, params=List[Any])
-# 钩子方法（插件钩子）构造参数
-RunnerArgs = NamedTuple('RunnerArgs', hook_func=AsyncFunc[None], type=IHookRunner, params=List[Any])
 # 插件共享对象构造参数
 ShareObjArgs = NamedTuple('ShareObjArgs', property=str, namespace=str, id=str)
 # 插件共享对象回调的构造参数
 ShareCbArgs = NamedTuple('ShareCbArgs', namespace=str, id=str, cb=Callable)
 # 插件信号方法构造参数
 SignalHandlerArgs = NamedTuple('SignalHandlerArgs', func=AsyncFunc[None], type=str)
+# 钩子方法（生命周期回调）构造参数
+HookRunnerArgs = NamedTuple('HookRunnerArgs', func=AsyncFunc[None], type=BotLife)

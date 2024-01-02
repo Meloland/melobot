@@ -3,8 +3,9 @@ import traceback
 
 from ..interface.core import IEventDispatcher
 from ..interface.exceptions import *
-from ..interface.models import IEventHandler
+from ..interface.models import IEventHandler, BotLife
 from ..interface.typing import *
+from ..models.bot import BotHookBus
 from ..models.event import BotEvent
 from ..models.plugin import MsgEventHandler, ReqEventHandler, NoticeEventHandler
 from ..utils.logger import Logger
@@ -25,11 +26,14 @@ class BotDispatcher(IEventDispatcher):
         self.logger = logger
 
         self._ready_signal = aio.Event()
+        self._slack = False
 
-    def bind(self, all_handlers: List[IEventHandler]) -> None:
+    def add_handlers(self, all_handlers: List[IEventHandler]) -> None:
         """
         绑定事件处理器列表
         """
+        self._ready_signal.clear()
+
         for handler in all_handlers:
             if isinstance(handler, MsgEventHandler):
                 self._handlers['message'].append(handler)
@@ -47,6 +51,10 @@ class BotDispatcher(IEventDispatcher):
         把事件分发到对应的事件总线
         """
         await self._ready_signal.wait()
+        # 如果静默状态就什么也不做
+        if self._slack:
+            return
+        await BotHookBus.emit(BotLife.EVENT_RECEIVED, event, wait=True)
 
         try:
             permit_priority = PriorityLevel.MIN.value

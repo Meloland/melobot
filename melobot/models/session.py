@@ -241,7 +241,7 @@ class BotSession:
     async def get_msg(
         self,
         msgId: int
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取消息信息
         """
@@ -255,7 +255,7 @@ class BotSession:
     async def get_forward_msg(
         self,
         forwardId: str,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取转发消息信息
         """
@@ -395,7 +395,7 @@ class BotSession:
         self,
         groupId: int,
         noCache: bool,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群信息
         """
@@ -409,7 +409,7 @@ class BotSession:
     @_launch
     async def get_groups(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取 bot 加入的群列表
         """
@@ -424,7 +424,7 @@ class BotSession:
         groupId: int,
         userId: int,
         noCache: bool,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群内单独一个群成员信息
         """
@@ -441,7 +441,7 @@ class BotSession:
         self,
         groupId: int,
         noCache: bool,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群成员列表
         """
@@ -457,7 +457,7 @@ class BotSession:
         self,
         groupId: int,
         type: Literal['talkative', 'performer', 'legend', 'strong_newbie', 'emotion', 'all']
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群荣誉信息
         """
@@ -472,7 +472,7 @@ class BotSession:
     async def get_group_file_sys(
         self,
         groupId: int,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群文件系统信息
         """
@@ -486,7 +486,7 @@ class BotSession:
     async def get_group_root_files(
         self,
         groupId: int,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群根目录文件列表
         """
@@ -501,7 +501,7 @@ class BotSession:
         self,
         groupId: int,
         folderId: str
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群子目录文件列表
         """
@@ -518,7 +518,7 @@ class BotSession:
         groupId: int,
         fileId: str,
         fileTypeId: int
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群文件资源链接。文件相关信息通过 `get_group_root_files` 或
         `get_group_files` 的响应获得
@@ -534,7 +534,7 @@ class BotSession:
     @_launch
     async def get_group_sys_msg(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群系统消息
         """
@@ -547,7 +547,7 @@ class BotSession:
     async def get_group_notices(
         self,
         groupId: int,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群公告。
         群公告图片有 id，但暂时没有下载的方法
@@ -563,7 +563,7 @@ class BotSession:
         self,
         msgSeq: int,
         groupId: int
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群消息历史记录
         """
@@ -578,7 +578,7 @@ class BotSession:
     async def get_group_essences(
         self,
         groupId: int
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取精华消息列表
         """
@@ -802,7 +802,7 @@ class BotSession:
     @_launch
     async def get_friends(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取好友列表
         """
@@ -814,7 +814,7 @@ class BotSession:
     @_launch
     async def get_undirect_friends(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取单向好友列表
         """
@@ -828,7 +828,7 @@ class BotSession:
         self,
         userId: int,
         noCache: bool,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取用户信息。可以对陌生人或好友使用
         """
@@ -892,8 +892,8 @@ class BotSession:
     
     @_launch
     async def get_login_info(
-        self,
-    ) -> Union[RespEvent, None]:
+        self
+    ) -> RespEvent:
         """
         获得登录号信息
         """
@@ -928,7 +928,7 @@ class BotSession:
     @_launch
     async def check_send_image(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         检查是否可以发送图片
         """
@@ -940,7 +940,7 @@ class BotSession:
     @_launch
     async def check_send_audio(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         检查是否可以发送语音
         """
@@ -952,7 +952,7 @@ class BotSession:
     @_launch
     async def get_cq_status(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取 go-cqhttp 状态
         """
@@ -964,7 +964,7 @@ class BotSession:
     @_launch
     async def get_cq_version(
         self
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取 go-cqhttp 版本信息
         """
@@ -995,7 +995,7 @@ class BotSession:
     async def get_image(
         self,
         fileName: str
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取图片信息
         """
@@ -1038,7 +1038,7 @@ class BotSession:
     async def ocr(
         self,
         image: str,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         图片 OCR。image 为图片 ID
         """
@@ -1083,7 +1083,7 @@ class BotSession:
     async def get_at_all_remain(
         self,
         groupId: int
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取群 @全体成员 剩余次数
         """
@@ -1097,7 +1097,7 @@ class BotSession:
     async def get_online_clients(
         self,
         noCache: bool,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取当前账号在线客户端列表
         """
@@ -1111,7 +1111,7 @@ class BotSession:
     async def get_model_show(
         self,
         model: str,
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         获取在线机型
         """
@@ -1126,7 +1126,7 @@ class BotSession:
         self,
         model: str,
         modelShow: str
-    ) -> Union[RespEvent, None]:
+    ) -> RespEvent:
         """
         设置在线机型
         """

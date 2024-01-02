@@ -7,8 +7,10 @@ import websockets.exceptions as wse
 
 from ..interface.core import (IActionSender, IEventDispatcher, IMetaDispatcher,
                               IRespDispatcher)
+from ..interface.models import BotLife
 from ..interface.typing import *
 from ..models.action import BotAction
+from ..models.bot import BotHookBus
 from ..models.event import BotEventBuilder
 from ..utils.logger import Logger
 
@@ -49,6 +51,7 @@ class BotLinker(IActionSender):
         self.conn = await websockets.connect(self.url)
         await self.conn.recv()
         self.logger.info("与连接适配器，建立了 ws 连接")
+        await BotHookBus.emit(BotLife.CONNECTED)
 
     async def _close(self) -> None:
         """
@@ -71,6 +74,7 @@ class BotLinker(IActionSender):
         发送一个 action 给连接适配器
         """
         await self._ready_signal.wait()
+        await BotHookBus.emit(BotLife.ACTION_PRESEND, action, wait=True)
 
         try:
             async with self._send_lock:

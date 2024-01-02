@@ -7,19 +7,20 @@ import inspect
 import pathlib
 import websockets.exceptions as wse
 
-from ..interface.core import IMetaDispatcher, IActionResponder
-from ..interface.typing import *
-from ..interface.utils import Logger
-from ..models.event import MetaEvent
-from ..models.plugin import Plugin
-from ..models.ipc import PluginBus
-from ..interface.exceptions import *
-from ..utils.config import BotConfig
-from ..utils.logger import get_logger
-from .proxy import BOT_PROXY
 from .dispatcher import BotDispatcher
 from .linker import BotLinker
 from .responder import BotResponder
+from ..interface.core import IMetaDispatcher, IActionResponder
+from ..interface.exceptions import *
+from ..interface.models import BotLife
+from ..interface.typing import *
+from ..interface.utils import Logger
+from ..models.bot import BOT_PROXY, BotHookBus
+from ..models.event import MetaEvent
+from ..models.plugin import Plugin
+from ..models.ipc import PluginBus, PluginStore
+from ..utils.config import BotConfig
+from ..utils.logger import get_logger
 
 if sys.platform != 'win32':
     import uvloop
@@ -63,7 +64,7 @@ class PluginLoader:
             plugin = target()
             dir = inspect.getfile(target)
         path = pathlib.Path(dir).resolve(strict=True)
-        plugin._build(path, logger, responder)
+        plugin._init_(path, logger, responder)
         return plugin
 
 
@@ -73,18 +74,22 @@ class MeloBot:
     """
     def __init__(self) -> None:
         self.config: BotConfig
-        self.meta = METAINFO
+        self.info = METAINFO
         # 不要更改这个属性名
         self._logger: Logger=None
 
         self.life: aio.Task=None
-        self._linker: BotLinker
-        self._responder: BotResponder
-        self._dispatcher: BotDispatcher
-        self._meta_dispatcher = MetaEventDispatcher()
-        self._plugin_bus = PluginBus
         self.plugins: Dict[str, Plugin]={}
         self.loader = PluginLoader
+
+        self.linker: BotLinker
+        self.responder: BotResponder
+        self.dispatcher: BotDispatcher
+        self.meta_dispatcher = MetaEventDispatcher()
+        self.plugin_bus = PluginBus
+        self.plugin_store = PluginStore
+        self.bot_bus = BotHookBus
+        self.proxy = BOT_PROXY
 
         self.__init_flag__ = False
 
@@ -102,16 +107,17 @@ class MeloBot:
         
         self.config = BotConfig(config_dir)
         self._logger = get_logger(self.config.log_dir_path, self.config.log_level)
-        self._linker = BotLinker(self.config.connect_host, self.config.connect_port, self.config.cooldown_time,
+        self.linker = BotLinker(self.config.connect_host, self.config.connect_port, self.config.cooldown_time,
                                 self.logger)
-        self._responder = BotResponder(self.logger)
-        self._dispatcher = BotDispatcher(self.logger)
-        self._plugin_bus._bind(self.logger, self._responder)
+        self.responder = BotResponder(self.logger)
+        self.dispatcher = BotDispatcher(self.logger)
+        self.plugin_bus._bind(self.logger, self.responder)
+        self.bot_bus._bind(self.logger, self.responder)
 
         self.logger.info("欢迎使用 melobot v2")
-        self.logger.info(f"本项目在 AGPL3 协议下开源发行。更多请参阅：{self.meta.PROJ_SRC}")
-        self.logger.info(f"运行版本：{self.meta.VER}，平台：{self.meta.PLATFORM}")
-        self.logger.info("bot 核心配置、日志器已加载，初始化完成")
+        self.logger.info(f"本项目在 AGPL3 协议下开源发行。更多请参阅：{self.info.PROJ_SRC}")
+        self.logger.info(f"运行版本：{self.info.VER}，平台：{self.info.PLATFORM}")
+        self.logger.info("bot 核心初始化完成")
         self.__init_flag__ = True
 
     def load(self, target: Union[str, Type[Plugin]]) -> None:
@@ -124,10 +130,11 @@ class MeloBot:
         
         plugin_dir = inspect.getfile(target) if not isinstance(target, str) else target
         self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
-        plugin = self.loader.load_plugin(target, self.logger, self._responder)
+        plugin = self.loader.load_plugin(target, self.logger, self.responder)
         exist_plugin = self.plugins.get(plugin.id)
         if exist_plugin is None:
             self.plugins[plugin.id] = plugin
+            self.dispatcher.add_handlers(plugin.handlers)
             self.logger.info(f"成功加载插件：{plugin.id}")
         else:
             self.logger.error(f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{exist_plugin.plugin_dir}")
@@ -136,18 +143,14 @@ class MeloBot:
     async def _run(self) -> None:
         if len(self.plugins) == 0:
             self.logger.warning("没有加载任何插件，bot 将不会有任何操作")
-        
-        all_handlers = []
-        for plugin in self.plugins.values():
-            all_handlers.extend(plugin._handlers)
-        self._dispatcher.bind(all_handlers)
-        self._responder.bind(self._linker)
-        self._linker.bind(self._dispatcher, self._responder, self._meta_dispatcher)
-        
+
+        await self.bot_bus.emit(BotLife.LOADED)
+        self.responder.bind(self.linker)
+        self.linker.bind(self.dispatcher, self.responder, self.meta_dispatcher)
         try:
-            async with self._linker:
-                self.life = aio.create_task(self._linker.listen())
-                BOT_PROXY._bind(self.config, self.life)
+            async with self.linker:
+                self.life = aio.create_task(self.linker.listen())
+                self.proxy._bind(self)
                 await self.life
         except wse.ConnectionClosed:
             pass
@@ -155,6 +158,7 @@ class MeloBot:
             self.logger.error(f"bot 核心无法继续运行。异常：{e}")
             self.logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
         finally:
+            await self.bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.info("bot 已清理运行时资源并关闭")
     
     def run(self) -> None:
@@ -169,15 +173,18 @@ class MeloBot:
             一定要使用 get_event_loop，在启动前部分核心模块里初始化 asyncio 中的对象，
             已经生成了事件循环，使用 asyncio.run 将会运行一个新的事件循环
             """
-            loop = aio.get_event_loop()
-            loop.run_until_complete(self._run())
+            aio.set_event_loop(aio.get_event_loop())
+            # 使用 asyncio.run 可以保证发生各种异常时一定取消所有任务（包括键盘中断）
+            aio.run(self._run())
         except KeyboardInterrupt:
-            self.logger.info("bot 已清理运行时资源并关闭")
+            pass
 
     async def close(self) -> None:
+        """
+        停止 bot 运行
+        """
         if self.life is None:
             self.logger.error("bot 尚未运行，无需停止")
             exit(0)
+        await self.bot_bus.emit(BotLife.BEFORE_CLOSE, wait=True)
         self.life.cancel()
-        await self.life
-
