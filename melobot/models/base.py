@@ -5,6 +5,13 @@ from contextlib import asynccontextmanager
 from ..interface.typing import *
 
 
+class Singleton:
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '__instance__'):
+            cls.__instance__ = super(Singleton, cls).__new__(cls)
+        return cls.__instance__
+
+
 class IdWorker:
     """
     雪花算法生成 ID

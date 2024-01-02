@@ -174,7 +174,7 @@ def cq_format(action: "BotAction") -> "BotAction":
 
 def text_msg(
     text: str,
-) -> Msg:
+) -> CQMsgDict:
     """
     普通文本消息
     """
@@ -188,7 +188,7 @@ def text_msg(
 
 def face_msg(
     icon_id: int, 
-) -> Msg:
+) -> CQMsgDict:
     """
     QQ 表情
     """
@@ -204,7 +204,7 @@ def audio_msg(
     url: str, 
     timeout: int=None, 
     magic: bool=False, 
-) -> Msg:
+) -> CQMsgDict:
     """
     语音消息
     """
@@ -222,7 +222,7 @@ def audio_msg(
 def at_msg(
     qqId:Union[int ,Literal['all']], 
     notInName: str=None, 
-) -> Msg:
+) -> CQMsgDict:
     """
     at 消息。
     at 所有人时，`qqId` 传 "all"
@@ -242,7 +242,7 @@ def share_msg(
     title: str, 
     content: str=None, 
     image: str=None, 
-) -> Msg:
+) -> CQMsgDict:
     """
     链接分享卡片消息。
     `content` 为描述语
@@ -262,7 +262,7 @@ def share_msg(
 def music_msg(
     platType: Literal["qq", "163", "xm"],
     songId: str, 
-) -> Msg:
+) -> CQMsgDict:
     """
     音乐分享卡片消息（专有平台）
     """
@@ -281,7 +281,7 @@ def custom_music_msg(
     title: str, 
     content: str=None, 
     image: str=None, 
-) -> Msg:
+) -> CQMsgDict:
     """
     自定义音乐分享卡片。
     `url` 为主页或网站起始页
@@ -305,7 +305,7 @@ def image_msg(
     picType: Literal["flash", "show"]=None, 
     subType: Literal[0, 1]=None, 
     useCache: Literal[0, 1]=1,
-) -> Msg:
+) -> CQMsgDict:
     """
     图片消息。
     `url`: 图片 url。可以为本地路径，如：`file:///C:/users/15742/desktop/QQ图片20230108225606.jpg`；也可以为网络 url；还可以为 image id。
@@ -326,7 +326,7 @@ def image_msg(
 
 def reply_msg(
     messageId: int, 
-) -> Msg:
+) -> CQMsgDict:
     """
     回复消息
     """
@@ -340,7 +340,7 @@ def reply_msg(
 
 def poke_msg(
     qqId: int, 
-) -> Msg:
+) -> CQMsgDict:
     """
     戳一戳消息
     """
@@ -354,7 +354,7 @@ def poke_msg(
 
 def tts_msg(
     text: str, 
-) -> Msg:
+) -> CQMsgDict:
     """
     腾讯自带 tts 语音消息
     """
@@ -367,11 +367,11 @@ def tts_msg(
 
 
 def custom_msg_node(
-    content: Union[str, Msg, MsgSegment], 
+    content: Union[str, CQMsgDict, List[CQMsgDict]], 
     sendName:str, 
     sendId: int,
     seq: str=None,
-) -> MsgNode:
+) -> Dict:
     """
     自定义消息节点构造方法。转化字符串、消息、消息段为消息节点
     """
@@ -401,7 +401,7 @@ def custom_msg_node(
     return ret
 
 
-def refer_msg_node(msgId: int) -> MsgNode:
+def refer_msg_node(msgId: int) -> Dict:
     """
     引用消息节点构造方法
     """
@@ -463,7 +463,7 @@ class MsgPacker(ActionPacker):
     """
     def __init__(
         self, 
-        msgs: MsgSegment,
+        msgs: List[CQMsgDict],
         isPrivate: bool, 
         userId: int, 
         groupId: int=None, 
@@ -485,7 +485,7 @@ class MsgPacker(ActionPacker):
             }
 
 def msg_action(
-    content: Union[str, Msg, MsgSegment],
+    content: Union[str, CQMsgDict, List[CQMsgDict]],
     isPrivate: bool,
     userId: int, 
     groupId: int=None,
@@ -526,7 +526,7 @@ class ForwardMsgPacker(ActionPacker):
     """
     def __init__(
         self,
-        msgs: MsgNodeList,
+        msgs: Dict,
         isPrivate: bool,
         userId: int=None,
         groupId: int=None,
@@ -548,7 +548,7 @@ class ForwardMsgPacker(ActionPacker):
             }
 
 def forward_msg_action(
-    msgNodes: MsgNodeList,
+    msgNodes: Dict,
     isPrivate: bool,
     userId: int=None, 
     groupId: int=None,

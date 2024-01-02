@@ -122,7 +122,7 @@ class BotSession:
     @_launch
     async def send(
         self, 
-        content: Union[str, Msg, MsgSegment],
+        content: Union[str, CQMsgDict, List[CQMsgDict]],
         enable_cq_str: bool=False,
         waitResp: bool=False
     ) -> Union[RespEvent, None]:
@@ -147,7 +147,7 @@ class BotSession:
     @_launch
     async def custom_send(
         self,
-        content: Union[str, Msg, MsgSegment],
+        content: Union[str, CQMsgDict, List[CQMsgDict]],
         isPrivate: bool,
         userId: int, 
         groupId: int=None,
@@ -173,7 +173,7 @@ class BotSession:
     @_launch
     async def send_forward(
         self,
-        msgNodes: MsgNodeList,
+        msgNodes: Dict,
         enable_cq_str: bool=False,
         waitResp: bool=False
     ) -> Union[RespEvent, None]:
@@ -198,7 +198,7 @@ class BotSession:
     @_launch
     async def custom_send_forward(
         self,
-        msgNodes: MsgNodeList,
+        msgNodes: Dict,
         isPrivate: bool,
         userId: int=None, 
         groupId: int=None,
