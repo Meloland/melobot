@@ -3,11 +3,12 @@ import traceback
 
 from ..interface.core import IEventDispatcher
 from ..interface.exceptions import *
-from ..interface.models import IEventHandler, BotLife
+from ..interface.models import BotLife, IEventHandler
 from ..interface.typing import *
 from ..models.bot import BotHookBus
 from ..models.event import BotEvent
-from ..models.plugin import MsgEventHandler, ReqEventHandler, NoticeEventHandler
+from ..models.plugin import (MsgEventHandler, NoticeEventHandler,
+                             ReqEventHandler)
 from ..utils.logger import Logger
 
 

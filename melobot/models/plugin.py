@@ -4,16 +4,17 @@ import traceback
 from asyncio import iscoroutinefunction
 from pathlib import PosixPath
 
-from .event import MsgEvent
-from .session import SESSION_LOCAL, BotSession, BotSessionManager, SessionRule
-from .ipc import PluginStore, PluginSignalHandler, PluginBus
-from .bot import HookRunner, BotHookBus
-from ..interface.exceptions import *
 from ..interface.core import IActionResponder
-from ..interface.utils import BotChecker, BotMatcher, BotParser, Logger
+from ..interface.exceptions import *
+from ..interface.models import (HandlerArgs, HookRunnerArgs, IEventHandler,
+                                PluginProxy, ShareCbArgs, ShareObjArgs,
+                                SignalHandlerArgs)
 from ..interface.typing import *
-from ..interface.models import IEventHandler, HandlerArgs, HookRunnerArgs, ShareObjArgs, \
-                                ShareCbArgs, SignalHandlerArgs, PluginProxy
+from ..interface.utils import BotChecker, BotMatcher, BotParser, Logger
+from .bot import BotHookBus, HookRunner
+from .event import MsgEvent
+from .ipc import PluginBus, PluginSignalHandler, PluginStore
+from .session import SESSION_LOCAL, BotSession, BotSessionManager, SessionRule
 
 
 class Plugin:
@@ -37,19 +38,19 @@ class Plugin:
         """
         self.root_path = root_path
         if self.id is None:
-            raise BotException("未初始化插件 id，或其为 None")
+            raise BotValueError("未指定插件 id，或其为 None")
         members = inspect.getmembers(self)
 
         for attr_name, val in members:
             if isinstance(val, HandlerArgs):
                 executor, handler_class, params = val
                 if not iscoroutinefunction(executor):
-                    raise BotException("事件处理器必须为异步方法")
+                    raise BotTypeError("事件处理器必须为异步方法")
                 overtime_cb, conflict_cb = params[-1], params[-2]
                 if overtime_cb and not iscoroutinefunction(overtime_cb):
-                    raise BotException("超时回调方法必须为异步函数")
+                    raise BotTypeError("超时回调方法必须为异步函数")
                 if conflict_cb and not iscoroutinefunction(conflict_cb):
-                    raise BotException("冲突回调方法必须为异步函数")
+                    raise BotTypeError("冲突回调方法必须为异步函数")
                 handler = handler_class(executor, self, responder, logger, *params)
                 self.handlers.append(handler)
                 BotSessionManager.register(handler)
@@ -57,20 +58,20 @@ class Plugin:
             elif isinstance(val, HookRunnerArgs):
                 hook_func, type = val
                 if not iscoroutinefunction(hook_func):
-                    raise BotException("hook 方法必须为异步函数")
+                    raise BotTypeError("hook 方法必须为异步函数")
                 runner = HookRunner(type, hook_func, self)
                 BotHookBus._register(type, runner)
             
             elif isinstance(val, ShareCbArgs):
                 namespace, id, cb = val
                 if not iscoroutinefunction(cb):
-                    raise BotException("共享对象的回调必须为异步函数")
+                    raise BotTypeError("共享对象的回调必须为异步函数")
                 PluginStore._bind_cb(namespace, id, cb, self)
             
             elif isinstance(val, SignalHandlerArgs):
                 func, type = val
                 if not iscoroutinefunction(func):
-                    raise BotException("信号处理方法必须为异步函数")
+                    raise BotTypeError("信号处理方法必须为异步函数")
                 handler = PluginSignalHandler(type, func, self)
                 PluginBus._register(type, handler)
         
@@ -78,7 +79,7 @@ class Plugin:
             attrs_map = {k: v for k, v in inspect.getmembers(self) if not k.startswith('__')}
             property, namespace, id = val
             if attrs_map.get(property) is None and property is not None:
-                raise BotException("尝试共享一个不存在的属性")
+                raise BotRuntimeError("指定的 property 不存在，尝试共享一个不存在的属性")
             PluginStore._activate_so(property, namespace, id, self)
 
         self.proxy = PluginProxy(self)
@@ -136,15 +137,15 @@ class MsgEventHandler(IEventHandler):
 
         # matcher 和 parser 必须一个为 None, 另一存在
         if (matcher is None and parser is None) or (matcher and parser):
-            raise BotValueError("参数 matcher 和 parser 不能同时为空或同时存在")
+            raise BotRuntimeError("参数 matcher 和 parser 不能同时为空或同时存在")
         
         if session_rule is None:
             if session_hold or direct_rouse or conflict_wait or conflict_callback:
-                raise BotException("以下的参数必须和 session_rule 参数一同使用：session_hold， direct_rouse, \
+                raise BotRuntimeError("使用 session_rule 参数后才能使用以下参数：session_hold， direct_rouse, \
                                    conflict_wait, conflict_callback")
         
         if conflict_wait and conflict_callback:
-            raise BotException("参数 conflict_wait 为 True 时，conflict_callback 永远不会被调用")
+            raise BotRuntimeError("参数 conflict_wait 为 True 时，conflict_callback 永远不会被调用")
 
     def _verify(self, event: MsgEvent) -> bool:
         """

@@ -1,27 +1,10 @@
 import os
 import sys
-
-from typing import (
-    Union, 
-    List, 
-    Set,
-    Dict, 
-    Literal, 
-    Coroutine, 
-    Callable,
-    Tuple,
-    Any,
-    OrderedDict,
-    Optional,
-    TypedDict,
-    AsyncIterator,
-    NamedTuple,
-    TypeVar,
-    Type
-)
 from enum import Enum
 from types import ModuleType
-
+from typing import (Any, AsyncIterator, Callable, Coroutine, Dict, List,
+                    Literal, NamedTuple, Optional, OrderedDict, Set, Tuple,
+                    Type, TypedDict, TypeVar, Union)
 
 __all__ = (
     'Union', 

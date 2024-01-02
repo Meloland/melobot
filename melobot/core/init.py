@@ -1,26 +1,27 @@
 import asyncio as aio
-import os
-import sys
-import traceback
 import importlib.util
 import inspect
+import os
 import pathlib
+import sys
+import traceback
+
 import websockets.exceptions as wse
 
-from .dispatcher import BotDispatcher
-from .linker import BotLinker
-from .responder import BotResponder
-from ..interface.core import IMetaDispatcher, IActionResponder
+from ..interface.core import IActionResponder, IMetaDispatcher
 from ..interface.exceptions import *
 from ..interface.models import BotLife
 from ..interface.typing import *
 from ..interface.utils import Logger
 from ..models.bot import BOT_PROXY, BotHookBus
 from ..models.event import MetaEvent
-from ..models.plugin import Plugin
 from ..models.ipc import PluginBus, PluginStore
+from ..models.plugin import Plugin
 from ..utils.config import BotConfig
 from ..utils.logger import get_logger
+from .dispatcher import BotDispatcher
+from .linker import BotLinker
+from .responder import BotResponder
 
 if sys.platform != 'win32':
     import uvloop
@@ -45,7 +46,7 @@ class PluginLoader:
         """
         if isinstance(target, str):
             if not os.path.exists(os.path.join(target, 'main.py')):
-                raise BotException("缺乏入口主文件，插件无法加载")
+                raise BotRuntimeError("缺乏入口主文件 main.py，插件无法加载")
             main_path = os.path.join(target, 'main.py')
             spec = importlib.util.spec_from_file_location(os.path.basename(main_path), main_path)
             module = importlib.util.module_from_spec(spec)
@@ -57,7 +58,7 @@ class PluginLoader:
                     plugin_class = obj
                     break
             if plugin_class is None:
-                raise BotException("不存在插件类，无法加载插件")
+                raise BotRuntimeError("指定的入口主文件中，未发现继承 Plugin 的插件类，无法加载插件")
             plugin = plugin_class()
             dir = inspect.getfile(module)
         else:

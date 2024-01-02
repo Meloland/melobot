@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from logging import Logger, CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
 
 from ..models.event import BotEvent, MsgEvent
 from .typing import *

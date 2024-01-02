@@ -5,12 +5,11 @@ from contextvars import ContextVar, Token
 from functools import wraps
 
 from ..interface.core import IActionResponder
-from ..interface.typing import *
 from ..interface.exceptions import *
+from ..interface.typing import *
 from ..models.base import get_twin_event
 from .action import *
 from .event import *
-
 
 __all__ = [
     'BotSession',
@@ -82,7 +81,7 @@ class BotSession:
         如果调用 session 有 space_tag，还会从存储空间中移除该 session
         """
         if self.event is None:
-            raise BotException("空 sessinon 不支持调用 destory() 方法")
+            raise BotRuntimeError("空 sessinon 不支持 destory() 方法")
         else:
             BotSessionManager._expire(self)
 
@@ -109,7 +108,7 @@ class BotSession:
         """
         @wraps(get_action)
         async def wrapper(self: "BotSession", *args, **kwargs):
-            if self._expired: raise BotInvalidSession("session 已标记过期，无法执行 action 操作")
+            if self._expired: raise BotRuntimeError("session 已标记为过期，无法执行 action 操作")
 
             action: BotAction = await get_action(self, *args, **kwargs)
             if action.resp_id is None:
@@ -132,7 +131,7 @@ class BotSession:
         enable_cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
         if self.event == None:
-            raise BotException("空 session 需要手动指定发送消息的类型")
+            raise BotRuntimeError("空 session 需要使用 custom_send 方法替代 send")
         action = msg_action(
             content, 
             self.event.is_private(),
@@ -183,7 +182,7 @@ class BotSession:
         enable_cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
         if self.event == None:
-            raise BotException("空 session 需要手动指定发送消息的类型")
+            raise BotRuntimeError("空 session 需要使用 custom_send_forward 方法替代 send_forward")
         action = forward_msg_action(
             msgNodes,
             self.event.is_private(),
@@ -1165,14 +1164,11 @@ class BotSessionManager:
         """
         以 handler 为键，注册 handler 对应的 session 空间、操作锁和挂起 session 空间
         """
-        if cls.STORAGE.get(handler) is None:
-            cls.STORAGE[handler] = set()
-            cls.WORK_LOCKS[handler] = aio.Lock()
-            cls.HUP_STORAGE[handler] = set()
-            cls.DEADLOCK_FLAGS[handler] = aio.Event()
-            cls.ATTACH_LOCKS[handler] = aio.Lock()
-        else:
-            raise BotException("预期之外的 session 存储重复初始化")
+        cls.STORAGE[handler] = set()
+        cls.WORK_LOCKS[handler] = aio.Lock()
+        cls.HUP_STORAGE[handler] = set()
+        cls.DEADLOCK_FLAGS[handler] = aio.Event()
+        cls.ATTACH_LOCKS[handler] = aio.Lock()
 
     @classmethod
     def inject(cls, session: BotSession, handler: object) -> None:
@@ -1230,9 +1226,9 @@ class BotSessionManager:
         挂起 session。应该由 session.suspend 调用
         """
         if session._space_tag is None:
-            raise BotException("一次性 session 或空 session 不支持挂起，因为缺乏 session_rule 作为唤醒标志")
+            raise BotRuntimeError("一次性 session 或空 session 不支持挂起，因为缺乏 session_rule 作为唤醒标志")
         elif session._expired:
-            raise BotException("过期的 session 不能被挂起")
+            raise BotRuntimeError("过期的 session 不能被挂起")
         session.hup_times.append(time.time())
         cls.STORAGE[session._space_tag].remove(session)
         cls.HUP_STORAGE[session._space_tag].add(session)

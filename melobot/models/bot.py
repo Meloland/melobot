@@ -4,13 +4,13 @@ from asyncio import iscoroutinefunction
 from functools import partial
 from types import MethodType
 
-from .session import BotSessionManager,SESSION_LOCAL
 from ..interface.core import IActionResponder
 from ..interface.exceptions import *
-from ..interface.models import BotLife, PluginProxy, HookRunnerArgs
+from ..interface.models import BotLife, HookRunnerArgs, PluginProxy
 from ..interface.typing import *
 from ..interface.utils import Logger
 from ..utils.config import BotConfig
+from .session import SESSION_LOCAL, BotSessionManager
 
 
 class HookRunner:
@@ -52,7 +52,7 @@ class BotHookBus:
         注册一个生命周期运行器。由 plugin build 过程调用
         """
         if hook_type not in cls.__store.keys():
-            raise BotException("尝试添加一个生命周期 hook，但是其类型不存在")
+            raise BotRuntimeError("尝试添加一个生命周期 hook，但是指定的类型不存在")
         cls.__store[hook_type].append(runner)
 
     @classmethod
@@ -61,12 +61,12 @@ class BotHookBus:
         动态注册 hook 方法
         """
         if isinstance(callback, HookRunner):
-            raise BotException("已注册的生命周期 hook 方法不能再注册")
+            raise BotRuntimeError("已注册的生命周期 hook 方法不能再注册")
         if not iscoroutinefunction(callback):
-            raise BotException("生命周期 hook 方法必须为异步函数")
+            raise BotTypeError("生命周期 hook 方法必须为异步函数")
         if (isinstance(callback, partial) and isinstance(callback.func, MethodType)) \
                 or isinstance(callback, MethodType):
-            raise BotException("callback 应该是 function，而不是 bound method。")
+            raise BotTypeError("callback 应该是 function，而不是 bound method")
         runner = HookRunner(hook_type, callback, plugin=None)
         cls._register(hook_type, runner)
 
@@ -91,8 +91,6 @@ class BotHookBus:
         """
         触发一个生命周期信号。如果指定 wait 为 True，则会等待所有生命周期 hook 方法完成
         """
-        if hook_type not in cls.__store.keys():
-            raise BotException("尝试触发一个生命周期信号，但是其类型不存在")
         if not wait:
             for runner in cls.__store[hook_type]:
                 aio.create_task(cls._run_on_ctx(runner, *args, **kwargs))

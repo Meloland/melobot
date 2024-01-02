@@ -4,8 +4,8 @@ import logging.handlers
 import os
 
 from ..interface.typing import *
-from ..interface.utils import Logger, CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING
-
+from ..interface.utils import (CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING,
+                               Logger)
 
 __all__ = (
     'get_logger'

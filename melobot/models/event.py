@@ -2,8 +2,8 @@ import json
 import re
 import time
 
-from ..interface.typing import *
 from ..interface.models import BotEvent
+from ..interface.typing import *
 
 __all__ = (
     'BotEvent',

@@ -1,10 +1,9 @@
 import re
 
+from ..interface.exceptions import *
 from ..interface.typing import *
 from ..interface.utils import BotParser
-from ..interface.exceptions import BotValueError
 from ..models.event import MsgEvent
-
 
 __all__ = (
     'BotParser',
@@ -43,7 +42,7 @@ class CmdParser(BotParser):
         self._build_parse_regex()
 
         if self.ban_regex.findall(''.join(cmd_sep+cmd_start)):
-            raise BotValueError('不支持的命令起始符或命令间隔符！')
+            raise BotValueError('存在命令解析器不支持的命令起始符，或命令间隔符')
 
     def _build_parse_regex(self):
         """
@@ -57,7 +56,7 @@ class CmdParser(BotParser):
             self.sep_parse_regex = re.compile(rf"{'|'.join(self.cmd_sep)}")
             self.start_parse_regex = re.compile(rf"{'|'.join(self.cmd_start)}")
         else:
-            raise BotValueError("起始符不能和间隔符重合")
+            raise BotValueError("命令解析器起始符不能和间隔符重合")
 
     def _split_string(self, string: str, regex: re.Pattern, popFirst: bool=True) -> List[str]:
         """

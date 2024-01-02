@@ -1,22 +1,21 @@
 from .core.init import MeloBot
-
-from .interface.exceptions import BotException
 from .interface.models import BotEvent, BotLife, ShareObjArgs
-from .interface.typing import UserLevel, PriorityLevel, MetaInfo, METAINFO
+from .interface.typing import METAINFO, MetaInfo, PriorityLevel, UserLevel
 from .interface.utils import BotChecker, BotMatcher, BotParser
-
+from .models.base import ID_WORKER, RWController, get_twin_event
 from .models.bot import BOT_PROXY as bot
-from .models.base import RWController, get_twin_event, ID_WORKER
-from .models.event import MsgEvent, RequestEvent, NoticeEvent, MetaEvent, RespEvent
+from .models.event import (MetaEvent, MsgEvent, NoticeEvent, RequestEvent,
+                           RespEvent)
+from .models.ipc import PluginBus, PluginStore
 from .models.plugin import Plugin
-from .models.ipc import PluginStore, PluginBus
-from .models.session import BotSession, SESSION_LOCAL as session
-session: BotSession
-
+from .models.session import SESSION_LOCAL as session
+from .models.session import BotSession
 from .utils.checker import MsgAccessChecker
-from .utils.matcher import StartMatcher, ContainMatcher, EndMatcher, FullMatcher, RegexMatcher
+from .utils.matcher import (ContainMatcher, EndMatcher, FullMatcher,
+                            RegexMatcher, StartMatcher)
 from .utils.parser import CmdParser
 
+session: BotSession
 
 def get_metainfo() -> MetaInfo:
     """
@@ -36,7 +35,6 @@ __version__ = METAINFO.VER
 __all__ = (
     "MeloBot",
     "bot",
-    "BotException",
     "BotEvent",
     "BotLife",
     "ShareObjArgs",

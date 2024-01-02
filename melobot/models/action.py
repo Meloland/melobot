@@ -7,7 +7,6 @@ from ..interface.typing import *
 from .base import ID_WORKER
 from .event import *
 
-
 __all__ = (
     'BotAction', 
 
@@ -167,7 +166,7 @@ def cq_format(action: "BotAction") -> "BotAction":
     elif _action.type in ('send_private_forward_msg', 'send_group_forward_msg'):
         _format_forward_action(_action)
     else:
-        raise BotUnexceptedObj("传入的 action 不可被 cq 序列化")
+        raise BotTypeError("传入的 action 因类型不匹配，不可被 cq 序列化")
 
     return _action
 
@@ -511,7 +510,7 @@ def msg_action(
                 temp.append(_)
         msgs = temp
     else:
-        raise BotUnexceptedObj("消息格式不正确，无法封装")
+        raise BotTypeError("content 参数类型不正确，无法封装")
     return BotAction(
         MsgPacker(
             msgs, isPrivate, userId, groupId

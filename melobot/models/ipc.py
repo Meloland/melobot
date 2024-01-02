@@ -1,15 +1,15 @@
 import asyncio as aio
 import traceback
+from asyncio import iscoroutinefunction
 from functools import partial
 from types import MethodType
-from asyncio import iscoroutinefunction
 
 from ..interface.core import IActionResponder
-from ..interface.typing import *
 from ..interface.exceptions import *
 from ..interface.models import ShareCbArgs, SignalHandlerArgs
+from ..interface.typing import *
 from ..interface.utils import Logger
-from .session import BotSessionManager, SESSION_LOCAL
+from .session import SESSION_LOCAL, BotSessionManager
 
 
 class ShareObject:
@@ -75,9 +75,9 @@ class PluginStore:
         为共享对象绑定回调
         """
         if namespace not in cls.__store.keys():
-            raise BotException(f"共享对象回调指定的命名空间 {namespace} 不存在")
+            raise BotRuntimeError(f"共享对象回调指定的命名空间 {namespace} 不存在")
         if id not in cls.__store[namespace].keys():
-            raise BotException(f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象，回调绑定失败")
+            raise BotRuntimeError(f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象")
         cls.__store[namespace][id]._fill_cb(partial(cb, plugin))
     
     @classmethod
@@ -155,12 +155,12 @@ class PluginBus:
         那么你的 callback 参数就应该是：`functools.partial(A.xxx, self)`
         """
         if isinstance(callback, SignalHandlerArgs):
-            raise BotException("已注册的信号处理方法不能再注册")
+            raise BotRuntimeError("已注册的信号处理方法不能再注册")
         if not iscoroutinefunction(callback):
-            raise BotException("信号处理方法必须为异步函数")
+            raise BotTypeError("信号处理方法必须为异步函数")
         if (isinstance(callback, partial) and isinstance(callback.func, MethodType)) \
                 or isinstance(callback, MethodType):
-            raise BotException("callback 应该是 function，而不是 bound method。")
+            raise BotTypeError("callback 应该是 function，而不是 bound method。")
         handler = PluginSignalHandler(signal_name, callback, plugin=None)
         cls._register(signal_name, handler)
 
@@ -193,7 +193,7 @@ class PluginBus:
         但启用 forward，必须同时启用 wait。
         """
         if forward and not wait:
-            raise BotException("在触发插件信号处理方法时传递原始 session，必须启用 wait")
+            raise BotRuntimeError("在触发插件信号处理方法时传递原始 session，wait 参数需要为 True")
         if signal_name not in cls.__store.keys():
             return
         if not wait:
