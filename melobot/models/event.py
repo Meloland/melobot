@@ -162,6 +162,7 @@ class MsgEvent(BotEvent):
         def __init__(self, rawEvent: dict, isGroup: bool, isGroupAnonym: bool) -> None:
             self._rawEvent = rawEvent
             self._isGroup = isGroup
+            self._isGroupAnonym = isGroupAnonym
             self.id: int
             self.nickname: str
             self.sex: str
@@ -178,6 +179,11 @@ class MsgEvent(BotEvent):
             self.anonym_name: str
             # 匿名用户 flag，调用 go-cqhttp 相关 API 时，需要使用
             self.anonym_flag: str
+
+            # 对应私聊可能缺失 sender 的情况
+            if len(rawEvent['sender']) == 0:
+                self._gen_empty()
+                return
 
             self.id = rawEvent['sender']['user_id']
             self.nickname = rawEvent['sender']['nickname']
@@ -199,6 +205,13 @@ class MsgEvent(BotEvent):
                     self.group_level = rawEvent['sender']['level']
                     self.group_role = rawEvent['sender']['role']
                     self.group_title = rawEvent['sender']['title']
+
+        def _gen_empty(self) -> None:
+            """当传入的 rawEvent 缺失 sender 时，把属性直接置空"""
+            self.id = self._rawEvent['user_id']
+            self.nickname = None
+            self.sex = None
+            self.age = None
 
         def is_group_owner(self) -> bool:
             """判断是否为群主，若不是或不是群类型消息，返回 False"""

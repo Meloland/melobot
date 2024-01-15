@@ -34,7 +34,7 @@ class BotTypeError(BotException):
         super().__init__(msg)
 
 
-class BotQuickExitSignal(BotException):
+class BotQuickExit(BotException):
     """
     嵌套函数中快速 return 的信号，上游捕获后无视即可
     """

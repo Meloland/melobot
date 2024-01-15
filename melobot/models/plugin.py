@@ -1,17 +1,16 @@
 import asyncio as aio
 import inspect
 import traceback
-from asyncio import iscoroutinefunction
-from pathlib import PosixPath
+from asyncio import iscoroutinefunction, iscoroutine
+from pathlib import Path
 
 from ..interface.core import IActionResponder
 from ..interface.exceptions import *
 from ..interface.models import (HandlerArgs, HookRunnerArgs, IEventHandler,
-                                PluginProxy, ShareCbArgs, ShareObjArgs,
-                                SignalHandlerArgs)
+                                ShareCbArgs, ShareObjArgs, SignalHandlerArgs)
 from ..interface.typing import *
 from ..interface.utils import BotChecker, BotMatcher, BotParser, Logger
-from .bot import BotHookBus, HookRunner
+from .bot import BotHookBus, HookRunner, PluginProxy
 from .event import MsgEvent
 from .ipc import PluginBus, PluginSignalHandler, PluginStore
 from .session import SESSION_LOCAL, BotSession, BotSessionManager, SessionRule
@@ -24,35 +23,41 @@ class Plugin:
 
     # 标记了该类有哪些实例属性需要被共享。每个元素是一个共享对象构造参数元组
     __share__: List[ShareObjArgs] = []
+    # 插件 id 和 version 标记
+    __id__: str = None
+    __version__: str = '1.0.0'
+    # 插件类所在的文件路径，PosicPath 对象
+    __root__: Path
 
     def __init__(self) -> None:
-        self.id: str=None
-        self.version: str='1.0.0'
-        self.handlers: List[IEventHandler] = []
-        self.root_path: PosixPath
-        self.proxy: PluginProxy
+        self.__handlers: List[IEventHandler]
+        self.__proxy: PluginProxy
 
-    def _init_(self, root_path: PosixPath, logger: Logger, responder: IActionResponder) -> None:
+    def __build(self, root_path: Path, logger: Logger, responder: IActionResponder) -> None:
         """
         初始化当前插件
         """
-        self.root_path = root_path
-        if self.id is None:
-            raise BotValueError("未指定插件 id，或其为 None")
-        members = inspect.getmembers(self)
+        self.__class__.__root__ = root_path
+        if self.__class__.__id__ is None:
+            self.__class__.__id__ = self.__class__.__name__
+        for idx, val in enumerate(self.__class__.__share__):
+            if isinstance(val, str):
+                self.__class__.__share__[idx] = val, self.__class__.__name__, val
+        self.__handlers = []
 
+        members = inspect.getmembers(self)
         for attr_name, val in members:
             if isinstance(val, HandlerArgs):
                 executor, handler_class, params = val
                 if not iscoroutinefunction(executor):
                     raise BotTypeError("事件处理器必须为异步方法")
                 overtime_cb, conflict_cb = params[-1], params[-2]
-                if overtime_cb and not iscoroutinefunction(overtime_cb):
-                    raise BotTypeError("超时回调方法必须为异步函数")
-                if conflict_cb and not iscoroutinefunction(conflict_cb):
-                    raise BotTypeError("冲突回调方法必须为异步函数")
+                if overtime_cb and not iscoroutinefunction(overtime_cb) and not iscoroutine(overtime_cb):
+                    raise BotTypeError("超时回调方法必须为异步函数或协程")
+                if conflict_cb and not iscoroutinefunction(conflict_cb) and not iscoroutine(conflict_cb):
+                    raise BotTypeError("冲突回调方法必须为异步函数或协程")
                 handler = handler_class(executor, self, responder, logger, *params)
-                self.handlers.append(handler)
+                self.__handlers.append(handler)
                 BotSessionManager.register(handler)
 
             elif isinstance(val, HookRunnerArgs):
@@ -75,14 +80,14 @@ class Plugin:
                 handler = PluginSignalHandler(type, func, self)
                 PluginBus._register(type, handler)
         
+        attrs_map = {k: v for k, v in inspect.getmembers(self) if not k.startswith('__')}
         for val in self.__class__.__share__:
-            attrs_map = {k: v for k, v in inspect.getmembers(self) if not k.startswith('__')}
             property, namespace, id = val
             if attrs_map.get(property) is None and property is not None:
                 raise BotRuntimeError("指定的 property 不存在，尝试共享一个不存在的属性")
-            PluginStore._activate_so(property, namespace, id, self)
+            PluginStore._create_so(property, namespace, id, self)
 
-        self.proxy = PluginProxy(self)
+        self.__proxy = PluginProxy(self)
 
     @classmethod
     def on(cls, signal_name: str) -> Callable:
@@ -96,8 +101,8 @@ class Plugin:
     @classmethod
     def on_message(cls, matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: int=PriorityLevel.MEAN.value, 
                    timeout: int=None, block: bool=False, temp: bool=False, session_rule: SessionRule=None, session_hold: bool=False, 
-                   direct_rouse: bool=False, conflict_wait: bool=False, conflict_callback: Callable[[None], Coroutine]=None, 
-                   overtime_callback: Callable[[None], Coroutine]=None
+                   direct_rouse: bool=False, conflict_wait: bool=False, conflict_callback: Union[AsyncFunc, Coroutine]=None, 
+                   overtime_callback: Union[AsyncFunc, Coroutine]=None
                    ) -> Callable:
         """
         使用该装饰器，将方法标记为消息事件执行器
@@ -115,7 +120,7 @@ class MsgEventHandler(IEventHandler):
     def __init__(self, executor: AsyncFunc[None], plugin: Plugin, responder: IActionResponder, logger: Logger, 
                  matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: int=PriorityLevel.MEAN.value, timeout: float=None, 
                  set_block: bool=False, temp: bool=False, session_rule: SessionRule=None, session_hold: bool=False, direct_rouse: bool=False, 
-                 conflict_wait: bool=False, conflict_callback: Callable[[None], Coroutine]=None, overtime_callback: Callable[[None], Coroutine]=None
+                 conflict_wait: bool=False, conflict_callback: Union[AsyncFunc, Coroutine]=None, overtime_callback: Union[AsyncFunc, Coroutine]=None
                  ) -> None:
         super().__init__(priority, timeout, set_block, temp)
 
@@ -131,8 +136,9 @@ class MsgEventHandler(IEventHandler):
         self._hold = session_hold
         self._plugin = plugin
         self._direct_rouse = direct_rouse
-        self._conflict_cb = conflict_callback
-        self._overtime_cb = overtime_callback
+        ccb, ocb = conflict_callback, overtime_callback
+        self._conflict_coro = ccb() if iscoroutinefunction(ccb) else ccb
+        self._overtime_coro = ocb() if iscoroutinefunction(ocb) else ocb
         self._wait_flag = conflict_wait
 
         # matcher 和 parser 必须一个为 None, 另一存在
@@ -160,9 +166,9 @@ class MsgEventHandler(IEventHandler):
         通过验权后，尝试对事件进行文本匹配
         """
         if self.matcher:
-            return self.matcher.match(event)
+            return self.matcher.match(event.text)
         if self.parser:
-            args = self.parser.parse(event)
+            args = self.parser.parse(event.text)
             if args is not None:
                 event._store_args(self, args)
                 return True
@@ -193,9 +199,9 @@ class MsgEventHandler(IEventHandler):
                     return
             session = await BotSessionManager.get(event, self.responder, self)
             # 如果因为冲突没有获得 session，且指定了冲突回调
-            if session is None and self._conflict_cb:
+            if session is None and self._conflict_coro:
                 temp_session = BotSessionManager.make_temp(event, self.responder)
-                await self._run_on_ctx(self._conflict_cb(), temp_session)
+                await self._run_on_ctx(self._conflict_coro, temp_session)
             # 如果因为冲突没有获得 session，但没有冲突回调
             if session is None:
                 return
@@ -204,14 +210,14 @@ class MsgEventHandler(IEventHandler):
                 exec_coro = self.executor(self._plugin)
                 await self._run_on_ctx(exec_coro, session, self.timeout)
             except aio.TimeoutError:
-                if self._overtime_cb:
-                    await self._run_on_ctx(self._overtime_cb(), session)
-        except BotQuickExitSignal:
+                if self._overtime_coro:
+                    await self._run_on_ctx(self._overtime_coro, session)
+        except BotQuickExit:
             pass
         except Exception as e:
             e_name = e.__class__.__name__
             executor_name = self.executor.__qualname__
-            self.logger.error(f"插件 {self._plugin.id} 事件处理方法 {executor_name} 发生异常：[{e_name}] {e}")
+            self.logger.error(f"插件 {self._plugin.__class__.__id__} 事件处理方法 {executor_name} 发生异常：[{e_name}] {e}")
             self.logger.debug(f"异常点的事件记录为：{event.raw}")
             self.logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
         finally:

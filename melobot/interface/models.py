@@ -59,17 +59,6 @@ class BotLife(Enum):
     ACTION_PRESEND = 6
 
 
-class PluginProxy:
-    """
-    bot 插件代理类。供外部使用
-    """
-    def __init__(self, plugin: object) -> None:
-        self.id = plugin.id
-        self.version = plugin.version
-        self.root_path = plugin.root_path
-        self.shares = plugin.__share__.copy()
-
-
 # 事件方法（事件执行器）构造参数
 HandlerArgs = NamedTuple('HandlerArgs', executor=AsyncFunc[None], type=IEventHandler, params=List[Any])
 # 插件共享对象构造参数

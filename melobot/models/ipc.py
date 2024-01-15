@@ -51,19 +51,21 @@ class PluginStore:
     """
     插件共享存储
     """
-    __store: Dict[str, Dict[str, ShareObject]] = {}
+    __store__: Dict[str, Dict[str, ShareObject]] = {}
 
     @classmethod
-    def _activate_so(cls, property: Union[str, None], namespace: str, id: str, plugin: object) -> None:
+    def _create_so(cls, property: Union[str, None], namespace: str, id: str, plugin: object) -> None:
         """
         创建共享对象。property 为 None 时，共享对象会引用到一个 None
         """
-        if namespace not in cls.__store.keys():
-            cls.__store[namespace] = {}
-        obj = cls.__store[namespace].get(id)
+        if namespace not in cls.__store__.keys():
+            cls.__store__[namespace] = {}
+        obj = cls.__store__[namespace].get(id)
         if obj is None:
             obj = ShareObject(namespace, id)
-            cls.__store[namespace][id] = obj
+            cls.__store__[namespace][id] = obj
+        else:
+            raise BotRuntimeError("指定命名空间中已经存在相同 id 的共享对象")
         if property is not None:
             obj._fill_ref(lambda: getattr(plugin, property))
         else:
@@ -74,11 +76,11 @@ class PluginStore:
         """
         为共享对象绑定回调
         """
-        if namespace not in cls.__store.keys():
+        if namespace not in cls.__store__.keys():
             raise BotRuntimeError(f"共享对象回调指定的命名空间 {namespace} 不存在")
-        if id not in cls.__store[namespace].keys():
+        if id not in cls.__store__[namespace].keys():
             raise BotRuntimeError(f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象")
-        cls.__store[namespace][id]._fill_cb(partial(cb, plugin))
+        cls.__store__[namespace][id]._fill_cb(partial(cb, plugin))
     
     @classmethod
     def echo(cls, namespace: str, id: str) -> Callable:
@@ -97,11 +99,11 @@ class PluginStore:
         区别是前者会一直保持 None 引用，而后者则会随后绑定映射。
         但注意，除上述两种情况外，共享对象定义时也可引用到 None
         """
-        if namespace not in cls.__store.keys():
-            cls.__store[namespace] = {}
-        if id not in cls.__store[namespace].keys():
-            cls.__store[namespace][id] = ShareObject(namespace, id)
-        return cls.__store[namespace][id]
+        if namespace not in cls.__store__.keys():
+            cls.__store__[namespace] = {}
+        if id not in cls.__store__[namespace].keys():
+            cls.__store__[namespace][id] = ShareObject(namespace, id)
+        return cls.__store__[namespace][id]
 
 
 class PluginSignalHandler:
@@ -124,7 +126,7 @@ class PluginBus:
     """
     插件信号总线
     """
-    __store: Dict[str, List[PluginSignalHandler]] = {}
+    __store__: Dict[str, List[PluginSignalHandler]] = {}
     __logger: Logger
     __responder: IActionResponder
 
@@ -141,9 +143,9 @@ class PluginBus:
         """
         注册一个插件信号处理方法。由 plugin build 过程调用
         """
-        if signal_name not in cls.__store.keys():
-            cls.__store[signal_name] = []
-        cls.__store[signal_name].append(handler)
+        if signal_name not in cls.__store__.keys():
+            cls.__store__[signal_name] = []
+        cls.__store__[signal_name].append(handler)
 
     @classmethod
     def on(cls, signal_name: str, callback: Callable) -> None:
@@ -177,7 +179,7 @@ class PluginBus:
         except Exception as e:
             e_name = e.__class__.__name__
             func_name = handler._func.__qualname__
-            pre_str = "插件" + handler._plugin.id if handler._plugin else "动态注册的"
+            pre_str = "插件" + handler._plugin.__class__.__id__ if handler._plugin else "动态注册的"
             cls.__logger.error(f"{pre_str} 信号处理方法 {func_name} 发生异常：[{e_name}] {e}")
             cls.__logger.debug(f"信号处理方法的 args: {args} kwargs：{kwargs}")
             cls.__logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
@@ -194,11 +196,11 @@ class PluginBus:
         """
         if forward and not wait:
             raise BotRuntimeError("在触发插件信号处理方法时传递原始 session，wait 参数需要为 True")
-        if signal_name not in cls.__store.keys():
+        if signal_name not in cls.__store__.keys():
             return
         if not wait:
-            for handler in cls.__store[signal_name]:
+            for handler in cls.__store__[signal_name]:
                 aio.create_task(cls._run_on_ctx(handler, forward=forward, *args, **kwargs))
         else:
-            for handler in cls.__store[signal_name]:
+            for handler in cls.__store__[signal_name]:
                 await cls._run_on_ctx(handler, forward=forward, *args, **kwargs)

@@ -1,7 +1,11 @@
 import asyncio as aio
+import sys
 import time
+import inspect
+import pathlib
 from contextlib import asynccontextmanager
 
+from ..interface.exceptions import *
 from ..interface.typing import *
 
 
@@ -152,3 +156,11 @@ class RWController:
         read_num_lock = aio.Lock()
         self.safe_read = safe_read
         self.safe_write = safe_write
+
+def in_cwd(*path_str: str) -> str:
+    """
+    用于包内相对引用，解决内部相对路径不匹配的问题
+    """
+    fr = sys._getframe(1)
+    call_file = fr.f_locals['__file__']
+    return str(pathlib.Path(call_file).parent.joinpath(*path_str).resolve(strict=True))

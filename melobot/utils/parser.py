@@ -3,7 +3,6 @@ import re
 from ..interface.exceptions import *
 from ..interface.typing import *
 from ..interface.utils import BotParser
-from ..models.event import MsgEvent
 
 
 class CmdParser(BotParser):
@@ -74,8 +73,8 @@ class CmdParser(BotParser):
         cmd_list = list(filter(lambda x: x != [], cmd_list))
         return cmd_list if len(cmd_list) else None
 
-    def parse(self, event: MsgEvent) -> Union[List[ParseArgs], None]:
-        params_list = self._parse(event.text)
+    def parse(self, text: str) -> Union[List[ParseArgs], None]:
+        params_list = self._parse(text)
         if params_list:
             return [ParseArgs(params) for params in params_list]
         else:

@@ -6,10 +6,11 @@ from types import MethodType
 
 from ..interface.core import IActionResponder
 from ..interface.exceptions import *
-from ..interface.models import BotLife, HookRunnerArgs, PluginProxy
+from ..interface.models import BotLife, HookRunnerArgs
 from ..interface.typing import *
 from ..interface.utils import Logger
 from ..utils.config import BotConfig
+from .ipc import ShareObject, PluginStore
 from .session import SESSION_LOCAL, BotSessionManager
 
 
@@ -33,7 +34,7 @@ class BotHookBus:
     """
     bot 生命周期 hook 总线
     """
-    __store: Dict[BotLife, List[HookRunner]] = \
+    __store__: Dict[BotLife, List[HookRunner]] = \
         {v:[] for k, v in BotLife.__members__.items()}
     __logger: Logger
     __responder: IActionResponder
@@ -51,9 +52,9 @@ class BotHookBus:
         """
         注册一个生命周期运行器。由 plugin build 过程调用
         """
-        if hook_type not in cls.__store.keys():
+        if hook_type not in cls.__store__.keys():
             raise BotRuntimeError("尝试添加一个生命周期 hook，但是指定的类型不存在")
-        cls.__store[hook_type].append(runner)
+        cls.__store__[hook_type].append(runner)
 
     @classmethod
     def on(cls, hook_type: BotLife, callback: Callable) -> None:
@@ -79,7 +80,7 @@ class BotHookBus:
         except Exception as e:
             e_name = e.__class__.__name__
             func_name = runner._func.__qualname__
-            pre_str = "插件" + runner._plugin.id if runner._plugin else "动态注册的"
+            pre_str = "插件" + runner._plugin.__class__.__id__ if runner._plugin else "动态注册的"
             cls.__logger.error(f"{pre_str} hook 方法 {func_name} 发生异常：[{e_name}] {e}")
             cls.__logger.debug(f"生命周期 hook 方法的 args: {args} kwargs：{kwargs}")
             cls.__logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
@@ -92,11 +93,24 @@ class BotHookBus:
         触发一个生命周期信号。如果指定 wait 为 True，则会等待所有生命周期 hook 方法完成
         """
         if not wait:
-            for runner in cls.__store[hook_type]:
+            for runner in cls.__store__[hook_type]:
                 aio.create_task(cls._run_on_ctx(runner, *args, **kwargs))
         else:
-            for runner in cls.__store[hook_type]:
+            for runner in cls.__store__[hook_type]:
                 await cls._run_on_ctx(runner, *args, **kwargs)
+
+
+class PluginProxy:
+    """
+    bot 插件代理类。供外部使用
+    """
+    def __init__(self, plugin: object) -> None:
+        self.id = plugin.__class__.__id__
+        self.version = plugin.__class__.__version__
+        self.root_path = plugin.__class__.__root__
+        self.share: Dict[str, ShareObject] = {}
+        for property, namespace, id in plugin.__class__.__share__:
+            self.share[id] = PluginStore.get(namespace, id)
 
 
 class BotProxy:
@@ -129,7 +143,7 @@ class BotProxy:
         """
         获取 bot 当前所有插件信息
         """
-        return {id:plugin.proxy for id, plugin in self.__bot__.plugins.items()}
+        return {id: plugin._Plugin__proxy for id, plugin in self.__bot__.plugins.items()}
     
     def deactive(self) -> None:
         """

@@ -26,7 +26,7 @@ __all__ = (
 
     'Enum',
     'CQMsgDict',
-    'UserLevel',
+    'User',
     'PriorityLevel',
     'METAINFO',
     'ParseArgs'
@@ -39,9 +39,14 @@ class MetaInfo:
         self.PROJ_NAME = 'MeloBot'
         self.AUTHOR = 'AiCorein'
         self.PROJ_SRC = 'https://github.com/AiCorein/Qbot-MeloBot'
+        self.ARGV = sys.argv
         self.PLATFORM = sys.platform
+        self.PY_VER = sys.version
+        self.PY_INFO = sys.version_info
         self.OS_SEP = os.sep
         self.PATH_SEP = os.pathsep
+        self.LINE_SEP = os.linesep
+        self.ENV = os.environ
 
 METAINFO = MetaInfo()
 
@@ -60,8 +65,10 @@ class ParseArgs:
         self.vals = param_list
 
 
-class UserLevel(int, Enum):
-    """权限等级枚举"""
+class User(int, Enum):
+    """
+    用户权限等级枚举
+    """
     OWNER = 100
     SU = 90
     WHITE = 80
@@ -70,7 +77,9 @@ class UserLevel(int, Enum):
 
 
 class PriorityLevel(int, Enum):
-    """优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值"""
+    """
+    优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值
+    """
     MIN = -100
     MAX = 100
     MEAN = (MAX+MIN)//2

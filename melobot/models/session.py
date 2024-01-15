@@ -1411,11 +1411,11 @@ class AttrSessionRule(SessionRule):
 SESSION_LOCAL = SessionLocal()
 SESSION_LOCAL: BotSession
 
-async def reply(content: str) -> None:
+async def reply(content: str, wait: bool=False) -> Union[RespEvent, None]:
     """
     回复一条消息
     """
-    await SESSION_LOCAL.send(content)
+    return await SESSION_LOCAL.send(content, waitResp=wait)
 
 async def reply_hup(content: str) -> None:
     """
@@ -1430,4 +1430,4 @@ async def finish(content: str) -> None:
     """
     await SESSION_LOCAL.send(content)
     SESSION_LOCAL.destory()
-    raise BotQuickExitSignal("事件处理方法被安全地提早结束，请无视这个异常")
+    raise BotQuickExit("事件处理方法被安全地提早结束，请无视这个异常")
