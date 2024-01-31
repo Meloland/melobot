@@ -38,8 +38,8 @@ class BotSession:
         # 其实这里如果传入 space_tag 则一定是所属 handler 的引用
         self._space_tag: Union[object, None] = space_tag
 
-        # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，必有这个属性）
-        self._handler: object
+        # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
+        self._handler: object = None
 
     @property
     def event(self) -> Union[MsgEvent, RequestEvent, MetaEvent, RespEvent, NoticeEvent, None]: 
@@ -57,10 +57,8 @@ class BotSession:
     
     @property
     def args(self) -> ParseArgs:
-        if hasattr(self, '_handler') and hasattr(self.event, '_args_map'):
-            res = self.event._args_map.get(self._handler)
-            if res is not None:
-                return res
+        if self._handler is not None and self.event._args_map is not None:
+            return self.event._args_map.get(self._handler.parser.id)
         return None
 
     async def suspend(self) -> None:

@@ -10,8 +10,11 @@ class CmdParser(BotParser):
     命令解析器，通过解析命令名和参数的形式，解析字符串。
     命令起始符和命令间隔符不允许包含 引号，各种括号，反斜杠，数字，英文，回车符，换行符，制表符
     """
-    def __init__(self, cmd_start: Union[str, List[str]], cmd_sep: Union[str, List[str]]) -> None:
-        super().__init__()
+    def __init__(self, cmd_start: Union[str, List[str]], cmd_sep: Union[str, List[str]], target: Union[str, List[str]]=None) -> None:
+        i1 = cmd_start if isinstance(cmd_start, str) else ''.join(cmd_start)
+        i2 = cmd_sep if isinstance(cmd_sep, str) else ''.join(cmd_sep)
+        super().__init__(i1+'\u0000'+i2)
+        self.target = target if isinstance(target, list) else [target]
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
         self.sep_tokens = cmd_sep if isinstance(cmd_sep, list) else [cmd_sep]
         self.ban_regex = re.compile(r'[\'\"\\\(\)\[\]\{\}\r\n\ta-zA-Z0-9]')
@@ -52,9 +55,6 @@ class CmdParser(BotParser):
         return list(filter(lambda x:x != '', temp_list))
     
     def _parse(self, text: str, textFilter: bool=True) -> Union[List[List[str]], None]:
-        """
-        解析 text
-        """
         pure_string = self._purify(text) if textFilter else text
         cmd_strings = self._split_string(pure_string, self.start_parse_regex)
         cmd_list = [self._split_string(s, self.sep_parse_regex, False) for s in cmd_strings]
@@ -62,9 +62,40 @@ class CmdParser(BotParser):
         return cmd_list if len(cmd_list) else None
 
     def parse(self, text: str) -> Union[List[ParseArgs], None]:
+        """
+        解析 text
+        """
         params_list = self._parse(text)
         if params_list:
             return [ParseArgs(params) for params in params_list]
         else:
             return None
 
+    def test(self, args: List[ParseArgs]) -> bool:
+        """
+        测试是否匹配指定的命令
+        """
+        if args is None:
+            return False
+        if self.target is None:
+            return True
+        for arg in args:
+            if arg.vals[0] in self.target:
+                return True
+        return False
+
+
+class CmdParserGen:
+    """
+    命令解析器生成器。预先存储命令起始符和命令间隔符，
+    指定匹配 target 后返回一个符合对应匹配条件的命令解析器
+    """
+    def __init__(self, cmd_start: Union[str, List[str]], cmd_sep: Union[str, List[str]]) -> None:
+        self.cmd_start = cmd_start
+        self.cmd_sep = cmd_sep
+
+    def gen(self, target: Union[str, List[str]]=None) -> CmdParser:
+        """
+        生成匹配指定命令的命令解析器
+        """
+        return CmdParser(self.cmd_start, self.cmd_sep, target)

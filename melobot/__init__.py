@@ -15,7 +15,7 @@ from .models.session import (AttrSessionRule, BotSession, SessionRule, finish,
 from .utils.checker import GroupMsgLvl, MsgLvlChecker, PrivateMsgLvl, MsgCheckerGen
 from .utils.matcher import (ContainMatch, EndMatch, FullMatch, RegexMatch,
                             StartMatch)
-from .utils.parser import CmdParser
+from .utils.parser import CmdParser, CmdParserGen
 
 session: BotSession
 
@@ -103,6 +103,7 @@ __all__ = (
     "FullMatch",
     "RegexMatch",
     "CmdParser",
+    "CmdParserGen",
     # action 部分
     'text_msg', 
     'face_msg', 

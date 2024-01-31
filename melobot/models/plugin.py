@@ -154,7 +154,7 @@ class MsgEventHandler(IEventHandler):
         if session_rule is None:
             if session_hold or direct_rouse or conflict_wait or conflict_callback:
                 raise BotRuntimeError("使用 session_rule 参数后才能使用以下参数：session_hold， direct_rouse, \
-                                   conflict_wait, conflict_callback")
+                                      conflict_wait, conflict_callback")
         
         if conflict_wait and conflict_callback:
             raise BotRuntimeError("参数 conflict_wait 为 True 时，conflict_callback 永远不会被调用")
@@ -174,18 +174,17 @@ class MsgEventHandler(IEventHandler):
         if self.matcher:
             return self.matcher.match(event.text)
         if self.parser:
-            args = self.parser.parse(event.text)
-            if args is not None:
-                event._store_args(self, args)
-                return True
-            else:
-                return False
+            args = event._get_args(self.parser.id)
+            if args == -1:
+                args = self.parser.parse(event.text)
+                event._store_args(self.parser.id, args)
+            return self.parser.test(args)
 
     async def _run_on_ctx(self, coro: Coroutine, session: BotSession=None, timeout: float=None) -> None:
         """
         在指定 session 上下文中运行协程。异常将会抛出
         """
-        if not hasattr(session, '_handler'):
+        if session._handler is None:
             BotSessionManager.inject(session, self)
         try:
             s_token = SESSION_LOCAL._add_ctx(session)

@@ -155,9 +155,14 @@ class BotParser(ABC):
     """
     解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合
     """
-    def __init__(self) -> None:
+    def __init__(self, id: Any) -> None:
         super().__init__()
+        self.id = id
 
     @abstractmethod
     def parse(self, text: str) -> Union[List[ParseArgs], None]:
+        pass
+
+    @abstractmethod
+    def test(self, args: List[ParseArgs]) -> bool:
         pass
