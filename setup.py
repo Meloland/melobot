@@ -18,7 +18,7 @@ if sys.platform != 'win32':
 
 setup(
     name='melobot',
-    version='2.0.0-Beta1',
+    version='2.0.0-pre1',
     description='A qbot module to help build your own qbot fastly.',
     author='AiCorein',
     author_email='melodyecho@glowmem.com',

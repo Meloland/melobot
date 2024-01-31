@@ -9,8 +9,7 @@
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/test",
-            "program": "${workspaceFolder}/test/bot_run.py",
-            // "program": "${workspaceFolder}/melobot/models/ipc.py",
+            "program": "${workspaceFolder}/test/main.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.env",
             "justMyCode": true

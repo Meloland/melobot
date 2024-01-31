@@ -28,14 +28,14 @@ __all__ = (
     'CQMsgDict',
     'User',
     'PriorityLevel',
-    'METAINFO',
+    'META_INFO',
     'ParseArgs'
 )
 
 
 class MetaInfo:
     def __init__(self) -> None:
-        self.VER = '2.0.0-Beta1'
+        self.VER = '2.0.0-pre1'
         self.PROJ_NAME = 'MeloBot'
         self.AUTHOR = 'AiCorein'
         self.PROJ_SRC = 'https://github.com/AiCorein/Qbot-MeloBot'
@@ -48,7 +48,10 @@ class MetaInfo:
         self.LINE_SEP = os.linesep
         self.ENV = os.environ
 
-METAINFO = MetaInfo()
+    def get_all(self) -> Dict[str, Any]:
+        return dict(self.__dict__.items())
+
+META_INFO = MetaInfo()
 
 
 class CQMsgDict(TypedDict):

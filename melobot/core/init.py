@@ -97,7 +97,7 @@ class MeloBot:
     """
     def __init__(self) -> None:
         self.config: BotConfig
-        self.info = METAINFO
+        self.info = META_INFO
         # 不要更改这个属性名
         self._logger: Logger=None
 

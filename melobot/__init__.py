@@ -1,17 +1,18 @@
 from .core.init import MeloBot
 from .interface.models import BotEvent, BotLife, ShareObjArgs
-from .interface.typing import METAINFO, Callable, MetaInfo, PriorityLevel, User
+from .interface.typing import META_INFO, Callable, MetaInfo, PriorityLevel, User
 from .interface.utils import BotChecker, BotMatcher
 from .models.base import ID_WORKER, RWController, get_twin_event, in_cwd
 from .models.bot import BOT_PROXY as bot
 from .models.event import (MetaEvent, MsgEvent, NoticeEvent, RequestEvent,
                            RespEvent)
+from .models.action import *
 from .models.ipc import PluginBus, PluginStore
 from .models.plugin import Plugin
 from .models.session import SESSION_LOCAL as session
 from .models.session import (AttrSessionRule, BotSession, SessionRule, finish,
-                             reply, reply_hup)
-from .utils.checker import GroupMsgLvl, MsgLvlChecker, PrivateMsgLvl
+                             send, send_hup)
+from .utils.checker import GroupMsgLvl, MsgLvlChecker, PrivateMsgLvl, MsgCheckerGen
 from .utils.matcher import (ContainMatch, EndMatch, FullMatch, RegexMatch,
                             StartMatch)
 from .utils.parser import CmdParser
@@ -59,7 +60,7 @@ async def make_coro(func: Callable):
     return wrapper()
 
 
-__version__ = METAINFO.VER
+__version__ = META_INFO.VER
 __all__ = (
     "MeloBot",
     "bot",
@@ -89,16 +90,32 @@ __all__ = (
     "session",
     "SessionRule",
     "AttrSessionRule",
-    "reply",
-    "reply_hup",
+    "send",
+    "send_hup",
     "finish",
     "MsgLvlChecker",
     "GroupMsgLvl",
     "PrivateMsgLvl",
+    "MsgCheckerGen",
     "StartMatch",
     "ContainMatch",
     "EndMatch",
     "FullMatch",
     "RegexMatch",
-    "CmdParser"
+    "CmdParser",
+    # action 部分
+    'text_msg', 
+    'face_msg', 
+    'audio_msg', 
+    'at_msg', 
+    'share_msg', 
+    'music_msg', 
+    'custom_music_msg', 
+    'image_msg', 
+    'reply_msg', 
+    'poke_msg', 
+    'tts_msg',
+    'cq_escape', 
+    'cq_anti_escape',
+    'cq_format',
 )

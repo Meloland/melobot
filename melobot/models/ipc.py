@@ -65,7 +65,7 @@ class PluginStore:
             obj = ShareObject(namespace, id)
             cls.__store__[namespace][id] = obj
         else:
-            raise BotRuntimeError("指定命名空间中已经存在相同 id 的共享对象")
+            raise BotRuntimeError(f"命名空间 {namespace} 中已经存在 id 为 {id} 的共享对象")
         if property is not None:
             obj._fill_ref(lambda: getattr(plugin, property))
         else:
@@ -159,7 +159,7 @@ class PluginBus:
         if isinstance(callback, SignalHandlerArgs):
             raise BotRuntimeError("已注册的信号处理方法不能再注册")
         if not iscoroutinefunction(callback):
-            raise BotTypeError("信号处理方法必须为异步函数")
+            raise BotTypeError(f"信号处理方法 {callback.__name__} 必须为异步函数")
         if (isinstance(callback, partial) and isinstance(callback.func, MethodType)) \
                 or isinstance(callback, MethodType):
             raise BotTypeError("callback 应该是 function，而不是 bound method。")

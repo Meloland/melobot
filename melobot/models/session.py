@@ -1411,23 +1411,23 @@ class AttrSessionRule(SessionRule):
 SESSION_LOCAL = SessionLocal()
 SESSION_LOCAL: BotSession
 
-async def reply(content: str, wait: bool=False) -> Union[RespEvent, None]:
+async def send(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False, wait: bool=False) -> Union[RespEvent, None]:
     """
     回复一条消息
     """
-    return await SESSION_LOCAL.send(content, waitResp=wait)
+    return await SESSION_LOCAL.send(content, enable_cq_str, wait)
 
-async def reply_hup(content: str) -> None:
+async def send_hup(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False) -> None:
     """
     回复一条消息然后挂起
     """
-    await SESSION_LOCAL.send(content)
+    await SESSION_LOCAL.send(content, enable_cq_str)
     await SESSION_LOCAL.suspend()
 
-async def finish(content: str) -> None:
+async def finish(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False) -> None:
     """
     回复一条消息，然后直接结束当前事件处理方法
     """
-    await SESSION_LOCAL.send(content)
+    await SESSION_LOCAL.send(content, enable_cq_str)
     SESSION_LOCAL.destory()
     raise BotQuickExit("事件处理方法被安全地提早结束，请无视这个异常")

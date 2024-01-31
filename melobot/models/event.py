@@ -187,8 +187,8 @@ class MsgEvent(BotEvent):
 
             self.id = rawEvent['sender']['user_id']
             self.nickname = rawEvent['sender']['nickname']
-            self.sex = rawEvent['sender']['sex']
-            self.age = rawEvent['sender']['age']
+            self.sex = rawEvent['sender']['sex'] if 'sex' in rawEvent['sender'].keys() else ''
+            self.age = rawEvent['sender']['age'] if 'age' in rawEvent['sender'].keys() else ''
             if isGroup:
                 if isGroupAnonym:
                     self.group_card = ''
@@ -201,7 +201,7 @@ class MsgEvent(BotEvent):
                     self.anonym_flag = rawEvent['anonymous']['flag']
                 else:
                     self.group_card = rawEvent['sender']['card']
-                    self.group_area = rawEvent['sender']['area']
+                    self.group_area = rawEvent['sender']['area'] if 'area' in rawEvent['sender'].keys() else ''
                     self.group_level = rawEvent['sender']['level']
                     self.group_role = rawEvent['sender']['role']
                     self.group_title = rawEvent['sender']['title']
@@ -545,7 +545,7 @@ class RespEvent(BotEvent):
 
     def is_ok(self) -> bool:
         """判断是否为成功响应"""
-        return self.status == 200
+        return self.raw['status'] == 'ok'
 
     def is_processing(self) -> bool:
         """判断响应是否在被异步处理，即未完成但在处理中"""
@@ -553,4 +553,4 @@ class RespEvent(BotEvent):
 
     def is_failed(self) -> bool:
         """判断是否为失败响应"""
-        return self.status == 500
+        return self.raw['status'] != 'ok'

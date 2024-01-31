@@ -9,11 +9,13 @@ from ..interface.exceptions import *
 from ..interface.models import (HandlerArgs, HookRunnerArgs, IEventHandler,
                                 ShareCbArgs, ShareObjArgs, SignalHandlerArgs)
 from ..interface.typing import *
-from ..interface.utils import BotChecker, BotMatcher, BotParser, Logger
+from ..interface.utils import BotChecker, BotMatcher, BotParser, Logger, WrappedLogger
 from .bot import BotHookBus, HookRunner, PluginProxy
 from .event import MsgEvent
 from .ipc import PluginBus, PluginSignalHandler, PluginStore
 from .session import SESSION_LOCAL, BotSession, BotSessionManager, SessionRule
+
+
 
 
 class Plugin:
@@ -27,7 +29,9 @@ class Plugin:
     __id__: str = None
     __version__: str = '1.0.0'
     # 插件类所在的文件路径，PosicPath 对象
-    __root__: Path
+    ROOT: Path
+    # 被二次包装的全局日志器
+    LOGGER: WrappedLogger
 
     def __init__(self) -> None:
         self.__handlers: List[IEventHandler]
@@ -37,7 +41,6 @@ class Plugin:
         """
         初始化当前插件
         """
-        self.__class__.__root__ = root_path
         if self.__class__.__id__ is None:
             self.__class__.__id__ = self.__class__.__name__
         for idx, val in enumerate(self.__class__.__share__):
@@ -45,17 +48,20 @@ class Plugin:
                 self.__class__.__share__[idx] = val, self.__class__.__name__, val
         self.__handlers = []
 
+        self.__class__.ROOT = root_path
+        self.__class__.LOGGER = WrappedLogger(logger, self.__class__.__id__)
+
         members = inspect.getmembers(self)
         for attr_name, val in members:
             if isinstance(val, HandlerArgs):
                 executor, handler_class, params = val
                 if not iscoroutinefunction(executor):
-                    raise BotTypeError("事件处理器必须为异步方法")
+                    raise BotTypeError(f"事件处理器 {executor.__name__} 必须为异步方法")
                 overtime_cb, conflict_cb = params[-1], params[-2]
                 if overtime_cb and not iscoroutinefunction(overtime_cb) and not iscoroutine(overtime_cb):
-                    raise BotTypeError("超时回调方法必须为异步函数或协程")
+                    raise BotTypeError(f"超时回调方法 {overtime_cb.__name__} 必须为异步函数或协程")
                 if conflict_cb and not iscoroutinefunction(conflict_cb) and not iscoroutine(conflict_cb):
-                    raise BotTypeError("冲突回调方法必须为异步函数或协程")
+                    raise BotTypeError(f"冲突回调方法 {conflict_cb.__name__} 必须为异步函数或协程")
                 handler = handler_class(executor, self, responder, logger, *params)
                 self.__handlers.append(handler)
                 BotSessionManager.register(handler)
@@ -63,28 +69,28 @@ class Plugin:
             elif isinstance(val, HookRunnerArgs):
                 hook_func, type = val
                 if not iscoroutinefunction(hook_func):
-                    raise BotTypeError("hook 方法必须为异步函数")
+                    raise BotTypeError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
                 runner = HookRunner(type, hook_func, self)
                 BotHookBus._register(type, runner)
             
             elif isinstance(val, ShareCbArgs):
                 namespace, id, cb = val
                 if not iscoroutinefunction(cb):
-                    raise BotTypeError("共享对象的回调必须为异步函数")
+                    raise BotTypeError(f"{namespace} 命名空间中，id 为 {id} 的共享对象，它的回调 {cb.__name__} 必须为异步函数")
                 PluginStore._bind_cb(namespace, id, cb, self)
             
             elif isinstance(val, SignalHandlerArgs):
                 func, type = val
                 if not iscoroutinefunction(func):
-                    raise BotTypeError("信号处理方法必须为异步函数")
+                    raise BotTypeError(f"信号处理方法 {func.__name__} 必须为异步函数")
                 handler = PluginSignalHandler(type, func, self)
                 PluginBus._register(type, handler)
         
         attrs_map = {k: v for k, v in inspect.getmembers(self) if not k.startswith('__')}
         for val in self.__class__.__share__:
             property, namespace, id = val
-            if attrs_map.get(property) is None and property is not None:
-                raise BotRuntimeError("指定的 property 不存在，尝试共享一个不存在的属性")
+            if property not in attrs_map.keys() and property is not None:
+                raise BotRuntimeError(f"插件 {self.__class__.__name__} 尝试共享一个不存在的属性 {property}")
             PluginStore._create_so(property, namespace, id, self)
 
         self.__proxy = PluginProxy(self)
