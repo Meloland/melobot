@@ -195,8 +195,9 @@ class MeloBot:
             exit(0)
         try:
             """
-            一定要使用 get_event_loop，在启动前部分核心模块里初始化 asyncio 中的对象，
-            已经生成了事件循环，使用 asyncio.run 将会运行一个新的事件循环
+            一定要手动设置事件循环。在启动前，部分核心模块初始化异步对象，
+            已经生成了事件循环，不设置而直接使用 asyncio.run 将会运行一个新的事件循环，
+            不同事件循环的异步对象无法直接通信
             """
             aio.set_event_loop(aio.get_event_loop())
             # 使用 asyncio.run 可以保证发生各种异常时一定取消所有任务（包括键盘中断）

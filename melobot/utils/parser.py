@@ -79,7 +79,7 @@ class CmdParser(BotParser):
         else:
             return None
 
-    def test(self, args_group: Dict[str, ParseArgs]) -> Union[bool, Union[str, None], Union[ParseArgs, None]]:
+    def test(self, args_group: Dict[str, ParseArgs]) -> Tuple[bool, Union[str, None], Union[ParseArgs, None]]:
         """
         测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
         最后两个返回值若不存在，则返回 None

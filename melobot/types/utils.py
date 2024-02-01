@@ -165,7 +165,7 @@ class BotParser(ABC):
         pass
 
     @abstractmethod
-    def test(self, args_group: Dict[str, ParseArgs]) -> Union[bool, Union[str, None], Union[ParseArgs, None]]:
+    def test(self, args_group: Dict[str, ParseArgs]) -> Tuple[bool, Union[str, None], Union[ParseArgs, None]]:
         pass
 
     @abstractmethod
