@@ -14,7 +14,7 @@ class CmdParser(BotParser):
         i1 = cmd_start if isinstance(cmd_start, str) else ''.join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else ''.join(cmd_sep)
         super().__init__(i1+'\u0000'+i2)
-        self.target = target if isinstance(target, list) else [target]
+        self.target = target if isinstance(target, list) or target is None else [target]
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
         self.sep_tokens = cmd_sep if isinstance(cmd_sep, list) else [cmd_sep]
         self.ban_regex = re.compile(r'[\'\"\\\(\)\[\]\{\}\r\n\ta-zA-Z0-9]')
@@ -61,26 +61,26 @@ class CmdParser(BotParser):
         cmd_list = list(filter(lambda x: x != [], cmd_list))
         return cmd_list if len(cmd_list) else None
 
-    def parse(self, text: str) -> Union[List[ParseArgs], None]:
+    def parse(self, text: str) -> Union[Dict[str, ParseArgs], None]:
         """
         解析 text
         """
-        params_list = self._parse(text)
-        if params_list:
-            return [ParseArgs(params) for params in params_list]
+        str_list = self._parse(text)
+        if str_list:
+            return {s[0]: ParseArgs(s[1:]) if len(s)>1 else ParseArgs(None) for s in str_list}
         else:
             return None
 
-    def test(self, args: List[ParseArgs]) -> bool:
+    def test(self, args_group: Dict[str, ParseArgs]) -> bool:
         """
         测试是否匹配指定的命令
         """
-        if args is None:
+        if args_group is None:
             return False
         if self.target is None:
             return True
-        for arg in args:
-            if arg.vals[0] in self.target:
+        for cmd_name in args_group.keys():
+            if cmd_name in self.target:
                 return True
         return False
 

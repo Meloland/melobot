@@ -9,17 +9,17 @@ class BotEvent(ABC):
     """
     def __init__(self, rawEvent: dict) -> None:
         self.raw = rawEvent
-        self._args_map: Dict[Any, List[ParseArgs]] = None
+        self._args_map: Dict[Any, Dict[str, ParseArgs]] = None
     
-    def _get_args(self, parser_id: Any) -> Union[List[ParseArgs], Literal[-1]]:
+    def _get_args(self, parser_id: Any) -> Union[Dict[str, ParseArgs], Literal[-1]]:
         if self._args_map is None:
             return -1
         return self._args_map.get(parser_id, -1)
 
-    def _store_args(self, parser_id: Any, args: List[ParseArgs]) -> None:
+    def _store_args(self, parser_id: Any, args_group: Dict[str, ParseArgs]) -> None:
         if self._args_map is None:
             self._args_map = {}
-        self._args_map[parser_id] = args
+        self._args_map[parser_id] = args_group
 
     @abstractproperty
     def time(self) -> int: pass

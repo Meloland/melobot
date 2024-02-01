@@ -62,10 +62,10 @@ class CQMsgDict(TypedDict):
 
 class ParseArgs:
     """
-    命令解析参数类
+    命令参数类
     """
-    def __init__(self, param_list: List[str]) -> None:
-        self.vals = param_list
+    def __init__(self, values: List[str]) -> None:
+        self.vals = values
 
 
 class User(int, Enum):

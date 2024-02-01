@@ -160,9 +160,9 @@ class BotParser(ABC):
         self.id = id
 
     @abstractmethod
-    def parse(self, text: str) -> Union[List[ParseArgs], None]:
+    def parse(self, text: str) -> Union[Dict[str, ParseArgs], None]:
         pass
 
     @abstractmethod
-    def test(self, args: List[ParseArgs]) -> bool:
+    def test(self, args_group: Dict[str, ParseArgs]) -> bool:
         pass

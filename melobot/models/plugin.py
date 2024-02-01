@@ -174,11 +174,11 @@ class MsgEventHandler(IEventHandler):
         if self.matcher:
             return self.matcher.match(event.text)
         if self.parser:
-            args = event._get_args(self.parser.id)
-            if args == -1:
-                args = self.parser.parse(event.text)
-                event._store_args(self.parser.id, args)
-            return self.parser.test(args)
+            args_group = event._get_args(self.parser.id)
+            if args_group == -1:
+                args_group = self.parser.parse(event.text)
+                event._store_args(self.parser.id, args_group)
+            return self.parser.test(args_group)
 
     async def _run_on_ctx(self, coro: Coroutine, session: BotSession=None, timeout: float=None) -> None:
         """

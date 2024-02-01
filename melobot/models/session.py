@@ -2,6 +2,7 @@ import asyncio as aio
 import time
 from abc import ABC, abstractmethod
 from contextvars import ContextVar, Token
+from copy import deepcopy
 from functools import wraps
 
 from melobot.models.event import BotEvent
@@ -56,9 +57,16 @@ class BotSession:
             return None
     
     @property
-    def args(self) -> ParseArgs:
+    def args(self) -> Union[Dict[str, ParseArgs], ParseArgs, None]:
         if self._handler is not None and self.event._args_map is not None:
-            return self.event._args_map.get(self._handler.parser.id)
+            args_group = self.event._args_map.get(self._handler.parser.id)
+            if self._handler.parser.target is None:
+                return deepcopy(args_group)
+            for cmd_name in self._handler.parser.target:
+                args = args_group.get(cmd_name)
+                if args is not None:
+                    return deepcopy(args)
+            raise BotRuntimeError("尝试获取的命令解析参数不存在")
         return None
 
     async def suspend(self) -> None:
