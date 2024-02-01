@@ -5,10 +5,10 @@ import traceback
 import websockets
 import websockets.exceptions as wse
 
-from ..interface.core import (IActionSender, IEventDispatcher, IMetaDispatcher,
+from ..types.core import (IActionSender, IEventDispatcher, IMetaDispatcher,
                               IRespDispatcher)
-from ..interface.models import BotLife
-from ..interface.typing import *
+from ..types.models import BotLife
+from ..types.typing import *
 from ..models.action import BotAction
 from ..models.bot import BotHookBus
 from ..models.event import BotEventBuilder

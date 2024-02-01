@@ -20,7 +20,7 @@ class BotRuntimeError(BotException):
 
 class BotValueError(BotException):
     """
-    值错误引起的异常
+    一般值错误引起的异常
     """
     def __init__(self, msg: str):
         super().__init__(msg)
@@ -34,7 +34,31 @@ class BotTypeError(BotException):
         super().__init__(msg)
 
 
-class BotQuickExit(BotException):
+class BotFormatFailed(BotException):
+    """
+    专指格式化器格式化失败
+    """
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class BotArgCheckFailed(BotException):
+    """
+    格式化时参数验证不通过
+    """
+    def __init__(self, msg: str=""):
+        super().__init__(msg)
+
+
+class BotArgLackError(BotException):
+    """
+    格式化时参数缺失
+    """
+    def __init__(self, msg: str=""):
+        super().__init__(msg)
+
+
+class BotExecutorQuickExit(BotException):
     """
     嵌套函数中快速 return 的信号，上游捕获后无视即可
     """

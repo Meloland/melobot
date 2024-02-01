@@ -4,14 +4,15 @@ import traceback
 from asyncio import iscoroutinefunction, iscoroutine
 from pathlib import Path
 
-from ..interface.core import IActionResponder
-from ..interface.exceptions import *
-from ..interface.models import (HandlerArgs, HookRunnerArgs, IEventHandler,
+from ..types.core import IActionResponder
+from ..types.exceptions import *
+from ..types.models import (HandlerArgs, HookRunnerArgs, IEventHandler,
                                 ShareCbArgs, ShareObjArgs, SignalHandlerArgs)
-from ..interface.typing import *
-from ..interface.utils import BotChecker, BotMatcher, BotParser, Logger, WrappedLogger
+from ..types.typing import *
+from ..types.utils import BotChecker, BotMatcher, BotParser, Logger, WrappedLogger
 from .bot import BotHookBus, HookRunner, PluginProxy
 from .event import MsgEvent
+from .action import msg_action
 from .ipc import PluginBus, PluginSignalHandler, PluginStore
 from .session import SESSION_LOCAL, BotSession, BotSessionManager, SessionRule
 
@@ -169,7 +170,8 @@ class MsgEventHandler(IEventHandler):
 
     def _match(self, event: MsgEvent) -> bool:
         """
-        通过验权后，尝试对事件进行文本匹配
+        通过验权后，尝试对事件进行匹配。
+        有普通的匹配器（matcher）匹配，也可以使用解析器（parser）匹配
         """
         if self.matcher:
             return self.matcher.match(event.text)
@@ -178,7 +180,18 @@ class MsgEventHandler(IEventHandler):
             if args_group == -1:
                 args_group = self.parser.parse(event.text)
                 event._store_args(self.parser.id, args_group)
-            return self.parser.test(args_group)
+            res, cmd_name, args = self.parser.test(args_group)
+            if not res:
+                return False
+            try:
+                if self.parser.need_format:
+                    self.parser.format(args)
+                return True
+            except BotFormatFailed as e:
+                msg = f"命令 {cmd_name} 参数格式化失败：\n" + e.__str__()
+                action = msg_action(msg, event.is_private(), event.sender.id, event.group_id)
+                aio.create_task(self.responder.take_action(action))
+                return False
 
     async def _run_on_ctx(self, coro: Coroutine, session: BotSession=None, timeout: float=None) -> None:
         """
@@ -217,7 +230,7 @@ class MsgEventHandler(IEventHandler):
             except aio.TimeoutError:
                 if self._overtime_coro:
                     await self._run_on_ctx(self._overtime_coro, session)
-        except BotQuickExit:
+        except BotExecutorQuickExit:
             pass
         except Exception as e:
             e_name = e.__class__.__name__

@@ -3,8 +3,8 @@ import logging.config
 import logging.handlers
 import os
 
-from ..interface.typing import *
-from ..interface.utils import (CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING,
+from ..types.typing import *
+from ..types.utils import (CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING,
                                Logger)
 
 

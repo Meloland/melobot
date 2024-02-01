@@ -1,8 +1,9 @@
+from .meta import MetaInfo, META_INFO
 from .core.init import MeloBot
-from .interface.models import BotEvent, BotLife, ShareObjArgs
-from .interface.typing import META_INFO, Callable, MetaInfo, PriorityLevel, User
-from .interface.utils import BotChecker, BotMatcher
-from .models.base import ID_WORKER, RWController, get_twin_event, in_cwd
+from .types.models import BotEvent, BotLife, ShareObjArgs
+from .types.typing import Callable, PriorityLevel, User
+from .types.utils import BotChecker, BotMatcher
+from .models.base import ID_WORKER, RWController, get_twin_event, this_dir
 from .models.bot import BOT_PROXY as bot
 from .models.event import (MetaEvent, MsgEvent, NoticeEvent, RequestEvent,
                            RespEvent)
@@ -16,6 +17,7 @@ from .utils.checker import GroupMsgLvl, MsgLvlChecker, PrivateMsgLvl, MsgChecker
 from .utils.matcher import (ContainMatch, EndMatch, FullMatch, RegexMatch,
                             StartMatch)
 from .utils.parser import CmdParser, CmdParserGen
+from .utils.formatter import StrFormatter
 
 session: BotSession
 
@@ -73,7 +75,7 @@ __all__ = (
     "BotChecker",
     "BotMatcher",
     "RWController",
-    "in_cwd",
+    "this_dir",
     "get_twin_event",
     "get_id",
     "get_event",
@@ -104,6 +106,7 @@ __all__ = (
     "RegexMatch",
     "CmdParser",
     "CmdParserGen",
+    "StrFormatter",
     # action 部分
     'text_msg', 
     'face_msg', 

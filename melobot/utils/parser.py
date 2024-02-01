@@ -1,8 +1,10 @@
 import re
+from copy import deepcopy
 
-from ..interface.exceptions import *
-from ..interface.typing import *
-from ..interface.utils import BotParser
+from ..types.exceptions import *
+from ..types.typing import *
+from ..types.utils import BotParser
+from .formatter import StrFormatter
 
 
 class CmdParser(BotParser):
@@ -10,11 +12,17 @@ class CmdParser(BotParser):
     命令解析器，通过解析命令名和参数的形式，解析字符串。
     命令起始符和命令间隔符不允许包含 引号，各种括号，反斜杠，数字，英文，回车符，换行符，制表符
     """
-    def __init__(self, cmd_start: Union[str, List[str]], cmd_sep: Union[str, List[str]], target: Union[str, List[str]]=None) -> None:
+    def __init__(self, cmd_start: Union[str, List[str]], cmd_sep: Union[str, List[str]], target: Union[str, List[str]]=None,
+                 formatters: List[Union[StrFormatter, None]]=None) -> None:
         i1 = cmd_start if isinstance(cmd_start, str) else ''.join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else ''.join(cmd_sep)
         super().__init__(i1+'\u0000'+i2)
         self.target = target if isinstance(target, list) or target is None else [target]
+        self.formatters = [] if formatters is None else formatters
+        self.need_format = True if target is not None and len(self.formatters)>0 else False
+        if target is None and len(self.formatters) > 0:
+            raise BotRuntimeError("不指定 target 来匹配具体的命令名时，无法进行格式化")
+
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
         self.sep_tokens = cmd_sep if isinstance(cmd_sep, list) else [cmd_sep]
         self.ban_regex = re.compile(r'[\'\"\\\(\)\[\]\{\}\r\n\ta-zA-Z0-9]')
@@ -71,18 +79,30 @@ class CmdParser(BotParser):
         else:
             return None
 
-    def test(self, args_group: Dict[str, ParseArgs]) -> bool:
+    def test(self, args_group: Dict[str, ParseArgs]) -> Union[bool, Union[str, None], Union[ParseArgs, None]]:
         """
-        测试是否匹配指定的命令
+        测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
+        最后两个返回值若不存在，则返回 None
         """
         if args_group is None:
-            return False
+            return (False, None, None)
         if self.target is None:
-            return True
+            return (True, None, None)
         for cmd_name in args_group.keys():
             if cmd_name in self.target:
-                return True
-        return False
+                return (True, cmd_name, args_group[cmd_name])
+        return (False, None, None)
+    
+    def format(self, args: ParseArgs) -> None:
+        """
+        格式化命令解析参数
+        """
+        if args.formatted:
+            return
+        for idx, formatter in enumerate(self.formatters):
+            if formatter:
+                formatter.format(args, idx)
+        args.formatted = True
 
 
 class CmdParserGen:
@@ -94,8 +114,8 @@ class CmdParserGen:
         self.cmd_start = cmd_start
         self.cmd_sep = cmd_sep
 
-    def gen(self, target: Union[str, List[str]]=None) -> CmdParser:
+    def gen(self, target: Union[str, List[str]]=None, formatters: List[Union[StrFormatter, None]]=None) -> CmdParser:
         """
         生成匹配指定命令的命令解析器
         """
-        return CmdParser(self.cmd_start, self.cmd_sep, target)
+        return CmdParser(self.cmd_start, self.cmd_sep, target, formatters)

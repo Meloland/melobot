@@ -1,5 +1,3 @@
-import os
-import sys
 from enum import Enum
 from types import ModuleType
 from typing import (Any, AsyncIterator, Callable, Coroutine, Dict, List,
@@ -28,30 +26,8 @@ __all__ = (
     'CQMsgDict',
     'User',
     'PriorityLevel',
-    'META_INFO',
     'ParseArgs'
 )
-
-
-class MetaInfo:
-    def __init__(self) -> None:
-        self.VER = '2.0.0-pre1'
-        self.PROJ_NAME = 'MeloBot'
-        self.AUTHOR = 'AiCorein'
-        self.PROJ_SRC = 'https://github.com/AiCorein/Qbot-MeloBot'
-        self.ARGV = sys.argv
-        self.PLATFORM = sys.platform
-        self.PY_VER = sys.version
-        self.PY_INFO = sys.version_info
-        self.OS_SEP = os.sep
-        self.PATH_SEP = os.pathsep
-        self.LINE_SEP = os.linesep
-        self.ENV = os.environ
-
-    def get_all(self) -> Dict[str, Any]:
-        return dict(self.__dict__.items())
-
-META_INFO = MetaInfo()
 
 
 class CQMsgDict(TypedDict):
@@ -66,6 +42,7 @@ class ParseArgs:
     """
     def __init__(self, values: List[str]) -> None:
         self.vals = values
+        self.formatted = False
 
 
 class User(int, Enum):

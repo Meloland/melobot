@@ -1,32 +1,25 @@
 import sys
 from setuptools import setup
 
-
-linux_modules = (
-    'uvloop>=0.17.0'
-)
+from melobot.meta import META_INFO
 
 with open('requirements.txt') as fp:
     required = fp.read().splitlines()
-
+extend_modules = ['uvloop>=0.17.0']
 if sys.platform != 'win32':
-    if isinstance(linux_modules, tuple):
-        required.extend(linux_modules)
-    else:
-        required.append(linux_modules)
-
+    required.extend(extend_modules)
 
 setup(
     name='melobot',
-    version='2.0.0-pre1',
-    description='A qbot module to help build your own qbot fastly.',
-    author='AiCorein',
-    author_email='melodyecho@glowmem.com',
-    packages=['melobot', 'melobot.core', 'melobot.interface', 'melobot.models', 'melobot.utils'],
+    version=META_INFO.VER,
+    description=META_INFO.PROJ_DESC,
+    author=META_INFO.AUTHOR,
+    author_email=META_INFO.AUTHOR_EMAIL,
+    packages=['melobot', 'melobot.core', 'melobot.types', 'melobot.models', 'melobot.utils'],
     package_dir={
         'melobot': 'melobot',
         'melobot.core': 'melobot/core',
-        'melobot.interface': 'melobot/interface',
+        'melobot.types': 'melobot/types',
         'melobot.models': 'melobot/models',
         'melobot.utils': 'melobot/utils'
     },

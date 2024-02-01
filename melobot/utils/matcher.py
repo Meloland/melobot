@@ -1,7 +1,7 @@
 import re
 
-from ..interface.typing import *
-from ..interface.utils import BotMatcher
+from ..types.typing import *
+from ..types.utils import BotMatcher
 
 
 class StartMatch(BotMatcher):

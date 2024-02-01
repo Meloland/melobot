@@ -1,5 +1,5 @@
-from ..interface.typing import *
-from ..interface.utils import BotChecker
+from ..types.typing import *
+from ..types.utils import BotChecker
 from ..models.event import MsgEvent
 
 

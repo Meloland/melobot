@@ -9,11 +9,12 @@ import traceback
 
 import websockets.exceptions as wse
 
-from ..interface.core import IActionResponder, IMetaDispatcher
-from ..interface.exceptions import *
-from ..interface.models import BotLife
-from ..interface.typing import *
-from ..interface.utils import Logger
+from ..meta import META_INFO
+from ..types.core import IActionResponder, IMetaDispatcher
+from ..types.exceptions import *
+from ..types.models import BotLife
+from ..types.typing import *
+from ..types.utils import Logger
 from ..models.bot import BOT_PROXY, BotHookBus
 from ..models.event import MetaEvent
 from ..models.ipc import PluginBus, PluginStore

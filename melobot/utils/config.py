@@ -5,7 +5,7 @@ import sys
 
 import toml
 
-from ..interface.typing import *
+from ..types.typing import *
 from .logger import get_logger
 
 

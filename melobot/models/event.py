@@ -2,8 +2,8 @@ import json
 import re
 import time
 
-from ..interface.models import BotEvent
-from ..interface.typing import *
+from ..types.models import BotEvent
+from ..types.typing import *
 
 
 # TODO: 完成事件、行为数据结构协议，和对应适配器
