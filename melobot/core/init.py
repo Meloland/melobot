@@ -28,6 +28,11 @@ from .responder import BotResponder
 if sys.platform != 'win32':
     import uvloop
     aio.set_event_loop_policy(uvloop.EventLoopPolicy())
+else:
+    # 解决事件循环无法正确关闭的问题：（推测是来自于 Windows IOCP 的 bug）
+    # <IocpProactor overlapped#=1 result#=0> is running after closing for xxx seconds
+    # ref: https://github.com/python/cpython/issues/111604
+    aio.set_event_loop_policy(aio.WindowsSelectorEventLoopPolicy())
 
 
 # TODO: 补全元事件处理器部分

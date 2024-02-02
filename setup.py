@@ -5,9 +5,6 @@ from melobot.meta import META_INFO
 
 with open('requirements.txt') as fp:
     required = fp.read().splitlines()
-extend_modules = ['uvloop>=0.17.0']
-if sys.platform != 'win32':
-    required.extend(extend_modules)
 
 setup(
     name='melobot',

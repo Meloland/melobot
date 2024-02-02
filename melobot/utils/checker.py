@@ -90,13 +90,19 @@ class MsgCheckerGen:
         self.black_list = black_users if black_users is not None else []
         self.white_group_list = white_groups if white_groups is not None else []
 
-    def gen_group(self, level: User) -> GroupMsgLvl:
+    def gen_base(self, level: User=User.USER) -> MsgLvlChecker:
+        """
+        根据内部依据，生成一个原始消息等级校验器
+        """
+        return MsgLvlChecker(level, self.owner, self.su_list, self.white_list, self.black_list)
+
+    def gen_group(self, level: User=User.USER) -> GroupMsgLvl:
         """
         根据内部依据，生成一个群组消息等级校验器
         """
         return GroupMsgLvl(level, self.owner, self.su_list, self.white_list, self.black_list, self.white_group_list)
     
-    def gen_private(self, level: User) -> PrivateMsgLvl:
+    def gen_private(self, level: User=User.USER) -> PrivateMsgLvl:
         """
         根据内部依据，生成一个私聊消息等级校验器
         """

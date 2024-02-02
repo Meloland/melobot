@@ -294,13 +294,13 @@ class NoticeEvent(BotEvent):
         self.bot_id = rawEvent.get('self_id')
 
         # 通知作用者或主体方的 id，如被禁言的一方
-        self.user_id: int
+        self.notice_user_id: int
         # 通知若发生在群中，群 id
-        self.group_id: int
+        self.notice_group_id: int
         # 通知发起者或操作方的 id，如禁言别人的管理员
-        self.operator_id: int
+        self.notice_operator_id: int
         # 通知涉及消息时，消息 id
-        self.msg_id: int
+        self.notice_msg_id: int
         # 若为入群通知，类型有：approve, invite（管理员同意和管理员邀请）
         self.join_group_type: str
         # 若为退群通知，类型有：leave, kick, kick_me
@@ -339,72 +339,72 @@ class NoticeEvent(BotEvent):
         rawEvent = self.raw
         
         if self.is_friend_recall():
-            self.user_id = rawEvent['user_id']
-            self.msg_id = rawEvent['message_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_msg_id = rawEvent['message_id']
         elif self.is_group_recall():
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
-            self.operator_id = rawEvent['operator_id']
-            self.msg_id = rawEvent['message_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
+            self.notice_operator_id = rawEvent['operator_id']
+            self.notice_msg_id = rawEvent['message_id']
         elif self.is_group_increase():
             self.join_group_type = rawEvent['sub_type']
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
-            self.operator_id = rawEvent['operator_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
+            self.notice_operator_id = rawEvent['operator_id']
         elif self.is_group_decrease():
             self.leave_group_type = rawEvent['sub_type']
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
-            self.operator_id = rawEvent['operator_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
+            self.notice_operator_id = rawEvent['operator_id']
         elif self.is_group_admin():
             self.admin_change_type = rawEvent['sub_type']
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
         elif self.is_group_upload():
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
             self.file = NoticeEvent.File(rawEvent, isGroup=True)
         elif self.is_group_ban():
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
-            self.operator_id = rawEvent['operator_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
+            self.notice_operator_id = rawEvent['operator_id']
             self.group_ban_type = rawEvent['sub_type']
             self.ban_time = rawEvent['duration']
         elif self.is_friend_add():
-            self.user_id = rawEvent['user_id']
+            self.notice_user_id = rawEvent['user_id']
         elif self.is_poke():
-            self.user_id = rawEvent['target_id']
-            self.operator_id = rawEvent['user_id']
+            self.notice_user_id = rawEvent['target_id']
+            self.notice_operator_id = rawEvent['user_id']
             if 'group_id' in rawEvent.keys():
-                self.group_id = rawEvent['group_id']
+                self.notice_group_id = rawEvent['group_id']
         elif self.is_lucky_king():
-            self.user_id = rawEvent['target_id']
-            self.group_id = rawEvent['group_id']
-            self.operator_id = rawEvent['user_id']
+            self.notice_user_id = rawEvent['target_id']
+            self.notice_group_id = rawEvent['group_id']
+            self.notice_operator_id = rawEvent['user_id']
         elif self.is_honor():
             self.honor_change_type = rawEvent['honor_type']
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
         elif self.is_title():
             self.new_title = rawEvent['title']
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
         elif self.is_group_card():
             self.old_card = rawEvent['card_old']
             self.new_card = rawEvent['card_new']
-            self.user_id = rawEvent['user_id']
-            self.group_id = rawEvent['group_id']
+            self.notice_user_id = rawEvent['user_id']
+            self.notice_group_id = rawEvent['group_id']
         elif self.is_offline_file():
-            self.user_id = rawEvent['user_id']
+            self.notice_user_id = rawEvent['user_id']
             self.file = NoticeEvent.File(rawEvent, isGroup=False)
         elif self.is_client_status():
             self.client = NoticeEvent.Client(rawEvent)
         elif self.is_essence():
             self.essence_change_type = rawEvent['sub_type']
-            self.user_id = rawEvent['sender_id']
-            self.group_id = rawEvent['group_id']
-            self.operator_id = rawEvent['operator_id']
-            self.msg_id = rawEvent['message_id']
+            self.notice_user_id = rawEvent['sender_id']
+            self.notice_group_id = rawEvent['group_id']
+            self.notice_operator_id = rawEvent['operator_id']
+            self.notice_msg_id = rawEvent['message_id']
 
     def is_group_upload(self) -> bool: 
         return self.raw['notice_type'] == 'group_upload'

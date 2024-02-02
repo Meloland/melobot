@@ -1,5 +1,6 @@
 from .meta import MetaInfo, META_INFO
 from .core.init import MeloBot
+from .types.exceptions import BotException, BotHupTimeout
 from .types.models import BotEvent, BotLife, ShareObjArgs
 from .types.typing import Callable, PriorityLevel, User
 from .types.utils import BotChecker, BotMatcher
@@ -12,12 +13,12 @@ from .models.ipc import PluginBus, PluginStore
 from .models.plugin import Plugin
 from .models.session import SESSION_LOCAL as session
 from .models.session import (AttrSessionRule, BotSession, SessionRule, finish,
-                             send, send_hup)
+                             send, send_hup, send_reply)
 from .utils.checker import GroupMsgLvl, MsgLvlChecker, PrivateMsgLvl, MsgCheckerGen
 from .utils.matcher import (ContainMatch, EndMatch, FullMatch, RegexMatch,
                             StartMatch)
 from .utils.parser import CmdParser, CmdParserGen
-from .utils.formatter import StrFormatter
+from .utils.formatter import ArgFormatter
 
 session: BotSession
 
@@ -65,6 +66,8 @@ async def make_coro(func: Callable):
 __version__ = META_INFO.VER
 __all__ = (
     "MeloBot",
+    "BotException",
+    "BotHupTimeout",
     "bot",
     "BotEvent",
     "BotLife",
@@ -94,6 +97,7 @@ __all__ = (
     "AttrSessionRule",
     "send",
     "send_hup",
+    "send_reply",
     "finish",
     "MsgLvlChecker",
     "GroupMsgLvl",
@@ -106,7 +110,7 @@ __all__ = (
     "RegexMatch",
     "CmdParser",
     "CmdParserGen",
-    "StrFormatter",
+    "ArgFormatter",
     # action 部分
     'text_msg', 
     'face_msg', 

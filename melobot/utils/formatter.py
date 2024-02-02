@@ -17,12 +17,12 @@ class TipGenerator:
         pass
 
 
-class StrFormatter:
+class ArgFormatter:
     """
     字符串格式化器。将字符串格式化为对应类型的对象。
     格式化后可添加校验，也可自定义失败提示信息
     """
-    def __init__(self, convert: Callable[[str], Any], verify: Callable[[Any], bool]=None, 
+    def __init__(self, convert: Callable[[str], Any]=None, verify: Callable[[Any], bool]=None, 
                  src_desc: str=None, src_expect: str=None, convert_tip_gen: TipGenerator=None, 
                  verify_tip_gen: TipGenerator=None, arglack_tip_gen: TipGenerator=None) -> None:
         self.convert = convert
@@ -41,7 +41,9 @@ class StrFormatter:
             if args.vals is None or len(args.vals) < idx+1:
                 raise BotArgLackError
             src = args.vals[idx]
-            res = self.convert(src)
+
+            res = self.convert(src) if self.convert is not None else src
+
             if self.verify is None:
                 pass
             elif self.verify(res):
@@ -70,7 +72,7 @@ class StrFormatter:
     
     def _convert_tip_gen(self, src: str, idx: int, exc_type: Exception) -> str:
         e_class = exc_type.__class__.__name__
-        src = f'"{src}"' if isinstance(src, str) else src
+        src = src.__repr__() if isinstance(src, str) else src
         tip = f"第 {idx+1} 个参数"
         tip += f"（{self.src_desc}）无法处理，给定的值为：{src}。" if self.src_desc else f"给定的值 {src} 无法处理。"
         tip += f"参数要求：{self.src_expect}。" if self.src_expect else ''
@@ -78,7 +80,7 @@ class StrFormatter:
         return tip
     
     def _verify_tip_gen(self, src: str, idx: int) -> str:
-        src = f'"{src}"' if isinstance(src, str) else src
+        src = src.__repr__() if isinstance(src, str) else src
         tip = f"第 {idx+1} 个参数"
         tip += f"（{self.src_desc}）不符合要求，给定的值为：{src}。" if self.src_desc else f"给定的值 {src} 不符合要求。"
         tip += f"参数要求：{self.src_expect}。" if self.src_expect else ''
@@ -89,4 +91,3 @@ class StrFormatter:
         tip += f"（{self.src_desc}）缺失。" if self.src_desc else f"缺失。"
         tip += f"参数要求：{self.src_expect}。" if self.src_expect else ''
         return tip
-

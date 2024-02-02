@@ -64,3 +64,11 @@ class BotExecutorQuickExit(BotException):
     """
     def __init__(self, msg: str=""):
         super().__init__(msg)
+
+
+class BotHupTimeout(BotException):
+    """
+    等待 session 被唤醒时的超时异常
+    """
+    def __init__(self, msg: str=""):
+        super().__init__(msg)

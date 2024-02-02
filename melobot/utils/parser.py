@@ -4,7 +4,7 @@ from copy import deepcopy
 from ..types.exceptions import *
 from ..types.typing import *
 from ..types.utils import BotParser
-from .formatter import StrFormatter
+from .formatter import ArgFormatter
 
 
 class CmdParser(BotParser):
@@ -13,7 +13,7 @@ class CmdParser(BotParser):
     命令起始符和命令间隔符不允许包含 引号，各种括号，反斜杠，数字，英文，回车符，换行符，制表符
     """
     def __init__(self, cmd_start: Union[str, List[str]], cmd_sep: Union[str, List[str]], target: Union[str, List[str]]=None,
-                 formatters: List[Union[StrFormatter, None]]=None) -> None:
+                 formatters: List[Union[ArgFormatter, None]]=None) -> None:
         i1 = cmd_start if isinstance(cmd_start, str) else ''.join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else ''.join(cmd_sep)
         super().__init__(i1+'\u0000'+i2)
@@ -114,7 +114,7 @@ class CmdParserGen:
         self.cmd_start = cmd_start
         self.cmd_sep = cmd_sep
 
-    def gen(self, target: Union[str, List[str]]=None, formatters: List[Union[StrFormatter, None]]=None) -> CmdParser:
+    def gen(self, target: Union[str, List[str]]=None, formatters: List[Union[ArgFormatter, None]]=None) -> CmdParser:
         """
         生成匹配指定命令的命令解析器
         """

@@ -69,13 +69,24 @@ class BotSession:
             raise BotRuntimeError("尝试获取的命令解析参数不存在")
         return None
 
-    async def suspend(self) -> None:
+    async def suspend(self, overtime: int=None) -> None:
         """
-        当前 session 挂起（也就是所在方法的挂起）。
-        直到满足同一 session_rule 的事件重新进入，session 所在方法便会被唤醒
+        当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入，
+        session 所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session，
+        并抛出 BotHupTimeout 异常
         """
         BotSessionManager._hup(self)
-        await self._awake_signal.wait()
+        if overtime is None:
+            await self._awake_signal.wait()
+        elif overtime <= 0:
+            raise BotValueError("session 挂起超时时间（秒数）必须 > 0")
+        else:
+            await aio.wait([self._awake_signal.wait(), aio.sleep(overtime)],
+                           return_when=aio.FIRST_COMPLETED)
+            if self._awake_signal.is_set():
+                return
+            BotSessionManager._rouse(self)
+            raise BotHupTimeout("session 挂起超时")
 
     def destory(self) -> None:
         """
@@ -1240,7 +1251,7 @@ class BotSessionManager:
     @classmethod
     def _rouse(cls, session: BotSession) -> None:
         """
-        唤醒 session。应该由 cls.try_attach 或 cls._get_on_rule 调用
+        唤醒 session。应该由 cls.try_attach 或 cls._get_on_rule 或 session.suspend 调用
         """
         cls.HUP_STORAGE[session._space_tag].remove(session)
         cls.STORAGE[session._space_tag].add(session)
@@ -1419,16 +1430,29 @@ SESSION_LOCAL: BotSession
 
 async def send(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False, wait: bool=False) -> Union[RespEvent, None]:
     """
-    回复一条消息
+    发送一条消息
     """
     return await SESSION_LOCAL.send(content, enable_cq_str, wait)
 
-async def send_hup(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False) -> None:
+async def send_hup(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False, overtime: int=None) -> None:
     """
     回复一条消息然后挂起
     """
     await SESSION_LOCAL.send(content, enable_cq_str)
-    await SESSION_LOCAL.suspend()
+    await SESSION_LOCAL.suspend(overtime)
+
+async def send_reply(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False, wait: bool=False) -> Union[RespEvent, None]:
+    """
+    发送一条消息（以回复消息的形式，回复触发动作的那条消息）
+    """
+    content_arr = [reply_msg(SESSION_LOCAL.event.id)]
+    if isinstance(content, str):
+        content_arr.append(text_msg(content))
+    elif isinstance(content, dict):
+        content_arr.append(content)
+    else:
+        content_arr.extend(content)
+    return await SESSION_LOCAL.send(content_arr, enable_cq_str, wait)
 
 async def finish(content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq_str: bool=False) -> None:
     """
