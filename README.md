@@ -1,5 +1,5 @@
 <div align="center">
-<img width=200 src="https://proj.glowmem.com/MeloBot/images/icon.png" />
+<img width=200 src="https://aicorein.github.io/Qbot-MeloBot-docs/images/icon.png" />
 <h1>MeloBot</h1>
 <p><strong>插件化管理、基于异步会话机制的 python 的 qbot 开发框架</strong></p>
 <p>郑重承诺和提示：<strong>本项目一切开发旨在学习，请勿用于商业用途和非法用途。任何使用本项目的用户群体，有义务遵守其所在国家或地区的相关法律规定。</strong></p>
@@ -39,6 +39,6 @@ pip install --pre melobot
 
 ## 💬 更多
 
-请参阅文档（v1 版本）：[MeloBot 文档](https://proj.glowmem.com/MeloBot/)
+请参阅文档（v1 版本）：[MeloBot 文档](https://aicorein.github.io/Qbot-MeloBot-docs/)
 
 文档开源（v1 版本）：[MeloBot-docs](https://github.com/AiCorein/Qbot-MeloBot-docs)
