@@ -12,6 +12,7 @@ test.*
 test
 
 .env
-docs
+dev
 build
 *.egg-info
+dist
