@@ -17,3 +17,5 @@ dev
 build
 *.egg-info
 dist
+upload.bat
+upload.sh
