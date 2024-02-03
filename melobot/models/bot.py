@@ -1,9 +1,11 @@
 import asyncio as aio
 import traceback
+import os
 from asyncio import iscoroutinefunction
 from functools import partial
 from types import MethodType
 
+from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
 from ..types.core import IActionResponder
 from ..types.exceptions import *
 from ..types.models import BotLife, HookRunnerArgs
@@ -125,6 +127,13 @@ class BotProxy:
         self.__bot__ = bot_origin
 
     @property
+    def logger(self) -> Logger:
+        """
+        bot 全局日志器
+        """
+        return self.__bot__.logger
+
+    @property
     def config(self) -> BotConfig:
         """
         bot 全局配置
@@ -138,23 +147,39 @@ class BotProxy:
         """
         return {id: plugin._Plugin__proxy for id, plugin in self.__bot__.plugins.items()}
     
-    def deactive(self) -> None:
+    @property
+    def is_activate(self) -> bool:
+        return not self.__bot__.slack
+    
+    def slack(self) -> None:
         """
-        使 bot 不再处理任何事件（元事件除外）
+        使 bot 不再发送 action。但 ACTION_PRESEND 钩子依然会触发
         """
-        self.__bot__._dispatcher._slack = True
+        self.__bot__.slack = True
     
     def activate(self) -> None:
         """
-        使 bot 开始处理事件
+        使 bot 可以发送 action
         """
-        self.__bot__._dispatcher._slack = False
+        self.__bot__.slack = False
     
     async def close(self) -> None:
         """
         关闭 bot
         """
         await self.__bot__.close()
+
+    def can_restart(self) -> bool:
+        """
+        检查是否能够重启 bot
+        """
+        return os.environ.get(MODULE_MODE_FLAG) == MODULE_MODE_SET
+    
+    async def restart(self) -> None:
+        """
+        重启 bot。只可在模块运行模式下使用
+        """
+        await self.__bot__.restart()
     
     @classmethod
     def on(cls, hook_type: BotLife, callback: Callable=None) -> None:

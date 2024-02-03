@@ -1,12 +1,14 @@
 import asyncio as aio
 import time
 import traceback
+from itertools import count
 
 import websockets
 import websockets.exceptions as wse
 
 from ..types.core import (IActionSender, IEventDispatcher, IMetaDispatcher,
                               IRespDispatcher)
+from ..types.exceptions import BotRuntimeError
 from ..types.models import BotLife
 from ..types.typing import *
 from ..models.action import BotAction
@@ -20,16 +22,21 @@ class BotLinker(IActionSender):
     """
     Bot 连接模块通过连接适配器的代理，完成事件接收与行为发送。
     """
-    def __init__(self, connect_host: str, connect_port: int, send_interval: float, logger: Logger) -> None:
+    def __init__(self, connect_host: str, connect_port: int, max_retry: int, retry_delay: int,
+                 send_interval: float, logger: Logger) -> None:
         super().__init__()
         self.url = f"ws://{connect_host}:{connect_port}"
         self.conn = None
+        
+        self.logger = logger
+        self.slack = False
+        self.max_retry_num = max_retry
+        self.retry_delay = retry_delay if retry_delay > 0 else 0
+
+        self._ready_signal = aio.Event()
+        self._send_lock = aio.Lock()
         self._rest_time = send_interval
         self._pre_send_time = time.time()
-        self.logger = logger
-
-        self._send_lock = aio.Lock()
-        self._ready_signal = aio.Event()
         self._common_dispatcher: IEventDispatcher
         self._resp_dispatcher: IRespDispatcher
         self._meta_dispatcher: IMetaDispatcher
@@ -48,10 +55,18 @@ class BotLinker(IActionSender):
         """
         启动连接
         """
-        self.conn = await websockets.connect(self.url)
-        await self.conn.recv()
-        self.logger.info("与连接适配器，建立了 ws 连接")
-        await BotHookBus.emit(BotLife.CONNECTED)
+        iterator = count(0) if self.max_retry_num < 0 else range(self.max_retry_num+1)
+        for _ in iterator:
+            try:
+                self.conn = await websockets.connect(self.url)
+                await self.conn.recv()
+                self.logger.info("与连接适配器，建立了 ws 连接")
+                await BotHookBus.emit(BotLife.CONNECTED)
+                return
+            except Exception as e:
+                self.logger.warning(f"ws 连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}")
+                await aio.sleep(self.retry_delay)
+        raise BotRuntimeError("连接重试已达最大重试次数，已放弃建立连接")
 
     async def _close(self) -> None:
         """
@@ -75,6 +90,8 @@ class BotLinker(IActionSender):
         """
         await self._ready_signal.wait()
         await BotHookBus.emit(BotLife.ACTION_PRESEND, action, wait=True)
+        if self.slack:
+            return
 
         try:
             async with self._send_lock:

@@ -24,3 +24,8 @@ class MetaInfo:
         return dict(self.__dict__.items())
 
 META_INFO = MetaInfo()
+MODULE_MODE_FLAG = "MELOBOT_MODULE_MODE"
+MODULE_MODE_SET = '1'
+MODULE_MODE_UNSET = '0'
+EXIT_CLOSE = 0
+EXIT_RESTART = 1

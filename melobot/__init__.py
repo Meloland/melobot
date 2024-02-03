@@ -1,3 +1,8 @@
+"""
+MeloBot 是插件化管理、基于异步会话机制的 qbot 开发框架。
+
+项目源码和文档，请参考：https://github.com/AiCorein/Qbot-MeloBot
+"""
 from .meta import MetaInfo, META_INFO
 from .core.init import MeloBot
 from .types.exceptions import BotException, BotHupTimeout

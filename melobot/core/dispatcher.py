@@ -27,7 +27,6 @@ class BotDispatcher(IEventDispatcher):
         self.logger = logger
 
         self._ready_signal = aio.Event()
-        self._slack = False
 
     def add_handlers(self, all_handlers: List[IEventHandler]) -> None:
         """
@@ -53,9 +52,6 @@ class BotDispatcher(IEventDispatcher):
         """
         await self._ready_signal.wait()
         await BotHookBus.emit(BotLife.EVENT_RECEIVED, event, wait=True)
-        # 如果静默状态就什么也不做
-        if self._slack:
-            return
 
         try:
             permit_priority = PriorityLevel.MIN.value

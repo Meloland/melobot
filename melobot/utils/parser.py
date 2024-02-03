@@ -102,6 +102,7 @@ class CmdParser(BotParser):
         for idx, formatter in enumerate(self.formatters):
             if formatter:
                 formatter.format(args, idx)
+        args.vals = args.vals[:len(self.formatters)]
         args.formatted = True
 
 
