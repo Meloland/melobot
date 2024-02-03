@@ -19,29 +19,45 @@ class TipGenerator:
 
 class ArgFormatter:
     """
-    字符串格式化器。将字符串格式化为对应类型的对象。
-    格式化后可添加校验，也可自定义失败提示信息
+    参数格式化器。将参数格式化为对应类型的对象。格式化后可添加校验，也可自定义失败提示信息。
+    还可设置默认值。不提供默认值参数时为 NullType，代表不使用默认值
     """
     def __init__(self, convert: Callable[[str], Any]=None, verify: Callable[[Any], bool]=None, 
-                 src_desc: str=None, src_expect: str=None, convert_tip_gen: TipGenerator=None, 
-                 verify_tip_gen: TipGenerator=None, arglack_tip_gen: TipGenerator=None) -> None:
+                 src_desc: str=None, src_expect: str=None, default: Any=Null, default_replace_flag: str=None,
+                 convert_tip_gen: TipGenerator=None, verify_tip_gen: TipGenerator=None, arglack_tip_gen: TipGenerator=None) -> None:
         self.convert = convert
         self.verify = verify
         self.src_desc = src_desc
         self.src_expect = src_expect
+        self.default = default
+        self.default_replace_flag = default_replace_flag
+        if self.default is Null and self.default_replace_flag is not None:
+            raise BotRuntimeError("初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值")
+        
         self.out_convert_tip_gen = convert_tip_gen
         self.out_verify_tip_gen = verify_tip_gen
         self.out_arglack_tip_gen = arglack_tip_gen
+
+    def _get_val(self, args: ParseArgs, idx: int) -> Any:
+        if self.default is Null:
+            if args.vals is None or len(args.vals) < idx+1:
+                raise BotArgLackError
+            else:
+                return args.vals[idx]
+        if args.vals is None:
+            args.vals = [self.default]
+        elif len(args.vals) < idx+1:
+            args.vals.append(self.default)
+        return args.vals[idx]
     
     def format(self, args: ParseArgs, idx: int) -> None:
         """
-        格式化字符串为对应类型的变量
+        格式化参数为对应类型的变量
         """
         try:
-            if args.vals is None or len(args.vals) < idx+1:
-                raise BotArgLackError
-            src = args.vals[idx]
-
+            src = self._get_val(args, idx)
+            if self.default_replace_flag is not None and src == self.default_replace_flag:
+                src = self.default
             res = self.convert(src) if self.convert is not None else src
 
             if self.verify is None:

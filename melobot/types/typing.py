@@ -26,7 +26,8 @@ __all__ = (
     'CQMsgDict',
     'User',
     'PriorityLevel',
-    'ParseArgs'
+    'ParseArgs',
+    'Null'
 )
 
 
@@ -67,3 +68,6 @@ class PriorityLevel(int, Enum):
 
 T = TypeVar("T")
 AsyncFunc = Callable[..., Coroutine[Any, Any, T]]
+
+class Null:
+    pass
