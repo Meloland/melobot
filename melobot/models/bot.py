@@ -141,7 +141,7 @@ class BotProxy:
         return self.__bot__.config
     
     @property
-    def plugins(self) -> List[PluginProxy]:
+    def plugins(self) -> Dict[str, PluginProxy]:
         """
         获取 bot 当前所有插件信息
         """
@@ -169,9 +169,9 @@ class BotProxy:
         """
         await self.__bot__.close()
 
-    def can_restart(self) -> bool:
+    def is_module_run(self) -> bool:
         """
-        检查是否能够重启 bot
+        检查是否是模块运行模式
         """
         return os.environ.get(MODULE_MODE_FLAG) == MODULE_MODE_SET
     

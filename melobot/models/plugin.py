@@ -204,6 +204,9 @@ class MsgEventHandler(IEventHandler):
             await aio.wait_for(aio.create_task(coro), timeout=timeout)
         finally:
             SESSION_LOCAL._del_ctx(s_token)
+            # 这里可能因 bot 停止运行，导致退出事件执行方法时 session 为挂起态。因此需要强制唤醒
+            if session._hup_signal.is_set():
+                BotSessionManager._rouse(session)
 
     async def _run(self, event: MsgEvent) -> None:
         """

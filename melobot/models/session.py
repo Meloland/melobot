@@ -1237,7 +1237,7 @@ class BotSessionManager:
     @classmethod
     def _hup(cls, session: BotSession) -> None:
         """
-        挂起 session。应该由 session.suspend 调用
+        挂起 session
         """
         if session._space_tag is None:
             raise BotRuntimeError("一次性 session 或空 session 不支持挂起，因为缺乏 session_rule 作为唤醒标志")
@@ -1251,7 +1251,7 @@ class BotSessionManager:
     @classmethod
     def _rouse(cls, session: BotSession) -> None:
         """
-        唤醒 session。应该由 cls.try_attach 或 cls._get_on_rule 或 session.suspend 调用
+        唤醒 session
         """
         cls.HUP_STORAGE[session._space_tag].remove(session)
         cls.STORAGE[session._space_tag].add(session)
@@ -1327,7 +1327,7 @@ class BotSessionManager:
     def make_temp(cls, event: BotEvent, responder: IActionResponder) -> BotSession:
         """
         创建一次性 session。确定无需 session 管理机制时可以使用。
-        否则请一定使用 cls.get 方法
+        否则一定使用 cls.get 方法
         """
         return cls._make(event, responder)
 

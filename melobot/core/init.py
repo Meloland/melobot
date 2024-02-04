@@ -28,11 +28,6 @@ from .responder import BotResponder
 if sys.platform != 'win32':
     import uvloop
     aio.set_event_loop_policy(uvloop.EventLoopPolicy())
-else:
-    # 解决事件循环无法正确关闭的问题：（推测是来自于 Windows IOCP 的 bug）
-    # <IocpProactor overlapped#=1 result#=0> is running after closing for xxx seconds
-    # ref: https://github.com/python/cpython/issues/111604
-    aio.set_event_loop_policy(aio.WindowsSelectorEventLoopPolicy())
 
 
 # TODO: 补全元事件处理器部分
@@ -50,18 +45,19 @@ class PluginLoader:
     插件加载器
     """
     @classmethod
-    def load_from_dir(cls, path: str) -> Plugin:
+    def load_from_dir(cls, plugin_path: str) -> Plugin:
         """
         从指定插件目录加载插件
         """
-        if not os.path.exists(os.path.join(path, '__init__.py')):
+        if not os.path.exists(os.path.join(plugin_path, '__init__.py')):
             raise BotRuntimeError("缺乏入口主文件 __init__.py，插件无法加载")
-        init_path = str(pathlib.Path(path, '__init__.py').resolve(strict=True))
-        package_name = os.path.basename(path)
-        sys.path.append(str(pathlib.Path(path).parent.resolve(strict=True)))
-        spec = importlib.util.spec_from_file_location(package_name, init_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        plugin_name = os.path.basename(plugin_path)
+        plugins_folder = str(pathlib.Path(plugin_path).parent.resolve(strict=True))
+        plugins_folder_name = os.path.basename(plugins_folder)
+        if plugins_folder not in sys.path:
+            importlib.import_module(plugins_folder_name)
+            sys.path.insert(0, plugins_folder)
+        module = importlib.import_module(f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}")
 
         plugin_class = None
         for obj in module.__dict__.values():
@@ -84,14 +80,14 @@ class PluginLoader:
         return (plugin, file_path)
 
     @classmethod
-    def load_plugin(cls, target: Union[str, Type[Plugin]], logger: Logger, responder: IActionResponder) -> Plugin:
+    def load(cls, plugin_target: Union[str, Type[Plugin]], logger: Logger, responder: IActionResponder) -> Plugin:
         """
         加载插件
         """
-        if isinstance(target, str):
-            plugin, file_path = cls.load_from_dir(target)
+        if isinstance(plugin_target, str):
+            plugin, file_path = cls.load_from_dir(plugin_target)
         else:
-            plugin, file_path = cls.load_from_type(target)
+            plugin, file_path = cls.load_from_type(plugin_target)
         root_path = pathlib.Path(file_path).parent.resolve(strict=True)
         plugin._Plugin__build(root_path, logger, responder)
         return plugin
@@ -164,7 +160,7 @@ class MeloBot:
         self.logger.info("bot 核心初始化完成")
         self.__init_flag__ = True
 
-    def load(self, target: Union[str, Type[Plugin]]) -> None:
+    def load_plugin(self, plugin_target: Union[str, Type[Plugin]]) -> None:
         """
         为 bot 加载运行插件。支持传入插件起始目录字符串（绝对路径）或插件类
         """
@@ -172,9 +168,9 @@ class MeloBot:
             self.logger.error("加载插件必须在初始化之后进行")
             exit(self.exit_code)
         
-        plugin_dir = inspect.getfile(target) if not isinstance(target, str) else target
+        plugin_dir = inspect.getfile(plugin_target) if not isinstance(plugin_target, str) else plugin_target
         self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
-        plugin = self.loader.load_plugin(target, self.logger, self.responder)
+        plugin = self.loader.load(plugin_target, self.logger, self.responder)
         exist_plugin = self.plugins.get(plugin.__class__.__id__)
         if exist_plugin is None:
             self.plugins[plugin.__class__.__id__] = plugin
@@ -183,6 +179,16 @@ class MeloBot:
         else:
             self.logger.error(f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{exist_plugin.plugin_dir}")
             exit(self.exit_code)
+
+    def load_plugins(self, plugins_dir: str) -> None:
+        """
+        从插件目录加载多个 bot 运行插件。但必须遵循标准插件格式
+        """
+        items = os.listdir(plugins_dir)
+        for item in items:
+            path = os.path.join(plugins_dir, item)
+            if os.path.isdir(path) and os.path.basename(path) != '__pycache__':
+                self.load_plugin(path)
 
     async def _run(self) -> None:
         if len(self.plugins) == 0:
