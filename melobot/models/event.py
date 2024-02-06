@@ -37,7 +37,7 @@ class MsgEvent(BotEvent):
         self.sender: MsgEvent.Sender
         self.group_id: Union[int, None]
         # 使用 CQ 码编码非文本消息段
-        self.raw_content: str
+        self.cq_content: str
         # array 格式表示所有类型消息段
         self.content: dict
         # 消息中所有文本消息段的合并字符串
@@ -57,12 +57,11 @@ class MsgEvent(BotEvent):
         
         self._cq_regex = re.compile(r'\[CQ:.*?\]')
         self.id = rawEvent['message_id']
-        # TODO: 通过结构化消息重新生成 raw_message
-        self.raw_content = rawEvent['raw_message']
+        self.cq_content = rawEvent['raw_message']
         self.content = rawEvent['message']
-        self.font = rawEvent['font']
         self.text = self._get_text(self.content)
-        self.cq_content = self._get_cq_content(self.raw_content)
+        self.font = rawEvent['font']
+        
 
         self.temp_src = None
         temp_src = rawEvent.get('temp_source')
@@ -84,7 +83,7 @@ class MsgEvent(BotEvent):
         获取消息中所有文本消息，返回合并字符串
         """
         if isinstance(content, str):
-            return self._cq_regex.sub('', content) \
+            return self._cq_regex.sub('', content)\
                     .replace('&amp;', '&')\
                     .replace('&#91;', '[')\
                     .replace('&#93;', ']')\
@@ -95,15 +94,6 @@ class MsgEvent(BotEvent):
                 if item['type'] == 'text':
                     text_list.append(item['data']['text'])
             return ''.join(text_list)
-
-    def _get_cq_content(self, raw_content: str) -> str:
-        """
-        总是将消息中的 CQ 字符串符号复原（即认为手动输入的 CQ 字符串也是合法的）
-        """
-        return raw_content.replace('&amp;', '&')\
-                    .replace('&#91;', '[')\
-                    .replace('&#93;', ']')\
-                    .replace('&#44;', ',')
 
     def is_private(self) -> bool:
         """是否为私聊消息（注意群临时会话属于该类别）"""

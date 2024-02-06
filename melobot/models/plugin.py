@@ -106,7 +106,7 @@ class Plugin:
         return make_args
 
     @classmethod
-    def on_message(cls, matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: int=PriorityLevel.MEAN.value, 
+    def on_message(cls, matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, 
                    timeout: int=None, block: bool=False, temp: bool=False, session_rule: SessionRule=None, session_hold: bool=False, 
                    direct_rouse: bool=False, conflict_wait: bool=False, conflict_callback: Union[AsyncFunc, Coroutine]=None, 
                    overtime_callback: Union[AsyncFunc, Coroutine]=None
@@ -117,15 +117,31 @@ class Plugin:
         def make_args(executor: AsyncFunc[None]) -> HandlerArgs:
             return HandlerArgs(executor=executor,
                               type=MsgEventHandler,
-                              params=[matcher, parser, checker, priority, timeout, block, temp, 
-                                      session_rule, session_hold, direct_rouse, conflict_wait, conflict_callback, overtime_callback])
+                              params=[matcher, parser, checker, priority, timeout, block, temp, session_rule, session_hold, direct_rouse, 
+                                      conflict_wait, conflict_callback, overtime_callback])
+        return make_args
+    
+    @classmethod
+    def on_any_message(cls, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, timeout: int=None, block: bool=False, temp: bool=False, 
+                   session_rule: SessionRule=None, session_hold: bool=False, direct_rouse: bool=False, conflict_wait: bool=False, 
+                   conflict_callback: Union[AsyncFunc, Coroutine]=None, overtime_callback: Union[AsyncFunc, Coroutine]=None
+                   ) -> Callable:
+        """
+        使用该装饰器，将方法标记为消息事件执行器。
+        任何消息经过校验后，不进行匹配和解析即可触发处理方法
+        """
+        def make_args(executor: AsyncFunc[None]) -> HandlerArgs:
+            return HandlerArgs(executor=executor,
+                              type=MsgEventHandler,
+                              params=[None, None, checker, priority, timeout, block, temp, session_rule, session_hold, direct_rouse, 
+                                      conflict_wait, conflict_callback, overtime_callback])
         return make_args
 
 
 # TODO: 考虑事件处理器是否有更多部分可以放到基类中
 class MsgEventHandler(IEventHandler):
     def __init__(self, executor: AsyncFunc[None], plugin: Plugin, responder: IActionResponder, logger: Logger, 
-                 matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: int=PriorityLevel.MEAN.value, timeout: float=None, 
+                 matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, timeout: float=None, 
                  set_block: bool=False, temp: bool=False, session_rule: SessionRule=None, session_hold: bool=False, direct_rouse: bool=False, 
                  conflict_wait: bool=False, conflict_callback: Union[AsyncFunc, Coroutine]=None, overtime_callback: Union[AsyncFunc, Coroutine]=None
                  ) -> None:
@@ -148,9 +164,9 @@ class MsgEventHandler(IEventHandler):
         self._overtime_coro = ocb() if iscoroutinefunction(ocb) else ocb
         self._wait_flag = conflict_wait
 
-        # matcher 和 parser 必须一个为 None, 另一存在
-        if (matcher is None and parser is None) or (matcher and parser):
-            raise BotRuntimeError("参数 matcher 和 parser 不能同时为空或同时存在")
+        # matcher 和 parser 不能同时存在
+        if matcher and parser:
+            raise BotRuntimeError("参数 matcher 和 parser 不能同时存在")
         
         if session_rule is None:
             if session_hold or direct_rouse or conflict_wait or conflict_callback:
@@ -192,6 +208,7 @@ class MsgEventHandler(IEventHandler):
                 action = msg_action(msg, event.is_private(), event.sender.id, event.group_id)
                 aio.create_task(self.responder.take_action(action))
                 return False
+        return True
 
     async def _run_on_ctx(self, coro: Coroutine, session: BotSession=None, timeout: float=None) -> None:
         """

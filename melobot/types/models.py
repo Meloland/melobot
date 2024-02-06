@@ -34,7 +34,7 @@ class BotEvent(ABC):
 
 
 class IEventHandler(ABC):
-    def __init__(self, priority: int=1, timeout: float=None, set_block: bool=False, temp: bool=False) -> None:
+    def __init__(self, priority: PriorityLevel=PriorityLevel.MEAN, timeout: float=None, set_block: bool=False, temp: bool=False) -> None:
         super().__init__()
         self.set_block = set_block
         self.timeout = timeout
