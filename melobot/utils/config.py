@@ -20,7 +20,7 @@ class ConfigGenerator:
         self.default_config_text = DEFAULT_CONFIG_TEXT
         self.config_dir = ConfigDirPath
         self.config_path = os.path.join(
-            self.config_dir, 'bot_config.toml'
+            self.config_dir, 'melobot_config.toml'
         )
         self.logger = get_logger()
 

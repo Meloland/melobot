@@ -151,7 +151,7 @@ class MeloBot:
         self.bot_bus._bind(self.logger, self.responder)
 
         self.logger.info("欢迎使用 melobot v2")
-        self.logger.info(f"本项目在 AGPL3 协议下开源发行。更多请参阅：{self.info.PROJ_SRC}")
+        self.logger.info(f"melobot 在 AGPL3 协议下开源发行。更多请参阅：{self.info.PROJ_SRC}")
         self.logger.info(f"运行版本：{self.info.VER}，平台：{self.info.PLATFORM}")
         if os.environ.get(MODULE_MODE_FLAG) == MODULE_MODE_SET:
             self.logger.info("当前运行模式：模块运行模式")
