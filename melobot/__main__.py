@@ -38,5 +38,6 @@ try:
             break
         else:
             banner_print("以模块运行模式运行时，bot 主程序返回了无法处理的返回值")
+            break
 except KeyboardInterrupt:
     pass

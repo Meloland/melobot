@@ -10,6 +10,7 @@ from ..types.models import (HandlerArgs, HookRunnerArgs, IEventHandler,
                             ShareCbArgs, ShareObjArgs, SignalHandlerArgs)
 from ..types.typing import *
 from ..types.utils import BotChecker, BotMatcher, BotParser, Logger, WrappedLogger
+from ..utils.checker import AtChecker
 from .bot import BotHookBus, HookRunner, PluginProxy
 from .event import MsgEvent
 from .action import msg_action
@@ -81,11 +82,11 @@ class Plugin:
                 PluginStore._bind_cb(namespace, id, cb, self)
             
             elif isinstance(val, SignalHandlerArgs):
-                func, type = val
+                func, namespace, signal = val
                 if not iscoroutinefunction(func):
                     raise BotTypeError(f"信号处理方法 {func.__name__} 必须为异步函数")
-                handler = PluginSignalHandler(type, func, self)
-                PluginBus._register(type, handler)
+                handler = PluginSignalHandler(namespace, signal, func, self)
+                PluginBus._register(namespace, signal, handler)
         
         attrs_map = {k: v for k, v in inspect.getmembers(self) if not k.startswith('__')}
         for val in self.__class__.__share__:
@@ -97,16 +98,7 @@ class Plugin:
         self.__proxy = PluginProxy(self)
 
     @classmethod
-    def on(cls, signal_name: str) -> Callable:
-        """
-        使用该装饰器，注册一个插件信号处理器
-        """
-        def make_args(func: AsyncFunc[None]) -> SignalHandlerArgs:
-            return SignalHandlerArgs(func=func, type=signal_name)
-        return make_args
-
-    @classmethod
-    def on_message(cls, matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, 
+    def on_msg(cls, matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, 
                    timeout: int=None, block: bool=False, temp: bool=False, session_rule: SessionRule=None, session_hold: bool=False, 
                    direct_rouse: bool=False, conflict_wait: bool=False, conflict_callback: Union[AsyncFunc, Coroutine]=None, 
                    overtime_callback: Union[AsyncFunc, Coroutine]=None
@@ -122,7 +114,7 @@ class Plugin:
         return make_args
     
     @classmethod
-    def on_any_message(cls, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, timeout: int=None, block: bool=False, temp: bool=False, 
+    def on_any_msg(cls, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, timeout: int=None, block: bool=False, temp: bool=False, 
                    session_rule: SessionRule=None, session_hold: bool=False, direct_rouse: bool=False, conflict_wait: bool=False, 
                    conflict_callback: Union[AsyncFunc, Coroutine]=None, overtime_callback: Union[AsyncFunc, Coroutine]=None
                    ) -> Callable:
@@ -134,6 +126,21 @@ class Plugin:
             return HandlerArgs(executor=executor,
                               type=MsgEventHandler,
                               params=[None, None, checker, priority, timeout, block, temp, session_rule, session_hold, direct_rouse, 
+                                      conflict_wait, conflict_callback, overtime_callback])
+        return make_args
+    
+    @classmethod
+    def on_at_msg(cls, qid: int=None, matcher: BotMatcher=None, parser: BotParser=None, checker: BotChecker=None, priority: PriorityLevel=PriorityLevel.MEAN, 
+                   timeout: int=None, block: bool=False, temp: bool=False, session_rule: SessionRule=None, session_hold: bool=False, 
+                   direct_rouse: bool=False, conflict_wait: bool=False, conflict_callback: Union[AsyncFunc, Coroutine]=None, 
+                   overtime_callback: Union[AsyncFunc, Coroutine]=None
+                   ) -> Callable:
+        at_checker = AtChecker(qid)
+        the_checker = at_checker & checker
+        def make_args(executor: AsyncFunc[None]) -> HandlerArgs:
+            return HandlerArgs(executor=executor,
+                              type=MsgEventHandler,
+                              params=[matcher, parser, the_checker, priority, timeout, block, temp, session_rule, session_hold, direct_rouse, 
                                       conflict_wait, conflict_callback, overtime_callback])
         return make_args
 

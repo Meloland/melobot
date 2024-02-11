@@ -71,6 +71,6 @@ ShareObjArgs = NamedTuple('ShareObjArgs', property=str, namespace=str, id=str)
 # 插件共享对象回调的构造参数
 ShareCbArgs = NamedTuple('ShareCbArgs', namespace=str, id=str, cb=Callable)
 # 插件信号方法构造参数
-SignalHandlerArgs = NamedTuple('SignalHandlerArgs', func=AsyncFunc[None], type=str)
+SignalHandlerArgs = NamedTuple('SignalHandlerArgs', func=AsyncFunc[None], namespace=str, signal=str)
 # 钩子方法（生命周期回调）构造参数
 HookRunnerArgs = NamedTuple('HookRunnerArgs', func=AsyncFunc[None], type=BotLife)

@@ -28,7 +28,7 @@ class CmdParser(BotParser):
         self.ban_regex = re.compile(r'[\'\"\\\(\)\[\]\{\}\r\n\ta-zA-Z0-9]')
         self._build_parse_regex()
 
-        if self.ban_regex.findall(''.join(cmd_sep+cmd_start)):
+        if self.ban_regex.findall(''.join(cmd_start)+''.join(cmd_sep)):
             raise BotValueError('存在命令解析器不支持的命令起始符，或命令间隔符')
 
     def _build_parse_regex(self):

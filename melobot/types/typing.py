@@ -41,7 +41,7 @@ class ParseArgs:
     """
     命令参数类
     """
-    def __init__(self, values: List[str]) -> None:
+    def __init__(self, values: List[Any]) -> None:
         self.vals = values
         self.formatted = False
 

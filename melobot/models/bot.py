@@ -182,7 +182,7 @@ class BotProxy:
         await self.__bot__.restart()
     
     @classmethod
-    def on(cls, hook_type: BotLife, callback: Callable=None) -> None:
+    def on(cls, hook_type: BotLife, callback: Callable=None):
         """
         用作装饰器，不传入 callback 参数，即可注册一个 bot 生命周期 hook。
 

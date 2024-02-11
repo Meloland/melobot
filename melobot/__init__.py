@@ -9,7 +9,7 @@ from .types.exceptions import BotException, BotHupTimeout
 from .types.models import BotEvent, BotLife, ShareObjArgs
 from .types.typing import Callable, PriorityLevel, User
 from .types.utils import BotChecker, BotMatcher
-from .models.base import ID_WORKER, RWController, get_twin_event, this_dir
+from .models.base import ID_WORKER, RWController, get_twin_event
 from .models.bot import BOT_PROXY as bot
 from .models.event import (MetaEvent, MsgEvent, NoticeEvent, RequestEvent,
                            RespEvent)
@@ -19,6 +19,7 @@ from .models.plugin import Plugin
 from .models.session import SESSION_LOCAL as session
 from .models.session import (AttrSessionRule, BotSession, SessionRule, finish,
                              send, send_hup, send_reply)
+from .utils.base import this_dir, clear_cq
 from .utils.checker import GroupMsgLvl, MsgLvlChecker, PrivateMsgLvl, MsgCheckerGen
 from .utils.matcher import (ContainMatch, EndMatch, FullMatch, RegexMatch,
                             StartMatch)
@@ -84,6 +85,7 @@ __all__ = (
     "BotMatcher",
     "RWController",
     "this_dir",
+    "clear_cq",
     "get_twin_event",
     "get_id",
     "get_event",

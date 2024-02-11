@@ -1,3 +1,5 @@
+import re
+from melobot.types.models import BotEvent
 from ..types.typing import *
 from ..types.utils import BotChecker
 from ..models.event import MsgEvent
@@ -107,3 +109,26 @@ class MsgCheckerGen:
         根据内部依据，生成一个私聊消息等级校验器
         """
         return PrivateMsgLvl(level, self.owner, self.su_list, self.white_list, self.black_list)
+
+
+class AtChecker(BotChecker):
+    """
+    at 消息校验器。
+    如果事件中包含指定 qid 的 at 消息，则校验结果为真
+    """
+    def __init__(self, qid: int=None) -> None:
+        self.qid = str(qid) if qid is not None else None
+        self._cq_at_regex = re.compile(r'\[CQ:at,qq=(\d+)?\]')
+
+    def check(self, event: MsgEvent) -> bool:
+        """
+        当 qid 为空时，只要有 at 消息就通过校验。
+        如果不为空，则必须出现指定 qid 的 at 消息
+        """
+        id_list = self._cq_at_regex.findall(event.cq_content)
+        if self.qid is None:
+            return len(id_list) > 0
+        for id in id_list:
+            if id == self.qid:
+                return True
+        return False

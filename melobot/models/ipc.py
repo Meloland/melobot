@@ -110,7 +110,7 @@ class PluginSignalHandler:
     """
     插件信号处理器
     """
-    def __init__(self, type: str, func: Callable, plugin: Union[object, None]) -> None:
+    def __init__(self, namespace: str, type: str, func: Callable, plugin: Union[object, None]) -> None:
         self._func = func
         self._plugin = plugin
         # 对应：绑定的 func 是插件类的实例方法
@@ -119,6 +119,7 @@ class PluginSignalHandler:
         # 对应：绑定的 func 是普通函数
         else:
             self.cb = self._func
+        self.namespace = namespace
         self.type = type
 
 
@@ -126,7 +127,7 @@ class PluginBus:
     """
     插件信号总线
     """
-    __store__: Dict[str, List[PluginSignalHandler]] = {}
+    __store__: Dict[str, Dict[str, PluginSignalHandler]] = {}
     __logger: Logger
     __responder: IActionResponder
 
@@ -139,16 +140,16 @@ class PluginBus:
         cls.__responder = responder
 
     @classmethod
-    def _register(cls, signal_name: str, handler: PluginSignalHandler) -> None:
+    def _register(cls, namespace: str, signal: str, handler: PluginSignalHandler) -> None:
         """
         注册一个插件信号处理方法。由 plugin build 过程调用
         """
-        if signal_name not in cls.__store__.keys():
-            cls.__store__[signal_name] = []
-        cls.__store__[signal_name].append(handler)
+        if namespace not in cls.__store__.keys():
+            cls.__store__[namespace] = {}
+        cls.__store__[namespace][signal] = handler
 
     @classmethod
-    def on(cls, signal_name: str, callback: Callable) -> None:
+    def on(cls, namespace: str, signal: str, callback: Callable=None):
         """
         动态地注册信号处理方法。callback 可以是类实例方法，也可以不是。
         callback 如果是类实例方法，请自行包裹为一个 partial 函数。
@@ -156,18 +157,23 @@ class PluginBus:
         例如你的插件类是：`A`，而你需要传递一个类实例方法：`A.xxx`，
         那么你的 callback 参数就应该是：`functools.partial(A.xxx, self)`
         """
-        if isinstance(callback, SignalHandlerArgs):
-            raise BotRuntimeError("已注册的信号处理方法不能再注册")
-        if not iscoroutinefunction(callback):
-            raise BotTypeError(f"信号处理方法 {callback.__name__} 必须为异步函数")
-        if (isinstance(callback, partial) and isinstance(callback.func, MethodType)) \
-                or isinstance(callback, MethodType):
-            raise BotTypeError("callback 应该是 function，而不是 bound method。")
-        handler = PluginSignalHandler(signal_name, callback, plugin=None)
-        cls._register(signal_name, handler)
+        def make_args(func: AsyncFunc[Any]) -> SignalHandlerArgs:
+            return SignalHandlerArgs(func=func, namespace=namespace, signal=signal)
+        if callback is None:
+            return make_args
+        else:
+            if isinstance(callback, SignalHandlerArgs):
+                raise BotRuntimeError("已注册的信号处理方法不能再注册")
+            if not iscoroutinefunction(callback):
+                raise BotTypeError(f"信号处理方法 {callback.__name__} 必须为异步函数")
+            if (isinstance(callback, partial) and isinstance(callback.func, MethodType)) \
+                    or isinstance(callback, MethodType):
+                raise BotTypeError("callback 应该是 function，而不是 bound method。")
+            handler = PluginSignalHandler(namespace, signal, callback, plugin=None)
+            cls._register(namespace, signal, handler)
 
     @classmethod
-    async def _run_on_ctx(cls, handler: PluginSignalHandler, *args, forward: bool=False, **kwargs) -> None:
+    async def _run_on_ctx(cls, handler: PluginSignalHandler, *args, forward: bool=False, **kwargs) -> Any:
         """
         在指定的上下文下运行信号处理方法
         """
@@ -175,7 +181,8 @@ class PluginBus:
             session = BotSessionManager.make_empty(cls.__responder)
             token = SESSION_LOCAL._add_ctx(session)
         try:
-            await handler.cb(*args, **kwargs)
+            ret = await handler.cb(*args, **kwargs)
+            return ret
         except Exception as e:
             e_name = e.__class__.__name__
             func_name = handler._func.__qualname__
@@ -188,19 +195,24 @@ class PluginBus:
                 SESSION_LOCAL._del_ctx(token)
     
     @classmethod
-    async def emit(cls, signal_name: str, *args, wait: bool=False, forward: bool=False, **kwargs) -> None:
+    async def emit(cls, namespace: str, signal: str, *args, wait: bool=False, forward: bool=False, **kwargs) -> Any:
         """
         触发一个插件信号。如果指定 wait 为 True，则会等待所有信号处理方法完成。
         若启用 forward，则会将 session 从信号触发处转发到信号处理处。
         但启用 forward，必须同时启用 wait。
+
+        注意：如果你要等待返回结果，则需要指定 wait=True，否则不会等待且始终返回 None
         """
         if forward and not wait:
             raise BotRuntimeError("在触发插件信号处理方法时传递原始 session，wait 参数需要为 True")
-        if signal_name not in cls.__store__.keys():
+        if namespace not in cls.__store__.keys():
+            raise BotRuntimeError(f"插件信号命名空间 {namespace} 不存在，无法触发信号")
+        if signal not in cls.__store__[namespace].keys():
             return
+        
+        handler = cls.__store__[namespace][signal]
         if not wait:
-            for handler in cls.__store__[signal_name]:
-                aio.create_task(cls._run_on_ctx(handler, forward=forward, *args, **kwargs))
+            aio.create_task(cls._run_on_ctx(handler, forward=forward, *args, **kwargs))
+            return None
         else:
-            for handler in cls.__store__[signal_name]:
-                await cls._run_on_ctx(handler, forward=forward, *args, **kwargs)
+            return await cls._run_on_ctx(handler, forward=forward, *args, **kwargs)
