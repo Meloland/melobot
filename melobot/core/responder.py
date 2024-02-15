@@ -2,11 +2,11 @@ import asyncio as aio
 import traceback
 from asyncio import Future
 
+from ..models.action import BotAction
+from ..models.event import RespEvent
 from ..types.core import IActionResponder, IActionSender, IRespDispatcher
 from ..types.exceptions import *
 from ..types.typing import *
-from ..models.action import BotAction
-from ..models.event import RespEvent
 from ..utils.logger import Logger
 
 
@@ -15,6 +15,7 @@ class BotResponder(IActionResponder, IRespDispatcher):
     bot 响应模块，是 action 发送方和 bot 连接模块的媒介。
     提供 action 发送、响应回送功能
     """
+
     def __init__(self, logger: Logger) -> None:
         super().__init__()
         self._resp_table: Dict[str, Future[RespEvent]] = {}
@@ -44,9 +45,11 @@ class BotResponder(IActionResponder, IRespDispatcher):
                 else:
                     self.logger.error(f"收到了不匹配的携带 id 的响应：{resp.raw}")
         except Exception as e:
-            self.logger.error(f"bot responder.dispatch 抛出异常：[{e.__class__.__name__}] {e}")
+            self.logger.error(
+                f"bot responder.dispatch 抛出异常：[{e.__class__.__name__}] {e}"
+            )
             self.logger.debug(f"异常点的响应记录为：{resp.raw}")
-            self.logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
+            self.logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
 
     async def take_action(self, action: BotAction) -> None:
         """
@@ -54,7 +57,7 @@ class BotResponder(IActionResponder, IRespDispatcher):
         """
         await self._ready_signal.wait()
         await self._action_sender.send(action)
-    
+
     async def take_action_wait(self, action: BotAction) -> Future[RespEvent]:
         """
         响应器发送 action，并返回一个 Future 用于等待响应

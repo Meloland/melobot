@@ -48,7 +48,7 @@ class IMetaDispatcher(ABC):
 class IEventDispatcher(ABC):
     def __init__(self) -> None:
         super().__init__()
-    
+
     @abstractmethod
     async def dispatch(self, event: BotEvent) -> None:
         pass

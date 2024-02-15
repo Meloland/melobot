@@ -1,16 +1,23 @@
 import re
-from melobot.types.models import BotEvent
+
+from ..models.event import MsgEvent
 from ..types.typing import *
 from ..types.utils import BotChecker
-from ..models.event import MsgEvent
 
 
 class MsgLvlChecker(BotChecker):
     """
     消息分级权限校验器，不低于预设等级的 event 才会被接受。
     """
-    def __init__(self, level: User, owner: int=None, super_users: List[int]=None, white_users: List[int]=None, 
-                 black_users: List[int]=None) -> None:
+
+    def __init__(
+        self,
+        level: User,
+        owner: int = None,
+        super_users: List[int] = None,
+        white_users: List[int] = None,
+        black_users: List[int] = None,
+    ) -> None:
         super().__init__()
         self.check_lvl = level
 
@@ -50,8 +57,16 @@ class GroupMsgLvl(MsgLvlChecker):
     不接受非白名单群聊的消息，也不接受任何私聊消息。
     特别注意：如果 white_groups 参数为 None，不启用白名单群聊校验
     """
-    def __init__(self, level: User, owner: int=None, super_users: List[int]=None, white_users: List[int]=None, 
-                 black_users: List[int]=None, white_groups: List[int]=None) -> None:
+
+    def __init__(
+        self,
+        level: User,
+        owner: int = None,
+        super_users: List[int] = None,
+        white_users: List[int] = None,
+        black_users: List[int] = None,
+        white_groups: List[int] = None,
+    ) -> None:
         super().__init__(level, owner, super_users, white_users, black_users)
         self.white_group_list = white_groups if white_groups is not None else []
 
@@ -69,8 +84,15 @@ class PrivateMsgLvl(MsgLvlChecker):
     """
     私聊消息分级权限检查器，不低于预设等级的 event 才会被接受。不接受任何群聊消息
     """
-    def __init__(self, level: User, owner: int=None, super_users: List[int]=None, white_users: List[int]=None, 
-                 black_users: List[int]=None) -> None:
+
+    def __init__(
+        self,
+        level: User,
+        owner: int = None,
+        super_users: List[int] = None,
+        white_users: List[int] = None,
+        black_users: List[int] = None,
+    ) -> None:
         super().__init__(level, owner, super_users, white_users, black_users)
 
     def check(self, event: MsgEvent) -> bool:
@@ -84,31 +106,49 @@ class MsgCheckerGen:
     消息校验器生成器。预先存储校验依据（各等级数据），
     指定校验 level 后返回一个符合 MsgLvlChecker 接口的实例对象
     """
-    def __init__(self, owner: int=None, super_users: List[int]=None, white_users: List[int]=None, 
-                 black_users: List[int]=None, white_groups: List[int]=None) -> None:
+
+    def __init__(
+        self,
+        owner: int = None,
+        super_users: List[int] = None,
+        white_users: List[int] = None,
+        black_users: List[int] = None,
+        white_groups: List[int] = None,
+    ) -> None:
         self.owner = owner
         self.su_list = super_users if super_users is not None else []
         self.white_list = white_users if white_users is not None else []
         self.black_list = black_users if black_users is not None else []
         self.white_group_list = white_groups if white_groups is not None else []
 
-    def gen_base(self, level: User=User.USER) -> MsgLvlChecker:
+    def gen_base(self, level: User = User.USER) -> MsgLvlChecker:
         """
         根据内部依据，生成一个原始消息等级校验器
         """
-        return MsgLvlChecker(level, self.owner, self.su_list, self.white_list, self.black_list)
+        return MsgLvlChecker(
+            level, self.owner, self.su_list, self.white_list, self.black_list
+        )
 
-    def gen_group(self, level: User=User.USER) -> GroupMsgLvl:
+    def gen_group(self, level: User = User.USER) -> GroupMsgLvl:
         """
         根据内部依据，生成一个群组消息等级校验器
         """
-        return GroupMsgLvl(level, self.owner, self.su_list, self.white_list, self.black_list, self.white_group_list)
-    
-    def gen_private(self, level: User=User.USER) -> PrivateMsgLvl:
+        return GroupMsgLvl(
+            level,
+            self.owner,
+            self.su_list,
+            self.white_list,
+            self.black_list,
+            self.white_group_list,
+        )
+
+    def gen_private(self, level: User = User.USER) -> PrivateMsgLvl:
         """
         根据内部依据，生成一个私聊消息等级校验器
         """
-        return PrivateMsgLvl(level, self.owner, self.su_list, self.white_list, self.black_list)
+        return PrivateMsgLvl(
+            level, self.owner, self.su_list, self.white_list, self.black_list
+        )
 
 
 class AtChecker(BotChecker):
@@ -116,9 +156,10 @@ class AtChecker(BotChecker):
     at 消息校验器。
     如果事件中包含指定 qid 的 at 消息，则校验结果为真
     """
-    def __init__(self, qid: int=None) -> None:
+
+    def __init__(self, qid: int = None) -> None:
         self.qid = str(qid) if qid is not None else None
-        self._cq_at_regex = re.compile(r'\[CQ:at,qq=(\d+)?\]')
+        self._cq_at_regex = re.compile(r"\[CQ:at,qq=(\d+)?\]")
 
     def check(self, event: MsgEvent) -> bool:
         """

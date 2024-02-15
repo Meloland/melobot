@@ -8,7 +8,7 @@ from ..types.typing import *
 
 class Singleton:
     def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, '__instance__'):
+        if not hasattr(cls, "__instance__"):
             cls.__instance__ = super(Singleton, cls).__new__(cls)
         return cls.__instance__
 
@@ -17,6 +17,7 @@ class IdWorker:
     """
     雪花算法生成 ID
     """
+
     def __init__(self, datacenter_id, worker_id, sequence=0) -> int:
         self.MAX_WORKER_ID = -1 ^ (-1 << 3)
         self.MAX_DATACENTER_ID = -1 ^ (-1 << 5)
@@ -27,9 +28,9 @@ class IdWorker:
         self.STARTEPOCH = 1064980800000
         # sanity check
         if worker_id > self.MAX_WORKER_ID or worker_id < 0:
-            raise ValueError('worker_id 值越界')
+            raise ValueError("worker_id 值越界")
         if datacenter_id > self.MAX_DATACENTER_ID or datacenter_id < 0:
-            raise ValueError('datacenter_id 值越界')
+            raise ValueError("datacenter_id 值越界")
         self.worker_id = worker_id
         self.datacenter_id = datacenter_id
         self.sequence = sequence
@@ -49,7 +50,7 @@ class IdWorker:
 
         # 时钟回拨
         if timestamp < self.last_timestamp:
-            raise ValueError(f'时钟回拨，{self.last_timestamp} 前拒绝 id 生成请求')
+            raise ValueError(f"时钟回拨，{self.last_timestamp} 前拒绝 id 生成请求")
         if timestamp == self.last_timestamp:
             self.sequence = (self.sequence + 1) & self.SEQUENCE_MASK
             if self.sequence == 0:
@@ -57,8 +58,12 @@ class IdWorker:
         else:
             self.sequence = 0
         self.last_timestamp = timestamp
-        new_id = ((timestamp - self.STARTEPOCH) << self.TIMESTAMP_LEFT_SHIFT) | (self.datacenter_id << self.DATACENTER_ID_SHIFT) | (
-                    self.worker_id << self.WOKER_ID_SHIFT) | self.sequence
+        new_id = (
+            ((timestamp - self.STARTEPOCH) << self.TIMESTAMP_LEFT_SHIFT)
+            | (self.datacenter_id << self.DATACENTER_ID_SHIFT)
+            | (self.worker_id << self.WOKER_ID_SHIFT)
+            | self.sequence
+        )
         return new_id
 
     def __til_next_millis(self, last_timestamp) -> int:
@@ -78,6 +83,7 @@ class AsyncTwinEvent(aio.Event):
     """
     孪生 Event，会和绑定的一方时刻保持状态相反。
     """
+
     def __init__(self) -> None:
         super().__init__()
         self._twin: AsyncTwinEvent = None
@@ -93,7 +99,7 @@ class AsyncTwinEvent(aio.Event):
         super().set()
         if self._twin:
             super(AsyncTwinEvent, self._twin).clear()
-    
+
     def clear(self) -> None:
         super().clear()
         if self._twin:
@@ -115,7 +121,8 @@ class RWController:
     """
     异步读写控制器。提供异步安全的读写上下文
     """
-    def __init__(self, read_limit: int=None) -> None:
+
+    def __init__(self, read_limit: int = None) -> None:
         @asynccontextmanager
         async def safe_read():
             nonlocal read_num, read_semaphore, write_semaphore, read_num_lock
@@ -134,7 +141,7 @@ class RWController:
                         write_semaphore.release()
                     if read_semaphore:
                         read_semaphore.release()
-        
+
         @asynccontextmanager
         async def safe_write():
             nonlocal write_semaphore
@@ -143,7 +150,7 @@ class RWController:
                 yield
             finally:
                 write_semaphore.release()
-		
+
         write_semaphore = aio.Semaphore(1)
         if read_limit:
             read_semaphore = aio.Semaphore(read_limit)

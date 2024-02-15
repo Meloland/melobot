@@ -10,11 +10,11 @@ class StartMatch(BotMatcher):
         self.target = target
 
     def match(self, text: str) -> bool:
-        return text[:len(self.target)] == self.target
+        return text[: len(self.target)] == self.target
 
 
 class ContainMatch(BotMatcher):
-    def __init__(self, target: str, freq: int=1) -> None:
+    def __init__(self, target: str, freq: int = 1) -> None:
         super().__init__()
         self.target = target
         self.freq = freq
@@ -32,7 +32,7 @@ class EndMatch(BotMatcher):
         self.target = target
 
     def match(self, text: str) -> bool:
-        return text[-len(self.target):-1] == self.target
+        return text[-len(self.target) : -1] == self.target
 
 
 class FullMatch(BotMatcher):
@@ -45,7 +45,7 @@ class FullMatch(BotMatcher):
 
 
 class RegexMatch(BotMatcher):
-    def __init__(self, regex_pattern: str, regex_flags: Any=0) -> None:
+    def __init__(self, regex_pattern: str, regex_flags: Any = 0) -> None:
         super().__init__()
         self.pattern = regex_pattern
         self.flag = regex_flags

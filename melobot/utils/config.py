@@ -14,14 +14,13 @@ class ConfigGenerator:
     """
     配置生成器
     """
+
     def __init__(self, ConfigDirPath: str) -> None:
         self.config = {}
         self.default_config = DEFAULT_CONFIG
         self.default_config_text = DEFAULT_CONFIG_TEXT
         self.config_dir = ConfigDirPath
-        self.config_path = os.path.join(
-            self.config_dir, 'melobot_config.toml'
-        )
+        self.config_path = os.path.join(self.config_dir, "melobot_config.toml")
         self.logger = get_logger()
 
     def get(self) -> dict:
@@ -40,12 +39,12 @@ class ConfigGenerator:
         if not os.path.exists(self.config_dir):
             os.mkdir(self.config_dir)
         if not os.path.exists(self.config_path):
-            with open(self.config_path, 'w', encoding='utf-8') as fp:
+            with open(self.config_path, "w", encoding="utf-8") as fp:
                 fp.write(self.default_config_text)
             self.logger.info("未检测到配置文件，已自动生成，请填写配置后重启 bot")
             exit(EXIT_CLOSE)
         else:
-            with open(self.config_path, encoding='utf-8') as fp:
+            with open(self.config_path, encoding="utf-8") as fp:
                 self.config = toml.load(fp)
 
     def fill_defaults(self) -> None:
@@ -61,6 +60,7 @@ class BotConfig:
     """
     配置类
     """
+
     def __init__(self, config_dir: str) -> None:
         self.connect_host: str = None
         self.connect_port: int = None
@@ -74,23 +74,22 @@ class BotConfig:
 
     def _build(self, config_dir: str) -> None:
         self._raw = ConfigGenerator(config_dir).get()
-        self.connect_host = self._raw['CONNECT_HOST']
-        self.connect_port = self._raw['CONNECT_PORT']
-        self.max_conn_try = self._raw['MAX_CONN_TRY']
-        self.conn_try_interval = self._raw['CONN_TRY_INTERVAL']
-        self.log_level = self._raw['LOG_LEVEL']
-        self.cooldown_time = self._raw['COOLDOWN_TIME']
-        self.log_dir_path = self._raw['LOG_DIR_PATH']
+        self.connect_host = self._raw["CONNECT_HOST"]
+        self.connect_port = self._raw["CONNECT_PORT"]
+        self.max_conn_try = self._raw["MAX_CONN_TRY"]
+        self.conn_try_interval = self._raw["CONN_TRY_INTERVAL"]
+        self.log_level = self._raw["LOG_LEVEL"]
+        self.cooldown_time = self._raw["COOLDOWN_TIME"]
+        self.log_dir_path = self._raw["LOG_DIR_PATH"]
 
-        if sys.platform == 'win32' and ntpath.isabs(self.log_dir_path):
+        if sys.platform == "win32" and ntpath.isabs(self.log_dir_path):
             return
         if posixpath.isabs(self.log_dir_path):
             return
         self.log_dir_path = os.path.join(config_dir, self.log_dir_path)
 
 
-DEFAULT_CONFIG_TEXT = \
-"""# 以下为自动生成的默认配置文件
+DEFAULT_CONFIG_TEXT = """# 以下为自动生成的默认配置文件
 
 # websocket 连接服务的 host
 CONNECT_HOST = "localhost"
@@ -116,5 +115,5 @@ DEFAULT_CONFIG = {
     "CONN_TRY_INTERVAL": 2,
     "LOG_LEVEL": "INFO",
     "COOLDOWN_TIME": 0.5,
-    "LOG_DIR_PATH": "../logs"
+    "LOG_DIR_PATH": "../logs",
 }

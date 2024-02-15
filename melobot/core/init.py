@@ -1,6 +1,5 @@
 import asyncio as aio
 import importlib.util
-import importlib.machinery
 import inspect
 import os
 import pathlib
@@ -9,24 +8,31 @@ import traceback
 
 import websockets.exceptions as wse
 
-from ..meta import META_INFO, EXIT_CLOSE, EXIT_RESTART, MODULE_MODE_FLAG, MODULE_MODE_SET
+from ..meta import (
+    EXIT_CLOSE,
+    EXIT_RESTART,
+    META_INFO,
+    MODULE_MODE_FLAG,
+    MODULE_MODE_SET,
+)
+from ..models.bot import BOT_PROXY, BotHookBus
+from ..models.event import MetaEvent
+from ..models.ipc import PluginBus, PluginStore
+from ..models.plugin import Plugin
 from ..types.core import IActionResponder, IMetaDispatcher
 from ..types.exceptions import *
 from ..types.models import BotLife
 from ..types.typing import *
 from ..types.utils import Logger
-from ..models.bot import BOT_PROXY, BotHookBus
-from ..models.event import MetaEvent
-from ..models.ipc import PluginBus, PluginStore
-from ..models.plugin import Plugin
 from ..utils.config import BotConfig
 from ..utils.logger import get_logger
 from .dispatcher import BotDispatcher
 from .linker import BotLinker
 from .responder import BotResponder
 
-if sys.platform != 'win32':
+if sys.platform != "win32":
     import uvloop
+
     aio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
@@ -44,28 +50,39 @@ class PluginLoader:
     """
     插件加载器
     """
+
     @classmethod
     def load_from_dir(cls, plugin_path: str) -> Plugin:
         """
         从指定插件目录加载插件
         """
-        if not os.path.exists(os.path.join(plugin_path, '__init__.py')):
-            raise BotRuntimeError(f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载")
+        if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
+            raise BotRuntimeError(
+                f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
+            )
         plugin_name = os.path.basename(plugin_path)
         plugins_folder = str(pathlib.Path(plugin_path).parent.resolve(strict=True))
         plugins_folder_name = os.path.basename(plugins_folder)
         if plugins_folder not in sys.path:
             importlib.import_module(plugins_folder_name)
             sys.path.insert(0, plugins_folder)
-        module = importlib.import_module(f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}")
+        module = importlib.import_module(
+            f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}"
+        )
 
         plugin_class = None
         for obj in module.__dict__.values():
-            if isinstance(obj, type) and issubclass(obj, Plugin) and obj.__name__ != Plugin.__name__:
+            if (
+                isinstance(obj, type)
+                and issubclass(obj, Plugin)
+                and obj.__name__ != Plugin.__name__
+            ):
                 plugin_class = obj
                 break
         if plugin_class is None:
-            raise BotRuntimeError("指定的入口主文件中，未发现继承 Plugin 的插件类，无法加载插件")
+            raise BotRuntimeError(
+                "指定的入口主文件中，未发现继承 Plugin 的插件类，无法加载插件"
+            )
         plugin = plugin_class()
         file_path = inspect.getfile(module)
         return (plugin, file_path)
@@ -80,7 +97,12 @@ class PluginLoader:
         return (plugin, file_path)
 
     @classmethod
-    def load(cls, plugin_target: Union[str, Type[Plugin]], logger: Logger, responder: IActionResponder) -> Plugin:
+    def load(
+        cls,
+        plugin_target: Union[str, Type[Plugin]],
+        logger: Logger,
+        responder: IActionResponder,
+    ) -> Plugin:
         """
         加载插件
         """
@@ -98,14 +120,15 @@ class MeloBot:
     bot 模块。负责整个 bot 的启动、加载和管理。
     指定 restart_tip 可在重启时自动回复
     """
+
     def __init__(self) -> None:
         self.config: BotConfig
         self.info = META_INFO
         # 不要更改这个属性名
-        self._logger: Logger=None
+        self._logger: Logger = None
 
-        self.life: aio.Task=None
-        self.plugins: Dict[str, Plugin]={}
+        self.life: aio.Task = None
+        self.plugins: Dict[str, Plugin] = {}
         self.loader = PluginLoader
 
         self.linker: BotLinker
@@ -123,7 +146,7 @@ class MeloBot:
     @property
     def slack(self) -> bool:
         return self.linker.slack
-    
+
     @slack.setter
     def slack(self, value: bool) -> None:
         self.linker.slack = value
@@ -139,19 +162,26 @@ class MeloBot:
         if self.__init_flag__:
             self.logger.error("bot 不能重复初始化")
             exit(self.exit_code)
-        
+
         self.config = BotConfig(config_dir)
         self._logger = get_logger(self.config.log_dir_path, self.config.log_level)
-        self.linker = BotLinker(self.config.connect_host, self.config.connect_port, 
-                                self.config.max_conn_try, self.config.conn_try_interval,
-                                self.config.cooldown_time, self.logger)
+        self.linker = BotLinker(
+            self.config.connect_host,
+            self.config.connect_port,
+            self.config.max_conn_try,
+            self.config.conn_try_interval,
+            self.config.cooldown_time,
+            self.logger,
+        )
         self.responder = BotResponder(self.logger)
         self.dispatcher = BotDispatcher(self.logger)
         self.plugin_bus._bind(self.logger, self.responder)
         self.bot_bus._bind(self.logger, self.responder)
 
         self.logger.info("欢迎使用 melobot v2")
-        self.logger.info(f"melobot 在 AGPL3 协议下开源发行。更多请参阅：{self.info.PROJ_SRC}")
+        self.logger.info(
+            f"melobot 在 AGPL3 协议下开源发行。更多请参阅：{self.info.PROJ_SRC}"
+        )
         self.logger.info(f"运行版本：{self.info.VER}，平台：{self.info.PLATFORM}")
         if os.environ.get(MODULE_MODE_FLAG) == MODULE_MODE_SET:
             self.logger.info("当前运行模式：模块运行模式")
@@ -167,8 +197,12 @@ class MeloBot:
         if not self.__init_flag__:
             self.logger.error("加载插件必须在初始化之后进行")
             exit(self.exit_code)
-        
-        plugin_dir = inspect.getfile(plugin_target) if not isinstance(plugin_target, str) else plugin_target
+
+        plugin_dir = (
+            inspect.getfile(plugin_target)
+            if not isinstance(plugin_target, str)
+            else plugin_target
+        )
         self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
         plugin = self.loader.load(plugin_target, self.logger, self.responder)
         exist_plugin = self.plugins.get(plugin.__class__.__id__)
@@ -177,7 +211,9 @@ class MeloBot:
             self.dispatcher.add_handlers(plugin._Plugin__handlers)
             self.logger.info(f"成功加载插件：{plugin.__class__.__id__}")
         else:
-            self.logger.error(f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{exist_plugin.plugin_dir}")
+            self.logger.error(
+                f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{exist_plugin.plugin_dir}"
+            )
             exit(self.exit_code)
 
     def load_plugins(self, plugins_dir: str) -> None:
@@ -187,7 +223,7 @@ class MeloBot:
         items = os.listdir(plugins_dir)
         for item in items:
             path = os.path.join(plugins_dir, item)
-            if os.path.isdir(path) and os.path.basename(path) != '__pycache__':
+            if os.path.isdir(path) and os.path.basename(path) != "__pycache__":
                 self.load_plugin(path)
 
     async def _run(self) -> None:
@@ -207,12 +243,12 @@ class MeloBot:
             pass
         except Exception as e:
             self.logger.error(f"bot 核心无法继续运行。异常：{e}")
-            self.logger.debug('异常回溯栈：\n' + traceback.format_exc().strip('\n'))
+            self.logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
         finally:
             await self.bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.info("bot 已清理运行时资源并关闭")
             exit(self.exit_code)
-    
+
     def run(self) -> None:
         """
         运行 bot
