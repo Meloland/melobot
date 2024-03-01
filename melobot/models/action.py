@@ -423,6 +423,12 @@ class BotAction:
         self.params: dict = package.params
         self.trigger: Union[BotEvent, None] = triggerEvent
 
+    def copy(self) -> "BotAction":
+        """
+        创建当前 action 的深拷贝
+        """
+        return deepcopy(self)
+
     def extract(self) -> dict:
         """
         从对象提取标准 cq action dict
@@ -435,11 +441,11 @@ class BotAction:
             obj["echo"] = self.resp_id
         return obj
 
-    def flatten(self) -> str:
+    def flatten(self, indent: int = None) -> str:
         """
         将对象序列化为标准 cq action json 字符串，一般供连接器使用
         """
-        return json.dumps(self.extract(), ensure_ascii=False)
+        return json.dumps(self.extract(), ensure_ascii=False, indent=indent)
 
 
 class MsgPacker(ActionPacker):

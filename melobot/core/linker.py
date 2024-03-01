@@ -120,8 +120,6 @@ class BotLinker(IActionSender):
                 await self.conn.send(action_str)
                 self._pre_send_time = time.time()
         except aio.CancelledError:
-            # FIXME: 并发度 >=3 sleep 会被取消
-            # 咱时找不到问题，但是可以通过递归重发解决。递归深度和数量在可以接收的范围内
             self.logger.warning("发生一次递归重发")
             await self.send(action)
         except wse.ConnectionClosed:

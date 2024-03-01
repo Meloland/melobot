@@ -62,15 +62,15 @@ class BotSession:
             return None
 
     @property
-    def args(self) -> Union[Dict[str, ParseArgs], ParseArgs, None]:
+    def args(self) -> Union[Dict[str, List[Any]], List[Any], None]:
         if self._handler is not None and self.event._args_map is not None:
             args_group = self.event._args_map.get(self._handler.parser.id)
             if self._handler.parser.target is None:
-                return deepcopy(args_group)
+                return deepcopy({name: args.vals for name, args in args_group.items()})
             for cmd_name in self._handler.parser.target:
                 args = args_group.get(cmd_name)
                 if args is not None:
-                    return deepcopy(args)
+                    return deepcopy(args.vals)
             raise BotRuntimeError("尝试获取的命令解析参数不存在")
         return None
 
@@ -142,6 +142,13 @@ class BotSession:
         return wrapper
 
     """以下所有 action 方法虽然本身不是异步的，但不使用 async，返回值将没有注解"""
+
+    @_launch
+    async def custom_action(self, action: BotAction) -> Union[RespEvent, None]:
+        """
+        直接处理提供的 action
+        """
+        return action
 
     @_launch
     async def send(

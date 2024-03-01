@@ -59,6 +59,17 @@ class Plugin:
         self.__class__.ROOT = root_path
         self.__class__.LOGGER = WrappedLogger(logger, self.__class__.__id__)
 
+        attrs_map = {
+            k: v for k, v in inspect.getmembers(self) if not k.startswith("__")
+        }
+        for val in self.__class__.__share__:
+            property, namespace, id = val
+            if property not in attrs_map.keys() and property is not None:
+                raise BotRuntimeError(
+                    f"插件 {self.__class__.__name__} 尝试共享一个不存在的属性 {property}"
+                )
+            PluginStore._create_so(property, namespace, id, self)
+
         members = inspect.getmembers(self)
         for attr_name, val in members:
             if isinstance(val, HandlerArgs):
@@ -107,17 +118,6 @@ class Plugin:
                     raise BotTypeError(f"信号处理方法 {func.__name__} 必须为异步函数")
                 handler = PluginSignalHandler(namespace, signal, func, self)
                 PluginBus._register(namespace, signal, handler)
-
-        attrs_map = {
-            k: v for k, v in inspect.getmembers(self) if not k.startswith("__")
-        }
-        for val in self.__class__.__share__:
-            property, namespace, id = val
-            if property not in attrs_map.keys() and property is not None:
-                raise BotRuntimeError(
-                    f"插件 {self.__class__.__name__} 尝试共享一个不存在的属性 {property}"
-                )
-            PluginStore._create_so(property, namespace, id, self)
 
         self.__proxy = PluginProxy(self)
 
