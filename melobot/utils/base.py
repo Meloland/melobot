@@ -35,7 +35,7 @@ def clear_cq(s: str) -> str:
 def lock(cb_maker: Callable[[None], Coroutine[Any, Any, Any]]) -> Callable:
     """
     锁装饰器，可以为被装饰的异步函数/方法加锁。
-    同时在获取锁冲突时，调用 cb_maker 获得一个回调并执行。
+    在获取锁冲突时，调用 cb_maker 获得一个回调并执行。回调执行完毕后直接返回
     """
     alock = aio.Lock()
     if not callable(cb_maker):
@@ -72,10 +72,11 @@ def cooldown(
     返回一个协程的 Callable 对象。
 
     如果被装饰方法已有一个在运行，此时会直接调用 busy_cb_maker 生成一个回调并执行。
+    回调执行完毕后直接返回。
 
     如果被装饰方法没有正在运行的，但在冷却完成前被调用，且此时 cd_cb_maker 不为 None，
     会使用 cd_cb_maker 生成一个回调并执行。如果此时 cd_cb_maker 为 None，
-    被装饰方法会等待冷却结束再执行
+    被装饰方法会持续等待直至冷却结束再执行
     """
     alock = aio.Lock()
     pre_finish_t = time.time() - interval - 1
@@ -131,7 +132,7 @@ def semaphore(
 ) -> Callable:
     """
     信号量装饰器，可以为被装饰的异步函数/方法添加信号量控制。
-    同时在信号量无法立刻获取时，调用 cb_maker 获得回调并执行。
+    在信号量无法立刻获取时，将调用 cb_maker 获得回调并执行。回调执行完毕后直接返回
     """
     a_semaphore = aio.Semaphore(value)
     if not callable(cb_maker):

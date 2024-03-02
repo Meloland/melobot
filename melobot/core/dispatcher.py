@@ -3,7 +3,12 @@ import traceback
 
 from ..models.bot import BotHookBus
 from ..models.event import BotEvent
-from ..models.plugin import MsgEventHandler, NoticeEventHandler, ReqEventHandler
+from ..models.handler import (
+    MetaEventHandler,
+    MsgEventHandler,
+    NoticeEventHandler,
+    ReqEventHandler,
+)
 from ..types.core import IEventDispatcher
 from ..types.exceptions import *
 from ..types.models import BotLife, IEventHandler
@@ -23,6 +28,7 @@ class BotDispatcher(IEventDispatcher):
             "message": [],
             "request": [],
             "notice": [],
+            "meta": [],
         }
         self.logger = logger
 
@@ -41,6 +47,8 @@ class BotDispatcher(IEventDispatcher):
                 self._handlers["request"].append(handler)
             elif isinstance(handler, NoticeEventHandler):
                 self._handlers["notice"].append(handler)
+            elif isinstance(handler, MetaEventHandler):
+                self._handlers["meta"].append(handler)
         for k in self._handlers.keys():
             self._handlers[k] = sorted(
                 self._handlers[k], key=lambda x: x.priority, reverse=True

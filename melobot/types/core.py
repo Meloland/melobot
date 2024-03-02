@@ -36,15 +36,6 @@ class IActionResponder(ABC):
         pass
 
 
-class IMetaDispatcher(ABC):
-    def __init__(self) -> None:
-        super().__init__()
-
-    @abstractmethod
-    async def dispatch(self, meta_event: MetaEvent) -> None:
-        pass
-
-
 class IEventDispatcher(ABC):
     def __init__(self) -> None:
         super().__init__()

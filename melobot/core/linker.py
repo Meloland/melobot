@@ -12,7 +12,6 @@ from ..models.event import BotEventBuilder
 from ..types.core import (
     IActionSender,
     IEventDispatcher,
-    IMetaDispatcher,
     IRespDispatcher,
 )
 from ..types.exceptions import BotRuntimeError
@@ -51,20 +50,17 @@ class BotLinker(IActionSender):
         self._pre_send_time = time.time()
         self._common_dispatcher: IEventDispatcher
         self._resp_dispatcher: IRespDispatcher
-        self._meta_dispatcher: IMetaDispatcher
 
     def bind(
         self,
         common_dispatcher: IEventDispatcher,
         resp_dispatcher: IRespDispatcher,
-        meta_dispatcher: IMetaDispatcher,
     ) -> None:
         """
         绑定其他核心组件的方法。
         """
         self._common_dispatcher = common_dispatcher
         self._resp_dispatcher = resp_dispatcher
-        self._meta_dispatcher = meta_dispatcher
         self._ready_signal.set()
 
     async def _start(self) -> None:
@@ -140,8 +136,6 @@ class BotLinker(IActionSender):
                     event = BotEventBuilder.build(raw_event)
                     if event.is_resp():
                         aio.create_task(self._resp_dispatcher.dispatch(event))
-                    elif event.is_meta():
-                        aio.create_task(self._meta_dispatcher.dispatch(event))
                     else:
                         aio.create_task(self._common_dispatcher.dispatch(event))
                 except wse.ConnectionClosed:

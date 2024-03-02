@@ -16,10 +16,9 @@ from ..meta import (
     MODULE_MODE_SET,
 )
 from ..models.bot import BOT_PROXY, BotHookBus
-from ..models.event import MetaEvent
 from ..models.ipc import PluginBus, PluginStore
 from ..models.plugin import Plugin
-from ..types.core import IActionResponder, IMetaDispatcher
+from ..types.core import IActionResponder
 from ..types.exceptions import *
 from ..types.models import BotLife
 from ..types.typing import *
@@ -34,16 +33,6 @@ if sys.platform != "win32":
     import uvloop
 
     aio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-
-# TODO: 补全元事件处理器部分
-class MetaEventDispatcher(IMetaDispatcher):
-    def __init__(self) -> None:
-        super().__init__()
-
-    # 未来重写记得加上异常日志记录
-    async def dispatch(self, meta_event: MetaEvent) -> None:
-        pass
 
 
 class PluginLoader:
@@ -134,7 +123,6 @@ class MeloBot:
         self.linker: BotLinker
         self.responder: BotResponder
         self.dispatcher: BotDispatcher
-        self.meta_dispatcher = MetaEventDispatcher()
         self.plugin_bus = PluginBus
         self.plugin_store = PluginStore
         self.bot_bus = BotHookBus
@@ -236,7 +224,7 @@ class MeloBot:
 
         await self.bot_bus.emit(BotLife.LOADED)
         self.responder.bind(self.linker)
-        self.linker.bind(self.dispatcher, self.responder, self.meta_dispatcher)
+        self.linker.bind(self.dispatcher, self.responder)
         try:
             async with self.linker:
                 self.life = aio.create_task(self.linker.listen())
