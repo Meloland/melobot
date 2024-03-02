@@ -198,6 +198,22 @@ class BotProxy:
         """
         await self.__bot__.restart()
 
+    def call_later(self, callback: partial, delay: float):
+        """
+        在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是同步方法，
+        因为只有同步方法才需要此 api 完成延时调度
+        """
+        loop: aio.AbstractEventLoop = self.__bot__.loop
+        return loop.call_later(delay, callback)
+
+    def call_at(self, callback: partial, timestamp: float):
+        """
+        在指定的时间戳后调度一个 callback 执行。注意这个 callback 应该是同步方法，
+        因为只有同步方法才需要此 api 完成定时调度
+        """
+        loop: aio.AbstractEventLoop = self.__bot__.loop
+        return loop.call_at(timestamp, callback)
+
     @classmethod
     def on(cls, hook_type: BotLife, callback: Callable = None):
         """

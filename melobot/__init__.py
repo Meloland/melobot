@@ -26,7 +26,7 @@ from .types.exceptions import BotException, BotHupTimeout
 from .types.models import BotEvent, BotLife, ShareObjArgs
 from .types.typing import Callable, PriorityLevel, User
 from .types.utils import BotChecker, BotMatcher
-from .utils.base import clear_cq, this_dir
+from .utils.base import clear_cq, cooldown, lock, semaphore, this_dir
 from .utils.checker import GroupMsgLvl, MsgCheckerGen, MsgLvlChecker, PrivateMsgLvl
 from .utils.formatter import ArgFormatter
 from .utils.matcher import ContainMatch, EndMatch, FullMatch, RegexMatch, StartMatch
@@ -97,6 +97,9 @@ __all__ = (
     "RWController",
     "this_dir",
     "clear_cq",
+    "lock",
+    "semaphore",
+    "cooldown",
     "get_twin_event",
     "get_id",
     "get_event",

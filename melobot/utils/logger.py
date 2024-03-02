@@ -2,9 +2,9 @@ import logging
 import logging.config
 import logging.handlers
 import os
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
 
 from ..types.typing import *
-from ..types.utils import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
 
 
 def get_logger(

@@ -144,6 +144,10 @@ class MeloBot:
         self.exit_code = EXIT_CLOSE
 
     @property
+    def loop(self) -> aio.AbstractEventLoop:
+        return aio.get_running_loop()
+
+    @property
     def slack(self) -> bool:
         return self.linker.slack
 

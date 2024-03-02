@@ -76,22 +76,14 @@ class Plugin:
                 executor, handler_class, params = val
                 if not iscoroutinefunction(executor):
                     raise BotTypeError(f"事件处理器 {executor.__name__} 必须为异步方法")
-                overtime_cb, conflict_cb = params[-1], params[-2]
-                if (
-                    overtime_cb
-                    and not iscoroutinefunction(overtime_cb)
-                    and not iscoroutine(overtime_cb)
-                ):
+                overtime_cb_maker, conflict_cb_maker = params[-1], params[-2]
+                if overtime_cb_maker and not callable(overtime_cb_maker):
                     raise BotTypeError(
-                        f"超时回调方法 {overtime_cb.__name__} 必须为异步函数或协程"
+                        f"超时回调方法 {overtime_cb_maker.__name__} 必须为可调用对象"
                     )
-                if (
-                    conflict_cb
-                    and not iscoroutinefunction(conflict_cb)
-                    and not iscoroutine(conflict_cb)
-                ):
+                if conflict_cb_maker and not callable(conflict_cb_maker):
                     raise BotTypeError(
-                        f"冲突回调方法 {conflict_cb.__name__} 必须为异步函数或协程"
+                        f"冲突回调方法 {conflict_cb_maker.__name__} 必须为可调用对象"
                     )
                 handler = handler_class(executor, self, responder, logger, *params)
                 self.__handlers.append(handler)
@@ -135,8 +127,8 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_callback: Union[AsyncFunc, Coroutine] = None,
-        overtime_callback: Union[AsyncFunc, Coroutine] = None,
+        conflict_cb: Callable[[None], Coroutine] = None,
+        overtime_cb: Callable[[None], Coroutine] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为消息事件执行器
@@ -158,8 +150,8 @@ class Plugin:
                     session_hold,
                     direct_rouse,
                     conflict_wait,
-                    conflict_callback,
-                    overtime_callback,
+                    conflict_cb,
+                    overtime_cb,
                 ],
             )
 
@@ -177,8 +169,8 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_callback: Union[AsyncFunc, Coroutine] = None,
-        overtime_callback: Union[AsyncFunc, Coroutine] = None,
+        conflict_cb: Callable[[None], Coroutine] = None,
+        overtime_cb: Callable[[None], Coroutine] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为消息事件执行器。
@@ -201,8 +193,8 @@ class Plugin:
                     session_hold,
                     direct_rouse,
                     conflict_wait,
-                    conflict_callback,
-                    overtime_callback,
+                    conflict_cb,
+                    overtime_cb,
                 ],
             )
 
@@ -223,11 +215,14 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_callback: Union[AsyncFunc, Coroutine] = None,
-        overtime_callback: Union[AsyncFunc, Coroutine] = None,
+        conflict_cb: Callable[[None], Coroutine] = None,
+        overtime_cb: Callable[[None], Coroutine] = None,
     ) -> Callable:
         at_checker = AtChecker(qid)
-        the_checker = at_checker & checker
+        if checker is not None:
+            the_checker = at_checker & checker
+        else:
+            the_checker = at_checker
 
         def make_args(executor: AsyncFunc[None]) -> HandlerArgs:
             return HandlerArgs(
@@ -245,8 +240,8 @@ class Plugin:
                     session_hold,
                     direct_rouse,
                     conflict_wait,
-                    conflict_callback,
-                    overtime_callback,
+                    conflict_cb,
+                    overtime_cb,
                 ],
             )
 
@@ -272,8 +267,8 @@ class MsgEventHandler(IEventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_callback: Union[AsyncFunc, Coroutine] = None,
-        overtime_callback: Union[AsyncFunc, Coroutine] = None,
+        conflict_cb_maker: Callable[[None], Coroutine] = None,
+        overtime_cb_maker: Callable[[None], Coroutine] = None,
     ) -> None:
         super().__init__(priority, timeout, set_block, temp)
 
@@ -289,9 +284,8 @@ class MsgEventHandler(IEventHandler):
         self._hold = session_hold
         self._plugin = plugin
         self._direct_rouse = direct_rouse
-        ccb, ocb = conflict_callback, overtime_callback
-        self._conflict_coro = ccb() if iscoroutinefunction(ccb) else ccb
-        self._overtime_coro = ocb() if iscoroutinefunction(ocb) else ocb
+        self._conflict_cb_maker = conflict_cb_maker
+        self._overtime_cb_maker = overtime_cb_maker
         self._wait_flag = conflict_wait
 
         # matcher 和 parser 不能同时存在
@@ -299,13 +293,13 @@ class MsgEventHandler(IEventHandler):
             raise BotRuntimeError("参数 matcher 和 parser 不能同时存在")
 
         if session_rule is None:
-            if session_hold or direct_rouse or conflict_wait or conflict_callback:
+            if session_hold or direct_rouse or conflict_wait or conflict_cb_maker:
                 raise BotRuntimeError(
                     "使用 session_rule 参数后才能使用以下参数：session_hold， direct_rouse, \
                                       conflict_wait, conflict_callback"
                 )
 
-        if conflict_wait and conflict_callback:
+        if conflict_wait and conflict_cb_maker:
             raise BotRuntimeError(
                 "参数 conflict_wait 为 True 时，conflict_callback 永远不会被调用"
             )
@@ -375,9 +369,9 @@ class MsgEventHandler(IEventHandler):
                     return
             session = await BotSessionManager.get(event, self.responder, self)
             # 如果因为冲突没有获得 session，且指定了冲突回调
-            if session is None and self._conflict_coro:
+            if session is None and self._conflict_cb_maker:
                 temp_session = BotSessionManager.make_temp(event, self.responder)
-                await self._run_on_ctx(self._conflict_coro, temp_session)
+                await self._run_on_ctx(self._conflict_cb_maker(), temp_session)
             # 如果因为冲突没有获得 session，但没有冲突回调
             if session is None:
                 return
@@ -386,8 +380,8 @@ class MsgEventHandler(IEventHandler):
                 exec_coro = self.executor(self._plugin)
                 await self._run_on_ctx(exec_coro, session, self.timeout)
             except aio.TimeoutError:
-                if self._overtime_coro:
-                    await self._run_on_ctx(self._overtime_coro, session)
+                if self._overtime_cb_maker:
+                    await self._run_on_ctx(self._overtime_cb_maker(), session)
         except BotExecutorQuickExit:
             pass
         except Exception as e:

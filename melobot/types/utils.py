@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from logging import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
+from logging import Logger
 from types import TracebackType
 from typing import TypeAlias
 
 from ..models.event import BotEvent
+from .exceptions import *
 from .typing import *
 
 _SysExcInfoType: TypeAlias = Union[
@@ -157,15 +158,21 @@ class BotChecker(ABC):
         super().__init__()
 
     def __and__(self, other: "BotChecker") -> "WrappedChecker":
+        if not isinstance(other, BotChecker):
+            raise BotValueError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotChecker") -> "WrappedChecker":
+        if not isinstance(other, BotChecker):
+            raise BotValueError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedMatcher":
         return WrappedChecker(LogicMode.NOT, self)
 
     def __xor__(self, other: "BotChecker") -> "WrappedChecker":
+        if not isinstance(other, BotChecker):
+            raise BotValueError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -175,7 +182,7 @@ class BotChecker(ABC):
 
 class WrappedChecker(BotChecker):
     """
-    按逻辑关系工作的的合并检查器，使用 AND 和 OR 模式时，
+    按逻辑关系工作的的合并检查器，使用 AND, OR, XOR 模式时，
     需要传递两个 checker。使用 NOT 时只需要传递第一个 checker
     """
 
@@ -202,15 +209,21 @@ class BotMatcher(ABC):
         super().__init__()
 
     def __and__(self, other: "BotMatcher") -> "WrappedMatcher":
+        if not isinstance(other, BotMatcher):
+            raise BotValueError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotMatcher") -> "WrappedMatcher":
+        if not isinstance(other, BotMatcher):
+            raise BotValueError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedMatcher":
         return WrappedMatcher(LogicMode.NOT, self)
 
     def __xor__(self, other: "BotMatcher") -> "WrappedMatcher":
+        if not isinstance(other, BotMatcher):
+            raise BotValueError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -220,7 +233,7 @@ class BotMatcher(ABC):
 
 class WrappedMatcher(BotMatcher):
     """
-    按逻辑关系工作的的合并匹配器，使用 AND 和 OR 模式时，
+    按逻辑关系工作的的合并匹配器，使用 AND, OR, XOR 模式时，
     需要传递两个 matcher。使用 NOT 时只需要传递第一个 matcher
     """
 
