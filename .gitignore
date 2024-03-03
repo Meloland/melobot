@@ -11,6 +11,11 @@ config
 test.*
 test
 
+.vscode
+.env
 dev
 build
 *.egg-info
+dist
+upload.bat
+upload.sh
