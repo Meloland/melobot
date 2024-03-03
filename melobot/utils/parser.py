@@ -28,7 +28,7 @@ class CmdParser(BotParser):
             True if target is not None and len(self.formatters) > 0 else False
         )
         if target is None and len(self.formatters) > 0:
-            raise BotRuntimeError("不指定 target 来匹配具体的命令名时，无法进行格式化")
+            raise ArgParseError("不指定 target 来匹配具体的命令名时，无法进行格式化")
 
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
         self.sep_tokens = cmd_sep if isinstance(cmd_sep, list) else [cmd_sep]
@@ -36,7 +36,7 @@ class CmdParser(BotParser):
         self._build_parse_regex()
 
         if self.ban_regex.findall("".join(cmd_start) + "".join(cmd_sep)):
-            raise BotValueError("存在命令解析器不支持的命令起始符，或命令间隔符")
+            raise ArgParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
 
     def _build_parse_regex(self):
         """
@@ -57,7 +57,7 @@ class CmdParser(BotParser):
             self.sep_parse_regex = re.compile(rf"{'|'.join(self.cmd_sep)}")
             self.start_parse_regex = re.compile(rf"{'|'.join(self.cmd_start)}")
         else:
-            raise BotValueError("命令解析器起始符不能和间隔符重合")
+            raise ArgParseError("命令解析器起始符不能和间隔符重合")
 
     def _purify(self, text: str) -> str:
         """

@@ -46,7 +46,7 @@ class PluginLoader:
         从指定插件目录加载插件
         """
         if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
-            raise BotRuntimeError(
+            raise PluginLoadError(
                 f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
             )
         plugin_name = os.path.basename(plugin_path)
@@ -69,7 +69,7 @@ class PluginLoader:
                 plugin_class = obj
                 break
         if plugin_class is None:
-            raise BotRuntimeError(
+            raise PluginLoadError(
                 "指定的入口主文件中，未发现继承 Plugin 的插件类，无法加载插件"
             )
         plugin = plugin_class()

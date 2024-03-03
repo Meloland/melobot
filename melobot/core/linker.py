@@ -10,7 +10,7 @@ from ..models.action import BotAction
 from ..models.bot import BotHookBus
 from ..models.event import BotEventBuilder
 from ..types.core import IActionSender, IEventDispatcher, IRespDispatcher
-from ..types.exceptions import BotRuntimeError
+from ..types.exceptions import *
 from ..types.models import BotLife
 from ..types.typing import *
 from ..utils.logger import Logger
@@ -75,7 +75,7 @@ class BotLinker(IActionSender):
                     f"ws 连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}"
                 )
                 await aio.sleep(self.retry_delay)
-        raise BotRuntimeError("连接重试已达最大重试次数，已放弃建立连接")
+        raise BotConnectFailed("连接重试已达最大重试次数，已放弃建立连接")
 
     async def _close(self) -> None:
         """

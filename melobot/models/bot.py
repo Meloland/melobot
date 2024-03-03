@@ -59,7 +59,7 @@ class BotHookBus:
         注册一个生命周期运行器。由 plugin build 过程调用
         """
         if hook_type not in cls.__store__.keys():
-            raise BotRuntimeError(
+            raise BotHookError(
                 f"尝试添加一个生命周期 hook，但是其指定的类型 {hook_type} 不存在"
             )
         cls.__store__[hook_type].append(runner)
@@ -70,13 +70,13 @@ class BotHookBus:
         动态注册 hook 方法
         """
         if isinstance(callback, HookRunner):
-            raise BotRuntimeError("已注册的生命周期 hook 方法不能再注册")
+            raise BotHookError("已注册的生命周期 hook 方法不能再注册")
         if not iscoroutinefunction(callback):
-            raise BotTypeError(f"生命周期 hook 方法 {callback.__name__} 必须为异步函数")
+            raise BotHookError(f"生命周期 hook 方法 {callback.__name__} 必须为异步函数")
         if (
             isinstance(callback, partial) and isinstance(callback.func, MethodType)
         ) or isinstance(callback, MethodType):
-            raise BotTypeError("callback 应该是 function，而不是 bound method")
+            raise BotHookError("callback 应该是 function，而不是 bound method")
         runner = HookRunner(hook_type, callback, plugin=None)
         cls._register(hook_type, runner)
 

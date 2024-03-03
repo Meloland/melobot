@@ -159,12 +159,12 @@ class BotChecker(ABC):
 
     def __and__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotValueError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise BotCheckerError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotValueError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise BotCheckerError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedMatcher":
@@ -172,7 +172,7 @@ class BotChecker(ABC):
 
     def __xor__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotValueError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise BotCheckerError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -210,12 +210,12 @@ class BotMatcher(ABC):
 
     def __and__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotValueError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise BotMatcherError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotValueError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise BotMatcherError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedMatcher":
@@ -223,7 +223,7 @@ class BotMatcher(ABC):
 
     def __xor__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotValueError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise BotMatcherError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod

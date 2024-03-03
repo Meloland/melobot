@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from ..types.exceptions import *
 from ..types.typing import *
-from .base import ID_WORKER
+from ..utils.base import get_id
 from .event import *
 
 __all__ = (
@@ -163,7 +163,7 @@ def to_cq_str_format(action: "BotAction") -> "BotAction":
     elif _action.type in ("send_private_forward_msg", "send_group_forward_msg"):
         _format_forward_action(_action)
     else:
-        raise BotTypeError("传入的 action 因类型不匹配，不可被 cq 序列化")
+        raise BotActionError("传入的 action 因类型不匹配，不可被 cq 序列化")
 
     return _action
 
@@ -418,7 +418,7 @@ class BotAction:
         triggerEvent: BotEvent = None,
     ) -> None:
         # 只有 action 对应的响应需要被等待单独处理时，才会生成 id
-        self.resp_id: Union[str, None] = str(ID_WORKER.get_id()) if respWaited else None
+        self.resp_id: Union[str, None] = str(get_id()) if respWaited else None
         self.type: str = package.type
         self.params: dict = package.params
         self.trigger: Union[BotEvent, None] = triggerEvent
@@ -503,7 +503,7 @@ def msg_action(
                 temp.append(_)
         msgs = temp
     else:
-        raise BotTypeError("content 参数类型不正确，无法封装")
+        raise BotActionError("content 参数类型不正确，无法封装")
     return BotAction(
         MsgPacker(msgs, isPrivate, userId, groupId),
         respWaited=respWaited,

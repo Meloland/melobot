@@ -69,7 +69,7 @@ class PluginStore:
             obj = ShareObject(namespace, id)
             cls.__store__[namespace][id] = obj
         else:
-            raise BotRuntimeError(
+            raise ShareObjError(
                 f"命名空间 {namespace} 中已经存在 id 为 {id} 的共享对象"
             )
         if property is not None:
@@ -85,9 +85,9 @@ class PluginStore:
         为共享对象绑定回调
         """
         if namespace not in cls.__store__.keys():
-            raise BotRuntimeError(f"共享对象回调指定的命名空间 {namespace} 不存在")
+            raise ShareObjError(f"共享对象回调指定的命名空间 {namespace} 不存在")
         if id not in cls.__store__[namespace].keys():
-            raise BotRuntimeError(
+            raise ShareObjError(
                 f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象"
             )
         cls.__store__[namespace][id]._fill_cb(partial(cb, plugin))
@@ -183,13 +183,13 @@ class PluginBus:
             return make_args
         else:
             if isinstance(callback, SignalHandlerArgs):
-                raise BotRuntimeError("已注册的信号处理方法不能再注册")
+                raise PluginSignalError("已注册的信号处理方法不能再注册")
             if not iscoroutinefunction(callback):
-                raise BotTypeError(f"信号处理方法 {callback.__name__} 必须为异步函数")
+                raise PluginSignalError(f"信号处理方法 {callback.__name__} 必须为异步函数")
             if (
                 isinstance(callback, partial) and isinstance(callback.func, MethodType)
             ) or isinstance(callback, MethodType):
-                raise BotTypeError("callback 应该是 function，而不是 bound method。")
+                raise PluginSignalError("callback 应该是 function，而不是 bound method。")
             handler = PluginSignalHandler(namespace, signal, callback, plugin=None)
             cls._register(namespace, signal, handler)
 
@@ -241,11 +241,11 @@ class PluginBus:
         注意：如果你要等待返回结果，则需要指定 wait=True，否则不会等待且始终返回 None
         """
         if forward and not wait:
-            raise BotRuntimeError(
+            raise PluginSignalError(
                 "在触发插件信号处理方法时传递原始 session，wait 参数需要为 True"
             )
         if namespace not in cls.__store__.keys():
-            raise BotRuntimeError(f"插件信号命名空间 {namespace} 不存在，无法触发信号")
+            raise PluginSignalError(f"插件信号命名空间 {namespace} 不存在，无法触发信号")
         if signal not in cls.__store__[namespace].keys():
             return
 

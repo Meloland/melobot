@@ -73,7 +73,7 @@ class Plugin:
         for val in self.__class__.__share__:
             property, namespace, id = val
             if property not in attrs_map.keys() and property is not None:
-                raise BotRuntimeError(
+                raise PluginBuildError(
                     f"插件 {self.__class__.__name__} 尝试共享一个不存在的属性 {property}"
                 )
             PluginStore._create_so(property, namespace, id, self)
@@ -83,14 +83,14 @@ class Plugin:
             if isinstance(val, EventHandlerArgs):
                 executor, handler_class, params = val
                 if not iscoroutinefunction(executor):
-                    raise BotTypeError(f"事件处理器 {executor.__name__} 必须为异步方法")
+                    raise PluginBuildError(f"事件处理器 {executor.__name__} 必须为异步方法")
                 overtime_cb_maker, conflict_cb_maker = params[-1], params[-2]
                 if overtime_cb_maker and not callable(overtime_cb_maker):
-                    raise BotTypeError(
+                    raise PluginBuildError(
                         f"超时回调方法 {overtime_cb_maker.__name__} 必须为可调用对象"
                     )
                 if conflict_cb_maker and not callable(conflict_cb_maker):
-                    raise BotTypeError(
+                    raise PluginBuildError(
                         f"冲突回调方法 {conflict_cb_maker.__name__} 必须为可调用对象"
                     )
                 handler = handler_class(executor, self, responder, logger, *params)
@@ -100,14 +100,14 @@ class Plugin:
             elif isinstance(val, HookRunnerArgs):
                 hook_func, type = val
                 if not iscoroutinefunction(hook_func):
-                    raise BotTypeError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
+                    raise PluginBuildError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
                 runner = HookRunner(type, hook_func, self)
                 BotHookBus._register(type, runner)
 
             elif isinstance(val, ShareCbArgs):
                 namespace, id, cb = val
                 if not iscoroutinefunction(cb):
-                    raise BotTypeError(
+                    raise PluginBuildError(
                         f"{namespace} 命名空间中，id 为 {id} 的共享对象，它的回调 {cb.__name__} 必须为异步函数"
                     )
                 PluginStore._bind_cb(namespace, id, cb, self)
@@ -115,7 +115,7 @@ class Plugin:
             elif isinstance(val, SignalHandlerArgs):
                 func, namespace, signal = val
                 if not iscoroutinefunction(func):
-                    raise BotTypeError(f"信号处理方法 {func.__name__} 必须为异步函数")
+                    raise PluginBuildError(f"信号处理方法 {func.__name__} 必须为异步函数")
                 handler = PluginSignalHandler(namespace, signal, func, self)
                 PluginBus._register(namespace, signal, handler)
 

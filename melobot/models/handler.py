@@ -53,13 +53,13 @@ class EventHandler:
 
         if session_rule is None:
             if session_hold or direct_rouse or conflict_wait or conflict_cb_maker:
-                raise BotRuntimeError(
+                raise EventHandlerError(
                     "使用 session_rule 参数后才能使用以下参数：session_hold， direct_rouse, \
                                       conflict_wait, conflict_callback"
                 )
 
         if conflict_wait and conflict_cb_maker:
-            raise BotRuntimeError(
+            raise EventHandlerError(
                 "参数 conflict_wait 为 True 时，冲突回调永远不会被调用"
             )
 
@@ -119,7 +119,7 @@ class EventHandler:
             except aio.TimeoutError:
                 if self._overtime_cb_maker:
                     await self._run_on_ctx(self._overtime_cb_maker(), session)
-        except BotExecutorQuickExit:
+        except DirectRetSignal:
             pass
         except Exception as e:
             e_name = e.__class__.__name__
@@ -206,7 +206,7 @@ class MsgEventHandler(EventHandler):
 
         # matcher 和 parser 不能同时存在
         if self.matcher and self.parser:
-            raise BotRuntimeError("参数 matcher 和 parser 不能同时存在")
+            raise EventHandlerError("参数 matcher 和 parser 不能同时存在")
 
     def _match_and_parse(self, event: MsgEvent) -> bool:
         """
@@ -227,7 +227,7 @@ class MsgEventHandler(EventHandler):
                 if self.parser.need_format:
                     self.parser.format(args)
                 return True
-            except BotFormatFailed as e:
+            except ArgFormatFailed as e:
                 msg = f"命令 {cmd_name} 参数格式化失败：\n" + e.__str__()
                 action = msg_action(
                     msg, event.is_private(), event.sender.id, event.group_id

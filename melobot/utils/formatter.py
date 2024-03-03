@@ -48,7 +48,7 @@ class ArgFormatter:
         self.default = default
         self.default_replace_flag = default_replace_flag
         if self.default is Null and self.default_replace_flag is not None:
-            raise BotRuntimeError(
+            raise ArgFormatInitError(
                 "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
             )
 
@@ -59,7 +59,7 @@ class ArgFormatter:
     def _get_val(self, args: ParseArgs, idx: int) -> Any:
         if self.default is Null:
             if args.vals is None or len(args.vals) < idx + 1:
-                raise BotArgLackError
+                raise ArgLackError
             else:
                 return args.vals[idx]
         if args.vals is None:
@@ -86,24 +86,24 @@ class ArgFormatter:
             elif self.verify(res):
                 pass
             else:
-                raise BotArgCheckFailed
+                raise ArgVerifyFailed
             args.vals[idx] = res
-        except BotArgCheckFailed as e:
+        except ArgVerifyFailed as e:
             if self.out_verify_tip_gen:
                 tip = self.out_verify_tip_gen.gen(
                     src, self.src_desc, self.src_expect, idx, e, traceback
                 )
             else:
                 tip = self._verify_tip_gen(src, idx)
-            raise BotFormatFailed(tip)
-        except BotArgLackError as e:
+            raise ArgFormatFailed(tip)
+        except ArgLackError as e:
             if self.out_arglack_tip_gen:
                 tip = self.out_arglack_tip_gen.gen(
                     None, self.src_desc, self.src_expect, idx, e, traceback
                 )
             else:
                 tip = self._arglack_tip_gen(idx)
-            raise BotFormatFailed(tip)
+            raise ArgFormatFailed(tip)
         except Exception as e:
             if self.out_convert_tip_gen:
                 tip = self.out_convert_tip_gen.gen(
@@ -111,7 +111,7 @@ class ArgFormatter:
                 )
             else:
                 tip = self._convert_tip_gen(src, idx, e)
-            raise BotFormatFailed(tip)
+            raise ArgFormatFailed(tip)
 
     def _convert_tip_gen(self, src: str, idx: int, exc_type: Exception) -> str:
         e_class = exc_type.__class__.__name__

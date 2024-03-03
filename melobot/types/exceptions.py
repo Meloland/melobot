@@ -11,34 +11,77 @@ class BotException(Exception):
         return self.err
 
 
-class BotRuntimeError(BotException):
-    """
-    外部不符合运行逻辑的操作，引起的异常
-    """
-
+class PluginLoadError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
 
 
-class BotValueError(BotException):
-    """
-    一般值错误引起的异常
-    """
-
+class PluginBuildError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
 
 
-class BotTypeError(BotException):
-    """
-    类型错误引起的异常
-    """
-
+class BotConnectFailed(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
 
 
-class BotFormatFailed(BotException):
+class BotHookError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class EventHandlerError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class BotCheckerError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class BotMatcherError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class ShareObjError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class PluginSignalError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class BotActionError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class BotSessionError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class BotBaseUtilsError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class ArgParseError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class ArgFormatInitError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class ArgFormatFailed(BotException):
     """
     专指格式化器格式化失败
     """
@@ -47,7 +90,7 @@ class BotFormatFailed(BotException):
         super().__init__(msg)
 
 
-class BotArgCheckFailed(BotException):
+class ArgVerifyFailed(BotException):
     """
     格式化时参数验证不通过
     """
@@ -56,7 +99,7 @@ class BotArgCheckFailed(BotException):
         super().__init__(msg)
 
 
-class BotArgLackError(BotException):
+class ArgLackError(BotException):
     """
     格式化时参数缺失
     """
@@ -65,7 +108,7 @@ class BotArgLackError(BotException):
         super().__init__(msg)
 
 
-class BotExecutorQuickExit(BotException):
+class DirectRetSignal(BotException):
     """
     嵌套函数中快速 return 的信号，上游捕获后无视即可
     """
@@ -74,7 +117,7 @@ class BotExecutorQuickExit(BotException):
         super().__init__(msg)
 
 
-class BotHupTimeout(BotException):
+class SessionHupTimeout(BotException):
     """
     等待 session 被唤醒时的超时异常
     """

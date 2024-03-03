@@ -232,7 +232,7 @@ class NoticeTypeChecker(BotChecker):
     def __init__(self, sub_type: str) -> None:
         super().__init__()
         if sub_type not in NoticeTypeChecker.SUB_TYPES:
-            raise BotValueError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
+            raise BotCheckerError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
         self.sub_type = sub_type
 
     def check(self, event: NoticeEvent) -> bool:

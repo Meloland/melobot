@@ -71,7 +71,7 @@ class BotSession:
                 args = args_group.get(cmd_name)
                 if args is not None:
                     return deepcopy(args.vals)
-            raise BotRuntimeError("尝试获取的命令解析参数不存在")
+            raise BotSessionError("尝试获取的命令解析参数不存在")
         return None
 
     async def suspend(self, overtime: int = None) -> None:
@@ -84,7 +84,7 @@ class BotSession:
         if overtime is None:
             await self._awake_signal.wait()
         elif overtime <= 0:
-            raise BotValueError("session 挂起超时时间（秒数）必须 > 0")
+            raise BotSessionError("session 挂起超时时间（秒数）必须 > 0")
         else:
             await aio.wait(
                 [self._awake_signal.wait(), aio.sleep(overtime)],
@@ -93,7 +93,7 @@ class BotSession:
             if self._awake_signal.is_set():
                 return
             BotSessionManager._rouse(self)
-            raise BotHupTimeout("session 挂起超时")
+            raise SessionHupTimeout("session 挂起超时")
 
     def destory(self) -> None:
         """
@@ -131,7 +131,7 @@ class BotSession:
         @wraps(get_action)
         async def wrapper(self: "BotSession", *args, **kwargs):
             if self._expired:
-                raise BotRuntimeError("session 已标记为过期，无法执行 action 操作")
+                raise BotSessionError("session 已标记为过期，无法执行 action 操作")
 
             action: BotAction = await get_action(self, *args, **kwargs)
             if action.resp_id is None:
@@ -162,7 +162,7 @@ class BotSession:
         enable_cq 若开启，文本中若包含 cq 字符串，将会被解释
         """
         if self.event == None:
-            raise BotRuntimeError("空 session 需要使用 custom_send 方法替代 send")
+            raise BotSessionError("空 session 需要使用 custom_send 方法替代 send")
         action = msg_action(
             content,
             self.event.is_private(),
@@ -203,7 +203,7 @@ class BotSession:
         enable_cq 若开启，文本中若包含 cq 字符串，将会被解释
         """
         if self.event == None:
-            raise BotRuntimeError(
+            raise BotSessionError(
                 "空 session 需要使用 custom_send_forward 方法替代 send_forward"
             )
         action = forward_msg_action(
@@ -901,11 +901,11 @@ class BotSessionManager:
         挂起 session
         """
         if session._space_tag is None:
-            raise BotRuntimeError(
+            raise BotSessionError(
                 "一次性 session 或空 session 不支持挂起，因为缺乏 session_rule 作为唤醒标志"
             )
         elif session._expired:
-            raise BotRuntimeError("过期的 session 不能被挂起")
+            raise BotSessionError("过期的 session 不能被挂起")
         session.hup_times.append(time.time())
         cls.STORAGE[session._space_tag].remove(session)
         cls.HUP_STORAGE[session._space_tag].add(session)
@@ -1093,7 +1093,7 @@ class AttrSessionRule(SessionRule):
             for attr in attrs:
                 val = getattr(val, attr)
         except AttributeError:
-            raise BotValueError(f"session 规则指定的属性 {attr} 不存在")
+            raise BotSessionError(f"session 规则指定的属性 {attr} 不存在")
         return val
 
     def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
@@ -1153,4 +1153,4 @@ async def finish(
     """
     await SESSION_LOCAL.send(content, enable_cq)
     SESSION_LOCAL.destory()
-    raise BotExecutorQuickExit("事件处理方法被安全地提早结束，请无视这个异常")
+    raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
