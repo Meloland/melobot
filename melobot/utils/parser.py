@@ -1,5 +1,4 @@
 import re
-from copy import deepcopy
 
 from ..types.exceptions import *
 from ..types.typing import *

@@ -16,20 +16,26 @@ from .models.session import SESSION_LOCAL as session
 from .models.session import (
     AttrSessionRule,
     BotSession,
-    SessionRule,
     finish,
     send,
     send_hup,
     send_reply,
 )
 from .types.exceptions import BotException, BotHupTimeout
-from .types.models import BotEvent, BotLife, ShareObjArgs
+from .types.models import BotEvent, BotLife, SessionRule, ShareObjArgs
 from .types.typing import Callable, PriorityLevel, User
 from .types.utils import BotChecker, BotMatcher
 from .utils.base import clear_cq, cooldown, lock, semaphore, this_dir
 from .utils.checker import GroupMsgLvl, MsgCheckerGen, MsgLvlChecker, PrivateMsgLvl
 from .utils.formatter import ArgFormatter
-from .utils.matcher import ContainMatch, EndMatch, FullMatch, RegexMatch, StartMatch
+from .utils.matcher import (
+    AlwaysMatch,
+    ContainMatch,
+    EndMatch,
+    FullMatch,
+    RegexMatch,
+    StartMatch,
+)
 from .utils.parser import CmdParser, CmdParserGen
 
 session: BotSession
@@ -125,6 +131,7 @@ __all__ = (
     "PrivateMsgLvl",
     "MsgCheckerGen",
     "StartMatch",
+    "AlwaysMatch",
     "ContainMatch",
     "EndMatch",
     "FullMatch",
@@ -146,5 +153,5 @@ __all__ = (
     "tts_msg",
     "cq_escape",
     "cq_anti_escape",
-    "cq_format",
+    "to_cq_str_format",
 )

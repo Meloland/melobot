@@ -9,18 +9,13 @@ import websockets.exceptions as wse
 from ..models.action import BotAction
 from ..models.bot import BotHookBus
 from ..models.event import BotEventBuilder
-from ..types.core import (
-    IActionSender,
-    IEventDispatcher,
-    IRespDispatcher,
-)
+from ..types.core import IActionSender, IEventDispatcher, IRespDispatcher
 from ..types.exceptions import BotRuntimeError
 from ..types.models import BotLife
 from ..types.typing import *
 from ..utils.logger import Logger
 
 
-# TODO: 完成连接协议和对应适配器
 class BotLinker(IActionSender):
     """
     Bot 连接模块通过连接适配器的代理，完成事件接收与行为发送。

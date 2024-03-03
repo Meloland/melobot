@@ -15,7 +15,7 @@ _SysExcInfoType: TypeAlias = Union[
 _ExcInfoType: TypeAlias = Union[None, bool, _SysExcInfoType, BaseException]
 
 
-class WrappedLogger:
+class PrefixLogger:
     """
     二次包装的日志器
     """

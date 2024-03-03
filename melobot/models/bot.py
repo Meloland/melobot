@@ -1,5 +1,6 @@
 import asyncio as aio
 import os
+import time
 import traceback
 from asyncio import iscoroutinefunction
 from functools import partial
@@ -142,6 +143,10 @@ class BotProxy:
         self.__bot__ = bot_origin
 
     @property
+    def loop(self) -> aio.AbstractEventLoop:
+        return self.__bot__.loop
+
+    @property
     def logger(self) -> Logger:
         """
         bot 全局日志器
@@ -200,19 +205,67 @@ class BotProxy:
 
     def call_later(self, callback: partial, delay: float):
         """
-        在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是同步方法，
-        因为只有同步方法才需要此 api 完成延时调度
+        在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是同步方法
         """
-        loop: aio.AbstractEventLoop = self.__bot__.loop
-        return loop.call_later(delay, callback)
+        return self.loop.call_later(delay, callback)
 
     def call_at(self, callback: partial, timestamp: float):
         """
-        在指定的时间戳后调度一个 callback 执行。注意这个 callback 应该是同步方法，
-        因为只有同步方法才需要此 api 完成定时调度
+        在指定的时间戳后调度一个 callback 执行。注意这个 callback 应该是同步方法
+
+        当 timestamp <= 当前时刻将立即执行
         """
-        loop: aio.AbstractEventLoop = self.__bot__.loop
-        return loop.call_at(timestamp, callback)
+        if timestamp <= time.time():
+            return self.loop.call_soon(callback)
+        else:
+            return self.loop.call_later(timestamp - time.time(), callback)
+
+    def async_later(
+        self, callback: Coroutine[Any, Any, Any], delay: float
+    ) -> aio.Future:
+        """
+        在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是协程。
+        返回一个 future 对象，可用于等待结果
+        """
+
+        async def async_cb(fut: aio.Future) -> Any:
+            await aio.sleep(delay)
+            res = await callback
+            fut.set_result(res)
+
+        fut = aio.Future()
+        aio.create_task(async_cb(fut))
+        return fut
+
+    def async_at(
+        self, callback: Coroutine[Any, Any, Any], timestamp: float
+    ) -> aio.Future:
+        """
+        在指定的 timestamp 调度一个 callback 执行。注意这个 callback 应该是协程。
+        返回一个 future 对象，可用于等待结果
+
+        当 timestamp <= 当前时刻将立即执行
+        """
+        if timestamp <= time.time():
+            return self.async_later(callback, 0)
+        else:
+            return self.async_later(callback, timestamp - time.time())
+
+    def async_interval(
+        self, cb_maker: Callable[[None], Coroutine[Any, Any, None]], interval: float
+    ) -> aio.Task:
+        """
+        以指定的 interval 调度一个 callback 执行。cb_maker 是用于产生 callback 的协程产生器。
+        返回一个 task 对象用于取消 callback
+        """
+
+        async def interval_cb():
+            while True:
+                await aio.sleep(interval)
+                await cb_maker()
+
+        t = aio.create_task(interval_cb())
+        return t
 
     @classmethod
     def on(cls, hook_type: BotLife, callback: Callable = None):

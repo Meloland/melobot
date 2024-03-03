@@ -6,7 +6,6 @@ from ..types.models import BotEvent
 from ..types.typing import *
 
 
-# TODO: 完成事件、行为数据结构协议，和对应适配器
 class BotEventBuilder:
     @classmethod
     def build(cls, rawEvent: Union[dict, str]) -> BotEvent:
@@ -300,6 +299,9 @@ class NoticeEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         self.bot_id = rawEvent.get("self_id")
+        # 修复某些 onebot 协议实现，user_id 缺失的问题
+        if "target_id" in rawEvent.keys() and "user_id" not in rawEvent:
+            rawEvent["user_id"] = rawEvent["target_id"]
 
         # 通知作用者或主体方的 id，如被禁言的一方
         self.notice_user_id: int

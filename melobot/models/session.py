@@ -1,6 +1,5 @@
 import asyncio as aio
 import time
-from abc import ABC, abstractmethod
 from contextvars import ContextVar, Token
 from copy import deepcopy
 from functools import wraps
@@ -10,6 +9,7 @@ from melobot.models.event import BotEvent
 from ..models.base import get_twin_event
 from ..types.core import IActionResponder
 from ..types.exceptions import *
+from ..types.models import SessionRule
 from ..types.typing import *
 from .action import *
 from .event import *
@@ -172,7 +172,7 @@ class BotSession:
             self.event,
         )
         if enable_cq:
-            action = cq_format(action)
+            action = to_cq_str_format(action)
         return action
 
     @_launch
@@ -191,7 +191,7 @@ class BotSession:
         """
         action = msg_action(content, isPrivate, userId, groupId, waitResp, self.event)
         if enable_cq:
-            action = cq_format(action)
+            action = to_cq_str_format(action)
         return action
 
     @_launch
@@ -215,7 +215,7 @@ class BotSession:
             self.event,
         )
         if enable_cq:
-            action = cq_format(action)
+            action = to_cq_str_format(action)
         return action
 
     @_launch
@@ -236,7 +236,7 @@ class BotSession:
             msgNodes, isPrivate, userId, groupId, waitResp, self.event
         )
         if enable_cq:
-            action = cq_format(action)
+            action = to_cq_str_format(action)
         return action
 
     @_launch
@@ -822,19 +822,6 @@ class BotSession:
         设置在线机型
         """
         return set_model_show_action(model, modelShow, True, self.event)
-
-
-class SessionRule(ABC):
-    """
-    用作 sesion 的区分依据
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    @abstractmethod
-    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
-        pass
 
 
 class BotSessionManager:

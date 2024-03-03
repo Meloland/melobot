@@ -4,6 +4,14 @@ from ..types.typing import *
 from ..types.utils import BotMatcher
 
 
+class AlwaysMatch(BotMatcher):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def match(self, text: str) -> bool:
+        return True
+
+
 class StartMatch(BotMatcher):
     def __init__(self, target: str) -> None:
         super().__init__()
@@ -32,7 +40,7 @@ class EndMatch(BotMatcher):
         self.target = target
 
     def match(self, text: str) -> bool:
-        return text[-len(self.target) : -1] == self.target
+        return text[-len(self.target) :] == self.target
 
 
 class FullMatch(BotMatcher):

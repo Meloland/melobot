@@ -1,6 +1,6 @@
-import json
 from abc import ABC, abstractmethod, abstractproperty
 
+from .exceptions import *
 from .typing import *
 
 
@@ -47,28 +47,16 @@ class BotEvent(ABC):
         self._args_map[parser_id] = args_group
 
 
-class IEventHandler(ABC):
-    def __init__(
-        self,
-        priority: PriorityLevel = PriorityLevel.MEAN,
-        timeout: float = None,
-        set_block: bool = False,
-        temp: bool = False,
-    ) -> None:
+class SessionRule(ABC):
+    """
+    用作 sesion 的区分依据
+    """
+
+    def __init__(self) -> None:
         super().__init__()
-        self.set_block = set_block
-        self.timeout = timeout
-        self.priority = priority
-
-        self.is_temp = temp
-        self.is_valid = True
 
     @abstractmethod
-    def _verify(self, event: BotEvent) -> bool:
-        pass
-
-    @abstractmethod
-    async def evoke(self, event: BotEvent) -> bool:
+    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
         pass
 
 
@@ -85,10 +73,6 @@ class BotLife(Enum):
     ACTION_PRESEND = 6
 
 
-# 事件方法（事件执行器）构造参数
-HandlerArgs = NamedTuple(
-    "HandlerArgs", executor=AsyncFunc[None], type=IEventHandler, params=List[Any]
-)
 # 插件共享对象构造参数
 ShareObjArgs = NamedTuple("ShareObjArgs", property=str, namespace=str, id=str)
 # 插件共享对象回调的构造参数

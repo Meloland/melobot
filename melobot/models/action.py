@@ -24,7 +24,7 @@ __all__ = (
     # cq 编码相关
     "cq_escape",
     "cq_anti_escape",
-    "cq_format",
+    "to_cq_str_format",
     # 消息发送、处理相关
     "msg_action",
     "forward_msg_action",
@@ -117,7 +117,7 @@ def cq_anti_escape(text: str) -> str:
     )
 
 
-def cq_format(action: "BotAction") -> "BotAction":
+def to_cq_str_format(action: "BotAction") -> "BotAction":
     """
     转化 action 携带的 message 字段转为 cq 字符串格式，并返回新的 action。
     支持的 action 类型有：msg_action 和 forward_action

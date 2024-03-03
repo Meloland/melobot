@@ -4,6 +4,7 @@ import traceback
 from ..models.bot import BotHookBus
 from ..models.event import BotEvent
 from ..models.handler import (
+    EventHandler,
     MetaEventHandler,
     MsgEventHandler,
     NoticeEventHandler,
@@ -11,7 +12,7 @@ from ..models.handler import (
 )
 from ..types.core import IEventDispatcher
 from ..types.exceptions import *
-from ..types.models import BotLife, IEventHandler
+from ..types.models import BotLife
 from ..types.typing import *
 from ..utils.logger import Logger
 
@@ -24,7 +25,7 @@ class BotDispatcher(IEventDispatcher):
 
     def __init__(self, logger: Logger) -> None:
         super().__init__()
-        self._handlers: Dict[str, List[IEventHandler]] = {
+        self._handlers: Dict[str, List[EventHandler]] = {
             "message": [],
             "request": [],
             "notice": [],
@@ -34,7 +35,7 @@ class BotDispatcher(IEventDispatcher):
 
         self._ready_signal = aio.Event()
 
-    def add_handlers(self, all_handlers: List[IEventHandler]) -> None:
+    def add_handlers(self, all_handlers: List[EventHandler]) -> None:
         """
         绑定事件处理器列表
         """

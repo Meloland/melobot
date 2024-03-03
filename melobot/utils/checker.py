@@ -1,6 +1,7 @@
 import re
 
-from ..models.event import MsgEvent
+from ..models.event import MetaEvent, MsgEvent, NoticeEvent, RequestEvent
+from ..types.exceptions import *
 from ..types.typing import *
 from ..types.utils import BotChecker
 
@@ -173,3 +174,69 @@ class AtChecker(BotChecker):
             if id == self.qid:
                 return True
         return False
+
+
+class FriendReqChecker(BotChecker):
+    """
+    朋友请求事件校验器。
+    如果事件是来自朋友的请求事件，则校验结果为真
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def check(self, event: RequestEvent) -> bool:
+        return event.is_friend_req()
+
+
+class GroupReqChecker(BotChecker):
+    """
+    群请求事件校验器。
+    如果事件是来自群的请求事件，则校验结果为真
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def check(self, event: RequestEvent) -> bool:
+        return event.is_group_req()
+
+
+class NoticeTypeChecker(BotChecker):
+    """
+    通知事件类型校验器。
+    校验是否为指定通知类型的通知事件
+    """
+
+    SUB_TYPES = [
+        "group_upload",
+        "group_admin",
+        "group_decrease",
+        "group_increase",
+        "group_ban",
+        "friend_add",
+        "group_recall",
+        "friend_recall",
+        "group_card",
+        "offline_file",
+        "client_status",
+        "essence",
+        "notify",
+        "honor",
+        "poke",
+        "lucky_king",
+        "title",
+        "ALL",
+    ]
+
+    def __init__(self, sub_type: str) -> None:
+        super().__init__()
+        if sub_type not in NoticeTypeChecker.SUB_TYPES:
+            raise BotValueError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
+        self.sub_type = sub_type
+
+    def check(self, event: NoticeEvent) -> bool:
+        if self.sub_type == "ALL":
+            return True
+        check_method = getattr(event, "is_" + self.sub_type)
+        return check_method()
