@@ -19,7 +19,7 @@ __all__ = (
     "custom_music_msg",
     "image_msg",
     "reply_msg",
-    "poke_msg",
+    "touch_msg",
     "tts_msg",
     # cq 编码相关
     "cq_escape",
@@ -328,7 +328,7 @@ def reply_msg(
     }
 
 
-def poke_msg(
+def touch_msg(
     qqId: int,
 ) -> CQMsgDict:
     """
@@ -338,6 +338,20 @@ def poke_msg(
         "type": "poke",
         "data": {
             "qq": qqId,
+        },
+    }
+
+
+def touch_msg(
+    qqId: int,
+) -> CQMsgDict:
+    """
+    openshamrock 的戳一戳消息
+    """
+    return {
+        "type": "touch",
+        "data": {
+            "id": qqId,
         },
     }
 

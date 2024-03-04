@@ -5,11 +5,11 @@ from typing import Any, Dict
 
 class MetaInfo:
     def __init__(self) -> None:
-        self.VER = "2.0.0"
+        self.VER = "2.0.1"
         self.PROJ_NAME = "MeloBot"
         self.PROJ_DESC = "A qbot module with friendly interface, session control and plugin-supported."
-        self.PROJ_SRC = "https://github.com/AiCorein/Qbot-MeloBot"
-        self.AUTHOR = "AiCorein"
+        self.PROJ_SRC = "https://github.com/aicorein/melobot"
+        self.AUTHOR = "aicorein"
         self.AUTHOR_EMAIL = "melodyecho@glowmem.com"
         self.ARGV = sys.argv
         self.PLATFORM = sys.platform

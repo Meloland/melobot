@@ -134,7 +134,7 @@ class MsgEvent(BotEvent):
         """是否为临时会话（属于私聊的一种）"""
         return "temp_source" in self.raw.keys()
 
-    def is_group_notice(self) -> bool:
+    def is_group(self) -> bool:
         """是否为群系统消息"""
         return self.raw["message_type"] == "group" and self.raw["sub_type"] == "notice"
 
@@ -418,6 +418,9 @@ class NoticeEvent(BotEvent):
             self.notice_group_id = rawEvent["group_id"]
             self.notice_operator_id = rawEvent["operator_id"]
             self.notice_msg_id = rawEvent["message_id"]
+
+    def is_group(self) -> bool:
+        return "group_id" in self.raw.keys()
 
     def is_group_upload(self) -> bool:
         return self.raw["notice_type"] == "group_upload"
