@@ -9,7 +9,7 @@
 
 MeloBot 是一个基于 Python 的 qbot 开发框架。其以**实现了 Onebot 标准的适配器**作为前端，通过对来自适配器的各种“事件”的处理，再产生“行为”，最后提交给适配器与 qq 服务器进行通信，实现各类复杂的功能。
 
-使用示例：你可以参考使用本框架的项目 [MeloInf](https://github.com/AiCorein/meloinf)，这里有详细的接口调用示范。
+使用示例：你可以参考使用本框架的项目 [MeloInf](https://github.com/aicorein/meloinf)，这里有详细的接口调用示范。
 
 ## ✨ 特色
 
