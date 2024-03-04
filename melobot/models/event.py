@@ -134,8 +134,8 @@ class MsgEvent(BotEvent):
         """是否为临时会话（属于私聊的一种）"""
         return "temp_source" in self.raw.keys()
 
-    def is_group(self) -> bool:
-        """是否为群系统消息"""
+    def is_group_notice(self) -> bool:
+        """是否为群系统消息，特别注意是消息！"""
         return self.raw["message_type"] == "group" and self.raw["sub_type"] == "notice"
 
     _TEMP_SRC_MAP = {

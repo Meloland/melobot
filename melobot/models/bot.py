@@ -137,28 +137,28 @@ class BotProxy:
     """
 
     def __init__(self) -> None:
-        self.__bot__: object
+        self.__origin__: object
 
     def _bind(self, bot_origin: object) -> None:
-        self.__bot__ = bot_origin
+        self.__origin__ = bot_origin
 
     @property
     def loop(self) -> aio.AbstractEventLoop:
-        return self.__bot__.loop
+        return self.__origin__.loop
 
     @property
     def logger(self) -> Logger:
         """
         bot 全局日志器
         """
-        return self.__bot__.logger
+        return self.__origin__.logger
 
     @property
     def config(self) -> BotConfig:
         """
         bot 全局配置
         """
-        return self.__bot__.config
+        return self.__origin__.config
 
     @property
     def plugins(self) -> Dict[str, PluginProxy]:
@@ -166,30 +166,30 @@ class BotProxy:
         获取 bot 当前所有插件信息
         """
         return {
-            id: plugin._Plugin__proxy for id, plugin in self.__bot__.plugins.items()
+            id: plugin._Plugin__proxy for id, plugin in self.__origin__.plugins.items()
         }
 
     @property
     def is_activate(self) -> bool:
-        return not self.__bot__.slack
+        return not self.__origin__.slack
 
     def slack(self) -> None:
         """
         使 bot 不再发送 action。但 ACTION_PRESEND 钩子依然会触发
         """
-        self.__bot__.slack = True
+        self.__origin__.slack = True
 
     def activate(self) -> None:
         """
         使 bot 可以发送 action
         """
-        self.__bot__.slack = False
+        self.__origin__.slack = False
 
     async def close(self) -> None:
         """
         关闭 bot
         """
-        await self.__bot__.close()
+        await self.__origin__.close()
 
     def is_module_run(self) -> bool:
         """
@@ -201,7 +201,7 @@ class BotProxy:
         """
         重启 bot。只可在模块运行模式下使用
         """
-        await self.__bot__.restart()
+        await self.__origin__.restart()
 
     def call_later(self, callback: partial, delay: float):
         """
