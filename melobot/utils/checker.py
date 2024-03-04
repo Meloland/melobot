@@ -167,7 +167,7 @@ class AtChecker(BotChecker):
         当 qid 为空时，只要有 at 消息就通过校验。
         如果不为空，则必须出现指定 qid 的 at 消息
         """
-        id_list = self._cq_at_regex.findall(event.cq_content)
+        id_list = self._cq_at_regex.findall(event.raw_content)
         if self.qid is None:
             return len(id_list) > 0
         for id in id_list:

@@ -97,9 +97,9 @@ def this_dir(*relative_path: str) -> str:
     )
 
 
-def clear_cq(s: str) -> str:
+def get_cq_text(s: str) -> str:
     """
-    去除文本中的所有 CQ 字符串
+    从 cq 消息字符串中，获取纯净的 cq text 类型消息
     """
     regex = re.compile(r"\[CQ:.*?\]")
     return regex.sub("", s)

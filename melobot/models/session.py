@@ -154,12 +154,12 @@ class BotSession:
     async def send(
         self,
         content: Union[str, CQMsgDict, List[CQMsgDict]],
-        enable_cq: bool = False,
+        cq_str: bool = False,
         waitResp: bool = False,
     ) -> Union[RespEvent, None]:
         """
         在当前 session 上下文下发送消息。
-        enable_cq 若开启，文本中若包含 cq 字符串，将会被解释
+        cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
         if self.event == None:
             raise BotSessionError("空 session 需要使用 custom_send 方法替代 send")
@@ -171,8 +171,8 @@ class BotSession:
             waitResp,
             self.event,
         )
-        if enable_cq:
-            action = to_cq_str_format(action)
+        if cq_str:
+            action = to_cq_str_action(action)
         return action
 
     @_launch
@@ -180,27 +180,34 @@ class BotSession:
         self,
         content: Union[str, CQMsgDict, List[CQMsgDict]],
         isPrivate: bool,
-        userId: int,
+        userId: int = None,
         groupId: int = None,
-        enable_cq: bool = False,
+        cq_str: bool = False,
         waitResp: bool = False,
     ) -> Union[RespEvent, None]:
         """
         自定义发送消息。
-        enable_cq 若开启，文本中若包含 cq 字符串，将会被解释
+        cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
+        if isPrivate and userId is None:
+            raise BotActionError("为私聊时，构建 action 必须提供 userId 参数")
+        if not isPrivate and groupId is None:
+            raise BotActionError("为群聊时，构建 action 必须提供 groupId 参数")
         action = msg_action(content, isPrivate, userId, groupId, waitResp, self.event)
-        if enable_cq:
-            action = to_cq_str_format(action)
+        if cq_str:
+            action = to_cq_str_action(action)
         return action
 
     @_launch
     async def send_forward(
-        self, msgNodes: Dict, enable_cq: bool = False, waitResp: bool = False
+        self,
+        msgNodes: List[MsgNodeDict],
+        cq_str: bool = False,
+        waitResp: bool = False,
     ) -> Union[RespEvent, None]:
         """
         在当前 session 上下文下发送转发消息。
-        enable_cq 若开启，文本中若包含 cq 字符串，将会被解释
+        cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
         if self.event == None:
             raise BotSessionError(
@@ -214,29 +221,29 @@ class BotSession:
             waitResp,
             self.event,
         )
-        if enable_cq:
-            action = to_cq_str_format(action)
+        if cq_str:
+            action = to_cq_str_action(action)
         return action
 
     @_launch
     async def custom_send_forward(
         self,
-        msgNodes: Dict,
+        msgNodes: List[MsgNodeDict],
         isPrivate: bool,
         userId: int = None,
         groupId: int = None,
-        enable_cq: bool = False,
+        cq_str: bool = False,
         waitResp: bool = False,
     ) -> Union[RespEvent, None]:
         """
         自定义发送转发消息。
-        enable_cq 若开启，文本中若包含 cq 字符串，将会被解释
+        cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
         action = forward_msg_action(
             msgNodes, isPrivate, userId, groupId, waitResp, self.event
         )
-        if enable_cq:
-            action = to_cq_str_format(action)
+        if cq_str:
+            action = to_cq_str_action(action)
         return action
 
     @_launch
@@ -1106,30 +1113,30 @@ SESSION_LOCAL: BotSession
 
 async def send(
     content: Union[str, CQMsgDict, List[CQMsgDict]],
-    enable_cq: bool = False,
+    cq_str: bool = False,
     wait: bool = False,
 ) -> Union[RespEvent, None]:
     """
     发送一条消息
     """
-    return await SESSION_LOCAL.send(content, enable_cq, wait)
+    return await SESSION_LOCAL.send(content, cq_str, wait)
 
 
 async def send_hup(
     content: Union[str, CQMsgDict, List[CQMsgDict]],
-    enable_cq: bool = False,
+    cq_str: bool = False,
     overtime: int = None,
 ) -> None:
     """
     回复一条消息然后挂起
     """
-    await SESSION_LOCAL.send(content, enable_cq)
+    await SESSION_LOCAL.send(content, cq_str)
     await SESSION_LOCAL.suspend(overtime)
 
 
 async def send_reply(
     content: Union[str, CQMsgDict, List[CQMsgDict]],
-    enable_cq: bool = False,
+    cq_str: bool = False,
     wait: bool = False,
 ) -> Union[RespEvent, None]:
     """
@@ -1142,15 +1149,31 @@ async def send_reply(
         content_arr.append(content)
     else:
         content_arr.extend(content)
-    return await SESSION_LOCAL.send(content_arr, enable_cq, wait)
+    return await SESSION_LOCAL.send(content_arr, cq_str, wait)
 
 
 async def finish(
-    content: Union[str, CQMsgDict, List[CQMsgDict]], enable_cq: bool = False
+    content: Union[str, CQMsgDict, List[CQMsgDict]], cq_str: bool = False
 ) -> None:
     """
     回复一条消息，然后直接结束当前事件处理方法
     """
-    await SESSION_LOCAL.send(content, enable_cq)
+    await SESSION_LOCAL.send(content, cq_str)
     SESSION_LOCAL.destory()
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
+
+
+def event():
+    """
+    获取当前 session 上下文下的 event
+    """
+    return SESSION_LOCAL.event
+
+
+def msg_text():
+    """
+    获取当前 session 上下文下的 event.text，如果不存在则返回 None
+    """
+    if hasattr(SESSION_LOCAL.event, "text"):
+        return SESSION_LOCAL.event.text
+    return None
