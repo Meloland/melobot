@@ -4,6 +4,7 @@ import time
 
 from ..types.models import BotEvent
 from ..types.typing import *
+from .base import to_cq_arr
 
 
 class BotEventBuilder:
@@ -33,8 +34,8 @@ class MsgEvent(BotEvent):
         self.id: int
         self.sender: MsgEvent.Sender
         self.group_id: Union[int, None]
-        # 使用 CQ 码编码非文本消息段
-        self.cq_content: str
+        # 使用 CQ 字符串编码的消息
+        self.raw_content: str
         # array 格式表示所有类型消息段
         self.content: dict
         # 消息中所有文本消息段的合并字符串
@@ -57,8 +58,8 @@ class MsgEvent(BotEvent):
 
         self._cq_regex = re.compile(r"\[CQ:.*?\]")
         self.id = rawEvent["message_id"]
-        self.cq_content = rawEvent["raw_message"]
-        self.content = rawEvent["message"]
+        self.raw_content = rawEvent["raw_message"]
+        self.content = self._format_to_array(rawEvent["message"])
         self.text = self._get_text(self.content)
         self.font = rawEvent["font"]
 
@@ -77,24 +78,37 @@ class MsgEvent(BotEvent):
         if self.is_group():
             self.group_id = rawEvent["group_id"]
 
+    def _format_to_array(self, content: Union[dict, str]) -> dict:
+        if not isinstance(content, str):
+            return content
+        else:
+            return to_cq_arr(content)
+
     def _get_text(self, content: Union[dict, str]) -> bool:
         """
         获取消息中所有文本消息，返回合并字符串
         """
-        if isinstance(content, str):
-            return (
-                self._cq_regex.sub("", content)
-                .replace("&amp;", "&")
-                .replace("&#91;", "[")
-                .replace("&#93;", "]")
-                .replace("&#44;", ",")
-            )
+        text_list = []
+        for item in content:
+            if item["type"] == "text":
+                text_list.append(item["data"]["text"])
+        return "".join(text_list)
+
+    def cq_get(self, cq_type: str, param: str) -> Union[List[Union[int, float, str]], None]:
+        """
+        从当前 event 中获取指定 cq 类消息的指定 param，以列表形式返回。
+        当没有对应类型的 cq 消息或者没有对应的 param，不会返回空列表，而是返回 None
+        """
+        if isinstance(self.content, str):
+            pass
         else:
-            text_list = []
-            for item in content:
-                if item["type"] == "text":
-                    text_list.append(item["data"]["text"])
-            return "".join(text_list)
+            results = []
+            for item in self.content:
+                if item["type"] == cq_type:
+                    val = item["data"].get(param)
+                    if val is not None:
+                        results.append(val)
+            return results if len(results) > 0 else None
 
     def is_private(self) -> bool:
         """是否为私聊消息（注意群临时会话属于该类别）"""

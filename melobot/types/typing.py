@@ -38,6 +38,7 @@ __all__ = (
     "Type",
     "Enum",
     "CQMsgDict",
+    "MsgNodeDict",
     "User",
     "PriorityLevel",
     "ParseArgs",
@@ -46,10 +47,21 @@ __all__ = (
 
 
 class CQMsgDict(TypedDict):
-    """消息"""
+    """
+    cq 消息 dict
+    """
 
     type: str
-    data: Dict[str, Union[int, str]]
+    data: Dict[str, Union[float, int, str]]
+
+
+class MsgNodeDict(TypedDict):
+    """
+    消息节点 dict
+    """
+
+    type: str
+    data: Dict[str, Union[float, int, str]]
 
 
 class ParseArgs:

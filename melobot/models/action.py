@@ -24,7 +24,7 @@ __all__ = (
     # cq 编码相关
     "cq_escape",
     "cq_anti_escape",
-    "to_cq_str_format",
+    "to_cq_str_action",
     # 消息发送、处理相关
     "msg_action",
     "forward_msg_action",
@@ -117,7 +117,7 @@ def cq_anti_escape(text: str) -> str:
     )
 
 
-def to_cq_str_format(action: "BotAction") -> "BotAction":
+def to_cq_str_action(action: "BotAction") -> "BotAction":
     """
     转化 action 携带的 message 字段转为 cq 字符串格式，并返回新的 action。
     支持的 action 类型有：msg_action 和 forward_action
@@ -375,7 +375,7 @@ def custom_msg_node(
     sendName: str,
     sendId: int,
     seq: str = None,
-) -> Dict:
+) -> MsgNodeDict:
     """
     自定义消息节点构造方法。转化字符串、消息、消息段为消息节点
     """
@@ -402,7 +402,7 @@ def custom_msg_node(
     return ret
 
 
-def refer_msg_node(msgId: int) -> Dict:
+def refer_msg_node(msgId: int) -> MsgNodeDict:
     """
     引用消息节点构造方法
     """
@@ -471,7 +471,7 @@ class MsgPacker(ActionPacker):
         self,
         msgs: List[CQMsgDict],
         isPrivate: bool,
-        userId: int,
+        userId: int = None,
         groupId: int = None,
     ) -> None:
         super().__init__()
@@ -494,7 +494,7 @@ class MsgPacker(ActionPacker):
 def msg_action(
     content: Union[str, CQMsgDict, List[CQMsgDict]],
     isPrivate: bool,
-    userId: int,
+    userId: int = None,
     groupId: int = None,
     respWaited: bool = False,
     triggerEvent: BotEvent = None,
@@ -547,7 +547,7 @@ class ForwardMsgPacker(ActionPacker):
 
 
 def forward_msg_action(
-    msgNodes: Dict,
+    msgNodes: List[MsgNodeDict],
     isPrivate: bool,
     userId: int = None,
     groupId: int = None,
