@@ -3,7 +3,7 @@ import traceback
 from asyncio import Future
 
 from ..models.action import BotAction
-from ..models.event import RespEvent
+from ..models.event import ResponseEvent
 from ..types.core import AbstractDispatcher, AbstractResponder, AbstractSender
 from ..types.exceptions import *
 from ..types.typing import *
@@ -18,7 +18,7 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
 
     def __init__(self, logger: Logger) -> None:
         super().__init__()
-        self._resp_table: Dict[str, Future[RespEvent]] = {}
+        self._resp_table: Dict[str, Future[ResponseEvent]] = {}
         self.logger = logger
 
         self._ready_signal = aio.Event()
@@ -31,7 +31,7 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
         self._action_sender = action_sender
         self._ready_signal.set()
 
-    async def dispatch(self, resp: RespEvent) -> None:
+    async def dispatch(self, resp: ResponseEvent) -> None:
         await self._ready_signal.wait()
 
         try:
@@ -58,7 +58,7 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
         await self._ready_signal.wait()
         await self._action_sender.send(action)
 
-    async def take_action_wait(self, action: BotAction) -> Future[RespEvent]:
+    async def take_action_wait(self, action: BotAction) -> Future[ResponseEvent]:
         """
         响应器发送 action，并返回一个 Future 用于等待响应
         """

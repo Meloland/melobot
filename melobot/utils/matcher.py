@@ -13,9 +13,7 @@ class AlwaysMatch(BotMatcher):
 
 
 class StartMatch(BotMatcher):
-    def __init__(
-        self, target: Union[str, List[str]], mode: LogicMode = LogicMode.OR
-    ) -> None:
+    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
         super().__init__()
         self.target = target
         self.mode = mode
@@ -29,9 +27,7 @@ class StartMatch(BotMatcher):
 
 
 class ContainMatch(BotMatcher):
-    def __init__(
-        self, target: Union[str, List[str]], mode: LogicMode = LogicMode.OR
-    ) -> None:
+    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
         super().__init__()
         self.target = target
         self.mode = mode
@@ -45,9 +41,7 @@ class ContainMatch(BotMatcher):
 
 
 class EndMatch(BotMatcher):
-    def __init__(
-        self, target: Union[str, List[str]], mode: LogicMode = LogicMode.OR
-    ) -> None:
+    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
         super().__init__()
         self.target = target
         self.mode = mode
@@ -61,9 +55,7 @@ class EndMatch(BotMatcher):
 
 
 class FullMatch(BotMatcher):
-    def __init__(
-        self, target: Union[str, List[str]], mode: LogicMode = LogicMode.OR
-    ) -> None:
+    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
         super().__init__()
         self.target = target
         self.mode = mode

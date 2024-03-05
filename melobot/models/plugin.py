@@ -275,7 +275,7 @@ class Plugin:
     @classmethod
     def on_start_match(
         cls,
-        target: Union[str, List[str]],
+        target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
         priority: PriorLevel = PriorLevel.MEAN,
@@ -321,7 +321,7 @@ class Plugin:
     @classmethod
     def on_contain_match(
         cls,
-        target: Union[str, List[str]],
+        target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
         priority: PriorLevel = PriorLevel.MEAN,
@@ -367,7 +367,7 @@ class Plugin:
     @classmethod
     def on_full_match(
         cls,
-        target: Union[str, List[str]],
+        target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
         priority: PriorLevel = PriorLevel.MEAN,
@@ -413,7 +413,7 @@ class Plugin:
     @classmethod
     def on_end_match(
         cls,
-        target: Union[str, List[str]],
+        target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
         priority: PriorLevel = PriorLevel.MEAN,

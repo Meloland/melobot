@@ -9,7 +9,7 @@ from .base import to_cq_arr
 
 class BotEventBuilder:
     @classmethod
-    def build(cls, rawEvent: Union[dict, str]) -> BotEvent:
+    def build(cls, rawEvent: dict | str) -> BotEvent:
         if isinstance(rawEvent, str):
             rawEvent = json.loads(rawEvent)
 
@@ -23,7 +23,7 @@ class BotEventBuilder:
         elif etype == "meta_event":
             return MetaEvent(rawEvent)
         else:
-            return RespEvent(rawEvent)
+            return ResponseEvent(rawEvent)
 
 
 class MessageEvent(BotEvent):
@@ -33,7 +33,7 @@ class MessageEvent(BotEvent):
 
         self.id: int
         self.sender: MessageEvent.Sender
-        self.group_id: Union[int, None]
+        self.group_id: Optional[int]
         # 使用 CQ 字符串编码的消息
         self.raw_content: str
         # array 格式表示所有类型消息段
@@ -41,7 +41,7 @@ class MessageEvent(BotEvent):
         # 消息中所有文本消息段的合并字符串
         self.text: str
         self.font: int
-        self.temp_src: Union[str, None]
+        self.temp_src: Optional[str]
 
         self._init()
 
@@ -78,7 +78,7 @@ class MessageEvent(BotEvent):
         if self.is_group():
             self.group_id = rawEvent["group_id"]
 
-    def _format_to_array(self, content: Union[list, str]) -> List[CQMsgDict]:
+    def _format_to_array(self, content: list | str) -> List[CQMsgDict]:
         if not isinstance(content, str):
             for item in content:
                 if item["type"] == "text":
@@ -286,13 +286,13 @@ class RequestEvent(BotEvent):
         self.bot_id = rawEvent.get("self_id")
 
         self.from_id: int
-        self.from_group_id: Union[int, None]
+        self.from_group_id: Optional[int]
         # 此处为加群或加好友的验证消息
         self.req_comment: str
         # 请求 flag，调用相关 go-cqhttp API 时，需要使用
         self.req_flag: str
         # 当为加群请求时，类型有：add, invite（加群请求和邀请 bot 入群）
-        self.group_req_type: Union[Literal["add", "invite"], None]
+        self.group_req_type: Optional[Literal["add", "invite"]]
 
         self._init()
 
@@ -566,7 +566,7 @@ class MetaEvent(BotEvent):
         return self.raw["meta_event_type"] == "heartbeat"
 
 
-class RespEvent(BotEvent):
+class ResponseEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         self.status = rawEvent.get("retcode")

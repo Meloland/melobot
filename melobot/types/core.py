@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from asyncio import Future
 
 from ..models.action import BotAction
-from ..models.event import BotEvent, RespEvent
+from ..models.event import BotEvent, ResponseEvent
 
 
 class AbstractSender(ABC):
@@ -19,7 +19,7 @@ class AbstractResponder(ABC):
         super().__init__()
 
     @abstractmethod
-    async def dispatch(self, resp: RespEvent) -> None:
+    async def dispatch(self, resp: ResponseEvent) -> None:
         pass
 
     @abstractmethod
@@ -27,7 +27,7 @@ class AbstractResponder(ABC):
         pass
 
     @abstractmethod
-    async def take_action_wait(self, action: BotAction) -> Future[RespEvent]:
+    async def take_action_wait(self, action: BotAction) -> Future[ResponseEvent]:
         pass
 
 

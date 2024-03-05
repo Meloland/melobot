@@ -209,7 +209,7 @@ def audio_msg(
 
 
 def at_msg(
-    qqId: Union[int, Literal["all"]],
+    qqId: int | Literal["all"],
     notInName: str = None,
 ) -> CQMsgDict:
     """
@@ -372,7 +372,7 @@ def tts_msg(
 
 
 def custom_msg_node(
-    content: Union[str, CQMsgDict, List[CQMsgDict]],
+    content: str | CQMsgDict | List[CQMsgDict],
     sendName: str,
     sendId: int,
     seq: str = None,
@@ -434,10 +434,10 @@ class BotAction(Flagable):
     ) -> None:
         super().__init__()
         # 只有 action 对应的响应需要被等待单独处理时，才会生成 id
-        self.resp_id: Union[str, None] = str(get_id()) if respWaited else None
+        self.resp_id: Optional[str] = str(get_id()) if respWaited else None
         self.type: str = package.type
         self.params: dict = package.params
-        self.trigger: Union[BotEvent, None] = triggerEvent
+        self.trigger: Optional[BotEvent] = triggerEvent
 
     def copy(self) -> "BotAction":
         """
@@ -503,7 +503,7 @@ class MsgPacker(ActionPacker):
 
 
 def msg_action(
-    content: Union[str, CQMsgDict, List[CQMsgDict]],
+    content: str | CQMsgDict | List[CQMsgDict],
     isPrivate: bool,
     userId: int = None,
     groupId: int = None,
@@ -1848,7 +1848,7 @@ class DownloadFilePacker(ActionPacker):
 def download_file_action(
     fileUrl: str,
     useThreadNum: int,
-    headers: Union[List, str],
+    headers: list | str,
     respWaited: bool = True,
     triggerEvent: BotEvent = None,
 ) -> BotAction:

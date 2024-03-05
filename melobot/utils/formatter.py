@@ -14,8 +14,8 @@ class TipGenerator:
     def gen(
         self,
         src: str,
-        src_desc: Union[str, None],
-        src_expect: Union[str, None],
+        src_desc: Optional[str],
+        src_expect: Optional[str],
         idx: int,
         exc_type: Exception,
         exc_tb: traceback,

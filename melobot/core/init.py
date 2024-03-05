@@ -88,7 +88,7 @@ class PluginLoader:
     @classmethod
     def load(
         cls,
-        plugin_target: Union[str, Type[Plugin]],
+        plugin_target: str | Type[Plugin],
         logger: Logger,
         responder: AbstractResponder,
     ) -> Plugin:
@@ -182,7 +182,7 @@ class MeloBot:
         self.logger.info("bot 核心初始化完成")
         self.__init_flag__ = True
 
-    def load_plugin(self, plugin_target: Union[str, Type[Plugin]]) -> None:
+    def load_plugin(self, plugin_target: str | Type[Plugin]) -> None:
         """
         为 bot 加载运行插件。支持传入插件起始目录字符串（绝对路径）或插件类
         """

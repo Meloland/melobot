@@ -14,10 +14,10 @@ class CmdParser(BotParser):
 
     def __init__(
         self,
-        cmd_start: Union[str, List[str]],
-        cmd_sep: Union[str, List[str]],
-        target: Union[str, List[str]] = None,
-        formatters: List[Union[ArgFormatter, None]] = None,
+        cmd_start: str | list[str],
+        cmd_sep: str | list[str],
+        target: str | list[str] = None,
+        formatters: List[Optional[ArgFormatter]] = None,
     ) -> None:
         i1 = cmd_start if isinstance(cmd_start, str) else "".join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else "".join(cmd_sep)
@@ -78,9 +78,7 @@ class CmdParser(BotParser):
             temp_list.pop(0)
         return list(filter(lambda x: x != "", temp_list))
 
-    def _parse(
-        self, text: str, textFilter: bool = True
-    ) -> Union[List[List[str]], None]:
+    def _parse(self, text: str, textFilter: bool = True) -> Optional[List[List[str]]]:
         pure_string = self._purify(text) if textFilter else text
         cmd_strings = self._split_string(pure_string, self.start_parse_regex)
         cmd_list = [
@@ -89,7 +87,7 @@ class CmdParser(BotParser):
         cmd_list = list(filter(lambda x: x != [], cmd_list))
         return cmd_list if len(cmd_list) else None
 
-    def parse(self, text: str) -> Union[Dict[str, ParseArgs], None]:
+    def parse(self, text: str) -> Optional[Dict[str, ParseArgs]]:
         """
         解析 text
         """
@@ -104,7 +102,7 @@ class CmdParser(BotParser):
 
     def test(
         self, args_group: Dict[str, ParseArgs]
-    ) -> Tuple[bool, Union[str, None], Union[ParseArgs, None]]:
+    ) -> Tuple[bool, Optional[str], Optional[ParseArgs]]:
         """
         测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
         最后两个返回值若不存在，则返回 None
@@ -137,16 +135,14 @@ class CmdParserGen:
     指定匹配 target 后返回一个符合对应匹配条件的命令解析器
     """
 
-    def __init__(
-        self, cmd_start: Union[str, List[str]], cmd_sep: Union[str, List[str]]
-    ) -> None:
+    def __init__(self, cmd_start: str | list[str], cmd_sep: str | list[str]) -> None:
         self.cmd_start = cmd_start
         self.cmd_sep = cmd_sep
 
     def gen(
         self,
-        target: Union[str, List[str]] = None,
-        formatters: List[Union[ArgFormatter, None]] = None,
+        target: str | list[str] = None,
+        formatters: List[Optional[ArgFormatter]] = None,
     ) -> CmdParser:
         """
         生成匹配指定命令的命令解析器

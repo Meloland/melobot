@@ -8,11 +8,11 @@ from ..models.event import BotEvent
 from .exceptions import *
 from .typing import *
 
-_SysExcInfoType: TypeAlias = Union[
-    Tuple[Type[BaseException], BaseException, Optional[TracebackType]],
-    Tuple[None, None, None],
-]
-_ExcInfoType: TypeAlias = Union[None, bool, _SysExcInfoType, BaseException]
+_SysExcInfoType: TypeAlias = (
+    Tuple[Type[BaseException], BaseException, Optional[TracebackType]]
+    | Tuple[None, None, None]
+)
+_ExcInfoType: TypeAlias = None | bool | _SysExcInfoType | BaseException
 
 
 class PrefixLogger:
@@ -34,7 +34,7 @@ class PrefixLogger:
         exc_info: _ExcInfoType = None,
         stack_info: bool = False,
         stacklevel: int = 1,
-        extra: Union[Mapping[str, object], None] = None,
+        extra: Optional[Mapping[str, object]] = None,
     ) -> None:
         msg = self._add_prefix(msg)
         return self._logger.info(
@@ -53,7 +53,7 @@ class PrefixLogger:
         exc_info: _ExcInfoType = None,
         stack_info: bool = False,
         stacklevel: int = 1,
-        extra: Union[Mapping[str, object], None] = None,
+        extra: Optional[Mapping[str, object]] = None,
     ) -> None:
         msg = self._add_prefix(msg)
         return self._logger.warn(
@@ -72,7 +72,7 @@ class PrefixLogger:
         exc_info: _ExcInfoType = None,
         stack_info: bool = False,
         stacklevel: int = 1,
-        extra: Union[Mapping[str, object], None] = None,
+        extra: Optional[Mapping[str, object]] = None,
     ) -> None:
         msg = self._add_prefix(msg)
         return self._logger.warning(
@@ -91,7 +91,7 @@ class PrefixLogger:
         exc_info: _ExcInfoType = None,
         stack_info: bool = False,
         stacklevel: int = 1,
-        extra: Union[Mapping[str, object], None] = None,
+        extra: Optional[Mapping[str, object]] = None,
     ) -> None:
         msg = self._add_prefix(msg)
         return self._logger.error(
@@ -110,7 +110,7 @@ class PrefixLogger:
         exc_info: _ExcInfoType = None,
         stack_info: bool = False,
         stacklevel: int = 1,
-        extra: Union[Mapping[str, object], None] = None,
+        extra: Optional[Mapping[str, object]] = None,
     ) -> None:
         msg = self._add_prefix(msg)
         return self._logger.debug(
@@ -129,7 +129,7 @@ class PrefixLogger:
         exc_info: _ExcInfoType = None,
         stack_info: bool = False,
         stacklevel: int = 1,
-        extra: Union[Mapping[str, object], None] = None,
+        extra: Optional[Mapping[str, object]] = None,
     ) -> None:
         msg = self._add_prefix(msg)
         return self._logger.critical(
@@ -301,13 +301,13 @@ class BotParser(ABC):
         self.need_format: bool = False
 
     @abstractmethod
-    def parse(self, text: str) -> Union[Dict[str, ParseArgs], None]:
+    def parse(self, text: str) -> Optional[Dict[str, ParseArgs]]:
         pass
 
     @abstractmethod
     def test(
         self, args_group: Dict[str, ParseArgs]
-    ) -> Tuple[bool, Union[str, None], Union[ParseArgs, None]]:
+    ) -> Tuple[bool, Optional[str], Optional[ParseArgs]]:
         pass
 
     @abstractmethod

@@ -53,7 +53,7 @@ class CQMsgDict(TypedDict):
     """
 
     type: str
-    data: Dict[str, Union[float, int, str]]
+    data: Dict[str, float | int | str]
 
 
 class MsgNodeDict(TypedDict):
@@ -78,7 +78,7 @@ class MsgNodeDict(TypedDict):
         id: int
 
     type: Literal["node"]
-    data: Union[CustomNodeData, ReferNodeData]
+    data: CustomNodeData | ReferNodeData
 
 
 class ParseArgs:

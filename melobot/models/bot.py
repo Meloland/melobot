@@ -22,7 +22,7 @@ class HookRunner:
     bot 生命周期 hook 运行器
     """
 
-    def __init__(self, type: str, func: Callable, plugin: Union[object, None]) -> None:
+    def __init__(self, type: str, func: Callable, plugin: Optional[object]) -> None:
         self._func = func
         self._plugin = plugin
         # 对应：绑定的 func 是插件类的实例方法

@@ -74,12 +74,12 @@ class BotEvent(ABC, Flagable):
     def is_resp(self) -> bool:
         return self.type == "response"
 
-    def _get_args(self, parser_id: Any) -> Union[Dict[str, ParseArgs], Literal[-1]]:
+    def _get_args(self, parser_id: Any) -> dict[str, ParseArgs] | Literal[-1]:
         if self._args_map is None:
             return -1
         return self._args_map.get(parser_id, -1)
 
-    def _store_args(self, parser_id: Any, args_group: Dict[str, ParseArgs]) -> None:
+    def _store_args(self, parser_id: Any, args_group: dict[str, ParseArgs]) -> None:
         if self._args_map is None:
             self._args_map = {}
         self._args_map[parser_id] = args_group

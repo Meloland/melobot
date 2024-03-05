@@ -30,9 +30,7 @@ class BotSession:
         self.store = {}
         self.timestamp = time.time()
         self.hup_times: List[float] = []
-        self.events: List[
-            Union[MessageEvent, RequestEvent, MetaEvent, RespEvent, NoticeEvent]
-        ] = []
+        self.events: List[MessageEvent | RequestEvent | MetaEvent | NoticeEvent] = []
 
         self._manager = manager
         self._responder = responder
@@ -46,21 +44,21 @@ class BotSession:
         self._expired = False
         # 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是空 session 或是一次性 session
         # 其实这里如果传入 space_tag 则一定是所属 handler 的引用
-        self._space_tag: Union[object, None] = space_tag
+        self._space_tag: Optional[object] = space_tag
         # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
         self._handler: object = None
 
     @property
     def event(
         self,
-    ) -> Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent]:
+    ) -> MessageEvent | RequestEvent | MetaEvent | NoticeEvent:
         try:
             return next(reversed(self.events))
         except StopIteration:
             raise BotSessionError("当前 session 下不存在可用的 event")
 
     @property
-    def last_hup(self) -> Union[float, None]:
+    def last_hup(self) -> Optional[float]:
         try:
             return next(reversed(self.hup_times))
         except StopIteration:
@@ -152,7 +150,7 @@ class BotSession:
     """以下所有 action 方法虽然本身不是异步的，但不使用 async，返回值将没有注解"""
 
     @_action_launch
-    async def custom_action(self, action: BotAction) -> Union[RespEvent, None]:
+    async def custom_action(self, action: BotAction) -> Optional[ResponseEvent]:
         """
         直接处理提供的 action
         """
@@ -161,10 +159,10 @@ class BotSession:
     @_action_launch
     async def send(
         self,
-        content: Union[str, CQMsgDict, List[CQMsgDict]],
+        content: str | CQMsgDict | List[CQMsgDict],
         cq_str: bool = False,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         在当前 session 上下文下发送消息。
         cq_str 若开启，文本中若包含 cq 字符串，将会被解释
@@ -185,13 +183,13 @@ class BotSession:
     @_action_launch
     async def custom_send(
         self,
-        content: Union[str, CQMsgDict, List[CQMsgDict]],
+        content: str | CQMsgDict | List[CQMsgDict],
         isPrivate: bool,
         userId: int = None,
         groupId: int = None,
         cq_str: bool = False,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         自定义发送消息。
         cq_str 若开启，文本中若包含 cq 字符串，将会被解释
@@ -211,7 +209,7 @@ class BotSession:
         msgNodes: List[MsgNodeDict],
         cq_str: bool = False,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         在当前 session 上下文下发送转发消息。
         cq_str 若开启，文本中若包含 cq 字符串，将会被解释
@@ -240,7 +238,7 @@ class BotSession:
         groupId: int = None,
         cq_str: bool = False,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         自定义发送转发消息。
         cq_str 若开启，文本中若包含 cq 字符串，将会被解释
@@ -253,14 +251,14 @@ class BotSession:
     @_action_launch
     async def recall(
         self, msgId: int, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         撤回消息
         """
         return msg_del_action(msgId, waitResp)
 
     @_action_launch
-    async def get_msg(self, msgId: int) -> RespEvent:
+    async def get_msg(self, msgId: int) -> ResponseEvent:
         """
         获取消息信息
         """
@@ -270,7 +268,7 @@ class BotSession:
     async def get_forward_msg(
         self,
         forwardId: str,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取转发消息信息
         """
@@ -279,7 +277,7 @@ class BotSession:
     @_action_launch
     async def mark_read(
         self, msgId: int, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         标记为已读
         """
@@ -292,7 +290,7 @@ class BotSession:
         userId: int,
         laterReject: bool = False,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         群组踢人
         """
@@ -305,7 +303,7 @@ class BotSession:
         userId: int,
         duration: int,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         群组禁言。
         duration 为 0 取消禁言
@@ -319,7 +317,7 @@ class BotSession:
         anonymFlag: str,
         duration: int,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         群组匿名禁言。
         无法取消禁言
@@ -332,7 +330,7 @@ class BotSession:
         groupId: int,
         enable: bool,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         群组全员禁言
         """
@@ -344,7 +342,7 @@ class BotSession:
         groupId: int,
         isDismiss: bool,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         退出群组
         """
@@ -355,7 +353,7 @@ class BotSession:
         self,
         groupId: int,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         群组打卡
         """
@@ -366,14 +364,14 @@ class BotSession:
         self,
         groupId: int,
         noCache: bool,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群信息
         """
         return get_group_info_action(groupId, noCache, True)
 
     @_action_launch
-    async def get_groups(self) -> RespEvent:
+    async def get_groups(self) -> ResponseEvent:
         """
         获取 bot 加入的群列表
         """
@@ -385,7 +383,7 @@ class BotSession:
         groupId: int,
         userId: int,
         noCache: bool,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群内单独一个群成员信息
         """
@@ -396,7 +394,7 @@ class BotSession:
         self,
         groupId: int,
         noCache: bool,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群成员列表
         """
@@ -409,7 +407,7 @@ class BotSession:
         type: Literal[
             "talkative", "performer", "legend", "strong_newbie", "emotion", "all"
         ],
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群荣誉信息
         """
@@ -419,7 +417,7 @@ class BotSession:
     async def get_group_file_sys(
         self,
         groupId: int,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群文件系统信息
         """
@@ -432,7 +430,7 @@ class BotSession:
     async def get_group_root_files(
         self,
         groupId: int,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群根目录文件列表
         """
@@ -442,7 +440,9 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_group_files_in_folder(self, groupId: int, folderId: str) -> RespEvent:
+    async def get_group_files_in_folder(
+        self, groupId: int, folderId: str
+    ) -> ResponseEvent:
         """
         获取群子目录文件列表
         """
@@ -455,7 +455,7 @@ class BotSession:
     @_action_launch
     async def get_group_file_url(
         self, groupId: int, fileId: str, fileTypeId: int
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群文件资源链接。文件相关信息通过 `get_group_root_files` 或
         `get_group_files` 的响应获得
@@ -468,7 +468,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_group_sys_msg(self) -> RespEvent:
+    async def get_group_sys_msg(self) -> ResponseEvent:
         """
         获取群系统消息
         """
@@ -480,7 +480,7 @@ class BotSession:
     async def get_group_notices(
         self,
         groupId: int,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取群公告。
         群公告图片有 id，但暂时没有下载的方法
@@ -491,7 +491,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_group_records(self, msgSeq: int, groupId: int) -> RespEvent:
+    async def get_group_records(self, msgSeq: int, groupId: int) -> ResponseEvent:
         """
         获取群消息历史记录
         """
@@ -502,7 +502,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_group_essences(self, groupId: int) -> RespEvent:
+    async def get_group_essences(self, groupId: int) -> ResponseEvent:
         """
         获取精华消息列表
         """
@@ -514,7 +514,7 @@ class BotSession:
     @_action_launch
     async def set_group_admin(
         self, groupId: int, userId: int, enable: bool, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         设置群管理员
         """
@@ -528,7 +528,7 @@ class BotSession:
     @_action_launch
     async def set_group_card(
         self, groupId: int, userId: int, card: str, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         设置群名片
         """
@@ -542,7 +542,7 @@ class BotSession:
     @_action_launch
     async def set_group_name(
         self, groupId: int, name: str, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         设置群名
         """
@@ -560,7 +560,7 @@ class BotSession:
         title: str,
         duration: int = -1,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         设置群头衔
         """
@@ -580,7 +580,7 @@ class BotSession:
         approve: bool,
         rejectReason: str = None,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         处理加群请求
         """
@@ -595,7 +595,7 @@ class BotSession:
     @_action_launch
     async def set_group_icon(
         self, groupId: int, file: str, cache: Literal[0, 1] = 0, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         设置群头像。file 参数接受本地或网络 url 和 base64 编码。
         如本地路径为：`file:///C:/Users/Richard/Pictures/1.png`。
@@ -611,7 +611,7 @@ class BotSession:
     @_action_launch
     async def set_group_notice(
         self, groupId: int, content: str, imageUrl: str = None, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         发送群公告。
         注意 `imageUrl` 只能为本地 url，示例：`file:///C:/users/15742/desktop/123.jpg`
@@ -626,7 +626,7 @@ class BotSession:
     @_action_launch
     async def set_group_essence(
         self, msgId: int, type: Literal["add", "del"], waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         设置群精华消息
         """
@@ -639,7 +639,7 @@ class BotSession:
     @_action_launch
     async def create_group_folder(
         self, groupId: int, folderName: str, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         创建群文件夹。注意：只能在根目录创建文件夹
         """
@@ -652,7 +652,7 @@ class BotSession:
     @_action_launch
     async def delete_group_folder(
         self, groupId: int, folderId: str, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         删除群文件夹
         """
@@ -665,7 +665,7 @@ class BotSession:
     @_action_launch
     async def delete_group_file(
         self, groupId: int, fileId: str, fileTypeId: int, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         删除群文件。文件相关信息通过 `get_group_root_files` 或
         `get_group_files` 的响应获得
@@ -678,7 +678,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_friends(self) -> RespEvent:
+    async def get_friends(self) -> ResponseEvent:
         """
         获取好友列表
         """
@@ -687,7 +687,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_undirect_friends(self) -> RespEvent:
+    async def get_undirect_friends(self) -> ResponseEvent:
         """
         获取单向好友列表
         """
@@ -700,7 +700,7 @@ class BotSession:
         self,
         userId: int,
         noCache: bool,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取用户信息。可以对陌生人或好友使用
         """
@@ -713,7 +713,7 @@ class BotSession:
     @_action_launch
     async def process_friend_add(
         self, addFlag: str, approve: bool, remark: str, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         处理加好友。注意 remark 目前暂未实现
         """
@@ -727,7 +727,7 @@ class BotSession:
     @_action_launch
     async def delete_friend(
         self, userId: int, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         删除好友
         """
@@ -739,7 +739,7 @@ class BotSession:
     @_action_launch
     async def delete_undirect_friend(
         self, userId: int, waitResp: bool = False
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         删除单向好友
         """
@@ -749,7 +749,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_login_info(self) -> RespEvent:
+    async def get_login_info(self) -> ResponseEvent:
         """
         获得登录号信息
         """
@@ -764,7 +764,7 @@ class BotSession:
         college: str,
         personalNote: str,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         设置登录号资料
         """
@@ -778,7 +778,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def check_send_image(self) -> RespEvent:
+    async def check_send_image(self) -> ResponseEvent:
         """
         检查是否可以发送图片
         """
@@ -787,7 +787,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def check_send_audio(self) -> RespEvent:
+    async def check_send_audio(self) -> ResponseEvent:
         """
         检查是否可以发送语音
         """
@@ -796,7 +796,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_cq_status(self) -> RespEvent:
+    async def get_cq_status(self) -> ResponseEvent:
         """
         获取 go-cqhttp 状态
         """
@@ -805,7 +805,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_cq_version(self) -> RespEvent:
+    async def get_cq_version(self) -> ResponseEvent:
         """
         获取 go-cqhttp 版本信息
         """
@@ -819,7 +819,7 @@ class BotSession:
         contextEvent: BotEvent,
         operation: dict,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         事件快速操作（该方法下一版本实现，本版本无法使用）
         """
@@ -831,7 +831,7 @@ class BotSession:
         # )
 
     @_action_launch
-    async def get_image(self, fileName: str) -> RespEvent:
+    async def get_image(self, fileName: str) -> ResponseEvent:
         """
         获取图片信息
         """
@@ -845,9 +845,9 @@ class BotSession:
         self,
         fileUrl: str,
         useThreadNum: int,
-        headers: Union[List, str],
+        headers: list | str,
         waitResp: bool = True,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         下载文件到缓存目录 action 构造方法。`headers` 的两种格式：
         ```
@@ -872,7 +872,7 @@ class BotSession:
     async def ocr(
         self,
         image: str,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         图片 OCR。image 为图片 ID
         """
@@ -891,7 +891,7 @@ class BotSession:
         groupId: int = None,
         groupFolderId: str = None,
         waitResp: bool = False,
-    ) -> Union[RespEvent, None]:
+    ) -> Optional[ResponseEvent]:
         """
         发送文件 action 构造方法。只支持发送本地文件。
         若为群聊文件发送，不提供 folder id，则默认上传到群文件根目录。
@@ -912,7 +912,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def get_at_all_remain(self, groupId: int) -> RespEvent:
+    async def get_at_all_remain(self, groupId: int) -> ResponseEvent:
         """
         获取群 @全体成员 剩余次数
         """
@@ -925,7 +925,7 @@ class BotSession:
     async def get_online_clients(
         self,
         noCache: bool,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取当前账号在线客户端列表
         """
@@ -938,7 +938,7 @@ class BotSession:
     async def get_model_show(
         self,
         model: str,
-    ) -> RespEvent:
+    ) -> ResponseEvent:
         """
         获取在线机型
         """
@@ -948,7 +948,7 @@ class BotSession:
         )
 
     @_action_launch
-    async def set_model_show(self, model: str, modelShow: str) -> RespEvent:
+    async def set_model_show(self, model: str, modelShow: str) -> ResponseEvent:
         """
         设置在线机型
         """
@@ -1082,7 +1082,7 @@ class BotSessionManager:
     @classmethod
     async def get(
         cls, event: BotEvent, responder: AbstractResponder, handler: object
-    ) -> Union[BotSession, None]:
+    ) -> Optional[BotSession]:
         """
         handler 内获取 session 方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
         然后根据具体情况，获取已有 session 或新建 session。当尝试获取非空闲 session 时，如果 handler 指定不等待则返回 None
@@ -1136,7 +1136,7 @@ class BotSessionManager:
     @classmethod
     async def _get_on_rule(
         cls, event: BotEvent, responder: AbstractResponder, handler: object
-    ) -> Union[BotSession, None]:
+    ) -> Optional[BotSession]:
         """
         根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session。
         或从 hup_session_space 中唤醒 session，或返回 None
@@ -1240,10 +1240,10 @@ SESSION_LOCAL: BotSession
 
 
 async def send(
-    content: Union[str, CQMsgDict, List[CQMsgDict]],
+    content: str | CQMsgDict | List[CQMsgDict],
     cq_str: bool = False,
     wait: bool = False,
-) -> Union[RespEvent, None]:
+) -> Optional[ResponseEvent]:
     """
     发送一条消息
     """
@@ -1251,7 +1251,7 @@ async def send(
 
 
 async def send_hup(
-    content: Union[str, CQMsgDict, List[CQMsgDict]],
+    content: str | CQMsgDict | List[CQMsgDict],
     cq_str: bool = False,
     overtime: int = None,
 ) -> None:
@@ -1263,10 +1263,10 @@ async def send_hup(
 
 
 async def send_reply(
-    content: Union[str, CQMsgDict, List[CQMsgDict]],
+    content: str | CQMsgDict | List[CQMsgDict],
     cq_str: bool = False,
     wait: bool = False,
-) -> Union[RespEvent, None]:
+) -> Optional[ResponseEvent]:
     """
     发送一条消息（以回复消息的形式，回复触发动作的那条消息）
     """
@@ -1281,7 +1281,7 @@ async def send_reply(
 
 
 async def finish(
-    content: Union[str, CQMsgDict, List[CQMsgDict]], cq_str: bool = False
+    content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False
 ) -> None:
     """
     回复一条消息，然后直接结束当前事件处理方法

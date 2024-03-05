@@ -57,7 +57,7 @@ class PluginStore:
 
     @classmethod
     def _create_so(
-        cls, property: Union[str, None], namespace: str, id: str, plugin: object
+        cls, property: Optional[str], namespace: str, id: str, plugin: object
     ) -> None:
         """
         创建共享对象。property 为 None 时，共享对象会引用到一个 None
@@ -121,7 +121,7 @@ class PluginSignalHandler:
     """
 
     def __init__(
-        self, namespace: str, type: str, func: Callable, plugin: Union[object, None]
+        self, namespace: str, type: str, func: Callable, plugin: Optional[object]
     ) -> None:
         self._func = func
         self._plugin = plugin
