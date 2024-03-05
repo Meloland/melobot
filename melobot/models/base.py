@@ -50,12 +50,12 @@ def to_cq_arr(s: str) -> dict:
                 .replace("&#44;", ",")
             )
             if val.isdigit():
-                val = int(val)
+                data[name] = int(val)
+                continue
             try:
-                val = float(val)
+                data[name] = float(val)
             except Exception:
-                pass
-            data[name] = val
+                data[name] = val
         content.append({"type": cq_type, "data": data})
     return content
 

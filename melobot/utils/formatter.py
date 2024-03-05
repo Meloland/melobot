@@ -35,7 +35,7 @@ class ArgFormatter:
         verify: Callable[[Any], bool] = None,
         src_desc: str = None,
         src_expect: str = None,
-        default: Any = Null,
+        default: Any = Void,
         default_replace_flag: str = None,
         convert_tip_gen: TipGenerator = None,
         verify_tip_gen: TipGenerator = None,
@@ -47,7 +47,7 @@ class ArgFormatter:
         self.src_expect = src_expect
         self.default = default
         self.default_replace_flag = default_replace_flag
-        if self.default is Null and self.default_replace_flag is not None:
+        if self.default is Void and self.default_replace_flag is not None:
             raise ArgFormatInitError(
                 "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
             )
@@ -57,7 +57,7 @@ class ArgFormatter:
         self.out_arglack_tip_gen = arglack_tip_gen
 
     def _get_val(self, args: ParseArgs, idx: int) -> Any:
-        if self.default is Null:
+        if self.default is Void:
             if args.vals is None or len(args.vals) < idx + 1:
                 raise ArgLackError
             else:

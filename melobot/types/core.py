@@ -2,19 +2,10 @@ from abc import ABC, abstractmethod
 from asyncio import Future
 
 from ..models.action import BotAction
-from ..models.event import BotEvent, MetaEvent, RespEvent
+from ..models.event import BotEvent, RespEvent
 
 
-class IRespDispatcher(ABC):
-    def __init__(self) -> None:
-        super().__init__()
-
-    @abstractmethod
-    async def dispatch(self, resp: RespEvent) -> None:
-        pass
-
-
-class IActionSender(ABC):
+class AbstractSender(ABC):
     def __init__(self) -> None:
         super().__init__()
 
@@ -23,9 +14,13 @@ class IActionSender(ABC):
         pass
 
 
-class IActionResponder(ABC):
+class AbstractResponder(ABC):
     def __init__(self) -> None:
         super().__init__()
+
+    @abstractmethod
+    async def dispatch(self, resp: RespEvent) -> None:
+        pass
 
     @abstractmethod
     async def take_action(self, action: BotAction) -> None:
@@ -36,7 +31,7 @@ class IActionResponder(ABC):
         pass
 
 
-class IEventDispatcher(ABC):
+class AbstractDispatcher(ABC):
     def __init__(self) -> None:
         super().__init__()
 

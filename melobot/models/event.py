@@ -15,7 +15,7 @@ class BotEventBuilder:
 
         etype = rawEvent.get("post_type")
         if etype in ("message_sent", "message"):
-            return MsgEvent(rawEvent)
+            return MessageEvent(rawEvent)
         elif etype == "request":
             return RequestEvent(rawEvent)
         elif etype == "notice":
@@ -26,18 +26,18 @@ class BotEventBuilder:
             return RespEvent(rawEvent)
 
 
-class MsgEvent(BotEvent):
+class MessageEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         self.bot_id = rawEvent.get("self_id")
 
         self.id: int
-        self.sender: MsgEvent.Sender
+        self.sender: MessageEvent.Sender
         self.group_id: Union[int, None]
         # 使用 CQ 字符串编码的消息
         self.raw_content: str
         # array 格式表示所有类型消息段
-        self.content: dict
+        self.content: List[CQMsgDict]
         # 消息中所有文本消息段的合并字符串
         self.text: str
         self.font: int
@@ -66,9 +66,9 @@ class MsgEvent(BotEvent):
         self.temp_src = None
         temp_src = rawEvent.get("temp_source")
         if temp_src:
-            self.temp_src = MsgEvent._TEMP_SRC_MAP[temp_src]
+            self.temp_src = MessageEvent._TEMP_SRC_MAP[temp_src]
 
-        self.sender = MsgEvent.Sender(
+        self.sender = MessageEvent.Sender(
             rawEvent=rawEvent,
             isGroup=self.is_group(),
             isGroupAnonym=self.is_group_anonym(),
@@ -78,13 +78,26 @@ class MsgEvent(BotEvent):
         if self.is_group():
             self.group_id = rawEvent["group_id"]
 
-    def _format_to_array(self, content: Union[dict, str]) -> dict:
+    def _format_to_array(self, content: Union[list, str]) -> List[CQMsgDict]:
         if not isinstance(content, str):
+            for item in content:
+                if item["type"] == "text":
+                    continue
+                for k, v in item["data"].items():
+                    if not isinstance(v, str):
+                        continue
+                    if v.isdigit():
+                        item["data"][k] = int(v)
+                        continue
+                    try:
+                        item["data"][k] = float(v)
+                    except Exception:
+                        pass
             return content
         else:
             return to_cq_arr(content)
 
-    def _get_text(self, content: Union[dict, str]) -> bool:
+    def _get_text(self, content: List[CQMsgDict]) -> str:
         """
         获取消息中所有文本消息，返回合并字符串
         """
@@ -94,21 +107,28 @@ class MsgEvent(BotEvent):
                 text_list.append(item["data"]["text"])
         return "".join(text_list)
 
-    def cq_get(self, cq_type: str, param: str) -> Union[List[Union[int, float, str]], None]:
+    def get_cq(self, cq_type: str) -> List[CQMsgDict]:
         """
-        从当前 event 中获取指定 cq 类消息的指定 param，以列表形式返回。
-        当没有对应类型的 cq 消息或者没有对应的 param，不会返回空列表，而是返回 None
+        从当前 event 中获取指定类型的 cq 消息 dict
         """
-        if isinstance(self.content, str):
-            pass
-        else:
-            results = []
-            for item in self.content:
-                if item["type"] == cq_type:
-                    val = item["data"].get(param)
-                    if val is not None:
-                        results.append(val)
-            return results if len(results) > 0 else None
+        return [item for item in self.content if item["type"] == cq_type]
+
+    def get_cq_params(self, cq_type: str, param: str, type: Type[T] = None) -> List[T]:
+        """
+        从当前 event 中获取指定类型 cq 消息的指定 param，以列表形式返回。
+        当没有任何对应类型的 cq 消息时，为空列表。如果有对应类型 cq 消息，
+        但是 param 不存在，则在列表中产生值 None
+
+        可以指定 type 来强制转换类型，不填则使用智能解析出的类型
+        """
+        res = []
+        for item in self.content:
+            if item["type"] == cq_type:
+                val = item["data"].get(param)
+                res.append(val)
+        if type is not None:
+            res = list(map(lambda x: type(x), res))
+        return res
 
     def is_private(self) -> bool:
         """是否为私聊消息（注意群临时会话属于该类别）"""
@@ -434,6 +454,9 @@ class NoticeEvent(BotEvent):
             self.notice_msg_id = rawEvent["message_id"]
 
     def is_group(self) -> bool:
+        """
+        是否是来自群的通知事件
+        """
         return "group_id" in self.raw.keys()
 
     def is_group_upload(self) -> bool:

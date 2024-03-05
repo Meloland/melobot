@@ -15,7 +15,7 @@ setup(
     description=META_INFO.PROJ_DESC,
     long_description=readme,
     long_description_content_type="text/markdown",
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     packages=[
         "melobot",
         "melobot.core",

@@ -4,12 +4,50 @@ from .exceptions import *
 from .typing import *
 
 
-class BotEvent(ABC):
+class Flagable:
+    """
+    可标记对象
+    """
+
+    def __init__(self) -> None:
+        self._flags_store: Dict[str, Dict[str, Any]] = None
+
+    def mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
+        """
+        为对象添加在指定命名空间下，名为 flag_name 的标记。
+        此后此对象会一直携带此标记，无法撤销。
+        """
+        if self._flags_store is None:
+            self._flags_store = {}
+        if self._flags_store.get(namespace) is None:
+            self._flags_store[namespace] = {}
+        if flag_name in self._flags_store[namespace].keys():
+            raise TryFlagFailed(
+                f"对象不可被重复标记。在命名空间 {namespace} 中名为 {flag_name} 的标记已存在"
+            )
+        self._flags_store[namespace][flag_name] = val
+
+    def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
+        """
+        检查此对象是否携带有指定的标记
+        """
+        self._flags_store = self._flags_store
+        if self._flags_store is None:
+            return False
+        if (flags := self._flags_store.get(namespace)) is None:
+            return False
+        if (flag := flags.get(flag_name, Void)) is Void:
+            return False
+        return flag is val if val is None else flag == val
+
+
+class BotEvent(ABC, Flagable):
     """
     Bot 事件类
     """
 
     def __init__(self, rawEvent: dict) -> None:
+        super().__init__()
         self.raw = rawEvent
         self._args_map: Dict[Any, Dict[str, ParseArgs]] = None
 
@@ -69,7 +107,7 @@ class BotLife(Enum):
     CONNECTED = 2
     BEFORE_CLOSE = 3
     BEFORE_STOP = 4
-    EVENT_RECEIVED = 5
+    EVENT_BUILT = 5
     ACTION_PRESEND = 6
 
 

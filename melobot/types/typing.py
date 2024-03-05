@@ -40,9 +40,10 @@ __all__ = (
     "CQMsgDict",
     "MsgNodeDict",
     "User",
-    "PriorityLevel",
+    "PriorLevel",
     "ParseArgs",
-    "Null",
+    "Void",
+    "T",
 )
 
 
@@ -60,8 +61,24 @@ class MsgNodeDict(TypedDict):
     消息节点 dict
     """
 
-    type: str
-    data: Dict[str, Union[float, int, str]]
+    class CustomNodeData(TypedDict):
+        """
+        自定义消息节点 data dict
+        """
+
+        name: str
+        uin: int
+        content: List[CQMsgDict]
+
+    class ReferNodeData(TypedDict):
+        """
+        引用消息节点 data dict
+        """
+
+        id: int
+
+    type: Literal["node"]
+    data: Union[CustomNodeData, ReferNodeData]
 
 
 class ParseArgs:
@@ -86,7 +103,7 @@ class User(int, Enum):
     BLACK = -1
 
 
-class PriorityLevel(int, Enum):
+class PriorLevel(int, Enum):
     """
     优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值
     """
@@ -100,5 +117,9 @@ T = TypeVar("T")
 AsyncFunc = Callable[..., Coroutine[Any, Any, T]]
 
 
-class Null:
+class Void:
+    """
+    表示无值，而不是 None 代表的“空值”
+    """
+
     pass

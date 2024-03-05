@@ -7,7 +7,7 @@ from functools import partial
 from types import MethodType
 
 from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
-from ..types.core import IActionResponder
+from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import BotLife, HookRunnerArgs
 from ..types.typing import *
@@ -43,10 +43,10 @@ class BotHookBus:
         v: [] for k, v in BotLife.__members__.items()
     }
     __logger: Logger
-    __responder: IActionResponder
+    __responder: AbstractResponder
 
     @classmethod
-    def _bind(cls, logger: Logger, responder: IActionResponder) -> None:
+    def _bind(cls, logger: Logger, responder: AbstractResponder) -> None:
         """
         初始化该类，绑定全局日志器和行为响应器
         """

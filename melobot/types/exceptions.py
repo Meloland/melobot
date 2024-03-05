@@ -46,6 +46,11 @@ class BotMatcherError(BotException):
         super().__init__(msg)
 
 
+class TryFlagFailed(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
 class ShareObjError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)

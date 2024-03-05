@@ -3,7 +3,7 @@ from asyncio import iscoroutinefunction
 from pathlib import Path
 
 from ..models.handler import EventHandler, EventHandlerArgs
-from ..types.core import IActionResponder
+from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import (
     HookRunnerArgs,
@@ -13,7 +13,14 @@ from ..types.models import (
     SignalHandlerArgs,
 )
 from ..types.typing import *
-from ..types.utils import BotChecker, BotMatcher, BotParser, Logger, PrefixLogger
+from ..types.utils import (
+    BotChecker,
+    BotMatcher,
+    BotParser,
+    Logger,
+    LogicMode,
+    PrefixLogger,
+)
 from ..utils.checker import (
     AtChecker,
     FriendReqChecker,
@@ -52,7 +59,7 @@ class Plugin:
         self.__proxy: PluginProxy
 
     def __build(
-        self, root_path: Path, logger: Logger, responder: IActionResponder
+        self, root_path: Path, logger: Logger, responder: AbstractResponder
     ) -> None:
         """
         初始化当前插件
@@ -83,7 +90,9 @@ class Plugin:
             if isinstance(val, EventHandlerArgs):
                 executor, handler_class, params = val
                 if not iscoroutinefunction(executor):
-                    raise PluginBuildError(f"事件处理器 {executor.__name__} 必须为异步方法")
+                    raise PluginBuildError(
+                        f"事件处理器 {executor.__name__} 必须为异步方法"
+                    )
                 overtime_cb_maker, conflict_cb_maker = params[-1], params[-2]
                 if overtime_cb_maker and not callable(overtime_cb_maker):
                     raise PluginBuildError(
@@ -100,7 +109,9 @@ class Plugin:
             elif isinstance(val, HookRunnerArgs):
                 hook_func, type = val
                 if not iscoroutinefunction(hook_func):
-                    raise PluginBuildError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
+                    raise PluginBuildError(
+                        f"hook 方法 {hook_func.__name__} 必须为异步函数"
+                    )
                 runner = HookRunner(type, hook_func, self)
                 BotHookBus._register(type, runner)
 
@@ -115,7 +126,9 @@ class Plugin:
             elif isinstance(val, SignalHandlerArgs):
                 func, namespace, signal = val
                 if not iscoroutinefunction(func):
-                    raise PluginBuildError(f"信号处理方法 {func.__name__} 必须为异步函数")
+                    raise PluginBuildError(
+                        f"信号处理方法 {func.__name__} 必须为异步函数"
+                    )
                 handler = PluginSignalHandler(namespace, signal, func, self)
                 PluginBus._register(namespace, signal, handler)
 
@@ -127,7 +140,7 @@ class Plugin:
         matcher: BotMatcher = None,
         parser: BotParser = None,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -169,7 +182,7 @@ class Plugin:
     def on_every_message(
         cls,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -215,7 +228,7 @@ class Plugin:
         matcher: BotMatcher = None,
         parser: BotParser = None,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -262,9 +275,10 @@ class Plugin:
     @classmethod
     def on_start_match(
         cls,
-        target: str,
+        target: Union[str, List[str]],
+        logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -279,7 +293,7 @@ class Plugin:
         使用该装饰器，将方法标记为字符串起始匹配的消息事件执行器。
         必须首先含有以 target 起始的文本，才能被进一步处理
         """
-        start_matcher = StartMatch(target)
+        start_matcher = StartMatch(target, logic_mode)
 
         def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
             return EventHandlerArgs(
@@ -307,9 +321,10 @@ class Plugin:
     @classmethod
     def on_contain_match(
         cls,
-        target: str,
+        target: Union[str, List[str]],
+        logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -324,7 +339,7 @@ class Plugin:
         使用该装饰器，将方法标记为字符串包含匹配的消息事件执行器。
         文本必须首先包含 target，才能被进一步处理
         """
-        contain_matcher = ContainMatch(target)
+        contain_matcher = ContainMatch(target, logic_mode)
 
         def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
             return EventHandlerArgs(
@@ -352,9 +367,10 @@ class Plugin:
     @classmethod
     def on_full_match(
         cls,
-        target: str,
+        target: Union[str, List[str]],
+        logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -369,7 +385,7 @@ class Plugin:
         使用该装饰器，将方法标记为字符串相等匹配的消息事件执行器。
         文本必须首先与 target 内容完全一致，才能被进一步处理
         """
-        full_matcher = FullMatch(target)
+        full_matcher = FullMatch(target, logic_mode)
 
         def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
             return EventHandlerArgs(
@@ -397,9 +413,10 @@ class Plugin:
     @classmethod
     def on_end_match(
         cls,
-        target: str,
+        target: Union[str, List[str]],
+        logic_mode: LogicMode = LogicMode.OR,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -414,7 +431,7 @@ class Plugin:
         使用该装饰器，将方法标记为字符串结尾匹配的消息事件执行器。
         文本必须首先以 target 结尾，才能被进一步处理
         """
-        end_matcher = EndMatch(target)
+        end_matcher = EndMatch(target, logic_mode)
 
         def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
             return EventHandlerArgs(
@@ -444,7 +461,7 @@ class Plugin:
         cls,
         target: str,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -488,7 +505,7 @@ class Plugin:
     def on_request(
         cls,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -528,7 +545,7 @@ class Plugin:
     def on_friend_request(
         cls,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -573,7 +590,7 @@ class Plugin:
     def on_group_request(
         cls,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -638,7 +655,7 @@ class Plugin:
             "ALL",
         ],
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
@@ -683,7 +700,7 @@ class Plugin:
     def on_meta_event(
         cls,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
