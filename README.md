@@ -28,7 +28,7 @@ pip install melobot
 ```
 
 版本支持：
-- python >= 3.8
+- python >= 3.10
 - platform == All（mac 平台未测试）
 - OneBot 标准 >= 11
 

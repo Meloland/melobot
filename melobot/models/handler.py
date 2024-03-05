@@ -1,13 +1,13 @@
 import asyncio as aio
 import traceback
 
-from ..types.core import IActionResponder
+from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import BotEvent, SessionRule
 from ..types.typing import *
 from ..types.utils import BotChecker, BotMatcher, BotParser, Logger
 from .action import msg_action
-from .event import MsgEvent
+from .event import MessageEvent
 from .session import SESSION_LOCAL, BotSession, BotSessionManager
 
 
@@ -16,10 +16,10 @@ class EventHandler:
         self,
         executor: AsyncFunc[None],
         plugin: Any,
-        responder: IActionResponder,
+        responder: AbstractResponder,
         logger: Logger,
         checker: BotChecker,
-        priority: PriorityLevel,
+        priority: PriorLevel,
         timeout: float,
         set_block: bool,
         temp: bool,
@@ -94,7 +94,7 @@ class EventHandler:
             if session._hup_signal.is_set():
                 BotSessionManager._rouse(session)
 
-    async def _run(self, event: MsgEvent) -> None:
+    async def _run(self, event: MessageEvent) -> None:
         """
         获取 session 然后准备运行 executor
         """
@@ -134,7 +134,7 @@ class EventHandler:
                 return
             BotSessionManager.recycle(session, alive=self._hold)
 
-    async def evoke(self, event: MsgEvent) -> bool:
+    async def evoke(self, event: MessageEvent) -> bool:
         """
         接收总线分发的事件的方法。返回是否决定处理的判断。
         便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
@@ -168,12 +168,12 @@ class MsgEventHandler(EventHandler):
         self,
         executor: AsyncFunc[None],
         plugin: Any,
-        responder: IActionResponder,
+        responder: AbstractResponder,
         logger: Logger,
         matcher: BotMatcher = None,
         parser: BotParser = None,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
@@ -208,7 +208,7 @@ class MsgEventHandler(EventHandler):
         if self.matcher and self.parser:
             raise EventHandlerError("参数 matcher 和 parser 不能同时存在")
 
-    def _match_and_parse(self, event: MsgEvent) -> bool:
+    def _match_and_parse(self, event: MessageEvent) -> bool:
         """
         通过验权后，尝试对事件进行匹配。
         有普通的匹配器（matcher）匹配，也可以使用解析器（parser）匹配
@@ -236,7 +236,7 @@ class MsgEventHandler(EventHandler):
                 return False
         return True
 
-    async def evoke(self, event: MsgEvent) -> bool:
+    async def evoke(self, event: MessageEvent) -> bool:
         """
         接收总线分发的事件的方法。返回是否决定处理的判断。
         便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
@@ -273,10 +273,10 @@ class ReqEventHandler(EventHandler):
         self,
         executor: AsyncFunc[None],
         plugin: Any,
-        responder: IActionResponder,
+        responder: AbstractResponder,
         logger: Logger,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
@@ -311,10 +311,10 @@ class NoticeEventHandler(EventHandler):
         self,
         executor: AsyncFunc[None],
         plugin: Any,
-        responder: IActionResponder,
+        responder: AbstractResponder,
         logger: Logger,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
@@ -349,10 +349,10 @@ class MetaEventHandler(EventHandler):
         self,
         executor: AsyncFunc[None],
         plugin: Any,
-        responder: IActionResponder,
+        responder: AbstractResponder,
         logger: Logger,
         checker: BotChecker = None,
-        priority: PriorityLevel = PriorityLevel.MEAN,
+        priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,

@@ -9,14 +9,14 @@ import websockets.exceptions as wse
 from ..models.action import BotAction
 from ..models.bot import BotHookBus
 from ..models.event import BotEventBuilder
-from ..types.core import IActionSender, IEventDispatcher, IRespDispatcher
+from ..types.core import AbstractDispatcher, AbstractSender
 from ..types.exceptions import *
 from ..types.models import BotLife
 from ..types.typing import *
 from ..utils.logger import Logger
 
 
-class BotLinker(IActionSender):
+class BotLinker(AbstractSender):
     """
     Bot 连接模块通过连接适配器的代理，完成事件接收与行为发送。
     """
@@ -43,13 +43,13 @@ class BotLinker(IActionSender):
         self._send_lock = aio.Lock()
         self._rest_time = send_interval
         self._pre_send_time = time.time()
-        self._common_dispatcher: IEventDispatcher
-        self._resp_dispatcher: IRespDispatcher
+        self._common_dispatcher: AbstractDispatcher
+        self._resp_dispatcher: AbstractDispatcher
 
     def bind(
         self,
-        common_dispatcher: IEventDispatcher,
-        resp_dispatcher: IRespDispatcher,
+        common_dispatcher: AbstractDispatcher,
+        resp_dispatcher: AbstractDispatcher,
     ) -> None:
         """
         绑定其他核心组件的方法。

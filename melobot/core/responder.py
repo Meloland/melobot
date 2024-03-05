@@ -4,13 +4,13 @@ from asyncio import Future
 
 from ..models.action import BotAction
 from ..models.event import RespEvent
-from ..types.core import IActionResponder, IActionSender, IRespDispatcher
+from ..types.core import AbstractDispatcher, AbstractResponder, AbstractSender
 from ..types.exceptions import *
 from ..types.typing import *
 from ..utils.logger import Logger
 
 
-class BotResponder(IActionResponder, IRespDispatcher):
+class BotResponder(AbstractResponder, AbstractDispatcher):
     """
     bot 响应模块，是 action 发送方和 bot 连接模块的媒介。
     提供 action 发送、响应回送功能
@@ -22,9 +22,9 @@ class BotResponder(IActionResponder, IRespDispatcher):
         self.logger = logger
 
         self._ready_signal = aio.Event()
-        self._action_sender: IActionSender
+        self._action_sender: AbstractSender
 
-    def bind(self, action_sender: IActionSender) -> None:
+    def bind(self, action_sender: AbstractSender) -> None:
         """
         绑定其他核心组件的方法。独立出来，方便上层先创建实例再调用
         """

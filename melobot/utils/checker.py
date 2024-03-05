@@ -1,6 +1,6 @@
 import re
 
-from ..models.event import MetaEvent, MsgEvent, NoticeEvent, RequestEvent
+from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 from ..types.exceptions import *
 from ..types.typing import *
 from ..types.utils import BotChecker
@@ -27,7 +27,7 @@ class MsgLvlChecker(BotChecker):
         self.white_list = white_users if white_users is not None else []
         self.black_list = black_users if black_users is not None else []
 
-    def _get_level(self, event: MsgEvent) -> User:
+    def _get_level(self, event: MessageEvent) -> User:
         """
         获得事件对应的登记
         """
@@ -44,7 +44,7 @@ class MsgLvlChecker(BotChecker):
         else:
             return User.USER
 
-    def check(self, event: MsgEvent) -> bool:
+    def check(self, event: MessageEvent) -> bool:
         """
         消息校验
         """
@@ -71,7 +71,7 @@ class GroupMsgLvl(MsgLvlChecker):
         super().__init__(level, owner, super_users, white_users, black_users)
         self.white_group_list = white_groups if white_groups is not None else []
 
-    def check(self, event: MsgEvent) -> bool:
+    def check(self, event: MessageEvent) -> bool:
         if not event.is_group():
             return False
         if len(self.white_group_list) == 0:
@@ -96,7 +96,7 @@ class PrivateMsgLvl(MsgLvlChecker):
     ) -> None:
         super().__init__(level, owner, super_users, white_users, black_users)
 
-    def check(self, event: MsgEvent) -> bool:
+    def check(self, event: MessageEvent) -> bool:
         if not event.is_private():
             return False
         return super().check(event)
@@ -162,7 +162,7 @@ class AtChecker(BotChecker):
         self.qid = str(qid) if qid is not None else None
         self._cq_at_regex = re.compile(r"\[CQ:at,qq=(\d+)?\]")
 
-    def check(self, event: MsgEvent) -> bool:
+    def check(self, event: MessageEvent) -> bool:
         """
         当 qid 为空时，只要有 at 消息就通过校验。
         如果不为空，则必须出现指定 qid 的 at 消息

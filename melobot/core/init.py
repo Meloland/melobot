@@ -18,7 +18,7 @@ from ..meta import (
 from ..models.bot import BOT_PROXY, BotHookBus
 from ..models.ipc import PluginBus, PluginStore
 from ..models.plugin import Plugin
-from ..types.core import IActionResponder
+from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import BotLife
 from ..types.typing import *
@@ -90,7 +90,7 @@ class PluginLoader:
         cls,
         plugin_target: Union[str, Type[Plugin]],
         logger: Logger,
-        responder: IActionResponder,
+        responder: AbstractResponder,
     ) -> Plugin:
         """
         加载插件

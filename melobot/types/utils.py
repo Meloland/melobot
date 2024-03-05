@@ -9,8 +9,8 @@ from .exceptions import *
 from .typing import *
 
 _SysExcInfoType: TypeAlias = Union[
-    tuple[type[BaseException], BaseException, Optional[TracebackType]],
-    tuple[None, None, None],
+    Tuple[Type[BaseException], BaseException, Optional[TracebackType]],
+    Tuple[None, None, None],
 ]
 _ExcInfoType: TypeAlias = Union[None, bool, _SysExcInfoType, BaseException]
 
@@ -152,6 +152,35 @@ class LogicMode(Enum):
     NOT = 3
     XOR = 4
 
+    @classmethod
+    def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
+        if logic == LogicMode.AND:
+            return v1 and v2
+        elif logic == LogicMode.OR:
+            return v1 or v2
+        elif logic == LogicMode.NOT:
+            return not v1
+        elif logic == LogicMode.XOR:
+            return v1 ^ v2
+
+    @classmethod
+    def seq_calc(cls, logic: "LogicMode", values: List[Any]) -> bool:
+        if len(values) <= 0:
+            return False
+        elif len(values) <= 1:
+            return bool(values[0])
+
+        idx = 0
+        res = None
+        while idx < len(values):
+            if idx == 0:
+                res = cls.calc(logic, values[idx], values[idx + 1])
+                idx += 1
+            else:
+                res = cls.calc(logic, res, values[idx])
+            idx += 1
+        return res
+
 
 class BotChecker(ABC):
     def __init__(self) -> None:
@@ -159,12 +188,16 @@ class BotChecker(ABC):
 
     def __and__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotCheckerError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise BotCheckerError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
         return WrappedChecker(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotCheckerError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise BotCheckerError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
         return WrappedChecker(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedMatcher":
@@ -172,7 +205,9 @@ class BotChecker(ABC):
 
     def __xor__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotCheckerError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise BotCheckerError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
         return WrappedChecker(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -194,14 +229,11 @@ class WrappedChecker(BotChecker):
         self.c1, self.c2 = checker1, checker2
 
     def check(self, event: BotEvent) -> bool:
-        if self.mode == LogicMode.AND:
-            return self.c1.check(event) and self.c2.check(event)
-        elif self.mode == LogicMode.OR:
-            return self.c1.check(event) or self.c2.check(event)
-        elif self.mode == LogicMode.NOT:
-            return not self.c1.check(event)
-        elif self.mode == LogicMode.XOR:
-            return self.c1.check(event) ^ self.c2.check(event)
+        return LogicMode.calc(
+            self.mode,
+            self.c1.check(event),
+            self.c2.check(event) if self.c2 is not None else None,
+        )
 
 
 class BotMatcher(ABC):
@@ -210,12 +242,16 @@ class BotMatcher(ABC):
 
     def __and__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotMatcherError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise BotMatcherError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotMatcherError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise BotMatcherError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedMatcher":
@@ -223,7 +259,9 @@ class BotMatcher(ABC):
 
     def __xor__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotMatcherError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise BotMatcherError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -245,14 +283,11 @@ class WrappedMatcher(BotMatcher):
         self.m1, self.m2 = matcher1, matcher2
 
     def match(self, text: str) -> bool:
-        if self.mode == LogicMode.AND:
-            return self.m1.match(text) and self.m2.match(text)
-        elif self.mode == LogicMode.OR:
-            return self.m1.match(text) or self.m2.match(text)
-        elif self.mode == LogicMode.NOT:
-            return not self.m1.match(text)
-        elif self.mode == LogicMode.XOR:
-            return self.m1.match(text) ^ self.m2.match(text)
+        return LogicMode.calc(
+            self.mode,
+            self.m1.match(text),
+            self.m2.match(text) if self.m2 is not None else None,
+        )
 
 
 class BotParser(ABC):

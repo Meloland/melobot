@@ -10,14 +10,14 @@ from ..models.handler import (
     NoticeEventHandler,
     ReqEventHandler,
 )
-from ..types.core import IEventDispatcher
+from ..types.core import AbstractDispatcher
 from ..types.exceptions import *
 from ..types.models import BotLife
 from ..types.typing import *
 from ..utils.logger import Logger
 
 
-class BotDispatcher(IEventDispatcher):
+class BotDispatcher(AbstractDispatcher):
     """
     bot 调度模块。负责将传递的普通事件送入各事件总线
     （接收的事件类型：消息、请求和通知）
@@ -62,10 +62,10 @@ class BotDispatcher(IEventDispatcher):
         把事件分发到对应的事件总线
         """
         await self._ready_signal.wait()
-        await BotHookBus.emit(BotLife.EVENT_RECEIVED, event, wait=True)
+        await BotHookBus.emit(BotLife.EVENT_BUILT, event, wait=True)
 
         try:
-            permit_priority = PriorityLevel.MIN.value
+            permit_priority = PriorLevel.MIN.value
             handlers = self._handlers[event.type]
             for handler in handlers:
                 # 事件处理器优先级不够，则不分配给它处理

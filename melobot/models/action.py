@@ -3,6 +3,7 @@ from abc import ABC
 from copy import deepcopy
 
 from ..types.exceptions import *
+from ..types.models import Flagable
 from ..types.typing import *
 from ..utils.base import get_id
 from .event import *
@@ -395,7 +396,7 @@ def custom_msg_node(
         msgs = temp
     ret = {
         "type": "node",
-        "data": {"name": sendName, "uin": str(sendId), "content": msgs},
+        "data": {"name": sendName, "uin": sendId, "content": msgs},
     }
     if seq:
         ret["data"]["seq"] = seq
@@ -406,7 +407,7 @@ def refer_msg_node(msgId: int) -> MsgNodeDict:
     """
     引用消息节点构造方法
     """
-    return {"type": "node", "data": {"id": str(msgId)}}
+    return {"type": "node", "data": {"id": msgId}}
 
 
 class ActionPacker(ABC):
@@ -420,7 +421,7 @@ class ActionPacker(ABC):
         self.params: dict
 
 
-class BotAction:
+class BotAction(Flagable):
     """
     Bot 行为类
     """
@@ -431,6 +432,7 @@ class BotAction:
         respWaited: bool = False,
         triggerEvent: BotEvent = None,
     ) -> None:
+        super().__init__()
         # 只有 action 对应的响应需要被等待单独处理时，才会生成 id
         self.resp_id: Union[str, None] = str(get_id()) if respWaited else None
         self.type: str = package.type
@@ -460,6 +462,15 @@ class BotAction:
         将对象序列化为标准 cq action json 字符串，一般供连接器使用
         """
         return json.dumps(self.extract(), ensure_ascii=False, indent=indent)
+
+    def _fill_trigger(self, event: BotEvent) -> None:
+        """
+        后期指定触发 event
+        """
+        if self.trigger is None:
+            self.trigger = event
+            return
+        raise BotActionError("action 已记录触发 event，拒绝再次记录")
 
 
 class MsgPacker(ActionPacker):

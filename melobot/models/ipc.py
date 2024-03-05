@@ -4,7 +4,7 @@ from asyncio import iscoroutinefunction
 from functools import partial
 from types import MethodType
 
-from ..types.core import IActionResponder
+from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import ShareCbArgs, SignalHandlerArgs
 from ..types.typing import *
@@ -65,13 +65,10 @@ class PluginStore:
         if namespace not in cls.__store__.keys():
             cls.__store__[namespace] = {}
         obj = cls.__store__[namespace].get(id)
-        if obj is None:
-            obj = ShareObject(namespace, id)
-            cls.__store__[namespace][id] = obj
-        else:
-            raise ShareObjError(
-                f"命名空间 {namespace} 中已经存在 id 为 {id} 的共享对象"
-            )
+        if obj is not None:
+            return
+        obj = ShareObject(namespace, id)
+        cls.__store__[namespace][id] = obj
         if property is not None:
             obj._fill_ref(lambda: getattr(plugin, property))
         else:
@@ -145,10 +142,10 @@ class PluginBus:
 
     __store__: Dict[str, Dict[str, PluginSignalHandler]] = {}
     __logger: Logger
-    __responder: IActionResponder
+    __responder: AbstractResponder
 
     @classmethod
-    def _bind(cls, logger: Logger, responder: IActionResponder) -> None:
+    def _bind(cls, logger: Logger, responder: AbstractResponder) -> None:
         """
         初始化该类，绑定全局日志器和行为响应器
         """
@@ -185,11 +182,15 @@ class PluginBus:
             if isinstance(callback, SignalHandlerArgs):
                 raise PluginSignalError("已注册的信号处理方法不能再注册")
             if not iscoroutinefunction(callback):
-                raise PluginSignalError(f"信号处理方法 {callback.__name__} 必须为异步函数")
+                raise PluginSignalError(
+                    f"信号处理方法 {callback.__name__} 必须为异步函数"
+                )
             if (
                 isinstance(callback, partial) and isinstance(callback.func, MethodType)
             ) or isinstance(callback, MethodType):
-                raise PluginSignalError("callback 应该是 function，而不是 bound method。")
+                raise PluginSignalError(
+                    "callback 应该是 function，而不是 bound method。"
+                )
             handler = PluginSignalHandler(namespace, signal, callback, plugin=None)
             cls._register(namespace, signal, handler)
 
@@ -245,7 +246,9 @@ class PluginBus:
                 "在触发插件信号处理方法时传递原始 session，wait 参数需要为 True"
             )
         if namespace not in cls.__store__.keys():
-            raise PluginSignalError(f"插件信号命名空间 {namespace} 不存在，无法触发信号")
+            raise PluginSignalError(
+                f"插件信号命名空间 {namespace} 不存在，无法触发信号"
+            )
         if signal not in cls.__store__[namespace].keys():
             return
 
