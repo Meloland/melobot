@@ -65,10 +65,9 @@ class PluginStore:
         if namespace not in cls.__store__.keys():
             cls.__store__[namespace] = {}
         obj = cls.__store__[namespace].get(id)
-        if obj is not None:
-            return
-        obj = ShareObject(namespace, id)
-        cls.__store__[namespace][id] = obj
+        if obj is None:
+            obj = ShareObject(namespace, id)
+            cls.__store__[namespace][id] = obj
         if property is not None:
             obj._fill_ref(lambda: getattr(plugin, property))
         else:
@@ -87,6 +86,8 @@ class PluginStore:
             raise ShareObjError(
                 f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象"
             )
+        if cls.__store__[namespace][id].__cb_set__.is_set():
+            raise ShareObjError(f"{namespace} 中标记为 {id} 的共享对象已被注册过回调，拒绝再次注册")
         cls.__store__[namespace][id]._fill_cb(partial(cb, plugin))
 
     @classmethod
