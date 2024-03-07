@@ -75,7 +75,11 @@ class PluginStore:
 
     @classmethod
     def _bind_cb(
-        cls, namespace: str, id: str, cb: AsyncFunc[Any], plugin: object
+        cls,
+        namespace: str,
+        id: str,
+        cb: Callable[..., Coroutine[Any, Any, Any]],
+        plugin: object,
     ) -> None:
         """
         为共享对象绑定回调
@@ -87,7 +91,9 @@ class PluginStore:
                 f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象"
             )
         if cls.__store__[namespace][id].__cb_set__.is_set():
-            raise ShareObjError(f"{namespace} 中标记为 {id} 的共享对象已被注册过回调，拒绝再次注册")
+            raise ShareObjError(
+                f"{namespace} 中标记为 {id} 的共享对象已被注册过回调，拒绝再次注册"
+            )
         cls.__store__[namespace][id]._fill_cb(partial(cb, plugin))
 
     @classmethod
@@ -97,7 +103,7 @@ class PluginStore:
         绑定为回调后，不提供异步安全担保
         """
 
-        def bind_cb(cb: AsyncFunc[Any]) -> ShareCbArgs:
+        def bind_cb(cb: Callable[..., Coroutine[Any, Any, Any]]) -> ShareCbArgs:
             return ShareCbArgs(namespace=namespace, id=id, cb=cb)
 
         return bind_cb
@@ -122,7 +128,7 @@ class PluginSignalHandler:
     """
 
     def __init__(
-        self, namespace: str, type: str, func: Callable, plugin: Optional[object]
+        self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]], plugin: Optional[object]
     ) -> None:
         self._func = func
         self._plugin = plugin
@@ -133,7 +139,7 @@ class PluginSignalHandler:
         else:
             self.cb = self._func
         self.namespace = namespace
-        self.type = type
+        self.signal = signal
 
 
 class PluginBus:
@@ -165,7 +171,12 @@ class PluginBus:
         cls.__store__[namespace][signal] = handler
 
     @classmethod
-    def on(cls, namespace: str, signal: str, callback: Callable = None):
+    def on(
+        cls,
+        namespace: str,
+        signal: str,
+        callback: Callable[..., Coroutine[Any, Any, Any]] = None,
+    ):
         """
         动态地注册信号处理方法。callback 可以是类实例方法，也可以不是。
         callback 如果是类实例方法，请自行包裹为一个 partial 函数。
@@ -174,7 +185,9 @@ class PluginBus:
         那么你的 callback 参数就应该是：`functools.partial(A.xxx, self)`
         """
 
-        def make_args(func: AsyncFunc[Any]) -> SignalHandlerArgs:
+        def make_args(
+            func: Callable[..., Coroutine[Any, Any, Any]]
+        ) -> SignalHandlerArgs:
             return SignalHandlerArgs(func=func, namespace=namespace, signal=signal)
 
         if callback is None:

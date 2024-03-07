@@ -1,6 +1,8 @@
 import asyncio as aio
 import traceback
 
+from melobot.types.typing import Callable, PriorLevel
+
 from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import BotEvent, SessionRule
@@ -14,7 +16,7 @@ from .session import SESSION_LOCAL, BotSession, BotSessionManager
 class EventHandler:
     def __init__(
         self,
-        executor: AsyncFunc[None],
+        executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
         responder: AbstractResponder,
         logger: Logger,
@@ -27,8 +29,8 @@ class EventHandler:
         session_hold: bool,
         direct_rouse: bool,
         conflict_wait: bool,
-        conflict_cb_maker: Callable[[None], Coroutine],
-        overtime_cb_maker: Callable[[None], Coroutine],
+        conflict_cb_maker: Callable[[], Coroutine],
+        overtime_cb_maker: Callable[[], Coroutine],
     ) -> None:
         super().__init__()
         self.is_valid = True
@@ -163,10 +165,48 @@ class EventHandler:
                 return False
 
 
+class AllEventHandler(EventHandler):
+    def __init__(
+        self,
+        executor: Callable[[], Coroutine[Any, Any, None]],
+        plugin: Any,
+        responder: AbstractResponder,
+        logger: Logger,
+        checker: BotChecker,
+        priority: PriorLevel,
+        timeout: float,
+        set_block: bool,
+        temp: bool,
+        session_rule: SessionRule,
+        session_hold: bool,
+        direct_rouse: bool,
+        conflict_wait: bool,
+        conflict_cb_maker: Callable[[], Coroutine],
+        overtime_cb_maker: Callable[[], Coroutine],
+    ) -> None:
+        super().__init__(
+            executor,
+            plugin,
+            responder,
+            logger,
+            checker,
+            priority,
+            timeout,
+            set_block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb_maker,
+            overtime_cb_maker,
+        )
+
+
 class MsgEventHandler(EventHandler):
     def __init__(
         self,
-        executor: AsyncFunc[None],
+        executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
         responder: AbstractResponder,
         logger: Logger,
@@ -181,8 +221,8 @@ class MsgEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[None], Coroutine] = None,
-        overtime_cb_maker: Callable[[None], Coroutine] = None,
+        conflict_cb_maker: Callable[[], Coroutine] = None,
+        overtime_cb_maker: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -271,7 +311,7 @@ class MsgEventHandler(EventHandler):
 class ReqEventHandler(EventHandler):
     def __init__(
         self,
-        executor: AsyncFunc[None],
+        executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
         responder: AbstractResponder,
         logger: Logger,
@@ -284,8 +324,8 @@ class ReqEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[None], Coroutine] = None,
-        overtime_cb_maker: Callable[[None], Coroutine] = None,
+        conflict_cb_maker: Callable[[], Coroutine] = None,
+        overtime_cb_maker: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -309,7 +349,7 @@ class ReqEventHandler(EventHandler):
 class NoticeEventHandler(EventHandler):
     def __init__(
         self,
-        executor: AsyncFunc[None],
+        executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
         responder: AbstractResponder,
         logger: Logger,
@@ -322,8 +362,8 @@ class NoticeEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[None], Coroutine] = None,
-        overtime_cb_maker: Callable[[None], Coroutine] = None,
+        conflict_cb_maker: Callable[[], Coroutine] = None,
+        overtime_cb_maker: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -347,7 +387,7 @@ class NoticeEventHandler(EventHandler):
 class MetaEventHandler(EventHandler):
     def __init__(
         self,
-        executor: AsyncFunc[None],
+        executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
         responder: AbstractResponder,
         logger: Logger,
@@ -360,8 +400,8 @@ class MetaEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[None], Coroutine] = None,
-        overtime_cb_maker: Callable[[None], Coroutine] = None,
+        conflict_cb_maker: Callable[[], Coroutine] = None,
+        overtime_cb_maker: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -384,5 +424,8 @@ class MetaEventHandler(EventHandler):
 
 # 事件方法（事件执行器）构造参数
 EventHandlerArgs = NamedTuple(
-    "EventHandlerArgs", executor=AsyncFunc[None], type=EventHandler, params=List[Any]
+    "EventHandlerArgs",
+    executor=Callable[[], Coroutine[Any, Any, None]],
+    type=EventHandler,
+    params=List[Any],
 )

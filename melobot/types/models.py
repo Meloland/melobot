@@ -59,19 +59,19 @@ class BotEvent(ABC, Flagable):
     def type(self) -> str:
         pass
 
-    def is_msg(self) -> bool:
+    def is_msg_event(self) -> bool:
         return self.type == "message"
 
-    def is_req(self) -> bool:
+    def is_req_event(self) -> bool:
         return self.type == "request"
 
-    def is_notice(self) -> bool:
+    def is_notice_event(self) -> bool:
         return self.type == "notice"
 
-    def is_meta(self) -> bool:
+    def is_meta_event(self) -> bool:
         return self.type == "meta"
 
-    def is_resp(self) -> bool:
+    def is_resp_event(self) -> bool:
         return self.type == "response"
 
     def _get_args(self, parser_id: Any) -> dict[str, ParseArgs] | Literal[-1]:
@@ -114,10 +114,17 @@ class BotLife(Enum):
 # 插件共享对象构造参数
 ShareObjArgs = NamedTuple("ShareObjArgs", property=str, namespace=str, id=str)
 # 插件共享对象回调的构造参数
-ShareCbArgs = NamedTuple("ShareCbArgs", namespace=str, id=str, cb=Callable)
+ShareCbArgs = NamedTuple(
+    "ShareCbArgs", namespace=str, id=str, cb=Callable[..., Coroutine[Any, Any, Any]]
+)
 # 插件信号方法构造参数
 SignalHandlerArgs = NamedTuple(
-    "SignalHandlerArgs", func=AsyncFunc[None], namespace=str, signal=str
+    "SignalHandlerArgs",
+    func=Callable[..., Coroutine[Any, Any, Any]],
+    namespace=str,
+    signal=str,
 )
 # 钩子方法（生命周期回调）构造参数
-HookRunnerArgs = NamedTuple("HookRunnerArgs", func=AsyncFunc[None], type=BotLife)
+HookRunnerArgs = NamedTuple(
+    "HookRunnerArgs", func=Callable[..., Coroutine[Any, Any, None]], type=BotLife
+)

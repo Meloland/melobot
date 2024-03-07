@@ -34,7 +34,6 @@ __all__ = (
     "ModuleType",
     "AsyncIterator",
     "NamedTuple",
-    "AsyncFunc",
     "Type",
     "Enum",
     "CQMsgDict",
@@ -114,7 +113,6 @@ class PriorLevel(int, Enum):
 
 
 T = TypeVar("T")
-AsyncFunc = Callable[..., Coroutine[Any, Any, T]]
 
 
 class Void:

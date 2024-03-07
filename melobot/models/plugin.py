@@ -30,6 +30,7 @@ from ..utils.checker import (
 from ..utils.matcher import ContainMatch, EndMatch, FullMatch, RegexMatch, StartMatch
 from .bot import BotHookBus, HookRunner, PluginProxy
 from .handler import (
+    AllEventHandler,
     MetaEventHandler,
     MsgEventHandler,
     NoticeEventHandler,
@@ -50,15 +51,15 @@ class Plugin:
     __id__: str = None
     __version__: str = "1.0.0"
     # 插件类所在的文件路径，PosicPath 对象
-    ROOT: Path
+    PATH: Path
     # 被二次包装的全局日志器
     LOGGER: PrefixLogger
 
     def __init__(self) -> None:
-        self.__handlers: List[EventHandler]
-        self.__proxy: PluginProxy
+        self._handlers: List[EventHandler]
+        self._proxy: PluginProxy
 
-    def __build(
+    def _build(
         self, root_path: Path, logger: Logger, responder: AbstractResponder
     ) -> None:
         """
@@ -69,14 +70,15 @@ class Plugin:
         for idx, val in enumerate(self.__class__.__share__):
             if isinstance(val, str):
                 self.__class__.__share__[idx] = val, self.__class__.__name__, val
-        self.__handlers = []
+        self._handlers = []
 
-        self.__class__.ROOT = root_path
+        self.__class__.PATH = root_path
         self.__class__.LOGGER = PrefixLogger(logger, self.__class__.__id__)
 
         attrs_map = {
             k: v for k, v in inspect.getmembers(self) if not k.startswith("__")
         }
+        _share_objs = []
         for val in self.__class__.__share__:
             property, namespace, id = val
             if property not in attrs_map.keys() and property is not None:
@@ -84,8 +86,10 @@ class Plugin:
                     f"插件 {self.__class__.__name__} 尝试共享一个不存在的属性 {property}"
                 )
             PluginStore._create_so(property, namespace, id, self)
+            _share_objs.append((namespace, id))
 
         members = inspect.getmembers(self)
+        _signal_methods = []
         for attr_name, val in members:
             if isinstance(val, EventHandlerArgs):
                 executor, handler_class, params = val
@@ -103,7 +107,7 @@ class Plugin:
                         f"冲突回调方法 {conflict_cb_maker.__name__} 必须为可调用对象"
                     )
                 handler = handler_class(executor, self, responder, logger, *params)
-                self.__handlers.append(handler)
+                self._handlers.append(handler)
                 BotSessionManager.register(handler)
 
             elif isinstance(val, HookRunnerArgs):
@@ -131,8 +135,53 @@ class Plugin:
                     )
                 handler = PluginSignalHandler(namespace, signal, func, self)
                 PluginBus._register(namespace, signal, handler)
+                _signal_methods.append((namespace, signal))
 
-        self.__proxy = PluginProxy(self)
+        self._proxy = PluginProxy(
+            self.__id__, self.__version__, self.PATH, _share_objs, _signal_methods
+        )
+
+    @classmethod
+    def on_event(
+        cls,
+        checker: BotChecker = None,
+        priority: PriorLevel = PriorLevel.MEAN,
+        timeout: int = None,
+        block: bool = False,
+        temp: bool = False,
+        session_rule: SessionRule = None,
+        session_hold: bool = False,
+        direct_rouse: bool = False,
+        conflict_wait: bool = False,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
+    ) -> Callable:
+        """
+        使用该装饰器，将方法标记为任意事件处理器（响应事件除外）
+        """
+
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
+            return EventHandlerArgs(
+                executor=executor,
+                type=AllEventHandler,
+                params=[
+                    checker,
+                    priority,
+                    timeout,
+                    block,
+                    temp,
+                    session_rule,
+                    session_hold,
+                    direct_rouse,
+                    conflict_wait,
+                    conflict_cb,
+                    overtime_cb,
+                ],
+            )
+
+        return make_args
 
     @classmethod
     def on_message(
@@ -148,14 +197,16 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为消息事件执行器
+        使用该装饰器，将方法标记为消息事件处理器
         """
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -190,15 +241,17 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为任意消息事件执行器。
+        使用该装饰器，将方法标记为任意消息事件处理器。
         任何消息经过校验后，不进行匹配和解析即可触发处理方法
         """
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -236,11 +289,11 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为艾特消息匹配的消息事件执行器。
+        使用该装饰器，将方法标记为艾特消息匹配的消息事件处理器。
         必须首先是来自指定 qid 的艾特消息，才能被进一步处理
         """
         at_checker = AtChecker(qid)
@@ -249,7 +302,9 @@ class Plugin:
         else:
             wrapped_checker = at_checker
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -286,16 +341,18 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为字符串起始匹配的消息事件执行器。
+        使用该装饰器，将方法标记为字符串起始匹配的消息事件处理器。
         必须首先含有以 target 起始的文本，才能被进一步处理
         """
         start_matcher = StartMatch(target, logic_mode)
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -332,16 +389,18 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为字符串包含匹配的消息事件执行器。
+        使用该装饰器，将方法标记为字符串包含匹配的消息事件处理器。
         文本必须首先包含 target，才能被进一步处理
         """
         contain_matcher = ContainMatch(target, logic_mode)
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -378,16 +437,18 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为字符串相等匹配的消息事件执行器。
+        使用该装饰器，将方法标记为字符串相等匹配的消息事件处理器。
         文本必须首先与 target 内容完全一致，才能被进一步处理
         """
         full_matcher = FullMatch(target, logic_mode)
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -424,16 +485,18 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为字符串结尾匹配的消息事件执行器。
+        使用该装饰器，将方法标记为字符串结尾匹配的消息事件处理器。
         文本必须首先以 target 结尾，才能被进一步处理
         """
         end_matcher = EndMatch(target, logic_mode)
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -469,16 +532,18 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为字符串正则匹配的消息事件执行器。
+        使用该装饰器，将方法标记为字符串正则匹配的消息事件处理器。
         文本必须包含指定的正则内容，才能被进一步处理
         """
         regex_matcher = RegexMatch(target)
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MsgEventHandler,
@@ -513,14 +578,16 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为请求事件执行器
+        使用该装饰器，将方法标记为请求事件处理器
         """
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=ReqEventHandler,
@@ -553,11 +620,11 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为私聊请求事件执行器
+        使用该装饰器，将方法标记为私聊请求事件处理器
         """
         friend_checker = FriendReqChecker()
         if checker is not None:
@@ -565,7 +632,9 @@ class Plugin:
         else:
             wrapped_checker = friend_checker
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=ReqEventHandler,
@@ -598,11 +667,11 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为群请求事件执行器
+        使用该装饰器，将方法标记为群请求事件处理器
         """
         group_checker = GroupReqChecker()
         if checker is not None:
@@ -610,7 +679,9 @@ class Plugin:
         else:
             wrapped_checker = group_checker
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=ReqEventHandler,
@@ -663,11 +734,11 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为通知事件执行器
+        使用该装饰器，将方法标记为通知事件处理器
         """
         type_checker = NoticeTypeChecker(type)
         if checker is not None:
@@ -675,7 +746,9 @@ class Plugin:
         else:
             wrapped_checker = type_checker
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=NoticeEventHandler,
@@ -708,14 +781,16 @@ class Plugin:
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[None], Coroutine] = None,
-        overtime_cb: Callable[[None], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> Callable:
         """
-        使用该装饰器，将方法标记为元事件执行器
+        使用该装饰器，将方法标记为元事件处理器
         """
 
-        def make_args(executor: AsyncFunc[None]) -> EventHandlerArgs:
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> EventHandlerArgs:
             return EventHandlerArgs(
                 executor=executor,
                 type=MetaEventHandler,

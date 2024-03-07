@@ -129,7 +129,7 @@ class BotLinker(AbstractSender):
                     if raw_event == "":
                         continue
                     event = BotEventBuilder.build(raw_event)
-                    if event.is_resp():
+                    if event.is_resp_event():
                         aio.create_task(self._resp_dispatcher.dispatch(event))
                     else:
                         aio.create_task(self._common_dispatcher.dispatch(event))

@@ -4,6 +4,7 @@ import traceback
 from ..models.bot import BotHookBus
 from ..models.event import BotEvent
 from ..models.handler import (
+    AllEventHandler,
     EventHandler,
     MetaEventHandler,
     MsgEventHandler,
@@ -19,8 +20,8 @@ from ..utils.logger import Logger
 
 class BotDispatcher(AbstractDispatcher):
     """
-    bot 调度模块。负责将传递的普通事件送入各事件总线
-    （接收的事件类型：消息、请求和通知）
+    bot 分发模块。负责将传递的事件分发到各事件通道
+    （接收的事件类型：消息、请求、通知和元事件）
     """
 
     def __init__(self, logger: Logger) -> None:
@@ -30,6 +31,7 @@ class BotDispatcher(AbstractDispatcher):
             "request": [],
             "notice": [],
             "meta": [],
+            "ALL": [],
         }
         self.logger = logger
 
@@ -50,6 +52,8 @@ class BotDispatcher(AbstractDispatcher):
                 self._handlers["notice"].append(handler)
             elif isinstance(handler, MetaEventHandler):
                 self._handlers["meta"].append(handler)
+            elif isinstance(handler, AllEventHandler):
+                self._handlers["ALL"].append(handler)
         for k in self._handlers.keys():
             self._handlers[k] = sorted(
                 self._handlers[k], key=lambda x: x.priority, reverse=True
@@ -57,26 +61,33 @@ class BotDispatcher(AbstractDispatcher):
 
         self._ready_signal.set()
 
+    async def broadcast(self, event: BotEvent, channel: str) -> None:
+        """
+        向指定的通道推送事件
+        """
+        permit_priority = PriorLevel.MIN.value
+        handlers = self._handlers[channel]
+        for handler in handlers:
+            # 事件处理器优先级不够，则不分配给它处理
+            if handler.priority < permit_priority:
+                continue
+            # evoke 返回的值用于判断，事件处理器内部经过各种检查后，是否选择处理这个事件。
+            if not (await handler.evoke(event)):
+                # 如果决定不处理，则会跳过此次循环（也就是不进行“可能存在的优先级阻断操作”）
+                continue
+            if handler.set_block and handler.priority > permit_priority:
+                permit_priority = handler.priority
+
     async def dispatch(self, event: BotEvent) -> None:
         """
-        把事件分发到对应的事件总线
+        把事件分发到对应的事件通道
         """
         await self._ready_signal.wait()
         await BotHookBus.emit(BotLife.EVENT_BUILT, event, wait=True)
 
         try:
-            permit_priority = PriorLevel.MIN.value
-            handlers = self._handlers[event.type]
-            for handler in handlers:
-                # 事件处理器优先级不够，则不分配给它处理
-                if handler.priority < permit_priority:
-                    continue
-                # evoke 返回的值用于判断，事件处理器内部经过各种检查后，是否选择处理这个事件。
-                if not (await handler.evoke(event)):
-                    # 如果决定不处理，则会跳过此次循环（也就是不进行“可能存在的优先级阻断操作”）
-                    continue
-                if handler.set_block and handler.priority > permit_priority:
-                    permit_priority = handler.priority
+            await self.broadcast(event, "ALL")
+            await self.broadcast(event, event.type)
         except Exception as e:
             self.logger.error(f"bot dispatcher 抛出异常：[{e.__class__.__name__}] {e}")
             self.logger.debug(f"异常点的事件记录为：{event.raw}")

@@ -100,7 +100,7 @@ class PluginLoader:
         else:
             plugin, file_path = cls.load_from_type(plugin_target)
         root_path = pathlib.Path(file_path).parent.resolve(strict=True)
-        plugin._Plugin__build(root_path, logger, responder)
+        plugin._build(root_path, logger, responder)
         return plugin
 
 
@@ -200,7 +200,7 @@ class MeloBot:
         exist_plugin = self.plugins.get(plugin.__class__.__id__)
         if exist_plugin is None:
             self.plugins[plugin.__class__.__id__] = plugin
-            self.dispatcher.add_handlers(plugin._Plugin__handlers)
+            self.dispatcher.add_handlers(plugin._handlers)
             self.logger.info(f"成功加载插件：{plugin.__class__.__id__}")
         else:
             self.logger.error(

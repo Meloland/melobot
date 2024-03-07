@@ -3,7 +3,9 @@ import os
 import time
 import traceback
 from asyncio import iscoroutinefunction
+from copy import deepcopy
 from functools import partial
+from pathlib import Path
 from types import MethodType
 
 from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
@@ -13,7 +15,6 @@ from ..types.models import BotLife, HookRunnerArgs
 from ..types.typing import *
 from ..types.utils import Logger
 from ..utils.config import BotConfig
-from .ipc import PluginStore, ShareObject
 from .session import SESSION_LOCAL, BotSessionManager
 
 
@@ -22,7 +23,7 @@ class HookRunner:
     bot 生命周期 hook 运行器
     """
 
-    def __init__(self, type: str, func: Callable, plugin: Optional[object]) -> None:
+    def __init__(self, type: str, func: Callable[..., Coroutine[Any, Any, None]], plugin: Optional[object]) -> None:
         self._func = func
         self._plugin = plugin
         # 对应：绑定的 func 是插件类的实例方法
@@ -65,7 +66,7 @@ class BotHookBus:
         cls.__store__[hook_type].append(runner)
 
     @classmethod
-    def on(cls, hook_type: BotLife, callback: Callable) -> None:
+    def on(cls, hook_type: BotLife, callback: Callable[..., Coroutine[Any, Any, None]]) -> None:
         """
         动态注册 hook 方法
         """
@@ -122,13 +123,19 @@ class PluginProxy:
     bot 插件代理类。供外部使用
     """
 
-    def __init__(self, plugin: object) -> None:
-        self.id = plugin.__class__.__id__
-        self.version = plugin.__class__.__version__
-        self.root_path = plugin.__class__.ROOT
-        self.share: Dict[str, ShareObject] = {}
-        for property, namespace, id in plugin.__class__.__share__:
-            self.share[id] = PluginStore.get(namespace, id)
+    def __init__(
+        self,
+        id: str,
+        ver: str,
+        path: Path,
+        share_objs: list[tuple[str, str]],
+        signal_methods: list[tuple[str, str]],
+    ) -> None:
+        self.id = id
+        self.version = ver
+        self.path = path
+        self.shares = share_objs
+        self.signal_methods = signal_methods
 
 
 class BotProxy:
@@ -142,32 +149,29 @@ class BotProxy:
     def _bind(self, bot_origin: object) -> None:
         self.__origin__ = bot_origin
 
-    @property
-    def loop(self) -> aio.AbstractEventLoop:
+    def get_loop(self) -> aio.AbstractEventLoop:
+        """
+        获得运行 bot 的异步事件循环
+        """
         return self.__origin__.loop
 
-    @property
-    def logger(self) -> Logger:
+    def get_logger(self) -> Logger:
         """
-        bot 全局日志器
+        获得 bot 全局日志器
         """
         return self.__origin__.logger
 
-    @property
-    def config(self) -> BotConfig:
+    def get_config(self) -> BotConfig:
         """
-        bot 全局配置
+        获得 bot 全局配置
         """
-        return self.__origin__.config
+        return deepcopy(self.__origin__.config)
 
-    @property
-    def plugins(self) -> Dict[str, PluginProxy]:
+    def get_plugins(self) -> Dict[str, PluginProxy]:
         """
         获取 bot 当前所有插件信息
         """
-        return {
-            id: plugin._Plugin__proxy for id, plugin in self.__origin__.plugins.items()
-        }
+        return {id: plugin._proxy for id, plugin in self.__origin__.plugins.items()}
 
     @property
     def is_activate(self) -> bool:
@@ -207,7 +211,7 @@ class BotProxy:
         """
         在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是同步方法
         """
-        return self.loop.call_later(delay, callback)
+        return self.get_loop.call_later(delay, callback)
 
     def call_at(self, callback: partial, timestamp: float):
         """
@@ -216,59 +220,78 @@ class BotProxy:
         当 timestamp <= 当前时刻将立即执行
         """
         if timestamp <= time.time():
-            return self.loop.call_soon(callback)
+            return self.get_loop.call_soon(callback)
         else:
-            return self.loop.call_later(timestamp - time.time(), callback)
+            return self.get_loop.call_later(timestamp - time.time(), callback)
 
     def async_later(
-        self, callback: Coroutine[Any, Any, Any], delay: float
+        self,
+        callback: Coroutine[Any, Any, Any],
+        delay: float,
+        exit_cb: Coroutine[Any, Any, None] = None,
     ) -> aio.Future:
         """
         在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是协程。
-        返回一个 future 对象，可用于等待结果
+        返回一个 future 对象，可用于等待结果。可以指定 exit_cb 用于在被迫 cancel 时调用
         """
 
         async def async_cb(fut: aio.Future) -> Any:
-            await aio.sleep(delay)
-            res = await callback
-            fut.set_result(res)
+            try:
+                await aio.sleep(delay)
+                res = await callback
+                fut.set_result(res)
+            except aio.CancelledError:
+                if exit_cb is not None:
+                    await exit_cb
+                callback.close()
 
         fut = aio.Future()
         aio.create_task(async_cb(fut))
         return fut
 
     def async_at(
-        self, callback: Coroutine[Any, Any, Any], timestamp: float
+        self,
+        callback: Coroutine[Any, Any, Any],
+        timestamp: float,
+        exit_cb: Coroutine[Any, Any, None] = None,
     ) -> aio.Future:
         """
         在指定的 timestamp 调度一个 callback 执行。注意这个 callback 应该是协程。
-        返回一个 future 对象，可用于等待结果
+        返回一个 future 对象，可用于等待结果。可以指定 exit_cb 用于在被迫 cancel 时调用
 
         当 timestamp <= 当前时刻将立即执行
         """
         if timestamp <= time.time():
-            return self.async_later(callback, 0)
+            return self.async_later(callback, 0, exit_cb)
         else:
-            return self.async_later(callback, timestamp - time.time())
+            return self.async_later(callback, timestamp - time.time(), exit_cb)
 
     def async_interval(
-        self, cb_maker: Callable[[None], Coroutine[Any, Any, None]], interval: float
+        self,
+        cb_maker: Callable[[None], Coroutine[Any, Any, None]],
+        interval: float,
+        exit_cb: Coroutine[Any, Any, None] = None,
     ) -> aio.Task:
         """
         以指定的 interval 调度一个 callback 执行。cb_maker 是用于产生 callback 的协程产生器。
-        返回一个 task 对象用于取消 callback
+        返回一个 task 对象用于取消 callback。可以指定 exit_cb 用于在被迫 cancel 时调用
         """
 
         async def interval_cb():
-            while True:
-                await aio.sleep(interval)
-                await cb_maker()
+            try:
+                while True:
+                    coro = cb_maker()
+                    await aio.sleep(interval)
+                    await coro
+            except aio.CancelledError:
+                if exit_cb is not None:
+                    await exit_cb
+                coro.close()
 
         t = aio.create_task(interval_cb())
         return t
 
-    @classmethod
-    def on(cls, hook_type: BotLife, callback: Callable = None):
+    def on(self, hook_type: BotLife, callback: Callable[..., Coroutine[Any, Any, None]] = None):
         """
         用作装饰器，不传入 callback 参数，即可注册一个 bot 生命周期 hook。
 
@@ -279,13 +302,49 @@ class BotProxy:
         那么你的 callback 参数就应该是：`functools.partial(A.xxx, self)`
         """
 
-        def make_args(func: AsyncFunc[None]) -> HookRunnerArgs:
+        def make_args(func: Callable[..., Coroutine[Any, Any, None]]) -> HookRunnerArgs:
             return HookRunnerArgs(func=func, type=hook_type)
 
         if callback is None:
             return make_args
         else:
             BotHookBus.on(hook_type, callback)
+
+    def on_all_loaded(self):
+        """
+        用作装饰器，可注册一个 LOADED 生命周期 hook。
+        """
+        return self.on(BotLife.LOADED, None)
+
+    def on_connected(self):
+        """
+        用作装饰器，可注册一个 CONNECTED 生命周期 hook。
+        """
+        return self.on(BotLife.CONNECTED, None)
+
+    def on_before_close(self):
+        """
+        用作装饰器，可注册一个 BEFORE_CLOSE 生命周期 hook。
+        """
+        return self.on(BotLife.BEFORE_CLOSE, None)
+
+    def on_before_stop(self):
+        """
+        用作装饰器，可注册一个 BEFORE_STOP 生命周期 hook。
+        """
+        return self.on(BotLife.BEFORE_STOP, None)
+
+    def on_event_built(self):
+        """
+        用作装饰器，可注册一个 EVENT_BUILT 生命周期 hook。
+        """
+        return self.on(BotLife.EVENT_BUILT, None)
+
+    def on_action_presend(self):
+        """
+        用作装饰器，可注册一个 ACTION_PRESEND 生命周期 hook。
+        """
+        return self.on(BotLife.ACTION_PRESEND, None)
 
 
 BOT_PROXY = BotProxy()

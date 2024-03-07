@@ -1291,6 +1291,13 @@ async def finish(
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
 
 
+def any_event():
+    """
+    获取当前 session 上下文下标注为联合类型的 event
+    """
+    return SESSION_LOCAL.event
+
+
 def msg_event() -> MessageEvent:
     """
     获取当前 session 上下文下的 MessageEvent

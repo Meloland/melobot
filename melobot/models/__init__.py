@@ -8,6 +8,7 @@ from .session import SESSION_LOCAL as session
 from .session import (
     AttrSessionRule,
     BotSession,
+    any_event,
     finish,
     meta_event,
     msg_event,
