@@ -41,7 +41,7 @@ class PluginLoader:
     """
 
     @classmethod
-    def load_from_dir(cls, plugin_path: str) -> Plugin:
+    def load_from_dir(cls, plugin_path: str) -> tuple[Plugin, str]:
         """
         从指定插件目录加载插件
         """
@@ -77,7 +77,7 @@ class PluginLoader:
         return (plugin, file_path)
 
     @classmethod
-    def load_from_type(cls, _class: Type[Plugin]) -> Plugin:
+    def load_from_type(cls, _class: Type[Plugin]) -> tuple[Plugin, str]:
         """
         从插件类对象加载插件
         """
@@ -88,17 +88,17 @@ class PluginLoader:
     @classmethod
     def load(
         cls,
-        plugin_target: str | Type[Plugin],
+        target: str | Type[Plugin],
         logger: Logger,
         responder: AbstractResponder,
     ) -> Plugin:
         """
         加载插件
         """
-        if isinstance(plugin_target, str):
-            plugin, file_path = cls.load_from_dir(plugin_target)
+        if isinstance(target, str):
+            plugin, file_path = cls.load_from_dir(target)
         else:
-            plugin, file_path = cls.load_from_type(plugin_target)
+            plugin, file_path = cls.load_from_type(target)
         root_path = pathlib.Path(file_path).parent.resolve(strict=True)
         plugin._build(root_path, logger, responder)
         return plugin

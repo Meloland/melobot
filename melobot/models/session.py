@@ -168,7 +168,9 @@ class BotSession:
         cq_str 若开启，文本中若包含 cq 字符串，将会被解释
         """
         if self.event == None:
-            raise BotSessionError("空 session 需要使用 custom_send 方法替代 send")
+            raise BotSessionError(
+                "当前 session 上下文不存在 event，需要使用 custom_send 方法替代 send"
+            )
         action = msg_action(
             content,
             self.event.is_private(),
@@ -216,7 +218,7 @@ class BotSession:
         """
         if self.event == None:
             raise BotSessionError(
-                "空 session 需要使用 custom_send_forward 方法替代 send_forward"
+                "当前 session 上下文不存在 event，需要使用 custom_send_forward 方法替代 send_forward"
             )
         action = forward_msg_action(
             msgNodes,
@@ -988,7 +990,7 @@ class BotSessionManager:
         session._handler = handler
 
     @classmethod
-    def __attach(cls, event: BotEvent, handler: object) -> bool:
+    def _attach(cls, event: BotEvent, handler: object) -> bool:
         """
         session 附着操作，临界区操作。只能在 cls.try_attach 中进行
         """
@@ -1020,12 +1022,12 @@ class BotSessionManager:
             done, _ = await aio.wait([t1, t2], return_when=aio.FIRST_COMPLETED)
             # 等待完成后，一定要记得取消另一个任务！否则可能异常加锁
             if done.pop().get_name() == "flag":
-                res = cls.__attach(event, handler)
+                res = cls._attach(event, handler)
                 cls.DEADLOCK_FLAGS[handler].clear()
                 t2.cancel()
                 return res
             else:
-                res = cls.__attach(event, handler)
+                res = cls._attach(event, handler)
                 cls.WORK_LOCKS[handler].release()
                 t1.cancel()
                 return res
@@ -1037,7 +1039,7 @@ class BotSessionManager:
         """
         if session._space_tag is None:
             raise BotSessionError(
-                "一次性 session 或空 session 不支持挂起，因为缺乏 session_rule 作为唤醒标志"
+                "当前 session 上下文因为缺乏 session_rule 作为唤醒标志，无法挂起"
             )
         elif session._expired:
             raise BotSessionError("过期的 session 不能被挂起")
