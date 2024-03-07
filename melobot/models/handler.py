@@ -106,10 +106,10 @@ class EventHandler:
                 res = await BotSessionManager.try_attach(event, self)
                 if res:
                     return
-            session = await BotSessionManager.get(event, self.responder, self)
+            session = await BotSessionManager.get(event, self)
             # 如果因为冲突没有获得 session，且指定了冲突回调
             if session is None and self._conflict_cb_maker:
-                temp_session = BotSessionManager.make_temp(event, self.responder)
+                temp_session = BotSessionManager.make_temp(event)
                 await self._run_on_ctx(self._conflict_cb_maker(), temp_session)
             # 如果因为冲突没有获得 session，但没有冲突回调
             if session is None:

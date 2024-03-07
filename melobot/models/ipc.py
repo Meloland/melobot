@@ -153,15 +153,13 @@ class PluginBus:
 
     __store__: Dict[str, Dict[str, PluginSignalHandler]] = {}
     __logger: Logger
-    __responder: AbstractResponder
 
     @classmethod
-    def _bind(cls, logger: Logger, responder: AbstractResponder) -> None:
+    def _bind(cls, logger: Logger) -> None:
         """
         初始化该类，绑定全局日志器和行为响应器
         """
         cls.__logger = logger
-        cls.__responder = responder
 
     @classmethod
     def _register(
@@ -222,7 +220,7 @@ class PluginBus:
         在指定的上下文下运行插件信号处理方法
         """
         if not forward:
-            session = BotSessionManager.make_empty(cls.__responder)
+            session = BotSessionManager.make_empty()
             token = SESSION_LOCAL._add_ctx(session)
         try:
             ret = await handler.cb(*args, **kwargs)

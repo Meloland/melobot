@@ -970,6 +970,11 @@ class BotSessionManager:
     DEADLOCK_FLAGS: Dict[object, aio.Event] = {}
     # 对应每个 handler 的 try_attach 过程的操作锁
     ATTACH_LOCKS: Dict[object, aio.Lock] = {}
+    RESPONDER: AbstractResponder
+
+    @classmethod
+    def _bind(cls, responder: AbstractResponder) -> None:
+        cls.RESPONDER = responder
 
     @classmethod
     def register(cls, handler: object) -> None:
@@ -1082,9 +1087,7 @@ class BotSessionManager:
             cls._expire(session)
 
     @classmethod
-    async def get(
-        cls, event: BotEvent, responder: AbstractResponder, handler: object
-    ) -> Optional[BotSession]:
+    async def get(cls, event: BotEvent, handler: object) -> Optional[BotSession]:
         """
         handler 内获取 session 方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
         然后根据具体情况，获取已有 session 或新建 session。当尝试获取非空闲 session 时，如果 handler 指定不等待则返回 None
@@ -1092,53 +1095,49 @@ class BotSessionManager:
         if handler._rule:
             # session_space, session._free_signal 竞争，需要加锁
             async with cls.WORK_LOCKS[handler]:
-                session = await cls._get_on_rule(event, responder, handler)
+                session = await cls._get_on_rule(event)
                 # 必须在锁的保护下修改 session._free_signal
                 if session:
                     session._free_signal.clear()
         else:
-            session = cls._make(event, responder, handler)
+            session = cls._make(event, handler)
             session._free_signal.clear()
 
         return session
 
     @classmethod
-    def _make(
-        cls, event: BotEvent, responder: AbstractResponder, handler: object = None
-    ) -> BotSession:
+    def _make(cls, event: BotEvent, handler: object = None) -> BotSession:
         """
         内部使用的创建 session 方法。如果 handler 为空，即缺乏 space_tag，则为一次性 session。
         或 handler._rule 为空，则也为一次性 session
         """
         if handler:
             if handler._rule:
-                session = BotSession(cls, responder, handler)
+                session = BotSession(cls, cls.RESPONDER, handler)
                 session.events.append(event)
                 cls.STORAGE[handler].add(session)
                 return session
-        session = BotSession(cls, responder)
+        session = BotSession(cls, cls.RESPONDER)
         session.events.append(event)
         return session
 
     @classmethod
-    def make_empty(cls, responder: AbstractResponder) -> BotSession:
+    def make_empty(cls) -> BotSession:
         """
         创建空 session。即不含 event 和 space_tag 标记的 session
         """
-        return BotSession(cls, responder)
+        return BotSession(cls, cls.RESPONDER)
 
     @classmethod
-    def make_temp(cls, event: BotEvent, responder: AbstractResponder) -> BotSession:
+    def make_temp(cls, event: BotEvent) -> BotSession:
         """
         创建一次性 session。确定无需 session 管理机制时可以使用。
         否则一定使用 cls.get 方法
         """
-        return cls._make(event, responder)
+        return cls._make(event, cls.RESPONDER)
 
     @classmethod
-    async def _get_on_rule(
-        cls, event: BotEvent, responder: AbstractResponder, handler: object
-    ) -> Optional[BotSession]:
+    async def _get_on_rule(cls, event: BotEvent, handler: object) -> Optional[BotSession]:
         """
         根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session。
         或从 hup_session_space 中唤醒 session，或返回 None
@@ -1158,7 +1157,7 @@ class BotSessionManager:
                 break
         # 如果会话不存在，生成一个新 session 变量
         if session is None:
-            return cls._make(event, responder, handler)
+            return cls._make(event, handler)
         # 如果会话存在，且未过期，且空闲，则附着到这个 session 上
         if session._free_signal.is_set():
             session.events.append(event)
@@ -1182,14 +1181,11 @@ class BotSessionManager:
         """
         # 如果过期，生成一个新的 session 变量
         if session._expired:
-            return cls._make(event, responder, handler)
+            return cls._make(event, cls.RESPONDER, handler)
         # 如果未过期，则附着到这个 session 上
         else:
             session.events.append(event)
             return session
-
-
-_session_ctx = ContextVar("session_ctx")
 
 
 class SessionLocal:
@@ -1203,7 +1199,7 @@ class SessionLocal:
     )
 
     def __init__(self) -> None:
-        object.__setattr__(self, "__storage__", _session_ctx)
+        object.__setattr__(self, "__storage__", ContextVar("session_ctx"))
         self.__storage__: ContextVar[BotSession]
 
     def __setattr__(self, __name: str, __value: Any) -> None:
@@ -1239,6 +1235,9 @@ class AttrSessionRule(SessionRule):
 
 SESSION_LOCAL = SessionLocal()
 SESSION_LOCAL: BotSession
+
+
+
 
 
 async def send(

@@ -18,6 +18,7 @@ from ..meta import (
 from ..models.bot import BOT_PROXY, BotHookBus
 from ..models.ipc import PluginBus, PluginStore
 from ..models.plugin import Plugin
+from ..models.session import BotSessionManager
 from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import BotLife
@@ -123,6 +124,7 @@ class MeloBot:
         self.linker: BotLinker
         self.responder: BotResponder
         self.dispatcher: BotDispatcher
+        self.ctx_manager = BotSessionManager
         self.plugin_bus = PluginBus
         self.plugin_store = PluginStore
         self.bot_bus = BotHookBus
@@ -167,8 +169,9 @@ class MeloBot:
         )
         self.responder = BotResponder(self.logger)
         self.dispatcher = BotDispatcher(self.logger)
-        self.plugin_bus._bind(self.logger, self.responder)
-        self.bot_bus._bind(self.logger, self.responder)
+        self.ctx_manager._bind(self.responder)
+        self.plugin_bus._bind(self.logger)
+        self.bot_bus._bind(self.logger)
 
         self.logger.info("欢迎使用 melobot v2")
         self.logger.info(

@@ -49,15 +49,13 @@ class BotHookBus:
         v: [] for k, v in BotLife.__members__.items()
     }
     __logger: Logger
-    __responder: AbstractResponder
 
     @classmethod
-    def _bind(cls, logger: Logger, responder: AbstractResponder) -> None:
+    def _bind(cls, logger: Logger) -> None:
         """
         初始化该类，绑定全局日志器和行为响应器
         """
         cls.__logger = logger
-        cls.__responder = responder
 
     @classmethod
     def _register(cls, hook_type: BotLife, runner: HookRunner) -> None:
@@ -90,7 +88,7 @@ class BotHookBus:
 
     @classmethod
     async def _run_on_ctx(cls, runner: HookRunner, *args, **kwargs) -> None:
-        session = BotSessionManager.make_empty(cls.__responder)
+        session = BotSessionManager.make_empty()
         token = SESSION_LOCAL._add_ctx(session)
         try:
             await runner.cb(*args, **kwargs)
