@@ -127,7 +127,7 @@ class EventHandler:
             e_name = e.__class__.__name__
             executor_name = self.executor.__qualname__
             self.logger.error(
-                f"插件 {self._plugin.__class__.__id__} 事件处理方法 {executor_name} 发生异常：[{e_name}] {e}"
+                f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常：[{e_name}] {e}"
             )
             self.logger.debug(f"异常点的事件记录为：{event.raw}")
             self.logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))

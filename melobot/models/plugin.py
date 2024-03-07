@@ -6,11 +6,12 @@ from ..models.handler import EventHandler, EventHandlerArgs
 from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import (
-    HookRunnerArgs,
+    BotHookRunnerArgs,
+    BotLife,
+    PluginSignalHandlerArgs,
     SessionRule,
-    ShareCbArgs,
     ShareObjArgs,
-    SignalHandlerArgs,
+    ShareObjCbArgs,
 )
 from ..types.typing import *
 from ..types.utils import (
@@ -45,17 +46,18 @@ class Plugin:
     bot 插件基类。所有自定义插件必须继承该类实现。
     """
 
-    # 标记了该类有哪些实例属性需要被共享。每个元素是一个共享对象构造参数元组
-    __share__: List[ShareObjArgs] = []
-    # 插件 id 和 version 标记
-    __id__: str = None
-    __version__: str = "1.0.0"
-    # 插件类所在的文件路径，PosicPath 对象
-    PATH: Path
-    # 被二次包装的全局日志器
-    LOGGER: PrefixLogger
-
     def __init__(self) -> None:
+        # 插件 id 和 version 标记
+        self.ID: str = self.__class__.__name__
+        # 插件版本标记
+        self.VERSION: str = "1.0.0"
+        # 插件类所在的文件路径，PosicPath 对象
+        self.PATH: Path
+        # 标记了该类有哪些实例属性需要被共享。元素是共享对象构造参数或字符串
+        self.SHARES: List[ShareObjArgs | str] = []
+        # 被二次包装的全局日志器
+        self.LOGGER: PrefixLogger
+
         self._handlers: List[EventHandler]
         self._proxy: PluginProxy
 
@@ -65,81 +67,115 @@ class Plugin:
         """
         初始化当前插件
         """
-        if self.__class__.__id__ is None:
-            self.__class__.__id__ = self.__class__.__name__
-        for idx, val in enumerate(self.__class__.__share__):
-            if isinstance(val, str):
-                self.__class__.__share__[idx] = val, self.__class__.__name__, val
-        self._handlers = []
-
-        self.__class__.PATH = root_path
-        self.__class__.LOGGER = PrefixLogger(logger, self.__class__.__id__)
+        self.PATH = root_path
+        self.LOGGER = PrefixLogger(logger, self.ID)
 
         attrs_map = {
             k: v for k, v in inspect.getmembers(self) if not k.startswith("__")
         }
-        _share_objs = []
-        for val in self.__class__.__share__:
-            property, namespace, id = val
-            if property not in attrs_map.keys() and property is not None:
-                raise PluginBuildError(
-                    f"插件 {self.__class__.__name__} 尝试共享一个不存在的属性 {property}"
-                )
-            PluginStore._create_so(property, namespace, id, self)
-            _share_objs.append((namespace, id))
+        share_objs_map = self._init_share_objs(attrs_map, self.SHARES)
 
+        self._handlers = []
+        signal_methods_map = []
         members = inspect.getmembers(self)
-        _signal_methods = []
         for attr_name, val in members:
             if isinstance(val, EventHandlerArgs):
-                executor, handler_class, params = val
-                if not iscoroutinefunction(executor):
-                    raise PluginBuildError(
-                        f"事件处理器 {executor.__name__} 必须为异步方法"
-                    )
-                overtime_cb_maker, conflict_cb_maker = params[-1], params[-2]
-                if overtime_cb_maker and not callable(overtime_cb_maker):
-                    raise PluginBuildError(
-                        f"超时回调方法 {overtime_cb_maker.__name__} 必须为可调用对象"
-                    )
-                if conflict_cb_maker and not callable(conflict_cb_maker):
-                    raise PluginBuildError(
-                        f"冲突回调方法 {conflict_cb_maker.__name__} 必须为可调用对象"
-                    )
-                handler = handler_class(executor, self, responder, logger, *params)
+                handler = self._init_event_handler(
+                    responder, logger, val[0], val[1], *val[2]
+                )
                 self._handlers.append(handler)
-                BotSessionManager.register(handler)
-
-            elif isinstance(val, HookRunnerArgs):
-                hook_func, type = val
-                if not iscoroutinefunction(hook_func):
-                    raise PluginBuildError(
-                        f"hook 方法 {hook_func.__name__} 必须为异步函数"
-                    )
-                runner = HookRunner(type, hook_func, self)
-                BotHookBus._register(type, runner)
-
-            elif isinstance(val, ShareCbArgs):
-                namespace, id, cb = val
-                if not iscoroutinefunction(cb):
-                    raise PluginBuildError(
-                        f"{namespace} 命名空间中，id 为 {id} 的共享对象，它的回调 {cb.__name__} 必须为异步函数"
-                    )
-                PluginStore._bind_cb(namespace, id, cb, self)
-
-            elif isinstance(val, SignalHandlerArgs):
-                func, namespace, signal = val
-                if not iscoroutinefunction(func):
-                    raise PluginBuildError(
-                        f"信号处理方法 {func.__name__} 必须为异步函数"
-                    )
-                handler = PluginSignalHandler(namespace, signal, func, self)
-                PluginBus._register(namespace, signal, handler)
-                _signal_methods.append((namespace, signal))
+            elif isinstance(val, BotHookRunnerArgs):
+                self._init_hook_runner(val.func, val.type)
+            elif isinstance(val, ShareObjCbArgs):
+                self._init_share_obj_cb(val.namespace, val.id, val.cb)
+            elif isinstance(val, PluginSignalHandlerArgs):
+                self._init_plugin_signal_handler(val.namespace, val.signal, val.func)
+                signal_methods_map.append((val.namespace, val.signal))
 
         self._proxy = PluginProxy(
-            self.__id__, self.__version__, self.PATH, _share_objs, _signal_methods
+            self.ID, self.VERSION, self.PATH, share_objs_map, signal_methods_map
         )
+
+    def _init_share_objs(
+        self, attrs_map: dict[str, Any], shares: List[ShareObjArgs | str]
+    ) -> list[tuple[str, str]]:
+        """
+        初始化所有的共享对象。
+        同时返回共享对象定义时，包含 (namespace, id) 元组的列表
+        """
+        share_objs = []
+        for idx, val in enumerate(shares):
+            if isinstance(val, str):
+                shares[idx] = ShareObjArgs(val, self.ID, val)
+        for share_obj in shares:
+            property, namespace, id = share_obj.property, share_obj.namespace, share_obj.id
+            if property not in attrs_map.keys() and property is not None:
+                raise PluginBuildError(
+                    f"插件 {self.ID} 尝试共享一个不存在的属性 {property}"
+                )
+            PluginStore._create_so(property, namespace, id, self)
+            share_objs.append((namespace, id))
+        return share_objs
+
+    def _init_event_handler(
+        self,
+        responder: AbstractResponder,
+        logger: Logger,
+        executor: Callable[[], Coroutine[Any, Any, None]],
+        handler_class: Type[EventHandler],
+        *params: Any,
+    ) -> EventHandler:
+        """
+        初始化指定的 event handler，并返回
+        """
+        if not iscoroutinefunction(executor):
+            raise PluginBuildError(f"事件处理器 {executor.__name__} 必须为异步方法")
+        overtime_cb_maker, conflict_cb_maker = params[-1], params[-2]
+        if overtime_cb_maker and not callable(overtime_cb_maker):
+            raise PluginBuildError(
+                f"超时回调方法 {overtime_cb_maker.__name__} 必须为可调用对象"
+            )
+        if conflict_cb_maker and not callable(conflict_cb_maker):
+            raise PluginBuildError(
+                f"冲突回调方法 {conflict_cb_maker.__name__} 必须为可调用对象"
+            )
+        handler = handler_class(executor, self, responder, logger, *params)
+        BotSessionManager.register(handler)
+        return handler
+
+    def _init_hook_runner(
+        self, hook_func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
+    ) -> None:
+        """
+        初始化指定的 bot 生命周期的 hook 方法
+        """
+        if not iscoroutinefunction(hook_func):
+            raise PluginBuildError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
+        runner = HookRunner(type, hook_func, self)
+        BotHookBus._register(type, runner)
+
+    def _init_share_obj_cb(
+        self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
+    ) -> None:
+        """
+        初始化指定的共享对象的回调
+        """
+        if not iscoroutinefunction(cb):
+            raise PluginBuildError(
+                f"{namespace} 命名空间中，id 为 {id} 的共享对象，它的回调 {cb.__name__} 必须为异步函数"
+            )
+        PluginStore._bind_cb(namespace, id, cb, self)
+
+    def _init_plugin_signal_handler(
+        self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
+    ) -> None:
+        """
+        初始化指定的插件信号处理方法
+        """
+        if not iscoroutinefunction(func):
+            raise PluginBuildError(f"插件信号处理方法 {func.__name__} 必须为异步函数")
+        handler = PluginSignalHandler(namespace, signal, func, self)
+        PluginBus._register(namespace, signal, handler)
 
     @classmethod
     def on_event(

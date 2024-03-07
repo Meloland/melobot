@@ -197,11 +197,11 @@ class MeloBot:
         )
         self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
         plugin = self.loader.load(plugin_target, self.logger, self.responder)
-        exist_plugin = self.plugins.get(plugin.__class__.__id__)
+        exist_plugin = self.plugins.get(plugin.ID)
         if exist_plugin is None:
-            self.plugins[plugin.__class__.__id__] = plugin
+            self.plugins[plugin.ID] = plugin
             self.dispatcher.add_handlers(plugin._handlers)
-            self.logger.info(f"成功加载插件：{plugin.__class__.__id__}")
+            self.logger.info(f"成功加载插件：{plugin.ID}")
         else:
             self.logger.error(
                 f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{exist_plugin.plugin_dir}"

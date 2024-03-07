@@ -11,7 +11,7 @@ from types import MethodType
 from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
 from ..types.core import AbstractResponder
 from ..types.exceptions import *
-from ..types.models import BotLife, HookRunnerArgs
+from ..types.models import BotHookRunnerArgs, BotLife
 from ..types.typing import *
 from ..types.utils import Logger
 from ..utils.config import BotConfig
@@ -20,10 +20,15 @@ from .session import SESSION_LOCAL, BotSessionManager
 
 class HookRunner:
     """
-    bot 生命周期 hook 运行器
+    bot 生命周期 hook 方法
     """
 
-    def __init__(self, type: str, func: Callable[..., Coroutine[Any, Any, None]], plugin: Optional[object]) -> None:
+    def __init__(
+        self,
+        type: str,
+        func: Callable[..., Coroutine[Any, Any, None]],
+        plugin: Optional[object],
+    ) -> None:
         self._func = func
         self._plugin = plugin
         # 对应：绑定的 func 是插件类的实例方法
@@ -61,12 +66,14 @@ class BotHookBus:
         """
         if hook_type not in cls.__store__.keys():
             raise BotHookError(
-                f"尝试添加一个生命周期 hook，但是其指定的类型 {hook_type} 不存在"
+                f"尝试添加一个生命周期 hook 方法，但是其指定的类型 {hook_type} 不存在"
             )
         cls.__store__[hook_type].append(runner)
 
     @classmethod
-    def on(cls, hook_type: BotLife, callback: Callable[..., Coroutine[Any, Any, None]]) -> None:
+    def on(
+        cls, hook_type: BotLife, callback: Callable[..., Coroutine[Any, Any, None]]
+    ) -> None:
         """
         动态注册 hook 方法
         """
@@ -90,11 +97,7 @@ class BotHookBus:
         except Exception as e:
             e_name = e.__class__.__name__
             func_name = runner._func.__qualname__
-            pre_str = (
-                "插件" + runner._plugin.__class__.__id__
-                if runner._plugin
-                else "动态注册的"
-            )
+            pre_str = "插件" + runner._plugin.ID if runner._plugin else "动态注册的"
             cls.__logger.error(
                 f"{pre_str} hook 方法 {func_name} 发生异常：[{e_name}] {e}"
             )
@@ -108,7 +111,7 @@ class BotHookBus:
         cls, hook_type: BotLife, *args, wait: bool = False, **kwargs
     ) -> None:
         """
-        触发一个生命周期信号。如果指定 wait 为 True，则会等待所有生命周期 hook 方法完成
+        触发一个生命周期事件。如果指定 wait 为 True，则会等待所有生命周期 hook 方法完成
         """
         if not wait:
             for runner in cls.__store__[hook_type]:
@@ -149,6 +152,10 @@ class BotProxy:
     def _bind(self, bot_origin: object) -> None:
         self.__origin__ = bot_origin
 
+    @property
+    def is_activate(self) -> bool:
+        return not self.__origin__.slack
+
     def get_loop(self) -> aio.AbstractEventLoop:
         """
         获得运行 bot 的异步事件循环
@@ -172,10 +179,6 @@ class BotProxy:
         获取 bot 当前所有插件信息
         """
         return {id: plugin._proxy for id, plugin in self.__origin__.plugins.items()}
-
-    @property
-    def is_activate(self) -> bool:
-        return not self.__origin__.slack
 
     def slack(self) -> None:
         """
@@ -291,19 +294,25 @@ class BotProxy:
         t = aio.create_task(interval_cb())
         return t
 
-    def on(self, hook_type: BotLife, callback: Callable[..., Coroutine[Any, Any, None]] = None):
+    def on(
+        self,
+        hook_type: BotLife,
+        callback: Callable[..., Coroutine[Any, Any, None]] = None,
+    ):
         """
-        用作装饰器，不传入 callback 参数，即可注册一个 bot 生命周期 hook。
+        用作装饰器，不传入 callback 参数，即可注册一个 bot 生命周期 hook 方法。
 
-        也可直接调用此方法，传入 callback 参数来注册一个 hook。
+        也可直接调用此方法，传入 callback 参数来注册一个 hook 方法。
         callback 可以是类实例方法，也可以不是。callback 如果是类实例方法，请自行包裹为一个 partial 函数。
 
         例如你的插件类是：`A`，而你需要传递一个类实例方法：`A.xxx`，
         那么你的 callback 参数就应该是：`functools.partial(A.xxx, self)`
         """
 
-        def make_args(func: Callable[..., Coroutine[Any, Any, None]]) -> HookRunnerArgs:
-            return HookRunnerArgs(func=func, type=hook_type)
+        def make_args(
+            func: Callable[..., Coroutine[Any, Any, None]]
+        ) -> BotHookRunnerArgs:
+            return BotHookRunnerArgs(func=func, type=hook_type)
 
         if callback is None:
             return make_args
@@ -312,37 +321,37 @@ class BotProxy:
 
     def on_all_loaded(self):
         """
-        用作装饰器，可注册一个 LOADED 生命周期 hook。
+        用作装饰器，可注册一个 LOADED 生命周期 hook 方法
         """
         return self.on(BotLife.LOADED, None)
 
     def on_connected(self):
         """
-        用作装饰器，可注册一个 CONNECTED 生命周期 hook。
+        用作装饰器，可注册一个 CONNECTED 生命周期 hook 方法
         """
         return self.on(BotLife.CONNECTED, None)
 
     def on_before_close(self):
         """
-        用作装饰器，可注册一个 BEFORE_CLOSE 生命周期 hook。
+        用作装饰器，可注册一个 BEFORE_CLOSE 生命周期 hook 方法
         """
         return self.on(BotLife.BEFORE_CLOSE, None)
 
     def on_before_stop(self):
         """
-        用作装饰器，可注册一个 BEFORE_STOP 生命周期 hook。
+        用作装饰器，可注册一个 BEFORE_STOP 生命周期 hook 方法
         """
         return self.on(BotLife.BEFORE_STOP, None)
 
     def on_event_built(self):
         """
-        用作装饰器，可注册一个 EVENT_BUILT 生命周期 hook。
+        用作装饰器，可注册一个 EVENT_BUILT 生命周期 hook 方法
         """
         return self.on(BotLife.EVENT_BUILT, None)
 
     def on_action_presend(self):
         """
-        用作装饰器，可注册一个 ACTION_PRESEND 生命周期 hook。
+        用作装饰器，可注册一个 ACTION_PRESEND 生命周期 hook 方法
         """
         return self.on(BotLife.ACTION_PRESEND, None)
 

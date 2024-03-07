@@ -111,20 +111,46 @@ class BotLife(Enum):
     ACTION_PRESEND = 6
 
 
-# 插件共享对象构造参数
-ShareObjArgs = NamedTuple("ShareObjArgs", property=str, namespace=str, id=str)
-# 插件共享对象回调的构造参数
-ShareCbArgs = NamedTuple(
-    "ShareCbArgs", namespace=str, id=str, cb=Callable[..., Coroutine[Any, Any, Any]]
-)
-# 插件信号方法构造参数
-SignalHandlerArgs = NamedTuple(
-    "SignalHandlerArgs",
-    func=Callable[..., Coroutine[Any, Any, Any]],
-    namespace=str,
-    signal=str,
-)
-# 钩子方法（生命周期回调）构造参数
-HookRunnerArgs = NamedTuple(
-    "HookRunnerArgs", func=Callable[..., Coroutine[Any, Any, None]], type=BotLife
-)
+class ShareObjArgs:
+    """
+    插件共享对象构造参数
+    """
+    def __init__(self, property: str, namespace: str, id: str) -> None:
+        self.property = property
+        self.namespace = namespace
+        self.id = id
+
+
+class ShareObjCbArgs:
+    """
+    插件共享对象回调的构造参数
+    """
+    def __init__(
+        self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
+    ) -> None:
+        self.namespace = namespace
+        self.id = id
+        self.cb = cb
+
+
+class PluginSignalHandlerArgs:
+    """
+    插件信号方法构造参数
+    """
+    def __init__(
+        self, func: Callable[..., Coroutine[Any, Any, Any]], namespace: str, signal: str
+    ) -> None:
+        self.func = func
+        self.namespace = namespace
+        self.signal = signal
+
+
+class BotHookRunnerArgs:
+    """
+    钩子方法（生命周期回调）构造参数
+    """
+    def __init__(
+        self, func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
+    ) -> None:
+        self.func = func
+        self.type = type

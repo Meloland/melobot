@@ -6,7 +6,7 @@ from types import MethodType
 
 from ..types.core import AbstractResponder
 from ..types.exceptions import *
-from ..types.models import ShareCbArgs, SignalHandlerArgs
+from ..types.models import PluginSignalHandlerArgs, ShareObjCbArgs
 from ..types.typing import *
 from ..types.utils import Logger
 from .session import SESSION_LOCAL, BotSessionManager
@@ -18,34 +18,34 @@ class ShareObject:
     """
 
     def __init__(self, namespace: str, id: str) -> None:
-        self.__space__ = namespace
-        self.__id__ = id
-        self.__reflect__: Callable[[None], object] = lambda: None
-        self.__callback__: Coroutine
+        self.__space = namespace
+        self.__id = id
+        self.__reflect: Callable[[None], object] = lambda: None
+        self.__callback: Coroutine
 
-        self.__cb_set__ = aio.Event()
+        self.__cb_set = aio.Event()
 
     def _fill_ref(self, reflect_func: Callable[[None], object]) -> None:
-        self.__reflect__ = reflect_func
+        self.__reflect = reflect_func
 
     def _fill_cb(self, callback: Coroutine) -> None:
-        self.__callback__ = callback
-        self.__cb_set__.set()
+        self.__callback = callback
+        self.__cb_set.set()
 
     @property
     def val(self) -> Any:
         """
         共享对象引用的值
         """
-        return self.__reflect__()
+        return self.__reflect()
 
     async def affect(self, *args, **kwargs) -> Any:
         """
         触发共享对象的回调，回调未设置时会等待。
         如果本来就没有回调，则会陷入无休止等待
         """
-        await self.__cb_set__.wait()
-        return await self.__callback__(*args, **kwargs)
+        await self.__cb_set.wait()
+        return await self.__callback(*args, **kwargs)
 
 
 class PluginStore:
@@ -90,7 +90,7 @@ class PluginStore:
             raise ShareObjError(
                 f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象"
             )
-        if cls.__store__[namespace][id].__cb_set__.is_set():
+        if cls.__store__[namespace][id].__cb_set.is_set():
             raise ShareObjError(
                 f"{namespace} 中标记为 {id} 的共享对象已被注册过回调，拒绝再次注册"
             )
@@ -103,8 +103,8 @@ class PluginStore:
         绑定为回调后，不提供异步安全担保
         """
 
-        def bind_cb(cb: Callable[..., Coroutine[Any, Any, Any]]) -> ShareCbArgs:
-            return ShareCbArgs(namespace=namespace, id=id, cb=cb)
+        def bind_cb(cb: Callable[..., Coroutine[Any, Any, Any]]) -> ShareObjCbArgs:
+            return ShareObjCbArgs(namespace=namespace, id=id, cb=cb)
 
         return bind_cb
 
@@ -128,7 +128,11 @@ class PluginSignalHandler:
     """
 
     def __init__(
-        self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]], plugin: Optional[object]
+        self,
+        namespace: str,
+        signal: str,
+        func: Callable[..., Coroutine[Any, Any, Any]],
+        plugin: Optional[object],
     ) -> None:
         self._func = func
         self._plugin = plugin
@@ -178,7 +182,7 @@ class PluginBus:
         callback: Callable[..., Coroutine[Any, Any, Any]] = None,
     ):
         """
-        动态地注册信号处理方法。callback 可以是类实例方法，也可以不是。
+        动态地注册插件信号处理方法。callback 可以是类实例方法，也可以不是。
         callback 如果是类实例方法，请自行包裹为一个 partial 函数。
 
         例如你的插件类是：`A`，而你需要传递一个类实例方法：`A.xxx`，
@@ -187,17 +191,19 @@ class PluginBus:
 
         def make_args(
             func: Callable[..., Coroutine[Any, Any, Any]]
-        ) -> SignalHandlerArgs:
-            return SignalHandlerArgs(func=func, namespace=namespace, signal=signal)
+        ) -> PluginSignalHandlerArgs:
+            return PluginSignalHandlerArgs(
+                func=func, namespace=namespace, signal=signal
+            )
 
         if callback is None:
             return make_args
         else:
-            if isinstance(callback, SignalHandlerArgs):
-                raise PluginSignalError("已注册的信号处理方法不能再注册")
+            if isinstance(callback, PluginSignalHandlerArgs):
+                raise PluginSignalError("已注册的插件信号处理方法不能再注册")
             if not iscoroutinefunction(callback):
                 raise PluginSignalError(
-                    f"信号处理方法 {callback.__name__} 必须为异步函数"
+                    f"插件信号处理方法 {callback.__name__} 必须为异步函数"
                 )
             if (
                 isinstance(callback, partial) and isinstance(callback.func, MethodType)
@@ -213,7 +219,7 @@ class PluginBus:
         cls, handler: PluginSignalHandler, *args, forward: bool = False, **kwargs
     ) -> Any:
         """
-        在指定的上下文下运行信号处理方法
+        在指定的上下文下运行插件信号处理方法
         """
         if not forward:
             session = BotSessionManager.make_empty(cls.__responder)
@@ -224,15 +230,11 @@ class PluginBus:
         except Exception as e:
             e_name = e.__class__.__name__
             func_name = handler._func.__qualname__
-            pre_str = (
-                "插件" + handler._plugin.__class__.__id__
-                if handler._plugin
-                else "动态注册的"
-            )
+            pre_str = "插件" + handler._plugin.ID if handler._plugin else "动态注册的"
             cls.__logger.error(
-                f"{pre_str} 信号处理方法 {func_name} 发生异常：[{e_name}] {e}"
+                f"{pre_str} 插件信号处理方法 {func_name} 发生异常：[{e_name}] {e}"
             )
-            cls.__logger.debug(f"信号处理方法的 args: {args} kwargs：{kwargs}")
+            cls.__logger.debug(f"插件信号处理方法的 args: {args} kwargs：{kwargs}")
             cls.__logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
         finally:
             if not forward:
@@ -249,7 +251,7 @@ class PluginBus:
         **kwargs,
     ) -> Any:
         """
-        触发一个插件信号。如果指定 wait 为 True，则会等待所有信号处理方法完成。
+        触发一个插件信号。如果指定 wait 为 True，则会等待所有插件信号处理方法完成。
         若启用 forward，则会将 session 从信号触发处转发到信号处理处。
         但启用 forward，必须同时启用 wait。
 
