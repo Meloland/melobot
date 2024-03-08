@@ -4,12 +4,15 @@ from contextvars import ContextVar, Token
 from copy import deepcopy
 from functools import wraps
 
-from ..models.base import get_twin_event
-from ..types.core import AbstractResponder
+from ..types.abc import SessionRule
 from ..types.exceptions import *
-from ..types.models import BotAction, BotEvent, SessionRule
 from ..types.typing import *
-from .event import *
+from ..utils.atools import get_twin_event
+
+if TYPE_CHECKING:
+    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
+    from ..types.abc import AbstractResponder, BotAction, BotEvent
+    from ..plugin.handler import EventHandler
 
 
 class BotSession:
@@ -20,15 +23,17 @@ class BotSession:
     def __init__(
         self,
         manager: Type["BotSessionManager"],
-        responder: AbstractResponder,
-        space_tag: object = None,
+        responder: "AbstractResponder",
+        space_tag: "EventHandler" = None,
     ) -> None:
         super().__init__()
         self.store = {}
         self.timestamp = time.time()
         self.hup_times: List[float] = []
-        self.events: List[MessageEvent | RequestEvent | MetaEvent | NoticeEvent] = []
-        self.actions: List[BotAction] = []
+        self.events: List[
+            "MessageEvent" | "RequestEvent" | "MetaEvent" | "NoticeEvent"
+        ] = []
+        self.actions: List["BotAction"] = []
 
         self._manager = manager
         self._responder = responder
@@ -42,21 +47,21 @@ class BotSession:
         self._expired = False
         # 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是空 session 或是一次性 session
         # 其实这里如果传入 space_tag 则一定是所属 handler 的引用
-        self._space_tag: Optional[object] = space_tag
+        self._space_tag: Optional["EventHandler"] = space_tag
         # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
-        self._handler: object = None
+        self._handler: "EventHandler" = None
 
     @property
     def event(
         self,
-    ) -> MessageEvent | RequestEvent | MetaEvent | NoticeEvent:
+    ) -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]:
         try:
             return next(reversed(self.events))
         except StopIteration:
             raise BotSessionError("当前 session 下不存在可用的 event")
 
     @property
-    def last_action(self) -> BotAction:
+    def last_action(self) -> "BotAction":
         try:
             return next(reversed(self.actions))
         except StopIteration:
@@ -114,16 +119,16 @@ class BotSession:
         else:
             self._manager._expire(self)
 
-    def store_get(self, key: object) -> object:
+    def store_get(self, key: Any) -> Any:
         return self.store[key]
 
-    def store_add(self, key: object, val: object) -> None:
+    def store_add(self, key: Any, val: Any) -> None:
         self.store[key] = val
 
-    def store_update(self, store: Dict) -> None:
+    def store_update(self, store: dict) -> None:
         self.store.update(store)
 
-    def store_remove(self, key: object) -> None:
+    def store_remove(self, key: Any) -> None:
         self.store.pop(key)
 
     def store_clear(self) -> None:
@@ -166,7 +171,7 @@ class AttrSessionRule(SessionRule):
         super().__init__()
         self.attrs = attrs
 
-    def _get_val(self, e: BotEvent, attrs: Tuple[str, ...]) -> Any:
+    def _get_val(self, e: "BotEvent", attrs: Tuple[str, ...]) -> Any:
         val = e
         try:
             for attr in attrs:
@@ -175,27 +180,27 @@ class AttrSessionRule(SessionRule):
             raise BotSessionError(f"session 规则指定的属性 {attr} 不存在")
         return val
 
-    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
+    def compare(self, e1: "BotEvent", e2: "BotEvent") -> bool:
         return self._get_val(e1, self.attrs) == self._get_val(e2, self.attrs)
 
 
 class BotSessionManager:
-    STORAGE: Dict[object, Set[BotSession]] = {}
-    HUP_STORAGE: Dict[object, Set[BotSession]] = {}
+    STORAGE: Dict["EventHandler", Set[BotSession]] = {}
+    HUP_STORAGE: Dict["EventHandler", Set[BotSession]] = {}
     # 各个 handler 对饮的操作锁
-    WORK_LOCKS: Dict[object, aio.Lock] = {}
+    WORK_LOCKS: Dict["EventHandler", aio.Lock] = {}
     # 用来标记 cls.get 等待一个挂起的 session 时的死锁
-    DEADLOCK_FLAGS: Dict[object, aio.Event] = {}
+    DEADLOCK_FLAGS: Dict["EventHandler", aio.Event] = {}
     # 对应每个 handler 的 try_attach 过程的操作锁
-    ATTACH_LOCKS: Dict[object, aio.Lock] = {}
-    RESPONDER: AbstractResponder
+    ATTACH_LOCKS: Dict["EventHandler", aio.Lock] = {}
+    RESPONDER: "AbstractResponder"
 
     @classmethod
-    def _bind(cls, responder: AbstractResponder) -> None:
+    def _bind(cls, responder: "AbstractResponder") -> None:
         cls.RESPONDER = responder
 
     @classmethod
-    def register(cls, handler: object) -> None:
+    def register(cls, handler: "EventHandler") -> None:
         """
         以 handler 为键，注册 handler 对应的 session 空间、操作锁和挂起 session 空间
         """
@@ -206,14 +211,14 @@ class BotSessionManager:
         cls.ATTACH_LOCKS[handler] = aio.Lock()
 
     @classmethod
-    def inject(cls, session: BotSession, handler: object) -> None:
+    def inject(cls, session: BotSession, handler: "EventHandler") -> None:
         """
         handler 内绑定 handler 引用到 session
         """
         session._handler = handler
 
     @classmethod
-    def _attach(cls, event: BotEvent, handler: object) -> bool:
+    def _attach(cls, event: "BotEvent", handler: "EventHandler") -> bool:
         """
         session 附着操作，临界区操作。只能在 cls.try_attach 中进行
         """
@@ -231,7 +236,7 @@ class BotSessionManager:
         return False
 
     @classmethod
-    async def try_attach(cls, event: BotEvent, handler: object) -> bool:
+    async def try_attach(cls, event: "BotEvent", handler: "EventHandler") -> bool:
         """
         检查是否有挂起的 session 可供 event 附着。
         如果有则附着并唤醒，并返回 True。否则返回 False。
@@ -305,7 +310,7 @@ class BotSessionManager:
             cls._expire(session)
 
     @classmethod
-    async def get(cls, event: BotEvent, handler: object) -> Optional[BotSession]:
+    async def get(cls, event: "BotEvent", handler: "EventHandler") -> Optional[BotSession]:
         """
         handler 内获取 session 方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
         然后根据具体情况，获取已有 session 或新建 session。当尝试获取非空闲 session 时，如果 handler 指定不等待则返回 None
@@ -324,7 +329,7 @@ class BotSessionManager:
         return session
 
     @classmethod
-    def _make(cls, event: BotEvent, handler: object = None) -> BotSession:
+    def _make(cls, event: "BotEvent", handler: "EventHandler" = None) -> BotSession:
         """
         内部使用的创建 session 方法。如果 handler 为空，即缺乏 space_tag，则为一次性 session。
         或 handler._rule 为空，则也为一次性 session
@@ -347,7 +352,7 @@ class BotSessionManager:
         return BotSession(cls, cls.RESPONDER)
 
     @classmethod
-    def make_temp(cls, event: BotEvent) -> BotSession:
+    def make_temp(cls, event: "BotEvent") -> BotSession:
         """
         创建一次性 session。确定无需 session 管理机制时可以使用。
         否则一定使用 cls.get 方法
@@ -356,7 +361,7 @@ class BotSessionManager:
 
     @classmethod
     async def _get_on_rule(
-        cls, event: BotEvent, handler: object
+        cls, event: "BotEvent", handler: "EventHandler"
     ) -> Optional[BotSession]:
         """
         根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session。
@@ -423,7 +428,7 @@ class BotSessionManager:
 
         @wraps(action_getter)
         async def activated_action(*args, **kwargs):
-            action: BotAction = await action_getter(*args, **kwargs)
+            action: "BotAction" = await action_getter(*args, **kwargs)
             try:
                 if len(SESSION_LOCAL.events) > 0:
                     action._fill_trigger(SESSION_LOCAL.event)
@@ -451,28 +456,28 @@ def any_event():
     return SESSION_LOCAL.event
 
 
-def msg_event() -> MessageEvent:
+def msg_event() -> "MessageEvent":
     """
     获取当前 session 上下文下的 MessageEvent
     """
     return SESSION_LOCAL.event
 
 
-def notice_event() -> NoticeEvent:
+def notice_event() -> "NoticeEvent":
     """
     获取当前 session 上下文下的 NoticeEvent
     """
     return SESSION_LOCAL.event
 
 
-def req_evnt() -> RequestEvent:
+def req_evnt() -> "RequestEvent":
     """
     获取当前 session 上下文下的 RequestEvent
     """
     return SESSION_LOCAL.event
 
 
-def meta_event() -> MetaEvent:
+def meta_event() -> "MetaEvent":
     """
     获取当前 session 上下文下的 MetaEvent
     """

@@ -1,9 +1,11 @@
 import re
 
-from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
+from ..types.abc import BotChecker
 from ..types.exceptions import *
 from ..types.typing import *
-from ..types.utils import BotChecker
+
+if TYPE_CHECKING:
+    from ..models.event import MessageEvent, NoticeEvent, RequestEvent
 
 
 class MsgLvlChecker(BotChecker):
@@ -27,7 +29,7 @@ class MsgLvlChecker(BotChecker):
         self.white_list = white_users if white_users is not None else []
         self.black_list = black_users if black_users is not None else []
 
-    def _get_level(self, event: MessageEvent) -> User:
+    def _get_level(self, event: "MessageEvent") -> User:
         """
         获得事件对应的登记
         """
@@ -44,7 +46,7 @@ class MsgLvlChecker(BotChecker):
         else:
             return User.USER
 
-    def check(self, event: MessageEvent) -> bool:
+    def check(self, event: "MessageEvent") -> bool:
         """
         消息校验
         """
@@ -71,7 +73,7 @@ class GroupMsgLvl(MsgLvlChecker):
         super().__init__(level, owner, super_users, white_users, black_users)
         self.white_group_list = white_groups if white_groups is not None else []
 
-    def check(self, event: MessageEvent) -> bool:
+    def check(self, event: "MessageEvent") -> bool:
         if not event.is_group():
             return False
         if len(self.white_group_list) == 0:
@@ -96,7 +98,7 @@ class PrivateMsgLvl(MsgLvlChecker):
     ) -> None:
         super().__init__(level, owner, super_users, white_users, black_users)
 
-    def check(self, event: MessageEvent) -> bool:
+    def check(self, event: "MessageEvent") -> bool:
         if not event.is_private():
             return False
         return super().check(event)
@@ -162,7 +164,7 @@ class AtChecker(BotChecker):
         self.qid = str(qid) if qid is not None else None
         self._cq_at_regex = re.compile(r"\[CQ:at,qq=(\d+)?\]")
 
-    def check(self, event: MessageEvent) -> bool:
+    def check(self, event: "MessageEvent") -> bool:
         """
         当 qid 为空时，只要有 at 消息就通过校验。
         如果不为空，则必须出现指定 qid 的 at 消息
@@ -185,7 +187,7 @@ class FriendReqChecker(BotChecker):
     def __init__(self) -> None:
         super().__init__()
 
-    def check(self, event: RequestEvent) -> bool:
+    def check(self, event: "RequestEvent") -> bool:
         return event.is_friend_req()
 
 
@@ -198,7 +200,7 @@ class GroupReqChecker(BotChecker):
     def __init__(self) -> None:
         super().__init__()
 
-    def check(self, event: RequestEvent) -> bool:
+    def check(self, event: "RequestEvent") -> bool:
         return event.is_group_req()
 
 
@@ -235,7 +237,7 @@ class NoticeTypeChecker(BotChecker):
             raise BotCheckerError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
         self.sub_type = sub_type
 
-    def check(self, event: NoticeEvent) -> bool:
+    def check(self, event: "NoticeEvent") -> bool:
         if self.sub_type == "ALL":
             return True
         check_method = getattr(event, "is_" + self.sub_type)

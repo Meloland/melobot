@@ -6,14 +6,15 @@ from itertools import count
 import websockets
 import websockets.exceptions as wse
 
-from ..models.action import BotAction
-from ..models.bot import BotHookBus
-from ..models.event import BotEventBuilder
-from ..types.core import AbstractDispatcher, AbstractSender
+from ..types.abc import AbstractDispatcher, AbstractSender, BotLife
 from ..types.exceptions import *
-from ..types.models import BotLife
 from ..types.typing import *
-from ..utils.logger import Logger
+
+if TYPE_CHECKING:
+    from ..models.event import BotEventBuilder
+    from ..plugin.bot import BotHookBus
+    from ..types.abc import BotAction
+    from ..utils.logger import Logger
 
 
 class BotLinker(AbstractSender):
@@ -28,7 +29,9 @@ class BotLinker(AbstractSender):
         max_retry: int,
         retry_delay: int,
         send_interval: float,
-        logger: Logger,
+        event_builder: Type["BotEventBuilder"],
+        bot_bus: Type["BotHookBus"],
+        logger: "Logger",
     ) -> None:
         super().__init__()
         self.url = f"ws://{connect_host}:{connect_port}"
@@ -39,6 +42,8 @@ class BotLinker(AbstractSender):
         self.max_retry_num = max_retry
         self.retry_delay = retry_delay if retry_delay > 0 else 0
 
+        self._event_builder = event_builder
+        self._bot_bus = bot_bus
         self._ready_signal = aio.Event()
         self._send_lock = aio.Lock()
         self._rest_time = send_interval
@@ -68,7 +73,7 @@ class BotLinker(AbstractSender):
                 self.conn = await websockets.connect(self.url)
                 await self.conn.recv()
                 self.logger.info("与连接适配器，建立了 ws 连接")
-                await BotHookBus.emit(BotLife.CONNECTED)
+                await self._bot_bus.emit(BotLife.CONNECTED)
                 return
             except Exception as e:
                 self.logger.warning(
@@ -89,18 +94,18 @@ class BotLinker(AbstractSender):
         return self
 
     async def __aexit__(
-        self, exc_type: Exception, exc_val: str, exc_tb: traceback
+        self, exc_type: Exception, exc_val: str, exc_tb: ModuleType
     ) -> None:
         if exc_type == wse.ConnectionClosedError:
             self.logger.warning("连接适配器主动关闭, bot 将自动清理资源后关闭")
         await self._close()
 
-    async def send(self, action: BotAction) -> None:
+    async def send(self, action: "BotAction") -> None:
         """
         发送一个 action 给连接适配器
         """
         await self._ready_signal.wait()
-        await BotHookBus.emit(BotLife.ACTION_PRESEND, action, wait=True)
+        await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
         if self.slack:
             return
 
@@ -128,7 +133,7 @@ class BotLinker(AbstractSender):
                     raw_event = await self.conn.recv()
                     if raw_event == "":
                         continue
-                    event = BotEventBuilder.build(raw_event)
+                    event = self._event_builder.build(raw_event)
                     if event.is_resp_event():
                         aio.create_task(self._resp_dispatcher.dispatch(event))
                     else:

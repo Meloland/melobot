@@ -10,6 +10,7 @@ config
 */test.*
 test.*
 test
+import-deps.bat
 
 .vscode
 .env

@@ -8,13 +8,17 @@ from functools import partial
 from pathlib import Path
 from types import MethodType
 
+from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
+from ..types.abc import BotHookRunnerArgs, BotLife
 from ..types.exceptions import *
-from ..types.models import BotHookRunnerArgs, BotLife
 from ..types.typing import *
-from ..types.utils import Logger
-from ..utils.config import BotConfig
-from .session import SESSION_LOCAL, BotSessionManager
+
+if TYPE_CHECKING:
+    from ..init import MeloBot
+    from ..utils.config import BotConfig
+    from ..utils.logger import Logger
+    from .plugin import Plugin
 
 
 class HookRunner:
@@ -26,7 +30,7 @@ class HookRunner:
         self,
         type: str,
         func: Callable[..., Coroutine[Any, Any, None]],
-        plugin: Optional[object],
+        plugin: Optional["Plugin"],
     ) -> None:
         self._func = func
         self._plugin = plugin
@@ -47,10 +51,10 @@ class BotHookBus:
     __store__: Dict[BotLife, List[HookRunner]] = {
         v: [] for k, v in BotLife.__members__.items()
     }
-    __logger: Logger
+    __logger: "Logger"
 
     @classmethod
-    def _bind(cls, logger: Logger) -> None:
+    def _bind(cls, logger: "Logger") -> None:
         """
         初始化该类，绑定全局日志器和行为响应器
         """
@@ -144,9 +148,9 @@ class BotProxy:
     """
 
     def __init__(self) -> None:
-        self.__origin__: object
+        self.__origin__: "MeloBot"
 
-    def _bind(self, bot_origin: object) -> None:
+    def _bind(self, bot_origin: "MeloBot") -> None:
         self.__origin__ = bot_origin
 
     @property
@@ -159,13 +163,13 @@ class BotProxy:
         """
         return self.__origin__.loop
 
-    def get_logger(self) -> Logger:
+    def get_logger(self) -> "Logger":
         """
         获得 bot 全局日志器
         """
         return self.__origin__.logger
 
-    def get_config(self) -> BotConfig:
+    def get_config(self) -> "BotConfig":
         """
         获得 bot 全局配置
         """

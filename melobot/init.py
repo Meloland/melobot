@@ -1,108 +1,33 @@
 import asyncio as aio
-import importlib.util
 import inspect
 import os
-import pathlib
 import sys
 import traceback
 
 import websockets.exceptions as wse
 
-from ..meta import (
-    EXIT_CLOSE,
-    EXIT_RESTART,
-    META_INFO,
-    MODULE_MODE_FLAG,
-    MODULE_MODE_SET,
-)
-from ..models.bot import BOT_PROXY, BotHookBus
-from ..models.ipc import PluginBus, PluginStore
-from ..models.plugin import Plugin
-from ..models.session import BotSessionManager
-from ..types.core import AbstractResponder
-from ..types.exceptions import *
-from ..types.models import BotLife
-from ..types.typing import *
-from ..types.utils import Logger
-from ..utils.config import BotConfig
-from ..utils.logger import get_logger
-from .dispatcher import BotDispatcher
-from .linker import BotLinker
-from .responder import BotResponder
+from .context.session import BotSessionManager
+from .controller.dispatcher import BotDispatcher
+from .controller.responder import BotResponder
+from .io.linker import BotLinker
+from .meta import EXIT_CLOSE, EXIT_RESTART, MODULE_MODE_FLAG, MODULE_MODE_SET, MetaInfo
+from .models.event import BotEventBuilder
+from .plugin.bot import BOT_PROXY, BotHookBus
+from .plugin.handler import EVENT_HANDLER_MAP
+from .plugin.ipc import PluginBus, PluginStore
+from .plugin.plugin import Plugin, PluginLoader
+from .types.exceptions import *
+from .types.typing import *
+from .utils.config import BotConfig
+from .utils.logger import get_logger
+
+if TYPE_CHECKING:
+    from .utils.logger import Logger
 
 if sys.platform != "win32":
     import uvloop
 
     aio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-
-class PluginLoader:
-    """
-    插件加载器
-    """
-
-    @classmethod
-    def load_from_dir(cls, plugin_path: str) -> tuple[Plugin, str]:
-        """
-        从指定插件目录加载插件
-        """
-        if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
-            raise PluginLoadError(
-                f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
-            )
-        plugin_name = os.path.basename(plugin_path)
-        plugins_folder = str(pathlib.Path(plugin_path).parent.resolve(strict=True))
-        plugins_folder_name = os.path.basename(plugins_folder)
-        if plugins_folder not in sys.path:
-            importlib.import_module(plugins_folder_name)
-            sys.path.insert(0, plugins_folder)
-        module = importlib.import_module(
-            f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}"
-        )
-
-        plugin_class = None
-        for obj in module.__dict__.values():
-            if (
-                isinstance(obj, type)
-                and issubclass(obj, Plugin)
-                and obj.__name__ != Plugin.__name__
-            ):
-                plugin_class = obj
-                break
-        if plugin_class is None:
-            raise PluginLoadError(
-                "指定的入口主文件中，未发现继承 Plugin 的插件类，无法加载插件"
-            )
-        plugin = plugin_class()
-        file_path = inspect.getfile(module)
-        return (plugin, file_path)
-
-    @classmethod
-    def load_from_type(cls, _class: Type[Plugin]) -> tuple[Plugin, str]:
-        """
-        从插件类对象加载插件
-        """
-        plugin = _class()
-        file_path = inspect.getfile(_class)
-        return (plugin, file_path)
-
-    @classmethod
-    def load(
-        cls,
-        target: str | Type[Plugin],
-        logger: Logger,
-        responder: AbstractResponder,
-    ) -> Plugin:
-        """
-        加载插件
-        """
-        if isinstance(target, str):
-            plugin, file_path = cls.load_from_dir(target)
-        else:
-            plugin, file_path = cls.load_from_type(target)
-        root_path = pathlib.Path(file_path).parent.resolve(strict=True)
-        plugin._build(root_path, logger, responder)
-        return plugin
 
 
 class MeloBot:
@@ -113,9 +38,9 @@ class MeloBot:
 
     def __init__(self) -> None:
         self.config: BotConfig
-        self.info = META_INFO
+        self.info = MetaInfo()
         # 不要更改这个属性名
-        self._logger: Logger = None
+        self._logger: "Logger" = None
 
         self.life: aio.Task = None
         self.plugins: Dict[str, Plugin] = {}
@@ -125,6 +50,7 @@ class MeloBot:
         self.responder: BotResponder
         self.dispatcher: BotDispatcher
         self.ctx_manager = BotSessionManager
+        self.event_builder = BotEventBuilder
         self.plugin_bus = PluginBus
         self.plugin_store = PluginStore
         self.bot_bus = BotHookBus
@@ -146,7 +72,7 @@ class MeloBot:
         self.linker.slack = value
 
     @property
-    def logger(self) -> Logger:
+    def logger(self) -> "Logger":
         return self._logger if self._logger else get_logger()
 
     def init(self, config_dir) -> None:
@@ -165,10 +91,12 @@ class MeloBot:
             self.config.max_conn_try,
             self.config.conn_try_interval,
             self.config.cooldown_time,
+            self.event_builder,
+            self.bot_bus,
             self.logger,
         )
         self.responder = BotResponder(self.logger)
-        self.dispatcher = BotDispatcher(self.logger)
+        self.dispatcher = BotDispatcher(EVENT_HANDLER_MAP, self.bot_bus, self.logger)
         self.ctx_manager._bind(self.responder)
         self.plugin_bus._bind(self.logger)
         self.bot_bus._bind(self.logger)

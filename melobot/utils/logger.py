@@ -2,7 +2,9 @@ import logging
 import logging.config
 import logging.handlers
 import os
+from collections.abc import Mapping
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
+from types import TracebackType
 
 from ..types.typing import *
 
@@ -105,3 +107,137 @@ LOG_CONFIG = {
         }
     },
 }
+
+
+_SysExcInfoType: TypeAlias = (
+    Tuple[Type[BaseException], BaseException, Optional[TracebackType]]
+    | Tuple[None, None, None]
+)
+_ExcInfoType: TypeAlias = None | bool | _SysExcInfoType | BaseException
+
+
+class PrefixLogger:
+    """
+    二次包装的日志器
+    """
+
+    def __init__(self, ref: Logger, prefix: str) -> None:
+        self._logger = ref
+        self._prefix = prefix
+
+    def _add_prefix(self, s: str) -> str:
+        return f"[{self._prefix}] {s}"
+
+    def info(
+        self,
+        msg: object,
+        *args: object,
+        exc_info: _ExcInfoType = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+        extra: Optional[Mapping[str, object]] = None,
+    ) -> None:
+        msg = self._add_prefix(msg)
+        return self._logger.info(
+            msg,
+            *args,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra,
+        )
+
+    def warn(
+        self,
+        msg: object,
+        *args: object,
+        exc_info: _ExcInfoType = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+        extra: Optional[Mapping[str, object]] = None,
+    ) -> None:
+        msg = self._add_prefix(msg)
+        return self._logger.warn(
+            msg,
+            *args,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra,
+        )
+
+    def warning(
+        self,
+        msg: object,
+        *args: object,
+        exc_info: _ExcInfoType = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+        extra: Optional[Mapping[str, object]] = None,
+    ) -> None:
+        msg = self._add_prefix(msg)
+        return self._logger.warning(
+            msg,
+            *args,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra,
+        )
+
+    def error(
+        self,
+        msg: object,
+        *args: object,
+        exc_info: _ExcInfoType = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+        extra: Optional[Mapping[str, object]] = None,
+    ) -> None:
+        msg = self._add_prefix(msg)
+        return self._logger.error(
+            msg,
+            *args,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra,
+        )
+
+    def debug(
+        self,
+        msg: object,
+        *args: object,
+        exc_info: _ExcInfoType = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+        extra: Optional[Mapping[str, object]] = None,
+    ) -> None:
+        msg = self._add_prefix(msg)
+        return self._logger.debug(
+            msg,
+            *args,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra,
+        )
+
+    def critical(
+        self,
+        msg: object,
+        *args: object,
+        exc_info: _ExcInfoType = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+        extra: Optional[Mapping[str, object]] = None,
+    ) -> None:
+        msg = self._add_prefix(msg)
+        return self._logger.critical(
+            msg,
+            *args,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra,
+        )

@@ -1,44 +1,116 @@
+import importlib.util
 import inspect
+import os
+import pathlib
+import sys
 from asyncio import iscoroutinefunction
 from pathlib import Path
 
-from ..models.handler import EventHandler, EventHandlerArgs
-from ..types.core import AbstractResponder
-from ..types.exceptions import *
-from ..types.models import (
+from ..context.session import BotSessionManager
+from ..types.abc import (
     BotHookRunnerArgs,
-    BotLife,
+    LogicMode,
     PluginSignalHandlerArgs,
-    SessionRule,
     ShareObjArgs,
     ShareObjCbArgs,
 )
+from ..types.exceptions import *
 from ..types.typing import *
-from ..types.utils import (
-    BotChecker,
-    BotMatcher,
-    BotParser,
-    Logger,
-    LogicMode,
-    PrefixLogger,
-)
 from ..utils.checker import (
     AtChecker,
     FriendReqChecker,
     GroupReqChecker,
     NoticeTypeChecker,
 )
+from ..utils.logger import PrefixLogger
 from ..utils.matcher import ContainMatch, EndMatch, FullMatch, RegexMatch, StartMatch
 from .bot import BotHookBus, HookRunner, PluginProxy
 from .handler import (
     AllEventHandler,
+    EventHandler,
+    EventHandlerArgs,
     MetaEventHandler,
     MsgEventHandler,
     NoticeEventHandler,
     ReqEventHandler,
 )
 from .ipc import PluginBus, PluginSignalHandler, PluginStore
-from .session import BotSessionManager
+
+if TYPE_CHECKING:
+    from ..types.abc import AbstractResponder, BotLife, SessionRule
+    from ..utils.checker import BotChecker
+    from ..utils.logger import Logger
+    from ..utils.matcher import BotMatcher
+    from ..utils.parser import BotParser
+
+
+class PluginLoader:
+    """
+    插件加载器
+    """
+
+    @classmethod
+    def load_from_dir(cls, plugin_path: str) -> tuple["Plugin", str]:
+        """
+        从指定插件目录加载插件
+        """
+        if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
+            raise PluginLoadError(
+                f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
+            )
+        plugin_name = os.path.basename(plugin_path)
+        plugins_folder = str(pathlib.Path(plugin_path).parent.resolve(strict=True))
+        plugins_folder_name = os.path.basename(plugins_folder)
+        if plugins_folder not in sys.path:
+            importlib.import_module(plugins_folder_name)
+            sys.path.insert(0, plugins_folder)
+        module = importlib.import_module(
+            f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}"
+        )
+
+        plugin_class = None
+        for obj in module.__dict__.values():
+            if (
+                isinstance(obj, type)
+                and issubclass(obj, Plugin)
+                and obj.__name__ != Plugin.__name__
+            ):
+                plugin_class = obj
+                break
+        if plugin_class is None:
+            raise PluginLoadError(
+                "指定的入口主文件中，未发现继承 Plugin 的插件类，无法加载插件"
+            )
+        plugin = plugin_class()
+        file_path = inspect.getfile(module)
+        return (plugin, file_path)
+
+    @classmethod
+    def load_from_type(cls, _class: Type["Plugin"]) -> tuple["Plugin", str]:
+        """
+        从插件类对象加载插件
+        """
+        plugin = _class()
+        file_path = inspect.getfile(_class)
+        return (plugin, file_path)
+
+    @classmethod
+    def load(
+        cls,
+        target: str | Type["Plugin"],
+        logger: "Logger",
+        responder: "AbstractResponder",
+    ) -> "Plugin":
+        """
+        加载插件
+        """
+        if isinstance(target, str):
+            plugin, file_path = cls.load_from_dir(target)
+        else:
+            plugin, file_path = cls.load_from_type(target)
+        root_path = pathlib.Path(file_path).parent.resolve(strict=True)
+        plugin._build(root_path, logger, responder)
+        return plugin
 
 
 class Plugin:
@@ -62,7 +134,7 @@ class Plugin:
         self._proxy: PluginProxy
 
     def _build(
-        self, root_path: Path, logger: Logger, responder: AbstractResponder
+        self, root_path: Path, logger: "Logger", responder: "AbstractResponder"
     ) -> None:
         """
         初始化当前插件
@@ -108,7 +180,11 @@ class Plugin:
             if isinstance(val, str):
                 shares[idx] = ShareObjArgs(val, self.ID, val)
         for share_obj in shares:
-            property, namespace, id = share_obj.property, share_obj.namespace, share_obj.id
+            property, namespace, id = (
+                share_obj.property,
+                share_obj.namespace,
+                share_obj.id,
+            )
             if property not in attrs_map.keys() and property is not None:
                 raise PluginBuildError(
                     f"插件 {self.ID} 尝试共享一个不存在的属性 {property}"
@@ -119,8 +195,8 @@ class Plugin:
 
     def _init_event_handler(
         self,
-        responder: AbstractResponder,
-        logger: Logger,
+        responder: "AbstractResponder",
+        logger: "Logger",
         executor: Callable[[], Coroutine[Any, Any, None]],
         handler_class: Type[EventHandler],
         *params: Any,
@@ -144,7 +220,7 @@ class Plugin:
         return handler
 
     def _init_hook_runner(
-        self, hook_func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
+        self, hook_func: Callable[..., Coroutine[Any, Any, None]], type: "BotLife"
     ) -> None:
         """
         初始化指定的 bot 生命周期的 hook 方法
@@ -180,17 +256,17 @@ class Plugin:
     @classmethod
     def on_event(
         cls,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为任意事件处理器（响应事件除外）
@@ -222,19 +298,19 @@ class Plugin:
     @classmethod
     def on_message(
         cls,
-        matcher: BotMatcher = None,
-        parser: BotParser = None,
-        checker: BotChecker = None,
+        matcher: "BotMatcher" = None,
+        parser: "BotParser" = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为消息事件处理器
@@ -268,17 +344,17 @@ class Plugin:
     @classmethod
     def on_every_message(
         cls,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为任意消息事件处理器。
@@ -314,19 +390,19 @@ class Plugin:
     def on_at_qq(
         cls,
         qid: int = None,
-        matcher: BotMatcher = None,
-        parser: BotParser = None,
-        checker: BotChecker = None,
+        matcher: "BotMatcher" = None,
+        parser: "BotParser" = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为艾特消息匹配的消息事件处理器。
@@ -368,17 +444,17 @@ class Plugin:
         cls,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串起始匹配的消息事件处理器。
@@ -416,17 +492,17 @@ class Plugin:
         cls,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串包含匹配的消息事件处理器。
@@ -464,17 +540,17 @@ class Plugin:
         cls,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串相等匹配的消息事件处理器。
@@ -512,17 +588,17 @@ class Plugin:
         cls,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串结尾匹配的消息事件处理器。
@@ -559,17 +635,17 @@ class Plugin:
     def on_regex_match(
         cls,
         target: str,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串正则匹配的消息事件处理器。
@@ -605,17 +681,17 @@ class Plugin:
     @classmethod
     def on_request(
         cls,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为请求事件处理器
@@ -647,17 +723,17 @@ class Plugin:
     @classmethod
     def on_friend_request(
         cls,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为私聊请求事件处理器
@@ -694,17 +770,17 @@ class Plugin:
     @classmethod
     def on_group_request(
         cls,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为群请求事件处理器
@@ -761,17 +837,17 @@ class Plugin:
             "title",
             "ALL",
         ],
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为通知事件处理器
@@ -808,17 +884,17 @@ class Plugin:
     @classmethod
     def on_meta_event(
         cls,
-        checker: BotChecker = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: int = None,
         block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为元事件处理器

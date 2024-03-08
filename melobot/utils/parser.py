@@ -1,9 +1,12 @@
 import re
 
+from ..types.abc import BotEvent, BotParser
 from ..types.exceptions import *
 from ..types.typing import *
-from ..types.utils import BotParser
-from .formatter import ArgFormatter
+
+if TYPE_CHECKING:
+    from ..models.event import ResponseEvent
+    from .formatter import ArgFormatter
 
 
 class CmdParser(BotParser):
@@ -17,7 +20,7 @@ class CmdParser(BotParser):
         cmd_start: str | list[str],
         cmd_sep: str | list[str],
         target: str | list[str] = None,
-        formatters: List[Optional[ArgFormatter]] = None,
+        formatters: List[Optional["ArgFormatter"]] = None,
     ) -> None:
         i1 = cmd_start if isinstance(cmd_start, str) else "".join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else "".join(cmd_sep)
@@ -116,17 +119,27 @@ class CmdParser(BotParser):
                 return (True, cmd_name, args_group[cmd_name])
         return (False, None, None)
 
-    def format(self, args: ParseArgs) -> None:
+    def format(
+        self,
+        cutsom_msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
+        cmd_name: str,
+        event: BotEvent,
+        args: ParseArgs,
+    ) -> bool:
         """
         格式化命令解析参数
         """
         if args.formatted:
             return
         for idx, formatter in enumerate(self.formatters):
-            if formatter:
-                formatter.format(args, idx)
+            if formatter is None:
+                continue
+            status = formatter.format(cutsom_msg_func, cmd_name, event, args, idx)
+            if not status:
+                return False
         args.vals = args.vals[: len(self.formatters)]
         args.formatted = True
+        return True
 
 
 class CmdParserGen:
@@ -142,7 +155,7 @@ class CmdParserGen:
     def gen(
         self,
         target: str | list[str] = None,
-        formatters: List[Optional[ArgFormatter]] = None,
+        formatters: List[Optional["ArgFormatter"]] = None,
     ) -> CmdParser:
         """
         生成匹配指定命令的命令解析器

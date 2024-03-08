@@ -3,8 +3,10 @@ from copy import deepcopy
 from itertools import chain, zip_longest
 
 from ..types.exceptions import *
-from ..types.models import BotAction
 from ..types.typing import *
+
+if TYPE_CHECKING:
+    from ..types.abc import BotAction
 
 
 def text_msg(
@@ -345,16 +347,16 @@ def cq_anti_escape(text: str) -> str:
     )
 
 
-def to_cq_str_action(action: BotAction) -> BotAction:
+def to_cq_str_action(action: "BotAction") -> "BotAction":
     """
     转化 action 携带的 message 字段转为 cq 字符串格式，并返回新的 action。
     支持的 action 类型有：msg_action 和 forward_action
     """
 
-    def _format_msg_action(action: BotAction) -> None:
+    def _format_msg_action(action: "BotAction") -> None:
         action.params["message"] = to_cq_str(action.params["message"])
 
-    def _format_forward_action(action: BotAction) -> None:
+    def _format_forward_action(action: "BotAction") -> None:
         for item in action.params["messages"]:
             if "id" in item["data"].keys():
                 continue

@@ -1,11 +1,13 @@
+from ..models.cq import reply_msg, text_msg, to_cq_str_action
+from ..types.abc import ActionArgs, BotAction
 from ..types.exceptions import *
-from ..types.models import ActionArgs, BotAction, BotEvent
 from ..types.typing import *
-from ..utils.base import get_id
-from .cq import reply_msg, text_msg, to_cq_str_action
-from .event import ResponseEvent
+from ..utils.atools import get_id
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as CtxManager
+
+if TYPE_CHECKING:
+    from ..models.event import BotEvent, ResponseEvent
 
 __all__ = [
     "send_custom_msg",
@@ -136,7 +138,7 @@ async def send_custom_msg(
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     发送消息
     """
@@ -160,7 +162,7 @@ async def send(
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     在当前 session 上下文发送一条消息
     """
@@ -216,7 +218,7 @@ async def send_custom_forward(
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     转发消息发送
     """
@@ -236,7 +238,7 @@ async def send_forward(
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     在当前 session 上下文发送转发消息
     """
@@ -278,7 +280,7 @@ class MsgDelActionArgs(ActionArgs):
 @CtxManager._activate
 async def msg_recall(
     msgId: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     撤回消息
     """
@@ -301,7 +303,7 @@ class GetMsgActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_msg(
     msgId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取消息详细信息
     """
@@ -324,7 +326,7 @@ class getForwardActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_forward_msg(
     forwardId: str, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     转发消息获取
     """
@@ -347,7 +349,7 @@ class getImageActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_image(
     fileName: str, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取图片信息
     """
@@ -370,7 +372,7 @@ class MarkMsgReadActionArgs(ActionArgs):
 @CtxManager._activate
 async def mark_msg_read(
     msgId: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     标记消息已读
     """
@@ -401,7 +403,7 @@ async def group_kick(
     laterReject: bool = False,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     群组踢人
     """
@@ -430,7 +432,7 @@ class GroupBanActionArgs(ActionArgs):
 @CtxManager._activate
 async def group_ban(
     groupId: int, userId: int, duration: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     群组禁言。
     duration 为 0 取消禁言
@@ -460,7 +462,7 @@ class GroupAnonymBanActionArgs(ActionArgs):
 @CtxManager._activate
 async def group_anonym_ban(
     groupId: int, anonymFlag: str, duration: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     群组匿名禁言。
     无法取消禁言
@@ -486,7 +488,7 @@ class GroupWholeBanActionArgs(ActionArgs):
 @CtxManager._activate
 async def group_whole_ban(
     groupId: int, enable: bool, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     群组全员禁言
     """
@@ -511,7 +513,7 @@ class SetGroupAdminActionArgs(ActionArgs):
 @CtxManager._activate
 async def set_group_admin(
     groupId: int, userId: int, enable: bool, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置群管理员
     """
@@ -536,7 +538,7 @@ class SetGroupCardActionArgs(ActionArgs):
 @CtxManager._activate
 async def set_group_card(
     groupId: int, userId: int, card: str, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置群名片
     """
@@ -561,7 +563,7 @@ class SetGroupNameActionArgs(ActionArgs):
 @CtxManager._activate
 async def set_group_name(
     groupId: int, name: str, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置群名 action 信息的方法
     """
@@ -586,7 +588,7 @@ class GroupLeaveActionArgs(ActionArgs):
 @CtxManager._activate
 async def group_leave(
     groupId: int, isDismiss: bool, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     退出群组
     """
@@ -627,7 +629,7 @@ async def set_group_title(
     duration: int = -1,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置群头衔
     """
@@ -652,7 +654,7 @@ class GroupSignActionArgs(ActionArgs):
 @CtxManager._activate
 async def group_sign(
     groupId: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     群打卡
     """
@@ -674,7 +676,7 @@ class SetFriendAddActionArgs(ActionArgs):
 @CtxManager._activate
 async def set_friend_add(
     addFlag: str, approve: bool, remark: str, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     处理加好友信息。注意 remark 目前暂未实现
     """
@@ -716,7 +718,7 @@ async def set_group_add(
     rejectReason: str = None,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     处理加群请求
     """
@@ -741,7 +743,7 @@ class GetLoginInfoActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_login_info(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获得登录号信息
     """
@@ -778,7 +780,7 @@ async def set_login_profile(
     personalNote: str,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置登录号资料
     """
@@ -803,7 +805,7 @@ class GetStrangerInfoActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_stranger_info(
     userId: int, noCache: bool, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取陌生人信息。也可以对好友使用
     """
@@ -828,7 +830,7 @@ class GetFriendListActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_friend_list(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取好友列表
     """
@@ -851,7 +853,7 @@ class GetUndirectFriendActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_undirect_friend(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取单向好友信息列表
     """
@@ -874,7 +876,7 @@ class DeleteFriendActionArgs(ActionArgs):
 @CtxManager._activate
 async def delete_friend(
     userId: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     删除好友
     """
@@ -897,7 +899,7 @@ class GetGroupInfoActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_info(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群信息。可以是未加入的群聊
     """
@@ -922,7 +924,7 @@ class GetGroupListActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_list(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info_action` 获得
     """
@@ -945,7 +947,7 @@ class GetGroupMemberInfoActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_member_info(
     groupId: int, userId: int, noCache: bool, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群成员信息
     """
@@ -970,7 +972,7 @@ class GetGroupMemberListActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_member_list(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群成员列表
     """
@@ -1006,7 +1008,7 @@ async def get_group_honor(
     ],
     wait: bool = True,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群荣誉信息
     """
@@ -1031,7 +1033,7 @@ class CheckSendImageActionArgs(ActionArgs):
 @CtxManager._activate
 async def check_send_image(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     检查是否可以发送图片
     """
@@ -1054,7 +1056,7 @@ class CheckSendRecordActionArgs(ActionArgs):
 @CtxManager._activate
 async def check_send_record(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     检查是否可以发送语音
     """
@@ -1077,7 +1079,7 @@ class GetCqVersionActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_cq_version(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取 go-cqhttp 版本信息
     """
@@ -1104,7 +1106,7 @@ async def set_group_portrait(
     cache: Literal[0, 1] = 0,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置群头像。file 参数接受本地或网络 url 和 base64 编码。
     如本地路径为：`file:///C:/Users/Richard/Pictures/1.png`。
@@ -1131,7 +1133,7 @@ class OcrActionArgs(ActionArgs):
 @CtxManager._activate
 async def ocr(
     image: str, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     图片 OCR。image 为图片 ID
     """
@@ -1154,7 +1156,7 @@ class GetGroupSysMsgActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_sys_msg(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群系统消息
     """
@@ -1201,7 +1203,7 @@ async def upload_file(
     groupFolderId: str = None,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     发送文件。只支持发送本地文件。
     若为群聊文件发送，不提供 folder id，则默认上传到群文件根目录。
@@ -1234,7 +1236,7 @@ class GetGroupFileSysInfoActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_filesys_info(
     groupId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群文件系统信息
     """
@@ -1259,7 +1261,7 @@ class GetGroupRootFilesActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_root_files(
     groupId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群根目录文件列表
     """
@@ -1284,7 +1286,7 @@ class GetGroupFilesByFolderActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_files_byfolder(
     groupId: int, folderId: str, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群子目录文件列表
     """
@@ -1309,7 +1311,7 @@ class CreateGroupFolderActionArgs(ActionArgs):
 @CtxManager._activate
 async def create_group_folder(
     groupId: int, folderName: str, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     创建群文件夹。注意：只能在根目录创建文件夹
     """
@@ -1334,7 +1336,7 @@ class DeleteGroupFolderActionArgs(ActionArgs):
 @CtxManager._activate
 async def delete_group_folder(
     groupId: int, folderId: str, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     删除群文件夹。
     """
@@ -1359,7 +1361,7 @@ class DeleteGroupFileActionArgs(ActionArgs):
 @CtxManager._activate
 async def delete_group_file(
     groupId: int, fileId: str, fileTypeId: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     删除群文件。文件相关信息通过 `get_group_root_files_action()` 或
     `get_group_files_action` 的响应获得
@@ -1385,7 +1387,7 @@ class GetGroupFileUrlActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_file_url(
     groupId: int, fileId: str, fileTypeId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群文件资源链接。文件相关信息通过 `get_group_root_files_action()` 或
     `get_group_files_action` 的响应获得
@@ -1411,7 +1413,7 @@ class GetCqStatusActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_cq_status(
     wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取 go-cqhttp 状态
     """
@@ -1434,7 +1436,7 @@ class GetAtAllRemainActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_atall_remain(
     groupId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群 @全体成员 剩余次数
     """
@@ -1450,7 +1452,7 @@ class QuickHandleActionArgs(ActionArgs):
     事件快速操作 action 信息构造类
     """
 
-    def __init__(self, contextEvent: BotEvent, operation: dict) -> None:
+    def __init__(self, contextEvent: "BotEvent", operation: dict) -> None:
         super().__init__()
         self.type = ".handle_quick_operation"
         self.params = {"context": contextEvent.raw, "operation": operation}
@@ -1458,8 +1460,8 @@ class QuickHandleActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def quick_handle(
-    contextEvent: BotEvent, operation: dict, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+    contextEvent: "BotEvent", operation: dict, wait: bool = False, auto: bool = True
+) -> Optional["ResponseEvent"] | BotAction:
     """
     事件快速操作
     """
@@ -1493,7 +1495,7 @@ async def set_group_notice(
     imageUrl: str = None,
     wait: bool = False,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     发送群公告。注意 `imageUrl` 只能为本地 url，示例：`file:///C:/users/15742/desktop/123.jpg`
     """
@@ -1523,7 +1525,7 @@ class GetGroupNoticeActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_notice(
     groupId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群公告。
     群公告图片有 id，但暂时没有下载的方法
@@ -1553,7 +1555,7 @@ async def download_file(
     headers: list | str,
     wait: bool = True,
     auto: bool = True,
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     下载文件到缓存目录。`headers` 的两种格式：
     ```
@@ -1588,7 +1590,7 @@ class GetOnlineClientsActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_online_clients(
     noCache: bool, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取当前账号在线客户端列表
     """
@@ -1613,7 +1615,7 @@ class GetGroupMsgHistoryActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_msg_history(
     msgSeq: int, groupId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取群消息历史记录
     """
@@ -1641,7 +1643,7 @@ class SetGroupEssenceActionArgs(ActionArgs):
 @CtxManager._activate
 async def set_group_essence(
     msgId: int, type: Literal["add", "del"], wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置精华消息
     """
@@ -1666,7 +1668,7 @@ class GetGroupEssenceListActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_group_essence_list(
     groupId: int, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取精华消息列表
     """
@@ -1691,7 +1693,7 @@ class GetModelShowActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_model_show(
     model: str, wait: bool = True, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     获取在线机型
     """
@@ -1714,7 +1716,7 @@ class SetModelShowActionArgs(ActionArgs):
 @CtxManager._activate
 async def set_model_show(
     model: str, modelShow: str, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     设置在线机型
     """
@@ -1739,7 +1741,7 @@ class DeleteUndirectFriendActionArgs(ActionArgs):
 @CtxManager._activate
 async def delete_undirect_friend(
     userId: int, wait: bool = False, auto: bool = True
-) -> Optional[ResponseEvent] | BotAction:
+) -> Optional["ResponseEvent"] | BotAction:
     """
     删除单向好友
     """
@@ -1751,7 +1753,7 @@ async def delete_undirect_friend(
 
 
 @CtxManager._activate
-async def take_custom_action(action: BotAction) -> Optional[ResponseEvent]:
+async def take_custom_action(action: BotAction) -> Optional["ResponseEvent"]:
     """
     直接发送提供的 action
     """
@@ -1775,7 +1777,7 @@ async def send_reply(
     content: str | CQMsgDict | List[CQMsgDict],
     cq_str: bool = False,
     wait: bool = False,
-) -> Optional[ResponseEvent]:
+) -> Optional["ResponseEvent"]:
     """
     发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息）
     """
@@ -1809,7 +1811,7 @@ async def finish(
 
 async def finish_reply(
     content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False
-) -> Optional[ResponseEvent]:
+) -> Optional["ResponseEvent"]:
     """
     发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息），
     然后直接结束当前事件处理方法

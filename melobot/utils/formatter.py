@@ -1,32 +1,43 @@
+import asyncio as aio
 import traceback
-from abc import abstractmethod
 
 from ..types.exceptions import *
 from ..types.typing import *
 
+if TYPE_CHECKING:
+    from ..models.event import MessageEvent, ResponseEvent
 
-class TipGenerator:
+
+class FormatInfo:
     """
-    提示信息生成器
+    格式化信息对象
     """
 
-    @abstractmethod
-    def gen(
+    def __init__(
         self,
         src: str,
         src_desc: Optional[str],
         src_expect: Optional[str],
         idx: int,
         exc_type: Exception,
-        exc_tb: traceback,
-    ) -> str:
-        pass
+        exc_tb: ModuleType,
+        cmd_name: str,
+        event: "MessageEvent",
+    ) -> None:
+        self.src = src
+        self.src_desc = src_desc
+        self.src_expect = src_expect
+        self.idx = idx
+        self.exc_type = exc_type
+        self.exc_tb = exc_tb
+        self.cmd_name = cmd_name
+        self.event = event
 
 
 class ArgFormatter:
     """
     参数格式化器。将参数格式化为对应类型的对象。格式化后可添加校验，也可自定义失败提示信息。
-    还可设置默认值。不提供默认值参数时为 Null，代表不使用默认值
+    还可设置默认值。不提供默认值参数时为 Void，代表不使用默认值
     """
 
     def __init__(
@@ -37,9 +48,9 @@ class ArgFormatter:
         src_expect: str = None,
         default: Any = Void,
         default_replace_flag: str = None,
-        convert_tip_gen: TipGenerator = None,
-        verify_tip_gen: TipGenerator = None,
-        arglack_tip_gen: TipGenerator = None,
+        convert_fail: Callable[[FormatInfo], Coroutine[Any, Any, None]] = None,
+        verify_fail: Callable[[FormatInfo], Coroutine[Any, Any, None]] = None,
+        arglack: Callable[[FormatInfo], Coroutine[Any, Any, None]] = None,
     ) -> None:
         self.convert = convert
         self.verify = verify
@@ -52,9 +63,9 @@ class ArgFormatter:
                 "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
             )
 
-        self.out_convert_tip_gen = convert_tip_gen
-        self.out_verify_tip_gen = verify_tip_gen
-        self.out_arglack_tip_gen = arglack_tip_gen
+        self.convert_fail = convert_fail
+        self.verify_fail = verify_fail
+        self.arg_lack = arglack
 
     def _get_val(self, args: ParseArgs, idx: int) -> Any:
         if self.default is Void:
@@ -68,7 +79,14 @@ class ArgFormatter:
             args.vals.append(self.default)
         return args.vals[idx]
 
-    def format(self, args: ParseArgs, idx: int) -> None:
+    def format(
+        self,
+        cutsom_msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
+        cmd_name: str,
+        event: "MessageEvent",
+        args: ParseArgs,
+        idx: int,
+    ) -> bool:
         """
         格式化参数为对应类型的变量
         """
@@ -88,57 +106,88 @@ class ArgFormatter:
             else:
                 raise ArgVerifyFailed
             args.vals[idx] = res
+            return True
         except ArgVerifyFailed as e:
-            if self.out_verify_tip_gen:
-                tip = self.out_verify_tip_gen.gen(
-                    src, self.src_desc, self.src_expect, idx, e, traceback
-                )
+            info = FormatInfo(
+                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name, event
+            )
+            if self.verify_fail:
+                aio.create_task(self.verify_fail(info))
             else:
-                tip = self._verify_tip_gen(src, idx)
-            raise ArgFormatFailed(tip)
+                self._verify_fail_default(info, cutsom_msg_func)
+            return False
         except ArgLackError as e:
-            if self.out_arglack_tip_gen:
-                tip = self.out_arglack_tip_gen.gen(
-                    None, self.src_desc, self.src_expect, idx, e, traceback
-                )
+            info = FormatInfo(
+                None, self.src_desc, self.src_expect, idx, e, traceback, cmd_name, event
+            )
+            if self.arg_lack:
+                aio.create_task(self.arg_lack(info))
             else:
-                tip = self._arglack_tip_gen(idx)
-            raise ArgFormatFailed(tip)
+                self._arglack_default(info, cutsom_msg_func)
+            return False
         except Exception as e:
-            if self.out_convert_tip_gen:
-                tip = self.out_convert_tip_gen.gen(
-                    src, self.src_desc, self.src_expect, idx, e, traceback
-                )
+            info = FormatInfo(
+                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name, event
+            )
+            if self.convert_fail:
+                aio.create_task(self.convert_fail(info))
             else:
-                tip = self._convert_tip_gen(src, idx, e)
-            raise ArgFormatFailed(tip)
+                self._convert_fail_default(info, cutsom_msg_func)
+            return False
 
-    def _convert_tip_gen(self, src: str, idx: int, exc_type: Exception) -> str:
-        e_class = exc_type.__class__.__name__
-        src = src.__repr__() if isinstance(src, str) else src
-        tip = f"第 {idx+1} 个参数"
+    def _convert_fail_default(
+        self,
+        info: FormatInfo,
+        msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
+    ) -> str:
+        e_class = info.exc_type.__class__.__name__
+        src = info.src.__repr__() if isinstance(info.src, str) else info.src
+        tip = f"第 {info.idx+1} 个参数"
         tip += (
-            f"（{self.src_desc}）无法处理，给定的值为：{src}。"
-            if self.src_desc
+            f"（{info.src_desc}）无法处理，给定的值为：{src}。"
+            if info.src_desc
             else f"给定的值 {src} 无法处理。"
         )
-        tip += f"参数要求：{self.src_expect}。" if self.src_expect else ""
-        tip += f"\n详细错误描述：[{e_class}] {exc_type}"
-        return tip
+        tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+        tip += f"\n详细错误描述：[{e_class}] {info.exc_type}"
+        tip = tip + f"命令 {info.cmd_name} 参数格式化失败：\n"
+        aio.create_task(
+            msg_func(
+                tip, info.event.is_private(), info.event.sender.id, info.event.group_id
+            )
+        )
 
-    def _verify_tip_gen(self, src: str, idx: int) -> str:
-        src = src.__repr__() if isinstance(src, str) else src
-        tip = f"第 {idx+1} 个参数"
+    def _verify_fail_default(
+        self,
+        info: FormatInfo,
+        msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
+    ) -> None:
+        src = info.src.__repr__() if isinstance(info.src, str) else info.src
+        tip = f"第 {info.idx+1} 个参数"
         tip += (
-            f"（{self.src_desc}）不符合要求，给定的值为：{src}。"
-            if self.src_desc
+            f"（{info.src_desc}）不符合要求，给定的值为：{src}。"
+            if info.src_desc
             else f"给定的值 {src} 不符合要求。"
         )
-        tip += f"参数要求：{self.src_expect}。" if self.src_expect else ""
-        return tip
+        tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+        tip = tip + f"命令 {info.cmd_name} 参数格式化失败：\n"
+        aio.create_task(
+            msg_func(
+                tip, info.event.is_private(), info.event.sender.id, info.event.group_id
+            )
+        )
 
-    def _arglack_tip_gen(self, idx: int) -> str:
-        tip = f"第 {idx+1} 个参数"
-        tip += f"（{self.src_desc}）缺失。" if self.src_desc else f"缺失。"
-        tip += f"参数要求：{self.src_expect}。" if self.src_expect else ""
-        return tip
+    def _arglack_default(
+        self,
+        info: FormatInfo,
+        msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
+    ) -> None:
+        tip = f"第 {info.idx+1} 个参数"
+        tip += f"（{info.src_desc}）缺失。" if info.src_desc else f"缺失。"
+        tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+        tip = tip + f"命令 {info.cmd_name} 参数格式化失败：\n"
+        aio.create_task(
+            msg_func(
+                tip, info.event.is_private(), info.event.sender.id, info.event.group_id
+            )
+        )

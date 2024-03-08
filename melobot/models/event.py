@@ -2,7 +2,7 @@ import json
 import re
 import time
 
-from ..types.models import BotEvent
+from ..types.abc import BotEvent
 from ..types.typing import *
 from .cq import to_cq_arr
 

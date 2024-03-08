@@ -4,12 +4,14 @@ from asyncio import iscoroutinefunction
 from functools import partial
 from types import MethodType
 
-from ..types.core import AbstractResponder
+from ..context.session import SESSION_LOCAL, BotSessionManager
+from ..types.abc import PluginSignalHandlerArgs, ShareObjCbArgs
 from ..types.exceptions import *
-from ..types.models import PluginSignalHandlerArgs, ShareObjCbArgs
 from ..types.typing import *
-from ..types.utils import Logger
-from .session import SESSION_LOCAL, BotSessionManager
+
+if TYPE_CHECKING:
+    from ..plugin.plugin import Plugin
+    from ..utils.logger import Logger
 
 
 class ShareObject:
@@ -57,7 +59,7 @@ class PluginStore:
 
     @classmethod
     def _create_so(
-        cls, property: Optional[str], namespace: str, id: str, plugin: object
+        cls, property: Optional[str], namespace: str, id: str, plugin: "Plugin"
     ) -> None:
         """
         创建共享对象。property 为 None 时，共享对象会引用到一个 None
@@ -79,7 +81,7 @@ class PluginStore:
         namespace: str,
         id: str,
         cb: Callable[..., Coroutine[Any, Any, Any]],
-        plugin: object,
+        plugin: "Plugin",
     ) -> None:
         """
         为共享对象绑定回调
@@ -152,10 +154,10 @@ class PluginBus:
     """
 
     __store__: Dict[str, Dict[str, PluginSignalHandler]] = {}
-    __logger: Logger
+    __logger: "Logger"
 
     @classmethod
-    def _bind(cls, logger: Logger) -> None:
+    def _bind(cls, logger: "Logger") -> None:
         """
         初始化该类，绑定全局日志器和行为响应器
         """

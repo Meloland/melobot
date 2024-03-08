@@ -1,6 +1,7 @@
 from enum import Enum
 from types import ModuleType
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncIterator,
     Callable,
@@ -14,35 +15,10 @@ from typing import (
     Set,
     Tuple,
     Type,
+    TypeAlias,
     TypedDict,
     TypeVar,
     Union,
-)
-
-__all__ = (
-    "Union",
-    "List",
-    "Set",
-    "Dict",
-    "Literal",
-    "Coroutine",
-    "Callable",
-    "Tuple",
-    "Any",
-    "OrderedDict",
-    "Optional",
-    "ModuleType",
-    "AsyncIterator",
-    "NamedTuple",
-    "Type",
-    "Enum",
-    "CQMsgDict",
-    "MsgNodeDict",
-    "User",
-    "PriorLevel",
-    "ParseArgs",
-    "Void",
-    "T",
 )
 
 
@@ -110,6 +86,59 @@ class PriorLevel(int, Enum):
     MIN = -100
     MAX = 100
     MEAN = (MAX + MIN) // 2
+
+
+class BotLife(Enum):
+    """
+    bot 生命周期枚举
+    """
+
+    LOADED = 1
+    CONNECTED = 2
+    BEFORE_CLOSE = 3
+    BEFORE_STOP = 4
+    EVENT_BUILT = 5
+    ACTION_PRESEND = 6
+
+
+class LogicMode(Enum):
+    """
+    逻辑模式枚举
+    """
+
+    AND = 1
+    OR = 2
+    NOT = 3
+    XOR = 4
+
+    @classmethod
+    def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
+        if logic == LogicMode.AND:
+            return v1 and v2
+        elif logic == LogicMode.OR:
+            return v1 or v2
+        elif logic == LogicMode.NOT:
+            return not v1
+        elif logic == LogicMode.XOR:
+            return v1 ^ v2
+
+    @classmethod
+    def seq_calc(cls, logic: "LogicMode", values: List[Any]) -> bool:
+        if len(values) <= 0:
+            return False
+        elif len(values) <= 1:
+            return bool(values[0])
+
+        idx = 0
+        res = None
+        while idx < len(values):
+            if idx == 0:
+                res = cls.calc(logic, values[idx], values[idx + 1])
+                idx += 1
+            else:
+                res = cls.calc(logic, res, values[idx])
+            idx += 1
+        return res
 
 
 T = TypeVar("T")

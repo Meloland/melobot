@@ -86,46 +86,21 @@ class ArgFormatInitError(BotException):
         super().__init__(msg)
 
 
-class ArgFormatFailed(BotException):
-    """
-    专指格式化器格式化失败
-    """
-
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
 class ArgVerifyFailed(BotException):
-    """
-    格式化时参数验证不通过
-    """
-
     def __init__(self, msg: str = ""):
         super().__init__(msg)
 
 
 class ArgLackError(BotException):
-    """
-    格式化时参数缺失
-    """
-
     def __init__(self, msg: str = ""):
         super().__init__(msg)
 
 
 class DirectRetSignal(BotException):
-    """
-    嵌套函数中快速 return 的信号，上游捕获后无视即可
-    """
-
     def __init__(self, msg: str = ""):
         super().__init__(msg)
 
 
 class SessionHupTimeout(BotException):
-    """
-    等待 session 被唤醒时的超时异常
-    """
-
     def __init__(self, msg: str = ""):
         super().__init__(msg)

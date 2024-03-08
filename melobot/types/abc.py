@@ -1,9 +1,48 @@
 import json
 from abc import ABC, abstractmethod, abstractproperty
+from asyncio import Future
 from copy import deepcopy
 
 from .exceptions import *
 from .typing import *
+
+if TYPE_CHECKING:
+    from ..models.event import ResponseEvent
+
+
+class AbstractSender(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+
+    @abstractmethod
+    async def send(self, action: "BotAction") -> None:
+        pass
+
+
+class AbstractResponder(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+
+    @abstractmethod
+    async def dispatch(self, resp: "ResponseEvent") -> None:
+        pass
+
+    @abstractmethod
+    async def take_action(self, action: "BotAction") -> None:
+        pass
+
+    @abstractmethod
+    async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
+        pass
+
+
+class AbstractDispatcher(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+
+    @abstractmethod
+    async def dispatch(self, event: "BotEvent") -> None:
+        pass
 
 
 class Flagable:
@@ -165,19 +204,6 @@ class SessionRule(ABC):
         pass
 
 
-class BotLife(Enum):
-    """
-    bot 生命周期枚举
-    """
-
-    LOADED = 1
-    CONNECTED = 2
-    BEFORE_CLOSE = 3
-    BEFORE_STOP = 4
-    EVENT_BUILT = 5
-    ACTION_PRESEND = 6
-
-
 class ShareObjArgs:
     """
     插件共享对象构造参数
@@ -225,3 +251,142 @@ class BotHookRunnerArgs:
     ) -> None:
         self.func = func
         self.type = type
+
+
+class BotChecker(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __and__(self, other: "BotChecker") -> "WrappedChecker":
+        if not isinstance(other, BotChecker):
+            raise BotCheckerError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
+        return WrappedChecker(LogicMode.AND, self, other)
+
+    def __or__(self, other: "BotChecker") -> "WrappedChecker":
+        if not isinstance(other, BotChecker):
+            raise BotCheckerError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
+        return WrappedChecker(LogicMode.OR, self, other)
+
+    def __invert__(self) -> "WrappedMatcher":
+        return WrappedChecker(LogicMode.NOT, self)
+
+    def __xor__(self, other: "BotChecker") -> "WrappedChecker":
+        if not isinstance(other, BotChecker):
+            raise BotCheckerError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
+        return WrappedChecker(LogicMode.XOR, self, other)
+
+    @abstractmethod
+    def check(self, event: BotEvent) -> bool:
+        pass
+
+
+class WrappedChecker(BotChecker):
+    """
+    按逻辑关系工作的的合并检查器，使用 AND, OR, XOR 模式时，
+    需要传递两个 checker。使用 NOT 时只需要传递第一个 checker
+    """
+
+    def __init__(
+        self, mode: LogicMode, checker1: BotChecker, checker2: BotChecker = None
+    ) -> None:
+        super().__init__()
+        self.mode = mode
+        self.c1, self.c2 = checker1, checker2
+
+    def check(self, event: BotEvent) -> bool:
+        return LogicMode.calc(
+            self.mode,
+            self.c1.check(event),
+            self.c2.check(event) if self.c2 is not None else None,
+        )
+
+
+class BotMatcher(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __and__(self, other: "BotMatcher") -> "WrappedMatcher":
+        if not isinstance(other, BotMatcher):
+            raise BotMatcherError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
+        return WrappedMatcher(LogicMode.AND, self, other)
+
+    def __or__(self, other: "BotMatcher") -> "WrappedMatcher":
+        if not isinstance(other, BotMatcher):
+            raise BotMatcherError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
+        return WrappedMatcher(LogicMode.OR, self, other)
+
+    def __invert__(self) -> "WrappedMatcher":
+        return WrappedMatcher(LogicMode.NOT, self)
+
+    def __xor__(self, other: "BotMatcher") -> "WrappedMatcher":
+        if not isinstance(other, BotMatcher):
+            raise BotMatcherError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
+        return WrappedMatcher(LogicMode.XOR, self, other)
+
+    @abstractmethod
+    def match(self, text: str) -> bool:
+        pass
+
+
+class WrappedMatcher(BotMatcher):
+    """
+    按逻辑关系工作的的合并匹配器，使用 AND, OR, XOR 模式时，
+    需要传递两个 matcher。使用 NOT 时只需要传递第一个 matcher
+    """
+
+    def __init__(
+        self, mode: LogicMode, matcher1: BotMatcher, matcher2: BotMatcher = None
+    ) -> None:
+        super().__init__()
+        self.mode = mode
+        self.m1, self.m2 = matcher1, matcher2
+
+    def match(self, text: str) -> bool:
+        return LogicMode.calc(
+            self.mode,
+            self.m1.match(text),
+            self.m2.match(text) if self.m2 is not None else None,
+        )
+
+
+class BotParser(ABC):
+    """
+    解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合
+    """
+
+    def __init__(self, id: Any) -> None:
+        super().__init__()
+        self.id = id
+        self.need_format: bool = False
+
+    @abstractmethod
+    def parse(self, text: str) -> Optional[Dict[str, ParseArgs]]:
+        pass
+
+    @abstractmethod
+    def test(
+        self, args_group: Dict[str, ParseArgs]
+    ) -> Tuple[bool, Optional[str], Optional[ParseArgs]]:
+        pass
+
+    @abstractmethod
+    def format(
+        self,
+        custom_msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
+        cmd_name: str,
+        event: BotEvent,
+        args: ParseArgs,
+    ) -> bool:
+        pass

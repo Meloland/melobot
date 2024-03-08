@@ -1,16 +1,23 @@
 import asyncio as aio
 import traceback
 
-from melobot.types.typing import Callable, PriorLevel
-
-from ..types.core import AbstractResponder
+from ..context.action import send_custom_msg
+from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..types.exceptions import *
-from ..types.models import BotEvent, SessionRule
 from ..types.typing import *
-from ..types.utils import BotChecker, BotMatcher, BotParser, Logger
-from .action import send_custom_msg
-from .event import MessageEvent
-from .session import SESSION_LOCAL, BotSession, BotSessionManager
+
+if TYPE_CHECKING:
+    from ..context.session import BotSession
+    from ..models.event import MessageEvent
+    from ..types.abc import (
+        AbstractResponder,
+        BotChecker,
+        BotEvent,
+        BotMatcher,
+        BotParser,
+        SessionRule,
+    )
+    from ..utils.logger import Logger
 
 
 class EventHandler:
@@ -18,14 +25,14 @@ class EventHandler:
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: AbstractResponder,
-        logger: Logger,
-        checker: BotChecker,
+        responder: "AbstractResponder",
+        logger: "Logger",
+        checker: "BotChecker",
         priority: PriorLevel,
         timeout: float,
         set_block: bool,
         temp: bool,
-        session_rule: SessionRule,
+        session_rule: "SessionRule",
         session_hold: bool,
         direct_rouse: bool,
         conflict_wait: bool,
@@ -71,7 +78,7 @@ class EventHandler:
         """
         self.is_valid = False
 
-    def _verify(self, event: BotEvent) -> bool:
+    def _verify(self, event: "BotEvent") -> bool:
         """
         验证事件是否有触发执行的资格（验权）
         """
@@ -80,7 +87,7 @@ class EventHandler:
         return True
 
     async def _run_on_ctx(
-        self, coro: Coroutine, session: BotSession = None, timeout: float = None
+        self, coro: Coroutine, session: "BotSession" = None, timeout: float = None
     ) -> None:
         """
         在指定 session 上下文中运行协程。异常将会抛出
@@ -96,7 +103,7 @@ class EventHandler:
             if session._hup_signal.is_set():
                 BotSessionManager._rouse(session)
 
-    async def _run(self, event: MessageEvent) -> None:
+    async def _run(self, event: "MessageEvent") -> None:
         """
         获取 session 然后准备运行 executor
         """
@@ -136,7 +143,7 @@ class EventHandler:
                 return
             BotSessionManager.recycle(session, alive=self._hold)
 
-    async def evoke(self, event: MessageEvent) -> bool:
+    async def evoke(self, event: "MessageEvent") -> bool:
         """
         接收总线分发的事件的方法。返回是否决定处理的判断。
         便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
@@ -170,14 +177,14 @@ class AllEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: AbstractResponder,
-        logger: Logger,
-        checker: BotChecker,
+        responder: "AbstractResponder",
+        logger: "Logger",
+        checker: "BotChecker",
         priority: PriorLevel,
         timeout: float,
         set_block: bool,
         temp: bool,
-        session_rule: SessionRule,
+        session_rule: "SessionRule",
         session_hold: bool,
         direct_rouse: bool,
         conflict_wait: bool,
@@ -208,16 +215,16 @@ class MsgEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: AbstractResponder,
-        logger: Logger,
-        matcher: BotMatcher = None,
-        parser: BotParser = None,
-        checker: BotChecker = None,
+        responder: "AbstractResponder",
+        logger: "Logger",
+        matcher: "BotMatcher" = None,
+        parser: "BotParser" = None,
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
@@ -248,7 +255,7 @@ class MsgEventHandler(EventHandler):
         if self.matcher and self.parser:
             raise EventHandlerError("参数 matcher 和 parser 不能同时存在")
 
-    def _match_and_parse(self, event: MessageEvent) -> bool:
+    def _match_and_parse(self, event: "MessageEvent") -> bool:
         """
         通过验权后，尝试对事件进行匹配。
         有普通的匹配器（matcher）匹配，也可以使用解析器（parser）匹配
@@ -263,20 +270,14 @@ class MsgEventHandler(EventHandler):
             res, cmd_name, args = self.parser.test(args_group)
             if not res:
                 return False
-            try:
-                if self.parser.need_format:
-                    self.parser.format(args)
+
+            if not self.parser.need_format:
                 return True
-            except ArgFormatFailed as e:
-                msg = f"命令 {cmd_name} 参数格式化失败：\n" + e.__str__()
-                coro = send_custom_msg(
-                    msg, event.is_private(), event.sender.id, event.group_id
-                )
-                aio.create_task(coro)
-                return False
+            status = self.parser.format(send_custom_msg, cmd_name, event, args)
+            return status
         return True
 
-    async def evoke(self, event: MessageEvent) -> bool:
+    async def evoke(self, event: "MessageEvent") -> bool:
         """
         接收总线分发的事件的方法。返回是否决定处理的判断。
         便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
@@ -313,14 +314,14 @@ class ReqEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: AbstractResponder,
-        logger: Logger,
-        checker: BotChecker = None,
+        responder: "AbstractResponder",
+        logger: "Logger",
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
@@ -351,14 +352,14 @@ class NoticeEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: AbstractResponder,
-        logger: Logger,
-        checker: BotChecker = None,
+        responder: "AbstractResponder",
+        logger: "Logger",
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
@@ -389,14 +390,14 @@ class MetaEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: AbstractResponder,
-        logger: Logger,
-        checker: BotChecker = None,
+        responder: "AbstractResponder",
+        logger: "Logger",
+        checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: SessionRule = None,
+        session_rule: "SessionRule" = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
@@ -429,3 +430,11 @@ EventHandlerArgs = NamedTuple(
     type=EventHandler,
     params=List[Any],
 )
+
+
+EVENT_HANDLER_MAP: dict[str, tuple[Type[EventHandler], ...]] = {
+    "message": (MsgEventHandler, AllEventHandler),
+    "request": (ReqEventHandler, AllEventHandler),
+    "notice": (NoticeEventHandler, AllEventHandler),
+    "meta": (MetaEventHandler, AllEventHandler),
+}

@@ -2,12 +2,14 @@ import asyncio as aio
 import traceback
 from asyncio import Future
 
-from ..models.action import BotAction
-from ..models.event import ResponseEvent
-from ..types.core import AbstractDispatcher, AbstractResponder, AbstractSender
+from ..types.abc import AbstractDispatcher, AbstractResponder
 from ..types.exceptions import *
 from ..types.typing import *
-from ..utils.logger import Logger
+
+if TYPE_CHECKING:
+    from ..models.event import ResponseEvent
+    from ..types.abc import AbstractSender, BotAction
+    from ..utils.logger import Logger
 
 
 class BotResponder(AbstractResponder, AbstractDispatcher):
@@ -16,22 +18,22 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
     提供 action 发送、响应回送功能
     """
 
-    def __init__(self, logger: Logger) -> None:
+    def __init__(self, logger: "Logger") -> None:
         super().__init__()
-        self._resp_table: Dict[str, Future[ResponseEvent]] = {}
+        self._resp_table: Dict[str, Future["ResponseEvent"]] = {}
         self.logger = logger
 
         self._ready_signal = aio.Event()
-        self._action_sender: AbstractSender
+        self._action_sender: "AbstractSender"
 
-    def bind(self, action_sender: AbstractSender) -> None:
+    def bind(self, action_sender: "AbstractSender") -> None:
         """
         绑定其他核心组件的方法。独立出来，方便上层先创建实例再调用
         """
         self._action_sender = action_sender
         self._ready_signal.set()
 
-    async def dispatch(self, resp: ResponseEvent) -> None:
+    async def dispatch(self, resp: "ResponseEvent") -> None:
         await self._ready_signal.wait()
 
         try:
@@ -51,14 +53,14 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
             self.logger.debug(f"异常点的响应记录为：{resp.raw}")
             self.logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
 
-    async def take_action(self, action: BotAction) -> None:
+    async def take_action(self, action: "BotAction") -> None:
         """
         响应器发送 action, 不等待响应
         """
         await self._ready_signal.wait()
         await self._action_sender.send(action)
 
-    async def take_action_wait(self, action: BotAction) -> Future[ResponseEvent]:
+    async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
         """
         响应器发送 action，并返回一个 Future 用于等待响应
         """
