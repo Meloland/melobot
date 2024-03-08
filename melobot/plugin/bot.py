@@ -272,19 +272,19 @@ class BotProxy:
 
     def async_interval(
         self,
-        cb_maker: Callable[[None], Coroutine[Any, Any, None]],
+        callback: Callable[[None], Coroutine[Any, Any, None]],
         interval: float,
         exit_cb: Coroutine[Any, Any, None] = None,
     ) -> aio.Task:
         """
-        以指定的 interval 调度一个 callback 执行。cb_maker 是用于产生 callback 的协程产生器。
-        返回一个 task 对象用于取消 callback。可以指定 exit_cb 用于在被迫 cancel 时调用
+        以指定的 interval 调度一个回调执行。callback 是协程产生器。
+        返回一个 task 对象用于取消回调。可以指定 exit_cb 用于在被迫 cancel 时调用
         """
 
         async def interval_cb():
             try:
                 while True:
-                    coro = cb_maker()
+                    coro = callback()
                     await aio.sleep(interval)
                     await coro
             except aio.CancelledError:

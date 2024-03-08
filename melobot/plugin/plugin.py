@@ -153,7 +153,7 @@ class Plugin:
         for attr_name, val in members:
             if isinstance(val, EventHandlerArgs):
                 handler = self._init_event_handler(
-                    responder, logger, val[0], val[1], *val[2]
+                    responder, logger, val.executor, val.type, *val.params
                 )
                 self._handlers.append(handler)
             elif isinstance(val, BotHookRunnerArgs):
@@ -206,14 +206,14 @@ class Plugin:
         """
         if not iscoroutinefunction(executor):
             raise PluginBuildError(f"事件处理器 {executor.__name__} 必须为异步方法")
-        overtime_cb_maker, conflict_cb_maker = params[-1], params[-2]
-        if overtime_cb_maker and not callable(overtime_cb_maker):
+        overtime_cb, conflict_cb = params[-1], params[-2]
+        if overtime_cb and not callable(overtime_cb):
             raise PluginBuildError(
-                f"超时回调方法 {overtime_cb_maker.__name__} 必须为可调用对象"
+                f"超时回调方法 {overtime_cb.__name__} 必须为可调用对象"
             )
-        if conflict_cb_maker and not callable(conflict_cb_maker):
+        if conflict_cb and not callable(conflict_cb):
             raise PluginBuildError(
-                f"冲突回调方法 {conflict_cb_maker.__name__} 必须为可调用对象"
+                f"冲突回调方法 {conflict_cb.__name__} 必须为可调用对象"
             )
         handler = handler_class(executor, self, responder, logger, *params)
         BotSessionManager.register(handler)

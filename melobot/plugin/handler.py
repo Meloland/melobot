@@ -36,8 +36,8 @@ class EventHandler:
         session_hold: bool,
         direct_rouse: bool,
         conflict_wait: bool,
-        conflict_cb_maker: Callable[[], Coroutine],
-        overtime_cb_maker: Callable[[], Coroutine],
+        conflict_cb: Callable[[], Coroutine],
+        overtime_cb: Callable[[], Coroutine],
     ) -> None:
         super().__init__()
         self.is_valid = True
@@ -56,18 +56,18 @@ class EventHandler:
         self._hold = session_hold
         self._plugin = plugin
         self._direct_rouse = direct_rouse
-        self._conflict_cb_maker = conflict_cb_maker
-        self._overtime_cb_maker = overtime_cb_maker
+        self._conflict_cb = conflict_cb
+        self._overtime_cb = overtime_cb
         self._wait_flag = conflict_wait
 
         if session_rule is None:
-            if session_hold or direct_rouse or conflict_wait or conflict_cb_maker:
+            if session_hold or direct_rouse or conflict_wait or conflict_cb:
                 raise EventHandlerError(
                     "使用 session_rule 参数后才能使用以下参数：session_hold， direct_rouse, \
                                       conflict_wait, conflict_callback"
                 )
 
-        if conflict_wait and conflict_cb_maker:
+        if conflict_wait and conflict_cb:
             raise EventHandlerError(
                 "参数 conflict_wait 为 True 时，冲突回调永远不会被调用"
             )
@@ -115,9 +115,9 @@ class EventHandler:
                     return
             session = await BotSessionManager.get(event, self)
             # 如果因为冲突没有获得 session，且指定了冲突回调
-            if session is None and self._conflict_cb_maker:
+            if session is None and self._conflict_cb:
                 temp_session = BotSessionManager.make_temp(event)
-                await self._run_on_ctx(self._conflict_cb_maker(), temp_session)
+                await self._run_on_ctx(self._conflict_cb(), temp_session)
             # 如果因为冲突没有获得 session，但没有冲突回调
             if session is None:
                 return
@@ -126,8 +126,8 @@ class EventHandler:
                 exec_coro = self.executor(self._plugin)
                 await self._run_on_ctx(exec_coro, session, self.timeout)
             except aio.TimeoutError:
-                if self._overtime_cb_maker:
-                    await self._run_on_ctx(self._overtime_cb_maker(), session)
+                if self._overtime_cb:
+                    await self._run_on_ctx(self._overtime_cb(), session)
         except DirectRetSignal:
             pass
         except Exception as e:
@@ -188,8 +188,8 @@ class AllEventHandler(EventHandler):
         session_hold: bool,
         direct_rouse: bool,
         conflict_wait: bool,
-        conflict_cb_maker: Callable[[], Coroutine],
-        overtime_cb_maker: Callable[[], Coroutine],
+        conflict_cb: Callable[[], Coroutine],
+        overtime_cb: Callable[[], Coroutine],
     ) -> None:
         super().__init__(
             executor,
@@ -205,8 +205,8 @@ class AllEventHandler(EventHandler):
             session_hold,
             direct_rouse,
             conflict_wait,
-            conflict_cb_maker,
-            overtime_cb_maker,
+            conflict_cb,
+            overtime_cb,
         )
 
 
@@ -228,8 +228,8 @@ class MsgEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[], Coroutine] = None,
-        overtime_cb_maker: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -245,8 +245,8 @@ class MsgEventHandler(EventHandler):
             session_hold,
             direct_rouse,
             conflict_wait,
-            conflict_cb_maker,
-            overtime_cb_maker,
+            conflict_cb,
+            overtime_cb,
         )
         self.matcher = matcher
         self.parser = parser
@@ -325,8 +325,8 @@ class ReqEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[], Coroutine] = None,
-        overtime_cb_maker: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -342,8 +342,8 @@ class ReqEventHandler(EventHandler):
             session_hold,
             direct_rouse,
             conflict_wait,
-            conflict_cb_maker,
-            overtime_cb_maker,
+            conflict_cb,
+            overtime_cb,
         )
 
 
@@ -363,8 +363,8 @@ class NoticeEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[], Coroutine] = None,
-        overtime_cb_maker: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -380,8 +380,8 @@ class NoticeEventHandler(EventHandler):
             session_hold,
             direct_rouse,
             conflict_wait,
-            conflict_cb_maker,
-            overtime_cb_maker,
+            conflict_cb,
+            overtime_cb,
         )
 
 
@@ -401,8 +401,8 @@ class MetaEventHandler(EventHandler):
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb_maker: Callable[[], Coroutine] = None,
-        overtime_cb_maker: Callable[[], Coroutine] = None,
+        conflict_cb: Callable[[], Coroutine] = None,
+        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -418,18 +418,25 @@ class MetaEventHandler(EventHandler):
             session_hold,
             direct_rouse,
             conflict_wait,
-            conflict_cb_maker,
-            overtime_cb_maker,
+            conflict_cb,
+            overtime_cb,
         )
 
 
-# 事件方法（事件执行器）构造参数
-EventHandlerArgs = NamedTuple(
-    "EventHandlerArgs",
-    executor=Callable[[], Coroutine[Any, Any, None]],
-    type=EventHandler,
-    params=List[Any],
-)
+class EventHandlerArgs:
+    """
+    事件方法（事件执行器）构造参数
+    """
+
+    def __init__(
+        self,
+        executor: Callable[[], Coroutine[Any, Any, None]],
+        type: EventHandler,
+        params: List[Any],
+    ) -> None:
+        self.executor = executor
+        self.type = type
+        self.params = params
 
 
 EVENT_HANDLER_MAP: dict[str, tuple[Type[EventHandler], ...]] = {
