@@ -28,6 +28,7 @@ class BotSession:
         self.timestamp = time.time()
         self.hup_times: List[float] = []
         self.events: List[MessageEvent | RequestEvent | MetaEvent | NoticeEvent] = []
+        self.actions: List[BotAction] = []
 
         self._manager = manager
         self._responder = responder
@@ -53,6 +54,13 @@ class BotSession:
             return next(reversed(self.events))
         except StopIteration:
             raise BotSessionError("当前 session 下不存在可用的 event")
+
+    @property
+    def last_action(self) -> BotAction:
+        try:
+            return next(reversed(self.actions))
+        except StopIteration:
+            raise BotSessionError("当前 session 下尚未进行过 action 操作")
 
     @property
     def last_hup(self) -> Optional[float]:
@@ -424,6 +432,10 @@ class BotSessionManager:
 
             if not action.ready:
                 return action
+            try:
+                SESSION_LOCAL.actions.append(action)
+            except LookupError:
+                pass
             if action.resp_id is None:
                 return await cls.RESPONDER.take_action(action)
             else:
