@@ -4,7 +4,7 @@ import time
 
 from ..types.models import BotEvent
 from ..types.typing import *
-from .base import to_cq_arr
+from .cq import to_cq_arr
 
 
 class BotEventBuilder:

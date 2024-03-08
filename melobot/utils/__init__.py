@@ -1,13 +1,4 @@
-from .base import (
-    cooldown,
-    get_cq_text,
-    get_id,
-    lock,
-    semaphore,
-    this_dir,
-    to_async,
-    to_coro,
-)
+from .base import cooldown, get_id, lock, semaphore, this_dir, to_async, to_coro
 from .checker import GroupMsgLvl, MsgCheckerGen, MsgLvlChecker, PrivateMsgLvl
 from .formatter import ArgFormatter
 from .matcher import (

@@ -1,4 +1,6 @@
+import json
 from abc import ABC, abstractmethod, abstractproperty
+from copy import deepcopy
 
 from .exceptions import *
 from .typing import *
@@ -85,6 +87,71 @@ class BotEvent(ABC, Flagable):
         self._args_map[parser_id] = args_group
 
 
+class ActionArgs(ABC):
+    """
+    行为信息构造基类
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.type: str
+        self.params: dict
+
+
+class BotAction(Flagable):
+    """
+    Bot 行为类
+    """
+
+    def __init__(
+        self,
+        action_args: ActionArgs,
+        resp_id: Optional[str] = None,
+        triggerEvent: BotEvent = None,
+        ready: bool = False,
+    ) -> None:
+        super().__init__()
+        # 只有 action 对应的响应需要被等待单独处理时，才会生成 id
+        self.resp_id = resp_id
+        self.type = action_args.type
+        self.params = action_args.params
+        self.trigger = triggerEvent
+        self.ready = ready
+
+    def copy(self) -> "BotAction":
+        """
+        创建当前 action 的深拷贝
+        """
+        return deepcopy(self)
+
+    def extract(self) -> dict:
+        """
+        从对象提取标准 cq action dict
+        """
+        obj = {
+            "action": self.type,
+            "params": self.params,
+        }
+        if self.resp_id:
+            obj["echo"] = self.resp_id
+        return obj
+
+    def flatten(self, indent: int = None) -> str:
+        """
+        将对象序列化为标准 cq action json 字符串，一般供连接器使用
+        """
+        return json.dumps(self.extract(), ensure_ascii=False, indent=indent)
+
+    def _fill_trigger(self, event: BotEvent) -> None:
+        """
+        后期指定触发 event
+        """
+        if self.trigger is None:
+            self.trigger = event
+            return
+        raise BotActionError("action 已记录触发 event，拒绝再次记录")
+
+
 class SessionRule(ABC):
     """
     用作 sesion 的区分依据
@@ -115,6 +182,7 @@ class ShareObjArgs:
     """
     插件共享对象构造参数
     """
+
     def __init__(self, property: str, namespace: str, id: str) -> None:
         self.property = property
         self.namespace = namespace
@@ -125,6 +193,7 @@ class ShareObjCbArgs:
     """
     插件共享对象回调的构造参数
     """
+
     def __init__(
         self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
     ) -> None:
@@ -137,6 +206,7 @@ class PluginSignalHandlerArgs:
     """
     插件信号方法构造参数
     """
+
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, Any]], namespace: str, signal: str
     ) -> None:
@@ -149,6 +219,7 @@ class BotHookRunnerArgs:
     """
     钩子方法（生命周期回调）构造参数
     """
+
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
     ) -> None:

@@ -9,7 +9,6 @@ from pathlib import Path
 from types import MethodType
 
 from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
-from ..types.core import AbstractResponder
 from ..types.exceptions import *
 from ..types.models import BotHookRunnerArgs, BotLife
 from ..types.typing import *

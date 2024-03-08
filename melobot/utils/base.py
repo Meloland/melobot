@@ -97,14 +97,6 @@ def this_dir(*relative_path: str) -> str:
     )
 
 
-def get_cq_text(s: str) -> str:
-    """
-    从 cq 消息字符串中，获取纯净的 cq text 类型消息
-    """
-    regex = re.compile(r"\[CQ:.*?\]")
-    return regex.sub("", s)
-
-
 def to_async(func: Callable):
     """
     异步包装器，将一个同步函数包装为异步函数。保留返回值。

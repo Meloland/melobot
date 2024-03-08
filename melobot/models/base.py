@@ -1,7 +1,5 @@
 import asyncio as aio
-import re
 from contextlib import asynccontextmanager
-from itertools import chain, zip_longest
 
 from ..types.exceptions import *
 from ..types.typing import *
@@ -12,52 +10,6 @@ class Singleton:
         if not hasattr(cls, "__instance__"):
             cls.__instance__ = super(Singleton, cls).__new__(cls)
         return cls.__instance__
-
-
-def to_cq_arr(s: str) -> dict:
-    """
-    从 cq 消息字符串转换为 cq 消息段
-    """
-
-    def replace_func(m) -> str:
-        s, e = m.regs[0]
-        cq_texts.append(m.string[s:e])
-        return "\u0000"
-
-    cq_regex = re.compile(r"\[CQ:.*?\]")
-    cq_texts = []
-    no_cq_str = cq_regex.sub(replace_func, s)
-    pure_texts = map(
-        lambda x: f"[CQ:text,text={x}]" if x != "" else x,
-        no_cq_str.split("\u0000"),
-    )
-    content: str = "".join(
-        chain.from_iterable(zip_longest(pure_texts, cq_texts, fillvalue=""))
-    )
-
-    cq_entity = content.split("]")[:-1]
-    content: list = []
-    for e in cq_entity:
-        _ = e.split(",")
-        cq_type = _[0][4:]
-        data = {}
-        for param_pair in _[1:]:
-            name, val = param_pair.split("=")
-            val = (
-                val.replace("&amp;", "&")
-                .replace("&#91;", "[")
-                .replace("&#93;", "]")
-                .replace("&#44;", ",")
-            )
-            if val.isdigit():
-                data[name] = int(val)
-                continue
-            try:
-                data[name] = float(val)
-            except Exception:
-                data[name] = val
-        content.append({"type": cq_type, "data": data})
-    return content
 
 
 class AsyncTwinEvent(aio.Event):

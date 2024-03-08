@@ -1,479 +1,81 @@
-import json
-from abc import ABC
-from copy import deepcopy
-
 from ..types.exceptions import *
-from ..types.models import Flagable
+from ..types.models import ActionArgs, BotAction, BotEvent
 from ..types.typing import *
 from ..utils.base import get_id
-from .event import *
+from .cq import reply_msg, text_msg, to_cq_str_action
+from .event import ResponseEvent
+from .session import SESSION_LOCAL
+from .session import BotSessionManager as CtxManager
 
-__all__ = (
-    "BotAction",
-    # 消息构造方法
-    "text_msg",
-    "face_msg",
-    "audio_msg",
-    "at_msg",
-    "share_msg",
-    "music_msg",
-    "custom_music_msg",
-    "image_msg",
-    "reply_msg",
-    "touch_msg",
-    "tts_msg",
-    # cq 编码相关
-    "cq_escape",
-    "cq_anti_escape",
-    "to_cq_str_action",
-    # 消息发送、处理相关
-    "msg_action",
-    "forward_msg_action",
-    "custom_msg_node",
-    "refer_msg_node",
-    "msg_del_action",
-    "get_msg_action",
-    "get_forward_msg_action",
-    "mark_msg_read_action",
-    # 群相关
-    "group_kick_action",
-    "group_ban_action",
-    "group_anonym_ban_action",
-    "group_whole_ban_action",
-    "group_leave_action",
-    "group_sign_action",
-    "get_group_info_action",
-    "get_group_list_action",
-    "get_group_member_info_action",
-    "get_group_member_list_action",
-    "get_group_honor_action",
-    "get_group_filesys_info_action",
-    "get_group_root_files_action",
-    "get_group_files_byfolder_action",
-    "get_group_file_url_action",
-    "get_group_sys_msg_action",
-    "get_group_notice_action",
-    "get_group_msg_history_action",
-    "get_group_essence_list_action",
-    "set_group_admin_action",
-    "set_group_card_action",
-    "set_group_name_action",
-    "set_group_title_action",
-    "set_group_add_action",
-    "set_group_portrait_action",
-    "set_group_notice_action",
-    "set_group_essence_action",
-    "create_group_folder_action",
-    "delete_group_folder_action",
-    "delete_group_file_action",
-    # 私聊相关
-    "get_friend_list_action",
-    "get_undirect_friend_action",
-    "get_stranger_info_action",
-    "set_friend_add_action",
-    "delete_friend_action",
-    "delete_undirect_friend_action",
-    # bot 前后端相关
-    "get_login_info_action",
-    "set_login_profile_action",
-    "check_send_image_action",
-    "check_send_record_action",
-    "get_cq_status_action",
-    "get_cq_version_action",
-    "quick_handle_action",
-    # 其他操作
-    "get_image_action",
-    "download_file_action",
-    "ocr_action",
-    "upload_file_action",
-    "get_atall_remain_action",
-    # 登录设备和机型相关
-    "get_online_clients_action",
-    "get_model_show_action",
-    "set_model_show_action",
-)
+__all__ = [
+    "send_custom_msg",
+    "send",
+    "send_custom_forward",
+    "send_forward",
+    "msg_recall",
+    "get_msg",
+    "get_forward_msg",
+    "get_image",
+    "mark_msg_read",
+    "group_kick",
+    "group_ban",
+    "group_anonym_ban",
+    "group_whole_ban",
+    "set_group_admin",
+    "set_group_card",
+    "set_group_name",
+    "group_leave",
+    "set_group_title",
+    "group_sign",
+    "set_friend_add",
+    "set_group_add",
+    "get_login_info",
+    "set_login_profile",
+    "get_stranger_info",
+    "get_friend_list",
+    "get_undirect_friend",
+    "delete_friend",
+    "get_group_info",
+    "get_group_list",
+    "get_group_member_info",
+    "get_group_member_list",
+    "get_group_honor",
+    "check_send_image",
+    "check_send_record",
+    "get_cq_version",
+    "set_group_portrait",
+    "ocr",
+    "get_group_sys_msg",
+    "upload_file",
+    "get_group_filesys_info",
+    "get_group_root_files",
+    "get_group_files_byfolder",
+    "create_group_folder",
+    "delete_group_folder",
+    "delete_group_file",
+    "get_group_file_url",
+    "get_cq_status",
+    "get_atall_remain",
+    "quick_handle",
+    "set_group_notice",
+    "get_group_notice",
+    "download_file",
+    "get_online_clients",
+    "get_group_msg_history",
+    "set_group_essence",
+    "get_group_essence_list",
+    "get_model_show",
+    "set_model_show",
+    "delete_undirect_friend",
+    "take_custom_action",
+    "send_hup",
+    "send_reply",
+    "finish",
+    "finish_reply",
+]
 
 
-def cq_escape(text: str) -> str:
-    """
-    cq 码特殊字符转义
-    """
-    return (
-        text.replace("&", "&amp;")
-        .replace("[", "&#91;")
-        .replace("]", "&#93;")
-        .replace(",", "&#44;")
-    )
-
-
-def cq_anti_escape(text: str) -> str:
-    """
-    cq 码特殊字符逆转义
-    """
-    return (
-        text.replace("&amp;", "&")
-        .replace("&#91;", "[")
-        .replace("&#93;", "]")
-        .replace("&#44;", ",")
-    )
-
-
-def to_cq_str_action(action: "BotAction") -> "BotAction":
-    """
-    转化 action 携带的 message 字段转为 cq 字符串格式，并返回新的 action。
-    支持的 action 类型有：msg_action 和 forward_action
-    """
-
-    def _format_msg_action(action: "BotAction") -> None:
-        cq_str_list = []
-        for item in action.params["message"]:
-            if item["type"] != "text":
-                string = (
-                    f"[CQ:{item['type']},"
-                    + ",".join([f"{k}={item['data'][k]}" for k in item["data"].keys()])
-                    + "]"
-                )
-                cq_str_list.append(string)
-            else:
-                cq_str_list.append(item["data"]["text"])
-        action.params["message"] = "".join(cq_str_list)
-
-    def _format_forward_action(action: "BotAction") -> None:
-        for item in action.params["messages"]:
-            if "id" in item["data"].keys():
-                continue
-
-            cq_str_list = []
-            for msg in item["data"]["content"]:
-                if msg["type"] != "text":
-                    string = (
-                        f"[CQ:{msg['type']},"
-                        + ",".join(
-                            [f"{k}={msg['data'][k]}" for k in msg["data"].keys()]
-                        )
-                        + "]"
-                    )
-                    cq_str_list.append(string)
-                else:
-                    cq_str_list.append(msg["data"]["text"])
-            item["data"]["content"] = "".join(cq_str_list)
-
-    _action = deepcopy(action)
-    if _action.type == "send_msg":
-        _format_msg_action(_action)
-    elif _action.type in ("send_private_forward_msg", "send_group_forward_msg"):
-        _format_forward_action(_action)
-    else:
-        raise BotActionError("传入的 action 因类型不匹配，不可被 cq 序列化")
-
-    return _action
-
-
-def text_msg(
-    text: str,
-) -> CQMsgDict:
-    """
-    普通文本消息
-    """
-    return {"type": "text", "data": {"text": text}}
-
-
-def face_msg(
-    icon_id: int,
-) -> CQMsgDict:
-    """
-    QQ 表情
-    """
-    return {"type": "face", "data": {"id": f"{icon_id}"}}
-
-
-def audio_msg(
-    url: str,
-    timeout: int = None,
-    magic: bool = False,
-) -> CQMsgDict:
-    """
-    语音消息
-    """
-    base = {
-        "type": "record",
-        "data": {
-            "file": url,
-        },
-    }
-    if magic:
-        base["data"]["magic"] = 1
-    if timeout:
-        base["data"]["timeout"] = str(timeout)
-    return base
-
-
-def at_msg(
-    qqId: int | Literal["all"],
-    notInName: str = None,
-) -> CQMsgDict:
-    """
-    at 消息。
-    at 所有人时，`qqId` 传 "all"
-    """
-    base = {
-        "type": "at",
-        "data": {
-            "qq": str(qqId),
-        },
-    }
-    if notInName:
-        base["data"]["name"] = notInName
-    return base
-
-
-def share_msg(
-    url: str,
-    title: str,
-    content: str = None,
-    image: str = None,
-) -> CQMsgDict:
-    """
-    链接分享卡片消息。
-    `content` 为描述语
-    """
-    base = {
-        "type": "share",
-        "data": {
-            "url": url,
-            "title": title,
-        },
-    }
-    if content:
-        base["data"]["content"] = content
-    if image:
-        base["data"]["image"] = image
-    return base
-
-
-def music_msg(
-    platType: Literal["qq", "163", "xm"],
-    songId: str,
-) -> CQMsgDict:
-    """
-    音乐分享卡片消息（专有平台）
-    """
-    return {"type": "music", "data": {"type": platType, "id": songId}}
-
-
-def custom_music_msg(
-    url: str,
-    audio: str,
-    title: str,
-    content: str = None,
-    image: str = None,
-) -> CQMsgDict:
-    """
-    自定义音乐分享卡片。
-    `url` 为主页或网站起始页
-    """
-    base = {
-        "type": "music",
-        "data": {
-            "type": "custom",
-            "url": url,
-            "audio": audio,
-            "title": title,
-        },
-    }
-    if content:
-        base["data"]["content"] = content
-    if image:
-        base["data"]["image"] = image
-    return base
-
-
-def image_msg(
-    url: str,
-    picType: Literal["flash", "show"] = None,
-    subType: Literal[0, 1] = None,
-    useCache: Literal[0, 1] = 1,
-) -> CQMsgDict:
-    """
-    图片消息。
-    `url`: 图片 url。可以为本地路径，如：`file:///C:/users/15742/desktop/QQ图片20230108225606.jpg`；也可以为网络 url；还可以为 image id。
-    `picType`: flash 为闪照，show 为秀图，不填为普通图片。
-    `subType`: 只出现在群聊，0 为正常图片，1 为表情包
-    """
-    base = {
-        "type": "image",
-        "data": {
-            "file": url,
-        },
-    }
-    if picType:
-        base["data"]["type"] = picType
-    if subType:
-        base["data"]["subType"] = subType
-    if useCache:
-        base["data"]["cache"] = useCache
-    return base
-
-
-def reply_msg(
-    messageId: int,
-) -> CQMsgDict:
-    """
-    回复消息
-    """
-    return {
-        "type": "reply",
-        "data": {
-            "id": messageId,
-        },
-    }
-
-
-def touch_msg(
-    qqId: int,
-) -> CQMsgDict:
-    """
-    戳一戳消息
-    """
-    return {
-        "type": "poke",
-        "data": {
-            "qq": qqId,
-        },
-    }
-
-
-def touch_msg(
-    qqId: int,
-) -> CQMsgDict:
-    """
-    openshamrock 的戳一戳消息
-    """
-    return {
-        "type": "touch",
-        "data": {
-            "id": qqId,
-        },
-    }
-
-
-def tts_msg(
-    text: str,
-) -> CQMsgDict:
-    """
-    腾讯自带 tts 语音消息
-    """
-    return {
-        "type": "tts",
-        "data": {
-            "text": text,
-        },
-    }
-
-
-def custom_msg_node(
-    content: str | CQMsgDict | List[CQMsgDict],
-    sendName: str,
-    sendId: int,
-    seq: str = None,
-) -> MsgNodeDict:
-    """
-    自定义消息节点构造方法。转化字符串、消息、消息段为消息节点
-    """
-    if isinstance(content, str):
-        msgs = text_msg(content)
-        if not isinstance(msgs, list):
-            msgs = [msgs]
-    elif isinstance(content, dict):
-        msgs = [content]
-    elif isinstance(content, list):
-        temp = []
-        for _ in content:
-            if isinstance(_, list):
-                temp.extend(_)
-            else:
-                temp.append(_)
-        msgs = temp
-    ret = {
-        "type": "node",
-        "data": {"name": sendName, "uin": sendId, "content": msgs},
-    }
-    if seq:
-        ret["data"]["seq"] = seq
-    return ret
-
-
-def refer_msg_node(msgId: int) -> MsgNodeDict:
-    """
-    引用消息节点构造方法
-    """
-    return {"type": "node", "data": {"id": msgId}}
-
-
-class ActionPacker(ABC):
-    """
-    行为信息构造基类
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.type: str
-        self.params: dict
-
-
-class BotAction(Flagable):
-    """
-    Bot 行为类
-    """
-
-    def __init__(
-        self,
-        package: ActionPacker,
-        respWaited: bool = False,
-        triggerEvent: BotEvent = None,
-    ) -> None:
-        super().__init__()
-        # 只有 action 对应的响应需要被等待单独处理时，才会生成 id
-        self.resp_id: Optional[str] = str(get_id()) if respWaited else None
-        self.type: str = package.type
-        self.params: dict = package.params
-        self.trigger: Optional[BotEvent] = triggerEvent
-
-    def copy(self) -> "BotAction":
-        """
-        创建当前 action 的深拷贝
-        """
-        return deepcopy(self)
-
-    def extract(self) -> dict:
-        """
-        从对象提取标准 cq action dict
-        """
-        obj = {
-            "action": self.type,
-            "params": self.params,
-        }
-        if self.resp_id:
-            obj["echo"] = self.resp_id
-        return obj
-
-    def flatten(self, indent: int = None) -> str:
-        """
-        将对象序列化为标准 cq action json 字符串，一般供连接器使用
-        """
-        return json.dumps(self.extract(), ensure_ascii=False, indent=indent)
-
-    def _fill_trigger(self, event: BotEvent) -> None:
-        """
-        后期指定触发 event
-        """
-        if self.trigger is None:
-            self.trigger = event
-            return
-        raise BotActionError("action 已记录触发 event，拒绝再次记录")
-
-
-class MsgPacker(ActionPacker):
+class MsgActionArgs(ActionArgs):
     """
     消息 action 信息构造类
     """
@@ -502,16 +104,9 @@ class MsgPacker(ActionPacker):
             }
 
 
-def msg_action(
-    content: str | CQMsgDict | List[CQMsgDict],
-    isPrivate: bool,
-    userId: int = None,
-    groupId: int = None,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+def _process_msg(content: str | CQMsgDict | List[CQMsgDict]) -> list[CQMsgDict]:
     """
-    发送消息 action 构造方法
+    将多种可能的消息格式，统一转换为 cq 消息列表
     """
     if isinstance(content, str):
         msgs = text_msg(content)
@@ -529,14 +124,69 @@ def msg_action(
         msgs = temp
     else:
         raise BotActionError("content 参数类型不正确，无法封装")
-    return BotAction(
-        MsgPacker(msgs, isPrivate, userId, groupId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+    return msgs
+
+
+@CtxManager._activate
+async def send_custom_msg(
+    content: str | CQMsgDict | List[CQMsgDict],
+    isPrivate: bool,
+    userId: int = None,
+    groupId: int = None,
+    cq_str: bool = False,
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
+    """
+    发送消息
+    """
+    if isPrivate and userId is None:
+        raise BotActionError("为私聊时，构建 action 必须提供 userId 参数")
+    if not isPrivate and groupId is None:
+        raise BotActionError("为群聊时，构建 action 必须提供 groupId 参数")
+    action = BotAction(
+        MsgActionArgs(_process_msg(content), isPrivate, userId, groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
+    if cq_str:
+        action = to_cq_str_action(action)
+    return action
 
 
-class ForwardMsgPacker(ActionPacker):
+@CtxManager._activate
+async def send(
+    content: str | CQMsgDict | List[CQMsgDict],
+    cq_str: bool = False,
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
+    """
+    在当前 session 上下文发送一条消息
+    """
+    try:
+        session = SESSION_LOCAL
+        if len(session.events) > 0:
+            action = BotAction(
+                MsgActionArgs(
+                    _process_msg(content),
+                    session.event.is_private(),
+                    session.event.sender.id,
+                    session.event.group_id,
+                ),
+                resp_id=get_id() if wait else None,
+                ready=auto,
+            )
+            if cq_str:
+                action = to_cq_str_action(action)
+            return action
+        else:
+            raise BotSessionError("当前 session 上下文没有事件信息，因此无法使用本方法")
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+
+
+class ForwardMsgActionArgs(ActionArgs):
     """
     转发消息 action 信息构造类
     """
@@ -557,25 +207,62 @@ class ForwardMsgPacker(ActionPacker):
             self.params = {"group_id": groupId, "messages": msgs, "auto_escape": True}
 
 
-def forward_msg_action(
+@CtxManager._activate
+async def send_custom_forward(
     msgNodes: List[MsgNodeDict],
     isPrivate: bool,
     userId: int = None,
     groupId: int = None,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    cq_str: bool = False,
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    转发消息发送 action 构造方法
+    转发消息发送
     """
-    return BotAction(
-        ForwardMsgPacker(msgNodes, isPrivate, userId, groupId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+    action = BotAction(
+        ForwardMsgActionArgs(msgNodes, isPrivate, userId, groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
+    if cq_str:
+        action = to_cq_str_action(action)
+    return action
 
 
-class MsgDelPacker(ActionPacker):
+@CtxManager._activate
+async def send_forward(
+    msgNodes: List[MsgNodeDict],
+    cq_str: bool = False,
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
+    """
+    在当前 session 上下文发送转发消息
+    """
+    try:
+        session = SESSION_LOCAL
+        if len(session.events) > 0:
+            action = BotAction(
+                ForwardMsgActionArgs(
+                    msgNodes,
+                    session.event.is_private(),
+                    session.event.sender.id,
+                    session.event.group_id,
+                ),
+                resp_id=get_id() if wait else None,
+                ready=auto,
+            )
+            if cq_str:
+                action = to_cq_str_action(action)
+            return action
+        else:
+            raise BotSessionError("当前 session 上下文没有事件信息，因此无法使用本方法")
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+
+
+class MsgDelActionArgs(ActionArgs):
     """
     撤回消息 action 信息构造类
     """
@@ -588,18 +275,19 @@ class MsgDelPacker(ActionPacker):
         }
 
 
-def msg_del_action(
-    msgId: int, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def msg_recall(
+    msgId: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    撤回消息 action 构造方法
+    撤回消息
     """
     return BotAction(
-        MsgDelPacker(msgId), respWaited=respWaited, triggerEvent=triggerEvent
+        MsgDelActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class GetMsgPacker(ActionPacker):
+class GetMsgActionArgs(ActionArgs):
     """
     消息信息获取 action 信息构造类
     """
@@ -610,18 +298,19 @@ class GetMsgPacker(ActionPacker):
         self.params = {"message_id": msgId}
 
 
-def get_msg_action(
-    msgId: int, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_msg(
+    msgId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取消息详细信息 action 构造方法
+    获取消息详细信息
     """
     return BotAction(
-        GetMsgPacker(msgId), respWaited=respWaited, triggerEvent=triggerEvent
+        GetMsgActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class getForwardPacker(ActionPacker):
+class getForwardActionArgs(ActionArgs):
     """
     转发消息获取 action 信息构造类
     """
@@ -632,18 +321,19 @@ class getForwardPacker(ActionPacker):
         self.params = {"message_id": forwardId}
 
 
-def get_forward_msg_action(
-    forwardId: str, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_forward_msg(
+    forwardId: str, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    转发消息获取 action 构造方法
+    转发消息获取
     """
     return BotAction(
-        getForwardPacker(forwardId), respWaited=respWaited, triggerEvent=triggerEvent
+        getForwardActionArgs(forwardId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class getImagePacker(ActionPacker):
+class getImageActionArgs(ActionArgs):
     """
     获取图片信息 action 信息构造类
     """
@@ -654,18 +344,19 @@ class getImagePacker(ActionPacker):
         self.params = {"file": fileName}
 
 
-def get_image_action(
-    fileName: str, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_image(
+    fileName: str, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取图片信息 action 构造方法
+    获取图片信息
     """
     return BotAction(
-        getImagePacker(fileName), respWaited=respWaited, triggerEvent=triggerEvent
+        getImageActionArgs(fileName), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class MarkMsgReadPacker(ActionPacker):
+class MarkMsgReadActionArgs(ActionArgs):
     """
     标记消息已读 action 信息构造类
     """
@@ -676,18 +367,19 @@ class MarkMsgReadPacker(ActionPacker):
         self.params = {"message_id": msgId}
 
 
-def mark_msg_read_action(
-    msgId: int, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def mark_msg_read(
+    msgId: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    标记消息已读 action 构造方法
+    标记消息已读
     """
     return BotAction(
-        MarkMsgReadPacker(msgId), respWaited=respWaited, triggerEvent=triggerEvent
+        MarkMsgReadActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class GroupKickPacker(ActionPacker):
+class GroupKickActionArgs(ActionArgs):
     """
     群组踢人 action 信息构造类
     """
@@ -702,24 +394,25 @@ class GroupKickPacker(ActionPacker):
         }
 
 
-def group_kick_action(
+@CtxManager._activate
+async def group_kick(
     groupId: int,
     userId: int,
     laterReject: bool = False,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    群组踢人 action 构造方法
+    群组踢人
     """
     return BotAction(
-        GroupKickPacker(groupId, userId, laterReject),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GroupKickActionArgs(groupId, userId, laterReject),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GroupBanPacker(ActionPacker):
+class GroupBanActionArgs(ActionArgs):
     """
     群组禁言 action 信息构造类
     """
@@ -734,25 +427,22 @@ class GroupBanPacker(ActionPacker):
         }
 
 
-def group_ban_action(
-    groupId: int,
-    userId: int,
-    duration: int,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def group_ban(
+    groupId: int, userId: int, duration: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    群组禁言 action 构造方法。
+    群组禁言。
     duration 为 0 取消禁言
     """
     return BotAction(
-        GroupBanPacker(groupId, userId, duration),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GroupBanActionArgs(groupId, userId, duration),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GroupAnonymBanPacker(ActionPacker):
+class GroupAnonymBanActionArgs(ActionArgs):
     """
     群组匿名禁言 action 信息构造类
     """
@@ -767,25 +457,22 @@ class GroupAnonymBanPacker(ActionPacker):
         }
 
 
-def group_anonym_ban_action(
-    groupId: int,
-    anonymFlag: str,
-    duration: int,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def group_anonym_ban(
+    groupId: int, anonymFlag: str, duration: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    群组匿名禁言 action 构造方法。
+    群组匿名禁言。
     无法取消禁言
     """
     return BotAction(
-        GroupAnonymBanPacker(groupId, anonymFlag, duration),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GroupAnonymBanActionArgs(groupId, anonymFlag, duration),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GroupWholeBanPacker(ActionPacker):
+class GroupWholeBanActionArgs(ActionArgs):
     """
     群组全员禁言 action 信息构造类
     """
@@ -796,20 +483,21 @@ class GroupWholeBanPacker(ActionPacker):
         self.params = {"group_id": groupId, "enable": enable}
 
 
-def group_whole_ban_action(
-    groupId: int, enable: bool, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def group_whole_ban(
+    groupId: int, enable: bool, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    群组全员禁言 action 构造方法
+    群组全员禁言
     """
     return BotAction(
-        GroupWholeBanPacker(groupId, enable),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GroupWholeBanActionArgs(groupId, enable),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class SetGroupAdminPacker(ActionPacker):
+class SetGroupAdminActionArgs(ActionArgs):
     """
     设置群管理员 action 信息构造类
     """
@@ -820,24 +508,21 @@ class SetGroupAdminPacker(ActionPacker):
         self.params = {"group_id": groupId, "user_id": userId, "enable": enable}
 
 
-def set_group_admin_action(
-    groupId: int,
-    userId: int,
-    enable: bool,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def set_group_admin(
+    groupId: int, userId: int, enable: bool, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置群管理员 action 构造方法
+    设置群管理员
     """
     return BotAction(
-        SetGroupAdminPacker(groupId, userId, enable),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupAdminActionArgs(groupId, userId, enable),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class SetGroupCardPacker(ActionPacker):
+class SetGroupCardActionArgs(ActionArgs):
     """
     设置群名片 action 信息构造类
     """
@@ -848,24 +533,21 @@ class SetGroupCardPacker(ActionPacker):
         self.params = {"group_id": groupId, "user_id": userId, "card": card}
 
 
-def set_group_card_action(
-    groupId: int,
-    userId: int,
-    card: str,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def set_group_card(
+    groupId: int, userId: int, card: str, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置群名片 action 构造方法
+    设置群名片
     """
     return BotAction(
-        SetGroupCardPacker(groupId, userId, card),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupCardActionArgs(groupId, userId, card),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class SetGroupNamePacker(ActionPacker):
+class SetGroupNameActionArgs(ActionArgs):
     """
     设置群名 action 信息构造类
     """
@@ -876,20 +558,21 @@ class SetGroupNamePacker(ActionPacker):
         self.params = {"group_id": groupId, "group_name": name}
 
 
-def set_group_name_action(
-    groupId: int, name: str, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def set_group_name(
+    groupId: int, name: str, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置群名 action 信息构造方法
+    设置群名 action 信息的方法
     """
     return BotAction(
-        SetGroupNamePacker(groupId, name),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupNameActionArgs(groupId, name),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GroupLeavePacker(ActionPacker):
+class GroupLeaveActionArgs(ActionArgs):
     """
     退出群组 action 信息构造类
     """
@@ -900,23 +583,21 @@ class GroupLeavePacker(ActionPacker):
         self.params = {"group_id": groupId, "is_dismiss": isDismiss}
 
 
-def group_leave_action(
-    groupId: int,
-    isDismiss: bool,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def group_leave(
+    groupId: int, isDismiss: bool, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    退出群组 action 构造方法
+    退出群组
     """
     return BotAction(
-        GroupLeavePacker(groupId, isDismiss),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GroupLeaveActionArgs(groupId, isDismiss),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class SetGroupTitlePacker(ActionPacker):
+class SetGroupTitleActionArgs(ActionArgs):
     """
     设置群头衔 action 信息构造类
     """
@@ -938,25 +619,26 @@ class SetGroupTitlePacker(ActionPacker):
         }
 
 
-def set_group_title_action(
+@CtxManager._activate
+async def set_group_title(
     groupId: int,
     userId: int,
     title: str,
     duration: int = -1,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置群头衔 action 构造方法
+    设置群头衔
     """
     return BotAction(
-        SetGroupTitlePacker(groupId, userId, title, duration),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupTitleActionArgs(groupId, userId, title, duration),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GroupSignPacker(ActionPacker):
+class GroupSignActionArgs(ActionArgs):
     """
     群打卡 action 信息构造类
     """
@@ -967,18 +649,19 @@ class GroupSignPacker(ActionPacker):
         self.params = {"group_id": groupId}
 
 
-def group_sign_action(
-    groupId: int, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def group_sign(
+    groupId: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    群打卡 action 构造方法
+    群打卡
     """
     return BotAction(
-        GroupSignPacker(groupId), respWaited=respWaited, triggerEvent=triggerEvent
+        GroupSignActionArgs(groupId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class SetFriendAddPacker(ActionPacker):
+class SetFriendAddActionArgs(ActionArgs):
     def __init__(self, addFlag: str, approve: bool, remark: str) -> None:
         """
         处理加好友请求 action 信息构造类
@@ -988,24 +671,21 @@ class SetFriendAddPacker(ActionPacker):
         self.params = {"flag": addFlag, "approve": approve, "remark": remark}
 
 
-def set_friend_add_action(
-    addFlag: str,
-    approve: bool,
-    remark: str,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def set_friend_add(
+    addFlag: str, approve: bool, remark: str, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    处理加好友信息 action 构造方法。注意 remark 目前暂未实现
+    处理加好友信息。注意 remark 目前暂未实现
     """
     return BotAction(
-        SetFriendAddPacker(addFlag, approve, remark),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetFriendAddActionArgs(addFlag, approve, remark),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class SetGroupAddPacker(ActionPacker):
+class SetGroupAddActionArgs(ActionArgs):
     """
     处理加群请求 action 信息构造类
     """
@@ -1028,25 +708,26 @@ class SetGroupAddPacker(ActionPacker):
             self.params["reason"] = reason
 
 
-def set_group_add_action(
+@CtxManager._activate
+async def set_group_add(
     addFlag: str,
     addType: Literal["add", "invite"],
     approve: bool,
     rejectReason: str = None,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    处理加群请求 action 构造方法
+    处理加群请求
     """
     return BotAction(
-        SetGroupAddPacker(addFlag, addType, approve, rejectReason),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupAddActionArgs(addFlag, addType, approve, rejectReason),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetLoginInfoPacker(ActionPacker):
+class GetLoginInfoActionArgs(ActionArgs):
     """
     获取登录号信息 action 信息构造类
     """
@@ -1057,18 +738,19 @@ class GetLoginInfoPacker(ActionPacker):
         self.params = {}
 
 
-def get_login_info_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_login_info(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获得登录号信息 action 构造方法
+    获得登录号信息
     """
     return BotAction(
-        GetLoginInfoPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        GetLoginInfoActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class SetLoginProfilePacker(ActionPacker):
+class SetLoginProfileActionArgs(ActionArgs):
     """
     设置登录号资料 action 信息构造类
     """
@@ -1087,26 +769,27 @@ class SetLoginProfilePacker(ActionPacker):
         }
 
 
-def set_login_profile_action(
+@CtxManager._activate
+async def set_login_profile(
     nickname: str,
     company: str,
     email: str,
     college: str,
     personalNote: str,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置登录号资料 action 构造方法
+    设置登录号资料
     """
     return BotAction(
-        SetLoginProfilePacker(nickname, company, email, college, personalNote),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetLoginProfileActionArgs(nickname, company, email, college, personalNote),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetStrangerInfoPacker(ActionPacker):
+class GetStrangerInfoActionArgs(ActionArgs):
     """
     获取陌生人信息 action 信息构造类
     """
@@ -1117,20 +800,21 @@ class GetStrangerInfoPacker(ActionPacker):
         self.params = {"user_id": userId, "no_cache": noCache}
 
 
-def get_stranger_info_action(
-    userId: int, noCache: bool, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_stranger_info(
+    userId: int, noCache: bool, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取陌生人信息 action 构造方法。也可以对好友使用
+    获取陌生人信息。也可以对好友使用
     """
     return BotAction(
-        GetStrangerInfoPacker(userId, noCache),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetStrangerInfoActionArgs(userId, noCache),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetFriendListPacker(ActionPacker):
+class GetFriendListActionArgs(ActionArgs):
     """
     获取好友列表 action 信息构造类
     """
@@ -1141,18 +825,19 @@ class GetFriendListPacker(ActionPacker):
         self.params = {}
 
 
-def get_friend_list_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_friend_list(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取好友列表 action 构造方法
+    获取好友列表
     """
     return BotAction(
-        GetFriendListPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        GetFriendListActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class GetUndirectFriendPacker(ActionPacker):
+class GetUndirectFriendActionArgs(ActionArgs):
     """
     获取单向好友列表 action 信息构造类
     """
@@ -1163,18 +848,19 @@ class GetUndirectFriendPacker(ActionPacker):
         self.params = {}
 
 
-def get_undirect_friend_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_undirect_friend(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取单向好友信息列表 action 构造方法
+    获取单向好友信息列表
     """
     return BotAction(
-        GetUndirectFriendPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        GetUndirectFriendActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class DeleteFriendPacker(ActionPacker):
+class DeleteFriendActionArgs(ActionArgs):
     """
     删除好友 action 信息构造类
     """
@@ -1185,18 +871,19 @@ class DeleteFriendPacker(ActionPacker):
         self.params = {"user_id": userId}
 
 
-def delete_friend_action(
-    userId: int, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def delete_friend(
+    userId: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    删除好友 action 构造方法
+    删除好友
     """
     return BotAction(
-        DeleteFriendPacker(userId), respWaited=respWaited, triggerEvent=triggerEvent
+        DeleteFriendActionArgs(userId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class GetGroupInfoPacker(ActionPacker):
+class GetGroupInfoActionArgs(ActionArgs):
     """
     获取群信息 action 信息构造类
     """
@@ -1207,20 +894,21 @@ class GetGroupInfoPacker(ActionPacker):
         self.params = {"group_id": groupId, "no_cache": noCache}
 
 
-def get_group_info_action(
-    groupId: int, noCache: bool, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_info(
+    groupId: int, noCache: bool, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群信息 action 构造方法。可以是未加入的群聊
+    获取群信息。可以是未加入的群聊
     """
     return BotAction(
-        GetGroupInfoPacker(groupId, noCache),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupInfoActionArgs(groupId, noCache),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupListPacker(ActionPacker):
+class GetGroupListActionArgs(ActionArgs):
     """
     获取群列表 action 信息构造类
     """
@@ -1231,18 +919,19 @@ class GetGroupListPacker(ActionPacker):
         self.params = {}
 
 
-def get_group_list_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_list(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群列表 action 构造方法。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info_action` 获得
+    获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info_action` 获得
     """
     return BotAction(
-        GetGroupListPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        GetGroupListActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class GetGroupMemberInfoPacker(ActionPacker):
+class GetGroupMemberInfoActionArgs(ActionArgs):
     """
     获取群成员信息 action 信息构造类
     """
@@ -1253,24 +942,21 @@ class GetGroupMemberInfoPacker(ActionPacker):
         self.params = {"group_id": groupId, "user_id": userId, "no_cache": noCache}
 
 
-def get_group_member_info_action(
-    groupId: int,
-    userId: int,
-    noCache: bool,
-    respWaited: bool = True,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def get_group_member_info(
+    groupId: int, userId: int, noCache: bool, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群成员信息 action 构造方法
+    获取群成员信息
     """
     return BotAction(
-        GetGroupMemberInfoPacker(groupId, userId, noCache),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupMemberInfoActionArgs(groupId, userId, noCache),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupMemberListPacker(ActionPacker):
+class GetGroupMemberListActionArgs(ActionArgs):
     """
     获取群成员列表 action 信息构造类
     """
@@ -1281,20 +967,21 @@ class GetGroupMemberListPacker(ActionPacker):
         self.params = {"group_id": groupId, "no_cache": noCache}
 
 
-def get_group_member_list_action(
-    groupId: int, noCache: bool, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_member_list(
+    groupId: int, noCache: bool, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群成员列表 action 构造方法
+    获取群成员列表
     """
     return BotAction(
-        GetGroupMemberListPacker(groupId, noCache),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupMemberListActionArgs(groupId, noCache),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupHonorPacker(ActionPacker):
+class GetGroupHonorActionArgs(ActionArgs):
     """
     获取群荣誉信息 action 信息构造类
     """
@@ -1311,25 +998,26 @@ class GetGroupHonorPacker(ActionPacker):
         self.params = {"group_id": groupId, "type": type}
 
 
-def get_group_honor_action(
+@CtxManager._activate
+async def get_group_honor(
     groupId: int,
     type: Literal[
         "talkative", "performer", "legend", "strong_newbie", "emotion", "all"
     ],
-    respWaited: bool = True,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = True,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群荣誉信息 action 构造方法
+    获取群荣誉信息
     """
     return BotAction(
-        GetGroupHonorPacker(groupId, type),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupHonorActionArgs(groupId, type),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class CheckSendImagePacker(ActionPacker):
+class CheckSendImageActionArgs(ActionArgs):
     """
     检查是否可以发送图片 action 信息构造类
     """
@@ -1340,18 +1028,19 @@ class CheckSendImagePacker(ActionPacker):
         self.params = {}
 
 
-def check_send_image_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def check_send_image(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    检查是否可以发送图片 action 构造方法
+    检查是否可以发送图片
     """
     return BotAction(
-        CheckSendImagePacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        CheckSendImageActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class CheckSendRecordPacker(ActionPacker):
+class CheckSendRecordActionArgs(ActionArgs):
     """
     检查是否可以发送语音 action 信息构造类
     """
@@ -1362,18 +1051,19 @@ class CheckSendRecordPacker(ActionPacker):
         self.params = {}
 
 
-def check_send_record_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def check_send_record(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    检查是否可以发送语音 action 构造方法
+    检查是否可以发送语音
     """
     return BotAction(
-        CheckSendRecordPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        CheckSendRecordActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class GetCqVersionPacker(ActionPacker):
+class GetCqVersionActionArgs(ActionArgs):
     """
     获取 go-cqhttp 版本信息 action 信息构造类
     """
@@ -1384,18 +1074,19 @@ class GetCqVersionPacker(ActionPacker):
         self.params = {}
 
 
-def get_cq_version_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_cq_version(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取 go-cqhttp 版本信息 action 构造方法
+    获取 go-cqhttp 版本信息
     """
     return BotAction(
-        GetCqVersionPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        GetCqVersionActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class SetGroupPortraitPacker(ActionPacker):
+class SetGroupPortraitActionArgs(ActionArgs):
     """
     设置群头像 action 信息构造类
     """
@@ -1406,26 +1097,27 @@ class SetGroupPortraitPacker(ActionPacker):
         self.params = {"group_id": groupId, "file": file, "cache": cache}
 
 
-def set_group_portrait_action(
+@CtxManager._activate
+async def set_group_portrait(
     groupId: int,
     file: str,
     cache: Literal[0, 1] = 0,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置群头像 action 构造方法。file 参数接受本地或网络 url 和 base64 编码。
+    设置群头像。file 参数接受本地或网络 url 和 base64 编码。
     如本地路径为：`file:///C:/Users/Richard/Pictures/1.png`。
     特别注意：目前此 API 在登录一段时间后会因 cookie 失效而失效
     """
     return BotAction(
-        SetGroupPortraitPacker(groupId, file, cache),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupPortraitActionArgs(groupId, file, cache),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class OcrPacker(ActionPacker):
+class OcrActionArgs(ActionArgs):
     """
     图片 OCR action 信息构造类
     """
@@ -1436,16 +1128,19 @@ class OcrPacker(ActionPacker):
         self.params = {"image": image}
 
 
-def ocr_action(
-    image: str, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def ocr(
+    image: str, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    图片 OCR action 构造方法。image 为图片 ID
+    图片 OCR。image 为图片 ID
     """
-    return BotAction(OcrPacker(image), respWaited=respWaited, triggerEvent=triggerEvent)
+    return BotAction(
+        OcrActionArgs(image), resp_id=get_id() if wait else None, ready=auto
+    )
 
 
-class GetGroupSysMsgPacker(ActionPacker):
+class GetGroupSysMsgActionArgs(ActionArgs):
     """
     获取群系统消息 action 信息构造类
     """
@@ -1456,18 +1151,19 @@ class GetGroupSysMsgPacker(ActionPacker):
         self.params = {}
 
 
-def get_group_sys_msg_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_sys_msg(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群系统消息 action 构造方法
+    获取群系统消息
     """
     return BotAction(
-        GetGroupSysMsgPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        GetGroupSysMsgActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class UploadFilePacker(ActionPacker):
+class UploadFileActionArgs(ActionArgs):
     """
     发送文件 action 信息构造类
     """
@@ -1495,18 +1191,19 @@ class UploadFilePacker(ActionPacker):
             }
 
 
-def upload_file_action(
+@CtxManager._activate
+async def upload_file(
     isPrivate: bool,
     file: str,
     sendFileName: str,
     userId: int = None,
     groupId: int = None,
     groupFolderId: str = None,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    发送文件 action 构造方法。只支持发送本地文件。
+    发送文件。只支持发送本地文件。
     若为群聊文件发送，不提供 folder id，则默认上传到群文件根目录。
 
     示例路径：`C:/users/15742/desktop/QQ图片20230108225606.jpg`。
@@ -1515,13 +1212,15 @@ def upload_file_action(
     action 响应后文件会放于 go-cqhttp 缓存文件夹中，可直接在消息段中引用）
     """
     return BotAction(
-        UploadFilePacker(isPrivate, file, sendFileName, userId, groupId, groupFolderId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        UploadFileActionArgs(
+            isPrivate, file, sendFileName, userId, groupId, groupFolderId
+        ),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupFileSysInfoPacker(ActionPacker):
+class GetGroupFileSysInfoActionArgs(ActionArgs):
     """
     获取群文件系统信息 action 信息构造类
     """
@@ -1532,20 +1231,21 @@ class GetGroupFileSysInfoPacker(ActionPacker):
         self.params = {"group_id": groupId}
 
 
-def get_group_filesys_info_action(
-    groupId: int, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_filesys_info(
+    groupId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群文件系统信息 action 构造方法
+    获取群文件系统信息
     """
     return BotAction(
-        GetGroupFileSysInfoPacker(groupId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupFileSysInfoActionArgs(groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupRootFilesPacker(ActionPacker):
+class GetGroupRootFilesActionArgs(ActionArgs):
     """
     获取群根目录文件列表 action 信息构造类
     """
@@ -1556,20 +1256,21 @@ class GetGroupRootFilesPacker(ActionPacker):
         self.params = {"group_id": groupId}
 
 
-def get_group_root_files_action(
-    groupId: int, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_root_files(
+    groupId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群根目录文件列表 action 构造方法
+    获取群根目录文件列表
     """
     return BotAction(
-        GetGroupRootFilesPacker(groupId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupRootFilesActionArgs(groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupFilesByFolderPacker(ActionPacker):
+class GetGroupFilesByFolderActionArgs(ActionArgs):
     """
     获取群子目录文件列表 action 信息构造类
     """
@@ -1580,20 +1281,21 @@ class GetGroupFilesByFolderPacker(ActionPacker):
         self.params = {"group_id": groupId, "folder_id": folderId}
 
 
-def get_group_files_byfolder_action(
-    groupId: int, folderId: str, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_files_byfolder(
+    groupId: int, folderId: str, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群子目录文件列表 action 构造方法
+    获取群子目录文件列表
     """
     return BotAction(
-        GetGroupFilesByFolderPacker(groupId, folderId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupFilesByFolderActionArgs(groupId, folderId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class CreateGroupFolderPacker(ActionPacker):
+class CreateGroupFolderActionArgs(ActionArgs):
     """
     创建群文件夹 action 信息构造类
     """
@@ -1604,23 +1306,21 @@ class CreateGroupFolderPacker(ActionPacker):
         self.params = {"group_id": groupId, "name": folderName, "parent_id": "/"}
 
 
-def create_group_folder_action(
-    groupId: int,
-    folderName: str,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def create_group_folder(
+    groupId: int, folderName: str, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    创建群文件夹 action 构造方法。注意：只能在根目录创建文件夹
+    创建群文件夹。注意：只能在根目录创建文件夹
     """
     return BotAction(
-        CreateGroupFolderPacker(groupId, folderName),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        CreateGroupFolderActionArgs(groupId, folderName),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class DeleteGroupFolderPacker(ActionPacker):
+class DeleteGroupFolderActionArgs(ActionArgs):
     """
     删除群文件夹 action 信息构造类
     """
@@ -1631,20 +1331,21 @@ class DeleteGroupFolderPacker(ActionPacker):
         self.params = {"group_id": groupId, "folder_id": folderId}
 
 
-def delete_group_folder_action(
-    groupId: int, folderId: str, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def delete_group_folder(
+    groupId: int, folderId: str, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    删除群文件夹 action 构造方法。
+    删除群文件夹。
     """
     return BotAction(
-        DeleteGroupFolderPacker(groupId, folderId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        DeleteGroupFolderActionArgs(groupId, folderId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class DeleteGroupFilePacker(ActionPacker):
+class DeleteGroupFileActionArgs(ActionArgs):
     """
     删除群文件 action 信息构造类
     """
@@ -1655,25 +1356,22 @@ class DeleteGroupFilePacker(ActionPacker):
         self.params = {"group_id": groupId, "file_id": fileId, "busid": fileTypeId}
 
 
-def delete_group_file_action(
-    groupId: int,
-    fileId: str,
-    fileTypeId: int,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def delete_group_file(
+    groupId: int, fileId: str, fileTypeId: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    删除群文件 action 构造方法。文件相关信息通过 `get_group_root_files_action()` 或
+    删除群文件。文件相关信息通过 `get_group_root_files_action()` 或
     `get_group_files_action` 的响应获得
     """
     return BotAction(
-        DeleteGroupFilePacker(groupId, fileId, fileTypeId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        DeleteGroupFileActionArgs(groupId, fileId, fileTypeId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupFileUrlPacker(ActionPacker):
+class GetGroupFileUrlActionArgs(ActionArgs):
     """
     获取群文件资源链接 action 信息构造类
     """
@@ -1684,25 +1382,22 @@ class GetGroupFileUrlPacker(ActionPacker):
         self.params = {"group_id": groupId, "file_id": fileId, "busid": fileTypeId}
 
 
-def get_group_file_url_action(
-    groupId: int,
-    fileId: str,
-    fileTypeId: int,
-    respWaited: bool = True,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def get_group_file_url(
+    groupId: int, fileId: str, fileTypeId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群文件资源链接 action 构造方法。文件相关信息通过 `get_group_root_files_action()` 或
+    获取群文件资源链接。文件相关信息通过 `get_group_root_files_action()` 或
     `get_group_files_action` 的响应获得
     """
     return BotAction(
-        GetGroupFileUrlPacker(groupId, fileId, fileTypeId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupFileUrlActionArgs(groupId, fileId, fileTypeId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetCqStatusPacker(ActionPacker):
+class GetCqStatusActionArgs(ActionArgs):
     """
     获取 go-cqhttp 状态 action 信息构造类
     """
@@ -1713,18 +1408,19 @@ class GetCqStatusPacker(ActionPacker):
         self.params = {}
 
 
-def get_cq_status_action(
-    respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_cq_status(
+    wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取 go-cqhttp 状态 action 构造方法
+    获取 go-cqhttp 状态
     """
     return BotAction(
-        GetCqStatusPacker(), respWaited=respWaited, triggerEvent=triggerEvent
+        GetCqStatusActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class GetAtAllRemainPacker(ActionPacker):
+class GetAtAllRemainActionArgs(ActionArgs):
     """
     获取群 @全体成员 剩余次数 action 信息构造类
     """
@@ -1735,18 +1431,21 @@ class GetAtAllRemainPacker(ActionPacker):
         self.params = {"group_id": groupId}
 
 
-def get_atall_remain_action(
-    groupId: int, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_atall_remain(
+    groupId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群 @全体成员 剩余次数 action 构造方法
+    获取群 @全体成员 剩余次数
     """
     return BotAction(
-        GetAtAllRemainPacker(groupId), respWaited=respWaited, triggerEvent=triggerEvent
+        GetAtAllRemainActionArgs(groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class QuickHandlePacker(ActionPacker):
+class QuickHandleActionArgs(ActionArgs):
     """
     事件快速操作 action 信息构造类
     """
@@ -1757,23 +1456,21 @@ class QuickHandlePacker(ActionPacker):
         self.params = {"context": contextEvent.raw, "operation": operation}
 
 
-def quick_handle_action(
-    contextEvent: BotEvent,
-    operation: dict,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def quick_handle(
+    contextEvent: BotEvent, operation: dict, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    事件快速操作 action 构造方法
+    事件快速操作
     """
     return BotAction(
-        QuickHandlePacker(contextEvent, operation),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        QuickHandleActionArgs(contextEvent, operation),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class SetGroupNoticePacker(ActionPacker):
+class SetGroupNoticeActionArgs(ActionArgs):
     """
     发送群公告 action 信息构造类
     """
@@ -1789,24 +1486,25 @@ class SetGroupNoticePacker(ActionPacker):
             self.params["image"] = imageUrl
 
 
-def set_group_notice_action(
+@CtxManager._activate
+async def set_group_notice(
     groupId: int,
     content: str,
     imageUrl: str = None,
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = False,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    发送群公告 action 构造方法。注意 `imageUrl` 只能为本地 url，示例：`file:///C:/users/15742/desktop/123.jpg`
+    发送群公告。注意 `imageUrl` 只能为本地 url，示例：`file:///C:/users/15742/desktop/123.jpg`
     """
     return BotAction(
-        SetGroupNoticePacker(groupId, content, imageUrl),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupNoticeActionArgs(groupId, content, imageUrl),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupNoticePacker(ActionPacker):
+class GetGroupNoticeActionArgs(ActionArgs):
     """
     获取群公告 action 信息构造类
     """
@@ -1822,19 +1520,22 @@ class GetGroupNoticePacker(ActionPacker):
         }
 
 
-def get_group_notice_action(
-    groupId: int, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_notice(
+    groupId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群公告 action 构造方法。
+    获取群公告。
     群公告图片有 id，但暂时没有下载的方法
     """
     return BotAction(
-        GetGroupNoticePacker(groupId), respWaited=respWaited, triggerEvent=triggerEvent
+        GetGroupNoticeActionArgs(groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class DownloadFilePacker(ActionPacker):
+class DownloadFileActionArgs(ActionArgs):
     """
     下载文件到缓存目录 action 信息构造类
     """
@@ -1845,15 +1546,16 @@ class DownloadFilePacker(ActionPacker):
         self.params = {"url": fileUrl, "thread_count": useThreadNum, "headers": headers}
 
 
-def download_file_action(
+@CtxManager._activate
+async def download_file(
     fileUrl: str,
     useThreadNum: int,
     headers: list | str,
-    respWaited: bool = True,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+    wait: bool = True,
+    auto: bool = True,
+) -> Optional[ResponseEvent] | BotAction:
     """
-    下载文件到缓存目录 action 构造方法。`headers` 的两种格式：
+    下载文件到缓存目录。`headers` 的两种格式：
     ```
     "User-Agent=YOUR_UA[\\r\\n]Referer=https://www.baidu.com"
     ```
@@ -1866,13 +1568,13 @@ def download_file_action(
     ```
     """
     return BotAction(
-        DownloadFilePacker(fileUrl, useThreadNum, headers),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        DownloadFileActionArgs(fileUrl, useThreadNum, headers),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetOnlineClientsPacker(ActionPacker):
+class GetOnlineClientsActionArgs(ActionArgs):
     """
     获取当前账号在线客户端列表 action 信息构造类
     """
@@ -1883,20 +1585,21 @@ class GetOnlineClientsPacker(ActionPacker):
         self.params = {"no_cache": noCache}
 
 
-def get_online_clients_action(
-    noCache: bool, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_online_clients(
+    noCache: bool, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取当前账号在线客户端列表 action 构造方法
+    获取当前账号在线客户端列表
     """
     return BotAction(
-        GetOnlineClientsPacker(noCache),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetOnlineClientsActionArgs(noCache),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupMsgHistoryPacker(ActionPacker):
+class GetGroupMsgHistoryActionArgs(ActionArgs):
     """
     获取群消息历史记录 action 信息构造类
     """
@@ -1907,20 +1610,21 @@ class GetGroupMsgHistoryPacker(ActionPacker):
         self.params = {"message_seq": msgSeq, "group_id": groupId}
 
 
-def get_group_msg_history_action(
-    msgSeq: int, groupId: int, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_msg_history(
+    msgSeq: int, groupId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取群消息历史记录 action 构造方法
+    获取群消息历史记录
     """
     return BotAction(
-        GetGroupMsgHistoryPacker(msgSeq, groupId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupMsgHistoryActionArgs(msgSeq, groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class SetGroupEssencePacker(ActionPacker):
+class SetGroupEssenceActionArgs(ActionArgs):
     """
     设置精华消息 action 信息构造类
     """
@@ -1934,23 +1638,21 @@ class SetGroupEssencePacker(ActionPacker):
         self.params = {"message_id": msgId}
 
 
-def set_group_essence_action(
-    msgId: int,
-    type: Literal["add", "del"],
-    respWaited: bool = False,
-    triggerEvent: BotEvent = None,
-) -> BotAction:
+@CtxManager._activate
+async def set_group_essence(
+    msgId: int, type: Literal["add", "del"], wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置精华消息 action 构造方法
+    设置精华消息
     """
     return BotAction(
-        SetGroupEssencePacker(msgId, type),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetGroupEssenceActionArgs(msgId, type),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetGroupEssenceListPacker(ActionPacker):
+class GetGroupEssenceListActionArgs(ActionArgs):
     """
     获取精华消息列表 action 信息构造类
     """
@@ -1961,20 +1663,21 @@ class GetGroupEssenceListPacker(ActionPacker):
         self.params = {"group_id": groupId}
 
 
-def get_group_essence_list_action(
-    groupId: int, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_group_essence_list(
+    groupId: int, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取精华消息列表 action 构造方法
+    获取精华消息列表
     """
     return BotAction(
-        GetGroupEssenceListPacker(groupId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        GetGroupEssenceListActionArgs(groupId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class GetModelShowPacker(ActionPacker):
+class GetModelShowActionArgs(ActionArgs):
     """
     获取在线机型 action 信息构造类
     """
@@ -1985,18 +1688,19 @@ class GetModelShowPacker(ActionPacker):
         self.params = {"model": model}
 
 
-def get_model_show_action(
-    model: str, respWaited: bool = True, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def get_model_show(
+    model: str, wait: bool = True, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    获取在线机型 action 构造方法
+    获取在线机型
     """
     return BotAction(
-        GetModelShowPacker(model), respWaited=respWaited, triggerEvent=triggerEvent
+        GetModelShowActionArgs(model), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class SetModelShowPacker(ActionPacker):
+class SetModelShowActionArgs(ActionArgs):
     """
     设置在线机型 action 信息构造类
     """
@@ -2007,20 +1711,21 @@ class SetModelShowPacker(ActionPacker):
         self.params = {"model": model, "model_show": modelShow}
 
 
-def set_model_show_action(
-    model: str, modelShow: str, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def set_model_show(
+    model: str, modelShow: str, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    设置在线机型 action 构造方法
+    设置在线机型
     """
     return BotAction(
-        SetModelShowPacker(model, modelShow),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        SetModelShowActionArgs(model, modelShow),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
-class DeleteUndirectFriendPacker(ActionPacker):
+class DeleteUndirectFriendActionArgs(ActionArgs):
     """
     删除单向好友 action 信息构造类
     """
@@ -2031,14 +1736,98 @@ class DeleteUndirectFriendPacker(ActionPacker):
         self.params = {"user_id": userId}
 
 
-def delete_undirect_friend_action(
-    userId: int, respWaited: bool = False, triggerEvent: BotEvent = None
-) -> BotAction:
+@CtxManager._activate
+async def delete_undirect_friend(
+    userId: int, wait: bool = False, auto: bool = True
+) -> Optional[ResponseEvent] | BotAction:
     """
-    删除单向好友 action 构造方法
+    删除单向好友
     """
     return BotAction(
-        DeleteUndirectFriendPacker(userId),
-        respWaited=respWaited,
-        triggerEvent=triggerEvent,
+        DeleteUndirectFriendActionArgs(userId),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
+
+
+@CtxManager._activate
+async def take_custom_action(action: BotAction) -> Optional[ResponseEvent]:
+    """
+    直接发送提供的 action
+    """
+    action.ready = True
+    return action
+
+
+async def send_hup(
+    content: str | CQMsgDict | List[CQMsgDict],
+    cq_str: bool = False,
+    overtime: int = None,
+) -> None:
+    """
+    回复一条消息然后挂起
+    """
+    await send(content, cq_str)
+    await SESSION_LOCAL.hup(overtime)
+
+
+async def send_reply(
+    content: str | CQMsgDict | List[CQMsgDict],
+    cq_str: bool = False,
+    wait: bool = False,
+) -> Optional[ResponseEvent]:
+    """
+    发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息）
+    """
+    try:
+        if len(SESSION_LOCAL.events) > 0:
+            content_arr = [reply_msg(SESSION_LOCAL.event.id)]
+        else:
+            raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+
+    if isinstance(content, str):
+        content_arr.append(text_msg(content))
+    elif isinstance(content, dict):
+        content_arr.append(content)
+    else:
+        content_arr.extend(content)
+    return await send(content_arr, cq_str, wait)
+
+
+async def finish(
+    content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False
+) -> None:
+    """
+    发送一条消息，然后直接结束当前事件处理方法
+    """
+    await send(content, cq_str)
+    SESSION_LOCAL.destory()
+    raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
+
+
+async def finish_reply(
+    content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False
+) -> Optional[ResponseEvent]:
+    """
+    发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息），
+    然后直接结束当前事件处理方法
+    """
+    try:
+        if len(SESSION_LOCAL.events) > 0:
+            content_arr = [reply_msg(SESSION_LOCAL.event.id)]
+        else:
+            raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+
+    if isinstance(content, str):
+        content_arr.append(text_msg(content))
+    elif isinstance(content, dict):
+        content_arr.append(content)
+    else:
+        content_arr.extend(content)
+    await send(content_arr, cq_str)
+    SESSION_LOCAL.destory()
+    raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")

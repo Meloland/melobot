@@ -8,7 +8,7 @@ from ..types.exceptions import *
 from ..types.models import BotEvent, SessionRule
 from ..types.typing import *
 from ..types.utils import BotChecker, BotMatcher, BotParser, Logger
-from .action import msg_action
+from .action import send_custom_msg
 from .event import MessageEvent
 from .session import SESSION_LOCAL, BotSession, BotSessionManager
 
@@ -269,10 +269,10 @@ class MsgEventHandler(EventHandler):
                 return True
             except ArgFormatFailed as e:
                 msg = f"命令 {cmd_name} 参数格式化失败：\n" + e.__str__()
-                action = msg_action(
+                coro = send_custom_msg(
                     msg, event.is_private(), event.sender.id, event.group_id
                 )
-                aio.create_task(self.responder.take_action(action))
+                aio.create_task(coro)
                 return False
         return True
 
