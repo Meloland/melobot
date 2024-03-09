@@ -22,6 +22,7 @@ class BotSession:
 
     def __init__(
         self,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         manager: Type["BotSessionManager"],
         responder: "AbstractResponder",
         space_tag: "EventHandler" = None,
@@ -29,11 +30,8 @@ class BotSession:
         super().__init__()
         self.store = {}
         self.timestamp = time.time()
-        self.hup_times: List[float] = []
-        self.events: List[
-            "MessageEvent" | "RequestEvent" | "MetaEvent" | "NoticeEvent"
-        ] = []
-        self.actions: List["BotAction"] = []
+        # 永远指向当前上下文的 event
+        self.event = event
 
         self._manager = manager
         self._responder = responder
@@ -50,29 +48,6 @@ class BotSession:
         self._space_tag: Optional["EventHandler"] = space_tag
         # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
         self._handler: "EventHandler" = None
-
-    @property
-    def event(
-        self,
-    ) -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]:
-        try:
-            return next(reversed(self.events))
-        except StopIteration:
-            raise BotSessionError("当前 session 下不存在可用的 event")
-
-    @property
-    def last_action(self) -> "BotAction":
-        try:
-            return next(reversed(self.actions))
-        except StopIteration:
-            raise BotSessionError("当前 session 下尚未进行过 action 操作")
-
-    @property
-    def last_hup(self) -> Optional[float]:
-        try:
-            return next(reversed(self.hup_times))
-        except StopIteration:
-            return None
 
     @property
     def args(self):
@@ -114,10 +89,7 @@ class BotSession:
         其他 session 调用会立即清空 session 存储、事件记录、挂起时间记录。
         如果调用 session 有 space_tag，还会从存储空间中移除该 session
         """
-        if self.event is None:
-            pass
-        else:
-            self._manager._expire(self)
+        self._manager._expire(self)
 
     def store_get(self, key: Any) -> Any:
         return self.store[key]
@@ -230,7 +202,7 @@ class BotSessionManager:
                 break
         # 如果获得一个挂起的 session，它一定是可附着的，附着后需要唤醒
         if session:
-            session.events.append(event)
+            session.event = event
             cls._rouse(session)
             return True
         return False
@@ -271,7 +243,6 @@ class BotSessionManager:
             )
         elif session._expired:
             raise BotSessionError("过期的 session 不能被挂起")
-        session.hup_times.append(time.time())
         cls.STORAGE[session._space_tag].remove(session)
         cls.HUP_STORAGE[session._space_tag].add(session)
         session._awake_signal.clear()
@@ -292,8 +263,6 @@ class BotSessionManager:
         """
         if session._expired:
             return
-        session.events.clear()
-        session.hup_times.clear()
         session.store_clear()
         session._expired = True
         if session._space_tag:
@@ -338,12 +307,10 @@ class BotSessionManager:
         """
         if handler:
             if handler._rule:
-                session = BotSession(cls, cls.RESPONDER, handler)
-                session.events.append(event)
+                session = BotSession(event, cls, cls.RESPONDER, handler)
                 cls.STORAGE[handler].add(session)
                 return session
-        session = BotSession(cls, cls.RESPONDER)
-        session.events.append(event)
+        session = BotSession(event, cls, cls.RESPONDER)
         return session
 
     @classmethod
@@ -380,7 +347,7 @@ class BotSessionManager:
             return cls._make(event, handler)
         # 如果会话存在，且未过期，且空闲，则附着到这个 session 上
         if session._free_signal.is_set():
-            session.events.append(event)
+            session.event = event
             return session
         # 如果会话存在，且未过期，但是不空闲，选择不等待
         if not conflict_wait:
@@ -404,7 +371,7 @@ class BotSessionManager:
             return cls._make(event, handler)
         # 如果未过期，则附着到这个 session 上
         else:
-            session.events.append(event)
+            session.event = event
             return session
 
     @classmethod
@@ -413,6 +380,7 @@ class BotSessionManager:
         对 action 构造器进行装饰，使产生的 action “活化”。
         让其能自动识别上下文，自动附加触发 event，并自动完成发送过程
         """
+
         @wraps(action_getter)
         async def activated_action(*args, **kwargs):
             try:
@@ -422,20 +390,15 @@ class BotSessionManager:
                     )
             except LookupError:
                 pass
-            
+
             action: "BotAction" = await action_getter(*args, **kwargs)
             try:
-                if len(SESSION_LOCAL.events) > 0:
-                    action._fill_trigger(SESSION_LOCAL.event)
+                action._fill_trigger(SESSION_LOCAL.event)
             except LookupError:
                 pass
 
             if not action.ready:
                 return action
-            try:
-                SESSION_LOCAL.actions.append(action)
-            except LookupError:
-                pass
             if action.resp_id is None:
                 return await cls.RESPONDER.take_action(action)
             else:
@@ -449,10 +412,7 @@ def any_event():
     获取当前 session 上下文下标注为联合类型的 event
     """
     try:
-        if len(SESSION_LOCAL.events) > 0:
-            return SESSION_LOCAL.event
-        else:
-            raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
+        return SESSION_LOCAL.event
     except LookupError:
         raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
@@ -498,10 +458,7 @@ def msg_args():
     获取当前 session 上下文下的解析参数，如果不存在则返回 None
     """
     try:
-        if len(SESSION_LOCAL.events) > 0:
-            return SESSION_LOCAL.args
-        else:
-            raise BotSessionError("当前 session 上下文没有 event，因此不存在 args")
+        return SESSION_LOCAL.args
     except LookupError:
         raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 

@@ -168,8 +168,6 @@ async def send(
     """
     try:
         session = SESSION_LOCAL
-        if len(session.events) <= 0:
-            raise BotSessionError("当前 session 上下文没有事件信息，因此无法使用本方法")
         action = BotAction(
             MsgActionArgs(
                 _process_msg(content),
@@ -243,8 +241,6 @@ async def send_forward(
     """
     try:
         session = SESSION_LOCAL
-        if len(session.events) <= 0:
-            raise BotSessionError("当前 session 上下文没有事件信息，因此无法使用本方法")
         action = BotAction(
             ForwardMsgActionArgs(
                 msgNodes,
@@ -1780,12 +1776,7 @@ async def send_reply(
     发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息）
     """
     try:
-        if len(SESSION_LOCAL.events) > 0:
-            content_arr = [reply_msg(SESSION_LOCAL.event.id)]
-        else:
-            raise BotSessionError(
-                "当前 session 上下文没有 event，因此无法使用本方法"
-            )
+        content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
         raise BotSessionError(
             "当前作用域内 session 上下文不存在，因此无法使用本方法"
@@ -1821,12 +1812,7 @@ async def finish_reply(
     然后直接结束当前事件处理方法
     """
     try:
-        if len(SESSION_LOCAL.events) > 0:
-            content_arr = [reply_msg(SESSION_LOCAL.event.id)]
-        else:
-            raise BotSessionError(
-                "当前 session 上下文没有 event，因此无法使用本方法"
-            )
+        content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
         raise BotSessionError(
             "当前作用域内 session 上下文不存在，因此无法使用本方法"
