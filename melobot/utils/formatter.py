@@ -150,7 +150,7 @@ class ArgFormatter:
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip += f"\n详细错误描述：[{e_class}] {info.exc_type}"
-        tip = tip + f"命令 {info.cmd_name} 参数格式化失败：\n"
+        tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
         aio.create_task(
             msg_func(
                 tip, info.event.is_private(), info.event.sender.id, info.event.group_id
@@ -170,7 +170,7 @@ class ArgFormatter:
             else f"给定的值 {src} 不符合要求。"
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = tip + f"命令 {info.cmd_name} 参数格式化失败：\n"
+        tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
         aio.create_task(
             msg_func(
                 tip, info.event.is_private(), info.event.sender.id, info.event.group_id
@@ -185,7 +185,7 @@ class ArgFormatter:
         tip = f"第 {info.idx+1} 个参数"
         tip += f"（{info.src_desc}）缺失。" if info.src_desc else f"缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = tip + f"命令 {info.cmd_name} 参数格式化失败：\n"
+        tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
         aio.create_task(
             msg_func(
                 tip, info.event.is_private(), info.event.sender.id, info.event.group_id

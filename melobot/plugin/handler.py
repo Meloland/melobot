@@ -72,12 +72,6 @@ class EventHandler:
                 "参数 conflict_wait 为 True 时，冲突回调永远不会被调用"
             )
 
-    def _invalidate(self) -> None:
-        """
-        标记此 handler 为无效状态
-        """
-        self.is_valid = False
-
     def _verify(self, event: "BotEvent") -> bool:
         """
         验证事件是否有触发执行的资格（验权）
@@ -148,15 +142,10 @@ class EventHandler:
         接收总线分发的事件的方法。返回是否决定处理的判断。
         便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
         """
-        if not self._verify(event):
+        if not self.is_valid:
             return False
 
-        if self._direct_rouse:
-            res = await BotSessionManager.try_attach(event, self)
-            if res:
-                return True
-
-        if not self.is_valid:
+        if not self._verify(event):
             return False
 
         if not self.temp:
@@ -166,7 +155,7 @@ class EventHandler:
         async with self._run_lock:
             if self.is_valid:
                 aio.create_task(self._run(event))
-                self._invalidate()
+                self.is_valid = False
                 return True
             else:
                 return False
@@ -255,10 +244,11 @@ class MsgEventHandler(EventHandler):
         if self.matcher and self.parser:
             raise EventHandlerError("参数 matcher 和 parser 不能同时存在")
 
-    def _match_and_parse(self, event: "MessageEvent") -> bool:
+    def _match(
+        self, event: "MessageEvent"
+    ) -> bool | tuple[bool, str | None, ParseArgs | None]:
         """
-        通过验权后，尝试对事件进行匹配。
-        有普通的匹配器（matcher）匹配，也可以使用解析器（parser）匹配
+        检查是否匹配
         """
         if self.matcher:
             return self.matcher.match(event.text)
@@ -268,33 +258,41 @@ class MsgEventHandler(EventHandler):
                 args_group = self.parser.parse(event.text)
                 event._store_args(self.parser.id, args_group)
             res, cmd_name, args = self.parser.test(args_group)
-            if not res:
-                return False
-
-            if not self.parser.need_format:
-                return True
-            status = self.parser.format(send_custom_msg, cmd_name, event, args)
-            return status
+            return res, cmd_name, args
         return True
+
+    def _format(self, event: "MessageEvent", cmd_name: str, args: ParseArgs) -> bool:
+        """
+        格式化。只有 parser 存在时需要
+        """
+        if not self.parser.need_format:
+            return True
+        status = self.parser.format(send_custom_msg, cmd_name, event, args)
+        return status
 
     async def evoke(self, event: "MessageEvent") -> bool:
         """
         接收总线分发的事件的方法。返回是否决定处理的判断。
-        便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
+        便于 disptacher 进行优先级阻断
         """
-        if not self._verify(event):
-            return False
-
-        if self._direct_rouse:
-            res = await BotSessionManager.try_attach(event, self)
-            if res:
-                return True
-
         if not self.is_valid:
             return False
 
-        if not self._match_and_parse(event):
+        match_res = self._match(event)
+        if isinstance(match_res, bool):
+            if not match_res:
+                return False
+        else:
+            res, cmd_name, args = match_res
+            if not res:
+                return False
+
+        if not self._verify(event):
             return False
+
+        if self.parser:
+            if not self._format(event, cmd_name, args):
+                return False
 
         if not self.temp:
             aio.create_task(self._run(event))
@@ -303,7 +301,7 @@ class MsgEventHandler(EventHandler):
         async with self._run_lock:
             if self.is_valid:
                 aio.create_task(self._run(event))
-                self._invalidate()
+                self.is_valid = False
                 return True
             else:
                 return False
@@ -421,22 +419,6 @@ class MetaEventHandler(EventHandler):
             conflict_cb,
             overtime_cb,
         )
-
-
-class EventHandlerArgs:
-    """
-    事件方法（事件执行器）构造参数
-    """
-
-    def __init__(
-        self,
-        executor: Callable[[], Coroutine[Any, Any, None]],
-        type: EventHandler,
-        params: List[Any],
-    ) -> None:
-        self.executor = executor
-        self.type = type
-        self.params = params
 
 
 EVENT_HANDLER_MAP: dict[str, tuple[Type[EventHandler], ...]] = {

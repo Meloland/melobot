@@ -4,6 +4,8 @@ import time
 
 from ..types.abc import BotEvent
 from ..types.typing import *
+from .cq import get_cq as _get_cq
+from .cq import get_cq_params as _get_cq_params
 from .cq import to_cq_arr
 
 
@@ -111,9 +113,9 @@ class MessageEvent(BotEvent):
         """
         从当前 event 中获取指定类型的 cq 消息 dict
         """
-        return [item for item in self.content if item["type"] == cq_type]
+        return _get_cq(self.content, cq_type)
 
-    def get_cq_params(self, cq_type: str, param: str, type: Type[T] = None) -> List[T]:
+    def get_cq_params(self, cq_type: str, param: str, type: Type[T] = None) -> List[Any]:
         """
         从当前 event 中获取指定类型 cq 消息的指定 param，以列表形式返回。
         当没有任何对应类型的 cq 消息时，为空列表。如果有对应类型 cq 消息，
@@ -121,14 +123,7 @@ class MessageEvent(BotEvent):
 
         可以指定 type 来强制转换类型，不填则使用智能解析出的类型
         """
-        res = []
-        for item in self.content:
-            if item["type"] == cq_type:
-                val = item["data"].get(param)
-                res.append(val)
-        if type is not None:
-            res = list(map(lambda x: type(x), res))
-        return res
+        return _get_cq_params(self.content, cq_type, param, type)
 
     def is_private(self) -> bool:
         """是否为私聊消息（注意群临时会话属于该类别）"""

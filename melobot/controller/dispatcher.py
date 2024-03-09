@@ -6,6 +6,7 @@ from ..types.exceptions import *
 from ..types.typing import *
 
 if TYPE_CHECKING:
+    from ..context.session import BotSessionManager
     from ..plugin.bot import BotHookBus
     from ..plugin.handler import EventHandler
     from ..types.abc import BotEvent
@@ -22,6 +23,7 @@ class BotDispatcher(AbstractDispatcher):
         self,
         channel_map: dict[str, tuple[Type["EventHandler"], ...]],
         bot_bus: Type["BotHookBus"],
+        ctx_manager: Type["BotSessionManager"],
         logger: "Logger",
     ) -> None:
         super().__init__()
@@ -30,6 +32,7 @@ class BotDispatcher(AbstractDispatcher):
         self.logger = logger
         self._channel_map = channel_map
         self._bot_bus = bot_bus
+        self._ctx_managger = ctx_manager
         self._ready_signal = aio.Event()
 
         for tuple in self._channel_map.values():
@@ -58,6 +61,12 @@ class BotDispatcher(AbstractDispatcher):
         for handler in handlers:
             # 事件处理器优先级不够，则不分配给它处理
             if handler.priority < permit_priority:
+                continue
+            if handler._direct_rouse and (
+                await self._ctx_managger.try_attach(event, handler)
+            ):
+                if handler.set_block and handler.priority > permit_priority:
+                    permit_priority = handler.priority
                 continue
             # evoke 返回的值用于判断，事件处理器内部经过各种检查后，是否选择处理这个事件。
             if not (await handler.evoke(event)):

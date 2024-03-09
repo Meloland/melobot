@@ -7,7 +7,7 @@ from .session import SESSION_LOCAL
 from .session import BotSessionManager as CtxManager
 
 if TYPE_CHECKING:
-    from ..models.event import BotEvent, ResponseEvent
+    from ..models.event import BotEvent, MessageEvent, ResponseEvent
 
 __all__ = [
     "send_custom_msg",
@@ -162,28 +162,43 @@ async def send(
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
+    *,
+    event: "MessageEvent" = None,
 ) -> Optional["ResponseEvent"] | BotAction:
     """
     在当前 session 上下文发送一条消息
     """
+    if event is not None:
+        action = BotAction(
+            MsgActionArgs(
+                _process_msg(content),
+                event.is_private(),
+                event.sender.id,
+                event.group_id,
+            ),
+            resp_id=get_id() if wait else None,
+            ready=auto,
+        )
+        if cq_str:
+            action = to_cq_str_action(action)
+        return action
     try:
         session = SESSION_LOCAL
-        if len(session.events) > 0:
-            action = BotAction(
-                MsgActionArgs(
-                    _process_msg(content),
-                    session.event.is_private(),
-                    session.event.sender.id,
-                    session.event.group_id,
-                ),
-                resp_id=get_id() if wait else None,
-                ready=auto,
-            )
-            if cq_str:
-                action = to_cq_str_action(action)
-            return action
-        else:
+        if len(session.events) <= 0:
             raise BotSessionError("当前 session 上下文没有事件信息，因此无法使用本方法")
+        action = BotAction(
+            MsgActionArgs(
+                _process_msg(content),
+                session.event.is_private(),
+                session.event.sender.id,
+                session.event.group_id,
+            ),
+            resp_id=get_id() if wait else None,
+            ready=auto,
+        )
+        if cq_str:
+            action = to_cq_str_action(action)
+        return action
     except LookupError:
         raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
@@ -238,28 +253,43 @@ async def send_forward(
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
+    *,
+    event: "MessageEvent" = None,
 ) -> Optional["ResponseEvent"] | BotAction:
     """
     在当前 session 上下文发送转发消息
     """
+    if event is not None:
+        action = BotAction(
+            ForwardMsgActionArgs(
+                msgNodes,
+                event.is_private(),
+                event.sender.id,
+                event.group_id,
+            ),
+            resp_id=get_id() if wait else None,
+            ready=auto,
+        )
+        if cq_str:
+            action = to_cq_str_action(action)
+        return action
     try:
         session = SESSION_LOCAL
-        if len(session.events) > 0:
-            action = BotAction(
-                ForwardMsgActionArgs(
-                    msgNodes,
-                    session.event.is_private(),
-                    session.event.sender.id,
-                    session.event.group_id,
-                ),
-                resp_id=get_id() if wait else None,
-                ready=auto,
-            )
-            if cq_str:
-                action = to_cq_str_action(action)
-            return action
-        else:
+        if len(session.events) <= 0:
             raise BotSessionError("当前 session 上下文没有事件信息，因此无法使用本方法")
+        action = BotAction(
+            ForwardMsgActionArgs(
+                msgNodes,
+                session.event.is_private(),
+                session.event.sender.id,
+                session.event.group_id,
+            ),
+            resp_id=get_id() if wait else None,
+            ready=auto,
+        )
+        if cq_str:
+            action = to_cq_str_action(action)
+        return action
     except LookupError:
         raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
@@ -1765,11 +1795,13 @@ async def send_hup(
     content: str | CQMsgDict | List[CQMsgDict],
     cq_str: bool = False,
     overtime: int = None,
+    *,
+    event: "MessageEvent" = None
 ) -> None:
     """
     回复一条消息然后挂起
     """
-    await send(content, cq_str)
+    await send(content, cq_str, event=event)
     await SESSION_LOCAL.hup(overtime)
 
 
@@ -1777,17 +1809,22 @@ async def send_reply(
     content: str | CQMsgDict | List[CQMsgDict],
     cq_str: bool = False,
     wait: bool = False,
+    *,
+    event: "MessageEvent" = None
 ) -> Optional["ResponseEvent"]:
     """
     发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息）
     """
-    try:
-        if len(SESSION_LOCAL.events) > 0:
-            content_arr = [reply_msg(SESSION_LOCAL.event.id)]
-        else:
-            raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
-    except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+    if event is not None:
+        content_arr = [reply_msg(event.id)]
+    else:
+        try:
+            if len(SESSION_LOCAL.events) > 0:
+                content_arr = [reply_msg(SESSION_LOCAL.event.id)]
+            else:
+                raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
+        except LookupError:
+            raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
     if isinstance(content, str):
         content_arr.append(text_msg(content))
@@ -1795,34 +1832,41 @@ async def send_reply(
         content_arr.append(content)
     else:
         content_arr.extend(content)
-    return await send(content_arr, cq_str, wait)
+    return await send(content_arr, cq_str, wait, event=event)
 
 
 async def finish(
-    content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False
+    content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False,
+    *,
+    event: "MessageEvent" = None
 ) -> None:
     """
     发送一条消息，然后直接结束当前事件处理方法
     """
-    await send(content, cq_str)
+    await send(content, cq_str, event=event)
     SESSION_LOCAL.destory()
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
 
 
 async def finish_reply(
-    content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False
+    content: str | CQMsgDict | List[CQMsgDict], cq_str: bool = False,
+    *,
+    event: "MessageEvent" = None
 ) -> Optional["ResponseEvent"]:
     """
     发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息），
     然后直接结束当前事件处理方法
     """
-    try:
-        if len(SESSION_LOCAL.events) > 0:
-            content_arr = [reply_msg(SESSION_LOCAL.event.id)]
-        else:
-            raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
-    except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+    if event is not None:
+        content_arr = [reply_msg(event.id)]
+    else:
+        try:
+            if len(SESSION_LOCAL.events) > 0:
+                content_arr = [reply_msg(SESSION_LOCAL.event.id)]
+            else:
+                raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
+        except LookupError:
+            raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
     if isinstance(content, str):
         content_arr.append(text_msg(content))
@@ -1830,6 +1874,6 @@ async def finish_reply(
         content_arr.append(content)
     else:
         content_arr.extend(content)
-    await send(content_arr, cq_str)
+    await send(content_arr, cq_str, event=event)
     SESSION_LOCAL.destory()
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")

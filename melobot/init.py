@@ -96,7 +96,9 @@ class MeloBot:
             self.logger,
         )
         self.responder = BotResponder(self.logger)
-        self.dispatcher = BotDispatcher(EVENT_HANDLER_MAP, self.bot_bus, self.logger)
+        self.dispatcher = BotDispatcher(
+            EVENT_HANDLER_MAP, self.bot_bus, self.ctx_manager, self.logger
+        )
         self.ctx_manager._bind(self.responder)
         self.plugin_bus._bind(self.logger)
         self.bot_bus._bind(self.logger)

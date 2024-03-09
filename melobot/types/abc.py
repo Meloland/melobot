@@ -3,11 +3,14 @@ from abc import ABC, abstractmethod, abstractproperty
 from asyncio import Future
 from copy import deepcopy
 
+from melobot.types.typing import Coroutine
+
 from .exceptions import *
 from .typing import *
 
 if TYPE_CHECKING:
     from ..models.event import ResponseEvent
+    from ..plugin.handler import EventHandler
 
 
 class AbstractSender(ABC):
@@ -82,6 +85,18 @@ class Flagable:
         return flag is val if val is None else flag == val
 
 
+class Cloneable:
+    """
+    可自我复制对象
+    """
+
+    def copy(self):
+        """
+        返回一个本对象的一个深拷贝对象
+        """
+        return deepcopy(self)
+
+
 class BotEvent(ABC, Flagable):
     """
     Bot 事件类
@@ -137,7 +152,7 @@ class ActionArgs(ABC):
         self.params: dict
 
 
-class BotAction(Flagable):
+class BotAction(Flagable, Cloneable):
     """
     Bot 行为类
     """
@@ -156,12 +171,6 @@ class BotAction(Flagable):
         self.params = action_args.params
         self.trigger = triggerEvent
         self.ready = ready
-
-    def copy(self) -> "BotAction":
-        """
-        创建当前 action 的深拷贝
-        """
-        return deepcopy(self)
 
     def extract(self) -> dict:
         """
@@ -202,6 +211,22 @@ class SessionRule(ABC):
     @abstractmethod
     def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
         pass
+
+
+class EventHandlerArgs:
+    """
+    事件方法（事件执行器）构造参数
+    """
+
+    def __init__(
+        self,
+        executor: Callable[[], Coroutine[Any, Any, None]],
+        type: "EventHandler",
+        params: List[Any],
+    ) -> None:
+        self.executor = executor
+        self.type = type
+        self.params = params
 
 
 class ShareObjArgs:
@@ -253,9 +278,15 @@ class BotHookRunnerArgs:
         self.type = type
 
 
-class BotChecker(ABC):
-    def __init__(self) -> None:
+class BotChecker(ABC, Cloneable):
+    def __init__(
+        self,
+        ok_cb: Callable[[BotEvent], Coroutine[Any, Any, None]] = None,
+        fail_cb: Callable[[BotEvent], Coroutine[Any, Any, None]] = None,
+    ) -> None:
         super().__init__()
+        self.ok_cb = ok_cb
+        self.fail_cb = fail_cb
 
     def __and__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
@@ -281,6 +312,26 @@ class BotChecker(ABC):
             )
         return WrappedChecker(LogicMode.XOR, self, other)
 
+    def _fill_ok_cb(
+        self, ok_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
+    ) -> None:
+        """
+        后期指定 ok_cb 回调
+        """
+        if self.ok_cb is not None:
+            raise BotCheckerError(f"ok_cb 回调已经被初始化，值为：{self.ok_cb}")
+        self.ok_cb = ok_cb
+
+    def _fill_fail_cb(
+        self, fail_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
+    ) -> None:
+        """
+        后期指定 fail_cb 回调
+        """
+        if self.fail_cb is not None:
+            raise BotCheckerError(f"fail_cb 回调已经被初始化，值为：{self.fail_cb}")
+        self.fail_cb = fail_cb
+
     @abstractmethod
     def check(self, event: BotEvent) -> bool:
         pass
@@ -299,6 +350,28 @@ class WrappedChecker(BotChecker):
         self.mode = mode
         self.c1, self.c2 = checker1, checker2
 
+    def _fill_ok_cb(
+        self, ok_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
+    ) -> None:
+        """
+        后期指定 ok_cb 回调，注意此时是联合检查器，
+        因此将被自动应用到所包含的所有检查器
+        """
+        super()._fill_ok_cb(ok_cb)
+        self.c1._fill_ok_cb(ok_cb)
+        self.c2._fill_ok_cb(ok_cb)
+
+    def _fill_fail_cb(
+        self, fail_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
+    ) -> None:
+        """
+        后期指定 fail_cb 回调，注意此时是联合检查器，
+        因此将被自动应用到所包含的所有检查器
+        """
+        super()._fill_fail_cb(fail_cb)
+        self.c1._fill_fail_cb(fail_cb)
+        self.c2._fill_fail_cb(fail_cb)
+
     def check(self, event: BotEvent) -> bool:
         return LogicMode.calc(
             self.mode,
@@ -307,7 +380,7 @@ class WrappedChecker(BotChecker):
         )
 
 
-class BotMatcher(ABC):
+class BotMatcher(ABC, Cloneable):
     def __init__(self) -> None:
         super().__init__()
 

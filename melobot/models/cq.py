@@ -370,3 +370,30 @@ def to_cq_str_action(action: "BotAction") -> "BotAction":
     else:
         raise BotActionError("传入的 action 因类型不匹配，不可被 cq 序列化")
     return _action
+
+
+def get_cq(content: list[CQMsgDict], cq_type: str) -> list[CQMsgDict]:
+    """
+    从 content 获取指定类型的 cq 消息 dict
+    """
+    return [item for item in content if item["type"] == cq_type]
+
+
+def get_cq_params(
+    content: list[CQMsgDict], cq_type: str, param: str, type: Type[T] = None
+) -> List[Any]:
+    """
+    从当前 content 中获取指定类型 cq 消息的指定 param，以列表形式返回。
+    当没有任何对应类型的 cq 消息时，为空列表。如果有对应类型 cq 消息，
+    但是 param 不存在，则在列表中产生值 None
+
+    可以指定 type 来强制转换类型
+    """
+    res = []
+    for item in content:
+        if item["type"] == cq_type:
+            val = item["data"].get(param)
+            res.append(val)
+    if type is not None:
+        res = list(map(lambda x: type(x), res))
+    return res

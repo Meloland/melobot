@@ -9,6 +9,7 @@ from pathlib import Path
 from ..context.session import BotSessionManager
 from ..types.abc import (
     BotHookRunnerArgs,
+    EventHandlerArgs,
     LogicMode,
     PluginSignalHandlerArgs,
     ShareObjArgs,
@@ -28,7 +29,6 @@ from .bot import BotHookBus, HookRunner, PluginProxy
 from .handler import (
     AllEventHandler,
     EventHandler,
-    EventHandlerArgs,
     MetaEventHandler,
     MsgEventHandler,
     NoticeEventHandler,
