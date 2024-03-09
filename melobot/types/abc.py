@@ -281,8 +281,8 @@ class BotHookRunnerArgs:
 class BotChecker(ABC, Cloneable):
     def __init__(
         self,
-        ok_cb: Callable[[BotEvent], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[[BotEvent], Coroutine[Any, Any, None]] = None,
+        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> None:
         super().__init__()
         self.ok_cb = ok_cb
@@ -312,9 +312,7 @@ class BotChecker(ABC, Cloneable):
             )
         return WrappedChecker(LogicMode.XOR, self, other)
 
-    def _fill_ok_cb(
-        self, ok_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
-    ) -> None:
+    def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
         """
         后期指定 ok_cb 回调
         """
@@ -322,9 +320,7 @@ class BotChecker(ABC, Cloneable):
             raise BotCheckerError(f"ok_cb 回调已经被初始化，值为：{self.ok_cb}")
         self.ok_cb = ok_cb
 
-    def _fill_fail_cb(
-        self, fail_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
-    ) -> None:
+    def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
         """
         后期指定 fail_cb 回调
         """
@@ -333,7 +329,7 @@ class BotChecker(ABC, Cloneable):
         self.fail_cb = fail_cb
 
     @abstractmethod
-    def check(self, event: BotEvent) -> bool:
+    async def check(self, event: BotEvent) -> bool:
         pass
 
 
@@ -350,9 +346,7 @@ class WrappedChecker(BotChecker):
         self.mode = mode
         self.c1, self.c2 = checker1, checker2
 
-    def _fill_ok_cb(
-        self, ok_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
-    ) -> None:
+    def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
         """
         后期指定 ok_cb 回调，注意此时是联合检查器，
         因此将被自动应用到所包含的所有检查器
@@ -361,9 +355,7 @@ class WrappedChecker(BotChecker):
         self.c1._fill_ok_cb(ok_cb)
         self.c2._fill_ok_cb(ok_cb)
 
-    def _fill_fail_cb(
-        self, fail_cb: Callable[[BotEvent], Coroutine[Any, Any, None]]
-    ) -> None:
+    def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
         """
         后期指定 fail_cb 回调，注意此时是联合检查器，
         因此将被自动应用到所包含的所有检查器
@@ -372,11 +364,11 @@ class WrappedChecker(BotChecker):
         self.c1._fill_fail_cb(fail_cb)
         self.c2._fill_fail_cb(fail_cb)
 
-    def check(self, event: BotEvent) -> bool:
+    async def check(self, event: BotEvent) -> bool:
         return LogicMode.calc(
             self.mode,
-            self.c1.check(event),
-            self.c2.check(event) if self.c2 is not None else None,
+            await self.c1.check(event),
+            (await self.c2.check(event)) if self.c2 is not None else None,
         )
 
 
@@ -455,11 +447,5 @@ class BotParser(ABC):
         pass
 
     @abstractmethod
-    def format(
-        self,
-        custom_msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
-        cmd_name: str,
-        event: BotEvent,
-        args: ParseArgs,
-    ) -> bool:
+    async def format(self, cmd_name: str, args: ParseArgs) -> bool:
         pass

@@ -6,7 +6,6 @@ from ..types.typing import *
 
 if TYPE_CHECKING:
     from ..models.event import MessageEvent, NoticeEvent, RequestEvent
-    from ..types.abc import BotEvent
 
 
 class MsgLvlChecker(BotChecker):
@@ -21,8 +20,8 @@ class MsgLvlChecker(BotChecker):
         super_users: List[int] = None,
         white_users: List[int] = None,
         black_users: List[int] = None,
-        ok_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
+        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> None:
         super().__init__(ok_cb, fail_cb)
         self.check_lvl = level
@@ -49,16 +48,16 @@ class MsgLvlChecker(BotChecker):
         else:
             return User.USER
 
-    def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:
         """
         消息校验
         """
         e_level = self._get_level(event)
         status = 0 < e_level.value and e_level.value >= self.check_lvl.value
         if status and self.ok_cb is not None:
-            aio.create_task(self.ok_cb(event))
+            await self.ok_cb()
         if not status and self.fail_cb is not None:
-            aio.create_task(self.fail_cb(event))
+            await self.fail_cb()
         return status
 
 
@@ -77,22 +76,22 @@ class GroupMsgLvl(MsgLvlChecker):
         white_users: List[int] = None,
         black_users: List[int] = None,
         white_groups: List[int] = None,
-        ok_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
+        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> None:
         super().__init__(
             level, owner, super_users, white_users, black_users, ok_cb, fail_cb
         )
         self.white_group_list = white_groups if white_groups is not None else []
 
-    def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:
         if (
             not event.is_group()
             or len(self.white_group_list) == 0
             or (event.group_id not in self.white_group_list)
         ):
             return False
-        return super().check(event)
+        return await super().check(event)
 
 
 class PrivateMsgLvl(MsgLvlChecker):
@@ -107,17 +106,17 @@ class PrivateMsgLvl(MsgLvlChecker):
         super_users: List[int] = None,
         white_users: List[int] = None,
         black_users: List[int] = None,
-        ok_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
+        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> None:
         super().__init__(
             level, owner, super_users, white_users, black_users, ok_cb, fail_cb
         )
 
-    def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:
         if not event.is_private():
             return False
-        return super().check(event)
+        return await super().check(event)
 
 
 class MsgCheckerGen:
@@ -133,8 +132,8 @@ class MsgCheckerGen:
         white_users: List[int] = None,
         black_users: List[int] = None,
         white_groups: List[int] = None,
-        ok_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[["BotEvent"], Coroutine[Any, Any, None]] = None,
+        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> None:
         self.owner = owner
         self.su_list = super_users if super_users is not None else []
@@ -199,7 +198,7 @@ class AtChecker(BotChecker):
         super().__init__(None, None)
         self.qid = qid if qid is not None else None
 
-    def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:
         """
         当 qid 为空时，只要有 at 消息就通过校验。
         如果不为空，则必须出现指定 qid 的 at 消息
@@ -225,7 +224,7 @@ class FriendReqChecker(BotChecker):
     def __init__(self) -> None:
         super().__init__(None, None)
 
-    def check(self, event: "RequestEvent") -> bool:
+    async def check(self, event: "RequestEvent") -> bool:
         status = event.is_friend_req()
         return status
 
@@ -239,7 +238,7 @@ class GroupReqChecker(BotChecker):
     def __init__(self) -> None:
         super().__init__(None, None)
 
-    def check(self, event: "RequestEvent") -> bool:
+    async def check(self, event: "RequestEvent") -> bool:
         status = event.is_group_req()
         return status
 
@@ -277,7 +276,7 @@ class NoticeTypeChecker(BotChecker):
             raise BotCheckerError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
         self.sub_type = sub_type
 
-    def check(self, event: "NoticeEvent") -> bool:
+    async def check(self, event: "NoticeEvent") -> bool:
         if self.sub_type == "ALL":
             status = True
         else:

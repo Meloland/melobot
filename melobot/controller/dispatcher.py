@@ -56,24 +56,29 @@ class BotDispatcher(AbstractDispatcher):
         """
         向指定的通道推送事件
         """
-        permit_priority = PriorLevel.MIN.value
-        handlers = self.handlers[channel]
-        for handler in handlers:
-            # 事件处理器优先级不够，则不分配给它处理
-            if handler.priority < permit_priority:
-                continue
-            if handler._direct_rouse and (
-                await self._ctx_managger.try_attach(event, handler)
-            ):
+        try:
+            permit_priority = PriorLevel.MIN.value
+            handlers = self.handlers[channel]
+            for handler in handlers:
+                # 事件处理器优先级不够，则不分配给它处理
+                if handler.priority < permit_priority:
+                    continue
+                if handler._direct_rouse and (
+                    await self._ctx_managger.try_attach(event, handler)
+                ):
+                    if handler.set_block and handler.priority > permit_priority:
+                        permit_priority = handler.priority
+                    continue
+                # evoke 返回的值用于判断，事件处理器内部经过各种检查后，是否选择处理这个事件。
+                if not (await handler.evoke(event)):
+                    # 如果决定不处理，则会跳过此次循环（也就是不进行“可能存在的优先级阻断操作”）
+                    continue
                 if handler.set_block and handler.priority > permit_priority:
                     permit_priority = handler.priority
-                continue
-            # evoke 返回的值用于判断，事件处理器内部经过各种检查后，是否选择处理这个事件。
-            if not (await handler.evoke(event)):
-                # 如果决定不处理，则会跳过此次循环（也就是不进行“可能存在的优先级阻断操作”）
-                continue
-            if handler.set_block and handler.priority > permit_priority:
-                permit_priority = handler.priority
+        except Exception as e:
+            self.logger.error(f"bot dispatcher 抛出异常：[{e.__class__.__name__}] {e}")
+            self.logger.debug(f"异常点的事件记录为：{event.raw}")
+            self.logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
 
     async def dispatch(self, event: "BotEvent") -> None:
         """
@@ -81,10 +86,5 @@ class BotDispatcher(AbstractDispatcher):
         """
         await self._ready_signal.wait()
         await self._bot_bus.emit(BotLife.EVENT_BUILT, event, wait=True)
-        try:
-            for channel in self._channel_map[event.type]:
-                await self.broadcast(event, channel)
-        except Exception as e:
-            self.logger.error(f"bot dispatcher 抛出异常：[{e.__class__.__name__}] {e}")
-            self.logger.debug(f"异常点的事件记录为：{event.raw}")
-            self.logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
+        for channel in self._channel_map[event.type]:
+            aio.create_task(self.broadcast(event, channel))

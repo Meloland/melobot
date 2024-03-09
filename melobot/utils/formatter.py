@@ -1,6 +1,7 @@
 import asyncio as aio
 import traceback
 
+from ..context.action import send
 from ..types.exceptions import *
 from ..types.typing import *
 
@@ -22,7 +23,6 @@ class FormatInfo:
         exc_type: Exception,
         exc_tb: ModuleType,
         cmd_name: str,
-        event: "MessageEvent",
     ) -> None:
         self.src = src
         self.src_desc = src_desc
@@ -31,7 +31,6 @@ class FormatInfo:
         self.exc_type = exc_type
         self.exc_tb = exc_tb
         self.cmd_name = cmd_name
-        self.event = event
 
 
 class ArgFormatter:
@@ -79,11 +78,9 @@ class ArgFormatter:
             args.vals.append(self.default)
         return args.vals[idx]
 
-    def format(
+    async def format(
         self,
-        cutsom_msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
         cmd_name: str,
-        event: "MessageEvent",
         args: ParseArgs,
         idx: int,
     ) -> bool:
@@ -109,37 +106,33 @@ class ArgFormatter:
             return True
         except ArgVerifyFailed as e:
             info = FormatInfo(
-                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name, event
+                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
             )
             if self.verify_fail:
-                aio.create_task(self.verify_fail(info))
+                await self.verify_fail(info)
             else:
-                self._verify_fail_default(info, cutsom_msg_func)
+                await self._verify_fail_default(info)
             return False
         except ArgLackError as e:
             info = FormatInfo(
-                None, self.src_desc, self.src_expect, idx, e, traceback, cmd_name, event
+                None, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
             )
             if self.arg_lack:
-                aio.create_task(self.arg_lack(info))
+                await self.arg_lack(info)
             else:
-                self._arglack_default(info, cutsom_msg_func)
+                await self._arglack_default(info)
             return False
         except Exception as e:
             info = FormatInfo(
-                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name, event
+                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
             )
             if self.convert_fail:
-                aio.create_task(self.convert_fail(info))
+                await self.convert_fail(info)
             else:
-                self._convert_fail_default(info, cutsom_msg_func)
+                await self._convert_fail_default(info)
             return False
 
-    def _convert_fail_default(
-        self,
-        info: FormatInfo,
-        msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
-    ) -> str:
+    async def _convert_fail_default(self, info: FormatInfo) -> None:
         e_class = info.exc_type.__class__.__name__
         src = info.src.__repr__() if isinstance(info.src, str) else info.src
         tip = f"第 {info.idx+1} 个参数"
@@ -151,17 +144,9 @@ class ArgFormatter:
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip += f"\n详细错误描述：[{e_class}] {info.exc_type}"
         tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
-        aio.create_task(
-            msg_func(
-                tip, info.event.is_private(), info.event.sender.id, info.event.group_id
-            )
-        )
+        await send(tip)
 
-    def _verify_fail_default(
-        self,
-        info: FormatInfo,
-        msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
-    ) -> None:
+    async def _verify_fail_default(self, info: FormatInfo) -> None:
         src = info.src.__repr__() if isinstance(info.src, str) else info.src
         tip = f"第 {info.idx+1} 个参数"
         tip += (
@@ -171,23 +156,11 @@ class ArgFormatter:
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
-        aio.create_task(
-            msg_func(
-                tip, info.event.is_private(), info.event.sender.id, info.event.group_id
-            )
-        )
+        await send(tip)
 
-    def _arglack_default(
-        self,
-        info: FormatInfo,
-        msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
-    ) -> None:
+    async def _arglack_default(self, info: FormatInfo) -> None:
         tip = f"第 {info.idx+1} 个参数"
         tip += f"（{info.src_desc}）缺失。" if info.src_desc else f"缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
-        aio.create_task(
-            msg_func(
-                tip, info.event.is_private(), info.event.sender.id, info.event.group_id
-            )
-        )
+        await send(tip)

@@ -1,8 +1,9 @@
 import asyncio as aio
 import traceback
 
-from ..context.action import send_custom_msg
-from ..context.session import SESSION_LOCAL, BotSessionManager
+from melobot.models.event import MessageEvent
+
+from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
 from ..types.exceptions import *
 from ..types.typing import *
 
@@ -72,17 +73,20 @@ class EventHandler:
                 "参数 conflict_wait 为 True 时，冲突回调永远不会被调用"
             )
 
-    def _verify(self, event: "BotEvent") -> bool:
+    async def _verify(self) -> bool:
         """
         验证事件是否有触发执行的资格（验权）
         """
         if self.checker:
-            return self.checker.check(event)
+            return await self.checker.check(any_event())
         return True
 
     async def _run_on_ctx(
-        self, coro: Coroutine, session: "BotSession" = None, timeout: float = None
-    ) -> None:
+        self,
+        coro: Coroutine[Any, Any, T],
+        session: "BotSession" = None,
+        timeout: float = None,
+    ) -> T:
         """
         在指定 session 上下文中运行协程。异常将会抛出
         """
@@ -90,14 +94,14 @@ class EventHandler:
             BotSessionManager.inject(session, self)
         try:
             s_token = SESSION_LOCAL._add_ctx(session)
-            await aio.wait_for(aio.create_task(coro), timeout=timeout)
+            return await aio.wait_for(aio.create_task(coro), timeout=timeout)
         finally:
             SESSION_LOCAL._del_ctx(s_token)
             # 这里可能因 bot 停止运行，导致退出事件执行方法时 session 为挂起态。因此需要强制唤醒
             if session._hup_signal.is_set():
                 BotSessionManager._rouse(session)
 
-    async def _run(self, event: "MessageEvent") -> None:
+    async def _run(self, event: "BotEvent") -> None:
         """
         获取 session 然后准备运行 executor
         """
@@ -137,7 +141,12 @@ class EventHandler:
                 return
             BotSessionManager.recycle(session, alive=self._hold)
 
-    async def evoke(self, event: "MessageEvent") -> bool:
+    async def _pre_process(self, event: "BotEvent") -> Coroutine[Any, Any, bool]:
+        session = BotSessionManager.make_temp(event)
+        status = await self._run_on_ctx(self._verify(), session)
+        return status
+
+    async def evoke(self, event: "BotEvent") -> bool:
         """
         接收总线分发的事件的方法。返回是否决定处理的判断。
         便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
@@ -145,7 +154,7 @@ class EventHandler:
         if not self.is_valid:
             return False
 
-        if not self._verify(event):
+        if not (await self._pre_process(event)):
             return False
 
         if not self.temp:
@@ -261,23 +270,18 @@ class MsgEventHandler(EventHandler):
             return res, cmd_name, args
         return True
 
-    def _format(self, event: "MessageEvent", cmd_name: str, args: ParseArgs) -> bool:
+    async def _format(self, cmd_name: str, args: ParseArgs) -> bool:
         """
         格式化。只有 parser 存在时需要
         """
         if not self.parser.need_format:
             return True
-        status = self.parser.format(send_custom_msg, cmd_name, event, args)
+        status = await self.parser.format(cmd_name, args)
         return status
 
-    async def evoke(self, event: "MessageEvent") -> bool:
-        """
-        接收总线分发的事件的方法。返回是否决定处理的判断。
-        便于 disptacher 进行优先级阻断
-        """
-        if not self.is_valid:
-            return False
-
+    async def _pre_process(self, event: MessageEvent) -> Coroutine[Any, Any, bool]:
+        session = BotSessionManager.make_temp(event)
+        # 先进行 match，match 不支持回调，因此可以直接同步运行，而且无需异步加锁
         match_res = self._match(event)
         if isinstance(match_res, bool):
             if not match_res:
@@ -287,24 +291,16 @@ class MsgEventHandler(EventHandler):
             if not res:
                 return False
 
-        if not self._verify(event):
-            return False
-
-        if self.parser:
-            if not self._format(event, cmd_name, args):
+        async def wrapped_func() -> bool:
+            if not (await self._verify()):
                 return False
-
-        if not self.temp:
-            aio.create_task(self._run(event))
+            if self.parser:
+                if not (await self._format(cmd_name, args)):
+                    return False
             return True
 
-        async with self._run_lock:
-            if self.is_valid:
-                aio.create_task(self._run(event))
-                self.is_valid = False
-                return True
-            else:
-                return False
+        status = await self._run_on_ctx(wrapped_func(), session)
+        return status
 
 
 class ReqEventHandler(EventHandler):

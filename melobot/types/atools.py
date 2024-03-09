@@ -6,8 +6,8 @@ from asyncio import iscoroutine
 from contextlib import asynccontextmanager
 from functools import wraps
 
-from ..types.exceptions import *
-from ..types.typing import *
+from .exceptions import *
+from .typing import *
 
 
 class Singleton:

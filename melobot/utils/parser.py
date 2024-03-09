@@ -119,13 +119,7 @@ class CmdParser(BotParser):
                 return (True, cmd_name, args_group[cmd_name])
         return (False, None, None)
 
-    def format(
-        self,
-        cutsom_msg_func: Callable[..., Coroutine[Any, Any, "ResponseEvent"]],
-        cmd_name: str,
-        event: BotEvent,
-        args: ParseArgs,
-    ) -> bool:
+    async def format(self, cmd_name: str, args: ParseArgs) -> bool:
         """
         格式化命令解析参数
         """
@@ -134,7 +128,7 @@ class CmdParser(BotParser):
         for idx, formatter in enumerate(self.formatters):
             if formatter is None:
                 continue
-            status = formatter.format(cutsom_msg_func, cmd_name, event, args, idx)
+            status = await formatter.format(cmd_name, args, idx)
             if not status:
                 return False
         args.vals = args.vals[: len(self.formatters)]

@@ -5,14 +5,14 @@ from copy import deepcopy
 from functools import wraps
 
 from ..types.abc import SessionRule
+from ..types.atools import get_twin_event
 from ..types.exceptions import *
 from ..types.typing import *
-from ..utils.atools import get_twin_event
 
 if TYPE_CHECKING:
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
-    from ..types.abc import AbstractResponder, BotAction, BotEvent
     from ..plugin.handler import EventHandler
+    from ..types.abc import AbstractResponder, BotAction, BotEvent
 
 
 class BotSession:
@@ -310,7 +310,9 @@ class BotSessionManager:
             cls._expire(session)
 
     @classmethod
-    async def get(cls, event: "BotEvent", handler: "EventHandler") -> Optional[BotSession]:
+    async def get(
+        cls, event: "BotEvent", handler: "EventHandler"
+    ) -> Optional[BotSession]:
         """
         handler 内获取 session 方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
         然后根据具体情况，获取已有 session 或新建 session。当尝试获取非空闲 session 时，如果 handler 指定不等待则返回 None
@@ -411,16 +413,16 @@ class BotSessionManager:
         对 action 构造器进行装饰，使产生的 action “活化”。
         让其能自动识别上下文，自动附加触发 event，并自动完成发送过程
         """
-        try:
-            if SESSION_LOCAL._expired:
-                raise BotSessionError(
-                    "当前  session 上下文已有过期标记，无法再执行 action 操作"
-                )
-        except LookupError:
-            pass
-
         @wraps(action_getter)
         async def activated_action(*args, **kwargs):
+            try:
+                if SESSION_LOCAL._expired:
+                    raise BotSessionError(
+                        "当前  session 上下文已有过期标记，无法再执行 action 操作"
+                    )
+            except LookupError:
+                pass
+            
             action: "BotAction" = await action_getter(*args, **kwargs)
             try:
                 if len(SESSION_LOCAL.events) > 0:
@@ -446,49 +448,62 @@ def any_event():
     """
     获取当前 session 上下文下标注为联合类型的 event
     """
-    return SESSION_LOCAL.event
+    try:
+        if len(SESSION_LOCAL.events) > 0:
+            return SESSION_LOCAL.event
+        else:
+            raise BotSessionError("当前 session 上下文没有 event，因此无法使用本方法")
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
 
 def msg_event() -> "MessageEvent":
     """
     获取当前 session 上下文下的 MessageEvent
     """
-    return SESSION_LOCAL.event
+    return any_event()
 
 
 def notice_event() -> "NoticeEvent":
     """
     获取当前 session 上下文下的 NoticeEvent
     """
-    return SESSION_LOCAL.event
+    return any_event()
 
 
 def req_evnt() -> "RequestEvent":
     """
     获取当前 session 上下文下的 RequestEvent
     """
-    return SESSION_LOCAL.event
+    return any_event()
 
 
 def meta_event() -> "MetaEvent":
     """
     获取当前 session 上下文下的 MetaEvent
     """
-    return SESSION_LOCAL.event
+    return any_event()
 
 
 def msg_text():
     """
     获取当前 session 上下文下的消息的纯文本数据
     """
-    return SESSION_LOCAL.event.text
+    event: "MessageEvent" = any_event()
+    return event.text
 
 
 def msg_args():
     """
     获取当前 session 上下文下的解析参数，如果不存在则返回 None
     """
-    return SESSION_LOCAL.args
+    try:
+        if len(SESSION_LOCAL.events) > 0:
+            return SESSION_LOCAL.args
+        else:
+            raise BotSessionError("当前 session 上下文没有 event，因此不存在 args")
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
 
 async def pause(overtime: int = None) -> None:
@@ -497,4 +512,7 @@ async def pause(overtime: int = None) -> None:
     session 所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session，
     并抛出 SessionHupTimeout 异常
     """
-    await SESSION_LOCAL.hup(overtime)
+    try:
+        await SESSION_LOCAL.hup(overtime)
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
