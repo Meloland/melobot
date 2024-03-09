@@ -45,7 +45,7 @@ class BotSession:
         self._hup_signal, self._awake_signal = get_twin_event()
         # session 是否过期的标志，由 BotSessionManager 修改和管理
         self._expired = False
-        # 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是空 session 或是一次性 session
+        # 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是一次性 session
         # 其实这里如果传入 space_tag 则一定是所属 handler 的引用
         self._space_tag: Optional["EventHandler"] = space_tag
         # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
@@ -343,13 +343,6 @@ class BotSessionManager:
         session = BotSession(cls, cls.RESPONDER)
         session.events.append(event)
         return session
-
-    @classmethod
-    def make_empty(cls) -> BotSession:
-        """
-        创建空 session。即不含 event 和 space_tag 标记的 session
-        """
-        return BotSession(cls, cls.RESPONDER)
 
     @classmethod
     def make_temp(cls, event: "BotEvent") -> BotSession:

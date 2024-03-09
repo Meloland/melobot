@@ -4,7 +4,6 @@ from asyncio import iscoroutinefunction
 from functools import partial
 from types import MethodType
 
-from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..types.abc import PluginSignalHandlerArgs, ShareObjCbArgs
 from ..types.exceptions import *
 from ..types.typing import *
@@ -221,9 +220,6 @@ class PluginBus:
         """
         在指定的上下文下运行插件信号处理方法
         """
-        if not forward:
-            session = BotSessionManager.make_empty()
-            token = SESSION_LOCAL._add_ctx(session)
         try:
             ret = await handler.cb(*args, **kwargs)
             return ret
@@ -236,9 +232,6 @@ class PluginBus:
             )
             cls.__logger.debug(f"插件信号处理方法的 args: {args} kwargs：{kwargs}")
             cls.__logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
-        finally:
-            if not forward:
-                SESSION_LOCAL._del_ctx(token)
 
     @classmethod
     async def emit(

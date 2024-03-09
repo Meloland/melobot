@@ -8,7 +8,6 @@ from functools import partial
 from pathlib import Path
 from types import MethodType
 
-from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
 from ..types.abc import BotHookRunnerArgs, BotLife
 from ..types.exceptions import *
@@ -91,8 +90,6 @@ class BotHookBus:
 
     @classmethod
     async def _run_on_ctx(cls, runner: HookRunner, *args, **kwargs) -> None:
-        session = BotSessionManager.make_empty()
-        token = SESSION_LOCAL._add_ctx(session)
         try:
             await runner.cb(*args, **kwargs)
         except Exception as e:
@@ -104,8 +101,6 @@ class BotHookBus:
             )
             cls.__logger.debug(f"生命周期 hook 方法的 args: {args} kwargs：{kwargs}")
             cls.__logger.debug("异常回溯栈：\n" + traceback.format_exc().strip("\n"))
-        finally:
-            SESSION_LOCAL._del_ctx(token)
 
     @classmethod
     async def emit(
