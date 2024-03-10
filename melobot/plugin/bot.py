@@ -315,41 +315,57 @@ class BotProxy:
         else:
             BotHookBus.on(hook_type, callback)
 
-    def on_all_loaded(self):
+    def on_all_loaded(self, callback: Callable[..., Coroutine[Any, Any, None]] = None):
         """
-        用作装饰器，可注册一个 LOADED 生命周期 hook 方法
-        """
-        return self.on(BotLife.LOADED, None)
+        用作装饰器，不传入 callback 参数，可注册一个 LOADED 生命周期 hook 方法
 
-    def on_connected(self):
+        也可直接调用此方法，传入 callback 参数来注册一个 hook 方法
         """
-        用作装饰器，可注册一个 CONNECTED 生命周期 hook 方法
-        """
-        return self.on(BotLife.CONNECTED, None)
+        return self.on(BotLife.LOADED, callback)
 
-    def on_before_close(self):
+    def on_connected(self, callback: Callable[..., Coroutine[Any, Any, None]] = None):
         """
-        用作装饰器，可注册一个 BEFORE_CLOSE 生命周期 hook 方法
-        """
-        return self.on(BotLife.BEFORE_CLOSE, None)
+        用作装饰器，不传入 callback 参数，可注册一个 CONNECTED 生命周期 hook 方法
 
-    def on_before_stop(self):
+        也可直接调用此方法，传入 callback 参数来注册一个 hook 方法
         """
-        用作装饰器，可注册一个 BEFORE_STOP 生命周期 hook 方法
-        """
-        return self.on(BotLife.BEFORE_STOP, None)
+        return self.on(BotLife.CONNECTED, callback)
 
-    def on_event_built(self):
+    def on_before_close(
+        self, callback: Callable[..., Coroutine[Any, Any, None]] = None
+    ):
         """
-        用作装饰器，可注册一个 EVENT_BUILT 生命周期 hook 方法
-        """
-        return self.on(BotLife.EVENT_BUILT, None)
+        用作装饰器，不传入 callback 参数，可注册一个 BEFORE_CLOSE 生命周期 hook 方法
 
-    def on_action_presend(self):
+        也可直接调用此方法，传入 callback 参数来注册一个 hook 方法
         """
-        用作装饰器，可注册一个 ACTION_PRESEND 生命周期 hook 方法
+        return self.on(BotLife.BEFORE_CLOSE, callback)
+
+    def on_before_stop(self, callback: Callable[..., Coroutine[Any, Any, None]] = None):
         """
-        return self.on(BotLife.ACTION_PRESEND, None)
+        用作装饰器，不传入 callback 参数，可注册一个 BEFORE_STOP 生命周期 hook 方法
+
+        也可直接调用此方法，传入 callback 参数来注册一个 hook 方法
+        """
+        return self.on(BotLife.BEFORE_STOP, callback)
+
+    def on_event_built(self, callback: Callable[..., Coroutine[Any, Any, None]] = None):
+        """
+        用作装饰器，不传入 callback 参数，可注册一个 EVENT_BUILT 生命周期 hook 方法
+
+        也可直接调用此方法，传入 callback 参数来注册一个 hook 方法
+        """
+        return self.on(BotLife.EVENT_BUILT, callback)
+
+    def on_action_presend(
+        self, callback: Callable[..., Coroutine[Any, Any, None]] = None
+    ):
+        """
+        用作装饰器，不传入 callback 参数，可注册一个 ACTION_PRESEND 生命周期 hook 方法
+
+        也可直接调用此方法，传入 callback 参数来注册一个 hook 方法
+        """
+        return self.on(BotLife.ACTION_PRESEND, callback)
 
 
 BOT_PROXY = BotProxy()

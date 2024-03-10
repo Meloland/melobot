@@ -920,7 +920,7 @@ async def get_group_list(
     wait: bool = True, auto: bool = True
 ) -> Optional["ResponseEvent"] | BotAction:
     """
-    获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info_action` 获得
+    获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info` 获得
     """
     return BotAction(
         GetGroupListActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1204,7 +1204,7 @@ async def upload_file(
 
     示例路径：`C:/users/15742/desktop/QQ图片20230108225606.jpg`。
 
-    （若需要发送网络文件，先使用 `download_file_action()` 方法生成下载网络文件的 action，
+    （若需要发送网络文件，先使用 `download_file()` 方法生成下载网络文件的 action，
     action 响应后文件会放于 go-cqhttp 缓存文件夹中，可直接在消息段中引用）
     """
     return BotAction(
@@ -1357,8 +1357,8 @@ async def delete_group_file(
     groupId: int, fileId: str, fileTypeId: int, wait: bool = False, auto: bool = True
 ) -> Optional["ResponseEvent"] | BotAction:
     """
-    删除群文件。文件相关信息通过 `get_group_root_files_action()` 或
-    `get_group_files_action` 的响应获得
+    删除群文件。文件相关信息通过 `get_group_root_files()` 或
+    `get_group_files` 的响应获得
     """
     return BotAction(
         DeleteGroupFileActionArgs(groupId, fileId, fileTypeId),
@@ -1383,8 +1383,8 @@ async def get_group_file_url(
     groupId: int, fileId: str, fileTypeId: int, wait: bool = True, auto: bool = True
 ) -> Optional["ResponseEvent"] | BotAction:
     """
-    获取群文件资源链接。文件相关信息通过 `get_group_root_files_action()` 或
-    `get_group_files_action` 的响应获得
+    获取群文件资源链接。文件相关信息通过 `get_group_root_files()` 或
+    `get_group_files` 的响应获得
     """
     return BotAction(
         GetGroupFileUrlActionArgs(groupId, fileId, fileTypeId),

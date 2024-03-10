@@ -71,10 +71,10 @@ class User(int, Enum):
     用户权限等级枚举
     """
 
-    OWNER = 100
-    SU = 90
-    WHITE = 80
-    USER = 70
+    OWNER = 10000
+    SU = 1000
+    WHITE = 100
+    USER = 10
     BLACK = -1
 
 
@@ -83,8 +83,8 @@ class PriorLevel(int, Enum):
     优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值
     """
 
-    MIN = -100
-    MAX = 100
+    MIN = 0
+    MAX = 1000
     MEAN = (MAX + MIN) // 2
 
 

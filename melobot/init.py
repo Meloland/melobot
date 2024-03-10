@@ -160,6 +160,7 @@ class MeloBot:
         self.linker.bind(self.dispatcher, self.responder)
         try:
             async with self.linker:
+                aio.create_task(self.linker.send_queue_watch())
                 self.life = aio.create_task(self.linker.listen())
                 self.proxy._bind(self)
                 self.logger.info("bot 开始正常运行")
