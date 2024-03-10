@@ -6,7 +6,7 @@ from ..types.abc import BotEvent
 from ..types.typing import *
 from .cq import get_cq as _get_cq
 from .cq import get_cq_params as _get_cq_params
-from .cq import to_cq_arr
+from .cq import to_cq_arr, to_cq_str
 
 
 class BotEventBuilder:
@@ -60,7 +60,7 @@ class MessageEvent(BotEvent):
 
         self._cq_regex = re.compile(r"\[CQ:.*?\]")
         self.id = rawEvent["message_id"]
-        self.raw_content = rawEvent["raw_message"]
+        self.raw_content = self._format_to_str(rawEvent["raw_message"])
         self.content = self._format_to_array(rawEvent["message"])
         self.text = self._get_text(self.content)
         self.font = rawEvent["font"]
@@ -80,7 +80,19 @@ class MessageEvent(BotEvent):
         if self.is_group():
             self.group_id = rawEvent["group_id"]
 
+    def _format_to_str(self, content: list | str) -> str:
+        """
+        对外部零信任，强制转换为 cq 字符串格式
+        """
+        if not isinstance(content, str):
+            return to_cq_str(content)
+        else:
+            return content
+
     def _format_to_array(self, content: list | str) -> List[CQMsgDict]:
+        """
+        对外部零信任，强制转换为消息段格式
+        """
         if not isinstance(content, str):
             for item in content:
                 if item["type"] == "text":
@@ -88,7 +100,7 @@ class MessageEvent(BotEvent):
                 for k, v in item["data"].items():
                     if not isinstance(v, str):
                         continue
-                    if v.isdigit():
+                    if v.isdigit() or (len(v) >= 2 and v[0] == "-" and v[1:].isdigit()):
                         item["data"][k] = int(v)
                         continue
                     try:
@@ -115,7 +127,9 @@ class MessageEvent(BotEvent):
         """
         return _get_cq(self.content, cq_type)
 
-    def get_cq_params(self, cq_type: str, param: str, type: Type[T] = None) -> List[Any]:
+    def get_cq_params(
+        self, cq_type: str, param: str, type: Type[T] = None
+    ) -> List[Any]:
         """
         从当前 event 中获取指定类型 cq 消息的指定 param，以列表形式返回。
         当没有任何对应类型的 cq 消息时，为空列表。如果有对应类型 cq 消息，
@@ -202,7 +216,7 @@ class MessageEvent(BotEvent):
 
             self.anonym_id: int
             self.anonym_name: str
-            # 匿名用户 flag，调用 go-cqhttp 相关 API 时，需要使用
+            # 匿名用户 flag，调用 连接适配器 相关 API 时，需要使用
             self.anonym_flag: str
 
             # 对应私聊可能缺失 sender 的情况
@@ -284,7 +298,7 @@ class RequestEvent(BotEvent):
         self.from_group_id: Optional[int]
         # 此处为加群或加好友的验证消息
         self.req_comment: str
-        # 请求 flag，调用相关 go-cqhttp API 时，需要使用
+        # 请求 flag，调用相关 连接适配器 API 时，需要使用
         self.req_flag: str
         # 当为加群请求时，类型有：add, invite（加群请求和邀请 bot 入群）
         self.group_req_type: Optional[Literal["add", "invite"]]

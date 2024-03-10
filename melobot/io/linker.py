@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class BotLinker(AbstractSender):
     """
-    Bot 连接模块通过连接驱动器的代理，完成事件接收与行为发送。
+    Bot 连接模块通过连接适配器的代理，完成事件接收与行为发送。
     """
 
     def __init__(
@@ -72,7 +72,7 @@ class BotLinker(AbstractSender):
             try:
                 self.conn = await websockets.connect(self.url)
                 await self.conn.recv()
-                self.logger.info("与连接驱动器，建立了 ws 连接")
+                self.logger.info("与连接适配器，建立了 ws 连接")
                 await self._bot_bus.emit(BotLife.CONNECTED)
                 return
             except Exception as e:
@@ -87,7 +87,7 @@ class BotLinker(AbstractSender):
         关闭连接
         """
         await self.conn.close()
-        self.logger.info("已经关闭与连接驱动器的连接")
+        self.logger.info("已经关闭与连接适配器的连接")
 
     async def __aenter__(self) -> "BotLinker":
         await self._start()
@@ -97,12 +97,12 @@ class BotLinker(AbstractSender):
         self, exc_type: Exception, exc_val: str, exc_tb: ModuleType
     ) -> None:
         if exc_type == wse.ConnectionClosedError:
-            self.logger.warning("连接驱动器主动关闭, bot 将自动清理资源后关闭")
+            self.logger.warning("连接适配器主动关闭, bot 将自动清理资源后关闭")
         await self._close()
 
     async def send(self, action: "BotAction") -> None:
         """
-        发送一个 action 给连接驱动器。实际上是先提交到 send_queue
+        发送一个 action 给连接适配器。实际上是先提交到 send_queue
         """
         await self._ready_signal.wait()
         await self._send_queue.put(action)
@@ -125,11 +125,11 @@ class BotLinker(AbstractSender):
         except aio.CancelledError:
             self.logger.debug("连接适配器发送队列监视任务已被结束")
         except wse.ConnectionClosed:
-            self.logger.error("与连接驱动器的通信已经断开，无法再执行操作")
+            self.logger.error("与连接适配器的通信已经断开，无法再执行操作")
 
     async def listen(self) -> None:
         """
-        从连接驱动器接收一个事件，并转化为 BotEvent 对象传递给 dispatcher 处理
+        从连接适配器接收一个事件，并转化为 BotEvent 对象传递给 dispatcher 处理
         """
         await self._ready_signal.wait()
 

@@ -149,9 +149,9 @@ def image_msg(
     if picType:
         base["data"]["type"] = picType
     if subType:
-        base["data"]["subType"] = subType
+        base["data"]["subType"] = str(subType)
     if useCache:
-        base["data"]["cache"] = useCache
+        base["data"]["cache"] = str(useCache)
     return base
 
 
@@ -164,7 +164,7 @@ def reply_msg(
     return {
         "type": "reply",
         "data": {
-            "id": messageId,
+            "id": str(messageId),
         },
     }
 
@@ -178,7 +178,7 @@ def touch_msg(
     return {
         "type": "poke",
         "data": {
-            "qq": qqId,
+            "qq": str(qqId),
         },
     }
 
@@ -192,7 +192,7 @@ def touch_msg(
     return {
         "type": "touch",
         "data": {
-            "id": qqId,
+            "id": str(qqId),
         },
     }
 
@@ -236,7 +236,7 @@ def custom_msg_node(
         msgs = temp
     ret = {
         "type": "node",
-        "data": {"name": sendName, "uin": sendId, "content": msgs},
+        "data": {"name": sendName, "uin": str(sendId), "content": msgs},
     }
     if seq:
         ret["data"]["seq"] = seq
@@ -247,7 +247,7 @@ def refer_msg_node(msgId: int) -> MsgNodeDict:
     """
     引用消息节点构造方法
     """
-    return {"type": "node", "data": {"id": msgId}}
+    return {"type": "node", "data": {"id": str(msgId)}}
 
 
 def cq_filter_text(s: str) -> str:
@@ -256,6 +256,30 @@ def cq_filter_text(s: str) -> str:
     """
     regex = re.compile(r"\[CQ:.*?\]")
     return regex.sub("", s)
+
+
+def cq_escape(text: str) -> str:
+    """
+    cq 码特殊字符转义
+    """
+    return (
+        text.replace("&", "&amp;")
+        .replace("[", "&#91;")
+        .replace("]", "&#93;")
+        .replace(",", "&#44;")
+    )
+
+
+def cq_anti_escape(text: str) -> str:
+    """
+    cq 码特殊字符逆转义
+    """
+    return (
+        text.replace("&#44;", ",")
+        .replace("&#93;", "]")
+        .replace("&#91;", "[")
+        .replace("&amp;", "&")
+    )
 
 
 def to_cq_arr(s: str) -> list[CQMsgDict]:
@@ -287,13 +311,8 @@ def to_cq_arr(s: str) -> list[CQMsgDict]:
         data = {}
         for param_pair in _[1:]:
             name, val = param_pair.split("=")
-            val = (
-                val.replace("&amp;", "&")
-                .replace("&#91;", "[")
-                .replace("&#93;", "]")
-                .replace("&#44;", ",")
-            )
-            if val.isdigit():
+            val = cq_anti_escape(val)
+            if val.isdigit() or (len(val) >= 2 and val[0] == "-" and val[1:].isdigit()):
                 data[name] = int(val)
                 continue
             try:
@@ -313,38 +332,14 @@ def to_cq_str(content: list[CQMsgDict]) -> str:
     msgs = []
     for item in content:
         if item["type"] == "text":
-            msgs.append(item["data"]["text"])
+            msgs.append(cq_escape(item["data"]["text"]))
             continue
         s = f"[CQ:{item['type']}"
         for k, v in item["data"].items():
-            s += f",{k}={v}"
+            s += f",{k}={cq_escape(v)}"
         s += "]"
         msgs.append(s)
     return "".join(msgs)
-
-
-def cq_escape(text: str) -> str:
-    """
-    cq 码特殊字符转义
-    """
-    return (
-        text.replace("&", "&amp;")
-        .replace("[", "&#91;")
-        .replace("]", "&#93;")
-        .replace(",", "&#44;")
-    )
-
-
-def cq_anti_escape(text: str) -> str:
-    """
-    cq 码特殊字符逆转义
-    """
-    return (
-        text.replace("&amp;", "&")
-        .replace("&#91;", "[")
-        .replace("&#93;", "]")
-        .replace("&#44;", ",")
-    )
 
 
 def to_cq_str_action(action: "BotAction") -> "BotAction":

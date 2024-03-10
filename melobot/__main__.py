@@ -28,7 +28,7 @@ def banner_print(s: str) -> None:
 
 if len(sys.argv) != 2:
     print("以模块模式运行时，必须有且只有一个命令行参数：bot 主程序路径")
-    exit(0)
+    sys.exit(0)
 bot_script_path = sys.argv[1]
 cmd = f"{sys.executable} {bot_script_path}"
 cwd = str(pathlib.Path.cwd().absolute().resolve(strict=True))

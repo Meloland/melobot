@@ -42,7 +42,7 @@ class ConfigGenerator:
             with open(self.config_path, "w", encoding="utf-8") as fp:
                 fp.write(self.default_config_text)
             self.logger.info("未检测到配置文件，已自动生成，请填写配置后重启 bot")
-            exit(EXIT_CLOSE)
+            sys.exit(EXIT_CLOSE)
         else:
             with open(self.config_path, encoding="utf-8") as fp:
                 self.config = toml.load(fp)

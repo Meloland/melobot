@@ -81,7 +81,7 @@ class MeloBot:
         """
         if self.__init_flag__:
             self.logger.error("bot 不能重复初始化")
-            exit(self.exit_code)
+            sys.exit(self.exit_code)
 
         self.config = BotConfig(config_dir)
         self._logger = get_logger(self.config.log_dir_path, self.config.log_level)
@@ -121,7 +121,7 @@ class MeloBot:
         """
         if not self.__init_flag__:
             self.logger.error("加载插件必须在初始化之后进行")
-            exit(self.exit_code)
+            sys.exit(self.exit_code)
 
         plugin_dir = (
             inspect.getfile(plugin_target)
@@ -139,7 +139,7 @@ class MeloBot:
             self.logger.error(
                 f"加载插件出错：插件名称重复, 尝试加载：{plugin_dir}，已加载：{exist_plugin.plugin_dir}"
             )
-            exit(self.exit_code)
+            sys.exit(self.exit_code)
 
     def load_plugins(self, plugins_dir: str) -> None:
         """
@@ -173,7 +173,7 @@ class MeloBot:
         finally:
             await self.bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.info("bot 已清理运行时资源并关闭")
-            exit(self.exit_code)
+            sys.exit(self.exit_code)
 
     def run(self) -> None:
         """
@@ -181,7 +181,7 @@ class MeloBot:
         """
         if not self.__init_flag__:
             self.logger.error("必须先初始化才能启动")
-            exit(self.exit_code)
+            sys.exit(self.exit_code)
         try:
             """
             一定要手动设置事件循环。在启动前，部分核心模块初始化异步对象，
@@ -200,7 +200,7 @@ class MeloBot:
         """
         if self.life is None:
             self.logger.error("bot 尚未运行，无需停止")
-            exit(self.exit_code)
+            sys.exit(self.exit_code)
         await self.bot_bus.emit(BotLife.BEFORE_CLOSE, wait=True)
         self.life.cancel()
 
@@ -210,7 +210,7 @@ class MeloBot:
         """
         if self.life is None:
             self.logger.error("bot 尚未运行，无需重启")
-            exit(self.exit_code)
+            sys.exit(self.exit_code)
         if os.environ.get(MODULE_MODE_FLAG) != MODULE_MODE_SET:
             self.logger.error("只有在模块运行模式下，才能使用 bot 重启功能")
             return

@@ -1,3 +1,5 @@
+import warnings
+
 from ..models.cq import reply_msg, text_msg, to_cq_str_action
 from ..types.abc import ActionArgs, BotAction
 from ..types.atools import get_id
@@ -58,7 +60,6 @@ __all__ = [
     "get_group_file_url",
     "get_cq_status",
     "get_atall_remain",
-    "quick_handle",
     "set_group_notice",
     "get_group_notice",
     "download_file",
@@ -73,7 +74,7 @@ __all__ = [
     "send_hup",
     "send_reply",
     "finish",
-    "finish_reply",
+    "reply_finish",
 ]
 
 
@@ -1061,7 +1062,7 @@ async def check_send_record(
 
 class GetCqVersionActionArgs(ActionArgs):
     """
-    获取 go-cqhttp 版本信息 action 信息构造类
+    获取 cq 前端实现 版本信息 action 信息构造类
     """
 
     def __init__(self) -> None:
@@ -1075,7 +1076,7 @@ async def get_cq_version(
     wait: bool = True, auto: bool = True
 ) -> Optional["ResponseEvent"] | BotAction:
     """
-    获取 go-cqhttp 版本信息
+    获取 cq 前端实现 版本信息
     """
     return BotAction(
         GetCqVersionActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1205,7 +1206,7 @@ async def upload_file(
     示例路径：`C:/users/15742/desktop/QQ图片20230108225606.jpg`。
 
     （若需要发送网络文件，先使用 `download_file()` 方法生成下载网络文件的 action，
-    action 响应后文件会放于 go-cqhttp 缓存文件夹中，可直接在消息段中引用）
+    action 响应后文件会放于 cq 前端实现 缓存文件夹中，可直接在消息段中引用）
     """
     return BotAction(
         UploadFileActionArgs(
@@ -1395,7 +1396,7 @@ async def get_group_file_url(
 
 class GetCqStatusActionArgs(ActionArgs):
     """
-    获取 go-cqhttp 状态 action 信息构造类
+    获取 cq 前端实现 状态 action 信息构造类
     """
 
     def __init__(self) -> None:
@@ -1409,7 +1410,7 @@ async def get_cq_status(
     wait: bool = True, auto: bool = True
 ) -> Optional["ResponseEvent"] | BotAction:
     """
-    获取 go-cqhttp 状态
+    获取 cq 前端实现 状态
     """
     return BotAction(
         GetCqStatusActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1453,12 +1454,15 @@ class QuickHandleActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def quick_handle(
+async def _quick_handle(
     contextEvent: "BotEvent", operation: dict, wait: bool = False, auto: bool = True
 ) -> Optional["ResponseEvent"] | BotAction:
     """
-    事件快速操作
+    事件快速操作。
+
+    ### 提示：外部应该避免调用此方法，此方法只应在 melobot 内部使用
     """
+    warnings.warn("外部应该避免调用此方法，此方法只应在内部使用", DeprecationWarning)
     return BotAction(
         QuickHandleActionArgs(contextEvent, operation),
         resp_id=get_id() if wait else None,
@@ -1778,9 +1782,7 @@ async def send_reply(
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
-        raise BotSessionError(
-            "当前作用域内 session 上下文不存在，因此无法使用本方法"
-        )
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
     if isinstance(content, str):
         content_arr.append(text_msg(content))
@@ -1803,7 +1805,7 @@ async def finish(
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
 
 
-async def finish_reply(
+async def reply_finish(
     content: str | CQMsgDict | List[CQMsgDict],
     cq_str: bool = False,
 ) -> Optional["ResponseEvent"]:
@@ -1813,9 +1815,7 @@ async def finish_reply(
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
-        raise BotSessionError(
-            "当前作用域内 session 上下文不存在，因此无法使用本方法"
-        )
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
     if isinstance(content, str):
         content_arr.append(text_msg(content))
