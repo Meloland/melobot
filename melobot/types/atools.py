@@ -333,3 +333,33 @@ def semaphore(
         return wrapped_func
 
     return deco_func
+
+
+def timelimit(
+    callback: Callable[[None], Coroutine[Any, Any, Any]], timeout: float = 5
+) -> Callable:
+    """
+    时间限制装饰器，可以为被装饰的异步函数/方法添加超时控制。
+    在超时之后，将调用 callback 获得回调并执行，同时取消原任务
+    """
+    if not callable(callback):
+        raise BotBaseUtilsError(
+            f"timelimit 装饰器的 callback 参数不可调用，callback 值为：{callback}"
+        )
+
+    def deco_func(func: Callable) -> Callable:
+        @wraps(func)
+        async def wrapped_func(*args, **kwargs):
+            try:
+                return await aio.wait_for(func(*args, **kwargs), timeout)
+            except aio.TimeoutError:
+                cb = callback()
+                if not iscoroutine(cb):
+                    raise BotBaseUtilsError(
+                        f"timelimit 装饰器的 callback 返回的不是协程，返回的回调为：{cb}"
+                    )
+                return await cb
+
+        return wrapped_func
+
+    return deco_func

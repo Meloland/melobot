@@ -258,7 +258,6 @@ class Plugin:
         cls,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -266,7 +265,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为任意事件处理器（响应事件除外）
@@ -281,7 +279,6 @@ class Plugin:
                 params=[
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -289,7 +286,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -302,7 +298,6 @@ class Plugin:
         parser: "BotParser" = None,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -310,7 +305,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为消息事件处理器
@@ -327,7 +321,6 @@ class Plugin:
                     parser,
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -335,7 +328,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -346,7 +338,6 @@ class Plugin:
         cls,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -354,7 +345,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为任意消息事件处理器。
@@ -372,7 +362,6 @@ class Plugin:
                     None,
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -380,7 +369,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -394,7 +382,6 @@ class Plugin:
         parser: "BotParser" = None,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -402,7 +389,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为艾特消息匹配的消息事件处理器。
@@ -425,7 +411,6 @@ class Plugin:
                     parser,
                     wrapped_checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -433,7 +418,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -446,7 +430,6 @@ class Plugin:
         logic_mode: LogicMode = LogicMode.OR,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -454,7 +437,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串起始匹配的消息事件处理器。
@@ -473,7 +455,6 @@ class Plugin:
                     None,
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -481,7 +462,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -494,7 +474,6 @@ class Plugin:
         logic_mode: LogicMode = LogicMode.OR,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -502,7 +481,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串包含匹配的消息事件处理器。
@@ -521,7 +499,6 @@ class Plugin:
                     None,
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -529,7 +506,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -542,7 +518,6 @@ class Plugin:
         logic_mode: LogicMode = LogicMode.OR,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -550,7 +525,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串相等匹配的消息事件处理器。
@@ -569,7 +543,6 @@ class Plugin:
                     None,
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -577,7 +550,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -590,7 +562,6 @@ class Plugin:
         logic_mode: LogicMode = LogicMode.OR,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -598,7 +569,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串结尾匹配的消息事件处理器。
@@ -617,7 +587,6 @@ class Plugin:
                     None,
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -625,7 +594,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -637,7 +605,6 @@ class Plugin:
         target: str,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -645,7 +612,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为字符串正则匹配的消息事件处理器。
@@ -664,7 +630,6 @@ class Plugin:
                     None,
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -672,7 +637,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -683,7 +647,6 @@ class Plugin:
         cls,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -691,7 +654,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为请求事件处理器
@@ -706,7 +668,6 @@ class Plugin:
                 params=[
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -714,7 +675,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -725,7 +685,6 @@ class Plugin:
         cls,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -733,7 +692,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为私聊请求事件处理器
@@ -753,7 +711,6 @@ class Plugin:
                 params=[
                     wrapped_checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -761,7 +718,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -772,7 +728,6 @@ class Plugin:
         cls,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -780,7 +735,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为群请求事件处理器
@@ -800,7 +754,6 @@ class Plugin:
                 params=[
                     wrapped_checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -808,7 +761,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -839,7 +791,6 @@ class Plugin:
         ],
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -847,7 +798,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为通知事件处理器
@@ -867,7 +817,6 @@ class Plugin:
                 params=[
                     wrapped_checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -875,7 +824,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 
@@ -886,7 +834,6 @@ class Plugin:
         cls,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: int = None,
         block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -894,7 +841,6 @@ class Plugin:
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        overtime_cb: Callable[[], Coroutine[Any, Any, None]] = None,
     ) -> Callable:
         """
         使用该装饰器，将方法标记为元事件处理器
@@ -909,7 +855,6 @@ class Plugin:
                 params=[
                     checker,
                     priority,
-                    timeout,
                     block,
                     temp,
                     session_rule,
@@ -917,7 +862,6 @@ class Plugin:
                     direct_rouse,
                     conflict_wait,
                     conflict_cb,
-                    overtime_cb,
                 ],
             )
 

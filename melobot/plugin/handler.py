@@ -30,7 +30,6 @@ class EventHandler:
         logger: "Logger",
         checker: "BotChecker",
         priority: PriorLevel,
-        timeout: float,
         set_block: bool,
         temp: bool,
         session_rule: "SessionRule",
@@ -38,7 +37,6 @@ class EventHandler:
         direct_rouse: bool,
         conflict_wait: bool,
         conflict_cb: Callable[[], Coroutine],
-        overtime_cb: Callable[[], Coroutine],
     ) -> None:
         super().__init__()
         self.is_valid = True
@@ -48,7 +46,6 @@ class EventHandler:
         self.logger = logger
         self.checker = checker
         self.priority = priority
-        self.timeout = timeout
         self.set_block = set_block
         self.temp = temp
 
@@ -58,7 +55,6 @@ class EventHandler:
         self._plugin = plugin
         self._direct_rouse = direct_rouse
         self._conflict_cb = conflict_cb
-        self._overtime_cb = overtime_cb
         self._wait_flag = conflict_wait
 
         if session_rule is None:
@@ -120,12 +116,8 @@ class EventHandler:
             if session is None:
                 return
             # 如果没有冲突，正常获得到了 session
-            try:
-                exec_coro = self.executor(self._plugin)
-                await self._run_on_ctx(exec_coro, session, self.timeout)
-            except aio.TimeoutError:
-                if self._overtime_cb:
-                    await self._run_on_ctx(self._overtime_cb(), session)
+            exec_coro = self.executor(self._plugin)
+            await self._run_on_ctx(exec_coro, session)
         except DirectRetSignal:
             pass
         except Exception as e:
@@ -179,7 +171,6 @@ class AllEventHandler(EventHandler):
         logger: "Logger",
         checker: "BotChecker",
         priority: PriorLevel,
-        timeout: float,
         set_block: bool,
         temp: bool,
         session_rule: "SessionRule",
@@ -187,7 +178,6 @@ class AllEventHandler(EventHandler):
         direct_rouse: bool,
         conflict_wait: bool,
         conflict_cb: Callable[[], Coroutine],
-        overtime_cb: Callable[[], Coroutine],
     ) -> None:
         super().__init__(
             executor,
@@ -196,7 +186,6 @@ class AllEventHandler(EventHandler):
             logger,
             checker,
             priority,
-            timeout,
             set_block,
             temp,
             session_rule,
@@ -204,7 +193,6 @@ class AllEventHandler(EventHandler):
             direct_rouse,
             conflict_wait,
             conflict_cb,
-            overtime_cb,
         )
 
 
@@ -219,7 +207,6 @@ class MsgEventHandler(EventHandler):
         parser: "BotParser" = None,
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -227,7 +214,6 @@ class MsgEventHandler(EventHandler):
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -236,7 +222,6 @@ class MsgEventHandler(EventHandler):
             logger,
             checker,
             priority,
-            timeout,
             set_block,
             temp,
             session_rule,
@@ -244,7 +229,6 @@ class MsgEventHandler(EventHandler):
             direct_rouse,
             conflict_wait,
             conflict_cb,
-            overtime_cb,
         )
         self.matcher = matcher
         self.parser = parser
@@ -312,7 +296,6 @@ class ReqEventHandler(EventHandler):
         logger: "Logger",
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -320,7 +303,6 @@ class ReqEventHandler(EventHandler):
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -329,7 +311,6 @@ class ReqEventHandler(EventHandler):
             logger,
             checker,
             priority,
-            timeout,
             set_block,
             temp,
             session_rule,
@@ -337,7 +318,6 @@ class ReqEventHandler(EventHandler):
             direct_rouse,
             conflict_wait,
             conflict_cb,
-            overtime_cb,
         )
 
 
@@ -350,7 +330,6 @@ class NoticeEventHandler(EventHandler):
         logger: "Logger",
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -358,7 +337,6 @@ class NoticeEventHandler(EventHandler):
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -367,7 +345,6 @@ class NoticeEventHandler(EventHandler):
             logger,
             checker,
             priority,
-            timeout,
             set_block,
             temp,
             session_rule,
@@ -375,7 +352,6 @@ class NoticeEventHandler(EventHandler):
             direct_rouse,
             conflict_wait,
             conflict_cb,
-            overtime_cb,
         )
 
 
@@ -388,7 +364,6 @@ class MetaEventHandler(EventHandler):
         logger: "Logger",
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
-        timeout: float = None,
         set_block: bool = False,
         temp: bool = False,
         session_rule: "SessionRule" = None,
@@ -396,7 +371,6 @@ class MetaEventHandler(EventHandler):
         direct_rouse: bool = False,
         conflict_wait: bool = False,
         conflict_cb: Callable[[], Coroutine] = None,
-        overtime_cb: Callable[[], Coroutine] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -405,7 +379,6 @@ class MetaEventHandler(EventHandler):
             logger,
             checker,
             priority,
-            timeout,
             set_block,
             temp,
             session_rule,
@@ -413,7 +386,6 @@ class MetaEventHandler(EventHandler):
             direct_rouse,
             conflict_wait,
             conflict_cb,
-            overtime_cb,
         )
 
 

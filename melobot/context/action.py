@@ -1773,7 +1773,7 @@ async def send_reply(
     wait: bool = False,
 ) -> Optional["ResponseEvent"]:
     """
-    发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息）
+    发送一条回复消息
     """
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
@@ -1808,8 +1808,7 @@ async def finish_reply(
     cq_str: bool = False,
 ) -> Optional["ResponseEvent"]:
     """
-    发送一条回复消息（以回复消息的形式，回复 event 所指向的那条消息），
-    然后直接结束当前事件处理方法
+    发送一条回复消息，然后直接结束当前事件处理方法
     """
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]

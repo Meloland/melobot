@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 class MetaInfo:
     def __init__(self) -> None:
-        self.VER = "2.4.2"
+        self.VER = "2.4.4"
         self.PROJ_NAME = "MeloBot"
         self.PROJ_DESC = "A qbot module with friendly interface, session control and plugin-supported."
         self.PROJ_SRC = "https://github.com/aicorein/melobot"
