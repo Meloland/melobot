@@ -311,7 +311,8 @@ def to_cq_arr(s: str) -> list[CQMsgDict]:
         data = {}
         for param_pair in _[1:]:
             name, val = param_pair.split("=")
-            val = cq_anti_escape(val)
+            if cq_type != "text":
+                val = cq_anti_escape(val)
             if val.isdigit() or (len(val) >= 2 and val[0] == "-" and val[1:].isdigit()):
                 data[name] = int(val)
                 continue
@@ -332,7 +333,7 @@ def to_cq_str(content: list[CQMsgDict]) -> str:
     msgs = []
     for item in content:
         if item["type"] == "text":
-            msgs.append(cq_escape(item["data"]["text"]))
+            msgs.append(item["data"]["text"])
             continue
         s = f"[CQ:{item['type']}"
         for k, v in item["data"].items():

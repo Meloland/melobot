@@ -30,7 +30,7 @@ if len(sys.argv) != 2:
     print("以模块模式运行时，必须有且只有一个命令行参数：bot 主程序路径")
     sys.exit(0)
 bot_script_path = sys.argv[1]
-cmd = f"{sys.executable} {bot_script_path}"
+cmd = [sys.executable, bot_script_path]
 cwd = str(pathlib.Path.cwd().absolute().resolve(strict=True))
 os.environ[MODULE_MODE_FLAG] = MODULE_MODE_SET
 

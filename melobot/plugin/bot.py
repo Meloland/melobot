@@ -239,6 +239,7 @@ class BotProxy:
                 await aio.sleep(delay)
                 res = await callback
                 fut.set_result(res)
+                exit_cb.close()
             except aio.CancelledError:
                 if exit_cb is not None:
                     await exit_cb
@@ -282,6 +283,7 @@ class BotProxy:
                     coro = callback()
                     await aio.sleep(interval)
                     await coro
+                    exit_cb.close()
             except aio.CancelledError:
                 if exit_cb is not None:
                     await exit_cb
