@@ -1,10 +1,13 @@
 import asyncio as aio
+import io
 import pathlib
 import sys
 import time
 from asyncio import iscoroutine
 from contextlib import asynccontextmanager
 from functools import wraps
+
+import rich
 
 from .exceptions import *
 from .typing import *
@@ -171,6 +174,15 @@ def get_id() -> int:
     获取一个全局唯一 id，由 melobot 内部 id 生成器提供
     """
     return ID_WORKER.get_id()
+
+
+def get_rich_str(obj: object) -> str:
+    """
+    返回使用 rich 格式化的 object
+    """
+    sio = io.StringIO()
+    rich.print(obj, file=sio)
+    return sio.getvalue().strip("\n")
 
 
 def this_dir(*relative_path: str) -> str:

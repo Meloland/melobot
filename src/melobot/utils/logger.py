@@ -15,7 +15,7 @@ def get_logger(
     log_dir: str = None,
     log_level: Literal[
         "DEBUG", "ERROR", "INFO", "WARN", "WARNING", "CRITICAL"
-    ] = "DEBUG",
+    ] = "INFO",
 ) -> Logger:
     """
     无日志目录时获取只含 console 输出的 logger，否则返回含文件输出的 logger
@@ -47,7 +47,7 @@ def get_config(log_dir: str, log_level: str):
     config["handlers"]["console_handler"]["level"] = LOG_LEVEL_MAP[log_level]
     config["handlers"]["file_handler"] = {
         "class": "logging.handlers.RotatingFileHandler",
-        "level": logging.DEBUG,
+        "level": LOG_LEVEL_MAP[log_level],
         "formatter": "file_formatter",
         "filename": os.path.join(log_dir, "bot.log"),
         "maxBytes": 1024 * 1024,
@@ -98,14 +98,14 @@ LOG_CONFIG = {
     "formatters": {
         "console_formatter": {
             "()": "coloredlogs.ColoredFormatter",
-            "fmt": "[%(asctime)s] [%(levelname)s]: %(message)s",
+            "fmt": "[%(asctime)s] [%(levelname)s] %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "level_styles": LOG_LEVEL_COLORS,
             "field_styles": LOG_FIELD_COLORS,
         },
         "file_formatter": {
             "class": "logging.Formatter",
-            "format": "[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s]: %(message)s",
+            "format": "[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },

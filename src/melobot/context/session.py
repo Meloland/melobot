@@ -5,7 +5,7 @@ from copy import deepcopy
 from functools import wraps
 
 from ..types.abc import SessionRule
-from ..types.atools import get_twin_event
+from ..types.tools import get_twin_event
 from ..types.exceptions import *
 from ..types.typing import *
 

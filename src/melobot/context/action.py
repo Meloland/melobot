@@ -2,7 +2,7 @@ import warnings
 
 from ..models.cq import reply_msg, text_msg, to_cq_str_action
 from ..types.abc import ActionArgs, BotAction
-from ..types.atools import get_id
+from ..types.tools import get_id
 from ..types.exceptions import *
 from ..types.typing import *
 from .session import SESSION_LOCAL

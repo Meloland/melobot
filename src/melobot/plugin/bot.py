@@ -10,6 +10,7 @@ from types import MethodType
 from ..meta import MODULE_MODE_FLAG, MODULE_MODE_SET
 from ..types.abc import BotHookRunnerArgs, BotLife
 from ..types.exceptions import *
+from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
@@ -93,10 +94,10 @@ class BotHookBus:
             await runner.cb(*args, **kwargs)
         except Exception as e:
             func_name = runner._func.__qualname__
-            pre_str = "插件" + runner._plugin.ID if runner._plugin else "动态注册的"
+            pre_str = "插件 " + runner._plugin.ID if runner._plugin else "动态注册的"
             cls.__logger.error(f"{pre_str} hook 方法 {func_name} 发生异常")
             cls.__logger.error("异常回溯栈：\n" + get_better_exc(e))
-            cls.__logger.error("异常点局部变量：\n" + get_rich_locals(locals()))
+            cls.__logger.error("异常点局部变量：\n" + get_rich_str(locals()))
 
     @classmethod
     async def emit(

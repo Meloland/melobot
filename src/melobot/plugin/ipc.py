@@ -5,6 +5,7 @@ from types import MethodType
 
 from ..types.abc import PluginSignalHandlerArgs, ShareObjCbArgs
 from ..types.exceptions import *
+from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
@@ -213,9 +214,7 @@ class PluginBus:
             cls._register(namespace, signal, handler)
 
     @classmethod
-    async def _run_on_ctx(
-        cls, handler: PluginSignalHandler, *args, forward: bool = False, **kwargs
-    ) -> Any:
+    async def _run_on_ctx(cls, handler: PluginSignalHandler, *args, **kwargs) -> Any:
         """
         在指定的上下文下运行插件信号处理方法
         """
@@ -225,11 +224,9 @@ class PluginBus:
         except Exception as e:
             func_name = handler._func.__qualname__
             pre_str = "插件" + handler._plugin.ID if handler._plugin else "动态注册的"
-            cls.__logger.error(
-                f"{pre_str} 插件信号处理方法 {func_name} 发生异常"
-            )
+            cls.__logger.error(f"{pre_str} 插件信号处理方法 {func_name} 发生异常")
             cls.__logger.error("异常回溯栈：\n" + get_better_exc(e))
-            cls.__logger.error("异常点局部变量：\n" + get_rich_locals(locals()))
+            cls.__logger.error("异常点局部变量：\n" + get_rich_str(locals()))
 
     @classmethod
     async def emit(
@@ -238,7 +235,6 @@ class PluginBus:
         signal: str,
         *args,
         wait: bool = False,
-        forward: bool = False,
         **kwargs,
     ) -> Any:
         """
@@ -248,10 +244,6 @@ class PluginBus:
 
         注意：如果你要等待返回结果，则需要指定 wait=True，否则不会等待且始终返回 None
         """
-        if forward and not wait:
-            raise PluginSignalError(
-                "在触发插件信号处理方法时传递原始 session，wait 参数需要为 True"
-            )
         if namespace not in cls.__store__.keys():
             raise PluginSignalError(
                 f"插件信号命名空间 {namespace} 不存在，无法触发信号"
@@ -261,7 +253,7 @@ class PluginBus:
 
         handler = cls.__store__[namespace][signal]
         if not wait:
-            aio.create_task(cls._run_on_ctx(handler, forward=forward, *args, **kwargs))
+            aio.create_task(cls._run_on_ctx(handler, *args, **kwargs))
             return None
         else:
-            return await cls._run_on_ctx(handler, forward=forward, *args, **kwargs)
+            return await cls._run_on_ctx(handler, *args, **kwargs)

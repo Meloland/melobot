@@ -5,25 +5,36 @@ import sys
 
 import better_exceptions
 
+# 修复在 windows powershell 显示错误的 bug
+better_exceptions.encoding.ENCODING = sys.stdout.encoding
+better_exceptions.formatter.ENCODING = sys.stdout.encoding
+better_exceptions.hook()
+
 from .context.session import BotSessionManager
 from .controller.dispatcher import BotDispatcher
 from .controller.responder import BotResponder
 from .io.forward_ws import ForwardWsConn
-from .meta import EXIT_CLOSE, EXIT_RESTART, MODULE_MODE_FLAG, MODULE_MODE_SET, MetaInfo
+from .meta import (
+    EXIT_CLOSE,
+    EXIT_RESTART,
+    MELOBOT_LOGO,
+    MODULE_MODE_FLAG,
+    MODULE_MODE_SET,
+    MetaInfo,
+)
 from .models.event import BotEventBuilder
 from .plugin.bot import BOT_PROXY, BotHookBus
 from .plugin.handler import EVENT_HANDLER_MAP
 from .plugin.ipc import PluginBus, PluginStore
 from .plugin.plugin import Plugin, PluginLoader
 from .types.exceptions import *
+from .types.tools import get_rich_str
 from .types.typing import *
 from .utils.config import BotConfig
 from .utils.logger import get_logger
 
 if TYPE_CHECKING:
     from .utils.logger import Logger
-
-better_exceptions.hook()
 
 if sys.platform != "win32":
     import uvloop
@@ -80,8 +91,20 @@ class MeloBot:
             self.logger.error("bot 不能重复初始化")
             sys.exit(self.exit_code)
 
+        for l in MELOBOT_LOGO.split("\n"):
+            self.logger.info(l)
+        self.logger.info(" 欢迎使用 melobot v2")
+        self.logger.info(f" melobot 在 AGPL3 协议下开源发行")
+
         self.config = BotConfig(config_dir)
         self._logger = get_logger(self.config.log_dir_path, self.config.log_level)
+        # 在此之前日志会自动过滤到 INFO 级别
+        self.logger.info("-" * 38)
+        self.logger.info(f"运行版本：{self.info.VER}，平台：{self.info.PLATFORM}")
+        self.logger.debug("配置已初始化：\n" + get_rich_str(self.config.__dict__))
+        self.logger.debug(
+            f"日志器参数如下，日志文件路径：{self.config.log_dir_path}，日志等级：{self.config.log_level}"
+        )
         self.linker = ForwardWsConn(
             self.config.connect_host,
             self.config.connect_port,
@@ -100,14 +123,11 @@ class MeloBot:
         self.plugin_bus._bind(self.logger)
         self.bot_bus._bind(self.logger)
 
-        self.logger.info("欢迎使用 melobot v2")
-        self.logger.info(f"melobot 在 AGPL3 协议下开源发行")
-        self.logger.info(f"运行版本：{self.info.VER}，平台：{self.info.PLATFORM}")
         if os.environ.get(MODULE_MODE_FLAG) == MODULE_MODE_SET:
             self.logger.info("当前运行模式：模块运行模式")
         else:
             self.logger.info("当前运行模式：脚本运行模式")
-        self.logger.info("bot 核心初始化完成")
+        self.logger.debug("bot 核心初始化完成")
         self.__init_flag__ = True
 
     def load_plugin(self, plugin_target: str | Type[Plugin]) -> None:
@@ -140,6 +160,7 @@ class MeloBot:
         """
         从插件目录加载多个 bot 运行插件。但必须遵循标准插件格式
         """
+        self.logger.debug(f"尝试从目录 {plugins_dir} 批量加载插件")
         items = os.listdir(plugins_dir)
         for item in items:
             path = os.path.join(plugins_dir, item)
@@ -151,8 +172,10 @@ class MeloBot:
             self.logger.warning("没有加载任何插件，bot 将不会有任何操作")
 
         await self.bot_bus.emit(BotLife.LOADED)
+        self.logger.debug("LOADED hook 已完成")
         self.responder.bind(self.linker)
         self.linker.bind(self.dispatcher, self.responder)
+        self.logger.debug("各核心组件已完成绑定，准备启动连接支配器")
         try:
             async with self.linker:
                 aio.create_task(self.linker.send_queue_watch())
@@ -163,9 +186,10 @@ class MeloBot:
         except Exception as e:
             self.logger.error(f"bot 核心无法继续运行。异常：{e}")
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_locals(locals()))
+            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
         finally:
             await self.bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
+            self.logger.debug("BEFORE_STOP hook 已完成")
             self.logger.info("bot 已清理运行时资源")
             sys.exit(self.exit_code)
 
@@ -196,6 +220,7 @@ class MeloBot:
             self.logger.error("bot 尚未运行，无需停止")
             sys.exit(self.exit_code)
         await self.bot_bus.emit(BotLife.BEFORE_CLOSE, wait=True)
+        self.logger.debug("BEFORE_CLOSE hook 已完成")
         self.life.cancel()
 
     async def restart(self) -> None:

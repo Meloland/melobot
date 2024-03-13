@@ -115,9 +115,6 @@ class BotEvent(ABC, Flagable):
     def type(self) -> str:
         pass
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}: {json.dumps(self.raw)}>"
-
     def is_msg_event(self) -> bool:
         return self.type == "message"
 

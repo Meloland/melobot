@@ -1,6 +1,6 @@
 [project]
 name = "melobot"
-version = "2.4.8"
+version = "2.4.9"
 description = "A qbot module with friendly interface, session control and plugin-supported."
 authors = [
     {name = "aicorein", email = "melodyecho@glowmem.com"},
@@ -10,7 +10,7 @@ dependencies = [
     "toml>=0.10.2",
     "uvloop>=0.17.0; platform_system==\"Linux\"",
     "websockets>=10.4",
-    "better-exceptions>=0.3.3",
+    "better-exceptions==0.3.3",
     "rich>=13.7.1",
 ]
 requires-python = ">=3.10"

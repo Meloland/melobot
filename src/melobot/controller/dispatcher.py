@@ -2,6 +2,7 @@ import asyncio as aio
 
 from ..types.abc import AbstractDispatcher
 from ..types.exceptions import *
+from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
@@ -76,8 +77,9 @@ class BotDispatcher(AbstractDispatcher):
                     permit_priority = handler.priority
         except Exception as e:
             self.logger.error(f"bot dispatcher 抛出异常")
+            self.logger.error("异常点 event：\n" + get_rich_str(event))
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_locals(locals()))
+            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
 
     async def dispatch(self, event: "BotEvent") -> None:
         """
@@ -85,5 +87,7 @@ class BotDispatcher(AbstractDispatcher):
         """
         await self._ready_signal.wait()
         await self._bot_bus.emit(BotLife.EVENT_BUILT, event, wait=True)
+        self.logger.debug(f"event {id(event)} built hook 已完成")
         for channel in self._channel_map[event.type]:
+            self.logger.debug(f"向 {channel.__name__} 通道广播 event {id(event)}")
             aio.create_task(self.broadcast(event, channel))

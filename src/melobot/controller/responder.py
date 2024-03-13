@@ -3,6 +3,7 @@ from asyncio import Future
 
 from ..types.abc import AbstractDispatcher, AbstractResponder
 from ..types.exceptions import *
+from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
@@ -36,6 +37,9 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
         await self._ready_signal.wait()
 
         try:
+            self.logger.debug(
+                f"收到 resp {id(resp)}，结构：\n" + get_rich_str(resp.raw)
+            )
             if resp.id is None:
                 return
             else:
@@ -51,11 +55,10 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
             )
             self._resp_table.pop(resp.id)
         except Exception as e:
-            self.logger.error(
-                f"bot responder.dispatch 抛出异常"
-            )
+            self.logger.error(f"bot responder.dispatch 抛出异常")
+            self.logger.error("异常点 resp_event：\n" + get_rich_str(resp))
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_locals(locals()))
+            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
 
     async def take_action(self, action: "BotAction") -> None:
         """

@@ -4,6 +4,7 @@ from melobot.models.event import MessageEvent
 
 from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
 from ..types.exceptions import *
+from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
@@ -116,6 +117,7 @@ class EventHandler:
                 return
             # 如果没有冲突，正常获得到了 session
             exec_coro = self.executor(self._plugin)
+            self.logger.debug(f"event {id(event)} 准备在 session {id(session)} 中处理")
             await self._run_on_ctx(exec_coro, session)
         except DirectRetSignal:
             pass
@@ -124,11 +126,13 @@ class EventHandler:
             self.logger.error(
                 f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常"
             )
+            self.logger.error("异常点 event：\n" + get_rich_str(event))
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_locals(locals()))
+            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
         finally:
             if session is None:
                 return
+            self.logger.debug(f"event {id(event)} 在 session {id(session)} 中运行完毕")
             BotSessionManager.recycle(session, alive=self._hold)
 
     async def _pre_process(self, event: "BotEvent") -> Coroutine[Any, Any, bool]:
@@ -144,7 +148,12 @@ class EventHandler:
         if not self.is_valid:
             return False
 
-        if not (await self._pre_process(event)):
+        status = await self._pre_process(event)
+        if status:
+            self.logger.debug(
+                f"event {id(event)} 在 handler {id(self)} pre_process 通过，处理方法为：{self.executor.__qualname__}"
+            )
+        if not status:
             return False
 
         if not self.temp:

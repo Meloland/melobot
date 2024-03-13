@@ -1,8 +1,6 @@
-import io
 import sys
 
 from better_exceptions import ExceptionFormatter
-from rich import print
 
 
 class BotException(Exception):
@@ -113,7 +111,7 @@ class SessionHupTimeout(BotException):
         super().__init__(msg)
 
 
-_EXC_FORMATTER = ExceptionFormatter(colored=False, pipe_char="|", cap_char="└")
+_EXC_FORMATTER = ExceptionFormatter(colored=False)
 
 
 def get_better_exc(e: Exception) -> str:
@@ -123,12 +121,3 @@ def get_better_exc(e: Exception) -> str:
     return "".join(
         _EXC_FORMATTER.format_exception(e.__class__, e, sys.exc_info()[2])
     ).strip("\n")
-
-
-def get_rich_locals(locals: dict) -> str:
-    """
-    返回使用 rich 格式化的 locals() dict
-    """
-    sio = io.StringIO()
-    print(locals, file=sio)
-    return sio.getvalue().strip("\n")
