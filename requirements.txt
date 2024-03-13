@@ -1,4 +1,0 @@
-toml>=0.10.2
-websockets>=10.4
-colorlog>=6.7.0
-uvloop>=0.17.0; platform_system=="Linux"
