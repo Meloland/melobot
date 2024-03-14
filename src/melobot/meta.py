@@ -23,11 +23,6 @@ class MetaInfo:
         self.ENV = os.environ
 
     def get_all(self) -> Dict[str, Any]:
-        """将所有元信息以字典形式返回
-
-        Returns:
-            Dict[str, Any]: 包含所有元信息的字典
-        """
         return dict(self.__dict__.items())
 
 

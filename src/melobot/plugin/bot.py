@@ -165,13 +165,13 @@ class BotProxy:
         """
         获得 bot 全局配置
         """
-        return deepcopy(self.__origin__.config)
+        return deepcopy(self.__origin__._config)
 
     def get_plugins(self) -> Dict[str, PluginProxy]:
         """
         获取 bot 当前所有插件信息
         """
-        return {id: plugin._proxy for id, plugin in self.__origin__.plugins.items()}
+        return {id: plugin._proxy for id, plugin in self.__origin__._plugins.items()}
 
     def slack(self) -> None:
         """
