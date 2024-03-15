@@ -4,9 +4,6 @@ from ..context.action import send
 from ..types.exceptions import *
 from ..types.typing import *
 
-if TYPE_CHECKING:
-    from ..models.event import MessageEvent, ResponseEvent
-
 
 class FormatInfo:
     """

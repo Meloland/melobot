@@ -25,7 +25,6 @@ from ..utils.checker import (
 )
 from ..utils.logger import PrefixLogger
 from ..utils.matcher import ContainMatch, EndMatch, FullMatch, RegexMatch, StartMatch
-from .bot import BotHookBus, HookRunner, PluginProxy
 from .handler import (
     AllEventHandler,
     EventHandler,
@@ -34,14 +33,35 @@ from .handler import (
     NoticeEventHandler,
     ReqEventHandler,
 )
-from .ipc import PluginBus, PluginSignalHandler, PluginStore
 
 if TYPE_CHECKING:
-    from ..types.abc import AbstractResponder, BotLife, SessionRule
+    from ..bot.hook import BotHookBus
+    from ..types.abc import BotLife, SessionRule
     from ..utils.checker import BotChecker
-    from ..utils.logger import Logger
+    from ..utils.logger import BotLogger
     from ..utils.matcher import BotMatcher
     from ..utils.parser import BotParser
+    from .ipc import PluginBus, PluginStore
+
+
+class PluginProxy:
+    """
+    bot 插件代理类。供外部使用
+    """
+
+    def __init__(
+        self,
+        id: str,
+        ver: str,
+        path: Path,
+        share_objs: list[tuple[str, str]],
+        signal_methods: list[tuple[str, str]],
+    ) -> None:
+        self.id = id
+        self.version = ver
+        self.path = path
+        self.shares = share_objs
+        self.signal_methods = signal_methods
 
 
 class PluginLoader:
@@ -49,8 +69,8 @@ class PluginLoader:
     插件加载器
     """
 
-    @classmethod
-    def load_from_dir(cls, plugin_path: str) -> tuple["Plugin", str]:
+    @staticmethod
+    def load_from_dir(plugin_path: str) -> tuple["Plugin", str]:
         """
         从指定插件目录加载插件
         """
@@ -85,31 +105,74 @@ class PluginLoader:
         file_path = inspect.getfile(module)
         return (plugin, file_path)
 
-    @classmethod
-    def load_from_type(cls, _class: Type["Plugin"]) -> tuple["Plugin", str]:
+    @staticmethod
+    def load_from_type(class_: Type["Plugin"]) -> tuple["Plugin", str]:
         """
         从插件类对象加载插件
         """
-        plugin = _class()
-        file_path = inspect.getfile(_class)
+        plugin = class_()
+        file_path = inspect.getfile(class_)
         return (plugin, file_path)
 
-    @classmethod
+    @staticmethod
+    def _build_plugin(
+        plugin: "Plugin",
+        root_path: Path,
+        logger: "BotLogger",
+        store: "PluginStore",
+        plugin_bus: "PluginBus",
+        bot_bus: "BotHookBus",
+    ) -> None:
+        plugin.PATH = root_path
+        plugin.LOGGER = PrefixLogger(logger, plugin.ID)
+
+        attrs_map = {
+            k: v for k, v in inspect.getmembers(plugin) if not k.startswith("__")
+        }
+        share_objs_map = plugin._init_share_objs(store, attrs_map, plugin.SHARES)
+
+        plugin._handlers = []
+        signal_methods_map = []
+        members = inspect.getmembers(plugin)
+        for attr_name, val in members:
+            if isinstance(val, EventHandlerArgs):
+                handler = plugin._init_event_handler(
+                    logger, val.executor, val.type, *val.params
+                )
+                plugin._handlers.append(handler)
+            elif isinstance(val, BotHookRunnerArgs):
+                plugin._init_hook_runner(bot_bus, val.func, val.type)
+            elif isinstance(val, ShareObjCbArgs):
+                plugin._init_share_obj_cb(store, val.namespace, val.id, val.cb)
+            elif isinstance(val, PluginSignalHandlerArgs):
+                plugin._init_plugin_signal_handler(
+                    plugin_bus, val.namespace, val.signal, val.func
+                )
+                signal_methods_map.append((val.namespace, val.signal))
+
+        plugin._proxy = PluginProxy(
+            plugin.ID, plugin.VERSION, plugin.PATH, share_objs_map, signal_methods_map
+        )
+
+    @staticmethod
     def load(
-        cls,
         target: str | Type["Plugin"],
-        logger: "Logger",
-        responder: "AbstractResponder",
+        logger: "BotLogger",
+        store: "PluginStore",
+        plugin_bus: "PluginBus",
+        bot_bus: "BotHookBus",
     ) -> "Plugin":
         """
         加载插件
         """
         if isinstance(target, str):
-            plugin, file_path = cls.load_from_dir(target)
+            plugin, file_path = PluginLoader.load_from_dir(target)
         else:
-            plugin, file_path = cls.load_from_type(target)
+            plugin, file_path = PluginLoader.load_from_type(target)
         root_path = pathlib.Path(file_path).parent.resolve(strict=True)
-        plugin._build(root_path, logger, responder)
+        PluginLoader._build_plugin(
+            plugin, root_path, logger, store, plugin_bus, bot_bus
+        )
         return plugin
 
 
@@ -132,44 +195,13 @@ class Plugin:
 
         self._handlers: List[EventHandler]
         self._proxy: PluginProxy
-
-    def _build(
-        self, root_path: Path, logger: "Logger", responder: "AbstractResponder"
-    ) -> None:
-        """
-        初始化当前插件
-        """
-        self.PATH = root_path
-        self.LOGGER = PrefixLogger(logger, self.ID)
-
-        attrs_map = {
-            k: v for k, v in inspect.getmembers(self) if not k.startswith("__")
-        }
-        share_objs_map = self._init_share_objs(attrs_map, self.SHARES)
-
-        self._handlers = []
-        signal_methods_map = []
-        members = inspect.getmembers(self)
-        for attr_name, val in members:
-            if isinstance(val, EventHandlerArgs):
-                handler = self._init_event_handler(
-                    responder, logger, val.executor, val.type, *val.params
-                )
-                self._handlers.append(handler)
-            elif isinstance(val, BotHookRunnerArgs):
-                self._init_hook_runner(val.func, val.type)
-            elif isinstance(val, ShareObjCbArgs):
-                self._init_share_obj_cb(val.namespace, val.id, val.cb)
-            elif isinstance(val, PluginSignalHandlerArgs):
-                self._init_plugin_signal_handler(val.namespace, val.signal, val.func)
-                signal_methods_map.append((val.namespace, val.signal))
-
-        self._proxy = PluginProxy(
-            self.ID, self.VERSION, self.PATH, share_objs_map, signal_methods_map
-        )
+        self._handlers: list[EventHandler]
 
     def _init_share_objs(
-        self, attrs_map: dict[str, Any], shares: List[ShareObjArgs | str]
+        self,
+        store: "PluginStore",
+        attrs_map: dict[str, Any],
+        shares: List[ShareObjArgs | str],
     ) -> list[tuple[str, str]]:
         """
         初始化所有的共享对象。
@@ -189,14 +221,13 @@ class Plugin:
                 raise PluginBuildError(
                     f"插件 {self.ID} 尝试共享一个不存在的属性 {property}"
                 )
-            PluginStore._create_so(property, namespace, id, self)
+            store._create_so(property, namespace, id, self)
             share_objs.append((namespace, id))
         return share_objs
 
     def _init_event_handler(
         self,
-        responder: "AbstractResponder",
-        logger: "Logger",
+        logger: "BotLogger",
         executor: Callable[[], Coroutine[Any, Any, None]],
         handler_class: Type[EventHandler],
         *params: Any,
@@ -215,23 +246,29 @@ class Plugin:
             raise PluginBuildError(
                 f"冲突回调方法 {conflict_cb.__name__} 必须为可调用对象"
             )
-        handler = handler_class(executor, self, responder, logger, *params)
+        handler = handler_class(executor, self, logger, *params)
         BotSessionManager.register(handler)
         return handler
 
     def _init_hook_runner(
-        self, hook_func: Callable[..., Coroutine[Any, Any, None]], type: "BotLife"
+        self,
+        bot_bus: "BotHookBus",
+        hook_func: Callable[..., Coroutine[Any, Any, None]],
+        type: "BotLife",
     ) -> None:
         """
         初始化指定的 bot 生命周期的 hook 方法
         """
         if not iscoroutinefunction(hook_func):
             raise PluginBuildError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
-        runner = HookRunner(type, hook_func, self)
-        BotHookBus._register(type, runner)
+        bot_bus._register(type, hook_func, self)
 
     def _init_share_obj_cb(
-        self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
+        self,
+        store: "PluginStore",
+        namespace: str,
+        id: str,
+        cb: Callable[..., Coroutine[Any, Any, Any]],
     ) -> None:
         """
         初始化指定的共享对象的回调
@@ -240,18 +277,21 @@ class Plugin:
             raise PluginBuildError(
                 f"{namespace} 命名空间中，id 为 {id} 的共享对象，它的回调 {cb.__name__} 必须为异步函数"
             )
-        PluginStore._bind_cb(namespace, id, cb, self)
+        store._bind_cb(namespace, id, cb, self)
 
     def _init_plugin_signal_handler(
-        self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
+        self,
+        plugin_bus: "PluginBus",
+        namespace: str,
+        signal: str,
+        func: Callable[..., Coroutine[Any, Any, Any]],
     ) -> None:
         """
         初始化指定的插件信号处理方法
         """
         if not iscoroutinefunction(func):
             raise PluginBuildError(f"插件信号处理方法 {func.__name__} 必须为异步函数")
-        handler = PluginSignalHandler(namespace, signal, func, self)
-        PluginBus._register(namespace, signal, handler)
+        plugin_bus._register(namespace, signal, func, self)
 
     @classmethod
     def on_event(

@@ -10,8 +10,8 @@ from .cq import to_cq_arr, to_cq_str
 
 
 class BotEventBuilder:
-    @classmethod
-    def build(cls, rawEvent: dict | str) -> BotEvent:
+    @staticmethod
+    def build(rawEvent: dict | str) -> BotEvent:
         if isinstance(rawEvent, str):
             rawEvent = json.loads(rawEvent)
 

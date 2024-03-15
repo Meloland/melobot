@@ -1,6 +1,7 @@
+import asyncio as aio
 import json
 from abc import ABC, abstractmethod, abstractproperty
-from asyncio import Future
+from contextvars import ContextVar, Token
 from copy import deepcopy
 
 from melobot.types.typing import Coroutine
@@ -9,42 +10,61 @@ from .exceptions import *
 from .typing import *
 
 if TYPE_CHECKING:
-    from ..models.event import ResponseEvent
+    from ..bot.hook import BotHookBus
+    from ..bot.init import MeloBot
+    from ..controller.dispatcher import BotDispatcher
+    from ..controller.responder import BotResponder
+    from ..models.event import BotEventBuilder
     from ..plugin.handler import EventHandler
+    from ..utils.logger import BotLogger
 
 
-class AbstractSender(ABC):
-    def __init__(self) -> None:
+class AbstractConnector(ABC):
+    def __init__(
+        self,
+        max_retry: int,
+        retry_delay: float,
+        cd_time: float,
+    ) -> None:
         super().__init__()
+        self.slack: bool = False
+        self.max_retry = max_retry
+        self.retry_delay = retry_delay if retry_delay > 0 else 0
+        self.cd_time = cd_time
+
+        self._ref_flag: bool = False
+        self._ready_signal = aio.Event()
 
     @abstractmethod
-    async def send(self, action: "BotAction") -> None:
-        pass
-
-
-class AbstractResponder(ABC):
-    def __init__(self) -> None:
-        super().__init__()
-
-    @abstractmethod
-    async def dispatch(self, resp: "ResponseEvent") -> None:
-        pass
-
-    @abstractmethod
-    async def take_action(self, action: "BotAction") -> None:
+    async def __aenter__(self):
         pass
 
     @abstractmethod
-    async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
+    async def __aexit__(
+        self, exc_type: Exception, exc_val: str, exc_tb: ModuleType
+    ) -> bool:
         pass
 
-
-class AbstractDispatcher(ABC):
-    def __init__(self) -> None:
-        super().__init__()
+    def _set_ready(self) -> None:
+        self._ready_signal.set()
 
     @abstractmethod
-    async def dispatch(self, event: "BotEvent") -> None:
+    def _bind(
+        self,
+        dispatcher: "BotDispatcher",
+        responder: "BotResponder",
+        event_builder: Type["BotEventBuilder"],
+        bot_bus: "BotHookBus",
+        logger: "BotLogger",
+    ) -> None:
+        pass
+
+    @abstractmethod
+    async def _start_tasks(self) -> list[aio.Task]:
+        pass
+
+    @abstractmethod
+    async def _send(self, action: "BotAction") -> None:
         pass
 
 
@@ -449,3 +469,28 @@ class BotParser(ABC):
     @abstractmethod
     async def format(self, cmd_name: str, args: ParseArgs) -> bool:
         pass
+
+
+class BotLocal:
+    """
+    MeloBot 自动上下文
+    """
+
+    def __init__(self) -> None:
+        object.__setattr__(self, "__storage__", ContextVar("melobot_ctx"))
+        self.__storage__: ContextVar["MeloBot"]
+
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        setattr(self.__storage__.get(), __name, __value)
+
+    def __getattr__(self, __name: str) -> Any:
+        return getattr(self.__storage__.get(), __name)
+
+    def _add_ctx(self, ctx: "MeloBot") -> Token:
+        return self.__storage__.set(ctx)
+
+    def _del_ctx(self, token: Token) -> None:
+        self.__storage__.reset(token)
+
+
+BOT_LOCAL = BotLocal()

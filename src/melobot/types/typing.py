@@ -1,3 +1,4 @@
+import sys
 from enum import Enum
 from types import ModuleType
 from typing import (
@@ -20,6 +21,13 @@ from typing import (
     TypeVar,
     Union,
 )
+
+import better_exceptions
+
+# 修复在 windows powershell 显示错误的 bug
+better_exceptions.encoding.ENCODING = sys.stdout.encoding
+better_exceptions.formatter.ENCODING = sys.stdout.encoding
+better_exceptions.hook()
 
 
 class CQMsgDict(TypedDict):

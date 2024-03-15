@@ -1,55 +1,57 @@
 import asyncio as aio
 
-from ..types.abc import AbstractDispatcher
 from ..types.exceptions import *
 from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
+    from ..bot.hook import BotHookBus
     from ..context.session import BotSessionManager
-    from ..plugin.bot import BotHookBus
     from ..plugin.handler import EventHandler
     from ..types.abc import BotEvent
-    from ..utils.logger import Logger
+    from ..utils.logger import BotLogger
 
 
-class BotDispatcher(AbstractDispatcher):
+class BotDispatcher:
     """
     bot 分发模块。负责将传递的事件分发到各事件通道
     （接收的事件类型：消息、请求、通知和元事件）
     """
 
-    def __init__(
-        self,
-        channel_map: dict[str, tuple[Type["EventHandler"], ...]],
-        bot_bus: Type["BotHookBus"],
-        ctx_manager: Type["BotSessionManager"],
-        logger: "Logger",
-    ) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self.handlers: Dict[Type["EventHandler"], List["EventHandler"]] = {}
+        self._ready_signal = aio.Event()
 
+    def _bind(
+        self,
+        channel_map: dict[str, tuple[Type["EventHandler"], ...]],
+        bot_bus: "BotHookBus",
+        ctx_manager: Type["BotSessionManager"],
+        logger: "BotLogger",
+    ) -> None:
         self.logger = logger
         self._channel_map = channel_map
         self._bot_bus = bot_bus
         self._ctx_managger = ctx_manager
-        self._ready_signal = aio.Event()
 
         for tuple in self._channel_map.values():
             for channel in tuple:
                 if channel not in self.handlers.keys():
                     self.handlers[channel] = []
 
-    def add_handlers(self, all_handlers: List["EventHandler"]) -> None:
+    def add_handlers(self, handlers: List["EventHandler"]) -> None:
         """
         绑定事件处理器列表
         """
-        for handler in all_handlers:
+        for handler in handlers:
             self.handlers[handler.__class__].append(handler)
         for k in self.handlers.keys():
             self.handlers[k] = sorted(
                 self.handlers[k], key=lambda x: x.priority, reverse=True
             )
+
+    def _set_ready(self) -> None:
         self._ready_signal.set()
 
     async def broadcast(self, event: "BotEvent", channel: Type["EventHandler"]) -> None:

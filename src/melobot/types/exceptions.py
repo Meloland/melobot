@@ -16,6 +16,16 @@ class BotException(Exception):
         return self.err
 
 
+class DuplicateError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class BotRuntimeError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
 class PluginLoadError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)

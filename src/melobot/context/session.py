@@ -4,15 +4,16 @@ from contextvars import ContextVar, Token
 from copy import deepcopy
 from functools import wraps
 
-from ..types.abc import SessionRule
-from ..types.tools import get_twin_event
+from ..types.abc import BOT_LOCAL, SessionRule
 from ..types.exceptions import *
+from ..types.tools import get_twin_event, to_task
 from ..types.typing import *
 
 if TYPE_CHECKING:
+    from ..bot.init import MeloBot
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..plugin.handler import EventHandler
-    from ..types.abc import AbstractResponder, BotAction, BotEvent
+    from ..types.abc import BotAction, BotEvent
 
 
 class BotSession:
@@ -24,7 +25,6 @@ class BotSession:
         self,
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         manager: Type["BotSessionManager"],
-        responder: "AbstractResponder",
         space_tag: "EventHandler" = None,
     ) -> None:
         super().__init__()
@@ -34,7 +34,6 @@ class BotSession:
         self.event = event
 
         self._manager = manager
-        self._responder = responder
         # session 是否空闲的标志，由 BotSessionManager 修改和管理
         self._free_signal = aio.Event()
         self._free_signal.set()
@@ -75,7 +74,7 @@ class BotSession:
             raise BotSessionError("session 挂起超时时间（秒数）必须 > 0")
         else:
             await aio.wait(
-                [self._awake_signal.wait(), aio.sleep(overtime)],
+                [to_task(self._awake_signal.wait()), to_task(aio.sleep(overtime))],
                 return_when=aio.FIRST_COMPLETED,
             )
             if self._awake_signal.is_set():
@@ -135,7 +134,6 @@ class SessionLocal:
 
 
 SESSION_LOCAL = SessionLocal()
-SESSION_LOCAL: BotSession
 
 
 class AttrSessionRule(SessionRule):
@@ -165,11 +163,7 @@ class BotSessionManager:
     DEADLOCK_FLAGS: Dict["EventHandler", aio.Event] = {}
     # 对应每个 handler 的 try_attach 过程的操作锁
     ATTACH_LOCKS: Dict["EventHandler", aio.Lock] = {}
-    RESPONDER: "AbstractResponder"
-
-    @classmethod
-    def _bind(cls, responder: "AbstractResponder") -> None:
-        cls.RESPONDER = responder
+    BOT: "MeloBot" = BOT_LOCAL
 
     @classmethod
     def register(cls, handler: "EventHandler") -> None:
@@ -307,10 +301,10 @@ class BotSessionManager:
         """
         if handler:
             if handler._rule:
-                session = BotSession(event, cls, cls.RESPONDER, handler)
+                session = BotSession(event, cls, handler)
                 cls.STORAGE[handler].add(session)
                 return session
-        session = BotSession(event, cls, cls.RESPONDER)
+        session = BotSession(event, cls)
         return session
 
     @classmethod
@@ -354,7 +348,7 @@ class BotSessionManager:
             return None
         # 如果会话存在，且未过期，但是不空闲，选择等待，此时就不得不陷入等待（即将发生协程切换）
         await aio.wait(
-            [session._free_signal.wait(), session._hup_signal.wait()],
+            [to_task(session._free_signal.wait()), to_task(session._hup_signal.wait())],
             return_when=aio.FIRST_COMPLETED,
         )
         if session._hup_signal.is_set():
@@ -400,9 +394,9 @@ class BotSessionManager:
             if not action.ready:
                 return action
             if action.resp_id is None:
-                return await cls.RESPONDER.take_action(action)
+                return await cls.BOT._responder.take_action(action)
             else:
-                return await (await cls.RESPONDER.take_action_wait(action))
+                return await (await cls.BOT._responder.take_action_wait(action))
 
         return activated_action
 

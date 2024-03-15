@@ -1,5 +1,3 @@
-import asyncio as aio
-
 from ..types.abc import BotChecker
 from ..types.exceptions import *
 from ..types.typing import *

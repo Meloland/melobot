@@ -10,15 +10,8 @@ from ..types.typing import *
 if TYPE_CHECKING:
     from ..context.session import BotSession
     from ..models.event import MessageEvent
-    from ..types.abc import (
-        AbstractResponder,
-        BotChecker,
-        BotEvent,
-        BotMatcher,
-        BotParser,
-        SessionRule,
-    )
-    from ..utils.logger import Logger
+    from ..types.abc import BotChecker, BotEvent, BotMatcher, BotParser, SessionRule
+    from ..utils.logger import BotLogger
 
 
 class EventHandler:
@@ -26,8 +19,7 @@ class EventHandler:
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: "AbstractResponder",
-        logger: "Logger",
+        logger: "BotLogger",
         checker: "BotChecker",
         priority: PriorLevel,
         set_block: bool,
@@ -42,7 +34,6 @@ class EventHandler:
         self.is_valid = True
 
         self.executor = executor
-        self.responder = responder
         self.logger = logger
         self.checker = checker
         self.priority = priority
@@ -174,8 +165,7 @@ class AllEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: "AbstractResponder",
-        logger: "Logger",
+        logger: "BotLogger",
         checker: "BotChecker",
         priority: PriorLevel,
         set_block: bool,
@@ -189,7 +179,6 @@ class AllEventHandler(EventHandler):
         super().__init__(
             executor,
             plugin,
-            responder,
             logger,
             checker,
             priority,
@@ -208,8 +197,7 @@ class MsgEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: "AbstractResponder",
-        logger: "Logger",
+        logger: "BotLogger",
         matcher: "BotMatcher" = None,
         parser: "BotParser" = None,
         checker: "BotChecker" = None,
@@ -225,7 +213,6 @@ class MsgEventHandler(EventHandler):
         super().__init__(
             executor,
             plugin,
-            responder,
             logger,
             checker,
             priority,
@@ -299,8 +286,7 @@ class ReqEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: "AbstractResponder",
-        logger: "Logger",
+        logger: "BotLogger",
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
@@ -314,7 +300,6 @@ class ReqEventHandler(EventHandler):
         super().__init__(
             executor,
             plugin,
-            responder,
             logger,
             checker,
             priority,
@@ -333,8 +318,7 @@ class NoticeEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: "AbstractResponder",
-        logger: "Logger",
+        logger: "BotLogger",
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
@@ -348,7 +332,6 @@ class NoticeEventHandler(EventHandler):
         super().__init__(
             executor,
             plugin,
-            responder,
             logger,
             checker,
             priority,
@@ -367,8 +350,7 @@ class MetaEventHandler(EventHandler):
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
-        responder: "AbstractResponder",
-        logger: "Logger",
+        logger: "BotLogger",
         checker: "BotChecker" = None,
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
@@ -382,7 +364,6 @@ class MetaEventHandler(EventHandler):
         super().__init__(
             executor,
             plugin,
-            responder,
             logger,
             checker,
             priority,

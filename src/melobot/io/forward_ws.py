@@ -5,19 +5,23 @@ from itertools import count
 import websockets
 import websockets.exceptions as wse
 
-from ..types.abc import AbstractDispatcher, AbstractSender, BotLife
+from ..types.abc import AbstractConnector, BotLife
 from ..types.exceptions import *
 from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
+    import websockets.legacy.client as wlc
+
+    from ..bot.hook import BotHookBus
+    from ..controller.dispatcher import BotDispatcher
+    from ..controller.responder import BotResponder
     from ..models.event import BotEventBuilder
-    from ..plugin.bot import BotHookBus
     from ..types.abc import BotAction
-    from ..utils.logger import Logger
+    from ..utils.logger import BotLogger
 
 
-class ForwardWsConn(AbstractSender):
+class ForwardWsConn(AbstractConnector):
     """
     通过连接适配器的代理，完成事件接收与行为发送。
     """
@@ -26,57 +30,49 @@ class ForwardWsConn(AbstractSender):
         self,
         connect_host: str,
         connect_port: int,
-        max_retry: int,
-        retry_delay: int,
-        send_interval: float,
-        event_builder: Type["BotEventBuilder"],
-        bot_bus: Type["BotHookBus"],
-        logger: "Logger",
+        max_retry: int = -1,
+        retry_delay: float = 5.0,
+        cd_time: float = 0.2,
     ) -> None:
-        super().__init__()
-        self.logger = logger
-        self.logger.debug(f"当前使用的连接适配器：{self.__class__.__name__}")
+        super().__init__(max_retry, retry_delay, cd_time)
+        self.logger: "BotLogger"
         self.url = f"ws://{connect_host}:{connect_port}"
-        self.logger.debug(f"连接的 url：{self.url}")
-        self.conn = None
+        self.conn: "wlc.Connect"
 
-        self.slack = False
-        self.max_retry_num = max_retry
-        self.retry_delay = retry_delay if retry_delay > 0 else 0
-        self._rest_time = send_interval
-        self.logger.debug(
-            f"连接适配器初始化参数如下，重试次数：{max_retry}，重试间隔：{self.retry_delay}，冷却时间：{send_interval}"
-        )
-
-        self._event_builder = event_builder
-        self._bot_bus = bot_bus
+        self._event_builder: "BotEventBuilder"
+        self._bot_bus: "BotHookBus"
         self._send_queue: aio.Queue["BotAction"] = aio.Queue()
-        self._ready_signal = aio.Event()
         self._pre_send_time = time.time()
-        self._common_dispatcher: AbstractDispatcher
-        self._resp_dispatcher: AbstractDispatcher
+        self._common_dispatcher: "BotDispatcher"
+        self._resp_dispatcher: "BotResponder"
 
-    def bind(
+    def _bind(
         self,
-        common_dispatcher: AbstractDispatcher,
-        resp_dispatcher: AbstractDispatcher,
+        common_dispatcher: "BotDispatcher",
+        resp_dispatcher: "BotResponder",
+        event_builder: Type["BotEventBuilder"],
+        bot_bus: "BotHookBus",
+        logger: "BotLogger",
     ) -> None:
         """
         绑定其他核心组件的方法。
         """
+        self._event_builder = event_builder
+        self._bot_bus = bot_bus
+        self.logger = logger
         self._common_dispatcher = common_dispatcher
         self._resp_dispatcher = resp_dispatcher
-        self._ready_signal.set()
 
     async def _start(self) -> None:
         """
         启动连接
         """
-        iterator = count(0) if self.max_retry_num < 0 else range(self.max_retry_num + 1)
+        iterator = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
         for _ in iterator:
             try:
                 self.conn = await websockets.connect(self.url)
                 await self.conn.recv()
+
                 self.logger.info("与连接适配器，建立了 ws 连接")
                 await self._bot_bus.emit(BotLife.CONNECTED)
                 self.logger.debug("CONNECTED hook 已完成")
@@ -105,29 +101,35 @@ class ForwardWsConn(AbstractSender):
         await self._close()
         if exc_type is None:
             return True
-        elif exc_type == wse.ConnectionClosedError:
+        elif exc_type == wse.ConnectionClosed:
             self.logger.info("连接适配器主动关闭, bot 将自动清理资源后关闭")
             return True
+        elif exc_type == aio.CancelledError:
+            return True
         else:
-            self.logger.error(f"连接适配器出现预期外的异常")
+            self.logger.error(
+                f"连接适配器出现预期外的异常：\n" + get_better_exc(exc_val)
+            )
             return False
 
-    async def send(self, action: "BotAction") -> None:
+    async def _send(self, action: "BotAction") -> None:
         """
         发送一个 action 给连接适配器。实际上是先提交到 send_queue
         """
         await self._ready_signal.wait()
+
         if self.slack:
             self.logger.debug(f"action {id(action)} 因 slack 状态被丢弃")
             return
         await self._send_queue.put(action)
         self.logger.debug(f"action {id(action)} 已成功加入发送队列")
 
-    async def send_queue_watch(self) -> None:
+    async def _send_queue_watch(self) -> None:
         """
         真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作
         """
         await self._ready_signal.wait()
+        
         try:
             while True:
                 action = await self._send_queue.get()
@@ -138,7 +140,7 @@ class ForwardWsConn(AbstractSender):
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {id(action)} presend hook 已完成")
                 action_str = action.flatten()
-                wait_time = self._rest_time - (time.time() - self._pre_send_time)
+                wait_time = self.cd_time - (time.time() - self._pre_send_time)
                 self.logger.debug(f"action {id(action)} 冷却等待：{wait_time}")
                 await aio.sleep(wait_time)
                 await self.conn.send(action_str)
@@ -149,7 +151,7 @@ class ForwardWsConn(AbstractSender):
         except wse.ConnectionClosed:
             self.logger.error("与连接适配器的通信已经断开，无法再执行操作")
 
-    async def listen(self) -> None:
+    async def _listen(self) -> None:
         """
         从连接适配器接收一个事件，并转化为 BotEvent 对象传递给 dispatcher 处理
         """
@@ -168,7 +170,7 @@ class ForwardWsConn(AbstractSender):
                         + get_rich_str(event.raw)
                     )
                     if event.is_resp_event():
-                        aio.create_task(self._resp_dispatcher.dispatch(event))
+                        aio.create_task(self._resp_dispatcher.respond(event))
                     else:
                         aio.create_task(self._common_dispatcher.dispatch(event))
                 except wse.ConnectionClosed:
@@ -180,3 +182,11 @@ class ForwardWsConn(AbstractSender):
                     self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
         except aio.CancelledError:
             self.logger.debug("bot 运行例程已停止")
+        except wse.ConnectionClosed:
+            self.logger.debug("与连接适配器的通信已经断开")
+
+    async def _start_tasks(self) -> list[aio.Task]:
+        return [
+            aio.create_task(self._send_queue_watch()),
+            aio.create_task(self._listen()),
+        ]

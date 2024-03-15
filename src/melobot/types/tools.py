@@ -3,7 +3,7 @@ import io
 import pathlib
 import sys
 import time
-from asyncio import iscoroutine
+from asyncio import iscoroutine, iscoroutinefunction
 from contextlib import asynccontextmanager
 from functools import wraps
 
@@ -221,6 +221,18 @@ def to_coro(func: Callable):
     return f()
 
 
+def to_task(obj: Callable | Coroutine):
+    """
+    任务包装器，将一个同步函数或异步函数或协程包装为任务
+    """
+    if iscoroutine(obj):
+        return aio.create_task(obj)
+    elif iscoroutinefunction(obj):
+        return aio.create_task(obj())
+    else:
+        return aio.create_task(to_coro(obj))
+
+
 def lock(callback: Callable[[None], Coroutine[Any, Any, Any]]) -> Callable:
     """
     锁装饰器，可以为被装饰的异步函数/方法加锁。
@@ -375,3 +387,91 @@ def timelimit(
         return wrapped_func
 
     return deco_func
+
+
+def call_later(callback: Callable[[], None], delay: float):
+    """
+    在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是同步方法
+    """
+    return aio.get_running_loop().call_later(delay, callback)
+
+
+def call_at(callback: Callable[[], None], timestamp: float):
+    """
+    在指定的时间戳后调度一个 callback 执行。注意这个 callback 应该是同步方法
+
+    当 timestamp <= 当前时刻将立即执行
+    """
+    if timestamp <= time.time():
+        return aio.get_running_loop().call_soon(callback)
+    else:
+        return aio.get_running_loop().call_later(timestamp - time.time(), callback)
+
+
+def async_later(
+    callback: Coroutine[Any, Any, Any],
+    delay: float,
+    exit_cb: Coroutine[Any, Any, None] = None,
+) -> aio.Future:
+    """
+    在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是协程。
+    返回一个 future 对象，可用于等待结果。可以指定 exit_cb 用于在被迫 cancel 时调用
+    """
+
+    async def async_cb(fut: aio.Future) -> Any:
+        try:
+            await aio.sleep(delay)
+            res = await callback
+            fut.set_result(res)
+            exit_cb.close()
+        except aio.CancelledError:
+            if exit_cb is not None:
+                await exit_cb
+            callback.close()
+
+    fut = aio.Future()
+    aio.create_task(async_cb(fut))
+    return fut
+
+
+def async_at(
+    callback: Coroutine[Any, Any, Any],
+    timestamp: float,
+    exit_cb: Coroutine[Any, Any, None] = None,
+) -> aio.Future:
+    """
+    在指定的 timestamp 调度一个 callback 执行。注意这个 callback 应该是协程。
+    返回一个 future 对象，可用于等待结果。可以指定 exit_cb 用于在被迫 cancel 时调用
+
+    当 timestamp <= 当前时刻将立即执行
+    """
+    if timestamp <= time.time():
+        return async_later(callback, 0, exit_cb)
+    else:
+        return async_later(callback, timestamp - time.time(), exit_cb)
+
+
+def async_interval(
+    callback: Callable[[None], Coroutine[Any, Any, None]],
+    interval: float,
+    exit_cb: Coroutine[Any, Any, None] = None,
+) -> aio.Task:
+    """
+    以指定的 interval 调度一个回调执行。callback 是协程产生器。
+    返回一个 task 对象用于取消回调。可以指定 exit_cb 用于在被迫 cancel 时调用
+    """
+
+    async def interval_cb():
+        try:
+            while True:
+                coro = callback()
+                await aio.sleep(interval)
+                await coro
+                exit_cb.close()
+        except aio.CancelledError:
+            if exit_cb is not None:
+                await exit_cb
+            coro.close()
+
+    t = aio.create_task(interval_cb())
+    return t

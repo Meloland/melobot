@@ -1,39 +1,38 @@
 import asyncio as aio
 from asyncio import Future
 
-from ..types.abc import AbstractDispatcher, AbstractResponder
 from ..types.exceptions import *
 from ..types.tools import get_rich_str
 from ..types.typing import *
 
 if TYPE_CHECKING:
     from ..models.event import ResponseEvent
-    from ..types.abc import AbstractSender, BotAction
-    from ..utils.logger import Logger
+    from ..types.abc import AbstractConnector, BotAction
+    from ..utils.logger import BotLogger
 
 
-class BotResponder(AbstractResponder, AbstractDispatcher):
+class BotResponder:
     """
     bot 响应模块，是 action 发送方和 bot 连接模块的媒介。
     提供 action 发送、响应回送功能
     """
 
-    def __init__(self, logger: "Logger") -> None:
+    def __init__(self) -> None:
         super().__init__()
         self._resp_table: Dict[str, Future["ResponseEvent"]] = {}
-        self.logger = logger
+        self.logger: "BotLogger"
+        self._action_sender: "AbstractConnector"
 
         self._ready_signal = aio.Event()
-        self._action_sender: "AbstractSender"
 
-    def bind(self, action_sender: "AbstractSender") -> None:
-        """
-        绑定其他核心组件的方法。独立出来，方便上层先创建实例再调用
-        """
-        self._action_sender = action_sender
+    def _bind(self, logger: "BotLogger", connector: "AbstractConnector") -> None:
+        self.logger = logger
+        self._action_sender = connector
+
+    def _set_ready(self) -> None:
         self._ready_signal.set()
 
-    async def dispatch(self, resp: "ResponseEvent") -> None:
+    async def respond(self, resp: "ResponseEvent") -> None:
         await self._ready_signal.wait()
 
         try:
@@ -65,7 +64,7 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
         响应器发送 action, 不等待响应
         """
         await self._ready_signal.wait()
-        await self._action_sender.send(action)
+        await self._action_sender._send(action)
 
     async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
         """
@@ -74,5 +73,5 @@ class BotResponder(AbstractResponder, AbstractDispatcher):
         await self._ready_signal.wait()
         fut = Future()
         self._resp_table[action.resp_id] = fut
-        await self._action_sender.send(action)
+        await self._action_sender._send(action)
         return fut

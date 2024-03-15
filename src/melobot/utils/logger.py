@@ -3,127 +3,135 @@ import logging.config
 import logging.handlers
 import os
 from collections.abc import Mapping
-from logging import CRITICAL, DEBUG, ERROR, INFO, WARN, WARNING, Logger
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 from types import TracebackType
 
 import coloredlogs
 
+from ..types.exceptions import *
 from ..types.typing import *
 
 
-def get_logger(
-    log_dir: str = None,
-    log_level: Literal[
-        "DEBUG", "ERROR", "INFO", "WARN", "WARNING", "CRITICAL"
-    ] = "INFO",
-) -> Logger:
+class NullLogger(Logger):
     """
-    无日志目录时获取只含 console 输出的 logger，否则返回含文件输出的 logger
+    获得一个空日志器，支持所有日志操作，
+    但是丢弃所有日志
     """
-    if log_dir:
+
+    def __init__(self, name: str) -> None:
+        super().__init__(name, CRITICAL)
+        self.addHandler(logging.NullHandler())
+
+
+class BotLogger(Logger):
+    LOGGERS: dict[str, "BotLogger"] = {}
+
+    FIELD_COLORS = {
+        "asctime": {"color": "white"},
+        "hostname": {"color": "magenta"},
+        "levelname": {"bold": True, "color": "white"},
+        "name": {"color": "blue"},
+        "programname": {"color": "cyan"},
+        "username": {"color": "yellow"},
+    }
+
+    LEVEL_COLORS = {
+        "critical": {"bold": True, "color": "red"},
+        "debug": {"color": "magenta"},
+        "error": {"color": "red"},
+        "info": {},
+        "notice": {"color": "magenta"},
+        "spam": {"color": "green", "faint": True},
+        "success": {"bold": True, "color": "green"},
+        "verbose": {"color": "blue"},
+        "warning": {"color": "yellow"},
+    }
+
+    LEVEL_MAP = {
+        "DEBUG": DEBUG,
+        "INFO": INFO,
+        "WARNING": WARNING,
+        "ERROR": ERROR,
+        "CRITICAL": CRITICAL,
+    }
+
+    @staticmethod
+    def _console_fmt(name: str) -> logging.Formatter:
+        fmt = coloredlogs.ColoredFormatter(
+            fmt=f"[%(asctime)s] [%(levelname)s] [{name}] %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+            level_styles=BotLogger.LEVEL_COLORS,
+            field_styles=BotLogger.FIELD_COLORS,
+        )
+        return fmt
+
+    @staticmethod
+    def _console_handler(fmt: logging.Formatter) -> logging.Handler:
+        handler = logging.StreamHandler()
+        handler.setFormatter(fmt)
+        return handler
+
+    @staticmethod
+    def _file_fmt(name: str) -> logging.Formatter:
+        fmt = logging.Formatter(
+            fmt=f"[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] [{name}] %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        return fmt
+
+    @staticmethod
+    def _file_handler(
+        fmt: logging.Formatter, log_dir: str, name: str
+    ) -> logging.Formatter:
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
-        config = get_config(log_dir, log_level)
-    else:
-        config = get_fileless_config(log_level)
-    logging.config.dictConfig(config)
-    return logging.getLogger("bot_logger")
+        handler = logging.handlers.RotatingFileHandler(
+            filename=os.path.join(log_dir, f"{name}.log"),
+            maxBytes=1024 * 1024,
+            backupCount=10,
+            encoding="UTF-8",
+        )
+        handler.setFormatter(fmt)
+        return handler
 
+    def __init__(
+        self,
+        name: str,
+        level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"] = "INFO",
+        to_console: bool = True,
+        to_dir: Optional[str] = None,
+    ) -> None:
 
-def get_fileless_config(log_level: str):
-    """
-    返回只含 console 输出的 logger
-    """
-    config = LOG_CONFIG.copy()
-    config["handlers"]["console_handler"]["level"] = LOG_LEVEL_MAP[log_level]
-    return config
+        if name in BotLogger.LOGGERS.keys():
+            raise DuplicateError(f"名为 {name} 的日志器已存在，请修改 name")
+        super().__init__(name, BotLogger.LEVEL_MAP[level])
+        BotLogger.LOGGERS[name] = self
+        self._con_handler = None
 
+        if to_console:
+            self._add_console_handler()
+        if to_dir is not None:
+            self._add_file_handler(to_dir)
 
-def get_config(log_dir: str, log_level: str):
-    """
-    返回含 console 输出和文件输出的 logger
-    """
-    config = LOG_CONFIG.copy()
-    config["handlers"]["console_handler"]["level"] = LOG_LEVEL_MAP[log_level]
-    config["handlers"]["file_handler"] = {
-        "class": "logging.handlers.RotatingFileHandler",
-        "level": LOG_LEVEL_MAP[log_level],
-        "formatter": "file_formatter",
-        "filename": os.path.join(log_dir, "bot.log"),
-        "maxBytes": 1024 * 1024,
-        "backupCount": 10,
-        "encoding": "UTF-8",
-    }
-    config["loggers"]["bot_logger"]["handlers"].append("file_handler")
-    return config
+    def _add_console_handler(self) -> None:
+        if self._con_handler is None:
+            self._con_handler = self._console_handler(self._console_fmt(self.name))
+            self.addHandler(self._con_handler)
 
+    def _add_file_handler(self, log_dir: str) -> None:
+        handler = self._file_handler(self._file_fmt(self.name), log_dir, self.name)
+        self.addHandler(handler)
 
-LOG_FIELD_COLORS = {
-    "asctime": {"color": "white"},
-    "hostname": {"color": "magenta"},
-    "levelname": {"bold": True, "color": "white"},
-    "name": {"color": "blue"},
-    "programname": {"color": "cyan"},
-    "username": {"color": "yellow"},
-}
+    def set_level(
+        self, level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"]
+    ) -> None:
+        self.setLevel(BotLogger.LEVEL_MAP[level])
 
+    def to_console(self) -> None:
+        self._add_console_handler()
 
-LOG_LEVEL_COLORS = {
-    "critical": {"bold": True, "color": "red"},
-    "debug": {"color": "magenta"},
-    "error": {"color": "red"},
-    "info": {},
-    "notice": {"color": "magenta"},
-    "spam": {"color": "green", "faint": True},
-    "success": {"bold": True, "color": "green"},
-    "verbose": {"color": "blue"},
-    "warning": {"color": "yellow"},
-}
-
-
-LOG_LEVEL_MAP = {
-    "DEBUG": DEBUG,
-    "INFO": INFO,
-    "WARN": WARN,
-    "WARNING": WARNING,
-    "ERROR": ERROR,
-    "CRITICAL": CRITICAL,
-}
-
-
-LOG_CONFIG = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "incremental": False,
-    "formatters": {
-        "console_formatter": {
-            "()": "coloredlogs.ColoredFormatter",
-            "fmt": "[%(asctime)s] [%(levelname)s] %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-            "level_styles": LOG_LEVEL_COLORS,
-            "field_styles": LOG_FIELD_COLORS,
-        },
-        "file_formatter": {
-            "class": "logging.Formatter",
-            "format": "[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-    },
-    "handlers": {
-        "console_handler": {
-            "class": "logging.StreamHandler",
-            "level": logging.INFO,
-            "formatter": "console_formatter",
-        }
-    },
-    "loggers": {
-        "bot_logger": {
-            "handlers": ["console_handler"],
-            "level": logging.DEBUG,
-            "propagate": False,
-        }
-    },
-}
+    def to_dir(self, log_dir: str) -> None:
+        self._add_file_handler(log_dir)
 
 
 _SysExcInfoType: TypeAlias = (
@@ -138,7 +146,7 @@ class PrefixLogger:
     二次包装的日志器
     """
 
-    def __init__(self, ref: Logger, prefix: str) -> None:
+    def __init__(self, ref: BotLogger, prefix: str) -> None:
         self._logger = ref
         self._prefix = prefix
 
@@ -156,25 +164,6 @@ class PrefixLogger:
     ) -> None:
         msg = self._add_prefix(msg)
         return self._logger.info(
-            msg,
-            *args,
-            exc_info=exc_info,
-            stack_info=stack_info,
-            stacklevel=stacklevel,
-            extra=extra,
-        )
-
-    def warn(
-        self,
-        msg: object,
-        *args: object,
-        exc_info: _ExcInfoType = None,
-        stack_info: bool = False,
-        stacklevel: int = 1,
-        extra: Optional[Mapping[str, object]] = None,
-    ) -> None:
-        msg = self._add_prefix(msg)
-        return self._logger.warn(
             msg,
             *args,
             exc_info=exc_info,

@@ -1,11 +1,10 @@
 import re
 
-from ..types.abc import BotEvent, BotParser
+from ..types.abc import BotParser
 from ..types.exceptions import *
 from ..types.typing import *
 
 if TYPE_CHECKING:
-    from ..models.event import ResponseEvent
     from .formatter import ArgFormatter
 
 
