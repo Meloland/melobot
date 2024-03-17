@@ -5,12 +5,50 @@ MeloBot 是插件化管理、基于异步会话机制的 qbot 开发框架。
 """
 
 from .bot import MeloBot
-from .context import *
-from .io import *
+from .context import (
+    AttrSessionRule,
+    any_event,
+    finish,
+    get_store,
+    meta_event,
+    msg_args,
+    msg_event,
+    msg_text,
+    notice_event,
+    pause,
+    reply_finish,
+    req_evnt,
+    send,
+    send_reply,
+    send_wait,
+    thisbot,
+)
+from .io import ForwardWsConn
 from .meta import MetaInfo
-from .models import *
-from .plugin import *
-from .types import *
-from .utils import *
+from .plugin import BotPlugin
+from .types import (
+    LogicMode,
+    PriorLevel,
+    SessionRule,
+    User,
+    cooldown,
+    lock,
+    this_dir,
+    timelimit,
+)
+from .utils import (
+    ArgFormatter,
+    AtChecker,
+    CmdParser,
+    CmdParserGen,
+    ContainMatch,
+    EndMatch,
+    FullMatch,
+    GroupMsgLvl,
+    MsgCheckerGen,
+    PrivateMsgLvl,
+    RegexMatch,
+    StartMatch,
+)
 
 __version__ = MetaInfo().VER

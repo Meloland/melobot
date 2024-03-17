@@ -1,21 +1,20 @@
 import asyncio as aio
-import inspect
 import os
 import sys
 from copy import deepcopy
 
-from ..context.session import BotSessionManager
+from ..context.session import BOT_LOCAL, BotSessionManager
 from ..controller.dispatcher import BotDispatcher
 from ..controller.responder import BotResponder
-from ..meta import MetaInfo
+from ..meta import MELOBOT_LOGO, MELOBOT_LOGO_LEN, MetaInfo
 from ..models.event import BotEventBuilder
 from ..plugin.handler import EVENT_HANDLER_MAP
 from ..plugin.init import BotPlugin, PluginLoader, PluginProxy
 from ..plugin.ipc import PluginBus, PluginStore
-from ..types.abc import BOT_LOCAL, AbstractConnector
+from ..types.abc import AbstractConnector
 from ..types.exceptions import BotRuntimeError, DuplicateError, get_better_exc
 from ..types.tools import get_rich_str
-from ..types.typing import BotLife, Literal, Optional
+from ..types.typing import Any, BotLife, Coroutine, Literal, Optional
 from ..utils.logger import BotLogger, Logger, NullLogger
 from .hook import BotHookBus
 
@@ -23,6 +22,21 @@ if sys.platform != "win32":
     import uvloop
 
     aio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+_ = BotLogger("__MELOBOT_ENTRY__", no_tag=True)
+__ = MetaInfo()
+for line in MELOBOT_LOGO.split("\n"):
+    _.info(line)
+_.info(f" 运行版本：{__.VER} | 平台：{__.PLATFORM}")
+_.info("-" * MELOBOT_LOGO_LEN)
+
+
+def _safe_run_bot(main_coro: Coroutine[Any, Any, None]) -> None:
+    try:
+        aio.set_event_loop(aio.get_event_loop())
+        aio.run(main_coro)
+    except KeyboardInterrupt:
+        pass
 
 
 class MeloBot:
@@ -38,11 +52,7 @@ class MeloBot:
                 tasks.append(aio.create_task(bot._run()))
             await aio.wait(tasks)
 
-        try:
-            aio.set_event_loop(aio.get_event_loop())
-            aio.run(bots_run())
-        except KeyboardInterrupt:
-            pass
+        _safe_run_bot(bots_run())
 
     def __init__(self, name: str) -> None:
         if name in MeloBot.BOTS.keys():
@@ -85,7 +95,7 @@ class MeloBot:
         self.connector = connector
         self.connector._ref_flag = True
         if not enable_log:
-            self.logger = NullLogger(f"__NULL_{self.name}__")
+            self.logger = NullLogger(f"__MELOBOT_NULL_{self.name}__")
         else:
             self.logger = BotLogger(
                 self.name if logger_name is None else logger_name,
@@ -93,6 +103,7 @@ class MeloBot:
                 log_to_console,
                 log_to_dir,
             )
+        self.logger.debug(f"连接适配器已初始化，类型：{connector.__class__.__name__}")
 
         self._dispatcher._bind(
             EVENT_HANDLER_MAP, self._bot_bus, self._ctx_manager, self.logger
@@ -191,11 +202,7 @@ class MeloBot:
             self.__run_flag__ = False
 
     def run(self) -> None:
-        try:
-            aio.set_event_loop(aio.get_event_loop())
-            aio.run(self._run())
-        except KeyboardInterrupt:
-            pass
+        _safe_run_bot(self._run())
 
     async def close(self) -> None:
         """
@@ -220,6 +227,7 @@ class MeloBot:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         self.connector.slack = False
+        self.logger.debug("bot 已进入 activated 状态")
 
     def slack(self) -> None:
         """
@@ -229,6 +237,7 @@ class MeloBot:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         self.connector.slack = True
+        self.logger.debug("bot 已进入 slack 状态")
 
     def get_plugins(self) -> dict[str, PluginProxy]:
         """
@@ -245,10 +254,13 @@ class MeloBot:
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
+        self.logger.debug(f"bot 信号总线信号触发：{namespace}.{signal} | wait: {wait}")
+        self.logger.debug("本次信号触发参数：\n" + get_rich_str(args))
         return self._plugin_bus.emit(namespace, signal, *args, wait=wait, **kwargs)
 
     def get_share(self, namespace: str, id: str):
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
+        self.logger.debug(f"获取共享对象行为：{namespace}.{id}")
         return self._plugin_store.get(namespace, id)

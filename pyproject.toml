@@ -1,6 +1,6 @@
 [project]
 name = "melobot"
-version = "2.5.2"
+version = "2.5.3"
 description = "A qbot module with friendly interface, session control and plugin-supported."
 authors = [
     {name = "aicorein", email = "melodyecho@glowmem.com"},
@@ -17,6 +17,9 @@ dependencies = [
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "AGPL3"}
+
+[project.urls]
+Homepage = "https://github.com/aicorein/melobot"
 
 [build-system]
 requires = ["pdm-backend"]

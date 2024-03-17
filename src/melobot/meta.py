@@ -7,7 +7,7 @@ class MetaInfo:
     """melobot 元信息类"""
 
     def __init__(self) -> None:
-        self.VER = "2.5.2"
+        self.VER = "2.5.3"
         self.PROJ_NAME = "MeloBot"
         self.PROJ_DESC = "A qbot module with friendly interface, session control and plugin-supported."
         self.PROJ_SRC = "https://github.com/aicorein/melobot"
@@ -32,3 +32,4 @@ MELOBOT_LOGO = r"""  __  __      _       ____        _
  | |  | |  __/ | (_) | |_) | (_) | |_
  |_|  |_|\___|_|\___/|____/ \___/ \__|
 """
+MELOBOT_LOGO_LEN = max(len(_) for _ in MELOBOT_LOGO.split("\n"))

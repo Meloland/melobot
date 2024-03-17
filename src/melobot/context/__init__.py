@@ -1,8 +1,8 @@
-from .action import finish, reply_finish, send, send_reply, send_wait
-from .session import SESSION_LOCAL as session
+from ..types.typing import TYPE_CHECKING
+from .action import *
+from .session import BOT_LOCAL as thisbot
 from .session import (
     AttrSessionRule,
-    BotSession,
     any_event,
     get_store,
     meta_event,
@@ -14,4 +14,6 @@ from .session import (
     req_evnt,
 )
 
-session: BotSession  # type: ignore
+if TYPE_CHECKING:
+    from ..bot.init import MeloBot
+thisbot: "MeloBot"  # type: ignore

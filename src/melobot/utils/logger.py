@@ -56,9 +56,14 @@ class BotLogger(Logger):
     }
 
     @staticmethod
-    def _console_fmt(name: str) -> logging.Formatter:
+    def _console_fmt(name: str, no_tag: bool = False) -> logging.Formatter:
+        fmt_s = (
+            f"[%(asctime)s] [%(levelname)s] [{name}] %(message)s"
+            if not no_tag
+            else "[%(asctime)s] [%(levelname)s] %(message)s"
+        )
         fmt = coloredlogs.ColoredFormatter(
-            fmt=f"[%(asctime)s] [%(levelname)s] [{name}] %(message)s",
+            fmt=fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
             level_styles=BotLogger.LEVEL_COLORS,
             field_styles=BotLogger.FIELD_COLORS,
@@ -72,9 +77,14 @@ class BotLogger(Logger):
         return handler
 
     @staticmethod
-    def _file_fmt(name: str) -> logging.Formatter:
+    def _file_fmt(name: str, no_tag: bool = False) -> logging.Formatter:
+        fmt_s = (
+            f"[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] [{name}] %(message)s"
+            if not no_tag
+            else "[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] %(message)s"
+        )
         fmt = logging.Formatter(
-            fmt=f"[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] [{name}] %(message)s",
+            fmt=fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         return fmt
@@ -100,6 +110,7 @@ class BotLogger(Logger):
         level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"] = "INFO",
         to_console: bool = True,
         to_dir: Optional[str] = None,
+        no_tag: bool = False,
     ) -> None:
 
         if name in BotLogger.LOGGERS.keys():
@@ -107,6 +118,7 @@ class BotLogger(Logger):
         super().__init__(name, BotLogger.LEVEL_MAP[level])
         BotLogger.LOGGERS[name] = self
         self._con_handler: Optional[logging.Handler] = None
+        self._no_tag = no_tag
 
         if to_console:
             self._add_console_handler()
@@ -115,11 +127,15 @@ class BotLogger(Logger):
 
     def _add_console_handler(self) -> None:
         if self._con_handler is None:
-            self._con_handler = self._console_handler(self._console_fmt(self.name))
+            self._con_handler = self._console_handler(
+                self._console_fmt(self.name, self._no_tag)
+            )
             self.addHandler(self._con_handler)
 
     def _add_file_handler(self, log_dir: str) -> None:
-        handler = self._file_handler(self._file_fmt(self.name), log_dir, self.name)
+        handler = self._file_handler(
+            self._file_fmt(self.name, self._no_tag), log_dir, self.name
+        )
         self.addHandler(handler)
 
     def set_level(

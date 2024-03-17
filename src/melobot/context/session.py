@@ -4,7 +4,7 @@ from contextvars import ContextVar, Token
 from copy import deepcopy
 from functools import wraps
 
-from ..types.abc import BOT_LOCAL, SessionRule
+from ..types.abc import SessionRule
 from ..types.exceptions import BotSessionError, SessionHupTimeout
 from ..types.tools import get_twin_event, to_task
 from ..types.typing import (
@@ -139,6 +139,31 @@ class SessionLocal:
 
 
 SESSION_LOCAL = SessionLocal()
+
+
+class BotLocal:
+    """
+    MeloBot 自动上下文
+    """
+
+    def __init__(self) -> None:
+        object.__setattr__(self, "__storage__", ContextVar("melobot_ctx"))
+        self.__storage__: ContextVar["MeloBot"]
+
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        setattr(self.__storage__.get(), __name, __value)
+
+    def __getattr__(self, __name: str) -> Any:
+        return getattr(self.__storage__.get(), __name)
+
+    def _add_ctx(self, ctx: "MeloBot") -> Token:
+        return self.__storage__.set(ctx)
+
+    def _del_ctx(self, token: Token) -> None:
+        self.__storage__.reset(token)
+
+
+BOT_LOCAL = BotLocal()
 
 
 class AttrSessionRule(SessionRule):

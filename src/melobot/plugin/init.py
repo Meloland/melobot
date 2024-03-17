@@ -56,6 +56,10 @@ class PluginProxy:
         self,
         id: str,
         ver: str,
+        desc: str,
+        doc: str,
+        keywords: list[str],
+        url: str,
         share_objs: list[tuple[str, str]],
         share_cbs: list[tuple[str, str]],
         signal_methods: list[tuple[str, str]],
@@ -118,9 +122,21 @@ class BotPlugin:
     bot 插件基类。所有自定义插件必须继承该类实现。
     """
 
-    def __init__(self, id: str, version: str) -> None:
+    def __init__(
+        self,
+        id: str,
+        version: str,
+        desc: str = "",
+        doc: str = "",
+        keywords: Optional[list[str]] = None,
+        url: str = "",
+    ) -> None:
         self.__id__ = id
         self.__version__ = version
+        self.__desc__ = desc
+        self.__keywords__ = keywords if keywords is not None else []
+        self.__url__ = url
+        self.__pdoc__ = doc
 
         self.__handler_args__: list[EventHandlerArgs] = []
         self.__signal_args__: list[PluginSignalHandlerArgs] = []
@@ -134,6 +150,10 @@ class BotPlugin:
         self.__proxy__ = PluginProxy(
             self.__id__,
             self.__version__,
+            self.__desc__,
+            self.__pdoc__,
+            self.__keywords__,
+            self.__url__,
             [(args.namespace, args.id) for args in self.__share_args__],
             [(args.namespace, args.id) for args in self.__share_cb_args__],
             [(args.namespace, args.signal) for args in self.__signal_args__],
