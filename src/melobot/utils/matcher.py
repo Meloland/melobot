@@ -1,7 +1,7 @@
 import re
 
 from ..types.abc import BotMatcher, LogicMode
-from ..types.typing import *
+from ..types.typing import Any
 
 
 class AlwaysMatch(BotMatcher):
@@ -23,7 +23,7 @@ class StartMatch(BotMatcher):
             return text[: len(self.target)] == self.target
         else:
             res_seq = [text[: len(s)] == s for s in self.target]
-            LogicMode.seq_calc(self.mode, res_seq)
+            return LogicMode.seq_calc(self.mode, res_seq)
 
 
 class ContainMatch(BotMatcher):
@@ -37,7 +37,7 @@ class ContainMatch(BotMatcher):
             return text in self.target
         else:
             res_seq = [text in s for s in self.target]
-            LogicMode.seq_calc(self.mode, res_seq)
+            return LogicMode.seq_calc(self.mode, res_seq)
 
 
 class EndMatch(BotMatcher):
@@ -51,7 +51,7 @@ class EndMatch(BotMatcher):
             return text[-len(self.target) :] == self.target
         else:
             res_seq = [text[-len(s) :] == s for s in self.target]
-            LogicMode.seq_calc(self.mode, res_seq)
+            return LogicMode.seq_calc(self.mode, res_seq)
 
 
 class FullMatch(BotMatcher):
@@ -65,7 +65,7 @@ class FullMatch(BotMatcher):
             return text == self.target
         else:
             res_seq = [text == s for s in self.target]
-            LogicMode.seq_calc(self.mode, res_seq)
+            return LogicMode.seq_calc(self.mode, res_seq)
 
 
 class RegexMatch(BotMatcher):

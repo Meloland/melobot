@@ -1,6 +1,6 @@
 [project]
 name = "melobot"
-version = "2.5.0"
+version = "2.5.1"
 description = "A qbot module with friendly interface, session control and plugin-supported."
 authors = [
     {name = "aicorein", email = "melodyecho@glowmem.com"},
@@ -12,16 +12,36 @@ dependencies = [
     "websockets>=10.4",
     "better-exceptions==0.3.3",
     "rich>=13.7.1",
+    "typing-extensions>=4.10.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "AGPL3"}
 
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.mypy]
+follow_imports = "skip"
+ignore_missing_imports = true
+show_column_numbers = true
+check_untyped_defs = true
+
+[tool.black]  
+line-length = 88
+
+[tool.isort]  
+profile = "black"
+line_length = 88
+
 [tool.pdm]
 distribution = true
 [tool.pdm.scripts]
+isort = {shell = "isort src/melobot"}
 format = {shell = "black src/melobot"}
 check = {shell = "flake8 src/melobot"}
+analyse = {shell = "mypy src/melobot"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
 
@@ -36,10 +56,10 @@ docs = [
 ]
 lint = [
     "black>=24.2.0",
-    "flake8>=7.0.0",
     "pydeps>=1.12.19",
+    "isort>=5.13.2",
+    "flake8>=7.0.0",
 ]
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
+analyse = [
+    "mypy>=1.9.0",
+]

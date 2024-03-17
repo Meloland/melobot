@@ -2,8 +2,17 @@ import re
 from copy import deepcopy
 from itertools import chain, zip_longest
 
-from ..types.exceptions import *
-from ..types.typing import *
+from ..types.exceptions import BotActionError
+from ..types.typing import (
+    TYPE_CHECKING,
+    Any,
+    CQMsgDict,
+    CustomNodeData,
+    Literal,
+    MsgNodeDict,
+    Optional,
+    Type,
+)
 
 if TYPE_CHECKING:
     from ..types.abc import BotAction
@@ -29,13 +38,13 @@ def face_msg(
 
 def audio_msg(
     url: str,
-    timeout: int = None,
+    timeout: Optional[int] = None,
     magic: bool = False,
 ) -> CQMsgDict:
     """
     语音消息
     """
-    base = {
+    base: CQMsgDict = {
         "type": "record",
         "data": {
             "file": url,
@@ -50,13 +59,13 @@ def audio_msg(
 
 def at_msg(
     qqId: int | Literal["all"],
-    notInName: str = None,
+    notInName: Optional[str] = None,
 ) -> CQMsgDict:
     """
     at 消息。
     at 所有人时，`qqId` 传 "all"
     """
-    base = {
+    base: CQMsgDict = {
         "type": "at",
         "data": {
             "qq": str(qqId),
@@ -70,14 +79,14 @@ def at_msg(
 def share_msg(
     url: str,
     title: str,
-    content: str = None,
-    image: str = None,
+    content: Optional[str] = None,
+    image: Optional[str] = None,
 ) -> CQMsgDict:
     """
     链接分享卡片消息。
     `content` 为描述语
     """
-    base = {
+    base: CQMsgDict = {
         "type": "share",
         "data": {
             "url": url,
@@ -105,14 +114,14 @@ def custom_music_msg(
     url: str,
     audio: str,
     title: str,
-    content: str = None,
-    image: str = None,
+    content: Optional[str] = None,
+    image: Optional[str] = None,
 ) -> CQMsgDict:
     """
     自定义音乐分享卡片。
     `url` 为主页或网站起始页
     """
-    base = {
+    base: CQMsgDict = {
         "type": "music",
         "data": {
             "type": "custom",
@@ -130,8 +139,8 @@ def custom_music_msg(
 
 def image_msg(
     url: str,
-    picType: Literal["flash", "show"] = None,
-    subType: Literal[0, 1] = None,
+    picType: Optional[Literal["flash", "show"]] = None,
+    subType: Optional[Literal[0, 1]] = None,
     useCache: Literal[0, 1] = 1,
 ) -> CQMsgDict:
     """
@@ -140,7 +149,7 @@ def image_msg(
     `picType`: flash 为闪照，show 为秀图，不填为普通图片。
     `subType`: 只出现在群聊，0 为正常图片，1 为表情包
     """
-    base = {
+    base: CQMsgDict = {
         "type": "image",
         "data": {
             "file": url,
@@ -169,7 +178,7 @@ def reply_msg(
     }
 
 
-def touch_msg(
+def poke_msg(
     qqId: int,
 ) -> CQMsgDict:
     """
@@ -212,18 +221,18 @@ def tts_msg(
 
 
 def custom_msg_node(
-    content: str | CQMsgDict | List[CQMsgDict],
+    content: str | CQMsgDict | list[CQMsgDict],
     sendName: str,
     sendId: int,
-    seq: str = None,
+    seq: Optional[list[CQMsgDict]] = None,
 ) -> MsgNodeDict:
     """
     自定义消息节点构造方法。转化字符串、消息、消息段为消息节点
     """
     if isinstance(content, str):
-        msgs = text_msg(content)
-        if not isinstance(msgs, list):
-            msgs = [msgs]
+        _ = text_msg(content)
+        if not isinstance(_, list):
+            msgs = [_]
     elif isinstance(content, dict):
         msgs = [content]
     elif isinstance(content, list):
@@ -234,12 +243,12 @@ def custom_msg_node(
             else:
                 temp.append(_)
         msgs = temp
-    ret = {
+    ret: MsgNodeDict = {
         "type": "node",
         "data": {"name": sendName, "uin": str(sendId), "content": msgs},
     }
     if seq:
-        ret["data"]["seq"] = seq
+        ret["data"]["seq"] = seq  # type: ignore
     return ret
 
 
@@ -293,23 +302,23 @@ def to_cq_arr(s: str) -> list[CQMsgDict]:
         return "\u0000"
 
     cq_regex = re.compile(r"\[CQ:.*?\]")
-    cq_texts = []
+    cq_texts: list[str] = []
     no_cq_str = cq_regex.sub(replace_func, s)
     pure_texts = map(
         lambda x: f"[CQ:text,text={x}]" if x != "" else x,
         no_cq_str.split("\u0000"),
     )
-    content: str = "".join(
+    _: str = "".join(
         chain.from_iterable(zip_longest(pure_texts, cq_texts, fillvalue=""))
     )
 
-    cq_entity = content.split("]")[:-1]
+    cq_entity: list[str] = _.split("]")[:-1]
     content: list = []
     for e in cq_entity:
-        _ = e.split(",")
-        cq_type = _[0][4:]
-        data = {}
-        for param_pair in _[1:]:
+        __ = e.split(",")
+        cq_type = __[0][4:]
+        data: dict[str, float | int | str] = {}
+        for param_pair in __[1:]:
             name, val = param_pair.split("=")
             if cq_type != "text":
                 val = cq_anti_escape(val)
@@ -330,10 +339,10 @@ def to_cq_str(content: list[CQMsgDict]) -> str:
     """
     if isinstance(content, str):
         return content
-    msgs = []
+    msgs: list[str] = []
     for item in content:
         if item["type"] == "text":
-            msgs.append(item["data"]["text"])
+            msgs.append(item["data"]["text"])  # type: ignore
             continue
         s = f"[CQ:{item['type']}"
         for k, v in item["data"].items():
@@ -376,8 +385,8 @@ def get_cq(content: list[CQMsgDict], cq_type: str) -> list[CQMsgDict]:
 
 
 def get_cq_params(
-    content: list[CQMsgDict], cq_type: str, param: str, type: Type[T] = None
-) -> List[Any]:
+    content: list[CQMsgDict], cq_type: str, param: str, type: Optional[Type[Any]] = None
+) -> list[Any]:
     """
     从当前 content 中获取指定类型 cq 消息的指定 param，以列表形式返回。
     当没有任何对应类型的 cq 消息时，为空列表。如果有对应类型 cq 消息，
@@ -385,7 +394,7 @@ def get_cq_params(
 
     可以指定 type 来强制转换类型
     """
-    res = []
+    res: list[Any] = []
     for item in content:
         if item["type"] == cq_type:
             val = item["data"].get(param)

@@ -2,9 +2,9 @@ import warnings
 
 from ..models.cq import reply_msg, text_msg, to_cq_str_action
 from ..types.abc import ActionArgs, BotAction
-from ..types.exceptions import *
+from ..types.exceptions import BotActionError, BotSessionError, DirectRetSignal
 from ..types.tools import get_id
-from ..types.typing import *
+from ..types.typing import TYPE_CHECKING, CQMsgDict, Literal, MsgNodeDict, Optional
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as CtxManager
 
@@ -85,10 +85,10 @@ class MsgActionArgs(ActionArgs):
 
     def __init__(
         self,
-        msgs: List[CQMsgDict],
+        msgs: list[CQMsgDict],
         isPrivate: bool,
-        userId: int = None,
-        groupId: int = None,
+        userId: Optional[int] = None,
+        groupId: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.type = "send_msg"
@@ -107,14 +107,14 @@ class MsgActionArgs(ActionArgs):
             }
 
 
-def _process_msg(content: str | CQMsgDict | List[CQMsgDict]) -> list[CQMsgDict]:
+def _process_msg(content: str | CQMsgDict | list[CQMsgDict]) -> list[CQMsgDict]:
     """
     将多种可能的消息格式，统一转换为 cq 消息列表
     """
     if isinstance(content, str):
-        msgs = text_msg(content)
-        if not isinstance(msgs, list):
-            msgs = [msgs]
+        _ = text_msg(content)
+        if not isinstance(_, list):
+            msgs = [_]
     elif isinstance(content, dict):
         msgs = [content]
     elif isinstance(content, list):
@@ -132,10 +132,10 @@ def _process_msg(content: str | CQMsgDict | List[CQMsgDict]) -> list[CQMsgDict]:
 
 @CtxManager._activate
 async def send_custom_msg(
-    content: str | CQMsgDict | List[CQMsgDict],
+    content: str | CQMsgDict | list[CQMsgDict],
     isPrivate: bool,
-    userId: int = None,
-    groupId: int = None,
+    userId: Optional[int] = None,
+    groupId: Optional[int] = None,
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
@@ -159,7 +159,7 @@ async def send_custom_msg(
 
 @CtxManager._activate
 async def send(
-    content: str | CQMsgDict | List[CQMsgDict],
+    content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
@@ -193,10 +193,10 @@ class ForwardMsgActionArgs(ActionArgs):
 
     def __init__(
         self,
-        msgs: Dict,
+        msgs: list[MsgNodeDict],
         isPrivate: bool,
-        userId: int = None,
-        groupId: int = None,
+        userId: Optional[int] = None,
+        groupId: Optional[int] = None,
     ) -> None:
         super().__init__()
         if isPrivate:
@@ -209,10 +209,10 @@ class ForwardMsgActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def send_custom_forward(
-    msgNodes: List[MsgNodeDict],
+    msgNodes: list[MsgNodeDict],
     isPrivate: bool,
-    userId: int = None,
-    groupId: int = None,
+    userId: Optional[int] = None,
+    groupId: Optional[int] = None,
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
@@ -232,7 +232,7 @@ async def send_custom_forward(
 
 @CtxManager._activate
 async def send_forward(
-    msgNodes: List[MsgNodeDict],
+    msgNodes: list[MsgNodeDict],
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
@@ -692,7 +692,7 @@ class SetGroupAddActionArgs(ActionArgs):
         addFlag: str,
         addType: Literal["add", "invite"],
         approve: bool,
-        reason: str = None,
+        reason: Optional[str] = None,
     ) -> None:
         super().__init__()
         self.type = "set_group_add_request"
@@ -710,7 +710,7 @@ async def set_group_add(
     addFlag: str,
     addType: Literal["add", "invite"],
     approve: bool,
-    rejectReason: str = None,
+    rejectReason: Optional[str] = None,
     wait: bool = False,
     auto: bool = True,
 ) -> Optional["ResponseEvent"] | BotAction:
@@ -811,7 +811,7 @@ async def get_stranger_info(
     )
 
 
-class GetFriendListActionArgs(ActionArgs):
+class GetFriendlistActionArgs(ActionArgs):
     """
     获取好友列表 action 信息构造类
     """
@@ -830,7 +830,7 @@ async def get_friend_list(
     获取好友列表
     """
     return BotAction(
-        GetFriendListActionArgs(), resp_id=get_id() if wait else None, ready=auto
+        GetFriendlistActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
@@ -905,7 +905,7 @@ async def get_group_info(
     )
 
 
-class GetGroupListActionArgs(ActionArgs):
+class GetGrouplistActionArgs(ActionArgs):
     """
     获取群列表 action 信息构造类
     """
@@ -924,7 +924,7 @@ async def get_group_list(
     获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info` 获得
     """
     return BotAction(
-        GetGroupListActionArgs(), resp_id=get_id() if wait else None, ready=auto
+        GetGrouplistActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
@@ -953,7 +953,7 @@ async def get_group_member_info(
     )
 
 
-class GetGroupMemberListActionArgs(ActionArgs):
+class GetGroupMemberlistActionArgs(ActionArgs):
     """
     获取群成员列表 action 信息构造类
     """
@@ -972,7 +972,7 @@ async def get_group_member_list(
     获取群成员列表
     """
     return BotAction(
-        GetGroupMemberListActionArgs(groupId, noCache),
+        GetGroupMemberlistActionArgs(groupId, noCache),
         resp_id=get_id() if wait else None,
         ready=auto,
     )
@@ -1170,9 +1170,9 @@ class UploadFileActionArgs(ActionArgs):
         isPrivate: bool,
         file: str,
         name: str,
-        userId: int = None,
-        groupId: int = None,
-        groupFolderId: str = None,
+        userId: Optional[int] = None,
+        groupId: Optional[int] = None,
+        groupFolderId: Optional[str] = None,
     ) -> None:
         super().__init__()
         if isPrivate:
@@ -1193,9 +1193,9 @@ async def upload_file(
     isPrivate: bool,
     file: str,
     sendFileName: str,
-    userId: int = None,
-    groupId: int = None,
-    groupFolderId: str = None,
+    userId: Optional[int] = None,
+    groupId: Optional[int] = None,
+    groupFolderId: Optional[str] = None,
     wait: bool = False,
     auto: bool = True,
 ) -> Optional["ResponseEvent"] | BotAction:
@@ -1475,7 +1475,9 @@ class SetGroupNoticeActionArgs(ActionArgs):
     发送群公告 action 信息构造类
     """
 
-    def __init__(self, groupId: int, content: str, imageUrl: str = None) -> None:
+    def __init__(
+        self, groupId: int, content: str, imageUrl: Optional[str] = None
+    ) -> None:
         super().__init__()
         self.type = "_send_group_notice"
         self.params = {
@@ -1490,7 +1492,7 @@ class SetGroupNoticeActionArgs(ActionArgs):
 async def set_group_notice(
     groupId: int,
     content: str,
-    imageUrl: str = None,
+    imageUrl: Optional[str] = None,
     wait: bool = False,
     auto: bool = True,
 ) -> Optional["ResponseEvent"] | BotAction:
@@ -1540,7 +1542,7 @@ class DownloadFileActionArgs(ActionArgs):
     下载文件到缓存目录 action 信息构造类
     """
 
-    def __init__(self, fileUrl: str, useThreadNum: int, headers: dict) -> None:
+    def __init__(self, fileUrl: str, useThreadNum: int, headers: list | str) -> None:
         super().__init__()
         self.type = "download_file"
         self.params = {"url": fileUrl, "thread_count": useThreadNum, "headers": headers}
@@ -1652,7 +1654,7 @@ async def set_group_essence(
     )
 
 
-class GetGroupEssenceListActionArgs(ActionArgs):
+class GetGroupEssencelistActionArgs(ActionArgs):
     """
     获取精华消息列表 action 信息构造类
     """
@@ -1671,7 +1673,7 @@ async def get_group_essence_list(
     获取精华消息列表
     """
     return BotAction(
-        GetGroupEssenceListActionArgs(groupId),
+        GetGroupEssencelistActionArgs(groupId),
         resp_id=get_id() if wait else None,
         ready=auto,
     )
@@ -1751,18 +1753,20 @@ async def delete_undirect_friend(
 
 
 @CtxManager._activate
-async def take_custom_action(action: BotAction) -> Optional["ResponseEvent"]:
+async def take_custom_action(
+    action: BotAction,
+) -> Optional["ResponseEvent"]:
     """
     直接发送提供的 action
     """
     action.ready = True
-    return action
+    return action  # type: ignore
 
 
 async def send_wait(
-    content: str | CQMsgDict | List[CQMsgDict],
+    content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
-    overtime: int = None,
+    overtime: Optional[int] = None,
 ) -> None:
     """
     回复一条消息然后挂起
@@ -1772,7 +1776,7 @@ async def send_wait(
 
 
 async def send_reply(
-    content: str | CQMsgDict | List[CQMsgDict],
+    content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
     wait: bool = False,
 ) -> Optional["ResponseEvent"]:
@@ -1794,7 +1798,7 @@ async def send_reply(
 
 
 async def finish(
-    content: str | CQMsgDict | List[CQMsgDict],
+    content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
 ) -> None:
     """
@@ -1806,7 +1810,7 @@ async def finish(
 
 
 async def reply_finish(
-    content: str | CQMsgDict | List[CQMsgDict],
+    content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
 ) -> Optional["ResponseEvent"]:
     """

@@ -1,9 +1,11 @@
+from .abc import BOT_LOCAL as thisbot
 from .abc import (
     BotAction,
     BotChecker,
     BotEvent,
     BotLife,
     BotMatcher,
+    LogicMode,
     SessionRule,
     ShareObjArgs,
 )
@@ -21,4 +23,8 @@ from .tools import (
     to_async,
     to_coro,
 )
-from .typing import PriorLevel, User
+from .typing import TYPE_CHECKING, PriorLevel, User
+
+if TYPE_CHECKING:
+    from ..bot.init import MeloBot
+thisbot: "MeloBot"  # type: ignore

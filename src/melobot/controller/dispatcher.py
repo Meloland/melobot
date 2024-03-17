@@ -1,15 +1,16 @@
 import asyncio as aio
 
-from ..types.exceptions import *
+from ..types.exceptions import get_better_exc
 from ..types.tools import get_rich_str
-from ..types.typing import *
+from ..types.typing import TYPE_CHECKING, BotLife, PriorLevel, Type, Union
 
 if TYPE_CHECKING:
     from ..bot.hook import BotHookBus
     from ..context.session import BotSessionManager
+    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..plugin.handler import EventHandler
     from ..types.abc import BotEvent
-    from ..utils.logger import BotLogger
+    from ..utils.logger import Logger
 
 
 class BotDispatcher:
@@ -20,7 +21,7 @@ class BotDispatcher:
 
     def __init__(self) -> None:
         super().__init__()
-        self.handlers: Dict[Type["EventHandler"], List["EventHandler"]] = {}
+        self.handlers: dict[Type["EventHandler"], list["EventHandler"]] = {}
         self._ready_signal = aio.Event()
 
     def _bind(
@@ -28,7 +29,7 @@ class BotDispatcher:
         channel_map: dict[str, tuple[Type["EventHandler"], ...]],
         bot_bus: "BotHookBus",
         ctx_manager: Type["BotSessionManager"],
-        logger: "BotLogger",
+        logger: "Logger",
     ) -> None:
         self.logger = logger
         self._channel_map = channel_map
@@ -40,7 +41,7 @@ class BotDispatcher:
                 if channel not in self.handlers.keys():
                     self.handlers[channel] = []
 
-    def add_handlers(self, handlers: List["EventHandler"]) -> None:
+    def add_handlers(self, handlers: list["EventHandler"]) -> None:
         """
         绑定事件处理器列表
         """
@@ -54,7 +55,11 @@ class BotDispatcher:
     def _set_ready(self) -> None:
         self._ready_signal.set()
 
-    async def broadcast(self, event: "BotEvent", channel: Type["EventHandler"]) -> None:
+    async def broadcast(
+        self,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        channel: Type["EventHandler"],
+    ) -> None:
         """
         向指定的通道推送事件
         """
@@ -78,12 +83,14 @@ class BotDispatcher:
                 if handler.set_block and handler.priority > permit_priority:
                     permit_priority = handler.priority
         except Exception as e:
-            self.logger.error(f"bot dispatcher 抛出异常")
-            self.logger.error("异常点 event：\n" + get_rich_str(event))
+            self.logger.error("bot dispatcher 抛出异常")
+            self.logger.error("异常点 event：\n" + get_rich_str(event.raw))
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
             self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
 
-    async def dispatch(self, event: "BotEvent") -> None:
+    async def dispatch(
+        self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
+    ) -> None:
         """
         把事件分发到对应的事件通道
         """

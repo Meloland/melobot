@@ -3,7 +3,7 @@ import re
 import time
 
 from ..types.abc import BotEvent
-from ..types.typing import *
+from ..types.typing import Any, CQMsgDict, Literal, Optional, Type
 from .cq import get_cq as _get_cq
 from .cq import get_cq_params as _get_cq_params
 from .cq import to_cq_arr, to_cq_str
@@ -13,19 +13,19 @@ class BotEventBuilder:
     @staticmethod
     def build(rawEvent: dict | str) -> BotEvent:
         if isinstance(rawEvent, str):
-            rawEvent = json.loads(rawEvent)
+            raw: dict[str, str | float | int] = json.loads(rawEvent)
 
-        etype = rawEvent.get("post_type")
+        etype = raw.get("post_type")
         if etype in ("message_sent", "message"):
-            return MessageEvent(rawEvent)
+            return MessageEvent(raw)
         elif etype == "request":
-            return RequestEvent(rawEvent)
+            return RequestEvent(raw)
         elif etype == "notice":
-            return NoticeEvent(rawEvent)
+            return NoticeEvent(raw)
         elif etype == "meta_event":
-            return MetaEvent(rawEvent)
+            return MetaEvent(raw)
         else:
-            return ResponseEvent(rawEvent)
+            return ResponseEvent(raw)
 
 
 class MessageEvent(BotEvent):
@@ -39,7 +39,7 @@ class MessageEvent(BotEvent):
         # 使用 CQ 字符串编码的消息
         self.raw_content: str
         # array 格式表示所有类型消息段
-        self.content: List[CQMsgDict]
+        self.content: list[CQMsgDict]
         # 消息中所有文本消息段的合并字符串
         self.text: str
         self.font: int
@@ -49,7 +49,7 @@ class MessageEvent(BotEvent):
 
     @property
     def time(self) -> int:
-        return self.raw.get("time")
+        return self.raw.get("time")  # type: ignore
 
     @property
     def type(self) -> str:
@@ -89,7 +89,7 @@ class MessageEvent(BotEvent):
         else:
             return content
 
-    def _format_to_array(self, content: list | str) -> List[CQMsgDict]:
+    def _format_to_array(self, content: list | str) -> list[CQMsgDict]:
         """
         对外部零信任，强制转换为消息段格式
         """
@@ -111,25 +111,25 @@ class MessageEvent(BotEvent):
         else:
             return to_cq_arr(content)
 
-    def _get_text(self, content: List[CQMsgDict]) -> str:
+    def _get_text(self, content: list[CQMsgDict]) -> str:
         """
         获取消息中所有文本消息，返回合并字符串
         """
-        text_list = []
+        text_list: list[str] = []
         for item in content:
             if item["type"] == "text":
-                text_list.append(item["data"]["text"])
+                text_list.append(item["data"]["text"])  # type: ignore
         return "".join(text_list)
 
-    def get_cq(self, cq_type: str) -> List[CQMsgDict]:
+    def get_cq(self, cq_type: str) -> list[CQMsgDict]:
         """
         从当前 event 中获取指定类型的 cq 消息 dict
         """
         return _get_cq(self.content, cq_type)
 
     def get_cq_params(
-        self, cq_type: str, param: str, type: Type[T] = None
-    ) -> List[Any]:
+        self, cq_type: str, param: str, type: Optional[Type[Any]] = None
+    ) -> list[Any]:
         """
         从当前 event 中获取指定类型 cq 消息的指定 param，以列表形式返回。
         当没有任何对应类型的 cq 消息时，为空列表。如果有对应类型 cq 消息，
@@ -203,9 +203,9 @@ class MessageEvent(BotEvent):
             self._isGroup = isGroup
             self._isGroupAnonym = isGroupAnonym
             self.id: int
-            self.nickname: str
-            self.sex: str
-            self.age: int
+            self.nickname: Optional[str]
+            self.sex: Optional[str]
+            self.age: Optional[int]
 
             self.group_card: str
             # 总共有四种：owner, admin, member, anonymous
@@ -227,10 +227,14 @@ class MessageEvent(BotEvent):
             self.id = rawEvent["sender"]["user_id"]
             self.nickname = rawEvent["sender"]["nickname"]
             self.sex = (
-                rawEvent["sender"]["sex"] if "sex" in rawEvent["sender"].keys() else ""
+                rawEvent["sender"]["sex"]
+                if "sex" in rawEvent["sender"].keys()
+                else None
             )
             self.age = (
-                rawEvent["sender"]["age"] if "age" in rawEvent["sender"].keys() else ""
+                rawEvent["sender"]["age"]
+                if "age" in rawEvent["sender"].keys()
+                else None
             )
             if isGroup:
                 if isGroupAnonym:
@@ -307,7 +311,7 @@ class RequestEvent(BotEvent):
 
     @property
     def time(self) -> int:
-        return self.raw.get("time")
+        return self.raw.get("time")  # type: ignore
 
     @property
     def type(self) -> str:
@@ -382,7 +386,7 @@ class NoticeEvent(BotEvent):
 
     @property
     def time(self) -> int:
-        return self.raw.get("time")
+        return self.raw.get("time")  # type: ignore
 
     @property
     def type(self) -> str:
@@ -529,11 +533,11 @@ class NoticeEvent(BotEvent):
         """
 
         def __init__(self, rawEvent: dict, isGroup: bool) -> None:
-            self.id: str = None
-            self.name: str = None
-            self.size: int = None
-            self.busid: int = None
-            self.url: str = None
+            self.id: Optional[str] = None
+            self.name: str
+            self.size: int
+            self.busid: Optional[int] = None
+            self.url: Optional[str] = None
 
             self.name = rawEvent["file"]["name"]
             self.size = rawEvent["file"]["size"]
@@ -562,7 +566,7 @@ class MetaEvent(BotEvent):
 
     @property
     def time(self) -> int:
-        return self.raw.get("time")
+        return self.raw.get("time")  # type: ignore
 
     @property
     def type(self) -> str:
@@ -578,18 +582,13 @@ class MetaEvent(BotEvent):
 class ResponseEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
-        self.status = rawEvent.get("retcode")
 
         # 响应标识符
-        self.id: str = None
+        self.id: Optional[str] = None
         # 状态码
-        self.status: int = None
-        # 错误
-        self.err: str = None
-        # 错误提示
-        self.err_prompt: str = None
+        self.status: int
         # 响应数据
-        self.data: dict = None
+        self.data: Optional[dict] = None
 
         self._init()
 

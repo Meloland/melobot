@@ -7,22 +7,20 @@ from typing import (
     AsyncIterator,
     Callable,
     Coroutine,
-    Dict,
-    List,
     Literal,
     NamedTuple,
     Optional,
     OrderedDict,
-    Set,
-    Tuple,
     Type,
     TypeAlias,
     TypedDict,
     TypeVar,
     Union,
+    cast,
 )
 
 import better_exceptions
+from typing_extensions import NotRequired
 
 # 修复在 windows powershell 显示错误的 bug
 better_exceptions.encoding.ENCODING = sys.stdout.encoding
@@ -36,29 +34,32 @@ class CQMsgDict(TypedDict):
     """
 
     type: str
-    data: Dict[str, float | int | str]
+    data: dict[str, float | int | str]
+
+
+class CustomNodeData(TypedDict):
+    """
+    自定义消息节点 data dict
+    """
+
+    name: str
+    uin: str
+    content: list[CQMsgDict]
+    seq: NotRequired[list[CQMsgDict]]
+
+
+class ReferNodeData(TypedDict):
+    """
+    引用消息节点 data dict
+    """
+
+    id: str
 
 
 class MsgNodeDict(TypedDict):
     """
     消息节点 dict
     """
-
-    class CustomNodeData(TypedDict):
-        """
-        自定义消息节点 data dict
-        """
-
-        name: str
-        uin: int
-        content: List[CQMsgDict]
-
-    class ReferNodeData(TypedDict):
-        """
-        引用消息节点 data dict
-        """
-
-        id: int
 
     type: Literal["node"]
     data: CustomNodeData | ReferNodeData
@@ -69,7 +70,7 @@ class ParseArgs:
     命令参数类
     """
 
-    def __init__(self, values: List[Any]) -> None:
+    def __init__(self, values: list[Any] | None) -> None:
         self.vals = values
         self.formatted = False
 
@@ -109,46 +110,6 @@ class BotLife(Enum):
     ACTION_PRESEND = 6
 
 
-class LogicMode(Enum):
-    """
-    逻辑模式枚举
-    """
-
-    AND = 1
-    OR = 2
-    NOT = 3
-    XOR = 4
-
-    @classmethod
-    def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
-        if logic == LogicMode.AND:
-            return (v1 and v2) if v2 is not None else bool(v1)
-        elif logic == LogicMode.OR:
-            return (v1 or v2) if v2 is not None else bool(v1)
-        elif logic == LogicMode.NOT:
-            return not v1
-        elif logic == LogicMode.XOR:
-            return (v1 ^ v2) if v2 is not None else bool(v1)
-
-    @classmethod
-    def seq_calc(cls, logic: "LogicMode", values: List[Any]) -> bool:
-        if len(values) <= 0:
-            return False
-        elif len(values) <= 1:
-            return bool(values[0])
-
-        idx = 0
-        res = None
-        while idx < len(values):
-            if idx == 0:
-                res = cls.calc(logic, values[idx], values[idx + 1])
-                idx += 1
-            else:
-                res = cls.calc(logic, res, values[idx])
-            idx += 1
-        return res
-
-
 T = TypeVar("T")
 
 
@@ -158,3 +119,5 @@ class Void:
     """
 
     pass
+
+VoidType: TypeAlias = Type[Void]

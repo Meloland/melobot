@@ -8,8 +8,8 @@ from types import TracebackType
 
 import coloredlogs
 
-from ..types.exceptions import *
-from ..types.typing import *
+from ..types.exceptions import DuplicateError
+from ..types.typing import Literal, Optional, Type, TypeAlias
 
 
 class NullLogger(Logger):
@@ -82,7 +82,7 @@ class BotLogger(Logger):
     @staticmethod
     def _file_handler(
         fmt: logging.Formatter, log_dir: str, name: str
-    ) -> logging.Formatter:
+    ) -> logging.Handler:
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
         handler = logging.handlers.RotatingFileHandler(
@@ -106,7 +106,7 @@ class BotLogger(Logger):
             raise DuplicateError(f"名为 {name} 的日志器已存在，请修改 name")
         super().__init__(name, BotLogger.LEVEL_MAP[level])
         BotLogger.LOGGERS[name] = self
-        self._con_handler = None
+        self._con_handler: Optional[logging.Handler] = None
 
         if to_console:
             self._add_console_handler()
@@ -135,8 +135,8 @@ class BotLogger(Logger):
 
 
 _SysExcInfoType: TypeAlias = (
-    Tuple[Type[BaseException], BaseException, Optional[TracebackType]]
-    | Tuple[None, None, None]
+    tuple[Type[BaseException], BaseException, Optional[TracebackType]]
+    | tuple[None, None, None]
 )
 _ExcInfoType: TypeAlias = None | bool | _SysExcInfoType | BaseException
 
@@ -150,7 +150,7 @@ class PrefixLogger:
         self._logger = ref
         self._prefix = prefix
 
-    def _add_prefix(self, s: str) -> str:
+    def _add_prefix(self, s: object) -> str:
         return f"[{self._prefix}] {s}"
 
     def info(

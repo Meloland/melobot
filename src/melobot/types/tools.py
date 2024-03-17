@@ -1,7 +1,8 @@
 import asyncio as aio
+import inspect
 import io
+import os
 import pathlib
-import sys
 import time
 from asyncio import iscoroutine, iscoroutinefunction
 from contextlib import asynccontextmanager
@@ -9,8 +10,8 @@ from functools import wraps
 
 import rich
 
-from .exceptions import *
-from .typing import *
+from .exceptions import BotBaseUtilsError, BotRuntimeError
+from .typing import Any, Callable, Coroutine, Optional, T
 
 
 class Singleton:
@@ -27,7 +28,7 @@ class AsyncTwinEvent(aio.Event):
 
     def __init__(self) -> None:
         super().__init__()
-        self._twin: AsyncTwinEvent = None
+        self._twin: Optional[AsyncTwinEvent] = None
 
     def bind(self, twin: "AsyncTwinEvent") -> None:
         self._twin = twin
@@ -47,7 +48,7 @@ class AsyncTwinEvent(aio.Event):
             super(AsyncTwinEvent, self._twin).set()
 
 
-def get_twin_event() -> Tuple[aio.Event, aio.Event]:
+def get_twin_event() -> tuple[aio.Event, aio.Event]:
     """
     获得两个时刻保持状态相反的 asyncio.Event。
     获得的第一个为 unset，另一个为 set
@@ -63,7 +64,15 @@ class RWController:
     异步读写控制器。提供异步安全的读写上下文
     """
 
-    def __init__(self, read_limit: int = None) -> None:
+    def __init__(self, read_limit: Optional[int] = None) -> None:
+        write_semaphore = aio.Semaphore(1)
+        if read_limit:
+            read_semaphore = aio.Semaphore(read_limit)
+        else:
+            read_semaphore = None
+        read_num = 0
+        read_num_lock = aio.Lock()
+
         @asynccontextmanager
         async def safe_read():
             nonlocal read_num, read_semaphore, write_semaphore, read_num_lock
@@ -92,13 +101,6 @@ class RWController:
             finally:
                 write_semaphore.release()
 
-        write_semaphore = aio.Semaphore(1)
-        if read_limit:
-            read_semaphore = aio.Semaphore(read_limit)
-        else:
-            read_semaphore = None
-        read_num = 0
-        read_num_lock = aio.Lock()
         self.safe_read = safe_read
         self.safe_write = safe_write
 
@@ -108,7 +110,7 @@ class IdWorker:
     雪花算法生成 ID
     """
 
-    def __init__(self, datacenter_id, worker_id, sequence=0) -> int:
+    def __init__(self, datacenter_id, worker_id, sequence=0) -> None:
         self.MAX_WORKER_ID = -1 ^ (-1 << 3)
         self.MAX_DATACENTER_ID = -1 ^ (-1 << 5)
         self.WOKER_ID_SHIFT = 12
@@ -169,11 +171,11 @@ class IdWorker:
 ID_WORKER = IdWorker(1, 1, 0)
 
 
-def get_id() -> int:
+def get_id() -> str:
     """
     获取一个全局唯一 id，由 melobot 内部 id 生成器提供
     """
-    return ID_WORKER.get_id()
+    return str(ID_WORKER.get_id())
 
 
 def get_rich_str(obj: object) -> str:
@@ -187,19 +189,70 @@ def get_rich_str(obj: object) -> str:
 
 def this_dir(*relative_path: str) -> str:
     """
-    包内脚本可通过该方法获取所在目录的绝对路径。提供 relative_path 参数，
-    可自动拼接绝对路径。
+    包内 py 脚本可通过该方法获取所在目录的绝对路径。
+    提供参数，还可拼接路径。
 
-    建议只在 py 脚本的顶级作用域调用，不要在其他作用域中调用
+    请注意：
+
+    1. 使用 `this_dir()`，只能这样导入：（导入语句后可以使用 as 子句）
+
+    ```python
+    from melobot import this_dir
+    # 或
+    from melobot.types.tools import this_dir
+    ```
+
+    2. 若 `B.py` 从 `A.py` 导入包含 `this_dir()` 调用的结构，
+    导入前 `this_dir()` 必须已运行，而不能延迟求值
+
+    `A.py` 中：
+    ```python
+    class Foo:
+        DIR = this_dir()
+        LAMBDA_DIR = lambda: this_dir()
+        GET_DIR = lambda: this_dir()
+    OUTER_DIR = Foo.LAMBDA_DIR()  # Ok
+    ```
+
+    `B.py` 中：
+    ```python
+    from .A import Foo, OUTER_DIR
+    Foo.OUTER_DIR  # Ok
+    Foo.DIR        # Ok
+    Foo.GET_DIR()  # Error
+    ```
     """
-    fr = sys._getframe(1)
-    call_file = fr.f_locals["__file__"]
+    cur_finfo: inspect.FrameInfo | None = None
+    cur_idx: int
+    caller_path: str | None = None
+    stacks = inspect.stack()
+
+    for idx, finfo in enumerate(stacks):
+        if finfo.function == "this_dir" and os.path.samefile(finfo.filename, __file__):
+            cur_finfo, cur_idx = finfo, idx
+    if cur_finfo is None:
+        raise BotRuntimeError("this_dir 定位失败，请检查本函数使用方式是否正确")
+
+    for idx, finfo in enumerate(stacks[cur_idx + 1 :]):
+        if finfo.function == "<module>":
+            for val in finfo.frame.f_locals.values():
+                if val is __dir_inspector__:
+                    caller_path = finfo.filename
+                    break
+            if caller_path is not None:
+                break
+    if caller_path is None:
+        raise BotRuntimeError("this_dir 定位失败，请检查本函数使用方式是否正确")
+
     return str(
-        pathlib.Path(call_file).parent.joinpath(*relative_path).resolve(strict=True)
+        pathlib.Path(caller_path).parent.joinpath(*relative_path).resolve(strict=True)
     )
 
 
-def to_async(func: Callable):
+__dir_inspector__ = this_dir
+
+
+def to_async(func: Callable[..., T]) -> Callable[..., Coroutine[Any, Any, T]]:
     """
     异步包装器，将一个同步函数包装为异步函数。保留返回值。
     如果需要传参使用 partial 包裹
@@ -211,7 +264,7 @@ def to_async(func: Callable):
     return wrapper
 
 
-def to_coro(func: Callable):
+def to_coro(func: Callable[..., T]) -> Coroutine[Any, Any, T]:
     """
     协程包装器，将一个同步函数包装为协程。保留返回值。
     如果需要传参使用 partial 包裹
@@ -221,19 +274,20 @@ def to_coro(func: Callable):
     return f()
 
 
-def to_task(obj: Callable | Coroutine):
+def to_task(obj: Callable[..., T] | Coroutine[Any, Any, T]) -> aio.Task[T]:
     """
-    任务包装器，将一个同步函数或异步函数或协程包装为任务
+    任务包装器，将一个同步函数或异步函数或协程包装为任务。
+    保留返回值。如果需要传参使用 partial 包裹
     """
     if iscoroutine(obj):
         return aio.create_task(obj)
     elif iscoroutinefunction(obj):
         return aio.create_task(obj())
     else:
-        return aio.create_task(to_coro(obj))
+        return aio.create_task(to_coro(obj))  # type: ignore
 
 
-def lock(callback: Callable[[None], Coroutine[Any, Any, Any]]) -> Callable:
+def lock(callback: Callable[[], Coroutine[Any, Any, Any]]):
     """
     锁装饰器，可以为被装饰的异步函数/方法加锁。
     在获取锁冲突时，调用 callback 获得一个回调并执行。回调执行完毕后直接返回
@@ -244,7 +298,7 @@ def lock(callback: Callable[[None], Coroutine[Any, Any, Any]]) -> Callable:
             f"lock 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
-    def deco_func(func: Callable) -> Callable:
+    def deco_func(func):
         @wraps(func)
         async def wrapped_func(*args, **kwargs):
             if alock.locked():
@@ -263,10 +317,10 @@ def lock(callback: Callable[[None], Coroutine[Any, Any, Any]]) -> Callable:
 
 
 def cooldown(
-    busy_callback: Callable[[None], Coroutine[Any, Any, Any]],
-    cb_callback: Callable[[float], Coroutine[Any, Any, Any]] = None,
+    busy_callback: Callable[[], Coroutine[Any, Any, Any]],
+    cd_callback: Optional[Callable[[float], Coroutine[Any, Any, Any]]] = None,
     interval: float = 5,
-) -> Callable:
+):
     """
     冷却装饰器，可以为被装饰的异步函数/方法添加 cd 时间。
     cd_callback 的类型：接受一个 float 参数（cd 剩余时间），
@@ -285,12 +339,12 @@ def cooldown(
         raise BotBaseUtilsError(
             f"cooldown 装饰器的 busy_callback 参数不可调用，busy_callback 值为：{busy_callback}"
         )
-    if cb_callback is not None and not callable(cb_callback):
+    if cd_callback is not None and not callable(cd_callback):
         raise BotBaseUtilsError(
-            f"cooldown 装饰器的 cd_callback 参数不可调用，cd_callback 值为：{cb_callback}"
+            f"cooldown 装饰器的 cd_callback 参数不可调用，cd_callback 值为：{cd_callback}"
         )
 
-    def deco_func(func: Callable) -> Callable:
+    def deco_func(func):
         @wraps(func)
         async def wrapped_func(*args, **kwargs):
             nonlocal pre_finish_t
@@ -310,8 +364,8 @@ def cooldown(
                     return ret
 
                 remain_t = interval - duration
-                if cb_callback is not None:
-                    cd_cb = cb_callback(remain_t)
+                if cd_callback is not None:
+                    cd_cb = cd_callback(remain_t)
                     if not iscoroutine(cd_cb):
                         raise BotBaseUtilsError(
                             f"cooldown 装饰器的 cd_callback 返回的不是协程，返回的回调为：{cd_cb}"
@@ -329,8 +383,8 @@ def cooldown(
 
 
 def semaphore(
-    callback: Callable[[None], Coroutine[Any, Any, Any]], value: int = -1
-) -> Callable:
+    callback: Callable[[], Coroutine[Any, Any, Any]], value: int = -1
+):
     """
     信号量装饰器，可以为被装饰的异步函数/方法添加信号量控制。
     在信号量无法立刻获取时，将调用 callback 获得回调并执行。回调执行完毕后直接返回
@@ -341,7 +395,7 @@ def semaphore(
             f"semaphore 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
-    def deco_func(func: Callable) -> Callable:
+    def deco_func(func):
         @wraps(func)
         async def wrapped_func(*args, **kwargs):
             if a_semaphore.locked():
@@ -360,8 +414,8 @@ def semaphore(
 
 
 def timelimit(
-    callback: Callable[[None], Coroutine[Any, Any, Any]], timeout: float = 5
-) -> Callable:
+    callback: Callable[[], Coroutine[Any, Any, Any]], timeout: float = 5
+):
     """
     时间限制装饰器，可以为被装饰的异步函数/方法添加超时控制。
     在超时之后，将调用 callback 获得回调并执行，同时取消原任务
@@ -371,7 +425,7 @@ def timelimit(
             f"timelimit 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
-    def deco_func(func: Callable) -> Callable:
+    def deco_func(func):
         @wraps(func)
         async def wrapped_func(*args, **kwargs):
             try:
@@ -408,14 +462,10 @@ def call_at(callback: Callable[[], None], timestamp: float):
         return aio.get_running_loop().call_later(timestamp - time.time(), callback)
 
 
-def async_later(
-    callback: Coroutine[Any, Any, Any],
-    delay: float,
-    exit_cb: Coroutine[Any, Any, None] = None,
-) -> aio.Future:
+def async_later(callback: Coroutine[Any, Any, T], delay: float) -> aio.Future[T]:
     """
     在指定的 delay 后调度一个 callback 执行。注意这个 callback 应该是协程。
-    返回一个 future 对象，可用于等待结果。可以指定 exit_cb 用于在被迫 cancel 时调用
+    返回一个 future 对象，可用于等待结果
     """
 
     async def async_cb(fut: aio.Future) -> Any:
@@ -423,42 +473,33 @@ def async_later(
             await aio.sleep(delay)
             res = await callback
             fut.set_result(res)
-            exit_cb.close()
         except aio.CancelledError:
-            if exit_cb is not None:
-                await exit_cb
             callback.close()
 
-    fut = aio.Future()
+    fut: aio.Future[Any] = aio.Future()
     aio.create_task(async_cb(fut))
     return fut
 
 
-def async_at(
-    callback: Coroutine[Any, Any, Any],
-    timestamp: float,
-    exit_cb: Coroutine[Any, Any, None] = None,
-) -> aio.Future:
+def async_at(callback: Coroutine[Any, Any, T], timestamp: float) -> aio.Future[T]:
     """
     在指定的 timestamp 调度一个 callback 执行。注意这个 callback 应该是协程。
-    返回一个 future 对象，可用于等待结果。可以指定 exit_cb 用于在被迫 cancel 时调用
+    返回一个 future 对象，可用于等待结果
 
     当 timestamp <= 当前时刻将立即执行
     """
     if timestamp <= time.time():
-        return async_later(callback, 0, exit_cb)
+        return async_later(callback, 0)
     else:
-        return async_later(callback, timestamp - time.time(), exit_cb)
+        return async_later(callback, timestamp - time.time())
 
 
 def async_interval(
-    callback: Callable[[None], Coroutine[Any, Any, None]],
-    interval: float,
-    exit_cb: Coroutine[Any, Any, None] = None,
-) -> aio.Task:
+    callback: Callable[[], Coroutine[Any, Any, None]], interval: float
+) -> aio.Task[None]:
     """
     以指定的 interval 调度一个回调执行。callback 是协程产生器。
-    返回一个 task 对象用于取消回调。可以指定 exit_cb 用于在被迫 cancel 时调用
+    返回一个 task 对象用于取消回调
     """
 
     async def interval_cb():
@@ -467,10 +508,7 @@ def async_interval(
                 coro = callback()
                 await aio.sleep(interval)
                 await coro
-                exit_cb.close()
         except aio.CancelledError:
-            if exit_cb is not None:
-                await exit_cb
             coro.close()
 
     t = aio.create_task(interval_cb())

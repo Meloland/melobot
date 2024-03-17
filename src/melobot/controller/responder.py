@@ -1,14 +1,14 @@
 import asyncio as aio
 from asyncio import Future
 
-from ..types.exceptions import *
+from ..types.exceptions import get_better_exc
 from ..types.tools import get_rich_str
-from ..types.typing import *
+from ..types.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..models.event import ResponseEvent
     from ..types.abc import AbstractConnector, BotAction
-    from ..utils.logger import BotLogger
+    from ..utils.logger import Logger
 
 
 class BotResponder:
@@ -19,13 +19,13 @@ class BotResponder:
 
     def __init__(self) -> None:
         super().__init__()
-        self._resp_table: Dict[str, Future["ResponseEvent"]] = {}
-        self.logger: "BotLogger"
+        self._resp_table: dict[str, Future["ResponseEvent"]] = {}
+        self.logger: "Logger"
         self._action_sender: "AbstractConnector"
 
         self._ready_signal = aio.Event()
 
-    def _bind(self, logger: "BotLogger", connector: "AbstractConnector") -> None:
+    def _bind(self, logger: "Logger", connector: "AbstractConnector") -> None:
         self.logger = logger
         self._action_sender = connector
 
@@ -52,9 +52,9 @@ class BotResponder:
             self.logger.warning(
                 "等待 ResponseEvent 的异步任务已被取消，这可能意味着连接适配器响应过慢，或任务设置的超时时间太短"
             )
-            self._resp_table.pop(resp.id)
+            self._resp_table.pop(resp.id)  # type: ignore
         except Exception as e:
-            self.logger.error(f"bot responder.dispatch 抛出异常")
+            self.logger.error("bot responder.dispatch 抛出异常")
             self.logger.error("异常点 resp_event：\n" + get_rich_str(resp))
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
             self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
@@ -71,7 +71,7 @@ class BotResponder:
         响应器发送 action，并返回一个 Future 用于等待响应
         """
         await self._ready_signal.wait()
-        fut = Future()
-        self._resp_table[action.resp_id] = fut
+        fut: Future["ResponseEvent"] = Future()
+        self._resp_table[action.resp_id] = fut  # type: ignore
         await self._action_sender._send(action)
         return fut

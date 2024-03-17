@@ -1,8 +1,8 @@
 import re
 
 from ..types.abc import BotParser
-from ..types.exceptions import *
-from ..types.typing import *
+from ..types.exceptions import ArgParseError
+from ..types.typing import TYPE_CHECKING, Optional, ParseArgs
 
 if TYPE_CHECKING:
     from .formatter import ArgFormatter
@@ -18,8 +18,8 @@ class CmdParser(BotParser):
         self,
         cmd_start: str | list[str],
         cmd_sep: str | list[str],
-        target: str | list[str] = None,
-        formatters: List[Optional["ArgFormatter"]] = None,
+        target: Optional[str | list[str]] = None,
+        formatters: Optional[list[Optional["ArgFormatter"]]] = None,
     ) -> None:
         i1 = cmd_start if isinstance(cmd_start, str) else "".join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else "".join(cmd_sep)
@@ -69,7 +69,7 @@ class CmdParser(BotParser):
 
     def _split_string(
         self, string: str, regex: re.Pattern, popFirst: bool = True
-    ) -> List[str]:
+    ) -> list[str]:
         """
         按照指定正则 pattern，对 string 进行分割
         """
@@ -80,7 +80,7 @@ class CmdParser(BotParser):
             temp_list.pop(0)
         return list(filter(lambda x: x != "", temp_list))
 
-    def _parse(self, text: str, textFilter: bool = True) -> Optional[List[List[str]]]:
+    def _parse(self, text: str, textFilter: bool = True) -> Optional[list[list[str]]]:
         pure_string = self._purify(text) if textFilter else text
         cmd_strings = self._split_string(pure_string, self.start_parse_regex)
         cmd_list = [
@@ -89,7 +89,7 @@ class CmdParser(BotParser):
         cmd_list = list(filter(lambda x: x != [], cmd_list))
         return cmd_list if len(cmd_list) else None
 
-    def parse(self, text: str) -> Optional[Dict[str, ParseArgs]]:
+    def parse(self, text: str) -> Optional[dict[str, ParseArgs]]:
         """
         解析 text
         """
@@ -103,8 +103,8 @@ class CmdParser(BotParser):
             return None
 
     def test(
-        self, args_group: Dict[str, ParseArgs]
-    ) -> Tuple[bool, Optional[str], Optional[ParseArgs]]:
+        self, args_group: dict[str, ParseArgs] | None
+    ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
         """
         测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
         最后两个返回值若不存在，则返回 None
@@ -123,14 +123,14 @@ class CmdParser(BotParser):
         格式化命令解析参数
         """
         if args.formatted:
-            return
+            return True
         for idx, formatter in enumerate(self.formatters):
             if formatter is None:
                 continue
             status = await formatter.format(cmd_name, args, idx)
             if not status:
                 return False
-        args.vals = args.vals[: len(self.formatters)]
+        args.vals = args.vals[: len(self.formatters)]  # type: ignore
         args.formatted = True
         return True
 
@@ -147,8 +147,8 @@ class CmdParserGen:
 
     def gen(
         self,
-        target: str | list[str] = None,
-        formatters: List[Optional["ArgFormatter"]] = None,
+        target: Optional[str | list[str]] = None,
+        formatters: Optional[list[Optional["ArgFormatter"]]] = None,
     ) -> CmdParser:
         """
         生成匹配指定命令的命令解析器

@@ -6,9 +6,9 @@ import websockets
 import websockets.exceptions as wse
 
 from ..types.abc import AbstractConnector, BotLife
-from ..types.exceptions import *
+from ..types.exceptions import BotConnectFailed, get_better_exc
 from ..types.tools import get_rich_str
-from ..types.typing import *
+from ..types.typing import TYPE_CHECKING, ModuleType, Type
 
 if TYPE_CHECKING:
     import websockets.legacy.client as wlc
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..controller.responder import BotResponder
     from ..models.event import BotEventBuilder
     from ..types.abc import BotAction
-    from ..utils.logger import BotLogger
+    from ..utils.logger import Logger
 
 
 class ForwardWsConn(AbstractConnector):
@@ -35,11 +35,11 @@ class ForwardWsConn(AbstractConnector):
         cd_time: float = 0.2,
     ) -> None:
         super().__init__(max_retry, retry_delay, cd_time)
-        self.logger: "BotLogger"
+        self.logger: "Logger"
         self.url = f"ws://{connect_host}:{connect_port}"
         self.conn: "wlc.Connect"
 
-        self._event_builder: "BotEventBuilder"
+        self._event_builder: Type["BotEventBuilder"]
         self._bot_bus: "BotHookBus"
         self._send_queue: aio.Queue["BotAction"] = aio.Queue()
         self._pre_send_time = time.time()
@@ -52,7 +52,7 @@ class ForwardWsConn(AbstractConnector):
         resp_dispatcher: "BotResponder",
         event_builder: Type["BotEventBuilder"],
         bot_bus: "BotHookBus",
-        logger: "BotLogger",
+        logger: "Logger",
     ) -> None:
         """
         绑定其他核心组件的方法。
@@ -96,7 +96,7 @@ class ForwardWsConn(AbstractConnector):
         return self
 
     async def __aexit__(
-        self, exc_type: Exception, exc_val: str, exc_tb: ModuleType
+        self, exc_type: Type[Exception], exc_val: Exception, exc_tb: ModuleType
     ) -> bool:
         await self._close()
         if exc_type is None:
@@ -108,7 +108,7 @@ class ForwardWsConn(AbstractConnector):
             return True
         else:
             self.logger.error(
-                f"连接适配器出现预期外的异常：\n" + get_better_exc(exc_val)
+                "连接适配器出现预期外的异常：\n" + get_better_exc(exc_val)
             )
             return False
 
@@ -129,7 +129,7 @@ class ForwardWsConn(AbstractConnector):
         真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作
         """
         await self._ready_signal.wait()
-        
+
         try:
             while True:
                 action = await self._send_queue.get()
@@ -170,9 +170,9 @@ class ForwardWsConn(AbstractConnector):
                         + get_rich_str(event.raw)
                     )
                     if event.is_resp_event():
-                        aio.create_task(self._resp_dispatcher.respond(event))
+                        aio.create_task(self._resp_dispatcher.respond(event))  # type: ignore
                     else:
-                        aio.create_task(self._common_dispatcher.dispatch(event))
+                        aio.create_task(self._common_dispatcher.dispatch(event))  # type: ignore
                 except wse.ConnectionClosed:
                     raise
                 except Exception as e:

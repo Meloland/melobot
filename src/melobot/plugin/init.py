@@ -1,33 +1,38 @@
 import importlib.util
-import inspect
 import os
 import pathlib
 import sys
-from asyncio import iscoroutinefunction
-from pathlib import Path
 
-from ..context.session import BotSessionManager
 from ..types.abc import (
     BotHookRunnerArgs,
+    BotLife,
     EventHandlerArgs,
     LogicMode,
     PluginSignalHandlerArgs,
     ShareObjArgs,
     ShareObjCbArgs,
 )
-from ..types.exceptions import *
-from ..types.typing import *
+from ..types.exceptions import PluginInitError
+from ..types.tools import to_async
+from ..types.typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    Literal,
+    Optional,
+    PriorLevel,
+    Union,
+)
 from ..utils.checker import (
     AtChecker,
     FriendReqChecker,
     GroupReqChecker,
     NoticeTypeChecker,
 )
-from ..utils.logger import PrefixLogger
 from ..utils.matcher import ContainMatch, EndMatch, FullMatch, RegexMatch, StartMatch
 from .handler import (
     AllEventHandler,
-    EventHandler,
     MetaEventHandler,
     MsgEventHandler,
     NoticeEventHandler,
@@ -35,13 +40,10 @@ from .handler import (
 )
 
 if TYPE_CHECKING:
-    from ..bot.hook import BotHookBus
-    from ..types.abc import BotLife, SessionRule
+    from ..types.abc import SessionRule, WrappedChecker
     from ..utils.checker import BotChecker
-    from ..utils.logger import BotLogger
     from ..utils.matcher import BotMatcher
     from ..utils.parser import BotParser
-    from .ipc import PluginBus, PluginStore
 
 
 class PluginProxy:
@@ -53,14 +55,14 @@ class PluginProxy:
         self,
         id: str,
         ver: str,
-        path: Path,
         share_objs: list[tuple[str, str]],
+        share_cbs: list[tuple[str, str]],
         signal_methods: list[tuple[str, str]],
     ) -> None:
         self.id = id
         self.version = ver
-        self.path = path
         self.shares = share_objs
+        self.share_cbs = share_cbs
         self.signal_methods = signal_methods
 
 
@@ -70,12 +72,12 @@ class PluginLoader:
     """
 
     @staticmethod
-    def load_from_dir(plugin_path: str) -> tuple["Plugin", str]:
+    def load_from_dir(plugin_path: str) -> "BotPlugin":
         """
         从指定插件目录加载插件
         """
         if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
-            raise PluginLoadError(
+            raise PluginInitError(
                 f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
             )
         plugin_name = os.path.basename(plugin_path)
@@ -88,728 +90,642 @@ class PluginLoader:
             f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}"
         )
 
-        plugin_class = None
+        plugin = None
         for obj in module.__dict__.values():
-            if (
-                isinstance(obj, type)
-                and issubclass(obj, Plugin)
-                and obj.__name__ != Plugin.__name__
-            ):
-                plugin_class = obj
+            if isinstance(obj, BotPlugin):
+                plugin = obj
                 break
-        if plugin_class is None:
-            raise PluginLoadError(
-                "指定的入口主文件中，未发现继承 Plugin 的插件类，无法加载插件"
-            )
-        plugin = plugin_class()
-        file_path = inspect.getfile(module)
-        return (plugin, file_path)
+        if plugin is None:
+            raise PluginInitError("指定的入口主文件中，未发现 Plugin 实例，无效导入")
+        return plugin
 
     @staticmethod
-    def load_from_type(class_: Type["Plugin"]) -> tuple["Plugin", str]:
-        """
-        从插件类对象加载插件
-        """
-        plugin = class_()
-        file_path = inspect.getfile(class_)
-        return (plugin, file_path)
-
-    @staticmethod
-    def _build_plugin(
-        plugin: "Plugin",
-        root_path: Path,
-        logger: "BotLogger",
-        store: "PluginStore",
-        plugin_bus: "PluginBus",
-        bot_bus: "BotHookBus",
-    ) -> None:
-        plugin.PATH = root_path
-        plugin.LOGGER = PrefixLogger(logger, plugin.ID)
-
-        attrs_map = {
-            k: v for k, v in inspect.getmembers(plugin) if not k.startswith("__")
-        }
-        share_objs_map = plugin._init_share_objs(store, attrs_map, plugin.SHARES)
-
-        plugin._handlers = []
-        signal_methods_map = []
-        members = inspect.getmembers(plugin)
-        for attr_name, val in members:
-            if isinstance(val, EventHandlerArgs):
-                handler = plugin._init_event_handler(
-                    logger, val.executor, val.type, *val.params
-                )
-                plugin._handlers.append(handler)
-            elif isinstance(val, BotHookRunnerArgs):
-                plugin._init_hook_runner(bot_bus, val.func, val.type)
-            elif isinstance(val, ShareObjCbArgs):
-                plugin._init_share_obj_cb(store, val.namespace, val.id, val.cb)
-            elif isinstance(val, PluginSignalHandlerArgs):
-                plugin._init_plugin_signal_handler(
-                    plugin_bus, val.namespace, val.signal, val.func
-                )
-                signal_methods_map.append((val.namespace, val.signal))
-
-        plugin._proxy = PluginProxy(
-            plugin.ID, plugin.VERSION, plugin.PATH, share_objs_map, signal_methods_map
-        )
-
-    @staticmethod
-    def load(
-        target: str | Type["Plugin"],
-        logger: "BotLogger",
-        store: "PluginStore",
-        plugin_bus: "PluginBus",
-        bot_bus: "BotHookBus",
-    ) -> "Plugin":
+    def load(target: Union[str, "BotPlugin"]) -> "BotPlugin":
         """
         加载插件
         """
         if isinstance(target, str):
-            plugin, file_path = PluginLoader.load_from_dir(target)
+            plugin = PluginLoader.load_from_dir(target)
         else:
-            plugin, file_path = PluginLoader.load_from_type(target)
-        root_path = pathlib.Path(file_path).parent.resolve(strict=True)
-        PluginLoader._build_plugin(
-            plugin, root_path, logger, store, plugin_bus, bot_bus
-        )
+            plugin = target
+        plugin._self_build()
         return plugin
 
 
-class Plugin:
+class BotPlugin:
     """
     bot 插件基类。所有自定义插件必须继承该类实现。
     """
 
-    def __init__(self) -> None:
-        # 插件 id 和 version 标记
-        self.ID: str = self.__class__.__name__
-        # 插件版本标记
-        self.VERSION: str = "1.0.0"
-        # 插件类所在的文件路径，PosicPath 对象
-        self.PATH: Path
-        # 标记了该类有哪些实例属性需要被共享。元素是共享对象构造参数或字符串
-        self.SHARES: List[ShareObjArgs | str] = []
-        # 被二次包装的全局日志器
-        self.LOGGER: PrefixLogger
+    def __init__(self, id: str, version: str) -> None:
+        self.__id__ = id
+        self.__version__ = version
 
-        self._handlers: List[EventHandler]
-        self._proxy: PluginProxy
-        self._handlers: list[EventHandler]
+        self.__handler_args__: list[EventHandlerArgs] = []
+        self.__signal_args__: list[PluginSignalHandlerArgs] = []
+        self.__share_args__: list[ShareObjArgs] = []
+        self.__share_cb_args__: list[ShareObjCbArgs] = []
+        self.__hook_args__: list[BotHookRunnerArgs] = []
 
-    def _init_share_objs(
-        self,
-        store: "PluginStore",
-        attrs_map: dict[str, Any],
-        shares: List[ShareObjArgs | str],
-    ) -> list[tuple[str, str]]:
-        """
-        初始化所有的共享对象。
-        同时返回共享对象定义时，包含 (namespace, id) 元组的列表
-        """
-        share_objs = []
-        for idx, val in enumerate(shares):
-            if isinstance(val, str):
-                shares[idx] = ShareObjArgs(val, self.ID, val)
-        for share_obj in shares:
-            property, namespace, id = (
-                share_obj.property,
-                share_obj.namespace,
-                share_obj.id,
+        self.__proxy__: PluginProxy
+
+    def _self_build(self) -> None:
+        self.__proxy__ = PluginProxy(
+            self.__id__,
+            self.__version__,
+            [(args.namespace, args.id) for args in self.__share_args__],
+            [(args.namespace, args.id) for args in self.__share_cb_args__],
+            [(args.namespace, args.signal) for args in self.__signal_args__],
+        )
+        check_pass = all(
+            False
+            for pair in self.__proxy__.share_cbs
+            if pair not in self.__proxy__.shares
+        )
+        if not check_pass:
+            raise PluginInitError(
+                f"插件 {self.__id__} 不能为不属于自己的共享对象注册回调"
             )
-            if property not in attrs_map.keys() and property is not None:
-                raise PluginBuildError(
-                    f"插件 {self.ID} 尝试共享一个不存在的属性 {property}"
-                )
-            store._create_so(property, namespace, id, self)
-            share_objs.append((namespace, id))
-        return share_objs
 
-    def _init_event_handler(
-        self,
-        logger: "BotLogger",
-        executor: Callable[[], Coroutine[Any, Any, None]],
-        handler_class: Type[EventHandler],
-        *params: Any,
-    ) -> EventHandler:
-        """
-        初始化指定的 event handler，并返回
-        """
-        if not iscoroutinefunction(executor):
-            raise PluginBuildError(f"事件处理器 {executor.__name__} 必须为异步方法")
-        overtime_cb, conflict_cb = params[-1], params[-2]
-        if overtime_cb and not callable(overtime_cb):
-            raise PluginBuildError(
-                f"超时回调方法 {overtime_cb.__name__} 必须为可调用对象"
+    def on_signal(self, namespace: str, signal: str):
+        def make_args(func: Callable[..., Coroutine[Any, Any, Any]]):
+            self.__signal_args__.append(
+                PluginSignalHandlerArgs(func, namespace, signal)
             )
-        if conflict_cb and not callable(conflict_cb):
-            raise PluginBuildError(
-                f"冲突回调方法 {conflict_cb.__name__} 必须为可调用对象"
-            )
-        handler = handler_class(executor, self, logger, *params)
-        BotSessionManager.register(handler)
-        return handler
+            return func
 
-    def _init_hook_runner(
-        self,
-        bot_bus: "BotHookBus",
-        hook_func: Callable[..., Coroutine[Any, Any, None]],
-        type: "BotLife",
-    ) -> None:
-        """
-        初始化指定的 bot 生命周期的 hook 方法
-        """
-        if not iscoroutinefunction(hook_func):
-            raise PluginBuildError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
-        bot_bus._register(type, hook_func, self)
+        return make_args
 
-    def _init_share_obj_cb(
-        self,
-        store: "PluginStore",
-        namespace: str,
-        id: str,
-        cb: Callable[..., Coroutine[Any, Any, Any]],
-    ) -> None:
-        """
-        初始化指定的共享对象的回调
-        """
-        if not iscoroutinefunction(cb):
-            raise PluginBuildError(
-                f"{namespace} 命名空间中，id 为 {id} 的共享对象，它的回调 {cb.__name__} 必须为异步函数"
-            )
-        store._bind_cb(namespace, id, cb, self)
+    def on_share(
+        self, namespace: str, id: str, reflector: Optional[Callable[[], Any]] = None
+    ):
+        if reflector is not None:
+            self.__share_args__.append(ShareObjArgs(namespace, id, to_async(reflector)))
+            return
 
-    def _init_plugin_signal_handler(
-        self,
-        plugin_bus: "PluginBus",
-        namespace: str,
-        signal: str,
-        func: Callable[..., Coroutine[Any, Any, Any]],
-    ) -> None:
-        """
-        初始化指定的插件信号处理方法
-        """
-        if not iscoroutinefunction(func):
-            raise PluginBuildError(f"插件信号处理方法 {func.__name__} 必须为异步函数")
-        plugin_bus._register(namespace, signal, func, self)
+        def make_args(func: Callable[[], Coroutine[Any, Any, Any]]):
+            self.__share_args__.append(ShareObjArgs(namespace, id, func))
+            return func
 
-    @classmethod
+        return make_args
+
+    def on_share_affected(self, namespace: str, id: str):
+        def make_args(func: Callable[..., Coroutine[Any, Any, Any]]):
+            self.__share_cb_args__.append(ShareObjCbArgs(namespace, id, func))
+            return func
+
+        return make_args
+
+    def on_bot_life(self, type: BotLife):
+        def make_args(func: Callable[..., Coroutine[Any, Any, None]]):
+            self.__hook_args__.append(BotHookRunnerArgs(func, type))
+            return func
+
+        return make_args
+
+    @property
+    def on_plugins_loaded(self):
+        return self.on_bot_life(BotLife.LOADED)
+
+    @property
+    def on_connected(self):
+        return self.on_bot_life(BotLife.CONNECTED)
+
+    @property
+    def on_before_close(self):
+        return self.on_bot_life(BotLife.BEFORE_CLOSE)
+
+    @property
+    def on_before_stop(self):
+        return self.on_bot_life(BotLife.BEFORE_STOP)
+
+    @property
+    def on_event_built(self):
+        return self.on_bot_life(BotLife.EVENT_BUILT)
+
+    @property
+    def on_action_presend(self):
+        return self.on_bot_life(BotLife.ACTION_PRESEND)
+
     def on_event(
-        cls,
-        checker: "BotChecker" = None,
+        self,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为任意事件处理器（响应事件除外）
         """
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=AllEventHandler,
-                params=[
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=AllEventHandler,
+                    params=[
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_message(
-        cls,
-        matcher: "BotMatcher" = None,
-        parser: "BotParser" = None,
-        checker: "BotChecker" = None,
+        self,
+        matcher: Optional["BotMatcher"] = None,
+        parser: Optional["BotParser"] = None,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为消息事件处理器
         """
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    matcher,
-                    parser,
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        matcher,
+                        parser,
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_every_message(
-        cls,
-        checker: "BotChecker" = None,
+        self,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为任意消息事件处理器。
         任何消息经过校验后，不进行匹配和解析即可触发处理方法
         """
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    None,
-                    None,
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        None,
+                        None,
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_at_qq(
-        cls,
-        qid: int = None,
-        matcher: "BotMatcher" = None,
-        parser: "BotParser" = None,
-        checker: "BotChecker" = None,
+        self,
+        qid: Optional[int] = None,
+        matcher: Optional["BotMatcher"] = None,
+        parser: Optional["BotParser"] = None,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为艾特消息匹配的消息事件处理器。
         必须首先是来自指定 qid 的艾特消息，才能被进一步处理
         """
         at_checker = AtChecker(qid)
+        wrapped_checker: AtChecker | "WrappedChecker"
         if checker is not None:
             wrapped_checker = at_checker & checker
         else:
             wrapped_checker = at_checker
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    matcher,
-                    parser,
-                    wrapped_checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        matcher,
+                        parser,
+                        wrapped_checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_start_match(
-        cls,
+        self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: "BotChecker" = None,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为字符串起始匹配的消息事件处理器。
         必须首先含有以 target 起始的文本，才能被进一步处理
         """
         start_matcher = StartMatch(target, logic_mode)
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    start_matcher,
-                    None,
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        start_matcher,
+                        None,
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_contain_match(
-        cls,
+        self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: "BotChecker" = None,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为字符串包含匹配的消息事件处理器。
         文本必须首先包含 target，才能被进一步处理
         """
         contain_matcher = ContainMatch(target, logic_mode)
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    contain_matcher,
-                    None,
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        contain_matcher,
+                        None,
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_full_match(
-        cls,
+        self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: "BotChecker" = None,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为字符串相等匹配的消息事件处理器。
         文本必须首先与 target 内容完全一致，才能被进一步处理
         """
         full_matcher = FullMatch(target, logic_mode)
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    full_matcher,
-                    None,
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        full_matcher,
+                        None,
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_end_match(
-        cls,
+        self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: "BotChecker" = None,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为字符串结尾匹配的消息事件处理器。
         文本必须首先以 target 结尾，才能被进一步处理
         """
         end_matcher = EndMatch(target, logic_mode)
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    end_matcher,
-                    None,
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        end_matcher,
+                        None,
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_regex_match(
-        cls,
+        self,
         target: str,
-        checker: "BotChecker" = None,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为字符串正则匹配的消息事件处理器。
         文本必须包含指定的正则内容，才能被进一步处理
         """
         regex_matcher = RegexMatch(target)
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MsgEventHandler,
-                params=[
-                    regex_matcher,
-                    None,
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MsgEventHandler,
+                    params=[
+                        regex_matcher,
+                        None,
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_request(
-        cls,
-        checker: "BotChecker" = None,
+        self,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为请求事件处理器
         """
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=ReqEventHandler,
-                params=[
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=ReqEventHandler,
+                    params=[
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_friend_request(
-        cls,
-        checker: "BotChecker" = None,
+        self,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为私聊请求事件处理器
         """
         friend_checker = FriendReqChecker()
+        wrapped_checker: FriendReqChecker | "WrappedChecker"
         if checker is not None:
             wrapped_checker = friend_checker & checker
         else:
             wrapped_checker = friend_checker
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=ReqEventHandler,
-                params=[
-                    wrapped_checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=ReqEventHandler,
+                    params=[
+                        wrapped_checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_group_request(
-        cls,
-        checker: "BotChecker" = None,
+        self,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为群请求事件处理器
         """
         group_checker = GroupReqChecker()
+        wrapped_checker: GroupReqChecker | "WrappedChecker"
         if checker is not None:
             wrapped_checker = group_checker & checker
         else:
             wrapped_checker = group_checker
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=ReqEventHandler,
-                params=[
-                    wrapped_checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=ReqEventHandler,
+                    params=[
+                        wrapped_checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_notice(
-        cls,
-        type: str = Literal[
+        self,
+        type: Literal[
             "group_upload",
             "group_admin",
             "group_decrease",
@@ -828,81 +744,83 @@ class Plugin:
             "lucky_king",
             "title",
             "ALL",
-        ],
-        checker: "BotChecker" = None,
+        ] = "ALL",
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为通知事件处理器
         """
         type_checker = NoticeTypeChecker(type)
+        wrapped_checker: NoticeTypeChecker | "WrappedChecker"
         if checker is not None:
             wrapped_checker = type_checker & checker
         else:
             wrapped_checker = type_checker
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=NoticeEventHandler,
-                params=[
-                    wrapped_checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=NoticeEventHandler,
+                    params=[
+                        wrapped_checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args
 
-    @classmethod
     def on_meta_event(
-        cls,
-        checker: "BotChecker" = None,
+        self,
+        checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: "SessionRule" = None,
+        session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = False,
         conflict_wait: bool = False,
-        conflict_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-    ) -> Callable:
+        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ):
         """
         使用该装饰器，将方法标记为元事件处理器
         """
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> EventHandlerArgs:
-            return EventHandlerArgs(
-                executor=executor,
-                type=MetaEventHandler,
-                params=[
-                    checker,
-                    priority,
-                    block,
-                    temp,
-                    session_rule,
-                    session_hold,
-                    direct_rouse,
-                    conflict_wait,
-                    conflict_cb,
-                ],
+        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=executor,
+                    type=MetaEventHandler,
+                    params=[
+                        checker,
+                        priority,
+                        block,
+                        temp,
+                        session_rule,
+                        session_hold,
+                        direct_rouse,
+                        conflict_wait,
+                        conflict_cb,
+                    ],
+                )
             )
+            return executor
 
         return make_args

@@ -26,7 +26,7 @@ class BotRuntimeError(BotException):
         super().__init__(msg)
 
 
-class PluginLoadError(BotException):
+class PluginInitError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
 

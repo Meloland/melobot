@@ -4,10 +4,21 @@ from abc import ABC, abstractmethod, abstractproperty
 from contextvars import ContextVar, Token
 from copy import deepcopy
 
-from melobot.types.typing import Coroutine
-
-from .exceptions import *
-from .typing import *
+from .exceptions import BotActionError, BotCheckerError, BotMatcherError, TryFlagFailed
+from .typing import (
+    TYPE_CHECKING,
+    Any,
+    BotLife,
+    Callable,
+    Coroutine,
+    Enum,
+    ModuleType,
+    Optional,
+    ParseArgs,
+    Type,
+    Void,
+    VoidType,
+)
 
 if TYPE_CHECKING:
     from ..bot.hook import BotHookBus
@@ -16,7 +27,7 @@ if TYPE_CHECKING:
     from ..controller.responder import BotResponder
     from ..models.event import BotEventBuilder
     from ..plugin.handler import EventHandler
-    from ..utils.logger import BotLogger
+    from ..utils.logger import Logger
 
 
 class AbstractConnector(ABC):
@@ -41,7 +52,7 @@ class AbstractConnector(ABC):
 
     @abstractmethod
     async def __aexit__(
-        self, exc_type: Exception, exc_val: str, exc_tb: ModuleType
+        self, exc_type: Type[Exception], exc_val: Exception, exc_tb: ModuleType
     ) -> bool:
         pass
 
@@ -55,7 +66,7 @@ class AbstractConnector(ABC):
         responder: "BotResponder",
         event_builder: Type["BotEventBuilder"],
         bot_bus: "BotHookBus",
-        logger: "BotLogger",
+        logger: "Logger",
     ) -> None:
         pass
 
@@ -74,7 +85,7 @@ class Flagable:
     """
 
     def __init__(self) -> None:
-        self._flags_store: Dict[str, Dict[str, Any]] = None
+        self._flags_store: Optional[dict[str, dict[str, Any]]] = None
 
     def mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
         """
@@ -125,7 +136,7 @@ class BotEvent(ABC, Flagable):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__()
         self.raw = rawEvent
-        self._args_map: Dict[Any, Dict[str, ParseArgs]] = None
+        self._args_map: Optional[dict[Any, dict[str, ParseArgs] | None]] = None
 
     @abstractproperty
     def time(self) -> int:
@@ -150,12 +161,14 @@ class BotEvent(ABC, Flagable):
     def is_resp_event(self) -> bool:
         return self.type == "response"
 
-    def _get_args(self, parser_id: Any) -> dict[str, ParseArgs] | Literal[-1]:
+    def _get_args(self, parser_id: Any) -> dict[str, ParseArgs] | VoidType | None:
         if self._args_map is None:
-            return -1
-        return self._args_map.get(parser_id, -1)
+            return Void
+        return self._args_map.get(parser_id, Void)
 
-    def _store_args(self, parser_id: Any, args_group: dict[str, ParseArgs]) -> None:
+    def _store_args(
+        self, parser_id: Any, args_group: dict[str, ParseArgs] | None
+    ) -> None:
         if self._args_map is None:
             self._args_map = {}
         self._args_map[parser_id] = args_group
@@ -181,7 +194,7 @@ class BotAction(Flagable, Cloneable):
         self,
         action_args: ActionArgs,
         resp_id: Optional[str] = None,
-        triggerEvent: BotEvent = None,
+        triggerEvent: Optional[BotEvent] = None,
         ready: bool = False,
     ) -> None:
         super().__init__()
@@ -204,7 +217,7 @@ class BotAction(Flagable, Cloneable):
             obj["echo"] = self.resp_id
         return obj
 
-    def flatten(self, indent: int = None) -> str:
+    def flatten(self, indent: Optional[int] = None) -> str:
         """
         将对象序列化为标准 cq action json 字符串，一般供连接器使用
         """
@@ -241,8 +254,8 @@ class EventHandlerArgs:
     def __init__(
         self,
         executor: Callable[[], Coroutine[Any, Any, None]],
-        type: "EventHandler",
-        params: List[Any],
+        type: Type["EventHandler"],
+        params: list[Any],
     ) -> None:
         self.executor = executor
         self.type = type
@@ -254,8 +267,10 @@ class ShareObjArgs:
     插件共享对象构造参数
     """
 
-    def __init__(self, property: str, namespace: str, id: str) -> None:
-        self.property = property
+    def __init__(
+        self, namespace: str, id: str, reflector: Callable[[], Coroutine[Any, Any, Any]]
+    ) -> None:
+        self.reflector = reflector
         self.namespace = namespace
         self.id = id
 
@@ -298,11 +313,51 @@ class BotHookRunnerArgs:
         self.type = type
 
 
+class LogicMode(Enum):
+    """
+    逻辑模式枚举
+    """
+
+    AND = 1
+    OR = 2
+    NOT = 3
+    XOR = 4
+
+    @classmethod
+    def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
+        if logic == LogicMode.AND:
+            return (v1 and v2) if v2 is not None else bool(v1)
+        elif logic == LogicMode.OR:
+            return (v1 or v2) if v2 is not None else bool(v1)
+        elif logic == LogicMode.NOT:
+            return not v1
+        elif logic == LogicMode.XOR:
+            return (v1 ^ v2) if v2 is not None else bool(v1)
+
+    @classmethod
+    def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
+        if len(values) <= 0:
+            return False
+        elif len(values) <= 1:
+            return bool(values[0])
+
+        idx = 0
+        res: bool
+        while idx < len(values):
+            if idx == 0:
+                res = cls.calc(logic, values[idx], values[idx + 1])
+                idx += 1
+            else:
+                res = cls.calc(logic, res, values[idx])
+            idx += 1
+        return res
+
+
 class BotChecker(ABC, Cloneable):
     def __init__(
         self,
-        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ) -> None:
         super().__init__()
         self.ok_cb = ok_cb
@@ -322,7 +377,7 @@ class BotChecker(ABC, Cloneable):
             )
         return WrappedChecker(LogicMode.OR, self, other)
 
-    def __invert__(self) -> "WrappedMatcher":
+    def __invert__(self) -> "WrappedChecker":
         return WrappedChecker(LogicMode.NOT, self)
 
     def __xor__(self, other: "BotChecker") -> "WrappedChecker":
@@ -360,7 +415,10 @@ class WrappedChecker(BotChecker):
     """
 
     def __init__(
-        self, mode: LogicMode, checker1: BotChecker, checker2: BotChecker = None
+        self,
+        mode: LogicMode,
+        checker1: BotChecker,
+        checker2: Optional[BotChecker] = None,
     ) -> None:
         super().__init__()
         self.mode = mode
@@ -373,7 +431,7 @@ class WrappedChecker(BotChecker):
         """
         super()._fill_ok_cb(ok_cb)
         self.c1._fill_ok_cb(ok_cb)
-        self.c2._fill_ok_cb(ok_cb)
+        self.c2._fill_ok_cb(ok_cb) if self.c2 else None
 
     def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
         """
@@ -382,7 +440,7 @@ class WrappedChecker(BotChecker):
         """
         super()._fill_fail_cb(fail_cb)
         self.c1._fill_fail_cb(fail_cb)
-        self.c2._fill_fail_cb(fail_cb)
+        self.c2._fill_fail_cb(fail_cb) if self.c2 else None
 
     async def check(self, event: BotEvent) -> bool:
         return LogicMode.calc(
@@ -432,7 +490,10 @@ class WrappedMatcher(BotMatcher):
     """
 
     def __init__(
-        self, mode: LogicMode, matcher1: BotMatcher, matcher2: BotMatcher = None
+        self,
+        mode: LogicMode,
+        matcher1: BotMatcher,
+        matcher2: Optional[BotMatcher] = None,
     ) -> None:
         super().__init__()
         self.mode = mode
@@ -457,13 +518,13 @@ class BotParser(ABC):
         self.need_format: bool = False
 
     @abstractmethod
-    def parse(self, text: str) -> Optional[Dict[str, ParseArgs]]:
+    def parse(self, text: str) -> Optional[dict[str, ParseArgs]]:
         pass
 
     @abstractmethod
     def test(
-        self, args_group: Dict[str, ParseArgs]
-    ) -> Tuple[bool, Optional[str], Optional[ParseArgs]]:
+        self, args_group: dict[str, ParseArgs] | None
+    ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
         pass
 
     @abstractmethod

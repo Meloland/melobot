@@ -1,14 +1,12 @@
 import asyncio as aio
-from functools import partial
 
-from ..types.abc import BotHookRunnerArgs, BotLife
-from ..types.exceptions import *
+from ..types.abc import BotLife
+from ..types.exceptions import BotHookError, get_better_exc
 from ..types.tools import get_rich_str
-from ..types.typing import *
+from ..types.typing import TYPE_CHECKING, Any, Callable, Coroutine
 
 if TYPE_CHECKING:
-    from ..plugin.init import Plugin
-    from ..utils.logger import BotLogger
+    from ..utils.logger import Logger
 
 
 class HookRunner:
@@ -17,19 +15,9 @@ class HookRunner:
     """
 
     def __init__(
-        self,
-        type: str,
-        func: Callable[..., Coroutine[Any, Any, None]],
-        plugin: Optional["Plugin"],
+        self, type: BotLife, func: Callable[..., Coroutine[Any, Any, None]]
     ) -> None:
-        self._func = func
-        self._plugin = plugin
-        # 对应：绑定的 func 是插件类的实例方法
-        if plugin:
-            self.cb = partial(self._func, plugin)
-        # 对应：绑定的 func 是普通函数
-        else:
-            self.cb = self._func
+        self.cb = func
         self.type = type
 
 
@@ -39,19 +27,16 @@ class BotHookBus:
     """
 
     def __init__(self) -> None:
-        self.store: Dict[BotLife, List[HookRunner]] = {
+        self.store: dict[BotLife, list[HookRunner]] = {
             v: [] for k, v in BotLife.__members__.items()
         }
-        self.logger: "BotLogger"
+        self.logger: "Logger"
 
-    def _bind(self, logger: "BotLogger") -> None:
+    def _bind(self, logger: "Logger") -> None:
         self.logger = logger
 
-    def _register(
-        self,
-        hook_type: BotLife,
-        hook_func: Callable[..., Coroutine[Any, Any, None]],
-        plugin: "Plugin",
+    def register(
+        self, hook_type: BotLife, hook_func: Callable[..., Coroutine[Any, Any, None]]
     ) -> None:
         """
         注册一个生命周期运行器。由 plugin build 过程调用
@@ -60,28 +45,17 @@ class BotHookBus:
             raise BotHookError(
                 f"尝试添加一个生命周期 hook 方法，但是其指定的类型 {hook_type} 不存在"
             )
-        runner = HookRunner(hook_type, hook_func, plugin)
+        runner = HookRunner(hook_type, hook_func)
         self.store[hook_type].append(runner)
 
     async def _run_on_ctx(self, runner: HookRunner, *args, **kwargs) -> None:
         try:
             await runner.cb(*args, **kwargs)
         except Exception as e:
-            func_name = runner._func.__qualname__
-            pre_str = "插件 " + runner._plugin.ID if runner._plugin else "动态注册的"
-            self.logger.error(f"{pre_str} hook 方法 {func_name} 发生异常")
+            func_name = runner.cb.__qualname__
+            self.logger.error(f"hook 方法 {func_name} 发生异常")
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
             self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
-
-    def on(self, hook_type: BotLife):
-        def make_args(
-            hook_func: Callable[..., Coroutine[Any, Any, None]]
-        ) -> BotHookRunnerArgs:
-            if not aio.iscoroutinefunction(hook_func):
-                raise PluginBuildError(f"hook 方法 {hook_func.__name__} 必须为异步函数")
-            return BotHookRunnerArgs(func=hook_func, type=hook_type)
-
-        return make_args
 
     async def emit(
         self, hook_type: BotLife, *args, wait: bool = False, **kwargs

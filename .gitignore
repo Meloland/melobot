@@ -6,6 +6,7 @@ dev
 .venv
 .vscode
 
+.mypy_cache
 */build
 dist
 .pdm-python

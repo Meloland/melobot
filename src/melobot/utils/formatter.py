@@ -1,8 +1,18 @@
 import traceback
 
 from ..context.action import send
-from ..types.exceptions import *
-from ..types.typing import *
+from ..types.exceptions import ArgFormatInitError, ArgLackError, ArgVerifyFailed
+from ..types.typing import (
+    Any,
+    Callable,
+    Coroutine,
+    ModuleType,
+    Optional,
+    ParseArgs,
+    Type,
+    Void,
+    VoidType
+)
 
 
 class FormatInfo:
@@ -12,7 +22,7 @@ class FormatInfo:
 
     def __init__(
         self,
-        src: str,
+        src: str | VoidType,
         src_desc: Optional[str],
         src_expect: Optional[str],
         idx: int,
@@ -37,15 +47,17 @@ class ArgFormatter:
 
     def __init__(
         self,
-        convert: Callable[[str], Any] = None,
-        verify: Callable[[Any], bool] = None,
-        src_desc: str = None,
-        src_expect: str = None,
+        convert: Optional[Callable[[str], Any]] = None,
+        verify: Optional[Callable[[Any], bool]] = None,
+        src_desc: Optional[str] = None,
+        src_expect: Optional[str] = None,
         default: Any = Void,
-        default_replace_flag: str = None,
-        convert_fail: Callable[[FormatInfo], Coroutine[Any, Any, None]] = None,
-        verify_fail: Callable[[FormatInfo], Coroutine[Any, Any, None]] = None,
-        arglack: Callable[[FormatInfo], Coroutine[Any, Any, None]] = None,
+        default_replace_flag: Optional[str] = None,
+        convert_fail: Optional[
+            Callable[[FormatInfo], Coroutine[Any, Any, None]]
+        ] = None,
+        verify_fail: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
+        arglack: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
     ) -> None:
         self.convert = convert
         self.verify = verify
@@ -98,7 +110,7 @@ class ArgFormatter:
                 pass
             else:
                 raise ArgVerifyFailed
-            args.vals[idx] = res
+            args.vals[idx] = res  # type: ignore
             return True
         except ArgVerifyFailed as e:
             info = FormatInfo(
@@ -111,7 +123,7 @@ class ArgFormatter:
             return False
         except ArgLackError as e:
             info = FormatInfo(
-                None, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
+                Void, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
             )
             if self.arg_lack:
                 await self.arg_lack(info)
@@ -156,7 +168,7 @@ class ArgFormatter:
 
     async def _arglack_default(self, info: FormatInfo) -> None:
         tip = f"第 {info.idx+1} 个参数"
-        tip += f"（{info.src_desc}）缺失。" if info.src_desc else f"缺失。"
+        tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
         await send(tip)

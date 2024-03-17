@@ -7,7 +7,7 @@ class MetaInfo:
     """melobot 元信息类"""
 
     def __init__(self) -> None:
-        self.VER = "2.5.0"
+        self.VER = "2.5.1"
         self.PROJ_NAME = "MeloBot"
         self.PROJ_DESC = "A qbot module with friendly interface, session control and plugin-supported."
         self.PROJ_SRC = "https://github.com/aicorein/melobot"
@@ -26,9 +26,9 @@ class MetaInfo:
         return dict(self.__dict__.items())
 
 
-MELOBOT_LOGO = """  __  __      _       ____        _   
- |  \/  | ___| | ___ | __ )  ___ | |_ 
+MELOBOT_LOGO = r"""  __  __      _       ____        _
+ |  \/  | ___| | ___ | __ )  ___ | |_
  | |\/| |/ _ \ |/ _ \|  _ \ / _ \| __|
- | |  | |  __/ | (_) | |_) | (_) | |_ 
+ | |  | |  __/ | (_) | |_) | (_) | |_
  |_|  |_|\___|_|\___/|____/ \___/ \__|
 """

@@ -5,9 +5,9 @@ from copy import deepcopy
 from functools import wraps
 
 from ..types.abc import BOT_LOCAL, SessionRule
-from ..types.exceptions import *
+from ..types.exceptions import BotSessionError, SessionHupTimeout
 from ..types.tools import get_twin_event, to_task
-from ..types.typing import *
+from ..types.typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 if TYPE_CHECKING:
     from ..bot.init import MeloBot
@@ -25,11 +25,10 @@ class BotSession:
         self,
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         manager: Type["BotSessionManager"],
-        space_tag: "EventHandler" = None,
+        space_tag: Optional["EventHandler"] = None,
     ) -> None:
         super().__init__()
-        self.store = {}
-        self.timestamp = time.time()
+        self.store: dict[str, Any] = {}
         # 永远指向当前上下文的 event
         self.event = event
 
@@ -46,12 +45,18 @@ class BotSession:
         # 其实这里如果传入 space_tag 则一定是所属 handler 的引用
         self._space_tag: Optional["EventHandler"] = space_tag
         # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
-        self._handler: "EventHandler" = None
+        self._handler: Optional["EventHandler"] = None
 
     @property
     def args(self):
-        if self._handler is not None and self.event._args_map is not None:
+        if (
+            self._handler is not None
+            and hasattr(self._handler, "parser")
+            and self.event._args_map is not None
+        ):
             args_group = self.event._args_map.get(self._handler.parser.id)
+            if args_group is None:
+                return None
             if self._handler.parser.target is None:
                 return deepcopy(args_group)
             for cmd_name in self._handler.parser.target:
@@ -61,7 +66,7 @@ class BotSession:
             raise BotSessionError("尝试获取的命令解析参数不存在")
         return None
 
-    async def hup(self, overtime: int = None) -> None:
+    async def hup(self, overtime: Optional[int] = None) -> None:
         """
         当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入，
         session 所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session，
@@ -89,21 +94,6 @@ class BotSession:
         如果调用 session 有 space_tag，还会从存储空间中移除该 session
         """
         self._manager._expire(self)
-
-    def store_get(self, key: Any) -> Any:
-        return self.store[key]
-
-    def store_add(self, key: Any, val: Any) -> None:
-        self.store[key] = val
-
-    def store_update(self, store: dict) -> None:
-        self.store.update(store)
-
-    def store_remove(self, key: Any) -> None:
-        self.store.pop(key)
-
-    def store_clear(self) -> None:
-        self.store.clear()
 
 
 class SessionLocal:
@@ -141,7 +131,7 @@ class AttrSessionRule(SessionRule):
         super().__init__()
         self.attrs = attrs
 
-    def _get_val(self, e: "BotEvent", attrs: Tuple[str, ...]) -> Any:
+    def _get_val(self, e: "BotEvent", attrs: tuple[str, ...]) -> Any:
         val = e
         try:
             for attr in attrs:
@@ -155,15 +145,15 @@ class AttrSessionRule(SessionRule):
 
 
 class BotSessionManager:
-    STORAGE: Dict["EventHandler", Set[BotSession]] = {}
-    HUP_STORAGE: Dict["EventHandler", Set[BotSession]] = {}
+    STORAGE: dict["EventHandler", set[BotSession]] = {}
+    HUP_STORAGE: dict["EventHandler", set[BotSession]] = {}
     # 各个 handler 对饮的操作锁
-    WORK_LOCKS: Dict["EventHandler", aio.Lock] = {}
+    WORK_LOCKS: dict["EventHandler", aio.Lock] = {}
     # 用来标记 cls.get 等待一个挂起的 session 时的死锁
-    DEADLOCK_FLAGS: Dict["EventHandler", aio.Event] = {}
+    DEADLOCK_FLAGS: dict["EventHandler", aio.Event] = {}
     # 对应每个 handler 的 try_attach 过程的操作锁
-    ATTACH_LOCKS: Dict["EventHandler", aio.Lock] = {}
-    BOT: "MeloBot" = BOT_LOCAL
+    ATTACH_LOCKS: dict["EventHandler", aio.Lock] = {}
+    BOT: "MeloBot" = BOT_LOCAL  # type: ignore
 
     @classmethod
     def register(cls, handler: "EventHandler") -> None:
@@ -184,14 +174,18 @@ class BotSessionManager:
         session._handler = handler
 
     @classmethod
-    def _attach(cls, event: "BotEvent", handler: "EventHandler") -> bool:
+    def _attach(
+        cls,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        handler: "EventHandler",
+    ) -> bool:
         """
         session 附着操作，临界区操作。只能在 cls.try_attach 中进行
         """
         session = None
         for s in cls.HUP_STORAGE[handler]:
             # session 的挂起方法，保证 session 一定未过期，因此不进行过期检查
-            if handler._rule.compare(s.event, event):
+            if handler._rule.compare(s.event, event):  # type: ignore
                 session = s
                 break
         # 如果获得一个挂起的 session，它一定是可附着的，附着后需要唤醒
@@ -202,7 +196,11 @@ class BotSessionManager:
         return False
 
     @classmethod
-    async def try_attach(cls, event: "BotEvent", handler: "EventHandler") -> bool:
+    async def try_attach(
+        cls,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        handler: "EventHandler",
+    ) -> bool:
         """
         检查是否有挂起的 session 可供 event 附着。
         如果有则附着并唤醒，并返回 True。否则返回 False。
@@ -246,8 +244,8 @@ class BotSessionManager:
         """
         唤醒 session
         """
-        cls.HUP_STORAGE[session._space_tag].remove(session)
-        cls.STORAGE[session._space_tag].add(session)
+        cls.HUP_STORAGE[session._space_tag].remove(session)  # type: ignore
+        cls.STORAGE[session._space_tag].add(session)  # type: ignore
         session._awake_signal.set()
 
     @classmethod
@@ -257,7 +255,7 @@ class BotSessionManager:
         """
         if session._expired:
             return
-        session.store_clear()
+        session.store.clear()
         session._expired = True
         if session._space_tag:
             cls.STORAGE[session._space_tag].remove(session)
@@ -274,7 +272,9 @@ class BotSessionManager:
 
     @classmethod
     async def get(
-        cls, event: "BotEvent", handler: "EventHandler"
+        cls,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        handler: "EventHandler",
     ) -> Optional[BotSession]:
         """
         handler 内获取 session 方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
@@ -294,7 +294,11 @@ class BotSessionManager:
         return session
 
     @classmethod
-    def _make(cls, event: "BotEvent", handler: "EventHandler" = None) -> BotSession:
+    def _make(
+        cls,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        handler: Optional["EventHandler"] = None,
+    ) -> BotSession:
         """
         内部使用的创建 session 方法。如果 handler 为空，即缺乏 space_tag，则为一次性 session。
         或 handler._rule 为空，则也为一次性 session
@@ -308,7 +312,9 @@ class BotSessionManager:
         return session
 
     @classmethod
-    def make_temp(cls, event: "BotEvent") -> BotSession:
+    def make_temp(
+        cls, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
+    ) -> BotSession:
         """
         创建一次性 session。确定无需 session 管理机制时可以使用。
         否则一定使用 cls.get 方法
@@ -317,7 +323,9 @@ class BotSessionManager:
 
     @classmethod
     async def _get_on_rule(
-        cls, event: "BotEvent", handler: "EventHandler"
+        cls,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        handler: "EventHandler",
     ) -> Optional[BotSession]:
         """
         根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session。
@@ -333,7 +341,7 @@ class BotSessionManager:
 
         # for 循环都需要即时 break，保证遍历 session_space 时没有协程切换。因为切换后 session_space 可能发生变动
         for s in session_space:
-            if check_rule.compare(s.event, event) and not s._expired:
+            if check_rule.compare(s.event, event) and not s._expired:  # type: ignore
                 session = s
                 break
         # 如果会话不存在，生成一个新 session 变量
@@ -401,7 +409,7 @@ class BotSessionManager:
         return activated_action
 
 
-def any_event():
+def any_event() -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]:
     """
     获取当前 session 上下文下标注为联合类型的 event
     """
@@ -415,35 +423,35 @@ def msg_event() -> "MessageEvent":
     """
     获取当前 session 上下文下的 MessageEvent
     """
-    return any_event()
+    return any_event()  # type: ignore
 
 
 def notice_event() -> "NoticeEvent":
     """
     获取当前 session 上下文下的 NoticeEvent
     """
-    return any_event()
+    return any_event()  # type: ignore
 
 
 def req_evnt() -> "RequestEvent":
     """
     获取当前 session 上下文下的 RequestEvent
     """
-    return any_event()
+    return any_event()  # type: ignore
 
 
 def meta_event() -> "MetaEvent":
     """
     获取当前 session 上下文下的 MetaEvent
     """
-    return any_event()
+    return any_event()  # type: ignore
 
 
-def msg_text():
+def msg_text() -> str:
     """
     获取当前 session 上下文下的消息的纯文本数据
     """
-    event: "MessageEvent" = any_event()
+    event: "MessageEvent" = any_event()  # type: ignore
     return event.text
 
 
@@ -457,7 +465,14 @@ def msg_args():
         raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
 
-async def pause(overtime: int = None) -> None:
+def get_store() -> dict:
+    try:
+        return SESSION_LOCAL.store
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+
+
+async def pause(overtime: Optional[int] = None) -> None:
     """
     当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入，
     session 所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session，

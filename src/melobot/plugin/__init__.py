@@ -1,1 +1,1 @@
-from .init import Plugin
+from .init import BotPlugin

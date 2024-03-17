@@ -1,6 +1,6 @@
 from ..types.abc import BotChecker
-from ..types.exceptions import *
-from ..types.typing import *
+from ..types.exceptions import BotCheckerError
+from ..types.typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional, User
 
 if TYPE_CHECKING:
     from ..models.event import MessageEvent, NoticeEvent, RequestEvent
@@ -14,12 +14,12 @@ class MsgLvlChecker(BotChecker):
     def __init__(
         self,
         level: User,
-        owner: int = None,
-        super_users: List[int] = None,
-        white_users: List[int] = None,
-        black_users: List[int] = None,
-        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        owner: Optional[int] = None,
+        super_users: Optional[list[int]] = None,
+        white_users: Optional[list[int]] = None,
+        black_users: Optional[list[int]] = None,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ) -> None:
         super().__init__(ok_cb, fail_cb)
         self.check_lvl = level
@@ -46,7 +46,7 @@ class MsgLvlChecker(BotChecker):
         else:
             return User.USER
 
-    async def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
         """
         消息校验
         """
@@ -69,20 +69,20 @@ class GroupMsgLvl(MsgLvlChecker):
     def __init__(
         self,
         level: User,
-        owner: int = None,
-        super_users: List[int] = None,
-        white_users: List[int] = None,
-        black_users: List[int] = None,
-        white_groups: List[int] = None,
-        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        owner: Optional[int] = None,
+        super_users: Optional[list[int]] = None,
+        white_users: Optional[list[int]] = None,
+        black_users: Optional[list[int]] = None,
+        white_groups: Optional[list[int]] = None,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ) -> None:
         super().__init__(
             level, owner, super_users, white_users, black_users, ok_cb, fail_cb
         )
         self.white_group_list = white_groups if white_groups is not None else []
 
-    async def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
         if (
             not event.is_group()
             or len(self.white_group_list) == 0
@@ -100,18 +100,18 @@ class PrivateMsgLvl(MsgLvlChecker):
     def __init__(
         self,
         level: User,
-        owner: int = None,
-        super_users: List[int] = None,
-        white_users: List[int] = None,
-        black_users: List[int] = None,
-        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        owner: Optional[int] = None,
+        super_users: Optional[list[int]] = None,
+        white_users: Optional[list[int]] = None,
+        black_users: Optional[list[int]] = None,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ) -> None:
         super().__init__(
             level, owner, super_users, white_users, black_users, ok_cb, fail_cb
         )
 
-    async def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
         if not event.is_private():
             return False
         return await super().check(event)
@@ -125,13 +125,13 @@ class MsgCheckerGen:
 
     def __init__(
         self,
-        owner: int = None,
-        super_users: List[int] = None,
-        white_users: List[int] = None,
-        black_users: List[int] = None,
-        white_groups: List[int] = None,
-        ok_cb: Callable[[], Coroutine[Any, Any, None]] = None,
-        fail_cb: Callable[[], Coroutine[Any, Any, None]] = None,
+        owner: Optional[int] = None,
+        super_users: Optional[list[int]] = None,
+        white_users: Optional[list[int]] = None,
+        black_users: Optional[list[int]] = None,
+        white_groups: Optional[list[int]] = None,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ) -> None:
         self.owner = owner
         self.su_list = super_users if super_users is not None else []
@@ -192,11 +192,11 @@ class AtChecker(BotChecker):
     如果事件中包含指定 qid 的 at 消息，则校验结果为真
     """
 
-    def __init__(self, qid: int = None) -> None:
+    def __init__(self, qid: Optional[int] = None) -> None:
         super().__init__(None, None)
         self.qid = qid if qid is not None else None
 
-    async def check(self, event: "MessageEvent") -> bool:
+    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
         """
         当 qid 为空时，只要有 at 消息就通过校验。
         如果不为空，则必须出现指定 qid 的 at 消息
@@ -222,7 +222,7 @@ class FriendReqChecker(BotChecker):
     def __init__(self) -> None:
         super().__init__(None, None)
 
-    async def check(self, event: "RequestEvent") -> bool:
+    async def check(self, event: "RequestEvent") -> bool:  # type: ignore
         status = event.is_friend_req()
         return status
 
@@ -236,7 +236,7 @@ class GroupReqChecker(BotChecker):
     def __init__(self) -> None:
         super().__init__(None, None)
 
-    async def check(self, event: "RequestEvent") -> bool:
+    async def check(self, event: "RequestEvent") -> bool:  # type: ignore
         status = event.is_group_req()
         return status
 
@@ -274,7 +274,7 @@ class NoticeTypeChecker(BotChecker):
             raise BotCheckerError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
         self.sub_type = sub_type
 
-    async def check(self, event: "NoticeEvent") -> bool:
+    async def check(self, event: "NoticeEvent") -> bool:  # type: ignore
         if self.sub_type == "ALL":
             status = True
         else:

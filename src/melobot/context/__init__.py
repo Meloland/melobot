@@ -4,6 +4,7 @@ from .session import (
     AttrSessionRule,
     BotSession,
     any_event,
+    get_store,
     meta_event,
     msg_args,
     msg_event,
@@ -13,4 +14,4 @@ from .session import (
     req_evnt,
 )
 
-session: BotSession
+session: BotSession  # type: ignore
