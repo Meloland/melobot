@@ -21,6 +21,7 @@ from ..types.typing import (
     Coroutine,
     Literal,
     Optional,
+    P,
     PriorLevel,
     Union,
 )
@@ -148,7 +149,9 @@ class BotPlugin:
             )
 
     def on_signal(self, namespace: str, signal: str):
-        def make_args(func: Callable[..., Coroutine[Any, Any, Any]]):
+        def make_args(
+            func: Callable[P, Coroutine[Any, Any, Any]]
+        ) -> Callable[P, Coroutine[Any, Any, Any]]:
             self.__signal_args__.append(
                 PluginSignalHandlerArgs(func, namespace, signal)
             )
@@ -163,21 +166,27 @@ class BotPlugin:
             self.__share_args__.append(ShareObjArgs(namespace, id, to_async(reflector)))
             return
 
-        def make_args(func: Callable[[], Coroutine[Any, Any, Any]]):
+        def make_args(
+            func: Callable[[], Coroutine[Any, Any, Any]]
+        ) -> Callable[[], Coroutine[Any, Any, Any]]:
             self.__share_args__.append(ShareObjArgs(namespace, id, func))
             return func
 
         return make_args
 
     def on_share_affected(self, namespace: str, id: str):
-        def make_args(func: Callable[..., Coroutine[Any, Any, Any]]):
+        def make_args(
+            func: Callable[P, Coroutine[Any, Any, Any]]
+        ) -> Callable[P, Coroutine[Any, Any, Any]]:
             self.__share_cb_args__.append(ShareObjCbArgs(namespace, id, func))
             return func
 
         return make_args
 
     def on_bot_life(self, type: BotLife):
-        def make_args(func: Callable[..., Coroutine[Any, Any, None]]):
+        def make_args(
+            func: Callable[P, Coroutine[Any, Any, None]]
+        ) -> Callable[P, Coroutine[Any, Any, None]]:
             self.__hook_args__.append(BotHookRunnerArgs(func, type))
             return func
 
@@ -223,7 +232,9 @@ class BotPlugin:
         使用该装饰器，将方法标记为任意事件处理器（响应事件除外）
         """
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -263,7 +274,9 @@ class BotPlugin:
         使用该装饰器，将方法标记为消息事件处理器
         """
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -304,7 +317,9 @@ class BotPlugin:
         任何消息经过校验后，不进行匹配和解析即可触发处理方法
         """
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -354,7 +369,9 @@ class BotPlugin:
         else:
             wrapped_checker = at_checker
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -398,7 +415,9 @@ class BotPlugin:
         """
         start_matcher = StartMatch(target, logic_mode)
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -442,7 +461,9 @@ class BotPlugin:
         """
         contain_matcher = ContainMatch(target, logic_mode)
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -486,7 +507,9 @@ class BotPlugin:
         """
         full_matcher = FullMatch(target, logic_mode)
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -530,7 +553,9 @@ class BotPlugin:
         """
         end_matcher = EndMatch(target, logic_mode)
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -573,7 +598,9 @@ class BotPlugin:
         """
         regex_matcher = RegexMatch(target)
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -613,7 +640,9 @@ class BotPlugin:
         使用该装饰器，将方法标记为请求事件处理器
         """
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -657,7 +686,9 @@ class BotPlugin:
         else:
             wrapped_checker = friend_checker
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -701,7 +732,9 @@ class BotPlugin:
         else:
             wrapped_checker = group_checker
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -765,7 +798,9 @@ class BotPlugin:
         else:
             wrapped_checker = type_checker
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,
@@ -803,7 +838,9 @@ class BotPlugin:
         使用该装饰器，将方法标记为元事件处理器
         """
 
-        def make_args(executor: Callable[[], Coroutine[Any, Any, None]]):
+        def make_args(
+            executor: Callable[[], Coroutine[Any, Any, None]]
+        ) -> Callable[[], Coroutine[Any, Any, None]]:
             self.__handler_args__.append(
                 EventHandlerArgs(
                     executor=executor,

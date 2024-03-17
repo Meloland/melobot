@@ -7,7 +7,6 @@ from ..types.typing import (
     TYPE_CHECKING,
     Any,
     CQMsgDict,
-    CustomNodeData,
     Literal,
     MsgNodeDict,
     Optional,

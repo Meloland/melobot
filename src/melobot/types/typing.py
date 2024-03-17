@@ -11,6 +11,7 @@ from typing import (
     NamedTuple,
     Optional,
     OrderedDict,
+    ParamSpec,
     Type,
     TypeAlias,
     TypedDict,
@@ -111,6 +112,10 @@ class BotLife(Enum):
 
 
 T = TypeVar("T")
+T1 = TypeVar("T1")
+T2 = TypeVar("T2")
+T3 = TypeVar("T3")
+P = ParamSpec("P")
 
 
 class Void:

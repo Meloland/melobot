@@ -65,6 +65,7 @@ class BotResponder:
         """
         await self._ready_signal.wait()
         await self._action_sender._send(action)
+        return None
 
     async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
         """

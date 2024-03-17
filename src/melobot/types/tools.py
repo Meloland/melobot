@@ -11,7 +11,7 @@ from functools import wraps
 import rich
 
 from .exceptions import BotBaseUtilsError, BotRuntimeError
-from .typing import Any, Callable, Coroutine, Optional, T
+from .typing import T1, T2, T3, Any, Callable, Coroutine, Optional, P, T
 
 
 class Singleton:
@@ -252,7 +252,7 @@ def this_dir(*relative_path: str) -> str:
 __dir_inspector__ = this_dir
 
 
-def to_async(func: Callable[..., T]) -> Callable[..., Coroutine[Any, Any, T]]:
+def to_async(func: Callable[[], T]) -> Callable[[], Coroutine[Any, Any, T]]:
     """
     异步包装器，将一个同步函数包装为异步函数。保留返回值。
     如果需要传参使用 partial 包裹
@@ -264,7 +264,7 @@ def to_async(func: Callable[..., T]) -> Callable[..., Coroutine[Any, Any, T]]:
     return wrapper
 
 
-def to_coro(func: Callable[..., T]) -> Coroutine[Any, Any, T]:
+def to_coro(func: Callable[[], T]) -> Coroutine[Any, Any, T]:
     """
     协程包装器，将一个同步函数包装为协程。保留返回值。
     如果需要传参使用 partial 包裹
@@ -274,7 +274,7 @@ def to_coro(func: Callable[..., T]) -> Coroutine[Any, Any, T]:
     return f()
 
 
-def to_task(obj: Callable[..., T] | Coroutine[Any, Any, T]) -> aio.Task[T]:
+def to_task(obj: Callable[[], T] | Coroutine[Any, Any, T]) -> aio.Task[T]:
     """
     任务包装器，将一个同步函数或异步函数或协程包装为任务。
     保留返回值。如果需要传参使用 partial 包裹
@@ -287,7 +287,7 @@ def to_task(obj: Callable[..., T] | Coroutine[Any, Any, T]) -> aio.Task[T]:
         return aio.create_task(to_coro(obj))  # type: ignore
 
 
-def lock(callback: Callable[[], Coroutine[Any, Any, Any]]):
+def lock(callback: Callable[[], Coroutine[Any, Any, T1]]):
     """
     锁装饰器，可以为被装饰的异步函数/方法加锁。
     在获取锁冲突时，调用 callback 获得一个回调并执行。回调执行完毕后直接返回
@@ -298,9 +298,11 @@ def lock(callback: Callable[[], Coroutine[Any, Any, Any]]):
             f"lock 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
-    def deco_func(func):
+    def deco_func(
+        func: Callable[P, Coroutine[Any, Any, T2]]
+    ) -> Callable[P, Coroutine[Any, Any, T1 | T2]]:
         @wraps(func)
-        async def wrapped_func(*args, **kwargs):
+        async def wrapped_func(*args, **kwargs) -> T1 | T2:
             if alock.locked():
                 cb = callback()
                 if not iscoroutine(cb):
@@ -317,8 +319,8 @@ def lock(callback: Callable[[], Coroutine[Any, Any, Any]]):
 
 
 def cooldown(
-    busy_callback: Callable[[], Coroutine[Any, Any, Any]],
-    cd_callback: Optional[Callable[[float], Coroutine[Any, Any, Any]]] = None,
+    busy_callback: Callable[[], Coroutine[Any, Any, T1]],
+    cd_callback: Optional[Callable[[float], Coroutine[Any, Any, T2]]] = None,
     interval: float = 5,
 ):
     """
@@ -344,9 +346,11 @@ def cooldown(
             f"cooldown 装饰器的 cd_callback 参数不可调用，cd_callback 值为：{cd_callback}"
         )
 
-    def deco_func(func):
+    def deco_func(
+        func: Callable[P, Coroutine[Any, Any, T3]]
+    ) -> Callable[P, Coroutine[Any, Any, T1 | T2 | T3]]:
         @wraps(func)
-        async def wrapped_func(*args, **kwargs):
+        async def wrapped_func(*args, **kwargs) -> T1 | T2 | T3:
             nonlocal pre_finish_t
             if alock.locked():
                 busy_cb = busy_callback()
@@ -382,9 +386,7 @@ def cooldown(
     return deco_func
 
 
-def semaphore(
-    callback: Callable[[], Coroutine[Any, Any, Any]], value: int = -1
-):
+def semaphore(callback: Callable[[], Coroutine[Any, Any, T1]], value: int = -1):
     """
     信号量装饰器，可以为被装饰的异步函数/方法添加信号量控制。
     在信号量无法立刻获取时，将调用 callback 获得回调并执行。回调执行完毕后直接返回
@@ -395,9 +397,11 @@ def semaphore(
             f"semaphore 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
-    def deco_func(func):
+    def deco_func(
+        func: Callable[P, Coroutine[Any, Any, T2]]
+    ) -> Callable[P, Coroutine[Any, Any, T1 | T2]]:
         @wraps(func)
-        async def wrapped_func(*args, **kwargs):
+        async def wrapped_func(*args, **kwargs) -> T1 | T2:
             if a_semaphore.locked():
                 cb = callback()
                 if not iscoroutine(cb):
@@ -413,9 +417,7 @@ def semaphore(
     return deco_func
 
 
-def timelimit(
-    callback: Callable[[], Coroutine[Any, Any, Any]], timeout: float = 5
-):
+def timelimit(callback: Callable[[], Coroutine[Any, Any, T1]], timeout: float = 5):
     """
     时间限制装饰器，可以为被装饰的异步函数/方法添加超时控制。
     在超时之后，将调用 callback 获得回调并执行，同时取消原任务
@@ -425,9 +427,9 @@ def timelimit(
             f"timelimit 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
-    def deco_func(func):
+    def deco_func(func: Callable[P, Coroutine[Any, Any, T2]]) -> Callable[P, Coroutine[Any, Any, T1 | T2]]:
         @wraps(func)
-        async def wrapped_func(*args, **kwargs):
+        async def wrapped_func(*args, **kwargs) -> T1 | T2:
             try:
                 return await aio.wait_for(func(*args, **kwargs), timeout)
             except aio.TimeoutError:
@@ -495,7 +497,7 @@ def async_at(callback: Coroutine[Any, Any, T], timestamp: float) -> aio.Future[T
 
 
 def async_interval(
-    callback: Callable[[], Coroutine[Any, Any, None]], interval: float
+    callback: Callable[[], Coroutine[Any, Any, Any]], interval: float
 ) -> aio.Task[None]:
     """
     以指定的 interval 调度一个回调执行。callback 是协程产生器。

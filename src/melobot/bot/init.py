@@ -126,7 +126,7 @@ class MeloBot:
         exist_plugin = self.__plugins.get(plugin.__id__)
         if exist_plugin is not None:
             self.logger.error(
-                f"加载插件出错：插件名称重复, 重复的名称为：{plugin.__id__}"
+                f"加载插件出错：插件 id 重复, 重复的 id 为：{plugin.__id__}，已取消该插件加载"
             )
             return
 

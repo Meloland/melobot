@@ -7,11 +7,26 @@ from functools import wraps
 from ..types.abc import BOT_LOCAL, SessionRule
 from ..types.exceptions import BotSessionError, SessionHupTimeout
 from ..types.tools import get_twin_event, to_task
-from ..types.typing import TYPE_CHECKING, Any, Optional, Type, Union
+from ..types.typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    Optional,
+    P,
+    Type,
+    Union,
+)
 
 if TYPE_CHECKING:
     from ..bot.init import MeloBot
-    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
+    from ..models.event import (
+        MessageEvent,
+        MetaEvent,
+        NoticeEvent,
+        RequestEvent,
+        ResponseEvent,
+    )
     from ..plugin.handler import EventHandler
     from ..types.abc import BotAction, BotEvent
 
@@ -377,14 +392,18 @@ class BotSessionManager:
             return session
 
     @classmethod
-    def _activate(cls, action_getter):
+    def _activate(
+        cls, action_getter: Callable[P, Coroutine[Any, Any, "BotAction"]]
+    ) -> Callable[P, Coroutine[Any, Any, Union["BotAction", "ResponseEvent", None]]]:
         """
         对 action 构造器进行装饰，使产生的 action “活化”。
         让其能自动识别上下文，自动附加触发 event，并自动完成发送过程
         """
 
         @wraps(action_getter)
-        async def activated_action(*args, **kwargs):
+        async def activated_action(
+            *args, **kwargs
+        ) -> Union["BotAction", "ResponseEvent", None]:
             try:
                 if SESSION_LOCAL._expired:
                     raise BotSessionError(
@@ -402,7 +421,8 @@ class BotSessionManager:
             if not action.ready:
                 return action
             if action.resp_id is None:
-                return await cls.BOT._responder.take_action(action)
+                await cls.BOT._responder.take_action(action)
+                return None
             else:
                 return await (await cls.BOT._responder.take_action_wait(action))
 
