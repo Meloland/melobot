@@ -1,17 +1,15 @@
-import asyncio as aio
+import asyncio
 
-from ..types.exceptions import PluginSignalError, ShareObjError, get_better_exc
-from ..types.tools import RWController, get_rich_str
-from ..types.typing import TYPE_CHECKING, Any, Callable, Coroutine
+from ..base.exceptions import PluginSignalError, ShareObjError, get_better_exc
+from ..base.tools import RWController, get_rich_str
+from ..base.typing import TYPE_CHECKING, Any, Callable, Coroutine
 
 if TYPE_CHECKING:
     from ..utils.logger import Logger
 
 
 class ShareObject:
-    """
-    共享对象
-    """
+    """共享对象."""
 
     def __init__(self, namespace: str, id: str) -> None:
         self.namespace = namespace
@@ -20,7 +18,7 @@ class ShareObject:
         self.__reflect: Callable[[], Coroutine[Any, Any, Any]]
         self.__callback: Callable[..., Coroutine[Any, Any, Any]]
 
-        self.__cb_set = aio.Event()
+        self.__cb_set = asyncio.Event()
 
     def _fill_ref(self, reflector: Callable[[], Coroutine[Any, Any, Any]]) -> None:
         self.__reflect = reflector
@@ -31,26 +29,19 @@ class ShareObject:
 
     @property
     async def val(self) -> Any:
-        """
-        共享对象引用的值
-        """
+        """共享对象引用的值."""
         async with self.__rwc.safe_read():
             return await self.__reflect()
 
-    async def affect(self, *args, **kwargs) -> Any:
-        """
-        触发共享对象的回调，回调未设置时会等待。
-        如果本来就没有回调，则会陷入无休止等待
-        """
+    async def affect(self, *args: Any, **kwargs: Any) -> Any:
+        """触发共享对象的回调，回调未设置时会等待。 如果本来就没有回调，则会陷入无休止等待."""
         await self.__cb_set.wait()
         async with self.__rwc.safe_write():
             return await self.__callback(*args, **kwargs)
 
 
 class PluginStore:
-    """
-    插件共享存储
-    """
+    """插件共享存储."""
 
     def __init__(self) -> None:
         self.store: dict[str, dict[str, ShareObject]] = {}
@@ -58,9 +49,7 @@ class PluginStore:
     def create_so(
         self, reflector: Callable[[], Coroutine[Any, Any, Any]], namespace: str, id: str
     ) -> None:
-        """
-        创建共享对象
-        """
+        """创建共享对象."""
         if namespace not in self.store.keys():
             self.store[namespace] = {}
         obj = self.store[namespace].get(id)
@@ -75,9 +64,7 @@ class PluginStore:
     def bind_cb(
         self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
     ) -> None:
-        """
-        为共享对象绑定回调
-        """
+        """为共享对象绑定回调."""
         if namespace not in self.store.keys():
             raise ShareObjError(f"共享对象回调指定的命名空间 {namespace} 不存在")
         if id not in self.store[namespace].keys():
@@ -91,9 +78,7 @@ class PluginStore:
         self.store[namespace][id]._fill_cb(cb)
 
     def get(self, namespace: str, id: str) -> ShareObject:
-        """
-        获取共享对象
-        """
+        """获取共享对象."""
         if namespace not in self.store.keys():
             raise ShareObjError(
                 f"无法获取不存在的共享对象：命名空间 {namespace} 不存在"
@@ -104,9 +89,7 @@ class PluginStore:
 
 
 class PluginSignalHandler:
-    """
-    插件信号处理器
-    """
+    """插件信号处理器."""
 
     def __init__(
         self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
@@ -117,9 +100,7 @@ class PluginSignalHandler:
 
 
 class PluginBus:
-    """
-    插件信号总线
-    """
+    """插件信号总线."""
 
     def __init__(self) -> None:
         self.store: dict[str, dict[str, PluginSignalHandler]] = {}
@@ -131,19 +112,15 @@ class PluginBus:
     def register(
         self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
     ) -> None:
-        """
-        注册一个插件信号处理方法。由 plugin build 过程调用
-        """
+        """注册一个插件信号处理方法。由 plugin build 过程调用."""
         if namespace not in self.store.keys():
             self.store[namespace] = {}
         if signal in self.store[namespace].keys():
             raise PluginSignalError("同一命名空间的同一信号只能绑定一个处理函数")
         self.store[namespace][signal] = PluginSignalHandler(namespace, signal, func)
 
-    async def _run_on_ctx(self, handler: PluginSignalHandler, *args, **kwargs) -> Any:
-        """
-        在指定的上下文下运行插件信号处理方法
-        """
+    async def _run_on_ctx(self, handler: PluginSignalHandler, *args: Any, **kwargs: Any) -> Any:
+        """在指定的上下文下运行插件信号处理方法."""
         try:
             ret = await handler.cb(*args, **kwargs)
             return ret
@@ -154,12 +131,10 @@ class PluginBus:
             self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
 
     async def emit(
-        self, namespace: str, signal: str, *args, wait: bool = False, **kwargs
+        self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any
     ) -> Any:
-        """
-        触发一个插件信号。如果指定 wait 为 True，则会等待所有插件信号处理方法完成。
-        若启用 forward，则会将 session 从信号触发处转发到信号处理处。
-        但启用 forward，必须同时启用 wait。
+        """触发一个插件信号。如果指定 wait 为 True，则会等待所有插件信号处理方法完成。 若启用 forward，则会将 session
+        从信号触发处转发到信号处理处。 但启用 forward，必须同时启用 wait。
 
         注意：如果你要等待返回结果，则需要指定 wait=True，否则不会等待且始终返回 None
         """
@@ -175,7 +150,7 @@ class PluginBus:
 
         handler = self.store[namespace][signal]
         if not wait:
-            aio.create_task(self._run_on_ctx(handler, *args, **kwargs))
+            asyncio.create_task(self._run_on_ctx(handler, *args, **kwargs))
             return None
         else:
             return await self._run_on_ctx(handler, *args, **kwargs)

@@ -1,10 +1,19 @@
-"""
-MeloBot 是插件化管理、基于异步会话机制的 qbot 开发框架。
+"""MeloBot 是插件化管理、基于异步会话机制的 qbot 开发框架。
 
 项目源码和文档，请参考：https://github.com/aicorein/melobot
 """
 
-from .bot import MeloBot
+from .base import (
+    LogicMode,
+    PriorLevel,
+    SessionRule,
+    User,
+    cooldown,
+    lock,
+    this_dir,
+    timelimit,
+)
+from .bot import MeloBot, thisbot
 from .context import (
     AttrSessionRule,
     any_event,
@@ -21,21 +30,10 @@ from .context import (
     send,
     send_reply,
     send_wait,
-    thisbot,
 )
 from .io import ForwardWsConn
 from .meta import MetaInfo
 from .plugin import BotPlugin
-from .types import (
-    LogicMode,
-    PriorLevel,
-    SessionRule,
-    User,
-    cooldown,
-    lock,
-    this_dir,
-    timelimit,
-)
 from .utils import (
     ArgFormatter,
     AtChecker,

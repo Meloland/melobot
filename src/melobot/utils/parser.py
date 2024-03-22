@@ -1,18 +1,15 @@
 import re
 
-from ..types.abc import BotParser
-from ..types.exceptions import ArgParseError
-from ..types.typing import TYPE_CHECKING, Optional, ParseArgs
+from ..base.abc import BotParser
+from ..base.exceptions import ArgParseError
+from ..base.typing import TYPE_CHECKING, Optional, ParseArgs
 
 if TYPE_CHECKING:
     from .formatter import ArgFormatter
 
 
 class CmdParser(BotParser):
-    """
-    命令解析器，通过解析命令名和参数的形式，解析字符串。
-    命令起始符和命令间隔符不允许包含 引号，各种括号，反斜杠，数字，英文，回车符，换行符，制表符
-    """
+    """命令解析器，通过解析命令名和参数的形式，解析字符串。 命令起始符和命令间隔符不允许包含 引号，各种括号，反斜杠，数字，英文，回车符，换行符，制表符."""
 
     def __init__(
         self,
@@ -41,10 +38,7 @@ class CmdParser(BotParser):
             raise ArgParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
 
     def _build_parse_regex(self):
-        """
-        建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和
-        命令间隔符正则 pattern
-        """
+        """建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和 命令间隔符正则 pattern."""
         temp_regex = re.compile(
             r"([\`\-\=\~\!\@\#\$\%\^\&\*\(\)\_\+\[\]\{\}\|\:\,\.\/\<\>\?])"
         )
@@ -62,17 +56,13 @@ class CmdParser(BotParser):
             raise ArgParseError("命令解析器起始符不能和间隔符重合")
 
     def _purify(self, text: str) -> str:
-        """
-        处理首尾的空格和行尾序列
-        """
+        """处理首尾的空格和行尾序列."""
         return text.strip(" ").strip("\r\n").strip("\n").strip("\r").strip(" ")
 
     def _split_string(
         self, string: str, regex: re.Pattern, popFirst: bool = True
     ) -> list[str]:
-        """
-        按照指定正则 pattern，对 string 进行分割
-        """
+        """按照指定正则 pattern，对 string 进行分割."""
         # 将复杂的各种分隔符替换为 特殊字符，方便分割
         temp_string = regex.sub("\u0000", string)
         temp_list = re.split("\u0000", temp_string)
@@ -90,9 +80,7 @@ class CmdParser(BotParser):
         return cmd_list if len(cmd_list) else None
 
     def parse(self, text: str) -> Optional[dict[str, ParseArgs]]:
-        """
-        解析 text
-        """
+        """解析 text."""
         str_list = self._parse(text)
         if str_list:
             return {
@@ -105,10 +93,7 @@ class CmdParser(BotParser):
     def test(
         self, args_group: dict[str, ParseArgs] | None
     ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
-        """
-        测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
-        最后两个返回值若不存在，则返回 None
-        """
+        """测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。 最后两个返回值若不存在，则返回 None."""
         if args_group is None:
             return (False, None, None)
         if self.target is None:
@@ -119,9 +104,7 @@ class CmdParser(BotParser):
         return (False, None, None)
 
     async def format(self, cmd_name: str, args: ParseArgs) -> bool:
-        """
-        格式化命令解析参数
-        """
+        """格式化命令解析参数."""
         if args.formatted:
             return True
         for idx, formatter in enumerate(self.formatters):
@@ -136,10 +119,7 @@ class CmdParser(BotParser):
 
 
 class CmdParserGen:
-    """
-    命令解析器生成器。预先存储命令起始符和命令间隔符，
-    指定匹配 target 后返回一个符合对应匹配条件的命令解析器
-    """
+    """命令解析器生成器。预先存储命令起始符和命令间隔符， 指定匹配 target 后返回一个符合对应匹配条件的命令解析器."""
 
     def __init__(self, cmd_start: str | list[str], cmd_sep: str | list[str]) -> None:
         self.cmd_start = cmd_start
@@ -150,7 +130,5 @@ class CmdParserGen:
         target: Optional[str | list[str]] = None,
         formatters: Optional[list[Optional["ArgFormatter"]]] = None,
     ) -> CmdParser:
-        """
-        生成匹配指定命令的命令解析器
-        """
+        """生成匹配指定命令的命令解析器."""
         return CmdParser(self.cmd_start, self.cmd_sep, target, formatters)

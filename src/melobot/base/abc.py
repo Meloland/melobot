@@ -1,7 +1,6 @@
-import asyncio as aio
+import asyncio
 import json
 from abc import ABC, abstractmethod, abstractproperty
-from contextvars import ContextVar, Token
 from copy import deepcopy
 
 from .exceptions import BotActionError, BotCheckerError, BotMatcherError, TryFlagFailed
@@ -22,7 +21,6 @@ from .typing import (
 
 if TYPE_CHECKING:
     from ..bot.hook import BotHookBus
-    from ..bot.init import MeloBot
     from ..controller.dispatcher import BotDispatcher
     from ..controller.responder import BotResponder
     from ..models.event import BotEventBuilder
@@ -44,7 +42,7 @@ class AbstractConnector(ABC):
         self.cd_time = cd_time
 
         self._ref_flag: bool = False
-        self._ready_signal = aio.Event()
+        self._ready_signal = asyncio.Event()
 
     @abstractmethod
     async def __aenter__(self):
@@ -71,7 +69,7 @@ class AbstractConnector(ABC):
         pass
 
     @abstractmethod
-    async def _start_tasks(self) -> list[aio.Task]:
+    async def _start_tasks(self) -> list[asyncio.Task]:
         pass
 
     @abstractmethod
@@ -80,18 +78,13 @@ class AbstractConnector(ABC):
 
 
 class Flagable:
-    """
-    可标记对象
-    """
+    """可标记对象."""
 
     def __init__(self) -> None:
         self._flags_store: Optional[dict[str, dict[str, Any]]] = None
 
     def mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
-        """
-        为对象添加在指定命名空间下，名为 flag_name 的标记。
-        此后此对象会一直携带此标记，无法撤销。
-        """
+        """为对象添加在指定命名空间下，名为 flag_name 的标记。 此后此对象会一直携带此标记，无法撤销。"""
         if self._flags_store is None:
             self._flags_store = {}
         if self._flags_store.get(namespace) is None:
@@ -103,9 +96,7 @@ class Flagable:
         self._flags_store[namespace][flag_name] = val
 
     def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
-        """
-        检查此对象是否携带有指定的标记
-        """
+        """检查此对象是否携带有指定的标记."""
         self._flags_store = self._flags_store
         if self._flags_store is None:
             return False
@@ -117,21 +108,15 @@ class Flagable:
 
 
 class Cloneable:
-    """
-    可自我复制对象
-    """
+    """可自我复制对象."""
 
     def copy(self):
-        """
-        返回一个本对象的一个深拷贝对象
-        """
+        """返回一个本对象的一个深拷贝对象."""
         return deepcopy(self)
 
 
 class BotEvent(ABC, Flagable):
-    """
-    Bot 事件类
-    """
+    """Bot 事件类."""
 
     def __init__(self, rawEvent: dict) -> None:
         super().__init__()
@@ -175,9 +160,7 @@ class BotEvent(ABC, Flagable):
 
 
 class ActionArgs(ABC):
-    """
-    行为信息构造基类
-    """
+    """行为信息构造基类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -186,9 +169,7 @@ class ActionArgs(ABC):
 
 
 class BotAction(Flagable, Cloneable):
-    """
-    Bot 行为类
-    """
+    """Bot 行为类."""
 
     def __init__(
         self,
@@ -206,9 +187,7 @@ class BotAction(Flagable, Cloneable):
         self.ready = ready
 
     def extract(self) -> dict:
-        """
-        从对象提取标准 cq action dict
-        """
+        """从对象提取标准 cq action dict."""
         obj = {
             "action": self.type,
             "params": self.params,
@@ -218,15 +197,11 @@ class BotAction(Flagable, Cloneable):
         return obj
 
     def flatten(self, indent: Optional[int] = None) -> str:
-        """
-        将对象序列化为标准 cq action json 字符串，一般供连接器使用
-        """
+        """将对象序列化为标准 cq action json 字符串，一般供连接器使用."""
         return json.dumps(self.extract(), ensure_ascii=False, indent=indent)
 
     def _fill_trigger(self, event: BotEvent) -> None:
-        """
-        后期指定触发 event
-        """
+        """后期指定触发 event."""
         if self.trigger is None:
             self.trigger = event
             return
@@ -234,9 +209,7 @@ class BotAction(Flagable, Cloneable):
 
 
 class SessionRule(ABC):
-    """
-    用作 sesion 的区分依据
-    """
+    """用作 sesion 的区分依据."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -247,9 +220,7 @@ class SessionRule(ABC):
 
 
 class EventHandlerArgs:
-    """
-    事件方法（事件执行器）构造参数
-    """
+    """事件方法（事件执行器）构造参数."""
 
     def __init__(
         self,
@@ -263,9 +234,7 @@ class EventHandlerArgs:
 
 
 class ShareObjArgs:
-    """
-    插件共享对象构造参数
-    """
+    """插件共享对象构造参数."""
 
     def __init__(
         self, namespace: str, id: str, reflector: Callable[[], Coroutine[Any, Any, Any]]
@@ -276,9 +245,7 @@ class ShareObjArgs:
 
 
 class ShareObjCbArgs:
-    """
-    插件共享对象回调的构造参数
-    """
+    """插件共享对象回调的构造参数."""
 
     def __init__(
         self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
@@ -289,9 +256,7 @@ class ShareObjCbArgs:
 
 
 class PluginSignalHandlerArgs:
-    """
-    插件信号方法构造参数
-    """
+    """插件信号方法构造参数."""
 
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, Any]], namespace: str, signal: str
@@ -302,9 +267,7 @@ class PluginSignalHandlerArgs:
 
 
 class BotHookRunnerArgs:
-    """
-    钩子方法（生命周期回调）构造参数
-    """
+    """钩子方法（生命周期回调）构造参数."""
 
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
@@ -314,9 +277,7 @@ class BotHookRunnerArgs:
 
 
 class LogicMode(Enum):
-    """
-    逻辑模式枚举
-    """
+    """逻辑模式枚举."""
 
     AND = 1
     OR = 2
@@ -388,17 +349,13 @@ class BotChecker(ABC, Cloneable):
         return WrappedChecker(LogicMode.XOR, self, other)
 
     def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """
-        后期指定 ok_cb 回调
-        """
+        """后期指定 ok_cb 回调."""
         if self.ok_cb is not None:
             raise BotCheckerError(f"ok_cb 回调已经被初始化，值为：{self.ok_cb}")
         self.ok_cb = ok_cb
 
     def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """
-        后期指定 fail_cb 回调
-        """
+        """后期指定 fail_cb 回调."""
         if self.fail_cb is not None:
             raise BotCheckerError(f"fail_cb 回调已经被初始化，值为：{self.fail_cb}")
         self.fail_cb = fail_cb
@@ -409,10 +366,7 @@ class BotChecker(ABC, Cloneable):
 
 
 class WrappedChecker(BotChecker):
-    """
-    按逻辑关系工作的的合并检查器，使用 AND, OR, XOR 模式时，
-    需要传递两个 checker。使用 NOT 时只需要传递第一个 checker
-    """
+    """按逻辑关系工作的的合并检查器，使用 AND, OR, XOR 模式时， 需要传递两个 checker。使用 NOT 时只需要传递第一个 checker."""
 
     def __init__(
         self,
@@ -425,19 +379,13 @@ class WrappedChecker(BotChecker):
         self.c1, self.c2 = checker1, checker2
 
     def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """
-        后期指定 ok_cb 回调，注意此时是联合检查器，
-        因此将被自动应用到所包含的所有检查器
-        """
+        """后期指定 ok_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器."""
         super()._fill_ok_cb(ok_cb)
         self.c1._fill_ok_cb(ok_cb)
         self.c2._fill_ok_cb(ok_cb) if self.c2 else None
 
     def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """
-        后期指定 fail_cb 回调，注意此时是联合检查器，
-        因此将被自动应用到所包含的所有检查器
-        """
+        """后期指定 fail_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器."""
         super()._fill_fail_cb(fail_cb)
         self.c1._fill_fail_cb(fail_cb)
         self.c2._fill_fail_cb(fail_cb) if self.c2 else None
@@ -484,10 +432,7 @@ class BotMatcher(ABC, Cloneable):
 
 
 class WrappedMatcher(BotMatcher):
-    """
-    按逻辑关系工作的的合并匹配器，使用 AND, OR, XOR 模式时，
-    需要传递两个 matcher。使用 NOT 时只需要传递第一个 matcher
-    """
+    """按逻辑关系工作的的合并匹配器，使用 AND, OR, XOR 模式时， 需要传递两个 matcher。使用 NOT 时只需要传递第一个 matcher."""
 
     def __init__(
         self,
@@ -508,9 +453,7 @@ class WrappedMatcher(BotMatcher):
 
 
 class BotParser(ABC):
-    """
-    解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合
-    """
+    """解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合."""
 
     def __init__(self, id: Any) -> None:
         super().__init__()

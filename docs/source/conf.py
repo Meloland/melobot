@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath("../../src/"))
 project = "MeloBot"
 copyright = "2024, aicorein"
 author = "aicorein"
-release = "2.4.9"
+release = "2.5.4"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -25,11 +25,19 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
+    "sphinx_copybutton",
 ]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+}
+
+autodoc_class_signature = "separated"
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource",
+    "special-members": "__init__",
 }
 
 templates_path = ["_templates"]

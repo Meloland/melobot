@@ -1,6 +1,6 @@
 [project]
 name = "melobot"
-version = "2.5.3"
+version = "2.5.4"
 description = "A qbot module with friendly interface, session control and plugin-supported."
 authors = [
     {name = "aicorein", email = "melodyecho@glowmem.com"},
@@ -47,6 +47,8 @@ check = {shell = "flake8 src/melobot"}
 analyse = {shell = "mypy src/melobot"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
+format-docs = {shell = "docformatter --black -r --in-place src/melobot"}
+live-docs = {shell = "sphinx-autobuild -c docs/source docs docs/build/html"}
 
 [tool.pdm.dev-dependencies]
 test = [
@@ -56,6 +58,9 @@ docs = [
     "sphinx>=7.2.6",
     "furo>=2024.1.29",
     "myst-parser>=2.0.0",
+    "docformatter>=1.7.5",
+    "sphinx-autobuild>=2024.2.4",
+    "sphinx-copybutton>=0.5.2",
 ]
 lint = [
     "black>=24.2.0",

@@ -3,7 +3,7 @@ import os
 import pathlib
 import sys
 
-from ..types.abc import (
+from ..base.abc import (
     BotHookRunnerArgs,
     BotLife,
     EventHandlerArgs,
@@ -12,9 +12,9 @@ from ..types.abc import (
     ShareObjArgs,
     ShareObjCbArgs,
 )
-from ..types.exceptions import PluginInitError
-from ..types.tools import to_async
-from ..types.typing import (
+from ..base.exceptions import PluginInitError
+from ..base.tools import to_async
+from ..base.typing import (
     TYPE_CHECKING,
     Any,
     Callable,
@@ -41,16 +41,14 @@ from .handler import (
 )
 
 if TYPE_CHECKING:
-    from ..types.abc import SessionRule, WrappedChecker
+    from ..base.abc import SessionRule, WrappedChecker
     from ..utils.checker import BotChecker
     from ..utils.matcher import BotMatcher
     from ..utils.parser import BotParser
 
 
 class PluginProxy:
-    """
-    bot 插件代理类。供外部使用
-    """
+    """Bot 插件代理类。供外部使用."""
 
     def __init__(
         self,
@@ -66,21 +64,21 @@ class PluginProxy:
     ) -> None:
         self.id = id
         self.version = ver
+        self.desc = desc
+        self.doc = doc
+        self.keywords = keywords
+        self.url = url
         self.shares = share_objs
         self.share_cbs = share_cbs
         self.signal_methods = signal_methods
 
 
 class PluginLoader:
-    """
-    插件加载器
-    """
+    """插件加载器."""
 
     @staticmethod
     def load_from_dir(plugin_path: str) -> "BotPlugin":
-        """
-        从指定插件目录加载插件
-        """
+        """从指定插件目录加载插件."""
         if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
             raise PluginInitError(
                 f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
@@ -106,9 +104,7 @@ class PluginLoader:
 
     @staticmethod
     def load(target: Union[str, "BotPlugin"]) -> "BotPlugin":
-        """
-        加载插件
-        """
+        """加载插件."""
         if isinstance(target, str):
             plugin = PluginLoader.load_from_dir(target)
         else:
@@ -118,9 +114,7 @@ class PluginLoader:
 
 
 class BotPlugin:
-    """
-    bot 插件基类。所有自定义插件必须继承该类实现。
-    """
+    """Bot 插件基类。所有自定义插件必须继承该类实现。"""
 
     def __init__(
         self,
@@ -248,9 +242,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为任意事件处理器（响应事件除外）
-        """
+        """使用该装饰器，将方法标记为任意事件处理器（响应事件除外）"""
 
         def make_args(
             executor: Callable[[], Coroutine[Any, Any, None]]
@@ -290,9 +282,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为消息事件处理器
-        """
+        """使用该装饰器，将方法标记为消息事件处理器."""
 
         def make_args(
             executor: Callable[[], Coroutine[Any, Any, None]]
@@ -332,10 +322,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为任意消息事件处理器。
-        任何消息经过校验后，不进行匹配和解析即可触发处理方法
-        """
+        """使用该装饰器，将方法标记为任意消息事件处理器。 任何消息经过校验后，不进行匹配和解析即可触发处理方法."""
 
         def make_args(
             executor: Callable[[], Coroutine[Any, Any, None]]
@@ -378,10 +365,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为艾特消息匹配的消息事件处理器。
-        必须首先是来自指定 qid 的艾特消息，才能被进一步处理
-        """
+        """使用该装饰器，将方法标记为艾特消息匹配的消息事件处理器。 必须首先是来自指定 qid 的艾特消息，才能被进一步处理."""
         at_checker = AtChecker(qid)
         wrapped_checker: AtChecker | "WrappedChecker"
         if checker is not None:
@@ -429,10 +413,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为字符串起始匹配的消息事件处理器。
-        必须首先含有以 target 起始的文本，才能被进一步处理
-        """
+        """使用该装饰器，将方法标记为字符串起始匹配的消息事件处理器。 必须首先含有以 target 起始的文本，才能被进一步处理."""
         start_matcher = StartMatch(target, logic_mode)
 
         def make_args(
@@ -475,10 +456,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为字符串包含匹配的消息事件处理器。
-        文本必须首先包含 target，才能被进一步处理
-        """
+        """使用该装饰器，将方法标记为字符串包含匹配的消息事件处理器。 文本必须首先包含 target，才能被进一步处理."""
         contain_matcher = ContainMatch(target, logic_mode)
 
         def make_args(
@@ -521,10 +499,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为字符串相等匹配的消息事件处理器。
-        文本必须首先与 target 内容完全一致，才能被进一步处理
-        """
+        """使用该装饰器，将方法标记为字符串相等匹配的消息事件处理器。 文本必须首先与 target 内容完全一致，才能被进一步处理."""
         full_matcher = FullMatch(target, logic_mode)
 
         def make_args(
@@ -567,10 +542,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为字符串结尾匹配的消息事件处理器。
-        文本必须首先以 target 结尾，才能被进一步处理
-        """
+        """使用该装饰器，将方法标记为字符串结尾匹配的消息事件处理器。 文本必须首先以 target 结尾，才能被进一步处理."""
         end_matcher = EndMatch(target, logic_mode)
 
         def make_args(
@@ -612,10 +584,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为字符串正则匹配的消息事件处理器。
-        文本必须包含指定的正则内容，才能被进一步处理
-        """
+        """使用该装饰器，将方法标记为字符串正则匹配的消息事件处理器。 文本必须包含指定的正则内容，才能被进一步处理."""
         regex_matcher = RegexMatch(target)
 
         def make_args(
@@ -656,9 +625,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为请求事件处理器
-        """
+        """使用该装饰器，将方法标记为请求事件处理器."""
 
         def make_args(
             executor: Callable[[], Coroutine[Any, Any, None]]
@@ -696,9 +663,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为私聊请求事件处理器
-        """
+        """使用该装饰器，将方法标记为私聊请求事件处理器."""
         friend_checker = FriendReqChecker()
         wrapped_checker: FriendReqChecker | "WrappedChecker"
         if checker is not None:
@@ -742,9 +707,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为群请求事件处理器
-        """
+        """使用该装饰器，将方法标记为群请求事件处理器."""
         group_checker = GroupReqChecker()
         wrapped_checker: GroupReqChecker | "WrappedChecker"
         if checker is not None:
@@ -808,9 +771,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为通知事件处理器
-        """
+        """使用该装饰器，将方法标记为通知事件处理器."""
         type_checker = NoticeTypeChecker(type)
         wrapped_checker: NoticeTypeChecker | "WrappedChecker"
         if checker is not None:
@@ -854,9 +815,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """
-        使用该装饰器，将方法标记为元事件处理器
-        """
+        """使用该装饰器，将方法标记为元事件处理器."""
 
         def make_args(
             executor: Callable[[], Coroutine[Any, Any, None]]

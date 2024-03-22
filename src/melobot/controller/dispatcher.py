@@ -1,28 +1,24 @@
-import asyncio as aio
+import asyncio
 
-from ..types.exceptions import get_better_exc
-from ..types.tools import get_rich_str
-from ..types.typing import TYPE_CHECKING, BotLife, PriorLevel, Type, Union
+from ..base.exceptions import get_better_exc
+from ..base.tools import get_rich_str
+from ..base.typing import TYPE_CHECKING, BotLife, PriorLevel, Type, Union
 
 if TYPE_CHECKING:
     from ..bot.hook import BotHookBus
     from ..context.session import BotSessionManager
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..plugin.handler import EventHandler
-    from ..types.abc import BotEvent
     from ..utils.logger import Logger
 
 
 class BotDispatcher:
-    """
-    bot 分发模块。负责将传递的事件分发到各事件通道
-    （接收的事件类型：消息、请求、通知和元事件）
-    """
+    """Bot 分发模块。负责将传递的事件分发到各事件通道 （接收的事件类型：消息、请求、通知和元事件）"""
 
     def __init__(self) -> None:
         super().__init__()
         self.handlers: dict[Type["EventHandler"], list["EventHandler"]] = {}
-        self._ready_signal = aio.Event()
+        self._ready_signal = asyncio.Event()
 
     def _bind(
         self,
@@ -42,9 +38,7 @@ class BotDispatcher:
                     self.handlers[channel] = []
 
     def add_handlers(self, handlers: list["EventHandler"]) -> None:
-        """
-        绑定事件处理器列表
-        """
+        """绑定事件处理器列表."""
         for handler in handlers:
             self.handlers[handler.__class__].append(handler)
         for k in self.handlers.keys():
@@ -60,9 +54,7 @@ class BotDispatcher:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         channel: Type["EventHandler"],
     ) -> None:
-        """
-        向指定的通道推送事件
-        """
+        """向指定的通道推送事件."""
         try:
             permit_priority = PriorLevel.MIN.value
             handlers = self.handlers[channel]
@@ -91,12 +83,10 @@ class BotDispatcher:
     async def dispatch(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
     ) -> None:
-        """
-        把事件分发到对应的事件通道
-        """
+        """把事件分发到对应的事件通道."""
         await self._ready_signal.wait()
         await self._bot_bus.emit(BotLife.EVENT_BUILT, event, wait=True)
         self.logger.debug(f"event {id(event)} built hook 已完成")
         for channel in self._channel_map[event.type]:
             self.logger.debug(f"向 {channel.__name__} 通道广播 event {id(event)}")
-            aio.create_task(self.broadcast(event, channel))
+            asyncio.create_task(self.broadcast(event, channel))

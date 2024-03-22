@@ -1,7 +1,7 @@
 import re
 
-from ..types.abc import BotMatcher, LogicMode
-from ..types.typing import Any
+from ..base.abc import BotMatcher, LogicMode
+from ..base.typing import Any
 
 
 class AlwaysMatch(BotMatcher):

@@ -1,21 +1,18 @@
-import asyncio as aio
+import asyncio
 from asyncio import Future
 
-from ..types.exceptions import get_better_exc
-from ..types.tools import get_rich_str
-from ..types.typing import TYPE_CHECKING
+from ..base.exceptions import get_better_exc
+from ..base.tools import get_rich_str
+from ..base.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from ..base.abc import AbstractConnector, BotAction
     from ..models.event import ResponseEvent
-    from ..types.abc import AbstractConnector, BotAction
     from ..utils.logger import Logger
 
 
 class BotResponder:
-    """
-    bot 响应模块，是 action 发送方和 bot 连接模块的媒介。
-    提供 action 发送、响应回送功能
-    """
+    """Bot 响应模块，是 action 发送方和 bot 连接模块的媒介。 提供 action 发送、响应回送功能."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -23,7 +20,7 @@ class BotResponder:
         self.logger: "Logger"
         self._action_sender: "AbstractConnector"
 
-        self._ready_signal = aio.Event()
+        self._ready_signal = asyncio.Event()
 
     def _bind(self, logger: "Logger", connector: "AbstractConnector") -> None:
         self.logger = logger
@@ -48,7 +45,7 @@ class BotResponder:
                     self._resp_table.pop(resp.id)
                 else:
                     self.logger.error(f"收到了不匹配的携带 id 的响应：{resp.raw}")
-        except aio.InvalidStateError:
+        except asyncio.InvalidStateError:
             self.logger.warning(
                 "等待 ResponseEvent 的异步任务已被取消，这可能意味着连接适配器响应过慢，或任务设置的超时时间太短"
             )
@@ -60,17 +57,13 @@ class BotResponder:
             self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
 
     async def take_action(self, action: "BotAction") -> None:
-        """
-        响应器发送 action, 不等待响应
-        """
+        """响应器发送 action, 不等待响应."""
         await self._ready_signal.wait()
         await self._action_sender._send(action)
         return None
 
     async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
-        """
-        响应器发送 action，并返回一个 Future 用于等待响应
-        """
+        """响应器发送 action，并返回一个 Future 用于等待响应."""
         await self._ready_signal.wait()
         fut: Future["ResponseEvent"] = Future()
         self._resp_table[action.resp_id] = fut  # type: ignore

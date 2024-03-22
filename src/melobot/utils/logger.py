@@ -8,15 +8,12 @@ from types import TracebackType
 
 import coloredlogs
 
-from ..types.exceptions import DuplicateError
-from ..types.typing import Literal, Optional, Type, TypeAlias
+from ..base.exceptions import DuplicateError
+from ..base.typing import Literal, Optional, Type, TypeAlias
 
 
 class NullLogger(Logger):
-    """
-    获得一个空日志器，支持所有日志操作，
-    但是丢弃所有日志
-    """
+    """获得一个空日志器，支持所有日志操作， 但是丢弃所有日志."""
 
     def __init__(self, name: str) -> None:
         super().__init__(name, CRITICAL)
@@ -158,9 +155,7 @@ _ExcInfoType: TypeAlias = None | bool | _SysExcInfoType | BaseException
 
 
 class PrefixLogger:
-    """
-    二次包装的日志器
-    """
+    """二次包装的日志器."""
 
     def __init__(self, ref: BotLogger, prefix: str) -> None:
         self._logger = ref

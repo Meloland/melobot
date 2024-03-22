@@ -1,10 +1,9 @@
-import asyncio as aio
+import asyncio
 
-from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
-from ..types.abc import BotParser
-from ..types.exceptions import DirectRetSignal, EventHandlerError, get_better_exc
-from ..types.tools import get_rich_str
-from ..types.typing import (
+from ..base.abc import BotParser
+from ..base.exceptions import DirectRetSignal, EventHandlerError, get_better_exc
+from ..base.tools import get_rich_str
+from ..base.typing import (
     TYPE_CHECKING,
     Any,
     Callable,
@@ -18,11 +17,12 @@ from ..types.typing import (
     Void,
     cast,
 )
+from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
 
 if TYPE_CHECKING:
+    from ..base.abc import BotChecker, BotMatcher, SessionRule
     from ..context.session import BotSession
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
-    from ..types.abc import BotChecker, BotMatcher, SessionRule
     from ..utils.logger import BotLogger
     from .init import BotPlugin
 
@@ -53,7 +53,7 @@ class EventHandler:
         self.set_block = set_block
         self.temp = temp
 
-        self._run_lock = aio.Lock()
+        self._run_lock = asyncio.Lock()
         self._rule = session_rule
         self._hold = session_hold
         self._plugin = plugin
@@ -74,9 +74,7 @@ class EventHandler:
             )
 
     async def _verify(self) -> bool:
-        """
-        验证事件是否有触发执行的资格（验权）
-        """
+        """验证事件是否有触发执行的资格（验权）"""
         if self.checker:
             return await self.checker.check(any_event())
         return True
@@ -87,14 +85,12 @@ class EventHandler:
         session: "BotSession",
         timeout: Optional[float] = None,
     ) -> T:
-        """
-        在指定 session 上下文中运行协程。异常将会抛出
-        """
+        """在指定 session 上下文中运行协程。异常将会抛出."""
         if session._handler is None:
             BotSessionManager.inject(session, self)
         try:
             s_token = SESSION_LOCAL._add_ctx(session)
-            return await aio.wait_for(aio.create_task(coro), timeout=timeout)
+            return await asyncio.wait_for(asyncio.create_task(coro), timeout=timeout)
         finally:
             SESSION_LOCAL._del_ctx(s_token)
             # 这里可能因 bot 停止运行，导致退出事件执行方法时 session 为挂起态。因此需要强制唤醒
@@ -104,9 +100,7 @@ class EventHandler:
     async def _run(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
     ) -> None:
-        """
-        获取 session 然后准备运行 executor
-        """
+        """获取 session 然后准备运行 executor."""
         try:
             session = None
             if not self._direct_rouse:
@@ -151,10 +145,7 @@ class EventHandler:
     async def evoke(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
     ) -> bool:
-        """
-        接收总线分发的事件的方法。返回是否决定处理的判断。
-        便于 disptacher 进行优先级阻断。校验通过会自动处理事件。
-        """
+        """接收总线分发的事件的方法。返回是否决定处理的判断。 便于 disptacher 进行优先级阻断。校验通过会自动处理事件。"""
         if not self.is_valid:
             return False
 
@@ -167,12 +158,12 @@ class EventHandler:
             return False
 
         if not self.temp:
-            aio.create_task(self._run(event))
+            asyncio.create_task(self._run(event))
             return True
 
         async with self._run_lock:
             if self.is_valid:
-                aio.create_task(self._run(event))
+                asyncio.create_task(self._run(event))
                 self.is_valid = False
                 return True
             else:
@@ -253,9 +244,7 @@ class MsgEventHandler(EventHandler):
     def _match(
         self, event: "MessageEvent"
     ) -> bool | tuple[bool, str | None, ParseArgs | None]:
-        """
-        检查是否匹配
-        """
+        """检查是否匹配."""
         if self.matcher:
             return self.matcher.match(event.text)
         if self.parser:
@@ -270,9 +259,7 @@ class MsgEventHandler(EventHandler):
         return True
 
     async def _format(self, cmd_name: str, args: ParseArgs) -> bool:
-        """
-        格式化。只有 parser 存在时需要
-        """
+        """格式化。只有 parser 存在时需要."""
         self.parser = cast(BotParser, self.parser)
         if not self.parser.need_format:
             return True

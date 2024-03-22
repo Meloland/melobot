@@ -2,8 +2,8 @@ import re
 from copy import deepcopy
 from itertools import chain, zip_longest
 
-from ..types.exceptions import BotActionError
-from ..types.typing import (
+from ..base.exceptions import BotActionError
+from ..base.typing import (
     TYPE_CHECKING,
     Any,
     CQMsgDict,
@@ -14,64 +14,104 @@ from ..types.typing import (
 )
 
 if TYPE_CHECKING:
-    from ..types.abc import BotAction
+    from ..base.abc import BotAction
+
+
+__all__ = (
+    "at_msg",
+    "cq_anti_escape",
+    "cq_escape",
+    "cq_filter_text",
+    "custom_msg_node",
+    "custom_music_msg",
+    "face_msg",
+    "image_msg",
+    "json_msg",
+    "music_msg",
+    "poke_msg",
+    "record_msg",
+    "refer_msg_node",
+    "reply_msg",
+    "share_msg",
+    "text_msg",
+    "to_cq_arr",
+    "to_cq_str",
+    "xml_msg",
+)
 
 
 def text_msg(
     text: str,
 ) -> CQMsgDict:
-    """
-    普通文本消息
+    """生成普通文本消息
+
+    参数详细说明参考 onebot 标准：`纯文本 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#纯文本>`_
+
+    :param text: 消息内容
+    :return: onebot 标准中的消息段对象
     """
     return {"type": "text", "data": {"text": text}}
 
 
 def face_msg(
-    icon_id: int,
+    id: int,
 ) -> CQMsgDict:
+    """生成 qq 表情消息
+
+    参数详细说明参考 onebot 标准：`QQ 表情 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#qq-表情>`_
+
+    :param id: qq 表情的 ID
+    :return: onebot 标准中的消息段对象
     """
-    QQ 表情
-    """
-    return {"type": "face", "data": {"id": f"{icon_id}"}}
+    return {"type": "face", "data": {"id": f"{id}"}}
 
 
-def audio_msg(
-    url: str,
+def record_msg(
+    file: str,
+    magic: Literal[0, 1] = 0,
+    cache: Literal[0, 1] = 1,
+    proxy: Literal[0, 1] = 1,
     timeout: Optional[int] = None,
-    magic: bool = False,
 ) -> CQMsgDict:
-    """
-    语音消息
+    """生成语音消息
+
+    参数详细说明参考 onebot 标准：`语音 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#语音>`_
+
+    :param file: 语音文件名
+    :param magic: 是否使用变声
+    :param cache: 是否使用已缓存文件
+    :param proxy: 是否通过代理下载文件
+    :param timeout: 超时时间，默认不启用
+    :return: onebot 标准中的消息段对象
     """
     base: CQMsgDict = {
         "type": "record",
         "data": {
-            "file": url,
+            "file": file,
+            "magic": str(magic),
+            "cache": str(cache),
+            "proxy": str(proxy),
         },
     }
-    if magic:
-        base["data"]["magic"] = 1
     if timeout:
         base["data"]["timeout"] = str(timeout)
     return base
 
 
-def at_msg(
-    qqId: int | Literal["all"],
-    notInName: Optional[str] = None,
-) -> CQMsgDict:
-    """
-    at 消息。
-    at 所有人时，`qqId` 传 "all"
+def at_msg(qq: int | Literal["all"]) -> CQMsgDict:
+    """生成艾特消息
+
+    参数详细说明参考 onebot 标准：`某人 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#某人>`_
+
+    :param qq: 艾特的 qq 号，"all" 表示艾特全体成员
+    :return: onebot 标准中的消息段对象
     """
     base: CQMsgDict = {
         "type": "at",
         "data": {
-            "qq": str(qqId),
+            "qq": str(qq),
         },
     }
-    if notInName:
-        base["data"]["name"] = notInName
     return base
 
 
@@ -81,9 +121,15 @@ def share_msg(
     content: Optional[str] = None,
     image: Optional[str] = None,
 ) -> CQMsgDict:
-    """
-    链接分享卡片消息。
-    `content` 为描述语
+    """生成链接分享消息
+
+    参数详细说明参考 onebot 标准：`链接分享 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#链接分享>`_
+
+    :param url: 链接的 url
+    :param title: 消息的标题
+    :param content: 消息的内容描述（可选）
+    :param image: 消息的封面图 url（可选）
+    :return: onebot 标准中的消息段对象
     """
     base: CQMsgDict = {
         "type": "share",
@@ -100,13 +146,18 @@ def share_msg(
 
 
 def music_msg(
-    platType: Literal["qq", "163", "xm"],
-    songId: str,
+    type: Literal["qq", "163", "xm"],
+    id: str,
 ) -> CQMsgDict:
+    """生成音乐分享消息
+
+    参数详细说明参考 onebot 标准：`音乐分享 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#音乐分享->`_
+
+    :param type: 音乐平台的类型（q 音、网易云、虾米）
+    :param id: 歌曲 id
+    :return: onebot 标准中的消息段对象
     """
-    音乐分享卡片消息（专有平台）
-    """
-    return {"type": "music", "data": {"type": platType, "id": songId}}
+    return {"type": "music", "data": {"type": type, "id": id}}
 
 
 def custom_music_msg(
@@ -116,9 +167,16 @@ def custom_music_msg(
     content: Optional[str] = None,
     image: Optional[str] = None,
 ) -> CQMsgDict:
-    """
-    自定义音乐分享卡片。
-    `url` 为主页或网站起始页
+    """生成音乐自定义分享 url
+
+    参数详细说明参考 onebot 标准：`音乐自定义分享 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#音乐自定义分享->`_
+
+    :param url: 点击后跳转目标 url
+    :param audio: 音乐 url
+    :param title: 标题
+    :param content: 内容描述（可选）
+    :param image: 封面图 url（可选）
+    :return: onebot 标准中的消息段对象
     """
     base: CQMsgDict = {
         "type": "music",
@@ -137,86 +195,97 @@ def custom_music_msg(
 
 
 def image_msg(
-    url: str,
-    picType: Optional[Literal["flash", "show"]] = None,
-    subType: Optional[Literal[0, 1]] = None,
-    useCache: Literal[0, 1] = 1,
+    file: str,
+    type: Optional[Literal["flash"]] = None,
+    cache: Literal[0, 1] = 1,
+    proxy: Literal[0, 1] = 1,
+    timeout: Optional[int] = None,
 ) -> CQMsgDict:
-    """
-    图片消息。
-    `url`: 图片 url。可以为本地路径，如：`file:///C:/users/15742/desktop/QQ图片20230108225606.jpg`；也可以为网络 url；还可以为 image id。
-    `picType`: flash 为闪照，show 为秀图，不填为普通图片。
-    `subType`: 只出现在群聊，0 为正常图片，1 为表情包
+    """生成图片消息
+
+    参数详细说明参考 onebot 标准：`图片 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#图片>`_
+
+    :param file: 图片文件名或图片 base64 内容
+    :param type: 图片类型
+    :param cache: 是否使用已缓存的文件
+    :param proxy: 是否通过代理下载文件
+    :param timeout: 超时时间，默认不超时
+    :return: onebot 标准中的消息段对象
     """
     base: CQMsgDict = {
         "type": "image",
         "data": {
-            "file": url,
+            "file": file,
+            "cache": str(cache),
+            "proxy": str(proxy),
         },
     }
-    if picType:
-        base["data"]["type"] = picType
-    if subType:
-        base["data"]["subType"] = str(subType)
-    if useCache:
-        base["data"]["cache"] = str(useCache)
+    if type:
+        base["data"]["type"] = type
+    if timeout:
+        base["data"]["timeout"] = str(timeout)
     return base
 
 
 def reply_msg(
-    messageId: int,
+    id: int,
 ) -> CQMsgDict:
-    """
-    回复消息
+    """生成回复消息
+
+    参数详细说明参考 onebot 标准：`回复 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#回复>`_
+
+    :param id: 消息 id
+    :return: onebot 标准中的消息段对象
     """
     return {
         "type": "reply",
         "data": {
-            "id": str(messageId),
+            "id": str(id),
         },
     }
 
 
 def poke_msg(
-    qqId: int,
+    qq: int,
 ) -> CQMsgDict:
-    """
-    戳一戳消息
+    """生成戳一戳消息
+
+    .. admonition:: 提示
+       :class: tip
+
+       鉴于目前大多数实现 cq 协议的项目都采用了此参数规范，因此在 melobot 中，也采用此规范。虽然这种规范实际上不符合 onebot 标准
+
+    :param qq: 戳的 qq 号
+    :return: onebot 标准中的消息段对象
     """
     return {
         "type": "poke",
         "data": {
-            "qq": str(qqId),
+            "qq": str(qq),
         },
     }
 
 
-def touch_msg(
-    qqId: int,
-) -> CQMsgDict:
+def xml_msg(data: str) -> CQMsgDict:
+    """生成 xml 消息
+
+    参数详细说明参考 onebot 标准：`xml 消息 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#xml-消息>`_
+
+    :param data: xml 内容
+    :return: onebot 标准中的消息段对象
     """
-    openshamrock 的戳一戳消息
-    """
-    return {
-        "type": "touch",
-        "data": {
-            "id": str(qqId),
-        },
-    }
+    return {"type": "xml", "data": {"data": data}}
 
 
-def tts_msg(
-    text: str,
-) -> CQMsgDict:
+def json_msg(data: str) -> CQMsgDict:
+    """生成 json 消息
+
+    参数详细说明参考 onebot 标准：`json 消息 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#json-消息>`_
+
+    :param data: json 内容
+    :return: onebot 标准中的消息段对象
     """
-    腾讯自带 tts 语音消息
-    """
-    return {
-        "type": "tts",
-        "data": {
-            "text": text,
-        },
-    }
+    return {"type": "json", "data": {"data": data}}
 
 
 def custom_msg_node(
@@ -224,9 +293,24 @@ def custom_msg_node(
     sendName: str,
     sendId: int,
     seq: Optional[list[CQMsgDict]] = None,
+    useStd: bool = False,
 ) -> MsgNodeDict:
-    """
-    自定义消息节点构造方法。转化字符串、消息、消息段为消息节点
+    """生成一个自定义合并消息转发结点
+
+    .. admonition:: 提示
+       :class: tip
+
+       鉴于此方法涉及的消息构造，存在两种规范：
+       `onebot 规范 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#合并转发自定义节点>`_、
+       `go-cq 规范 <https://docs.go-cqhttp.org/cqcode/#合并转发消息节点>`_，
+       因此在 melobot 中，支持你使用 useStd 参数自定义选择哪种风格来构造
+
+    :param content: 消息结点内容
+    :param sendName: 消息结点标记的发送人名字
+    :param sendId: 消息结点标记的发送人 qq 号
+    :param seq: 消息 seq 号（一般来说你不需要使用这个）
+    :param useStd: 消息段对象构造时是否遵循 onebot 标准，默认为否（使用 go-cq 风格）
+    :return: onebot 标准中的消息段对象
     """
     if isinstance(content, str):
         _ = text_msg(content)
@@ -242,33 +326,49 @@ def custom_msg_node(
             else:
                 temp.append(_)
         msgs = temp
-    ret: MsgNodeDict = {
-        "type": "node",
-        "data": {"name": sendName, "uin": str(sendId), "content": msgs},
-    }
+    if not useStd:
+        ret: MsgNodeDict = {
+            "type": "node",
+            "data": {"name": sendName, "uin": str(sendId), "content": msgs},
+        }
+    else:
+        ret: MsgNodeDict = {  # type: ignore
+            "type": "node",
+            "data": {"user_id": sendId, "nickname": sendName, "content": msgs},
+        }
     if seq:
         ret["data"]["seq"] = seq  # type: ignore
     return ret
 
 
-def refer_msg_node(msgId: int) -> MsgNodeDict:
+def refer_msg_node(id: int) -> MsgNodeDict:
+    """生成一个引用合并消息转发结点
+
+    :param id: 消息 id
+    :return: onebot 标准中的消息段对象
     """
-    引用消息节点构造方法
-    """
-    return {"type": "node", "data": {"id": str(msgId)}}
+    return {"type": "node", "data": {"id": str(id)}}
 
 
 def cq_filter_text(s: str) -> str:
-    """
-    从 cq 消息字符串中，获取纯净的 cq text 类型消息
+    """cq 文本过滤函数
+
+    可从 cq 字符串中过滤出纯文本消息部分
+
+    :param s: cq 字符串
+    :return: 纯文本消息部分
     """
     regex = re.compile(r"\[CQ:.*?\]")
     return regex.sub("", s)
 
 
 def cq_escape(text: str) -> str:
-    """
-    cq 码特殊字符转义
+    """cq 字符串特殊符号转义
+
+    如：将 "&" 转义为 "&amp;"
+
+    :param text: 需要转义的 cq 字符串
+    :return: 转义特殊符号后的 cq 字符串
     """
     return (
         text.replace("&", "&amp;")
@@ -279,8 +379,12 @@ def cq_escape(text: str) -> str:
 
 
 def cq_anti_escape(text: str) -> str:
-    """
-    cq 码特殊字符逆转义
+    """cq 字符串特殊符号逆转义
+
+    如：将 "&amp;" 逆转义为 "&"
+
+    :param text: 需要逆转义的 cq 字符串
+    :return: 逆转义特殊符号后的 cq 字符串
     """
     return (
         text.replace("&#44;", ",")
@@ -291,8 +395,10 @@ def cq_anti_escape(text: str) -> str:
 
 
 def to_cq_arr(s: str) -> list[CQMsgDict]:
-    """
-    从 cq 消息字符串转换为 cq 消息段
+    """将 cq 字符串转换为消息段对象列表
+
+    :param s: cq 字符串
+    :return: 消息段对象列表
     """
 
     def replace_func(m) -> str:
@@ -333,8 +439,10 @@ def to_cq_arr(s: str) -> list[CQMsgDict]:
 
 
 def to_cq_str(content: list[CQMsgDict]) -> str:
-    """
-    从 cq 消息段转换为 cq 消息字符串
+    """将消息段对象列表转换为 cq 字符串
+
+    :param content: 消息段对象列表
+    :return: cq 字符串
     """
     if isinstance(content, str):
         return content
@@ -351,12 +459,7 @@ def to_cq_str(content: list[CQMsgDict]) -> str:
     return "".join(msgs)
 
 
-def to_cq_str_action(action: "BotAction") -> "BotAction":
-    """
-    转化 action 携带的 message 字段转为 cq 字符串格式，并返回新的 action。
-    支持的 action 类型有：msg_action 和 forward_action
-    """
-
+def _to_cq_str_action(action: "BotAction") -> "BotAction":
     def _format_msg_action(action: "BotAction") -> None:
         action.params["message"] = to_cq_str(action.params["message"])
 
@@ -376,23 +479,13 @@ def to_cq_str_action(action: "BotAction") -> "BotAction":
     return _action
 
 
-def get_cq(content: list[CQMsgDict], cq_type: str) -> list[CQMsgDict]:
-    """
-    从 content 获取指定类型的 cq 消息 dict
-    """
+def _get_cq(content: list[CQMsgDict], cq_type: str) -> list[CQMsgDict]:
     return [item for item in content if item["type"] == cq_type]
 
 
-def get_cq_params(
+def _get_cq_params(
     content: list[CQMsgDict], cq_type: str, param: str, type: Optional[Type[Any]] = None
 ) -> list[Any]:
-    """
-    从当前 content 中获取指定类型 cq 消息的指定 param，以列表形式返回。
-    当没有任何对应类型的 cq 消息时，为空列表。如果有对应类型 cq 消息，
-    但是 param 不存在，则在列表中产生值 None
-
-    可以指定 type 来强制转换类型
-    """
     res: list[Any] = []
     for item in content:
         if item["type"] == cq_type:

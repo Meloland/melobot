@@ -1,17 +1,17 @@
 import warnings
 
-from ..models.cq import reply_msg, text_msg, to_cq_str_action
-from ..types.abc import ActionArgs, BotAction
-from ..types.exceptions import BotActionError, BotSessionError, DirectRetSignal
-from ..types.tools import get_id
-from ..types.typing import TYPE_CHECKING, CQMsgDict, Literal, MsgNodeDict, Optional
+from ..base.abc import ActionArgs, BotAction
+from ..base.exceptions import BotActionError, BotSessionError, DirectRetSignal
+from ..base.tools import get_id
+from ..base.typing import TYPE_CHECKING, CQMsgDict, Literal, MsgNodeDict, Optional
+from ..models.cq import _to_cq_str_action, reply_msg, text_msg
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as CtxManager
 
 if TYPE_CHECKING:
     from ..models.event import BotEvent, ResponseEvent
 
-__all__ = [
+__all__ = (
     "send_custom_msg",
     "send",
     "send_custom_forward",
@@ -75,13 +75,11 @@ __all__ = [
     "send_reply",
     "finish",
     "reply_finish",
-]
+)
 
 
 class MsgActionArgs(ActionArgs):
-    """
-    消息 action 信息构造类
-    """
+    """消息 action 信息构造类."""
 
     def __init__(
         self,
@@ -108,9 +106,7 @@ class MsgActionArgs(ActionArgs):
 
 
 def _process_msg(content: str | CQMsgDict | list[CQMsgDict]) -> list[CQMsgDict]:
-    """
-    将多种可能的消息格式，统一转换为 cq 消息列表
-    """
+    """将多种可能的消息格式，统一转换为 cq 消息列表."""
     if isinstance(content, str):
         _ = text_msg(content)
         if not isinstance(_, list):
@@ -140,9 +136,7 @@ async def send_custom_msg(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    发送消息
-    """
+    """发送消息."""
     if isPrivate and userId is None:
         raise BotActionError("为私聊时，构建 action 必须提供 userId 参数")
     if not isPrivate and groupId is None:
@@ -153,7 +147,7 @@ async def send_custom_msg(
         ready=auto,
     )
     if cq_str:
-        action = to_cq_str_action(action)
+        action = _to_cq_str_action(action)
     return action
 
 
@@ -164,9 +158,7 @@ async def send(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    在当前 session 上下文发送一条消息
-    """
+    """在当前 session 上下文发送一条消息."""
     try:
         session = SESSION_LOCAL
         action = BotAction(
@@ -180,16 +172,14 @@ async def send(
             ready=auto,
         )
         if cq_str:
-            action = to_cq_str_action(action)
+            action = _to_cq_str_action(action)
         return action
     except LookupError:
         raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
 
 class ForwardMsgActionArgs(ActionArgs):
-    """
-    转发消息 action 信息构造类
-    """
+    """转发消息 action 信息构造类."""
 
     def __init__(
         self,
@@ -217,16 +207,14 @@ async def send_custom_forward(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    转发消息发送
-    """
+    """转发消息发送."""
     action = BotAction(
         ForwardMsgActionArgs(msgNodes, isPrivate, userId, groupId),
         resp_id=get_id() if wait else None,
         ready=auto,
     )
     if cq_str:
-        action = to_cq_str_action(action)
+        action = _to_cq_str_action(action)
     return action
 
 
@@ -237,9 +225,7 @@ async def send_forward(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    在当前 session 上下文发送转发消息
-    """
+    """在当前 session 上下文发送转发消息."""
     try:
         session = SESSION_LOCAL
         action = BotAction(
@@ -253,16 +239,14 @@ async def send_forward(
             ready=auto,
         )
         if cq_str:
-            action = to_cq_str_action(action)
+            action = _to_cq_str_action(action)
         return action
     except LookupError:
         raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
 
 class MsgDelActionArgs(ActionArgs):
-    """
-    撤回消息 action 信息构造类
-    """
+    """撤回消息 action 信息构造类."""
 
     def __init__(self, msgId: int) -> None:
         super().__init__()
@@ -273,21 +257,15 @@ class MsgDelActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def msg_recall(
-    msgId: int, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """
-    撤回消息
-    """
+async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
+    """撤回消息."""
     return BotAction(
         MsgDelActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetMsgActionArgs(ActionArgs):
-    """
-    消息信息获取 action 信息构造类
-    """
+    """消息信息获取 action 信息构造类."""
 
     def __init__(self, msgId: int) -> None:
         super().__init__()
@@ -296,21 +274,15 @@ class GetMsgActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_msg(
-    msgId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取消息详细信息
-    """
+async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction:
+    """获取消息详细信息."""
     return BotAction(
         GetMsgActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class getForwardActionArgs(ActionArgs):
-    """
-    转发消息获取 action 信息构造类
-    """
+    """转发消息获取 action 信息构造类."""
 
     def __init__(self, forwardId: str) -> None:
         super().__init__()
@@ -322,18 +294,14 @@ class getForwardActionArgs(ActionArgs):
 async def get_forward_msg(
     forwardId: str, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    转发消息获取
-    """
+    """转发消息获取."""
     return BotAction(
         getForwardActionArgs(forwardId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class getImageActionArgs(ActionArgs):
-    """
-    获取图片信息 action 信息构造类
-    """
+    """获取图片信息 action 信息构造类."""
 
     def __init__(self, fileName: str) -> None:
         super().__init__()
@@ -342,21 +310,15 @@ class getImageActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_image(
-    fileName: str, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取图片信息
-    """
+async def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotAction:
+    """获取图片信息."""
     return BotAction(
         getImageActionArgs(fileName), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class MarkMsgReadActionArgs(ActionArgs):
-    """
-    标记消息已读 action 信息构造类
-    """
+    """标记消息已读 action 信息构造类."""
 
     def __init__(self, msgId: int) -> None:
         super().__init__()
@@ -365,21 +327,15 @@ class MarkMsgReadActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def mark_msg_read(
-    msgId: int, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """
-    标记消息已读
-    """
+async def mark_msg_read(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
+    """标记消息已读."""
     return BotAction(
         MarkMsgReadActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GroupKickActionArgs(ActionArgs):
-    """
-    群组踢人 action 信息构造类
-    """
+    """群组踢人 action 信息构造类."""
 
     def __init__(self, groupId: int, userId: int, laterReject: bool = False) -> None:
         super().__init__()
@@ -399,9 +355,7 @@ async def group_kick(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    群组踢人
-    """
+    """群组踢人."""
     return BotAction(
         GroupKickActionArgs(groupId, userId, laterReject),
         resp_id=get_id() if wait else None,
@@ -410,9 +364,7 @@ async def group_kick(
 
 
 class GroupBanActionArgs(ActionArgs):
-    """
-    群组禁言 action 信息构造类
-    """
+    """群组禁言 action 信息构造类."""
 
     def __init__(self, groupId: int, userId: int, duration: int) -> None:
         super().__init__()
@@ -428,10 +380,7 @@ class GroupBanActionArgs(ActionArgs):
 async def group_ban(
     groupId: int, userId: int, duration: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    群组禁言。
-    duration 为 0 取消禁言
-    """
+    """群组禁言。 duration 为 0 取消禁言."""
     return BotAction(
         GroupBanActionArgs(groupId, userId, duration),
         resp_id=get_id() if wait else None,
@@ -440,9 +389,7 @@ async def group_ban(
 
 
 class GroupAnonymBanActionArgs(ActionArgs):
-    """
-    群组匿名禁言 action 信息构造类
-    """
+    """群组匿名禁言 action 信息构造类."""
 
     def __init__(self, groupId: int, anonymFlag: str, duration: int) -> None:
         super().__init__()
@@ -458,10 +405,7 @@ class GroupAnonymBanActionArgs(ActionArgs):
 async def group_anonym_ban(
     groupId: int, anonymFlag: str, duration: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    群组匿名禁言。
-    无法取消禁言
-    """
+    """群组匿名禁言。 无法取消禁言."""
     return BotAction(
         GroupAnonymBanActionArgs(groupId, anonymFlag, duration),
         resp_id=get_id() if wait else None,
@@ -470,9 +414,7 @@ async def group_anonym_ban(
 
 
 class GroupWholeBanActionArgs(ActionArgs):
-    """
-    群组全员禁言 action 信息构造类
-    """
+    """群组全员禁言 action 信息构造类."""
 
     def __init__(self, groupId: int, enable: bool) -> None:
         super().__init__()
@@ -484,9 +426,7 @@ class GroupWholeBanActionArgs(ActionArgs):
 async def group_whole_ban(
     groupId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    群组全员禁言
-    """
+    """群组全员禁言."""
     return BotAction(
         GroupWholeBanActionArgs(groupId, enable),
         resp_id=get_id() if wait else None,
@@ -495,9 +435,7 @@ async def group_whole_ban(
 
 
 class SetGroupAdminActionArgs(ActionArgs):
-    """
-    设置群管理员 action 信息构造类
-    """
+    """设置群管理员 action 信息构造类."""
 
     def __init__(self, groupId: int, userId: int, enable: bool) -> None:
         super().__init__()
@@ -509,9 +447,7 @@ class SetGroupAdminActionArgs(ActionArgs):
 async def set_group_admin(
     groupId: int, userId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    设置群管理员
-    """
+    """设置群管理员."""
     return BotAction(
         SetGroupAdminActionArgs(groupId, userId, enable),
         resp_id=get_id() if wait else None,
@@ -520,9 +456,7 @@ async def set_group_admin(
 
 
 class SetGroupCardActionArgs(ActionArgs):
-    """
-    设置群名片 action 信息构造类
-    """
+    """设置群名片 action 信息构造类."""
 
     def __init__(self, groupId: int, userId: int, card: str) -> None:
         super().__init__()
@@ -534,9 +468,7 @@ class SetGroupCardActionArgs(ActionArgs):
 async def set_group_card(
     groupId: int, userId: int, card: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    设置群名片
-    """
+    """设置群名片."""
     return BotAction(
         SetGroupCardActionArgs(groupId, userId, card),
         resp_id=get_id() if wait else None,
@@ -545,9 +477,7 @@ async def set_group_card(
 
 
 class SetGroupNameActionArgs(ActionArgs):
-    """
-    设置群名 action 信息构造类
-    """
+    """设置群名 action 信息构造类."""
 
     def __init__(self, groupId: int, name: str) -> None:
         super().__init__()
@@ -559,9 +489,7 @@ class SetGroupNameActionArgs(ActionArgs):
 async def set_group_name(
     groupId: int, name: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    设置群名 action 信息的方法
-    """
+    """设置群名 action 信息的方法."""
     return BotAction(
         SetGroupNameActionArgs(groupId, name),
         resp_id=get_id() if wait else None,
@@ -570,9 +498,7 @@ async def set_group_name(
 
 
 class GroupLeaveActionArgs(ActionArgs):
-    """
-    退出群组 action 信息构造类
-    """
+    """退出群组 action 信息构造类."""
 
     def __init__(self, groupId: int, isDismiss: bool) -> None:
         super().__init__()
@@ -584,9 +510,7 @@ class GroupLeaveActionArgs(ActionArgs):
 async def group_leave(
     groupId: int, isDismiss: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    退出群组
-    """
+    """退出群组."""
     return BotAction(
         GroupLeaveActionArgs(groupId, isDismiss),
         resp_id=get_id() if wait else None,
@@ -595,9 +519,7 @@ async def group_leave(
 
 
 class SetGroupTitleActionArgs(ActionArgs):
-    """
-    设置群头衔 action 信息构造类
-    """
+    """设置群头衔 action 信息构造类."""
 
     def __init__(
         self,
@@ -625,9 +547,7 @@ async def set_group_title(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    设置群头衔
-    """
+    """设置群头衔."""
     return BotAction(
         SetGroupTitleActionArgs(groupId, userId, title, duration),
         resp_id=get_id() if wait else None,
@@ -636,9 +556,7 @@ async def set_group_title(
 
 
 class GroupSignActionArgs(ActionArgs):
-    """
-    群打卡 action 信息构造类
-    """
+    """群打卡 action 信息构造类."""
 
     def __init__(self, groupId: int) -> None:
         super().__init__()
@@ -647,12 +565,8 @@ class GroupSignActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def group_sign(
-    groupId: int, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """
-    群打卡
-    """
+async def group_sign(groupId: int, wait: bool = False, auto: bool = True) -> BotAction:
+    """群打卡."""
     return BotAction(
         GroupSignActionArgs(groupId), resp_id=get_id() if wait else None, ready=auto
     )
@@ -660,9 +574,7 @@ async def group_sign(
 
 class SetFriendAddActionArgs(ActionArgs):
     def __init__(self, addFlag: str, approve: bool, remark: str) -> None:
-        """
-        处理加好友请求 action 信息构造类
-        """
+        """处理加好友请求 action 信息构造类."""
         super().__init__()
         self.type = "set_friend_add_request"
         self.params = {"flag": addFlag, "approve": approve, "remark": remark}
@@ -672,9 +584,7 @@ class SetFriendAddActionArgs(ActionArgs):
 async def set_friend_add(
     addFlag: str, approve: bool, remark: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    处理加好友信息。注意 remark 目前暂未实现
-    """
+    """处理加好友信息。注意 remark 目前暂未实现."""
     return BotAction(
         SetFriendAddActionArgs(addFlag, approve, remark),
         resp_id=get_id() if wait else None,
@@ -683,9 +593,7 @@ async def set_friend_add(
 
 
 class SetGroupAddActionArgs(ActionArgs):
-    """
-    处理加群请求 action 信息构造类
-    """
+    """处理加群请求 action 信息构造类."""
 
     def __init__(
         self,
@@ -714,9 +622,7 @@ async def set_group_add(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    处理加群请求
-    """
+    """处理加群请求."""
     return BotAction(
         SetGroupAddActionArgs(addFlag, addType, approve, rejectReason),
         resp_id=get_id() if wait else None,
@@ -725,9 +631,7 @@ async def set_group_add(
 
 
 class GetLoginInfoActionArgs(ActionArgs):
-    """
-    获取登录号信息 action 信息构造类
-    """
+    """获取登录号信息 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -736,21 +640,15 @@ class GetLoginInfoActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_login_info(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获得登录号信息
-    """
+async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
+    """获得登录号信息."""
     return BotAction(
         GetLoginInfoActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class SetLoginProfileActionArgs(ActionArgs):
-    """
-    设置登录号资料 action 信息构造类
-    """
+    """设置登录号资料 action 信息构造类."""
 
     def __init__(
         self, nickname: str, company: str, email: str, college: str, personalNote: str
@@ -776,9 +674,7 @@ async def set_login_profile(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    设置登录号资料
-    """
+    """设置登录号资料."""
     return BotAction(
         SetLoginProfileActionArgs(nickname, company, email, college, personalNote),
         resp_id=get_id() if wait else None,
@@ -787,9 +683,7 @@ async def set_login_profile(
 
 
 class GetStrangerInfoActionArgs(ActionArgs):
-    """
-    获取陌生人信息 action 信息构造类
-    """
+    """获取陌生人信息 action 信息构造类."""
 
     def __init__(self, userId: int, noCache: bool) -> None:
         super().__init__()
@@ -801,9 +695,7 @@ class GetStrangerInfoActionArgs(ActionArgs):
 async def get_stranger_info(
     userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取陌生人信息。也可以对好友使用
-    """
+    """获取陌生人信息。也可以对好友使用."""
     return BotAction(
         GetStrangerInfoActionArgs(userId, noCache),
         resp_id=get_id() if wait else None,
@@ -812,9 +704,7 @@ async def get_stranger_info(
 
 
 class GetFriendlistActionArgs(ActionArgs):
-    """
-    获取好友列表 action 信息构造类
-    """
+    """获取好友列表 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -823,21 +713,15 @@ class GetFriendlistActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_friend_list(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取好友列表
-    """
+async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取好友列表."""
     return BotAction(
         GetFriendlistActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetUndirectFriendActionArgs(ActionArgs):
-    """
-    获取单向好友列表 action 信息构造类
-    """
+    """获取单向好友列表 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -846,21 +730,15 @@ class GetUndirectFriendActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_undirect_friend(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取单向好友信息列表
-    """
+async def get_undirect_friend(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取单向好友信息列表."""
     return BotAction(
         GetUndirectFriendActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class DeleteFriendActionArgs(ActionArgs):
-    """
-    删除好友 action 信息构造类
-    """
+    """删除好友 action 信息构造类."""
 
     def __init__(self, userId: int) -> None:
         super().__init__()
@@ -872,18 +750,14 @@ class DeleteFriendActionArgs(ActionArgs):
 async def delete_friend(
     userId: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    删除好友
-    """
+    """删除好友."""
     return BotAction(
         DeleteFriendActionArgs(userId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetGroupInfoActionArgs(ActionArgs):
-    """
-    获取群信息 action 信息构造类
-    """
+    """获取群信息 action 信息构造类."""
 
     def __init__(self, groupId: int, noCache: bool) -> None:
         super().__init__()
@@ -895,9 +769,7 @@ class GetGroupInfoActionArgs(ActionArgs):
 async def get_group_info(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群信息。可以是未加入的群聊
-    """
+    """获取群信息。可以是未加入的群聊."""
     return BotAction(
         GetGroupInfoActionArgs(groupId, noCache),
         resp_id=get_id() if wait else None,
@@ -906,9 +778,7 @@ async def get_group_info(
 
 
 class GetGrouplistActionArgs(ActionArgs):
-    """
-    获取群列表 action 信息构造类
-    """
+    """获取群列表 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -917,21 +787,15 @@ class GetGrouplistActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_group_list(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info` 获得
-    """
+async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info` 获得."""
     return BotAction(
         GetGrouplistActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetGroupMemberInfoActionArgs(ActionArgs):
-    """
-    获取群成员信息 action 信息构造类
-    """
+    """获取群成员信息 action 信息构造类."""
 
     def __init__(self, groupId: int, userId: int, noCache: bool) -> None:
         super().__init__()
@@ -943,9 +807,7 @@ class GetGroupMemberInfoActionArgs(ActionArgs):
 async def get_group_member_info(
     groupId: int, userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群成员信息
-    """
+    """获取群成员信息."""
     return BotAction(
         GetGroupMemberInfoActionArgs(groupId, userId, noCache),
         resp_id=get_id() if wait else None,
@@ -954,9 +816,7 @@ async def get_group_member_info(
 
 
 class GetGroupMemberlistActionArgs(ActionArgs):
-    """
-    获取群成员列表 action 信息构造类
-    """
+    """获取群成员列表 action 信息构造类."""
 
     def __init__(self, groupId: int, noCache: bool) -> None:
         super().__init__()
@@ -968,9 +828,7 @@ class GetGroupMemberlistActionArgs(ActionArgs):
 async def get_group_member_list(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群成员列表
-    """
+    """获取群成员列表."""
     return BotAction(
         GetGroupMemberlistActionArgs(groupId, noCache),
         resp_id=get_id() if wait else None,
@@ -979,9 +837,7 @@ async def get_group_member_list(
 
 
 class GetGroupHonorActionArgs(ActionArgs):
-    """
-    获取群荣誉信息 action 信息构造类
-    """
+    """获取群荣誉信息 action 信息构造类."""
 
     def __init__(
         self,
@@ -1004,9 +860,7 @@ async def get_group_honor(
     wait: bool = True,
     auto: bool = True,
 ) -> BotAction:
-    """
-    获取群荣誉信息
-    """
+    """获取群荣誉信息."""
     return BotAction(
         GetGroupHonorActionArgs(groupId, type),
         resp_id=get_id() if wait else None,
@@ -1015,9 +869,7 @@ async def get_group_honor(
 
 
 class CheckSendImageActionArgs(ActionArgs):
-    """
-    检查是否可以发送图片 action 信息构造类
-    """
+    """检查是否可以发送图片 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1026,21 +878,15 @@ class CheckSendImageActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def check_send_image(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    检查是否可以发送图片
-    """
+async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
+    """检查是否可以发送图片."""
     return BotAction(
         CheckSendImageActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class CheckSendRecordActionArgs(ActionArgs):
-    """
-    检查是否可以发送语音 action 信息构造类
-    """
+    """检查是否可以发送语音 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1049,21 +895,15 @@ class CheckSendRecordActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def check_send_record(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    检查是否可以发送语音
-    """
+async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
+    """检查是否可以发送语音."""
     return BotAction(
         CheckSendRecordActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetCqVersionActionArgs(ActionArgs):
-    """
-    获取 cq 前端实现 版本信息 action 信息构造类
-    """
+    """获取 cq 前端实现 版本信息 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1072,21 +912,15 @@ class GetCqVersionActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_cq_version(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取 cq 前端实现 版本信息
-    """
+async def get_cq_version(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取 cq 前端实现 版本信息."""
     return BotAction(
         GetCqVersionActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class SetGroupPortraitActionArgs(ActionArgs):
-    """
-    设置群头像 action 信息构造类
-    """
+    """设置群头像 action 信息构造类."""
 
     def __init__(self, groupId: int, file: str, cache: Literal[0, 1] = 0) -> None:
         super().__init__()
@@ -1115,9 +949,7 @@ async def set_group_portrait(
 
 
 class OcrActionArgs(ActionArgs):
-    """
-    图片 OCR action 信息构造类
-    """
+    """图片 OCR action 信息构造类."""
 
     def __init__(self, image: str) -> None:
         super().__init__()
@@ -1126,21 +958,15 @@ class OcrActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def ocr(
-    image: str, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    图片 OCR。image 为图片 ID
-    """
+async def ocr(image: str, wait: bool = True, auto: bool = True) -> BotAction:
+    """图片 OCR。image 为图片 ID."""
     return BotAction(
         OcrActionArgs(image), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetGroupSysMsgActionArgs(ActionArgs):
-    """
-    获取群系统消息 action 信息构造类
-    """
+    """获取群系统消息 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1149,21 +975,15 @@ class GetGroupSysMsgActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_group_sys_msg(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取群系统消息
-    """
+async def get_group_sys_msg(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取群系统消息."""
     return BotAction(
         GetGroupSysMsgActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class UploadFileActionArgs(ActionArgs):
-    """
-    发送文件 action 信息构造类
-    """
+    """发送文件 action 信息构造类."""
 
     def __init__(
         self,
@@ -1199,9 +1019,7 @@ async def upload_file(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """
-    发送文件。只支持发送本地文件。
-    若为群聊文件发送，不提供 folder id，则默认上传到群文件根目录。
+    """发送文件。只支持发送本地文件。 若为群聊文件发送，不提供 folder id，则默认上传到群文件根目录。
 
     示例路径：`C:/users/15742/desktop/QQ图片20230108225606.jpg`。
 
@@ -1218,9 +1036,7 @@ async def upload_file(
 
 
 class GetGroupFileSysInfoActionArgs(ActionArgs):
-    """
-    获取群文件系统信息 action 信息构造类
-    """
+    """获取群文件系统信息 action 信息构造类."""
 
     def __init__(self, groupId: int) -> None:
         super().__init__()
@@ -1232,9 +1048,7 @@ class GetGroupFileSysInfoActionArgs(ActionArgs):
 async def get_group_filesys_info(
     groupId: int, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群文件系统信息
-    """
+    """获取群文件系统信息."""
     return BotAction(
         GetGroupFileSysInfoActionArgs(groupId),
         resp_id=get_id() if wait else None,
@@ -1243,9 +1057,7 @@ async def get_group_filesys_info(
 
 
 class GetGroupRootFilesActionArgs(ActionArgs):
-    """
-    获取群根目录文件列表 action 信息构造类
-    """
+    """获取群根目录文件列表 action 信息构造类."""
 
     def __init__(self, groupId: int) -> None:
         super().__init__()
@@ -1257,9 +1069,7 @@ class GetGroupRootFilesActionArgs(ActionArgs):
 async def get_group_root_files(
     groupId: int, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群根目录文件列表
-    """
+    """获取群根目录文件列表."""
     return BotAction(
         GetGroupRootFilesActionArgs(groupId),
         resp_id=get_id() if wait else None,
@@ -1268,9 +1078,7 @@ async def get_group_root_files(
 
 
 class GetGroupFilesByFolderActionArgs(ActionArgs):
-    """
-    获取群子目录文件列表 action 信息构造类
-    """
+    """获取群子目录文件列表 action 信息构造类."""
 
     def __init__(self, groupId: int, folderId: str) -> None:
         super().__init__()
@@ -1282,9 +1090,7 @@ class GetGroupFilesByFolderActionArgs(ActionArgs):
 async def get_group_files_byfolder(
     groupId: int, folderId: str, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群子目录文件列表
-    """
+    """获取群子目录文件列表."""
     return BotAction(
         GetGroupFilesByFolderActionArgs(groupId, folderId),
         resp_id=get_id() if wait else None,
@@ -1293,9 +1099,7 @@ async def get_group_files_byfolder(
 
 
 class CreateGroupFolderActionArgs(ActionArgs):
-    """
-    创建群文件夹 action 信息构造类
-    """
+    """创建群文件夹 action 信息构造类."""
 
     def __init__(self, groupId: int, folderName: str) -> None:
         super().__init__()
@@ -1307,9 +1111,7 @@ class CreateGroupFolderActionArgs(ActionArgs):
 async def create_group_folder(
     groupId: int, folderName: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    创建群文件夹。注意：只能在根目录创建文件夹
-    """
+    """创建群文件夹。注意：只能在根目录创建文件夹."""
     return BotAction(
         CreateGroupFolderActionArgs(groupId, folderName),
         resp_id=get_id() if wait else None,
@@ -1318,9 +1120,7 @@ async def create_group_folder(
 
 
 class DeleteGroupFolderActionArgs(ActionArgs):
-    """
-    删除群文件夹 action 信息构造类
-    """
+    """删除群文件夹 action 信息构造类."""
 
     def __init__(self, groupId: int, folderId: str) -> None:
         super().__init__()
@@ -1332,9 +1132,7 @@ class DeleteGroupFolderActionArgs(ActionArgs):
 async def delete_group_folder(
     groupId: int, folderId: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    删除群文件夹。
-    """
+    """删除群文件夹。"""
     return BotAction(
         DeleteGroupFolderActionArgs(groupId, folderId),
         resp_id=get_id() if wait else None,
@@ -1343,9 +1141,7 @@ async def delete_group_folder(
 
 
 class DeleteGroupFileActionArgs(ActionArgs):
-    """
-    删除群文件 action 信息构造类
-    """
+    """删除群文件 action 信息构造类."""
 
     def __init__(self, groupId: int, fileId: str, fileTypeId: int) -> None:
         super().__init__()
@@ -1357,10 +1153,7 @@ class DeleteGroupFileActionArgs(ActionArgs):
 async def delete_group_file(
     groupId: int, fileId: str, fileTypeId: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    删除群文件。文件相关信息通过 `get_group_root_files()` 或
-    `get_group_files` 的响应获得
-    """
+    """删除群文件。文件相关信息通过 `get_group_root_files()` 或 `get_group_files` 的响应获得."""
     return BotAction(
         DeleteGroupFileActionArgs(groupId, fileId, fileTypeId),
         resp_id=get_id() if wait else None,
@@ -1369,9 +1162,7 @@ async def delete_group_file(
 
 
 class GetGroupFileUrlActionArgs(ActionArgs):
-    """
-    获取群文件资源链接 action 信息构造类
-    """
+    """获取群文件资源链接 action 信息构造类."""
 
     def __init__(self, groupId: int, fileId: str, fileTypeId: int) -> None:
         super().__init__()
@@ -1383,10 +1174,7 @@ class GetGroupFileUrlActionArgs(ActionArgs):
 async def get_group_file_url(
     groupId: int, fileId: str, fileTypeId: int, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群文件资源链接。文件相关信息通过 `get_group_root_files()` 或
-    `get_group_files` 的响应获得
-    """
+    """获取群文件资源链接。文件相关信息通过 `get_group_root_files()` 或 `get_group_files` 的响应获得."""
     return BotAction(
         GetGroupFileUrlActionArgs(groupId, fileId, fileTypeId),
         resp_id=get_id() if wait else None,
@@ -1395,9 +1183,7 @@ async def get_group_file_url(
 
 
 class GetCqStatusActionArgs(ActionArgs):
-    """
-    获取 cq 前端实现 状态 action 信息构造类
-    """
+    """获取 cq 前端实现 状态 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1406,21 +1192,15 @@ class GetCqStatusActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_cq_status(
-    wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取 cq 前端实现 状态
-    """
+async def get_cq_status(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取 cq 前端实现 状态."""
     return BotAction(
         GetCqStatusActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetAtAllRemainActionArgs(ActionArgs):
-    """
-    获取群 @全体成员 剩余次数 action 信息构造类
-    """
+    """获取群 @全体成员 剩余次数 action 信息构造类."""
 
     def __init__(self, groupId: int) -> None:
         super().__init__()
@@ -1432,9 +1212,7 @@ class GetAtAllRemainActionArgs(ActionArgs):
 async def get_atall_remain(
     groupId: int, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群 @全体成员 剩余次数
-    """
+    """获取群 @全体成员 剩余次数."""
     return BotAction(
         GetAtAllRemainActionArgs(groupId),
         resp_id=get_id() if wait else None,
@@ -1443,9 +1221,7 @@ async def get_atall_remain(
 
 
 class QuickHandleActionArgs(ActionArgs):
-    """
-    事件快速操作 action 信息构造类
-    """
+    """事件快速操作 action 信息构造类."""
 
     def __init__(self, contextEvent: "BotEvent", operation: dict) -> None:
         super().__init__()
@@ -1457,8 +1233,7 @@ class QuickHandleActionArgs(ActionArgs):
 async def _quick_handle(
     contextEvent: "BotEvent", operation: dict, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    事件快速操作。
+    """事件快速操作。
 
     ### 提示：外部应该避免调用此方法，此方法只应在 melobot 内部使用
     """
@@ -1471,9 +1246,7 @@ async def _quick_handle(
 
 
 class SetGroupNoticeActionArgs(ActionArgs):
-    """
-    发送群公告 action 信息构造类
-    """
+    """发送群公告 action 信息构造类."""
 
     def __init__(
         self, groupId: int, content: str, imageUrl: Optional[str] = None
@@ -1507,9 +1280,7 @@ async def set_group_notice(
 
 
 class GetGroupNoticeActionArgs(ActionArgs):
-    """
-    获取群公告 action 信息构造类
-    """
+    """获取群公告 action 信息构造类."""
 
     def __init__(
         self,
@@ -1526,10 +1297,7 @@ class GetGroupNoticeActionArgs(ActionArgs):
 async def get_group_notice(
     groupId: int, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群公告。
-    群公告图片有 id，但暂时没有下载的方法
-    """
+    """获取群公告。 群公告图片有 id，但暂时没有下载的方法."""
     return BotAction(
         GetGroupNoticeActionArgs(groupId),
         resp_id=get_id() if wait else None,
@@ -1538,9 +1306,7 @@ async def get_group_notice(
 
 
 class DownloadFileActionArgs(ActionArgs):
-    """
-    下载文件到缓存目录 action 信息构造类
-    """
+    """下载文件到缓存目录 action 信息构造类."""
 
     def __init__(self, fileUrl: str, useThreadNum: int, headers: list | str) -> None:
         super().__init__()
@@ -1577,9 +1343,7 @@ async def download_file(
 
 
 class GetOnlineClientsActionArgs(ActionArgs):
-    """
-    获取当前账号在线客户端列表 action 信息构造类
-    """
+    """获取当前账号在线客户端列表 action 信息构造类."""
 
     def __init__(self, noCache: bool) -> None:
         super().__init__()
@@ -1591,9 +1355,7 @@ class GetOnlineClientsActionArgs(ActionArgs):
 async def get_online_clients(
     noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取当前账号在线客户端列表
-    """
+    """获取当前账号在线客户端列表."""
     return BotAction(
         GetOnlineClientsActionArgs(noCache),
         resp_id=get_id() if wait else None,
@@ -1602,9 +1364,7 @@ async def get_online_clients(
 
 
 class GetGroupMsgHistoryActionArgs(ActionArgs):
-    """
-    获取群消息历史记录 action 信息构造类
-    """
+    """获取群消息历史记录 action 信息构造类."""
 
     def __init__(self, msgSeq: int, groupId: int) -> None:
         super().__init__()
@@ -1616,9 +1376,7 @@ class GetGroupMsgHistoryActionArgs(ActionArgs):
 async def get_group_msg_history(
     msgSeq: int, groupId: int, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取群消息历史记录
-    """
+    """获取群消息历史记录."""
     return BotAction(
         GetGroupMsgHistoryActionArgs(msgSeq, groupId),
         resp_id=get_id() if wait else None,
@@ -1627,9 +1385,7 @@ async def get_group_msg_history(
 
 
 class SetGroupEssenceActionArgs(ActionArgs):
-    """
-    设置精华消息 action 信息构造类
-    """
+    """设置精华消息 action 信息构造类."""
 
     def __init__(self, msgId: int, type: Literal["add", "del"]) -> None:
         super().__init__()
@@ -1644,9 +1400,7 @@ class SetGroupEssenceActionArgs(ActionArgs):
 async def set_group_essence(
     msgId: int, type: Literal["add", "del"], wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    设置精华消息
-    """
+    """设置精华消息."""
     return BotAction(
         SetGroupEssenceActionArgs(msgId, type),
         resp_id=get_id() if wait else None,
@@ -1655,9 +1409,7 @@ async def set_group_essence(
 
 
 class GetGroupEssencelistActionArgs(ActionArgs):
-    """
-    获取精华消息列表 action 信息构造类
-    """
+    """获取精华消息列表 action 信息构造类."""
 
     def __init__(self, groupId: int) -> None:
         super().__init__()
@@ -1669,9 +1421,7 @@ class GetGroupEssencelistActionArgs(ActionArgs):
 async def get_group_essence_list(
     groupId: int, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """
-    获取精华消息列表
-    """
+    """获取精华消息列表."""
     return BotAction(
         GetGroupEssencelistActionArgs(groupId),
         resp_id=get_id() if wait else None,
@@ -1680,9 +1430,7 @@ async def get_group_essence_list(
 
 
 class GetModelShowActionArgs(ActionArgs):
-    """
-    获取在线机型 action 信息构造类
-    """
+    """获取在线机型 action 信息构造类."""
 
     def __init__(self, model: str) -> None:
         super().__init__()
@@ -1691,21 +1439,15 @@ class GetModelShowActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_model_show(
-    model: str, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """
-    获取在线机型
-    """
+async def get_model_show(model: str, wait: bool = True, auto: bool = True) -> BotAction:
+    """获取在线机型."""
     return BotAction(
         GetModelShowActionArgs(model), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class SetModelShowActionArgs(ActionArgs):
-    """
-    设置在线机型 action 信息构造类
-    """
+    """设置在线机型 action 信息构造类."""
 
     def __init__(self, model: str, modelShow: str) -> None:
         super().__init__()
@@ -1717,9 +1459,7 @@ class SetModelShowActionArgs(ActionArgs):
 async def set_model_show(
     model: str, modelShow: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    设置在线机型
-    """
+    """设置在线机型."""
     return BotAction(
         SetModelShowActionArgs(model, modelShow),
         resp_id=get_id() if wait else None,
@@ -1728,9 +1468,7 @@ async def set_model_show(
 
 
 class DeleteUndirectFriendActionArgs(ActionArgs):
-    """
-    删除单向好友 action 信息构造类
-    """
+    """删除单向好友 action 信息构造类."""
 
     def __init__(self, userId: int) -> None:
         super().__init__()
@@ -1742,9 +1480,7 @@ class DeleteUndirectFriendActionArgs(ActionArgs):
 async def delete_undirect_friend(
     userId: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """
-    删除单向好友
-    """
+    """删除单向好友."""
     return BotAction(
         DeleteUndirectFriendActionArgs(userId),
         resp_id=get_id() if wait else None,
@@ -1756,9 +1492,7 @@ async def delete_undirect_friend(
 async def take_custom_action(
     action: BotAction,
 ) -> BotAction:
-    """
-    直接发送提供的 action
-    """
+    """直接发送提供的 action."""
     action.ready = True
     return action
 
@@ -1768,11 +1502,12 @@ async def send_wait(
     cq_str: bool = False,
     overtime: Optional[int] = None,
 ) -> None:
-    """
-    回复一条消息然后挂起
-    """
+    """回复一条消息然后挂起."""
     await send(content, cq_str)
-    await SESSION_LOCAL.hup(overtime)
+    try:
+        await SESSION_LOCAL.hup(overtime)
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
 
 
 async def send_reply(
@@ -1780,9 +1515,7 @@ async def send_reply(
     cq_str: bool = False,
     wait: bool = False,
 ) -> Optional["ResponseEvent"]:
-    """
-    发送一条回复消息
-    """
+    """发送一条回复消息."""
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
@@ -1801,11 +1534,12 @@ async def finish(
     content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
 ) -> None:
-    """
-    发送一条消息，然后直接结束当前事件处理方法
-    """
+    """发送一条消息，然后直接结束当前事件处理方法."""
     await send(content, cq_str)
-    SESSION_LOCAL.destory()
+    try:
+        SESSION_LOCAL.destory()
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
 
 
@@ -1813,9 +1547,7 @@ async def reply_finish(
     content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
 ) -> Optional["ResponseEvent"]:
-    """
-    发送一条回复消息，然后直接结束当前事件处理方法
-    """
+    """发送一条回复消息，然后直接结束当前事件处理方法."""
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
@@ -1828,5 +1560,8 @@ async def reply_finish(
     else:
         content_arr.extend(content)
     await send(content_arr, cq_str)
-    SESSION_LOCAL.destory()
+    try:
+        SESSION_LOCAL.destory()
+    except LookupError:
+        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")

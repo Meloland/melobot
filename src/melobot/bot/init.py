@@ -1,9 +1,22 @@
-import asyncio as aio
+import asyncio
 import os
 import sys
+from contextvars import ContextVar, Token
 from copy import deepcopy
 
-from ..context.session import BOT_LOCAL, BotSessionManager
+from ..base.abc import AbstractConnector
+from ..base.exceptions import BotRuntimeError, DuplicateError, get_better_exc
+from ..base.tools import get_rich_str
+from ..base.typing import (
+    TYPE_CHECKING,
+    Any,
+    BotLife,
+    Coroutine,
+    Literal,
+    Optional,
+    Void,
+)
+from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..controller.dispatcher import BotDispatcher
 from ..controller.responder import BotResponder
 from ..meta import MELOBOT_LOGO, MELOBOT_LOGO_LEN, MetaInfo
@@ -11,17 +24,16 @@ from ..models.event import BotEventBuilder
 from ..plugin.handler import EVENT_HANDLER_MAP
 from ..plugin.init import BotPlugin, PluginLoader, PluginProxy
 from ..plugin.ipc import PluginBus, PluginStore
-from ..types.abc import AbstractConnector
-from ..types.exceptions import BotRuntimeError, DuplicateError, get_better_exc
-from ..types.tools import get_rich_str
-from ..types.typing import Any, BotLife, Coroutine, Literal, Optional
 from ..utils.logger import BotLogger, Logger, NullLogger
 from .hook import BotHookBus
+
+if TYPE_CHECKING:
+    from ..plugin.ipc import ShareObject
 
 if sys.platform != "win32":
     import uvloop
 
-    aio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 _ = BotLogger("__MELOBOT_ENTRY__", no_tag=True)
 __ = MetaInfo()
@@ -33,43 +45,41 @@ _.info("-" * MELOBOT_LOGO_LEN)
 
 def _safe_run_bot(main_coro: Coroutine[Any, Any, None]) -> None:
     try:
-        aio.set_event_loop(aio.get_event_loop())
-        aio.run(main_coro)
+        asyncio.set_event_loop(asyncio.get_event_loop())
+        asyncio.run(main_coro)
     except KeyboardInterrupt:
         pass
 
 
 class MeloBot:
-    """MeloBot 类。实例化创建一个新的 bot"""
+    """melobot 框架的 bot 类。该类实例化即一个 bot 实例"""
 
     BOTS: dict[str, "MeloBot"] = {}
 
-    @classmethod
-    def start(cls, *bots: "MeloBot") -> None:
-        async def bots_run():
-            tasks = []
-            for bot in bots:
-                tasks.append(aio.create_task(bot._run()))
-            await aio.wait(tasks)
-
-        _safe_run_bot(bots_run())
-
     def __init__(self, name: str) -> None:
+        """初始化一个 bot 实例
+
+        :param name: bot 实例的名字（唯一）
+        :raises DuplicateError: 若已存在名为 name 的 bot 实例，抛出该异常
+        """
         if name in MeloBot.BOTS.keys():
             raise DuplicateError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
         MeloBot.BOTS[name] = self
 
-        self._loader = PluginLoader
-        self._ctx_manager = BotSessionManager
-        self._event_builder = BotEventBuilder
-
-        self.name = name
-        self.info = MetaInfo()
-        self.life: list[aio.Task]
+        #: bot 的名字（唯一）
+        self.name: str = name
+        #: 元信息
+        self.info: MetaInfo = MetaInfo()
+        #: bot 的日志器
         self.logger: Logger
+        #: bot 的连接器
         self.connector: AbstractConnector
 
         self.__plugins: dict[str, BotPlugin] = {}
+        self._loader = PluginLoader
+        self._ctx_manager = BotSessionManager
+        self._event_builder = BotEventBuilder
+        self._life: list[asyncio.Task]
         self._plugin_store = PluginStore()
         self._plugin_bus = PluginBus()
         self._bot_bus = BotHookBus()
@@ -88,6 +98,16 @@ class MeloBot:
         log_to_console: bool = True,
         log_to_dir: Optional[str] = None,
     ) -> None:
+        """初始化 bot 实例
+
+        :param connector: 使 bot 实例工作的连接器
+        :param enable_log: 是否启用日志
+        :param logger_name: 日志器名称, 为空则使用 bot 实例名字
+        :param log_level: 日志器日志等级
+        :param log_to_console: 日志是否输出到控制台
+        :param log_to_dir: 保存日志文件的目录，为空则不保存
+        :raises DuplicateError: 传入的连接器已被使用时，抛出此异常
+        """
         if connector._ref_flag:
             raise DuplicateError(
                 "bot 初始化时，不可使用已被其他 bot 实例使用的连接适配器"
@@ -122,8 +142,10 @@ class MeloBot:
         self.__init_flag__ = True
 
     def load_plugin(self, plugin_target: str | BotPlugin) -> None:
-        """
-        为 bot 加载运行插件。支持传入插件起始目录字符串（绝对路径）或插件类
+        """为 bot 实例加载插件
+
+        :param plugin_target: 插件目标，可传入插件对象或包含插件包（一个插件即是一个 python package）的路径
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能加载插件")
@@ -160,6 +182,11 @@ class MeloBot:
         self.logger.info(f"成功加载插件：{plugin.__id__}")
 
     def load_plugins(self, plugins_dir: str) -> None:
+        """为 bot 实例批量加载插件
+
+        :param plugins_dir: 传入包含所有插件包（一个插件即是一个 python package）的目录
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能加载插件")
 
@@ -178,7 +205,7 @@ class MeloBot:
         if len(self.__plugins) == 0:
             self.logger.warning("没有加载任何插件，bot 将不会有任何操作")
 
-        ctx_token = BOT_LOCAL._add_ctx(self)
+        bot_token = BOT_LOCAL._add_ctx(self)
         await self._bot_bus.emit(BotLife.LOADED)
         self.logger.debug("LOADED hook 已完成")
         try:
@@ -186,10 +213,10 @@ class MeloBot:
                 self._dispatcher._set_ready()
                 self._responder._set_ready()
                 self.connector._set_ready()
-                self.life = await self.connector._start_tasks()
+                self._life = await self.connector._start_tasks()
                 self.__run_flag__ = True
                 self.logger.info("bot 开始正常运行")
-                await aio.wait(self.life)
+                await asyncio.wait(self._life)
         except Exception as e:
             self.logger.error(f"bot 核心无法继续运行。异常：{e}")
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
@@ -198,31 +225,46 @@ class MeloBot:
             await self._bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.debug("BEFORE_STOP hook 已完成")
             self.logger.info("bot 已清理运行时资源")
-            BOT_LOCAL._del_ctx(ctx_token)
+            BOT_LOCAL._del_ctx(bot_token)
             self.__run_flag__ = False
 
     def run(self) -> None:
+        """运行 bot 实例"""
         _safe_run_bot(self._run())
 
     async def close(self) -> None:
-        """
-        停止 bot
+        """停止 bot 实例
+
+        :raises BotRuntimeError: bot 实例未在运行时，抛出此异常
         """
         if not self.__run_flag__:
             raise BotRuntimeError("bot 尚未运行，无需停止")
 
         await self._bot_bus.emit(BotLife.BEFORE_CLOSE, wait=True)
         self.logger.debug("BEFORE_CLOSE hook 已完成")
-        for task in self.life:
+        for task in self._life:
             task.cancel()
 
     def is_activate(self) -> bool:
+        """判断 bot 实例是否在非 slack 状态
+
+        slack 状态指不再发送 action 的状态，slack 状态启用后仅会禁用 action 的发送，无其他影响
+
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        :return: 是否在非 slack 状态
+        """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         return not self.connector.slack
 
     def activate(self) -> None:
+        """使 bot 实例退出 slack 状态
+
+        slack 状态指不再发送 action 的状态，slack 状态启用后仅会禁用 action 的发送，无其他影响
+
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
@@ -230,8 +272,11 @@ class MeloBot:
         self.logger.debug("bot 已进入 activated 状态")
 
     def slack(self) -> None:
-        """
-        使 bot 不再发送 action。但 ACTION_PRESEND 钩子依然会触发
+        """使 bot 实例进入 slack 状态
+
+        slack 状态指不再发送 action 的状态，slack 状态启用后仅会禁用 action 的发送，无其他影响
+
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
@@ -240,8 +285,10 @@ class MeloBot:
         self.logger.debug("bot 已进入 slack 状态")
 
     def get_plugins(self) -> dict[str, PluginProxy]:
-        """
-        获取 bot 当前所有插件信息
+        """获得 bot 实例所有插件的信息
+
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        :return: 所有插件的信息
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
@@ -249,8 +296,18 @@ class MeloBot:
         return {name: deepcopy(p.__proxy__) for name, p in self.__plugins.items()}
 
     def emit_signal(
-        self, namespace: str, signal: str, *args, wait: bool = False, **kwargs
-    ):
+        self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any
+    ) -> Any:
+        """在本 bot 实例范围内发起一个信号
+
+        :param namespace: 触发信号的命名空间
+        :param signal: 触发信号的名字
+        :param wait: 是否等待信号处理方法处理完毕
+        :param args: 传递给信号处理方法的 args
+        :param kwargs: 传递给信号处理方法的 kwargs
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        :return: 不等待信号处理方法处理，只返回 :obj:`None`；若等待则返回运行结果
+        """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
@@ -258,9 +315,140 @@ class MeloBot:
         self.logger.debug("本次信号触发参数：\n" + get_rich_str(args))
         return self._plugin_bus.emit(namespace, signal, *args, wait=wait, **kwargs)
 
-    def get_share(self, namespace: str, id: str):
+    def get_share(self, namespace: str, id: str) -> "ShareObject":
+        """获得 bot 实例内的共享对象
+
+        :param namespace: 共享对象的命名空间
+        :param id: 共享对象的标识 id
+        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        :return: 获得到的共享对象
+        """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         self.logger.debug(f"获取共享对象行为：{namespace}.{id}")
         return self._plugin_store.get(namespace, id)
+
+    @classmethod
+    def start(cls, *bots: "MeloBot") -> None:
+        """同时运行多个 bot 实例
+
+        :param bots: 要运行的 bot 实例
+        """
+
+        async def bots_run():
+            tasks = []
+            for bot in bots:
+                tasks.append(asyncio.create_task(bot._run()))
+            try:
+                await asyncio.wait(tasks)
+            except asyncio.CancelledError:
+                pass
+
+        _safe_run_bot(bots_run())
+
+    @classmethod
+    async def unicast(
+        cls,
+        target: str,
+        namespace: str,
+        signal: str,
+        *args: Any,
+        wait: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        """在指定的 bot 实例范围发起信号，即单播
+
+        :param target: 单播的目标 bot 实例的名字
+        :param namespace: 信号的命名空间
+        :param signal: 信号的名字
+        :param wait: 是否等待信号处理方法处理完毕
+        :param args: 传递给信号处理方法的 args
+        :param kwargs: 传递给信号处理方法的 kwargs
+        :raises BotRuntimeError: 指定的 bot 实例名不存在时，抛出此异常
+        :raises BotRuntimeError: 目标 bot 实例的信号处理方法，如果尝试引用 bot 或会话的自动上下文，抛出此异常
+        """
+        bot = cls.BOTS.get(target)
+        if bot is None:
+            raise BotRuntimeError(f"单播指定的 bot 实例 {target} 不存在")
+
+        b_token = BOT_LOCAL._add_ctx(bot)
+        s_token = SESSION_LOCAL._add_ctx(Void)
+        try:
+            await bot.emit_signal(namespace, signal, *args, **kwargs, wait=wait)
+        except AttributeError as e:
+            if "Void" in e.__str__():
+                raise BotRuntimeError(
+                    "多播或单播时，bot 和 session 上下文的传递将会被阻隔，如需要请将它们作为参数显式传递"
+                )
+            else:
+                raise e
+        finally:
+            BOT_LOCAL._del_ctx(b_token)
+            SESSION_LOCAL._del_ctx(s_token)
+
+    @classmethod
+    async def multicast(
+        cls,
+        targets: list[str] | Literal["ALL"],
+        namespace: str,
+        signal: str,
+        *args: Any,
+        self_exclude: bool = True,
+        wait: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        """在指定的多个 bot 实例范围发起信号，即多播
+
+        :param targets: 多个 bot 实例的名字列表，为 "ALL" 时代表向所有 bot 多播，即广播
+        :param namespace: 信号的命名空间
+        :param signal: 信号的名字
+        :param self_exclude: 是否在多播时排除自己
+        :param wait: 是否等待信号处理方法处理完毕
+        :param args: 传递给信号处理方法的 args
+        :param kwargs: 传递给信号处理方法的 kwargs
+        """
+        if isinstance(targets, list):
+            _targets = targets
+        else:
+            _targets = list(cls.BOTS.keys())
+            if self_exclude:
+                _targets.remove(BOT_LOCAL.name)
+        tasks = []
+        for name in _targets:
+            tasks.append(
+                asyncio.create_task(
+                    cls.unicast(name, namespace, signal, *args, **kwargs, wait=wait)
+                )
+            )
+        if len(tasks):
+            await asyncio.wait(tasks)
+
+
+class BotLocal:
+    """bot 实例自动上下文"""
+
+    __slots__ = tuple(
+        list(filter(lambda x: not (len(x) >= 2 and x[:2] == "__"), dir(MeloBot)))
+        + ["__storage__"]
+    )
+
+    def __init__(self) -> None:
+        object.__setattr__(self, "__storage__", ContextVar("melobot_ctx"))
+        self.__storage__: ContextVar["MeloBot"]
+
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        setattr(self.__storage__.get(), __name, __value)
+
+    def __getattr__(self, __name: str) -> Any:
+        return getattr(self.__storage__.get(), __name)
+
+    def _add_ctx(self, ctx: "MeloBot") -> Token:
+        return self.__storage__.set(ctx)
+
+    def _del_ctx(self, token: Token) -> None:
+        self.__storage__.reset(token)
+
+
+BOT_LOCAL = BotLocal()
+BotSessionManager._bind(BOT_LOCAL)

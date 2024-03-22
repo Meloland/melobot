@@ -6,7 +6,7 @@
 :hidden:
 
 test
-api/melobot
+api/index
 test2/index
 ```
 

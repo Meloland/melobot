@@ -1,29 +1,10 @@
-melobot.context package
-=======================
+:tocdepth: 3
 
-Submodules
-----------
+melobot.context
+===============
 
-melobot.context.action module
------------------------------
-
-.. automodule:: melobot.context.action
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-melobot.context.session module
-------------------------------
-
-.. automodule:: melobot.context.session
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
+会话上下文相关函数
+------------------
 
 .. automodule:: melobot.context
    :members:
-   :undoc-members:
-   :show-inheritance:

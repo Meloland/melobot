@@ -1,8 +1,7 @@
 import traceback
 
-from ..context.action import send
-from ..types.exceptions import ArgFormatInitError, ArgLackError, ArgVerifyFailed
-from ..types.typing import (
+from ..base.exceptions import ArgFormatInitError, ArgLackError, ArgVerifyFailed
+from ..base.typing import (
     Any,
     Callable,
     Coroutine,
@@ -11,14 +10,13 @@ from ..types.typing import (
     ParseArgs,
     Type,
     Void,
-    VoidType
+    VoidType,
 )
+from ..context.action import send
 
 
 class FormatInfo:
-    """
-    格式化信息对象
-    """
+    """格式化信息对象."""
 
     def __init__(
         self,
@@ -40,10 +38,7 @@ class FormatInfo:
 
 
 class ArgFormatter:
-    """
-    参数格式化器。将参数格式化为对应类型的对象。格式化后可添加校验，也可自定义失败提示信息。
-    还可设置默认值。不提供默认值参数时为 Void，代表不使用默认值
-    """
+    """参数格式化器。将参数格式化为对应类型的对象。格式化后可添加校验，也可自定义失败提示信息。 还可设置默认值。不提供默认值参数时为 Void，代表不使用默认值."""
 
     def __init__(
         self,
@@ -57,7 +52,7 @@ class ArgFormatter:
             Callable[[FormatInfo], Coroutine[Any, Any, None]]
         ] = None,
         verify_fail: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
-        arglack: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
+        arg_lack: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
     ) -> None:
         self.convert = convert
         self.verify = verify
@@ -72,7 +67,7 @@ class ArgFormatter:
 
         self.convert_fail = convert_fail
         self.verify_fail = verify_fail
-        self.arg_lack = arglack
+        self.arg_lack = arg_lack
 
     def _get_val(self, args: ParseArgs, idx: int) -> Any:
         if self.default is Void:
@@ -92,9 +87,7 @@ class ArgFormatter:
         args: ParseArgs,
         idx: int,
     ) -> bool:
-        """
-        格式化参数为对应类型的变量
-        """
+        """格式化参数为对应类型的变量."""
         try:
             src = self._get_val(args, idx)
             if (

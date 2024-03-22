@@ -30,18 +30,14 @@ better_exceptions.hook()
 
 
 class CQMsgDict(TypedDict):
-    """
-    cq 消息 dict
-    """
+    """Cq 消息 dict."""
 
     type: str
     data: dict[str, float | int | str]
 
 
 class CustomNodeData(TypedDict):
-    """
-    自定义消息节点 data dict
-    """
+    """自定义消息节点 data dict."""
 
     name: str
     uin: str
@@ -50,26 +46,20 @@ class CustomNodeData(TypedDict):
 
 
 class ReferNodeData(TypedDict):
-    """
-    引用消息节点 data dict
-    """
+    """引用消息节点 data dict."""
 
     id: str
 
 
 class MsgNodeDict(TypedDict):
-    """
-    消息节点 dict
-    """
+    """消息节点 dict."""
 
     type: Literal["node"]
     data: CustomNodeData | ReferNodeData
 
 
 class ParseArgs:
-    """
-    命令参数类
-    """
+    """命令参数类."""
 
     def __init__(self, values: list[Any] | None) -> None:
         self.vals = values
@@ -77,9 +67,7 @@ class ParseArgs:
 
 
 class User(int, Enum):
-    """
-    用户权限等级枚举
-    """
+    """用户权限等级枚举."""
 
     OWNER = 10000
     SU = 1000
@@ -89,9 +77,7 @@ class User(int, Enum):
 
 
 class PriorLevel(int, Enum):
-    """
-    优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值
-    """
+    """优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值."""
 
     MIN = 0
     MAX = 1000
@@ -99,9 +85,7 @@ class PriorLevel(int, Enum):
 
 
 class BotLife(Enum):
-    """
-    bot 生命周期枚举
-    """
+    """Bot 生命周期枚举."""
 
     LOADED = 1
     CONNECTED = 2
@@ -119,10 +103,9 @@ P = ParamSpec("P")
 
 
 class Void:
-    """
-    表示无值，而不是 None 代表的“空值”
-    """
+    """表示无值，而不是 None 代表的“空值”"""
 
     pass
+
 
 VoidType: TypeAlias = Type[Void]
