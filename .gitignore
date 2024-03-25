@@ -3,9 +3,9 @@ __pycache__
 *.bak
 tests/private
 dev
+
 .venv
 .vscode
-
 .mypy_cache
 */build
 dist
