@@ -1,7 +1,7 @@
 melobot.bot
 ===========
 
-bot 类型
+bot 类
 --------------
 
 .. automodule:: melobot.bot

@@ -30,14 +30,14 @@ better_exceptions.hook()
 
 
 class CQMsgDict(TypedDict):
-    """Cq 消息 dict."""
+    """onebot 标准的消息段对象"""
 
     type: str
     data: dict[str, float | int | str]
 
 
 class CustomNodeData(TypedDict):
-    """自定义消息节点 data dict."""
+    """onebot 标准的自定义消息结点数据"""
 
     name: str
     uin: str
@@ -46,28 +46,66 @@ class CustomNodeData(TypedDict):
 
 
 class ReferNodeData(TypedDict):
-    """引用消息节点 data dict."""
+    """onebot 标准的引用消息结点数据"""
 
     id: str
 
 
 class MsgNodeDict(TypedDict):
-    """消息节点 dict."""
+    """onebot 标准的转发消息结点"""
 
     type: Literal["node"]
     data: CustomNodeData | ReferNodeData
 
 
 class ParseArgs:
-    """命令参数类."""
+    # 命令参数类
 
     def __init__(self, values: list[Any] | None) -> None:
         self.vals = values
         self.formatted = False
 
 
+class LogicMode(Enum):
+    """逻辑模式枚举类型"""
+
+    AND = 1
+    OR = 2
+    NOT = 3
+    XOR = 4
+
+    @classmethod
+    def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
+        if logic == LogicMode.AND:
+            return (v1 and v2) if v2 is not None else bool(v1)
+        elif logic == LogicMode.OR:
+            return (v1 or v2) if v2 is not None else bool(v1)
+        elif logic == LogicMode.NOT:
+            return not v1
+        elif logic == LogicMode.XOR:
+            return (v1 ^ v2) if v2 is not None else bool(v1)
+
+    @classmethod
+    def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
+        if len(values) <= 0:
+            return False
+        elif len(values) <= 1:
+            return bool(values[0])
+
+        idx = 0
+        res: bool
+        while idx < len(values):
+            if idx == 0:
+                res = cls.calc(logic, values[idx], values[idx + 1])
+                idx += 1
+            else:
+                res = cls.calc(logic, res, values[idx])
+            idx += 1
+        return res
+
+
 class User(int, Enum):
-    """用户权限等级枚举."""
+    """用户权限等级枚举"""
 
     OWNER = 10000
     SU = 1000
@@ -77,7 +115,10 @@ class User(int, Enum):
 
 
 class PriorLevel(int, Enum):
-    """优先级枚举。方便进行优先级比较，有 MIN, MAX, MEAN 三个枚举值."""
+    """事件处理器优先级枚举
+
+    为方便进行优先级设置，有 MIN, MAX, MEAN 三个枚举值
+    """
 
     MIN = 0
     MAX = 1000
@@ -85,7 +126,7 @@ class PriorLevel(int, Enum):
 
 
 class BotLife(Enum):
-    """Bot 生命周期枚举."""
+    """bot 实例的生命周期枚举"""
 
     LOADED = 1
     CONNECTED = 2
@@ -103,9 +144,15 @@ P = ParamSpec("P")
 
 
 class Void:
-    """表示无值，而不是 None 代表的“空值”"""
+    """“无值”对象，而不是 :obj:`None` 代表的“空值”
+
+    使用方法：直接使用这个类即可。
+
+    这个对象的类型标注是：:obj:`VoidType`。
+    """
 
     pass
 
 
+#: “无值”对象类型
 VoidType: TypeAlias = Type[Void]

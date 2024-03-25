@@ -9,25 +9,39 @@ if TYPE_CHECKING:
 
 
 class CmdParser(BotParser):
-    """命令解析器，通过解析命令名和参数的形式，解析字符串。 命令起始符和命令间隔符不允许包含 引号，各种括号，反斜杠，数字，英文，回车符，换行符，制表符."""
+    """命令解析器
+
+    通过解析命令名和命令参数的形式，解析字符串。
+    """
 
     def __init__(
         self,
         cmd_start: str | list[str],
         cmd_sep: str | list[str],
-        target: Optional[str | list[str]] = None,
+        target: str | list[str],
         formatters: Optional[list[Optional["ArgFormatter"]]] = None,
     ) -> None:
+        """初始化一个命令解析器
+
+        .. admonition:: 注意
+           :class: caution
+
+           - 命令起始符和命令间隔符不允许包含：引号，各种括号，反斜杠，数字，英文，控制字符及各类空白字符。
+           - 命令起始符不能是命令间隔符的子序列，反之亦然。
+
+        :param cmd_start: 命令起始符（可以是字符串或字符串列表）
+        :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
+        :param target: 匹配的命令名
+        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）
+        """
         i1 = cmd_start if isinstance(cmd_start, str) else "".join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else "".join(cmd_sep)
         super().__init__(i1 + "\u0000" + i2)
-        self.target = target if isinstance(target, list) or target is None else [target]
+        self.target = target if isinstance(target, list) else [target]
         self.formatters = [] if formatters is None else formatters
         self.need_format = (
             True if target is not None and len(self.formatters) > 0 else False
         )
-        if target is None and len(self.formatters) > 0:
-            raise ArgParseError("不指定 target 来匹配具体的命令名时，无法进行格式化")
 
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
         self.sep_tokens = cmd_sep if isinstance(cmd_sep, list) else [cmd_sep]
@@ -80,7 +94,6 @@ class CmdParser(BotParser):
         return cmd_list if len(cmd_list) else None
 
     def parse(self, text: str) -> Optional[dict[str, ParseArgs]]:
-        """解析 text."""
         str_list = self._parse(text)
         if str_list:
             return {
@@ -93,18 +106,17 @@ class CmdParser(BotParser):
     def test(
         self, args_group: dict[str, ParseArgs] | None
     ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
-        """测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。 最后两个返回值若不存在，则返回 None."""
+        # 测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
+        # 最后两个返回值若不存在，则返回 None。
         if args_group is None:
             return (False, None, None)
-        if self.target is None:
-            return (True, None, None)
         for cmd_name in args_group.keys():
             if cmd_name in self.target:
                 return (True, cmd_name, args_group[cmd_name])
         return (False, None, None)
 
     async def format(self, cmd_name: str, args: ParseArgs) -> bool:
-        """格式化命令解析参数."""
+        # 格式化命令解析参数
         if args.formatted:
             return True
         for idx, formatter in enumerate(self.formatters):
@@ -119,16 +131,34 @@ class CmdParser(BotParser):
 
 
 class CmdParserGen:
-    """命令解析器生成器。预先存储命令起始符和命令间隔符， 指定匹配 target 后返回一个符合对应匹配条件的命令解析器."""
+    """命令解析器的生成器
+
+    预先存储命令起始符和命令间隔符，指定匹配的命令名后返回一个命令解析器。
+    """
 
     def __init__(self, cmd_start: str | list[str], cmd_sep: str | list[str]) -> None:
+        """初始化一个命令解析器的生成器
+
+        .. admonition:: 注意
+           :class: caution
+
+           - 命令起始符和命令间隔符不允许包含：引号，各种括号，反斜杠，数字，英文，控制字符及各类空白字符。
+           - 命令起始符不能是命令间隔符的子序列，反之亦然。
+
+        :param cmd_start: 命令起始符（可以是字符串或字符串列表）
+        :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
+        """
         self.cmd_start = cmd_start
         self.cmd_sep = cmd_sep
 
     def gen(
         self,
-        target: Optional[str | list[str]] = None,
+        target: str | list[str],
         formatters: Optional[list[Optional["ArgFormatter"]]] = None,
     ) -> CmdParser:
-        """生成匹配指定命令的命令解析器."""
+        """生成匹配指定命令名的命令解析器
+
+        :param target: 匹配的命令名
+        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）
+        """
         return CmdParser(self.cmd_start, self.cmd_sep, target, formatters)

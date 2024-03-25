@@ -1,7 +1,7 @@
 melobot.io
 ==========
 
-连接器类型
+连接器
 ----------
 
 .. automodule:: melobot.io

@@ -5,7 +5,7 @@
 groups = ["default", "docs", "lint", "test", "analyse"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:b816eb99f2b3eba81001dcbaf4fe2afdbff0311626fcfd6db8887d5997b7cd6e"
+content_hash = "sha256:5360cc08ec78bb16fdf7b07e4ba0566d2fea88e543a7b5121511d95a2e5c33d0"
 
 [[package]]
 name = "alabaster"
@@ -192,21 +192,6 @@ dependencies = [
 files = [
     {file = "coloredlogs-15.0.1-py2.py3-none-any.whl", hash = "sha256:612ee75c546f53e92e70049c9dbfcc18c935a2b9a53b66085ce9ef6a6e5c0934"},
     {file = "coloredlogs-15.0.1.tar.gz", hash = "sha256:7c991aa71a4577af2f82600d8f8f3a89f936baeaf9b50a9c197da014e5bf16b0"},
-]
-
-[[package]]
-name = "docformatter"
-version = "1.7.5"
-requires_python = ">=3.7,<4.0"
-summary = "Formats docstrings to follow PEP 257"
-groups = ["docs"]
-dependencies = [
-    "charset-normalizer<4.0.0,>=3.0.0",
-    "untokenize<0.2.0,>=0.1.1",
-]
-files = [
-    {file = "docformatter-1.7.5-py3-none-any.whl", hash = "sha256:a24f5545ed1f30af00d106f5d85dc2fce4959295687c24c8f39f5263afaf9186"},
-    {file = "docformatter-1.7.5.tar.gz", hash = "sha256:ffed3da0daffa2e77f80ccba4f0e50bfa2755e1c10e130102571c890a61b246e"},
 ]
 
 [[package]]
@@ -922,15 +907,6 @@ groups = ["analyse", "default", "lint"]
 files = [
     {file = "typing_extensions-4.10.0-py3-none-any.whl", hash = "sha256:69b1a937c3a517342112fb4c6df7e72fc39a38e7891a5730ed4985b5214b5475"},
     {file = "typing_extensions-4.10.0.tar.gz", hash = "sha256:b0abd7c89e8fb96f98db18d86106ff1d90ab692004eb746cf6eda2682f91b3cb"},
-]
-
-[[package]]
-name = "untokenize"
-version = "0.1.1"
-summary = "Transforms tokens into original source code (while preserving whitespace)."
-groups = ["docs"]
-files = [
-    {file = "untokenize-0.1.1.tar.gz", hash = "sha256:3865dbbbb8efb4bb5eaa72f1be7f3e0be00ea8b7f125c69cbd1f5fda926f37a2"},
 ]
 
 [[package]]

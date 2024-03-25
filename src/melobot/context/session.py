@@ -71,8 +71,6 @@ class BotSession:
             args_group = self.event._args_map.get(self._handler.parser.id)
             if args_group is None:
                 return None
-            if self._handler.parser.target is None:
-                return deepcopy(args_group)
             for cmd_name in self._handler.parser.target:
                 args = args_group.get(cmd_name)
                 if args is not None:
@@ -139,7 +137,29 @@ SESSION_LOCAL = SessionLocal()
 
 
 class AttrSessionRule(SessionRule):
-    def __init__(self, *attrs) -> None:
+    """属性会话规则（通过事件属性判断两个事件是否在同一会话中）"""
+
+    def __init__(self, *attrs: Any) -> None:
+        """初始化一个属性会话规则
+
+        :param attrs: 用于判断的属性链
+
+        .. code:: python
+
+           # 假设某类型事件拥有以下的属性链：
+           event.a.b.c
+           # 实例化一个属性会话规则：
+           rule = AttrSessionRule('a', 'b', 'c')
+           '''
+           此后该规则可用于会话判断。当两事件满足：event1.a.b.c == event2.a.b.c 时，
+           两事件即被认为在同一会话中
+           '''
+
+           # 试想，如果需要对消息事件做这样的会话控制：“同一个 qq 号发出的消息事件都在同一会话中”
+           # 写一个这样的规则就可以了：
+           rule = AttrSessionRule('sender', 'id')
+           # 因为 MessageEvent 类型的事件的 sender 属性的 id 属性正好对应发送者 qq 号
+        """
         super().__init__()
         self.attrs = attrs
 
@@ -390,7 +410,7 @@ class BotSessionManager:
             except LookupError:
                 pass
 
-            if not action.ready:
+            if not action._ready:
                 return action
             if action.resp_id is None:
                 await cls.BOT._responder.take_action(action)
@@ -402,65 +422,123 @@ class BotSessionManager:
 
 
 def any_event() -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]:
-    """获取当前 session 上下文下标注为联合类型的 event."""
+    """获取当前会话下的事件
+
+    :return: 具体的事件
+    """
     try:
         return SESSION_LOCAL.event
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
 def msg_event() -> "MessageEvent":
-    """获取当前 session 上下文下的 MessageEvent."""
+    """获取当前会话下的事件
+
+    确定此事件是消息事件时使用，例如在消息事件的处理函数中，使用该方法即可获得精准的类型提示
+
+    :return: 具体的事件
+    """
     return any_event()  # type: ignore
 
 
 def notice_event() -> "NoticeEvent":
-    """获取当前 session 上下文下的 NoticeEvent."""
+    """获取当前会话下的事件
+
+    确定此事件是通知事件时使用，例如在通知事件的处理函数中，使用该方法即可获得精准的类型提示
+
+    :return: 具体的事件
+    """
     return any_event()  # type: ignore
 
 
 def req_evnt() -> "RequestEvent":
-    """获取当前 session 上下文下的 RequestEvent."""
+    """获取当前会话下的事件
+
+    确定此事件是请求事件时使用，例如在请求事件的处理函数中，使用该方法即可获得精准的类型提示
+
+    :return: 具体的事件
+    """
     return any_event()  # type: ignore
 
 
 def meta_event() -> "MetaEvent":
-    """获取当前 session 上下文下的 MetaEvent."""
+    """获取当前会话下的事件
+
+    确定此事件是元事件时使用，例如在元事件的处理函数中，使用该方法即可获得精准的类型提示
+
+    :return: 具体的事件
+    """
     return any_event()  # type: ignore
 
 
 def msg_text() -> str:
-    """获取当前 session 上下文下的消息的纯文本数据."""
+    """获取当前会话下的消息事件的，所有纯文本消息的合并字符串。
+    等价于手动读取消息事件的 :attr:`~.MessageEvent.text` 属性
+
+    只能在确定当前会话下必为消息事件时使用
+
+    :return: 所有纯文本消息的合并字符串
+    """
     event: "MessageEvent" = any_event()  # type: ignore
     return event.text
 
 
-def msg_args():
-    """获取当前 session 上下文下的解析参数，如果不存在则返回 None."""
+def msg_args() -> list[Any] | None:
+    """获取当前会话下的消息事件的所有解析参数值。
+
+    只能在确定当前会话下必为消息事件时使用
+
+    :return: 解析参数值列表或 :obj:`None`
+    """
     try:
         return SESSION_LOCAL.args
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
 def get_store() -> dict:
+    """返回当前会话的存储字典对象，可直接操作
+
+    会话存储字典对象用于在会话层面保存和共享数据。
+
+    :return: 会话的存储字典对象
+    """
     try:
         return SESSION_LOCAL.store
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
 async def pause(overtime: Optional[int] = None) -> None:
-    """当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入， session
-    所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session， 并抛出 SessionHupTimeout 异常."""
+    """会话暂停直到被同一会话的事件唤醒
+
+    暂时停止本会话。当本会话的会话规则判断有属于本会话的另一事件发生，
+    本会话将自动被唤醒。
+
+    可指定超时时间。如果超时时间结束会话仍未被唤醒，此时将会被强制唤醒，
+    并抛出一个 :class:`.SessionHupTimeout` 异常。可以捕获此异常，
+    实现自定义的超时处理逻辑
+
+    :param overtime: 超时时间
+    """
     try:
         await SESSION_LOCAL.hup(overtime)
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
 def dispose() -> None:
+    """销毁当前会话
+
+    将会清理会话的存储空间，并将会话标记为过期态。
+    此时调用该方法的函数依然可以运行，但是此会话状态下无法再进行行为操作。
+
+    一般来说，会话将会自动销毁。
+    只有在注册事件处理函数时使用 `session_hold=True`，才会需要使用此函数。
+
+    """
     try:
         SESSION_LOCAL.destory()
     except LookupError:
-        raise BotSessionError("当前作用域的 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")

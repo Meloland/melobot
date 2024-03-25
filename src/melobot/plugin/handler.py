@@ -64,7 +64,7 @@ class EventHandler:
         if session_rule is None:
             if session_hold or direct_rouse or conflict_wait or conflict_cb:
                 raise EventHandlerError(
-                    "使用 session_rule 参数后才能使用以下参数：session_hold， direct_rouse, \
+                    "提供 session_rule 后才能使用以下参数：session_hold， direct_rouse, \
                                       conflict_wait, conflict_callback"
                 )
 

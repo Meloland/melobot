@@ -4,7 +4,11 @@ from better_exceptions import ExceptionFormatter
 
 
 class BotException(Exception):
-    """Bot 异常基类."""
+    """Bot 异常基类
+
+    在使用 melobot 编写代码时，若需要抛出异常，可以有意抛出该类。
+    表明这是你设计的异常情况，而不是完全预期之外的异常。
+    """
 
     def __init__(self, msg: str):
         super().__init__(self, msg)
@@ -115,6 +119,8 @@ class DirectRetSignal(BotException):
 
 
 class SessionHupTimeout(BotException):
+    """会话暂停的超时异常"""
+
     def __init__(self, msg: str = ""):
         super().__init__(msg)
 

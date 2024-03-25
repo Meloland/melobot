@@ -21,6 +21,8 @@ class NullLogger(Logger):
 
 
 class BotLogger(Logger):
+    """日志器类
+    """
     LOGGERS: dict[str, "BotLogger"] = {}
 
     FIELD_COLORS = {
@@ -109,6 +111,14 @@ class BotLogger(Logger):
         to_dir: Optional[str] = None,
         no_tag: bool = False,
     ) -> None:
+        """初始化一个日志器实例
+
+        :param name: 日志器的名称（唯一）
+        :param level: 日志等级
+        :param to_console: 是否输出到 console
+        :param to_dir: 保存日志文件的目录，为空则不保存文件
+        :param no_tag: 记录日志时是否不标识日志器名称
+        """
 
         if name in BotLogger.LOGGERS.keys():
             raise DuplicateError(f"名为 {name} 的日志器已存在，请修改 name")

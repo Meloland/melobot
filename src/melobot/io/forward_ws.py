@@ -22,8 +22,7 @@ if TYPE_CHECKING:
 
 
 class ForwardWsConn(AbstractConnector):
-    """正向 websocket 连接器
-    """
+    """正向 websocket 连接器"""
 
     def __init__(
         self,
@@ -76,7 +75,7 @@ class ForwardWsConn(AbstractConnector):
                 self.conn = await websockets.connect(self.url)
                 await self.conn.recv()
 
-                self.logger.info("与连接适配器，建立了 ws 连接")
+                self.logger.info("连接器与前端建立了 ws 连接")
                 await self._bot_bus.emit(BotLife.CONNECTED)
                 self.logger.debug("CONNECTED hook 已完成")
                 return
@@ -90,7 +89,7 @@ class ForwardWsConn(AbstractConnector):
     async def _close(self) -> None:
         """关闭连接."""
         await self.conn.close()
-        self.logger.info("已经关闭与连接适配器的连接")
+        self.logger.info("连接器与前端的连接已安全关闭")
 
     async def __aenter__(self) -> "ForwardWsConn":
         await self._start()
@@ -102,19 +101,14 @@ class ForwardWsConn(AbstractConnector):
         await self._close()
         if exc_type is None:
             return True
-        elif exc_type == wse.ConnectionClosed:
-            self.logger.info("连接适配器主动关闭, bot 将自动清理资源后关闭")
-            return True
         elif exc_type == asyncio.CancelledError:
             return True
         else:
-            self.logger.error(
-                "连接适配器出现预期外的异常：\n" + get_better_exc(exc_val)
-            )
+            self.logger.error("连接器出现预期外的异常：\n" + get_better_exc(exc_val))
             return False
 
     async def _send(self, action: "BotAction") -> None:
-        """发送一个 action 给连接适配器。实际上是先提交到 send_queue."""
+        """发送一个 action 给连接器。实际上是先提交到 send_queue."""
         await self._ready_signal.wait()
 
         if self.slack:
@@ -144,12 +138,12 @@ class ForwardWsConn(AbstractConnector):
                 self.logger.debug(f"action {id(action)} 已发送")
                 self._pre_send_time = time.time()
         except asyncio.CancelledError:
-            self.logger.debug("连接适配器发送队列监视任务已被结束")
+            self.logger.debug("连接器发送队列监视任务已被结束")
         except wse.ConnectionClosed:
-            self.logger.error("与连接适配器的通信已经断开，无法再执行操作")
+            self.logger.error("连接器与前端的通信已经断开，无法再执行行为操作")
 
     async def _listen(self) -> None:
-        """从连接适配器接收一个事件，并转化为 BotEvent 对象传递给 dispatcher 处理."""
+        """从连接器接收一个事件，并转化为 BotEvent 对象传递给 dispatcher 处理."""
         await self._ready_signal.wait()
 
         try:
@@ -176,12 +170,10 @@ class ForwardWsConn(AbstractConnector):
                     self.logger.error("异常回溯栈：\n" + get_better_exc(e))
                     self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
         except asyncio.CancelledError:
-            self.logger.debug("bot 运行例程已停止")
+            self.logger.debug("连接器监听任务已停止")
         except wse.ConnectionClosed:
-            self.logger.debug("与连接适配器的通信已经断开")
+            self.logger.debug("连接器与前端的通信已经断开")
 
     async def _start_tasks(self) -> list[asyncio.Task]:
-        return [
-            asyncio.create_task(self._send_queue_watch()),
-            asyncio.create_task(self._listen()),
-        ]
+        asyncio.create_task(self._send_queue_watch())
+        return [asyncio.create_task(self._listen())]

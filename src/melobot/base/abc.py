@@ -11,6 +11,8 @@ from .typing import (
     Callable,
     Coroutine,
     Enum,
+    Literal,
+    LogicMode,
     ModuleType,
     Optional,
     ParseArgs,
@@ -29,6 +31,14 @@ if TYPE_CHECKING:
 
 
 class AbstractConnector(ABC):
+    """抽象连接器类
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
+
     def __init__(
         self,
         max_retry: int,
@@ -36,9 +46,13 @@ class AbstractConnector(ABC):
         cd_time: float,
     ) -> None:
         super().__init__()
+        #: 是否在 slack 状态
         self.slack: bool = False
-        self.max_retry = max_retry
-        self.retry_delay = retry_delay if retry_delay > 0 else 0
+        #: 连接失败最大重试次数
+        self.max_retry: int = max_retry
+        #: 连接失败重试间隔
+        self.retry_delay: float = retry_delay if retry_delay > 0 else 0
+        #: 连接器发送行为操作的冷却时间
         self.cd_time = cd_time
 
         self._ref_flag: bool = False
@@ -78,8 +92,6 @@ class AbstractConnector(ABC):
 
 
 class Flagable:
-    """可标记对象."""
-
     def __init__(self) -> None:
         self._flags_store: Optional[dict[str, dict[str, Any]]] = None
 
@@ -108,42 +120,54 @@ class Flagable:
 
 
 class Cloneable:
-    """可自我复制对象."""
-
     def copy(self):
         """返回一个本对象的一个深拷贝对象."""
         return deepcopy(self)
 
 
 class BotEvent(ABC, Flagable):
-    """Bot 事件类."""
+    """事件基类
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
 
     def __init__(self, rawEvent: dict) -> None:
         super().__init__()
+        #: 从 onebot 实现项目获得的未格式化的事件
         self.raw = rawEvent
         self._args_map: Optional[dict[Any, dict[str, ParseArgs] | None]] = None
 
     @abstractproperty
     def time(self) -> int:
+        """事件发生的时间"""
         pass
 
     @abstractproperty
-    def type(self) -> str:
+    def type(self) -> Literal["message", "request", "notice", "meta", "response"]:
+        """事件类型"""
         pass
 
     def is_msg_event(self) -> bool:
+        """判断是否是消息事件"""
         return self.type == "message"
 
     def is_req_event(self) -> bool:
+        """判断是否是请求事件"""
         return self.type == "request"
 
     def is_notice_event(self) -> bool:
+        """判断是否是通知事件"""
         return self.type == "notice"
 
     def is_meta_event(self) -> bool:
+        """判断是否是元事件"""
         return self.type == "meta"
 
     def is_resp_event(self) -> bool:
+        """判断是否是响应事件"""
         return self.type == "response"
 
     def _get_args(self, parser_id: Any) -> dict[str, ParseArgs] | VoidType | None:
@@ -160,7 +184,7 @@ class BotEvent(ABC, Flagable):
 
 
 class ActionArgs(ABC):
-    """行为信息构造基类."""
+    # 行为信息构造基类
 
     def __init__(self) -> None:
         super().__init__()
@@ -169,7 +193,15 @@ class ActionArgs(ABC):
 
 
 class BotAction(Flagable, Cloneable):
-    """Bot 行为类."""
+    """行为类
+
+    每个行为操作应该产生一个行为对象
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
 
     def __init__(
         self,
@@ -179,15 +211,19 @@ class BotAction(Flagable, Cloneable):
         ready: bool = False,
     ) -> None:
         super().__init__()
-        # 只有 action 对应的响应需要被等待单独处理时，才会生成 id
+        #: 响应标识 id。只有选择等待响应时，才会生成 id
         self.resp_id = resp_id
+        #: 行为类型。对应 onebot 标准中的 API 终结点名称
         self.type = action_args.type
+        #: 行为参数。对应 onebot 标准中向 API 传送的数据的 params 字段
         self.params = action_args.params
+        #: 行为的触发事件，一般是行为生成时所在会话的事件
         self.trigger = triggerEvent
-        self.ready = ready
+
+        self._ready = ready
 
     def extract(self) -> dict:
-        """从对象提取标准 cq action dict."""
+        # 从对象提取标准 cq action dict
         obj = {
             "action": self.type,
             "params": self.params,
@@ -197,11 +233,11 @@ class BotAction(Flagable, Cloneable):
         return obj
 
     def flatten(self, indent: Optional[int] = None) -> str:
-        """将对象序列化为标准 cq action json 字符串，一般供连接器使用."""
+        # 将对象序列化为标准 cq action json 字符串，一般供连接器使用
         return json.dumps(self.extract(), ensure_ascii=False, indent=indent)
 
     def _fill_trigger(self, event: BotEvent) -> None:
-        """后期指定触发 event."""
+        # 后期指定触发 event
         if self.trigger is None:
             self.trigger = event
             return
@@ -209,13 +245,24 @@ class BotAction(Flagable, Cloneable):
 
 
 class SessionRule(ABC):
-    """用作 sesion 的区分依据."""
+    """会话规则基类
+
+    会话规则用于两事件是否在同一会话的判断。
+    """
 
     def __init__(self) -> None:
         super().__init__()
 
     @abstractmethod
     def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
+        """判断两事件是否在同一会话中的判断方法
+
+        任何会话规则应该实现此抽象方法。
+
+        :param e1: 判断时的事件1
+        :param e2: 判断时的事件2
+        :return: 判断结果
+        """
         pass
 
 
@@ -276,50 +323,19 @@ class BotHookRunnerArgs:
         self.type = type
 
 
-class LogicMode(Enum):
-    """逻辑模式枚举."""
-
-    AND = 1
-    OR = 2
-    NOT = 3
-    XOR = 4
-
-    @classmethod
-    def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
-        if logic == LogicMode.AND:
-            return (v1 and v2) if v2 is not None else bool(v1)
-        elif logic == LogicMode.OR:
-            return (v1 or v2) if v2 is not None else bool(v1)
-        elif logic == LogicMode.NOT:
-            return not v1
-        elif logic == LogicMode.XOR:
-            return (v1 ^ v2) if v2 is not None else bool(v1)
-
-    @classmethod
-    def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
-        if len(values) <= 0:
-            return False
-        elif len(values) <= 1:
-            return bool(values[0])
-
-        idx = 0
-        res: bool
-        while idx < len(values):
-            if idx == 0:
-                res = cls.calc(logic, values[idx], values[idx + 1])
-                idx += 1
-            else:
-                res = cls.calc(logic, res, values[idx])
-            idx += 1
-        return res
-
-
 class BotChecker(ABC, Cloneable):
+    """检查器基类"""
+
     def __init__(
         self,
         ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
         fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ) -> None:
+        """初始化一个检查器基类对象
+
+        :param ok_cb: 检查通过的回调
+        :param fail_cb: 检查不通过的回调
+        """
         super().__init__()
         self.ok_cb = ok_cb
         self.fail_cb = fail_cb
@@ -362,11 +378,26 @@ class BotChecker(ABC, Cloneable):
 
     @abstractmethod
     async def check(self, event: BotEvent) -> bool:
+        """检查器检查方法
+
+        任何检查器应该实现此抽象方法。
+
+        :param event: 给定的事件
+        :return: 检查是否通过
+        """
         pass
 
 
 class WrappedChecker(BotChecker):
-    """按逻辑关系工作的的合并检查器，使用 AND, OR, XOR 模式时， 需要传递两个 checker。使用 NOT 时只需要传递第一个 checker."""
+    """合并检查器
+
+    在两个 :class:`BotChecker` 对象间使用 | & ^ ~ 运算符即可返回合并检查器。
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
 
     def __init__(
         self,
@@ -374,6 +405,12 @@ class WrappedChecker(BotChecker):
         checker1: BotChecker,
         checker2: Optional[BotChecker] = None,
     ) -> None:
+        """初始化一个合并检查器
+
+        :param mode: 合并检查的逻辑模式
+        :param checker1: 检查器1
+        :param checker2: 检查器2
+        """
         super().__init__()
         self.mode = mode
         self.c1, self.c2 = checker1, checker2
@@ -399,7 +436,10 @@ class WrappedChecker(BotChecker):
 
 
 class BotMatcher(ABC, Cloneable):
+    """匹配器基类"""
+
     def __init__(self) -> None:
+        """初始化一个检查器基类对象"""
         super().__init__()
 
     def __and__(self, other: "BotMatcher") -> "WrappedMatcher":
@@ -428,11 +468,26 @@ class BotMatcher(ABC, Cloneable):
 
     @abstractmethod
     def match(self, text: str) -> bool:
+        """匹配器匹配方法
+
+        任何匹配器应该实现此抽象方法。
+
+        :param text: 消息事件的文本内容
+        :return: 是否匹配
+        """
         pass
 
 
 class WrappedMatcher(BotMatcher):
-    """按逻辑关系工作的的合并匹配器，使用 AND, OR, XOR 模式时， 需要传递两个 matcher。使用 NOT 时只需要传递第一个 matcher."""
+    """合并匹配器
+
+    在两个 :class:`BotMatcher` 对象间使用 | & ^ ~ 运算符即可返回合并匹配器
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
 
     def __init__(
         self,
@@ -440,6 +495,12 @@ class WrappedMatcher(BotMatcher):
         matcher1: BotMatcher,
         matcher2: Optional[BotMatcher] = None,
     ) -> None:
+        """初始化一个合并匹配器
+
+        :param mode: 合并匹配的逻辑模式
+        :param matcher1: 匹配器1
+        :param matcher2: 匹配器2
+        """
         super().__init__()
         self.mode = mode
         self.m1, self.m2 = matcher1, matcher2
@@ -453,7 +514,7 @@ class WrappedMatcher(BotMatcher):
 
 
 class BotParser(ABC):
-    """解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合."""
+    # 解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合
 
     def __init__(self, id: Any) -> None:
         super().__init__()

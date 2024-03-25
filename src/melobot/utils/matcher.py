@@ -1,10 +1,10 @@
 import re
 
-from ..base.abc import BotMatcher, LogicMode
-from ..base.typing import Any
+from ..base.abc import BotMatcher, BotMatcherError
+from ..base.typing import Any, LogicMode
 
 
-class AlwaysMatch(BotMatcher):
+class AlwaysMatcher(BotMatcher):
     def __init__(self) -> None:
         super().__init__()
 
@@ -12,8 +12,19 @@ class AlwaysMatch(BotMatcher):
         return True
 
 
-class StartMatch(BotMatcher):
+class StartMatcher(BotMatcher):
+    """字符串起始匹配器"""
+
     def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+        """初始化一个字符串起始匹配器
+
+        `target` 为字符串时，只进行一次起始匹配，即判断是否匹配成功。
+        `target` 为字符串列表时，所有字符串都进行起始匹配，再将所有结果使用给定
+        `mode` 计算是否匹配成功。
+
+        :param target: 匹配目标
+        :param mode: 匹配模式
+        """
         super().__init__()
         self.target = target
         self.mode = mode
@@ -26,8 +37,19 @@ class StartMatch(BotMatcher):
             return LogicMode.seq_calc(self.mode, res_seq)
 
 
-class ContainMatch(BotMatcher):
+class ContainMatcher(BotMatcher):
+    """字符串包含匹配器"""
+
     def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+        """初始化一个字符串包含匹配器
+
+        `target` 为字符串时，只进行一次包含匹配，即判断是否匹配成功。
+        `target` 为字符串列表时，所有字符串都进行包含匹配，再将所有结果使用给定
+        `mode` 计算是否匹配成功。
+
+        :param target: 匹配目标
+        :param mode: 匹配模式
+        """
         super().__init__()
         self.target = target
         self.mode = mode
@@ -40,8 +62,19 @@ class ContainMatch(BotMatcher):
             return LogicMode.seq_calc(self.mode, res_seq)
 
 
-class EndMatch(BotMatcher):
+class EndMatcher(BotMatcher):
+    """字符串结尾匹配器"""
+
     def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+        """初始化一个字符串结尾匹配器
+
+        `target` 为字符串时，只进行一次结尾匹配，即判断是否匹配成功。
+        `target` 为字符串列表时，所有字符串都进行结尾匹配，再将所有结果使用给定
+        `mode` 计算是否匹配成功。
+
+        :param target: 匹配目标
+        :param mode: 匹配模式
+        """
         super().__init__()
         self.target = target
         self.mode = mode
@@ -54,8 +87,19 @@ class EndMatch(BotMatcher):
             return LogicMode.seq_calc(self.mode, res_seq)
 
 
-class FullMatch(BotMatcher):
+class FullMatcher(BotMatcher):
+    """字符串全匹配器"""
+
     def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+        """初始化一个字符串全匹配器
+
+        `target` 为字符串时，只进行一次全匹配，即判断是否匹配成功。
+        `target` 为字符串列表时，所有字符串都进行全匹配，再将所有结果使用给定
+        `mode` 计算是否匹配成功。
+
+        :param target: 匹配目标
+        :param mode: 匹配模式
+        """
         super().__init__()
         self.target = target
         self.mode = mode
@@ -68,8 +112,15 @@ class FullMatch(BotMatcher):
             return LogicMode.seq_calc(self.mode, res_seq)
 
 
-class RegexMatch(BotMatcher):
+class RegexMatcher(BotMatcher):
+    """字符串正则匹配器"""
+
     def __init__(self, regex_pattern: str, regex_flags: Any = 0) -> None:
+        """初始化一个字符串正则匹配器
+
+        :param regex_pattern: 正则 pattern
+        :param regex_flags: 正则 flag，默认不使用
+        """
         super().__init__()
         self.pattern = regex_pattern
         self.flag = regex_flags

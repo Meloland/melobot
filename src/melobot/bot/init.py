@@ -52,7 +52,7 @@ def _safe_run_bot(main_coro: Coroutine[Any, Any, None]) -> None:
 
 
 class MeloBot:
-    """melobot 框架的 bot 类。该类实例化即一个 bot 实例"""
+    """bot 类。该类实例化即一个 bot 实例"""
 
     BOTS: dict[str, "MeloBot"] = {}
 
@@ -60,7 +60,6 @@ class MeloBot:
         """初始化一个 bot 实例
 
         :param name: bot 实例的名字（唯一）
-        :raises DuplicateError: 若已存在名为 name 的 bot 实例，抛出该异常
         """
         if name in MeloBot.BOTS.keys():
             raise DuplicateError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
@@ -97,6 +96,7 @@ class MeloBot:
         log_level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"] = "INFO",
         log_to_console: bool = True,
         log_to_dir: Optional[str] = None,
+        custom_logger: Optional[Logger] = None,
     ) -> None:
         """初始化 bot 实例
 
@@ -106,15 +106,15 @@ class MeloBot:
         :param log_level: 日志器日志等级
         :param log_to_console: 日志是否输出到控制台
         :param log_to_dir: 保存日志文件的目录，为空则不保存
-        :raises DuplicateError: 传入的连接器已被使用时，抛出此异常
+        :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数
         """
         if connector._ref_flag:
-            raise DuplicateError(
-                "bot 初始化时，不可使用已被其他 bot 实例使用的连接适配器"
-            )
+            raise DuplicateError("bot 初始化时，不可使用已被其他 bot 实例使用的连接器")
         self.connector = connector
         self.connector._ref_flag = True
-        if not enable_log:
+        if custom_logger is not None:
+            self.logger = custom_logger
+        elif not enable_log:
             self.logger = NullLogger(f"__MELOBOT_NULL_{self.name}__")
         else:
             self.logger = BotLogger(
@@ -123,7 +123,7 @@ class MeloBot:
                 log_to_console,
                 log_to_dir,
             )
-        self.logger.debug(f"连接适配器已初始化，类型：{connector.__class__.__name__}")
+        self.logger.debug(f"连接器已初始化，类型：{connector.__class__.__name__}")
 
         self._dispatcher._bind(
             EVENT_HANDLER_MAP, self._bot_bus, self._ctx_manager, self.logger
@@ -144,8 +144,7 @@ class MeloBot:
     def load_plugin(self, plugin_target: str | BotPlugin) -> None:
         """为 bot 实例加载插件
 
-        :param plugin_target: 插件目标，可传入插件对象或包含插件包（一个插件即是一个 python package）的路径
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        :param plugin_target: 插件目标，可传入插件对象或插件包（一个插件即是一个 python package）的路径
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能加载插件")
@@ -185,7 +184,6 @@ class MeloBot:
         """为 bot 实例批量加载插件
 
         :param plugins_dir: 传入包含所有插件包（一个插件即是一个 python package）的目录
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能加载插件")
@@ -233,10 +231,7 @@ class MeloBot:
         _safe_run_bot(self._run())
 
     async def close(self) -> None:
-        """停止 bot 实例
-
-        :raises BotRuntimeError: bot 实例未在运行时，抛出此异常
-        """
+        """停止 bot 实例"""
         if not self.__run_flag__:
             raise BotRuntimeError("bot 尚未运行，无需停止")
 
@@ -248,9 +243,8 @@ class MeloBot:
     def is_activate(self) -> bool:
         """判断 bot 实例是否在非 slack 状态
 
-        slack 状态指不再发送 action 的状态，slack 状态启用后仅会禁用 action 的发送，无其他影响
+        slack 状态启用后仅会禁用行为操作的发送，无其他影响
 
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
         :return: 是否在非 slack 状态
         """
         if not self.__init_flag__:
@@ -261,9 +255,7 @@ class MeloBot:
     def activate(self) -> None:
         """使 bot 实例退出 slack 状态
 
-        slack 状态指不再发送 action 的状态，slack 状态启用后仅会禁用 action 的发送，无其他影响
-
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        slack 状态启用后仅会禁用行为操作的发送，无其他影响
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
@@ -274,9 +266,7 @@ class MeloBot:
     def slack(self) -> None:
         """使 bot 实例进入 slack 状态
 
-        slack 状态指不再发送 action 的状态，slack 状态启用后仅会禁用 action 的发送，无其他影响
-
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
+        slack 状态启用后仅会禁用行为操作的发送，无其他影响
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
@@ -287,7 +277,6 @@ class MeloBot:
     def get_plugins(self) -> dict[str, PluginProxy]:
         """获得 bot 实例所有插件的信息
 
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
         :return: 所有插件的信息
         """
         if not self.__init_flag__:
@@ -305,7 +294,6 @@ class MeloBot:
         :param wait: 是否等待信号处理方法处理完毕
         :param args: 传递给信号处理方法的 args
         :param kwargs: 传递给信号处理方法的 kwargs
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
         :return: 不等待信号处理方法处理，只返回 :obj:`None`；若等待则返回运行结果
         """
         if not self.__init_flag__:
@@ -320,7 +308,6 @@ class MeloBot:
 
         :param namespace: 共享对象的命名空间
         :param id: 共享对象的标识 id
-        :raises BotRuntimeError: bot 实例未初始化时，抛出此异常
         :return: 获得到的共享对象
         """
         if not self.__init_flag__:
@@ -365,8 +352,6 @@ class MeloBot:
         :param wait: 是否等待信号处理方法处理完毕
         :param args: 传递给信号处理方法的 args
         :param kwargs: 传递给信号处理方法的 kwargs
-        :raises BotRuntimeError: 指定的 bot 实例名不存在时，抛出此异常
-        :raises BotRuntimeError: 目标 bot 实例的信号处理方法，如果尝试引用 bot 或会话的自动上下文，抛出此异常
         """
         bot = cls.BOTS.get(target)
         if bot is None:

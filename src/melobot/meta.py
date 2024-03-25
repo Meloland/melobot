@@ -7,14 +7,14 @@ class MetaInfo:
     """元信息类
 
     .. admonition:: 提示
-       :class: note
+       :class: tip
 
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
     """
 
     def __init__(self) -> None:
         #: melobot 版本
-        self.VER: str = "2.5.4"
+        self.VER: str = "2.5.5"
         #: melobot 项目名称
         self.PROJ_NAME: str = "melobot"
         #: melobot 项目描述

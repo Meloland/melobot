@@ -1,27 +1,9 @@
-melobot.plugin package
-======================
+melobot.plugin
+===============
 
-Submodules
-----------
-
-melobot.plugin.handler module
------------------------------
-
-.. automodule:: melobot.plugin.handler
-   :members:
-   :undoc-members:
-
-melobot.plugin.ipc module
--------------------------
-
-.. automodule:: melobot.plugin.ipc
-   :members:
-   :undoc-members:
-
-Module contents
----------------
+插件
+-------
+实例化 :class:`.BotPlugin` 类即可创建一个插件。插件是 melobot 的重要组件。 
 
 .. automodule:: melobot.plugin
    :members:
-   :undoc-members:
-

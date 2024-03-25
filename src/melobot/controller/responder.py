@@ -47,7 +47,7 @@ class BotResponder:
                     self.logger.error(f"收到了不匹配的携带 id 的响应：{resp.raw}")
         except asyncio.InvalidStateError:
             self.logger.warning(
-                "等待 ResponseEvent 的异步任务已被取消，这可能意味着连接适配器响应过慢，或任务设置的超时时间太短"
+                "等待响应事件的异步任务已被取消，这可能意味着连接器响应过慢，或任务设置的超时时间太短"
             )
             self._resp_table.pop(resp.id)  # type: ignore
         except Exception as e:

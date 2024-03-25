@@ -30,7 +30,7 @@ class MessageEvent(BotEvent):
     """消息事件类型
 
     .. admonition:: 提示
-       :class: note
+       :class: tip
 
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
     """
@@ -165,7 +165,6 @@ class MessageEvent(BotEvent):
            # 假设 event 是 MessageEvent 对象，即象征一个消息事件
            params = event.get_cq_params('at', 'qq')
            # params 将是此事件中，所有 at 类型消息的 "qq" 参数所组成的列表
-           print(params)
 
         :param cq_type: 消息类型
         :param param: 该类消息中的参数名
@@ -232,7 +231,7 @@ class MessageEvent(BotEvent):
         """消息事件发送者数据结构
 
         .. admonition:: 提示
-           :class: note
+           :class: tip
 
            一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
         """
@@ -346,7 +345,7 @@ class RequestEvent(BotEvent):
     """请求事件类型，对应两种可能：加好友请求和加群请求
 
     .. admonition:: 提示
-       :class: note
+       :class: tip
 
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
     """
@@ -408,7 +407,7 @@ class NoticeEvent(BotEvent):
     """通知事件类型
 
     .. admonition:: 提示
-       :class: note
+       :class: tip
 
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
 
@@ -622,7 +621,7 @@ class NoticeEvent(BotEvent):
         """文件上传通知的文件信息数据结构
 
         .. admonition:: 提示
-           :class: note
+           :class: tip
 
            一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
         """
@@ -651,7 +650,7 @@ class NoticeEvent(BotEvent):
         """客户端在线状态变更通知的客户端信息数据结构
 
         .. admonition:: 提示
-           :class: note
+           :class: tip
 
            一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
         """
@@ -671,15 +670,9 @@ class MetaEvent(BotEvent):
     """元事件类型
 
     .. admonition:: 提示
-       :class: note
+       :class: tip
 
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
-
-    .. admonition:: 提示
-       :class: note
-
-       本事件类型其实不是 onebot 标准的一部分，但是被广大 onebot 协议实现项目所采用，
-       因此 melobot 兼容此类事件。
     """
 
     def __init__(self, rawEvent: dict) -> None:
@@ -710,9 +703,15 @@ class ResponseEvent(BotEvent):
     """响应事件类型
 
     .. admonition:: 提示
-       :class: note
+       :class: tip
 
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+
+    .. admonition:: 提示
+       :class: tip
+
+       本事件类型其实不是 onebot 标准的一部分，但是被广大 onebot 协议实现项目所采用，
+       因此 melobot 兼容此类事件。
     """
 
     def __init__(self, rawEvent: dict) -> None:

@@ -16,17 +16,13 @@ from .base import (
 from .bot import MeloBot, thisbot
 from .context import (
     AttrSessionRule,
-    any_event,
     finish,
     get_store,
-    meta_event,
     msg_args,
     msg_event,
     msg_text,
-    notice_event,
     pause,
     reply_finish,
-    req_evnt,
     send,
     send_reply,
     send_wait,
@@ -39,14 +35,9 @@ from .utils import (
     AtChecker,
     CmdParser,
     CmdParserGen,
-    ContainMatch,
-    EndMatch,
-    FullMatch,
-    GroupMsgLvl,
+    GroupMsgLvlChecker,
     MsgCheckerGen,
-    PrivateMsgLvl,
-    RegexMatch,
-    StartMatch,
+    PrivateMsgLvlChecker,
 )
 
 __version__ = MetaInfo().VER

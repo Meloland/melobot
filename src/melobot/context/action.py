@@ -1,6 +1,6 @@
 import warnings
 
-from ..base.abc import ActionArgs, BotAction
+from ..base.abc import ActionArgs, BotAction, BotEvent
 from ..base.exceptions import BotActionError, BotSessionError, DirectRetSignal
 from ..base.tools import get_id
 from ..base.typing import TYPE_CHECKING, CQMsgDict, Literal, MsgNodeDict, Optional
@@ -9,7 +9,7 @@ from .session import SESSION_LOCAL
 from .session import BotSessionManager as CtxManager
 
 if TYPE_CHECKING:
-    from ..models.event import BotEvent, ResponseEvent
+    from ..models.event import ResponseEvent
 
 __all__ = (
     "send_custom_msg",
@@ -20,25 +20,20 @@ __all__ = (
     "get_msg",
     "get_forward_msg",
     "get_image",
-    "mark_msg_read",
+    "send_like",
     "group_kick",
     "group_ban",
-    "group_anonym_ban",
     "group_whole_ban",
     "set_group_admin",
     "set_group_card",
     "set_group_name",
     "group_leave",
     "set_group_title",
-    "group_sign",
     "set_friend_add",
     "set_group_add",
     "get_login_info",
-    "set_login_profile",
     "get_stranger_info",
     "get_friend_list",
-    "get_undirect_friend",
-    "delete_friend",
     "get_group_info",
     "get_group_list",
     "get_group_member_info",
@@ -46,31 +41,10 @@ __all__ = (
     "get_group_honor",
     "check_send_image",
     "check_send_record",
-    "get_cq_version",
-    "set_group_portrait",
-    "ocr",
-    "get_group_sys_msg",
-    "upload_file",
-    "get_group_filesys_info",
-    "get_group_root_files",
-    "get_group_files_byfolder",
-    "create_group_folder",
-    "delete_group_folder",
-    "delete_group_file",
-    "get_group_file_url",
-    "get_cq_status",
-    "get_atall_remain",
-    "set_group_notice",
-    "get_group_notice",
-    "download_file",
-    "get_online_clients",
-    "get_group_msg_history",
-    "set_group_essence",
-    "get_group_essence_list",
-    "get_model_show",
-    "set_model_show",
-    "delete_undirect_friend",
+    "get_onebot_version",
+    "get_onebot_status",
     "take_custom_action",
+    "make_action",
     "send_wait",
     "send_reply",
     "finish",
@@ -136,7 +110,39 @@ async def send_custom_msg(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """发送消息."""
+    """发送消息（自定义发送目标）
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    此接口合并了 onebot 标准中的私聊消息发送、群聊消息发送接口。
+
+    :param content: 发送内容
+    :param isPrivate: 是否是私聊
+    :param userId: 如果是私聊，传入目标 qq 号；群聊置空即可
+    :param groupId: 如果是群聊，传入群号；私聊置空即可
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     if isPrivate and userId is None:
         raise BotActionError("为私聊时，构建 action 必须提供 userId 参数")
     if not isPrivate and groupId is None:
@@ -158,7 +164,34 @@ async def send(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """在当前 session 上下文发送一条消息."""
+    """发送消息（在当前会话下自动定位发送目标）
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    :param content: 发送内容（可以是文本、消息段对象、消息段对象列表）
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     try:
         session = SESSION_LOCAL
         action = BotAction(
@@ -175,7 +208,7 @@ async def send(
             action = _to_cq_str_action(action)
         return action
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
 class ForwardMsgActionArgs(ActionArgs):
@@ -207,7 +240,37 @@ async def send_custom_forward(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """转发消息发送."""
+    """发送转发消息（自定义发送目标）
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    :param msgNodes: 消息结点列表
+    :param isPrivate: 是否是私聊
+    :param userId: 如果是私聊，传入目标 qq 号；群聊置空即可
+    :param groupId: 如果是群聊，传入群号；私聊置空即可
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     action = BotAction(
         ForwardMsgActionArgs(msgNodes, isPrivate, userId, groupId),
         resp_id=get_id() if wait else None,
@@ -225,7 +288,34 @@ async def send_forward(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """在当前 session 上下文发送转发消息."""
+    """发送转发消息（在当前会话下自动定位发送目标）
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    :param msgNodes: 消息结点列表
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     try:
         session = SESSION_LOCAL
         action = BotAction(
@@ -242,7 +332,7 @@ async def send_forward(
             action = _to_cq_str_action(action)
         return action
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
 class MsgDelActionArgs(ActionArgs):
@@ -258,7 +348,18 @@ class MsgDelActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
-    """撤回消息."""
+    """撤回消息
+
+    :param msgId: 消息 id
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         MsgDelActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
@@ -275,7 +376,18 @@ class GetMsgActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction:
-    """获取消息详细信息."""
+    """获取消息详细信息
+
+    :param msgId: 消息 id
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetMsgActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
     )
@@ -294,7 +406,18 @@ class getForwardActionArgs(ActionArgs):
 async def get_forward_msg(
     forwardId: str, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """转发消息获取."""
+    """获取转发消息的详细信息
+
+    :param forwardId: 转发 id
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         getForwardActionArgs(forwardId), resp_id=get_id() if wait else None, ready=auto
     )
@@ -311,26 +434,53 @@ class getImageActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotAction:
-    """获取图片信息."""
+    """获取图片信息
+
+    :param fileName: 图片文件名
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         getImageActionArgs(fileName), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class MarkMsgReadActionArgs(ActionArgs):
-    """标记消息已读 action 信息构造类."""
+class SendLikeActionArgs(ActionArgs):
+    """发送好友赞 action 信息构造类"""
 
-    def __init__(self, msgId: int) -> None:
+    def __init__(self, userId: int, times: int = 1) -> None:
         super().__init__()
-        self.type = "mark_msg_as_read"
-        self.params = {"message_id": msgId}
+        self.type = "send_like"
+        self.params = {"user_id": userId, "times": times}
 
 
 @CtxManager._activate
-async def mark_msg_read(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
-    """标记消息已读."""
+async def send_like(
+    userId: int, times: int = 1, wait: bool = False, auto: bool = True
+) -> BotAction:
+    """发送好友赞
+
+    :param userId: qq 号
+    :param times: 赞的数量，默认为 1，每天最多 10
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
-        MarkMsgReadActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
+        SendLikeActionArgs(userId, times),
+        resp_id=get_id() if wait else None,
+        ready=auto,
     )
 
 
@@ -355,7 +505,20 @@ async def group_kick(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """群组踢人."""
+    """群组踢人
+
+    :param groupId: 群号
+    :param userId: 被踢的 qq 号
+    :param laterReject: 是否拒绝此人再次加群
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GroupKickActionArgs(groupId, userId, laterReject),
         resp_id=get_id() if wait else None,
@@ -380,34 +543,22 @@ class GroupBanActionArgs(ActionArgs):
 async def group_ban(
     groupId: int, userId: int, duration: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """群组禁言。 duration 为 0 取消禁言."""
+    """群组禁言
+
+    :param groupId: 群号
+    :param userId: 禁言的 qq 号
+    :param duration: 禁言时长，为 0 则表示取消禁言
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GroupBanActionArgs(groupId, userId, duration),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GroupAnonymBanActionArgs(ActionArgs):
-    """群组匿名禁言 action 信息构造类."""
-
-    def __init__(self, groupId: int, anonymFlag: str, duration: int) -> None:
-        super().__init__()
-        self.type = "set_group_anonymous_ban"
-        self.params = {
-            "group_id": groupId,
-            "anonymous_flag": anonymFlag,
-            "duration": duration,
-        }
-
-
-@CtxManager._activate
-async def group_anonym_ban(
-    groupId: int, anonymFlag: str, duration: int, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """群组匿名禁言。 无法取消禁言."""
-    return BotAction(
-        GroupAnonymBanActionArgs(groupId, anonymFlag, duration),
         resp_id=get_id() if wait else None,
         ready=auto,
     )
@@ -426,7 +577,19 @@ class GroupWholeBanActionArgs(ActionArgs):
 async def group_whole_ban(
     groupId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """群组全员禁言."""
+    """群组全员禁言
+
+    :param groupId: 群号
+    :param enable: 是则禁言，否则取消禁言
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GroupWholeBanActionArgs(groupId, enable),
         resp_id=get_id() if wait else None,
@@ -447,7 +610,20 @@ class SetGroupAdminActionArgs(ActionArgs):
 async def set_group_admin(
     groupId: int, userId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """设置群管理员."""
+    """设置群管理员
+
+    :param groupId: 群号
+    :param userId: 设置的 qq 号
+    :param enable: 是则设置，否则取消
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         SetGroupAdminActionArgs(groupId, userId, enable),
         resp_id=get_id() if wait else None,
@@ -468,7 +644,20 @@ class SetGroupCardActionArgs(ActionArgs):
 async def set_group_card(
     groupId: int, userId: int, card: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """设置群名片."""
+    """设置群名片
+
+    :param groupId: 群号
+    :param userId: 设置的 qq 号
+    :param card: 新名片内容
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         SetGroupCardActionArgs(groupId, userId, card),
         resp_id=get_id() if wait else None,
@@ -489,7 +678,19 @@ class SetGroupNameActionArgs(ActionArgs):
 async def set_group_name(
     groupId: int, name: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """设置群名 action 信息的方法."""
+    """设置群名
+
+    :param groupId: 群号
+    :param name: 新群名
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         SetGroupNameActionArgs(groupId, name),
         resp_id=get_id() if wait else None,
@@ -510,7 +711,19 @@ class GroupLeaveActionArgs(ActionArgs):
 async def group_leave(
     groupId: int, isDismiss: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """退出群组."""
+    """退出群
+
+    :param groupId: 群号
+    :param isDismiss: 是否解散群（仅在 bot 为群主时可用）
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GroupLeaveActionArgs(groupId, isDismiss),
         resp_id=get_id() if wait else None,
@@ -519,7 +732,7 @@ async def group_leave(
 
 
 class SetGroupTitleActionArgs(ActionArgs):
-    """设置群头衔 action 信息构造类."""
+    """设置群特殊头衔 action 信息构造类."""
 
     def __init__(
         self,
@@ -547,28 +760,25 @@ async def set_group_title(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """设置群头衔."""
+    """设置群特殊头衔
+
+    :param groupId: 群号
+    :param userId: 设置的 qq 号
+    :param title: 头衔名
+    :param duration: 生效时间，为 -1 则为无限期
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         SetGroupTitleActionArgs(groupId, userId, title, duration),
         resp_id=get_id() if wait else None,
         ready=auto,
-    )
-
-
-class GroupSignActionArgs(ActionArgs):
-    """群打卡 action 信息构造类."""
-
-    def __init__(self, groupId: int) -> None:
-        super().__init__()
-        self.type = "send_group_sign"
-        self.params = {"group_id": groupId}
-
-
-@CtxManager._activate
-async def group_sign(groupId: int, wait: bool = False, auto: bool = True) -> BotAction:
-    """群打卡."""
-    return BotAction(
-        GroupSignActionArgs(groupId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
@@ -584,7 +794,20 @@ class SetFriendAddActionArgs(ActionArgs):
 async def set_friend_add(
     addFlag: str, approve: bool, remark: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
-    """处理加好友信息。注意 remark 目前暂未实现."""
+    """处理加好友请求
+
+    :param addFlag: 好友添加 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
+    :param approve: 是否通过
+    :param remark: 添加后的好友备注（仅用于通过请求后）
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         SetFriendAddActionArgs(addFlag, approve, remark),
         resp_id=get_id() if wait else None,
@@ -622,7 +845,21 @@ async def set_group_add(
     wait: bool = False,
     auto: bool = True,
 ) -> BotAction:
-    """处理加群请求."""
+    """处理加群请求（只有 bot 是群管理时有用）
+
+    :param addFlag: 加群 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
+    :param addType: 加群类型，对应 :attr:`~.RequestEvent.group_req_type` 属性
+    :param approve: 是否通过
+    :param rejectReason: 如果不通过的原因回复
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         SetGroupAddActionArgs(addFlag, addType, approve, rejectReason),
         resp_id=get_id() if wait else None,
@@ -641,44 +878,19 @@ class GetLoginInfoActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
-    """获得登录号信息."""
+    """获得 bot 登录号信息
+
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetLoginInfoActionArgs(), resp_id=get_id() if wait else None, ready=auto
-    )
-
-
-class SetLoginProfileActionArgs(ActionArgs):
-    """设置登录号资料 action 信息构造类."""
-
-    def __init__(
-        self, nickname: str, company: str, email: str, college: str, personalNote: str
-    ) -> None:
-        super().__init__()
-        self.type = "set_qq_profile"
-        self.params = {
-            "nickname": nickname,
-            "company": company,
-            "email": email,
-            "college": college,
-            "personal_note": personalNote,
-        }
-
-
-@CtxManager._activate
-async def set_login_profile(
-    nickname: str,
-    company: str,
-    email: str,
-    college: str,
-    personalNote: str,
-    wait: bool = False,
-    auto: bool = True,
-) -> BotAction:
-    """设置登录号资料."""
-    return BotAction(
-        SetLoginProfileActionArgs(nickname, company, email, college, personalNote),
-        resp_id=get_id() if wait else None,
-        ready=auto,
     )
 
 
@@ -695,7 +907,19 @@ class GetStrangerInfoActionArgs(ActionArgs):
 async def get_stranger_info(
     userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """获取陌生人信息。也可以对好友使用."""
+    """获取陌生人信息，也可以对好友使用
+
+    :param userId: qq 号
+    :param noCache: 是否不使用缓存
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetStrangerInfoActionArgs(userId, noCache),
         resp_id=get_id() if wait else None,
@@ -714,45 +938,19 @@ class GetFriendlistActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
-    """获取好友列表."""
+    """获取好友列表
+
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetFriendlistActionArgs(), resp_id=get_id() if wait else None, ready=auto
-    )
-
-
-class GetUndirectFriendActionArgs(ActionArgs):
-    """获取单向好友列表 action 信息构造类."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.type = "get_unidirectional_friend_list"
-        self.params = {}
-
-
-@CtxManager._activate
-async def get_undirect_friend(wait: bool = True, auto: bool = True) -> BotAction:
-    """获取单向好友信息列表."""
-    return BotAction(
-        GetUndirectFriendActionArgs(), resp_id=get_id() if wait else None, ready=auto
-    )
-
-
-class DeleteFriendActionArgs(ActionArgs):
-    """删除好友 action 信息构造类."""
-
-    def __init__(self, userId: int) -> None:
-        super().__init__()
-        self.type = "delete_friend"
-        self.params = {"user_id": userId}
-
-
-@CtxManager._activate
-async def delete_friend(
-    userId: int, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """删除好友."""
-    return BotAction(
-        DeleteFriendActionArgs(userId), resp_id=get_id() if wait else None, ready=auto
     )
 
 
@@ -769,7 +967,19 @@ class GetGroupInfoActionArgs(ActionArgs):
 async def get_group_info(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """获取群信息。可以是未加入的群聊."""
+    """获取群信息，可以是未加入的群聊
+
+    :param groupId: 群号
+    :param noCache: 是否不使用缓存
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetGroupInfoActionArgs(groupId, noCache),
         resp_id=get_id() if wait else None,
@@ -788,7 +998,19 @@ class GetGrouplistActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
-    """获取群列表。注意返回建群时间都是 0，这是不准确的。准确的建群时间可以通过 `get_group_info` 获得."""
+    """获取群列表。
+
+    可能返回的建群时间都是 0，这是不准确的。准确的时间可以通过 :meth:`get_group_info` 获得.
+
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetGrouplistActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
@@ -807,7 +1029,20 @@ class GetGroupMemberInfoActionArgs(ActionArgs):
 async def get_group_member_info(
     groupId: int, userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """获取群成员信息."""
+    """获取群成员信息
+
+    :param groupId: 群号
+    :param userId: qq 号
+    :param noCache: 是否不使用缓存
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetGroupMemberInfoActionArgs(groupId, userId, noCache),
         resp_id=get_id() if wait else None,
@@ -828,7 +1063,19 @@ class GetGroupMemberlistActionArgs(ActionArgs):
 async def get_group_member_list(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
-    """获取群成员列表."""
+    """获取群成员列表
+
+    :param groupId: 群号
+    :param noCache: 是否不使用缓存
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetGroupMemberlistActionArgs(groupId, noCache),
         resp_id=get_id() if wait else None,
@@ -860,7 +1107,22 @@ async def get_group_honor(
     wait: bool = True,
     auto: bool = True,
 ) -> BotAction:
-    """获取群荣誉信息."""
+    """获取群荣誉信息
+
+    详细说明参考：
+    `获取群荣誉信息 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_honor_info-获取群荣誉信息>`_
+
+    :param groupId: 群号
+    :param type: 荣誉类型
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetGroupHonorActionArgs(groupId, type),
         resp_id=get_id() if wait else None,
@@ -879,7 +1141,17 @@ class CheckSendImageActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
-    """检查是否可以发送图片."""
+    """检查是否可以发送图片
+
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         CheckSendImageActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
@@ -896,14 +1168,24 @@ class CheckSendRecordActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
-    """检查是否可以发送语音."""
+    """检查是否可以发送语音
+
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         CheckSendRecordActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
 class GetCqVersionActionArgs(ActionArgs):
-    """获取 cq 前端实现 版本信息 action 信息构造类."""
+    """获取 onebot 实现版本 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -912,278 +1194,25 @@ class GetCqVersionActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_cq_version(wait: bool = True, auto: bool = True) -> BotAction:
-    """获取 cq 前端实现 版本信息."""
+async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取 onebot 实现项目的版本
+
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetCqVersionActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-class SetGroupPortraitActionArgs(ActionArgs):
-    """设置群头像 action 信息构造类."""
-
-    def __init__(self, groupId: int, file: str, cache: Literal[0, 1] = 0) -> None:
-        super().__init__()
-        self.type = "set_group_portrait"
-        self.params = {"group_id": groupId, "file": file, "cache": cache}
-
-
-@CtxManager._activate
-async def set_group_portrait(
-    groupId: int,
-    file: str,
-    cache: Literal[0, 1] = 0,
-    wait: bool = False,
-    auto: bool = True,
-) -> BotAction:
-    """
-    设置群头像。file 参数接受本地或网络 url 和 base64 编码。
-    如本地路径为：`file:///C:/Users/Richard/Pictures/1.png`。
-    特别注意：目前此 API 在登录一段时间后会因 cookie 失效而失效
-    """
-    return BotAction(
-        SetGroupPortraitActionArgs(groupId, file, cache),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class OcrActionArgs(ActionArgs):
-    """图片 OCR action 信息构造类."""
-
-    def __init__(self, image: str) -> None:
-        super().__init__()
-        self.type = "ocr_image"
-        self.params = {"image": image}
-
-
-@CtxManager._activate
-async def ocr(image: str, wait: bool = True, auto: bool = True) -> BotAction:
-    """图片 OCR。image 为图片 ID."""
-    return BotAction(
-        OcrActionArgs(image), resp_id=get_id() if wait else None, ready=auto
-    )
-
-
-class GetGroupSysMsgActionArgs(ActionArgs):
-    """获取群系统消息 action 信息构造类."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.type = "get_group_system_msg"
-        self.params = {}
-
-
-@CtxManager._activate
-async def get_group_sys_msg(wait: bool = True, auto: bool = True) -> BotAction:
-    """获取群系统消息."""
-    return BotAction(
-        GetGroupSysMsgActionArgs(), resp_id=get_id() if wait else None, ready=auto
-    )
-
-
-class UploadFileActionArgs(ActionArgs):
-    """发送文件 action 信息构造类."""
-
-    def __init__(
-        self,
-        isPrivate: bool,
-        file: str,
-        name: str,
-        userId: Optional[int] = None,
-        groupId: Optional[int] = None,
-        groupFolderId: Optional[str] = None,
-    ) -> None:
-        super().__init__()
-        if isPrivate:
-            self.type = "upload_private_file"
-            self.params = {"user_id": userId, "file": file, "name": name}
-        else:
-            self.type = "upload_group_file"
-            self.params = {
-                "group_id": groupId,
-                "file": file,
-                "name": name,
-                "folder": groupFolderId,
-            }
-
-
-@CtxManager._activate
-async def upload_file(
-    isPrivate: bool,
-    file: str,
-    sendFileName: str,
-    userId: Optional[int] = None,
-    groupId: Optional[int] = None,
-    groupFolderId: Optional[str] = None,
-    wait: bool = False,
-    auto: bool = True,
-) -> BotAction:
-    """发送文件。只支持发送本地文件。 若为群聊文件发送，不提供 folder id，则默认上传到群文件根目录。
-
-    示例路径：`C:/users/15742/desktop/QQ图片20230108225606.jpg`。
-
-    （若需要发送网络文件，先使用 `download_file()` 方法生成下载网络文件的 action，
-    action 响应后文件会放于 cq 前端实现 缓存文件夹中，可直接在消息段中引用）
-    """
-    return BotAction(
-        UploadFileActionArgs(
-            isPrivate, file, sendFileName, userId, groupId, groupFolderId
-        ),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetGroupFileSysInfoActionArgs(ActionArgs):
-    """获取群文件系统信息 action 信息构造类."""
-
-    def __init__(self, groupId: int) -> None:
-        super().__init__()
-        self.type = "get_group_file_system_info"
-        self.params = {"group_id": groupId}
-
-
-@CtxManager._activate
-async def get_group_filesys_info(
-    groupId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取群文件系统信息."""
-    return BotAction(
-        GetGroupFileSysInfoActionArgs(groupId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetGroupRootFilesActionArgs(ActionArgs):
-    """获取群根目录文件列表 action 信息构造类."""
-
-    def __init__(self, groupId: int) -> None:
-        super().__init__()
-        self.type = "get_group_root_files"
-        self.params = {"group_id": groupId}
-
-
-@CtxManager._activate
-async def get_group_root_files(
-    groupId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取群根目录文件列表."""
-    return BotAction(
-        GetGroupRootFilesActionArgs(groupId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetGroupFilesByFolderActionArgs(ActionArgs):
-    """获取群子目录文件列表 action 信息构造类."""
-
-    def __init__(self, groupId: int, folderId: str) -> None:
-        super().__init__()
-        self.type = "get_group_files_by_folder"
-        self.params = {"group_id": groupId, "folder_id": folderId}
-
-
-@CtxManager._activate
-async def get_group_files_byfolder(
-    groupId: int, folderId: str, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取群子目录文件列表."""
-    return BotAction(
-        GetGroupFilesByFolderActionArgs(groupId, folderId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class CreateGroupFolderActionArgs(ActionArgs):
-    """创建群文件夹 action 信息构造类."""
-
-    def __init__(self, groupId: int, folderName: str) -> None:
-        super().__init__()
-        self.type = "create_group_file_folder"
-        self.params = {"group_id": groupId, "name": folderName, "parent_id": "/"}
-
-
-@CtxManager._activate
-async def create_group_folder(
-    groupId: int, folderName: str, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """创建群文件夹。注意：只能在根目录创建文件夹."""
-    return BotAction(
-        CreateGroupFolderActionArgs(groupId, folderName),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class DeleteGroupFolderActionArgs(ActionArgs):
-    """删除群文件夹 action 信息构造类."""
-
-    def __init__(self, groupId: int, folderId: str) -> None:
-        super().__init__()
-        self.type = "delete_group_folder"
-        self.params = {"group_id": groupId, "folder_id": folderId}
-
-
-@CtxManager._activate
-async def delete_group_folder(
-    groupId: int, folderId: str, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """删除群文件夹。"""
-    return BotAction(
-        DeleteGroupFolderActionArgs(groupId, folderId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class DeleteGroupFileActionArgs(ActionArgs):
-    """删除群文件 action 信息构造类."""
-
-    def __init__(self, groupId: int, fileId: str, fileTypeId: int) -> None:
-        super().__init__()
-        self.type = "delete_group_file"
-        self.params = {"group_id": groupId, "file_id": fileId, "busid": fileTypeId}
-
-
-@CtxManager._activate
-async def delete_group_file(
-    groupId: int, fileId: str, fileTypeId: int, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """删除群文件。文件相关信息通过 `get_group_root_files()` 或 `get_group_files` 的响应获得."""
-    return BotAction(
-        DeleteGroupFileActionArgs(groupId, fileId, fileTypeId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetGroupFileUrlActionArgs(ActionArgs):
-    """获取群文件资源链接 action 信息构造类."""
-
-    def __init__(self, groupId: int, fileId: str, fileTypeId: int) -> None:
-        super().__init__()
-        self.type = "get_group_file_url"
-        self.params = {"group_id": groupId, "file_id": fileId, "busid": fileTypeId}
-
-
-@CtxManager._activate
-async def get_group_file_url(
-    groupId: int, fileId: str, fileTypeId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取群文件资源链接。文件相关信息通过 `get_group_root_files()` 或 `get_group_files` 的响应获得."""
-    return BotAction(
-        GetGroupFileUrlActionArgs(groupId, fileId, fileTypeId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
 class GetCqStatusActionArgs(ActionArgs):
-    """获取 cq 前端实现 状态 action 信息构造类."""
+    """获取 onebot 实现 状态 action 信息构造类."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1192,299 +1221,20 @@ class GetCqStatusActionArgs(ActionArgs):
 
 
 @CtxManager._activate
-async def get_cq_status(wait: bool = True, auto: bool = True) -> BotAction:
-    """获取 cq 前端实现 状态."""
+async def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
+    """获取 onebot 实现项目的状态
+
+    :param wait: 是否等待这个行为的响应
+    :param auto: 是否自动发送
+    :return:
+       `auto=False` -> :class:`.BotAction` 对象
+
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
+    """
     return BotAction(
         GetCqStatusActionArgs(), resp_id=get_id() if wait else None, ready=auto
-    )
-
-
-class GetAtAllRemainActionArgs(ActionArgs):
-    """获取群 @全体成员 剩余次数 action 信息构造类."""
-
-    def __init__(self, groupId: int) -> None:
-        super().__init__()
-        self.type = "get_group_at_all_remain"
-        self.params = {"group_id": groupId}
-
-
-@CtxManager._activate
-async def get_atall_remain(
-    groupId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取群 @全体成员 剩余次数."""
-    return BotAction(
-        GetAtAllRemainActionArgs(groupId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class QuickHandleActionArgs(ActionArgs):
-    """事件快速操作 action 信息构造类."""
-
-    def __init__(self, contextEvent: "BotEvent", operation: dict) -> None:
-        super().__init__()
-        self.type = ".handle_quick_operation"
-        self.params = {"context": contextEvent.raw, "operation": operation}
-
-
-@CtxManager._activate
-async def _quick_handle(
-    contextEvent: "BotEvent", operation: dict, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """事件快速操作。
-
-    ### 提示：外部应该避免调用此方法，此方法只应在 melobot 内部使用
-    """
-    warnings.warn("外部应该避免调用此方法，此方法只应在内部使用", DeprecationWarning)
-    return BotAction(
-        QuickHandleActionArgs(contextEvent, operation),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class SetGroupNoticeActionArgs(ActionArgs):
-    """发送群公告 action 信息构造类."""
-
-    def __init__(
-        self, groupId: int, content: str, imageUrl: Optional[str] = None
-    ) -> None:
-        super().__init__()
-        self.type = "_send_group_notice"
-        self.params = {
-            "group_id": groupId,
-            "content": content,
-        }
-        if imageUrl:
-            self.params["image"] = imageUrl
-
-
-@CtxManager._activate
-async def set_group_notice(
-    groupId: int,
-    content: str,
-    imageUrl: Optional[str] = None,
-    wait: bool = False,
-    auto: bool = True,
-) -> BotAction:
-    """
-    发送群公告。注意 `imageUrl` 只能为本地 url，示例：`file:///C:/users/15742/desktop/123.jpg`
-    """
-    return BotAction(
-        SetGroupNoticeActionArgs(groupId, content, imageUrl),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetGroupNoticeActionArgs(ActionArgs):
-    """获取群公告 action 信息构造类."""
-
-    def __init__(
-        self,
-        groupId: int,
-    ) -> None:
-        super().__init__()
-        self.type = "_get_group_notice"
-        self.params = {
-            "group_id": groupId,
-        }
-
-
-@CtxManager._activate
-async def get_group_notice(
-    groupId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取群公告。 群公告图片有 id，但暂时没有下载的方法."""
-    return BotAction(
-        GetGroupNoticeActionArgs(groupId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class DownloadFileActionArgs(ActionArgs):
-    """下载文件到缓存目录 action 信息构造类."""
-
-    def __init__(self, fileUrl: str, useThreadNum: int, headers: list | str) -> None:
-        super().__init__()
-        self.type = "download_file"
-        self.params = {"url": fileUrl, "thread_count": useThreadNum, "headers": headers}
-
-
-@CtxManager._activate
-async def download_file(
-    fileUrl: str,
-    useThreadNum: int,
-    headers: list | str,
-    wait: bool = True,
-    auto: bool = True,
-) -> BotAction:
-    """
-    下载文件到缓存目录。`headers` 的两种格式：
-    ```
-    "User-Agent=YOUR_UA[\\r\\n]Referer=https://www.baidu.com"
-    ```
-    或
-    ```python
-    [
-        "User-Agent=YOUR_UA",
-        "Referer=https://www.baidu.com"
-    ]
-    ```
-    """
-    return BotAction(
-        DownloadFileActionArgs(fileUrl, useThreadNum, headers),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetOnlineClientsActionArgs(ActionArgs):
-    """获取当前账号在线客户端列表 action 信息构造类."""
-
-    def __init__(self, noCache: bool) -> None:
-        super().__init__()
-        self.type = "get_online_clients"
-        self.params = {"no_cache": noCache}
-
-
-@CtxManager._activate
-async def get_online_clients(
-    noCache: bool, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取当前账号在线客户端列表."""
-    return BotAction(
-        GetOnlineClientsActionArgs(noCache),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetGroupMsgHistoryActionArgs(ActionArgs):
-    """获取群消息历史记录 action 信息构造类."""
-
-    def __init__(self, msgSeq: int, groupId: int) -> None:
-        super().__init__()
-        self.type = "get_group_msg_history"
-        self.params = {"message_seq": msgSeq, "group_id": groupId}
-
-
-@CtxManager._activate
-async def get_group_msg_history(
-    msgSeq: int, groupId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取群消息历史记录."""
-    return BotAction(
-        GetGroupMsgHistoryActionArgs(msgSeq, groupId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class SetGroupEssenceActionArgs(ActionArgs):
-    """设置精华消息 action 信息构造类."""
-
-    def __init__(self, msgId: int, type: Literal["add", "del"]) -> None:
-        super().__init__()
-        if type == "add":
-            self.type = "set_essence_msg"
-        else:
-            self.type = "delete_essence_msg"
-        self.params = {"message_id": msgId}
-
-
-@CtxManager._activate
-async def set_group_essence(
-    msgId: int, type: Literal["add", "del"], wait: bool = False, auto: bool = True
-) -> BotAction:
-    """设置精华消息."""
-    return BotAction(
-        SetGroupEssenceActionArgs(msgId, type),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetGroupEssencelistActionArgs(ActionArgs):
-    """获取精华消息列表 action 信息构造类."""
-
-    def __init__(self, groupId: int) -> None:
-        super().__init__()
-        self.type = "get_essence_msg_list"
-        self.params = {"group_id": groupId}
-
-
-@CtxManager._activate
-async def get_group_essence_list(
-    groupId: int, wait: bool = True, auto: bool = True
-) -> BotAction:
-    """获取精华消息列表."""
-    return BotAction(
-        GetGroupEssencelistActionArgs(groupId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class GetModelShowActionArgs(ActionArgs):
-    """获取在线机型 action 信息构造类."""
-
-    def __init__(self, model: str) -> None:
-        super().__init__()
-        self.type = "_get_model_show"
-        self.params = {"model": model}
-
-
-@CtxManager._activate
-async def get_model_show(model: str, wait: bool = True, auto: bool = True) -> BotAction:
-    """获取在线机型."""
-    return BotAction(
-        GetModelShowActionArgs(model), resp_id=get_id() if wait else None, ready=auto
-    )
-
-
-class SetModelShowActionArgs(ActionArgs):
-    """设置在线机型 action 信息构造类."""
-
-    def __init__(self, model: str, modelShow: str) -> None:
-        super().__init__()
-        self.type = "_set_model_show"
-        self.params = {"model": model, "model_show": modelShow}
-
-
-@CtxManager._activate
-async def set_model_show(
-    model: str, modelShow: str, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """设置在线机型."""
-    return BotAction(
-        SetModelShowActionArgs(model, modelShow),
-        resp_id=get_id() if wait else None,
-        ready=auto,
-    )
-
-
-class DeleteUndirectFriendActionArgs(ActionArgs):
-    """删除单向好友 action 信息构造类."""
-
-    def __init__(self, userId: int) -> None:
-        super().__init__()
-        self.type = "delete_unidirectional_friend"
-        self.params = {"user_id": userId}
-
-
-@CtxManager._activate
-async def delete_undirect_friend(
-    userId: int, wait: bool = False, auto: bool = True
-) -> BotAction:
-    """删除单向好友."""
-    return BotAction(
-        DeleteUndirectFriendActionArgs(userId),
-        resp_id=get_id() if wait else None,
-        ready=auto,
     )
 
 
@@ -1492,9 +1242,32 @@ async def delete_undirect_friend(
 async def take_custom_action(
     action: BotAction,
 ) -> BotAction:
-    """直接发送提供的 action."""
-    action.ready = True
+    """发送给定的自定义行为
+
+    :param action: 行为对象
+    :return:
+       若此 action 指定等待 -> :class:`.ResponseEvent` 对象
+
+       若此 action 未指定等待 -> :obj:`None`
+    """
+    action._ready = True
     return action
+
+
+async def make_action(
+    type: str, params: dict, need_resp: bool, trigger: Optional[BotEvent] = None
+) -> BotAction:
+    """创建一个自定义行为
+
+    :param type: 行为的类型
+    :param params: 行为的附加参数
+    :param need_resp: 是否需要等待这个行为
+    :param trigger: 行为的触发事件
+    :return: 行为对象
+    """
+    args = ActionArgs()
+    args.type, args.params = type, params
+    return BotAction(args, get_id() if need_resp else None, trigger, ready=False)
 
 
 async def send_wait(
@@ -1502,12 +1275,34 @@ async def send_wait(
     cq_str: bool = False,
     overtime: Optional[int] = None,
 ) -> None:
-    """回复一条消息然后挂起."""
+    """发送一条消息然后暂停当前会话（在当前会话下自动定位发送目标）
+
+    会话应该是可暂停的，这意味着该会话应该拥有会话规则。
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    :param content: 发送内容
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    :param overtime: 会话暂停的超时时间，超时将抛出 :class:`.SessionHupTimeout` 异常
+    """
     await send(content, cq_str)
     try:
         await SESSION_LOCAL.hup(overtime)
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
 async def send_reply(
@@ -1515,11 +1310,35 @@ async def send_reply(
     cq_str: bool = False,
     wait: bool = False,
 ) -> Optional["ResponseEvent"]:
-    """发送一条回复消息."""
+    """发送一条回复消息（在当前会话下自动定位发送目标）
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    :param content: 发送内容
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    :param wait: 是否等待发送后的响应
+    :return:
+       若指定等待 -> :class:`.ResponseEvent` 对象
+
+       若未指定等待 -> :obj:`None`
+    """
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
     if isinstance(content, str):
         content_arr.append(text_msg(content))
@@ -1534,12 +1353,33 @@ async def finish(
     content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
 ) -> None:
-    """发送一条消息，然后直接结束当前事件处理方法."""
+    """发送一条消息，然后直接结束当前事件处理方法（在当前会话下自动定位发送目标）
+
+    只可在事件处理方法中使用。
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    :param content: 发送内容
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    """
     await send(content, cq_str)
     try:
         SESSION_LOCAL.destory()
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
 
 
@@ -1547,11 +1387,32 @@ async def reply_finish(
     content: str | CQMsgDict | list[CQMsgDict],
     cq_str: bool = False,
 ) -> Optional["ResponseEvent"]:
-    """发送一条回复消息，然后直接结束当前事件处理方法."""
+    """发送一条回复消息，然后直接结束当前事件处理方法（在当前会话下自动定位发送目标）
+
+    只可在事件处理方法中使用。
+
+    .. admonition:: 小技巧
+       :class: note
+
+       当启用了 `cq_str` 选项，且 `content` 参数为字符串时，
+       `content` 字符串将不会被处理为消息段对象，此时字符串中的 cq 码将会直接生效，而不是被转义。
+
+    .. admonition:: 警告
+       :class: attention
+
+       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+
+       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    :param content: 发送内容
+    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
+    """
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
     if isinstance(content, str):
         content_arr.append(text_msg(content))
@@ -1563,5 +1424,5 @@ async def reply_finish(
     try:
         SESSION_LOCAL.destory()
     except LookupError:
-        raise BotSessionError("当前作用域内 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
     raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
