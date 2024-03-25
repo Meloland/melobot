@@ -20,6 +20,8 @@ copyright = "2024, aicorein"
 author = "aicorein"
 release = "2.5.5"
 
+html_baseurl = "/melobot/"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
