@@ -1,0 +1,900 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>melobot.base.tools - MeloBot 2.5.5 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.5 文档</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  
+  <span class="sidebar-brand-text">MeloBot 2.5.5 文档</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">开始使用</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.meta.html">melobot.meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.bot.html">melobot.bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.models.html">melobot.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.context.html">melobot.context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.utils.html">melobot.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">更多</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../melobot-next.html">下一代 melobot</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>melobot.base.tools 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">iscoroutine</span><span class="p">,</span> <span class="n">iscoroutinefunction</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="kn">import</span> <span class="nn">rich</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">BotBaseUtilsError</span><span class="p">,</span> <span class="n">BotRuntimeError</span>
+<span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span>
+
+
+<span class="k">class</span> <span class="nc">Singleton</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__instance__&quot;</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__instance__</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Singleton</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instance__</span>
+
+
+<span class="k">class</span> <span class="nc">AsyncTwinEvent</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;孪生 Event，会和绑定的一方时刻保持状态相反。&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncTwinEvent</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">:</span> <span class="s2">&quot;AsyncTwinEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span> <span class="o">=</span> <span class="n">twin</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">AsyncTwinEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span><span class="p">)</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">AsyncTwinEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">AsyncTwinEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span><span class="p">)</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">AsyncTwinEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">get_twin_event</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得两个时刻保持状态相反的 asyncio.Event。 获得的第一个为 unset，另一个为 set.&quot;&quot;&quot;</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">AsyncTwinEvent</span><span class="p">(),</span> <span class="n">AsyncTwinEvent</span><span class="p">()</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">b</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span>
+
+
+<div class="viewcode-block" id="RWController">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.RWController">[文档]</a>
+<span class="k">class</span> <span class="nc">RWController</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;异步读写控制器</span>
+
+<span class="sd">    提供异步安全的读写上下文。在读取时可以多读，同时读写互斥。</span>
+
+<span class="sd">    使用方法：</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">       rwc = RWController()</span>
+<span class="sd">       # 读时使用此控制器的安全读上下文：</span>
+<span class="sd">       async with rwc.safe_read():</span>
+<span class="sd">           ...</span>
+<span class="sd">       # 写时使用此控制器的安全写上下文：</span>
+<span class="sd">       async with rwc.safe_write():</span>
+<span class="sd">           ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RWController.__init__">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.RWController.__init__">[文档]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个异步读写控制器</span>
+
+<span class="sd">        :param read_limit: 读取的数量限制，为空则不限制</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">write_semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">read_limit</span><span class="p">:</span>
+            <span class="n">read_semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">read_limit</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">read_semaphore</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">read_num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">read_num_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+        <span class="nd">@asynccontextmanager</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">safe_read</span><span class="p">():</span>
+            <span class="k">nonlocal</span> <span class="n">read_num</span><span class="p">,</span> <span class="n">read_semaphore</span><span class="p">,</span> <span class="n">write_semaphore</span><span class="p">,</span> <span class="n">read_num_lock</span>
+            <span class="k">if</span> <span class="n">read_semaphore</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">read_semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">read_num_lock</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">read_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">write_semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="n">read_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">read_num_lock</span><span class="p">:</span>
+                    <span class="n">read_num</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">read_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">write_semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">read_semaphore</span><span class="p">:</span>
+                        <span class="n">read_semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="nd">@asynccontextmanager</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">safe_write</span><span class="p">():</span>
+            <span class="k">nonlocal</span> <span class="n">write_semaphore</span>
+            <span class="k">await</span> <span class="n">write_semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">write_semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">safe_read</span> <span class="o">=</span> <span class="n">safe_read</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">safe_write</span> <span class="o">=</span> <span class="n">safe_write</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">IdWorker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;雪花算法生成 ID.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datacenter_id</span><span class="p">,</span> <span class="n">worker_id</span><span class="p">,</span> <span class="n">sequence</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MAX_WORKER_ID</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">^</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MAX_DATACENTER_ID</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">^</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WOKER_ID_SHIFT</span> <span class="o">=</span> <span class="mi">12</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DATACENTER_ID_SHIFT</span> <span class="o">=</span> <span class="mi">12</span> <span class="o">+</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TIMESTAMP_LEFT_SHIFT</span> <span class="o">=</span> <span class="mi">12</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SEQUENCE_MASK</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">^</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">STARTEPOCH</span> <span class="o">=</span> <span class="mi">1064980800000</span>
+        <span class="c1"># sanity check</span>
+        <span class="k">if</span> <span class="n">worker_id</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_WORKER_ID</span> <span class="ow">or</span> <span class="n">worker_id</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;worker_id 值越界&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">datacenter_id</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_DATACENTER_ID</span> <span class="ow">or</span> <span class="n">datacenter_id</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;datacenter_id 值越界&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span> <span class="o">=</span> <span class="n">worker_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datacenter_id</span> <span class="o">=</span> <span class="n">datacenter_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">=</span> <span class="n">sequence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__gen_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成整数时间戳.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取新 ID.&quot;&quot;&quot;</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_timestamp</span><span class="p">()</span>
+
+        <span class="c1"># 时钟回拨</span>
+        <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;时钟回拨，</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span><span class="si">}</span><span class="s2"> 前拒绝 id 生成请求&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">timestamp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">SEQUENCE_MASK</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__til_next_millis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="o">=</span> <span class="n">timestamp</span>
+        <span class="n">new_id</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">((</span><span class="n">timestamp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">STARTEPOCH</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">TIMESTAMP_LEFT_SHIFT</span><span class="p">)</span>
+            <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datacenter_id</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">DATACENTER_ID_SHIFT</span><span class="p">)</span>
+            <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">WOKER_ID_SHIFT</span><span class="p">)</span>
+            <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_id</span>
+
+    <span class="k">def</span> <span class="nf">__til_next_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_timestamp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;等到下一毫秒.&quot;&quot;&quot;</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_timestamp</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">last_timestamp</span><span class="p">:</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_timestamp</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">timestamp</span>
+
+
+<span class="n">ID_WORKER</span> <span class="o">=</span> <span class="n">IdWorker</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_id">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.get_id">[文档]</a>
+<span class="k">def</span> <span class="nf">get_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从 melobot 内部 id 生成器获得一个 id 值，不保证线程安全。</span>
+
+<span class="sd">    :return: id 值</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ID_WORKER</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回使用 rich 格式化的 object.&quot;&quot;&quot;</span>
+    <span class="n">sio</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sio</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="this_dir">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.this_dir">[文档]</a>
+<span class="k">def</span> <span class="nf">this_dir</span><span class="p">(</span><span class="o">*</span><span class="n">relative_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包内 py 脚本通过该方法可获得所在目录的绝对路径。提供参数，还可拼接路径。</span>
+
+<span class="sd">    使用方法：</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">       this_dir() # 获取 ./ 的绝对路径</span>
+<span class="sd">       this_dir(&#39;abc&#39;, &#39;env.toml&#39;) # 获取 ./abc/env.toml 的绝对路径</span>
+
+<span class="sd">    一些注意事项如下：</span>
+
+<span class="sd">    使用 `this_dir()`，只能这样导入：（导入语句后可以使用 as 子句）</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">       from melobot import this_dir</span>
+<span class="sd">       # 或</span>
+<span class="sd">       from melobot.base.tools import this_dir</span>
+
+<span class="sd">    若 `B.py` 从 `A.py` 导入包含 :func:`this_dir` 调用的结构，</span>
+<span class="sd">    导入前 :func:`this_dir` 必须已运行，而不能延迟求值</span>
+
+<span class="sd">    `A.py` 中：</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">       class Foo:</span>
+<span class="sd">           DIR = this_dir()</span>
+<span class="sd">           LAMBDA_DIR = lambda: this_dir()</span>
+<span class="sd">           GET_DIR = lambda: this_dir()</span>
+<span class="sd">       OUTER_DIR = Foo.LAMBDA_DIR()  # Ok</span>
+
+<span class="sd">    `B.py` 中：</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">       from .A import Foo, OUTER_DIR</span>
+<span class="sd">       OUTER_DIR      # Ok</span>
+<span class="sd">       Foo.DIR        # Ok</span>
+<span class="sd">       Foo.GET_DIR()  # Error</span>
+
+<span class="sd">    :param relative_path: 可用于拼接的路径部分</span>
+<span class="sd">    :return: 拼接后的绝对路径</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cur_finfo</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">FrameInfo</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cur_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">caller_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">stacks</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">finfo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stacks</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">finfo</span><span class="o">.</span><span class="n">function</span> <span class="o">==</span> <span class="s2">&quot;this_dir&quot;</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span><span class="n">finfo</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="vm">__file__</span><span class="p">):</span>
+            <span class="n">cur_finfo</span><span class="p">,</span> <span class="n">cur_idx</span> <span class="o">=</span> <span class="n">finfo</span><span class="p">,</span> <span class="n">idx</span>
+    <span class="k">if</span> <span class="n">cur_finfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;this_dir 定位失败，请检查本函数使用方式是否正确&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">finfo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stacks</span><span class="p">[</span><span class="n">cur_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]):</span>
+        <span class="k">if</span> <span class="n">finfo</span><span class="o">.</span><span class="n">function</span> <span class="o">==</span> <span class="s2">&quot;&lt;module&gt;&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">finfo</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="n">__dir_inspector__</span><span class="p">:</span>
+                    <span class="n">caller_path</span> <span class="o">=</span> <span class="n">finfo</span><span class="o">.</span><span class="n">filename</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">caller_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+    <span class="k">if</span> <span class="n">caller_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;this_dir 定位失败，请检查本函数使用方式是否正确&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">caller_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">relative_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="n">__dir_inspector__</span> <span class="o">=</span> <span class="n">this_dir</span>
+
+
+<div class="viewcode-block" id="to_async">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.to_async">[文档]</a>
+<span class="k">def</span> <span class="nf">to_async</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;异步包装函数</span>
+
+<span class="sd">    将一个同步函数包装为异步函数，保留返回值。如果需要传参使用 partial 包裹。</span>
+
+<span class="sd">    :param func: 需要转换的函数</span>
+<span class="sd">    :return: 异步函数</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+
+<div class="viewcode-block" id="to_coro">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.to_coro">[文档]</a>
+<span class="k">def</span> <span class="nf">to_coro</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;协程包装函数</span>
+
+<span class="sd">    将一个同步函数包装为协程，保留返回值。如果需要传参使用 partial 包裹。</span>
+
+<span class="sd">    :param func: 需要包装的函数</span>
+<span class="sd">    :return: 协程</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="to_task">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.to_task">[文档]</a>
+<span class="k">def</span> <span class="nf">to_task</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;任务包装器</span>
+
+<span class="sd">    将一个同步函数或协程包装为任务，保留返回值。如果需要传参使用 partial 包裹。</span>
+
+<span class="sd">    :param obj: 同步函数或协程</span>
+<span class="sd">    :return: 任务</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">obj</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">to_coro</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>  <span class="c1"># type: ignore</span></div>
+
+
+
+<div class="viewcode-block" id="lock">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.lock">[文档]</a>
+<span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;锁装饰器</span>
+
+<span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数加锁。</span>
+
+<span class="sd">    在获取锁冲突时，调用 `callback` 获得一个回调并执行。回调执行完毕后直接返回</span>
+
+<span class="sd">    :param callback: 获取锁冲突时的回调</span>
+<span class="sd">    :return:</span>
+<span class="sd">       获取锁未冲突 -&gt; 被装饰函数返回值</span>
+
+<span class="sd">       获取锁冲突 -&gt; 回调的返回值</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;lock 装饰器的 callback 参数不可调用，callback 值为：</span><span class="si">{</span><span class="n">callback</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T2</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">]]:</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
+                <span class="n">cb</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;lock 装饰器的 callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cb</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cb</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">alock</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapped_func</span>
+
+    <span class="k">return</span> <span class="n">deco_func</span></div>
+
+
+
+<div class="viewcode-block" id="cooldown">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.cooldown">[文档]</a>
+<span class="k">def</span> <span class="nf">cooldown</span><span class="p">(</span>
+    <span class="n">busy_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]],</span>
+    <span class="n">cd_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T2</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;冷却装饰器</span>
+
+<span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数添加 cd 时间。</span>
+
+<span class="sd">    如果被装饰函数已有一个在运行，此时调用 `busy_callback` 生成回调并执行。回调执行完毕后直接返回。</span>
+
+<span class="sd">    如果被装饰函数没有在运行的，但在冷却完成前被调用：</span>
+
+<span class="sd">       - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。</span>
+<span class="sd">       - `cd_callback` 为空， 被装饰函数持续等待，直至冷却结束再执行。</span>
+
+<span class="sd">    :param busy_callback: 已运行时的回调</span>
+<span class="sd">    :param cd_callback: 冷却时间未到的回调</span>
+<span class="sd">    :param interval: 冷却时间</span>
+<span class="sd">    :return:</span>
+<span class="sd">       被装饰函数可执行 -&gt; 被装饰函数返回值</span>
+
+<span class="sd">       发生已运行冲突 -&gt; `busy_callback` 的返回值</span>
+
+<span class="sd">       冷却时间未到 -&gt; `cd_callback` 的返回值</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">interval</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">busy_callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 busy_callback 参数不可调用，busy_callback 值为：</span><span class="si">{</span><span class="n">busy_callback</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">cd_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">cd_callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 cd_callback 参数不可调用，cd_callback 值为：</span><span class="si">{</span><span class="n">cd_callback</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T3</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span> <span class="o">|</span> <span class="n">T3</span><span class="p">]]:</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span> <span class="o">|</span> <span class="n">T3</span><span class="p">:</span>
+            <span class="k">nonlocal</span> <span class="n">pre_finish_t</span>
+            <span class="k">if</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
+                <span class="n">busy_cb</span> <span class="o">=</span> <span class="n">busy_callback</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">busy_cb</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 busy_callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">busy_cb</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">busy_cb</span>
+
+            <span class="k">async</span> <span class="k">with</span> <span class="n">alock</span><span class="p">:</span>
+                <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">pre_finish_t</span>
+                <span class="k">if</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="n">interval</span><span class="p">:</span>
+                    <span class="n">ret</span> <span class="o">=</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">ret</span>
+
+                <span class="n">remain_t</span> <span class="o">=</span> <span class="n">interval</span> <span class="o">-</span> <span class="n">duration</span>
+                <span class="k">if</span> <span class="n">cd_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">cd_cb</span> <span class="o">=</span> <span class="n">cd_callback</span><span class="p">(</span><span class="n">remain_t</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cd_cb</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 cd_callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cd_cb</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">return</span> <span class="k">await</span> <span class="n">cd_cb</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">remain_t</span><span class="p">)</span>
+                    <span class="n">ret</span> <span class="o">=</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="k">return</span> <span class="n">wrapped_func</span>
+
+    <span class="k">return</span> <span class="n">deco_func</span></div>
+
+
+
+<div class="viewcode-block" id="semaphore">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.semaphore">[文档]</a>
+<span class="k">def</span> <span class="nf">semaphore</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]],</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;信号量装饰器</span>
+
+<span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数添加信号量控制。</span>
+
+<span class="sd">    在信号量无法立刻获取时，将调用 `callback` 获得回调并执行。回调执行完毕后直接返回。</span>
+
+<span class="sd">    :param callback: 信号量无法立即获取的回调</span>
+<span class="sd">    :param value: 信号量阈值</span>
+<span class="sd">    :return:</span>
+<span class="sd">       可以立即获取信号量 -&gt; 被装饰函数返回值</span>
+
+<span class="sd">       不能立即获取信号量 -&gt; 回调的返回值</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a_semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;semaphore 装饰器的 callback 参数不可调用，callback 值为：</span><span class="si">{</span><span class="n">callback</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T2</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">]]:</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">a_semaphore</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
+                <span class="n">cb</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;semaphore 装饰器的 callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cb</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cb</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">a_semaphore</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapped_func</span>
+
+    <span class="k">return</span> <span class="n">deco_func</span></div>
+
+
+
+<div class="viewcode-block" id="timelimit">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.timelimit">[文档]</a>
+<span class="k">def</span> <span class="nf">timelimit</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]],</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;时间限制装饰器</span>
+
+<span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数添加超时控制。</span>
+
+<span class="sd">    超时之后，调用 `callback` 获得回调并执行，同时取消原任务</span>
+
+<span class="sd">    :param callback: 超时时的回调</span>
+<span class="sd">    :param timeout: 超时时间, defaults to 5</span>
+<span class="sd">    :return:</span>
+<span class="sd">       被装饰函数未超时 -&gt; 被装饰函数返回值</span>
+
+<span class="sd">       被装饰函数超时 -&gt; 回调的返回值</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;timelimit 装饰器的 callback 参数不可调用，callback 值为：</span><span class="si">{</span><span class="n">callback</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T2</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">]]:</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">timeout</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
+                <span class="n">cb</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;timelimit 装饰器的 callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cb</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cb</span>
+
+        <span class="k">return</span> <span class="n">wrapped_func</span>
+
+    <span class="k">return</span> <span class="n">deco_func</span></div>
+
+
+
+<div class="viewcode-block" id="call_later">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.call_later">[文档]</a>
+<span class="k">def</span> <span class="nf">call_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;同步函数延迟调度</span>
+
+<span class="sd">    在指定的 `delay` 后调度一个 `callback` 执行。`callback` 应该是同步方法。</span>
+
+<span class="sd">    :param callback: 同步函数</span>
+<span class="sd">    :param delay: 多长时间后调度</span>
+<span class="sd">    :return: :class:`asyncio.TimerHandle` 对象</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="call_at">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.call_at">[文档]</a>
+<span class="k">def</span> <span class="nf">call_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;同步函数指定时间调度</span>
+
+<span class="sd">    在指定的时间戳调度一个 `callback` 执行。`callback` 应该是同步方法。`timestamp` &lt;= 当前时刻回调立即执行</span>
+
+<span class="sd">    :param callback: 同步函数</span>
+<span class="sd">    :param timestamp: 在什么时刻调度</span>
+<span class="sd">    :return: :class:`asyncio.TimerHandle` 对象</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_soon</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="n">timestamp</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">callback</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="async_later">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.async_later">[文档]</a>
+<span class="k">def</span> <span class="nf">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数延迟调度（可自主选择是否等待）</span>
+
+<span class="sd">    在指定的 `delay` 后调度一个 `callback` 执行。`callback` 是协程。</span>
+
+<span class="sd">    返回一个 :class:`asyncio.Future` 对象，你可以选择等待或不等待。等待 :class:`asyncio.Future` 即是等待 `callback` 的返回值。</span>
+
+<span class="sd">    注意：如果 `callback` 未完成就被取消，需要捕获 :class:`asyncio.CancelledError`。</span>
+
+<span class="sd">    :param callback: 异步函数（可有返回值）</span>
+<span class="sd">    :param delay: 多长时间后调度</span>
+<span class="sd">    :return: :class:`asyncio.Future` 对象</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">async_cb</span><span class="p">(</span><span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">callback</span>
+            <span class="n">fut</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+            <span class="n">callback</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">()</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">async_cb</span><span class="p">(</span><span class="n">fut</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">fut</span></div>
+
+
+
+<div class="viewcode-block" id="async_at">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.async_at">[文档]</a>
+<span class="k">def</span> <span class="nf">async_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数指定时间调度（可自主选择是否等待）</span>
+
+<span class="sd">    在指定的时间戳调度一个 `callback` 执行。`callback` 是协程。</span>
+
+<span class="sd">    返回一个 :class:`asyncio.Future` 对象，你可以选择等待或不等待。等待 :class:`asyncio.Future` 即是等待 `callback` 的返回值。</span>
+
+<span class="sd">    注意：如果 `callback` 未完成就被取消，需要捕获 :class:`asyncio.CancelledError`。</span>
+
+<span class="sd">    :param callback: 异步函数（可有返回值）</span>
+<span class="sd">    :param timestamp: 在什么时刻调度</span>
+<span class="sd">    :return: :class:`asyncio.Future` 对象</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">timestamp</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="async_interval">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.async_interval">[文档]</a>
+<span class="k">def</span> <span class="nf">async_interval</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数间隔调度（类似 JavaScript 的 setInterval）</span>
+
+<span class="sd">    每过时间间隔执行 `callback` 一次。`callback` 是返回协程的可调用对象（异步函数或 lambda 函数等）。</span>
+
+<span class="sd">    返回一个 :class:`asyncio.Task` 对象，可使用该 task 取消调度过程。</span>
+
+<span class="sd">    :param callback: 异步函数</span>
+<span class="sd">    :param interval: 调度的间隔</span>
+<span class="sd">    :return: :class:`asyncio.Task` 对象</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">interval_cb</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">coro</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+                <span class="k">await</span> <span class="n">coro</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+            <span class="n">coro</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">interval_cb</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">t</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, aicorein
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=67587a9b"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>
