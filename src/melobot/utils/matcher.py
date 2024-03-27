@@ -56,9 +56,9 @@ class ContainMatcher(BotMatcher):
 
     def match(self, text: str) -> bool:
         if isinstance(self.target, str):
-            return text in self.target
+            return self.target in text
         else:
-            res_seq = [text in s for s in self.target]
+            res_seq = [s in text for s in self.target]
             return LogicMode.seq_calc(self.mode, res_seq)
 
 

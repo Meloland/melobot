@@ -21,8 +21,8 @@ class NullLogger(Logger):
 
 
 class BotLogger(Logger):
-    """日志器类
-    """
+    """日志器类"""
+
     LOGGERS: dict[str, "BotLogger"] = {}
 
     FIELD_COLORS = {
@@ -125,6 +125,7 @@ class BotLogger(Logger):
         super().__init__(name, BotLogger.LEVEL_MAP[level])
         BotLogger.LOGGERS[name] = self
         self._con_handler: Optional[logging.Handler] = None
+        self._handler_arr: list[logging.Handler] = []
         self._no_tag = no_tag
 
         if to_console:
@@ -138,23 +139,25 @@ class BotLogger(Logger):
                 self._console_fmt(self.name, self._no_tag)
             )
             self.addHandler(self._con_handler)
+            self._handler_arr.append(self._con_handler)
 
     def _add_file_handler(self, log_dir: str) -> None:
         handler = self._file_handler(
             self._file_fmt(self.name, self._no_tag), log_dir, self.name
         )
         self.addHandler(handler)
+        self._handler_arr.append(handler)
 
-    def set_level(
-        self, level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"]
-    ) -> None:
-        self.setLevel(BotLogger.LEVEL_MAP[level])
+    def setLevel(self, level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"]) -> None:  # type: ignore
+        super().setLevel(level)
+        for handler in self._handler_arr:
+            handler.setLevel(level)
 
-    def to_console(self) -> None:
-        self._add_console_handler()
+    # def to_console(self) -> None:
+    #     self._add_console_handler()
 
-    def to_dir(self, log_dir: str) -> None:
-        self._add_file_handler(log_dir)
+    # def to_dir(self, log_dir: str) -> None:
+    #     self._add_file_handler(log_dir)
 
 
 _SysExcInfoType: TypeAlias = (

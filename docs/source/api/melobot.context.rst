@@ -33,7 +33,6 @@ melobot.context
 
 .. autofunction:: melobot.context.dispose
 
-
 高级行为操作
 -------------
 在 melobot 中，所有行为都是 :class:`.BotAction` 类的实例对象。
@@ -56,11 +55,17 @@ melobot.context
 
 .. autofunction:: melobot.context.reply_finish
 
+.. _action-operations:
+
 基本行为操作
 ------------------
 
 基本行为操作是与 onebot 标准中的“API 接口”相吻合的行为操作。
-但需要注意部分 onebot API 接口在 melobot 中未提供支持：
+
+如果你需要等待这些行为操作的响应，那么你可能对它们的响应数据感兴趣： `onebot 标准的 API 接口 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md>`_ 。
+需要注意的是：这些响应数据将会在返回的 :class:`.ResponseEvent` 的 :attr:`~.ResponseEvent.data` 属性。
+
+注意部分 onebot API 接口在 melobot 中未提供支持：
 
 .. admonition:: 注意
    :class: caution

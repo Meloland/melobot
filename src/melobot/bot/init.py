@@ -97,7 +97,7 @@ class MeloBot:
         log_to_console: bool = True,
         log_to_dir: Optional[str] = None,
         custom_logger: Optional[Logger] = None,
-    ) -> None:
+    ) -> "MeloBot":
         """初始化 bot 实例
 
         :param connector: 使 bot 实例工作的连接器
@@ -107,6 +107,7 @@ class MeloBot:
         :param log_to_console: 日志是否输出到控制台
         :param log_to_dir: 保存日志文件的目录，为空则不保存
         :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数
+        :return: bot 实例（因此支持链式调用）
         """
         if connector._ref_flag:
             raise DuplicateError("bot 初始化时，不可使用已被其他 bot 实例使用的连接器")
@@ -140,11 +141,13 @@ class MeloBot:
         )
         self.logger.debug("bot 初始化完成，各核心组件已初始化")
         self.__init_flag__ = True
+        return self
 
-    def load_plugin(self, plugin_target: str | BotPlugin) -> None:
+    def load_plugin(self, plugin_target: str | BotPlugin) -> "MeloBot":
         """为 bot 实例加载插件
 
         :param plugin_target: 插件目标，可传入插件对象或插件包（一个插件即是一个 python package）的路径
+        :return: bot 实例（因此支持链式调用）
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能加载插件")
@@ -160,7 +163,7 @@ class MeloBot:
             self.logger.error(
                 f"加载插件出错：插件 id 重复, 重复的 id 为：{plugin.__id__}，已取消该插件加载"
             )
-            return
+            return self
 
         handlers = []
         for _ in plugin.__handler_args__:
@@ -179,11 +182,13 @@ class MeloBot:
         self.__plugins[plugin.__id__] = plugin
         self._dispatcher.add_handlers(handlers)
         self.logger.info(f"成功加载插件：{plugin.__id__}")
+        return self
 
-    def load_plugins(self, plugins_dir: str) -> None:
+    def load_plugins(self, plugins_dir: str) -> "MeloBot":
         """为 bot 实例批量加载插件
 
         :param plugins_dir: 传入包含所有插件包（一个插件即是一个 python package）的目录
+        :return: bot 实例（因此支持链式调用）
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能加载插件")
@@ -194,6 +199,7 @@ class MeloBot:
             path = os.path.join(plugins_dir, item)
             if os.path.isdir(path) and os.path.basename(path) != "__pycache__":
                 self.load_plugin(path)
+        return self
 
     async def _run(self) -> None:
         if not self.__init_flag__:
@@ -252,27 +258,33 @@ class MeloBot:
 
         return not self.connector.slack
 
-    def activate(self) -> None:
+    def activate(self) -> "MeloBot":
         """使 bot 实例退出 slack 状态
 
         slack 状态启用后仅会禁用行为操作的发送，无其他影响
+
+        :return: bot 实例（因此支持链式调用）
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         self.connector.slack = False
         self.logger.debug("bot 已进入 activated 状态")
+        return self
 
-    def slack(self) -> None:
+    def slack(self) -> "MeloBot":
         """使 bot 实例进入 slack 状态
 
         slack 状态启用后仅会禁用行为操作的发送，无其他影响
+
+        :return: bot 实例（因此支持链式调用）
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         self.connector.slack = True
         self.logger.debug("bot 已进入 slack 状态")
+        return self
 
     def get_plugins(self) -> dict[str, PluginProxy]:
         """获得 bot 实例所有插件的信息

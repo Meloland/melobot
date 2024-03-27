@@ -1,11 +1,12 @@
-# MeloBot
+# melobot 文档
 
 ```{toctree}
 :maxdepth: 2
 :hidden:
 
-intro
+intro/index
 api/index
+references/index
 ```
 
 ```{toctree}
@@ -14,6 +15,7 @@ api/index
 :hidden:
 
 melobot-next
+prompt
 ```
 
 ```{include} ../../README.md

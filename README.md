@@ -1,3 +1,5 @@
+<!-- start elevator-pitch -->
+
 <div align="center">
   <img width=200 src="https://github.com/aicorein/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
   <h1>MeloBot</h1>
@@ -40,8 +42,6 @@
     <strong>本项目一切开发旨在学习，请勿用于商业用途和非法用途。任何使用本项目的用户群体，有义务遵守其所在国家或地区的相关法律规定。</strong>
   </p>
 </div>
-
-<!-- start elevator-pitch -->
 
 ## 🎉 简介
 
@@ -87,6 +87,16 @@ pdm install
 - python >= 3.10
 - platform == All
 - OneBot 标准 == 11
+
+## ❤️ 致谢
+
+MeloBot 的很多设计也是从别处借鉴而来的。虽然 MeloBot 并未直接引用这些项目的代码。
+
+但感谢这些优秀的开源项目，它们间接启发了 MeloBot 的架构设计：
+
+- [Flask](https://github.com/pallets/flask)
+- [nonebot](https://github.com/nonebot/nonebot)
+- [nonebot2](https://github.com/nonebot/nonebot2)
 
 <!-- end elevator-pitch -->
 
