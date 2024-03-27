@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="开始使用" href="intro.html" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="开始使用" href="intro/index.html" />
         <link rel="canonical" href="/melobot/index.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>MeloBot 2.5.5 文档</title>
+        <title>MeloBot 2.5.6</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">MeloBot 2.5.5 文档</div></a>
+      <a href="#"><div class="brand">MeloBot 2.5.6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,8 +147,11 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
+  </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.5 文档</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.6</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -157,8 +160,12 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">开始使用</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro/first-bot.html">创建第一个机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/more-events.html">处理更多事件</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.meta.html">melobot.meta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.bot.html">melobot.bot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.io.html">melobot.io</a></li>
@@ -169,10 +176,18 @@
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="references/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references/event-action.html">事件和行为</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references/msg.html">消息内容的数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references/forward-msg.html">转发消息与消息结点</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="melobot-next.html">下一代 melobot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prompt.html">melobot 形象</a></li>
 </ul>
 
 </div>
@@ -192,8 +207,16 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          
-<div class="theme-toggle-container theme-toggle-content">
+          <div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/aicorein/melobot/tree/main/docs/source/index.md" title="Edit this page">
+    <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
+      <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
+    </svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -208,10 +231,52 @@
         </div>
         <article role="main">
           <section id="melobot">
-<h1>MeloBot<a class="headerlink" href="#melobot" title="Link to this heading">#</a></h1>
+<h1>melobot 文档<a class="headerlink" href="#melobot" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
+</div>
+<div align="center">
+  <img width=200 src="https://github.com/aicorein/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
+  <h1>MeloBot</h1>
+  <p>
+    <strong>插件化管理、基于异步会话机制的 qbot 开发框架</strong>
+  </p>
+  <p align="center">
+    <a href="https://raw.githubusercontent.com/aicorein/melobot/main/LICENSE">
+      <img src="https://img.shields.io/github/license/aicorein/melobot" alt="license">
+    </a>
+    <a href="https://docs.melobot.org/">
+      <img src="https://img.shields.io/badge/doc-latest-blue.svg" alt="MeloBot docs">
+    </a>
+    <a href="https://github.com/aicorein/melobot">
+      <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/aicorein/melobot">
+    </a>
+    <a href="https://github.com/howmanybots/onebot/blob/master/README.md">
+      <img src="https://img.shields.io/badge/OneBot-v11-blue?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAIVBMVEUAAAAAAAADAwMHBwceHh4UFBQNDQ0ZGRkoKCgvLy8iIiLWSdWYAAAAAXRSTlMAQObYZgAAAQVJREFUSMftlM0RgjAQhV+0ATYK6i1Xb+iMd0qgBEqgBEuwBOxU2QDKsjvojQPvkJ/ZL5sXkgWrFirK4MibYUdE3OR2nEpuKz1/q8CdNxNQgthZCXYVLjyoDQftaKuniHHWRnPh2GCUetR2/9HsMAXyUT4/3UHwtQT2AggSCGKeSAsFnxBIOuAggdh3AKTL7pDuCyABcMb0aQP7aM4AnAbc/wHwA5D2wDHTTe56gIIOUA/4YYV2e1sg713PXdZJAuncdZMAGkAukU9OAn40O849+0ornPwT93rphWF0mgAbauUrEOthlX8Zu7P5A6kZyKCJy75hhw1Mgr9RAUvX7A3csGqZegEdniCx30c3agAAAABJRU5ErkJggg==" alt="cqhttp">
+    </a>
+  </p>
+  <p align="center">
+    <a href="https://python.org" title="Go to Python homepage">
+      <img src="https://img.shields.io/badge/Python-%3E=3.10-green?logo=python&logoColor=white" alt="Made with Python">
+    </a>
+    <a href="https://pdm-project.org">
+      <img src="https://img.shields.io/badge/PDM-Managed-purple?logo=pdm&logoColor=white" alt="PDM - Managed">
+    </a>
+    <a href="https://pypi.org/project/melobot/">
+      <img alt="PyPI" src="https://img.shields.io/pypi/v/melobot">
+    </a>
+    <a href="https://github.com/psf/black">
+      <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
+    </a>
+    <a href="https://mypy-lang.org/">
+      <img src="https://www.mypy-lang.org/static/mypy_badge.svg" alt="Checked with mypy">
+    </a>
+  </p>
+  <p>
+    郑重承诺和提示：
+    <strong>本项目一切开发旨在学习，请勿用于商业用途和非法用途。任何使用本项目的用户群体，有义务遵守其所在国家或地区的相关法律规定。</strong>
+  </p>
 </div>
 <section id="id1">
 <h2>🎉 简介<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
@@ -256,6 +321,16 @@ pdm<span class="w"> </span>install
 <li><p>OneBot 标准 == 11</p></li>
 </ul>
 </section>
+<section id="id5">
+<h2>❤️ 致谢<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>MeloBot 的很多设计也是从别处借鉴而来的。虽然 MeloBot 并未直接引用这些项目的代码。</p>
+<p>但感谢这些优秀的开源项目，它们间接启发了 MeloBot 的架构设计：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pallets/flask">Flask</a></p></li>
+<li><p><a class="reference external" href="https://github.com/nonebot/nonebot">nonebot</a></p></li>
+<li><p><a class="reference external" href="https://github.com/nonebot/nonebot2">nonebot2</a></p></li>
+</ul>
+</section>
 </section>
 
         </article>
@@ -263,7 +338,7 @@ pdm<span class="w"> </span>install
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="intro.html">
+          <a class="next-page" href="intro/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
@@ -285,7 +360,14 @@ pdm<span class="w"> </span>install
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/aicorein/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
           </div>
         </div>
         
@@ -303,11 +385,12 @@ pdm<span class="w"> </span>install
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">MeloBot</a><ul>
+<li><a class="reference internal" href="#">melobot 文档</a><ul>
 <li><a class="reference internal" href="#id1">🎉 简介</a></li>
 <li><a class="reference internal" href="#id2">✨ 特色</a></li>
 <li><a class="reference internal" href="#id3">📦️ 安装使用</a></li>
 <li><a class="reference internal" href="#id4">🪄 版本支持</a></li>
+<li><a class="reference internal" href="#id5">❤️ 致谢</a></li>
 </ul>
 </li>
 </ul>
@@ -319,7 +402,7 @@ pdm<span class="w"> </span>install
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=67587a9b"></script>
+</div><script src="_static/documentation_options.js?v=50123eb5"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

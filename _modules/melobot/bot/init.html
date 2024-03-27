@@ -6,7 +6,7 @@
         <link rel="canonical" href="/melobot/_modules/melobot/bot/init.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.bot.init - MeloBot 2.5.5 文档</title>
+        <title>melobot.bot.init - MeloBot 2.5.6</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.5 文档</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,8 +146,11 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
+  </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.5 文档</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.6</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -156,8 +159,12 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">开始使用</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/more-events.html">处理更多事件</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.meta.html">melobot.meta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.bot.html">melobot.bot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.io.html">melobot.io</a></li>
@@ -168,10 +175,18 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../references/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../references/event-action.html">事件和行为</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../references/msg.html">消息内容的数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../references/forward-msg.html">转发消息与消息结点</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../melobot-next.html">下一代 melobot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../prompt.html">melobot 形象</a></li>
 </ul>
 
 </div>
@@ -312,7 +327,7 @@
         <span class="n">log_to_console</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">log_to_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">custom_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MeloBot&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化 bot 实例</span>
 
 <span class="sd">        :param connector: 使 bot 实例工作的连接器</span>
@@ -322,6 +337,7 @@
 <span class="sd">        :param log_to_console: 日志是否输出到控制台</span>
 <span class="sd">        :param log_to_dir: 保存日志文件的目录，为空则不保存</span>
 <span class="sd">        :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数</span>
+<span class="sd">        :return: bot 实例（因此支持链式调用）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">connector</span><span class="o">.</span><span class="n">_ref_flag</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DuplicateError</span><span class="p">(</span><span class="s2">&quot;bot 初始化时，不可使用已被其他 bot 实例使用的连接器&quot;</span><span class="p">)</span>
@@ -354,15 +370,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bot 初始化完成，各核心组件已初始化&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.load_plugin">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.MeloBot.load_plugin">[文档]</a>
-    <span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin_target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">BotPlugin</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin_target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">BotPlugin</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MeloBot&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;为 bot 实例加载插件</span>
 
 <span class="sd">        :param plugin_target: 插件目标，可传入插件对象或插件包（一个插件即是一个 python package）的路径</span>
+<span class="sd">        :return: bot 实例（因此支持链式调用）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能加载插件&quot;</span><span class="p">)</span>
@@ -378,7 +396,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;加载插件出错：插件 id 重复, 重复的 id 为：</span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2">，已取消该插件加载&quot;</span>
             <span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="bp">self</span>
 
         <span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">plugin</span><span class="o">.</span><span class="n">__handler_args__</span><span class="p">:</span>
@@ -396,15 +414,17 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__plugins</span><span class="p">[</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="p">]</span> <span class="o">=</span> <span class="n">plugin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">add_handlers</span><span class="p">(</span><span class="n">handlers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功加载插件：</span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功加载插件：</span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.load_plugins">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.MeloBot.load_plugins">[文档]</a>
-    <span class="k">def</span> <span class="nf">load_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugins_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">load_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugins_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MeloBot&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;为 bot 实例批量加载插件</span>
 
 <span class="sd">        :param plugins_dir: 传入包含所有插件包（一个插件即是一个 python package）的目录</span>
+<span class="sd">        :return: bot 实例（因此支持链式调用）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能加载插件&quot;</span><span class="p">)</span>
@@ -414,7 +434,8 @@
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;__pycache__&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -485,30 +506,36 @@
 
 <div class="viewcode-block" id="MeloBot.activate">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.MeloBot.activate">[文档]</a>
-    <span class="k">def</span> <span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MeloBot&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;使 bot 实例退出 slack 状态</span>
 
 <span class="sd">        slack 状态启用后仅会禁用行为操作的发送，无其他影响</span>
+
+<span class="sd">        :return: bot 实例（因此支持链式调用）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能执行此方法&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">slack</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bot 已进入 activated 状态&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bot 已进入 activated 状态&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.slack">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.MeloBot.slack">[文档]</a>
-    <span class="k">def</span> <span class="nf">slack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">slack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MeloBot&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;使 bot 实例进入 slack 状态</span>
 
 <span class="sd">        slack 状态启用后仅会禁用行为操作的发送，无其他影响</span>
+
+<span class="sd">        :return: bot 实例（因此支持链式调用）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能执行此方法&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">slack</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bot 已进入 slack 状态&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bot 已进入 slack 状态&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.get_plugins">
@@ -713,7 +740,14 @@
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/aicorein/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
           </div>
         </div>
         
@@ -725,7 +759,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=67587a9b"></script>
+</div><script src="../../../_static/documentation_options.js?v=50123eb5"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

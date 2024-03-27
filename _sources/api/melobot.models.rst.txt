@@ -34,10 +34,12 @@ melobot 主要包含五种事件类型：:class:`.MessageEvent`, :class:`.Reques
    :show-inheritance:
    :exclude-members: __init__
 
+.. _cq-msgs:
+
 消息构造
 ----------------
 
-在 melobot 中，使用以下函数构造符合 onebot 标准的消息。不过部分标准中的方法没有被包含，同时部分方法有所改变。
+在 melobot 中，使用以下函数构造符合 onebot 标准的消息内容。不过部分标准中的方法没有被包含，同时部分方法有所改变。
 
 .. autofunction:: melobot.models.text_msg
 
