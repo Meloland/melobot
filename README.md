@@ -60,9 +60,12 @@ pip install melobot
 ```shell
 # 随后在本项目根目录：
 pdm install
+pdm build
 ```
 
-提示：首次运行 pdm 可能需要初始化虚拟环境，请按照 pdm 文档操作。
+之后可在 `.pdm-build` 目录获取本地构建，pip 本地安装即可。
+
+提示：首次运行 pdm 需要初始化虚拟环境，可参照 pdm 文档操作。
 
 ## 🪄 版本支持
 
