@@ -5,3 +5,4 @@ melobot.io
 ----------
 
 .. automodule:: melobot.io
+   :show-inheritance:

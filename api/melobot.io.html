@@ -7,7 +7,7 @@
         <link rel="canonical" href="/melobot/api/melobot.io.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.io - MeloBot 2.5.6</title>
+        <title>melobot.io - MeloBot 2.5.7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.6</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +151,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.6</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.7</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -237,7 +237,13 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.ForwardWsConn">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">ForwardWsConn</span></span><a class="reference internal" href="../_modules/melobot/io/forward_ws.html#ForwardWsConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ForwardWsConn" title="Link to this definition">#</a></dt>
-<dd><p>正向 websocket 连接器</p>
+<dd><p>基类：<a class="reference internal" href="melobot.base.html#melobot.base.abc.AbstractConnector" title="melobot.base.abc.AbstractConnector"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></p>
+<p>正向 websocket 连接器</p>
+<div class="caution admonition">
+<p class="admonition-title">注意</p>
+<p>注意：在 melobot 中，正向 websocket 连接器会开启一个 ws 客户端。这个客户端只能和一个服务端通信。</p>
+</div>
+<p>正向 websocket 通信方式暂时不支持断连后尝试重连。断连后将会直接停止 bot</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.io.ForwardWsConn.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_delay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/forward_ws.html#ForwardWsConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ForwardWsConn.__init__" title="Link to this definition">#</a></dt>
@@ -245,14 +251,145 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>connect_host</strong> – 连接的 hostname</p></li>
+<li><p><strong>connect_host</strong> – 连接的 host</p></li>
 <li><p><strong>connect_port</strong> – 连接的 port</p></li>
-<li><p><strong>max_retry</strong> – 最大重试次数，默认 -1 代表无限次重试</p></li>
-<li><p><strong>retry_delay</strong> – 重试间隔时间</p></li>
-<li><p><strong>cd_time</strong> – action 发送冷却时间（用于防止风控）</p></li>
+<li><p><strong>max_retry</strong> – 初始连接最大重试次数，默认 -1 代表无限次重试</p></li>
+<li><p><strong>retry_delay</strong> – 初始连接重试间隔时间</p></li>
+<li><p><strong>cd_time</strong> – 行为操作冷却时间（用于防止风控）</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.max_retry">
+<span class="sig-name descname"><span class="pre">max_retry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.io.ForwardWsConn.max_retry" title="Link to this definition">#</a></dt>
+<dd><p>连接失败最大重试次数</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.retry_delay">
+<span class="sig-name descname"><span class="pre">retry_delay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></em><a class="headerlink" href="#melobot.io.ForwardWsConn.retry_delay" title="Link to this definition">#</a></dt>
+<dd><p>连接失败重试间隔</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.url">
+<span class="sig-name descname"><span class="pre">url</span></span><a class="headerlink" href="#melobot.io.ForwardWsConn.url" title="Link to this definition">#</a></dt>
+<dd><p>ws 连接的 url（形如：ws://xxx:xxx）</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.conn">
+<span class="sig-name descname"><span class="pre">conn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">websockets.client.WebSocketClientProtocol</span></em><a class="headerlink" href="#melobot.io.ForwardWsConn.conn" title="Link to this definition">#</a></dt>
+<dd><p>连接对象</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.io.ReverseWsConn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">ReverseWsConn</span></span><a class="reference internal" href="../_modules/melobot/io/reverse_ws.html#ReverseWsConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ReverseWsConn" title="Link to this definition">#</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.base.html#melobot.base.abc.AbstractConnector" title="melobot.base.abc.AbstractConnector"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></p>
+<p>反向 websocket 连接器</p>
+<div class="caution admonition">
+<p class="admonition-title">注意</p>
+<p>注意：在 melobot 中，反向 websocket 连接器会开启一个 ws 服务端。但是这个服务端只接受一个客户端连接，后续其他连接将被拒绝。</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listen_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/reverse_ws.html#ReverseWsConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ReverseWsConn.__init__" title="Link to this definition">#</a></dt>
+<dd><p>初始化一个反向 websocket连接器</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>listen_host</strong> – 监听的 host</p></li>
+<li><p><strong>listen_port</strong> – 监听的 port</p></li>
+<li><p><strong>cd_time</strong> – 行为操作冷却时间（用于防止风控）</p></li>
+<li><p><strong>allow_reconnect</strong> – 是否允许客户端重新连接。默认为 <cite>False</cite>，即客户端连接后如果断连，将直接停止 bot；若为 <cite>True</cite>，则会等待客户端重连，等待时所有行为操作将阻塞</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.host">
+<span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.io.ReverseWsConn.host" title="Link to this definition">#</a></dt>
+<dd><p>监听的 host</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.port">
+<span class="sig-name descname"><span class="pre">port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.io.ReverseWsConn.port" title="Link to this definition">#</a></dt>
+<dd><p>监听的 port</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.server">
+<span class="sig-name descname"><span class="pre">server</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">websockets.server.WebSocketServer</span></em><a class="headerlink" href="#melobot.io.ReverseWsConn.server" title="Link to this definition">#</a></dt>
+<dd><p>服务端对象</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.io.HttpConn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">HttpConn</span></span><a class="reference internal" href="../_modules/melobot/io/full_duplex_http.html#HttpConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn" title="Link to this definition">#</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.base.html#melobot.base.abc.AbstractConnector" title="melobot.base.abc.AbstractConnector"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></p>
+<p>HTTP 全双工连接器</p>
+<p>HTTP 全双工连接器将会同时开启 HTTP 服务端和客户端。</p>
+<p>客户端将会向 OneBot 实现程序发起 HTTP POST 请求用于传递行为操作，
+OneBot 实现程序将会向服务端发起 HTTP POST 请求用于事件上报。</p>
+<div class="caution admonition">
+<p class="admonition-title">注意</p>
+<p>HTTP 连接是无状态的，因此本连接器无法及时察觉 OneBot 实现程序掉线。只有在后续执行行为操作失败时，才会发现 OneBot 实现程序掉线。</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.io.HttpConn.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onebot_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">onebot_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/full_duplex_http.html#HttpConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn.__init__" title="Link to this definition">#</a></dt>
+<dd><p>初始化一个 HTTP 全双工连接器</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>onebot_host</strong> – onebot 实现程序 HTTP 服务的 host</p></li>
+<li><p><strong>onebot_port</strong> – onebot 实现程序 HTTP 服务的 port</p></li>
+<li><p><strong>listen_host</strong> – 此连接器服务端监听的 host</p></li>
+<li><p><strong>listen_port</strong> – 此连接器服务端监听的 port</p></li>
+<li><p><strong>allow_reconnect</strong> – 是否等待 OneBot 实现程序重新上线。默认为 <cite>False</cite>，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 <cite>True</cite>，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞</p></li>
+<li><p><strong>cd_time</strong> – 行为操作冷却时间（用于防止风控）</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.HttpConn.onebot_url">
+<span class="sig-name descname"><span class="pre">onebot_url</span></span><a class="headerlink" href="#melobot.io.HttpConn.onebot_url" title="Link to this definition">#</a></dt>
+<dd><p>onebot 实现程序提供服务的 base_url（形如：<a class="reference external" href="http://xxx:xxx">http://xxx:xxx</a>）</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.HttpConn.host">
+<span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.io.HttpConn.host" title="Link to this definition">#</a></dt>
+<dd><p>本连接器服务端的 host</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.HttpConn.port">
+<span class="sig-name descname"><span class="pre">port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.io.HttpConn.port" title="Link to this definition">#</a></dt>
+<dd><p>本连接器服务端的 port</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.HttpConn.serve_site">
+<span class="sig-name descname"><span class="pre">serve_site</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">aiohttp.web.TCPSite</span></em><a class="headerlink" href="#melobot.io.HttpConn.serve_site" title="Link to this definition">#</a></dt>
+<dd><p>本连接器服务端的站点对象</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.HttpConn.client_session">
+<span class="sig-name descname"><span class="pre">client_session</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">aiohttp.ClientSession</span></em><a class="headerlink" href="#melobot.io.HttpConn.client_session" title="Link to this definition">#</a></dt>
+<dd><p>本连接器客户端的 HTTP 会话</p>
 </dd></dl>
 
 </dd></dl>
@@ -326,6 +463,26 @@
 <li><a class="reference internal" href="#module-melobot.io">连接器</a><ul>
 <li><a class="reference internal" href="#melobot.io.ForwardWsConn"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.io.ForwardWsConn.__init__"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.ForwardWsConn.max_retry"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.max_retry</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.ForwardWsConn.retry_delay"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.retry_delay</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.ForwardWsConn.url"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.url</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.ForwardWsConn.conn"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.conn</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.io.ReverseWsConn"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.ReverseWsConn.__init__"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.ReverseWsConn.host"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.host</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.ReverseWsConn.port"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.port</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.ReverseWsConn.server"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.server</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.io.HttpConn"><code class="docutils literal notranslate"><span class="pre">HttpConn</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.HttpConn.__init__"><code class="docutils literal notranslate"><span class="pre">HttpConn.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.HttpConn.onebot_url"><code class="docutils literal notranslate"><span class="pre">HttpConn.onebot_url</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.HttpConn.host"><code class="docutils literal notranslate"><span class="pre">HttpConn.host</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.HttpConn.port"><code class="docutils literal notranslate"><span class="pre">HttpConn.port</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.HttpConn.serve_site"><code class="docutils literal notranslate"><span class="pre">HttpConn.serve_site</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.HttpConn.client_session"><code class="docutils literal notranslate"><span class="pre">HttpConn.client_session</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -341,7 +498,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=50123eb5"></script>
+</div><script src="../_static/documentation_options.js?v=42d402af"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
