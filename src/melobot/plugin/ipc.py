@@ -1,7 +1,7 @@
 import asyncio
 
 from ..base.exceptions import PluginSignalError, ShareObjError, get_better_exc
-from ..base.tools import RWController, get_rich_str
+from ..base.tools import RWController, get_rich_str, to_task
 from ..base.typing import TYPE_CHECKING, Any, Callable, Coroutine
 
 if TYPE_CHECKING:
@@ -119,7 +119,9 @@ class PluginBus:
             raise PluginSignalError("同一命名空间的同一信号只能绑定一个处理函数")
         self.store[namespace][signal] = PluginSignalHandler(namespace, signal, func)
 
-    async def _run_on_ctx(self, handler: PluginSignalHandler, *args: Any, **kwargs: Any) -> Any:
+    async def _run_on_ctx(
+        self, handler: PluginSignalHandler, *args: Any, **kwargs: Any
+    ) -> Any:
         """在指定的上下文下运行插件信号处理方法."""
         try:
             ret = await handler.cb(*args, **kwargs)
@@ -150,7 +152,7 @@ class PluginBus:
 
         handler = self.store[namespace][signal]
         if not wait:
-            asyncio.create_task(self._run_on_ctx(handler, *args, **kwargs))
+            to_task(self._run_on_ctx(handler, *args, **kwargs))
             return None
         else:
             return await self._run_on_ctx(handler, *args, **kwargs)

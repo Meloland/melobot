@@ -2,7 +2,7 @@ import asyncio
 
 from ..base.abc import BotLife
 from ..base.exceptions import BotHookError, get_better_exc
-from ..base.tools import get_rich_str
+from ..base.tools import get_rich_str, to_task
 from ..base.typing import TYPE_CHECKING, Any, Callable, Coroutine
 
 if TYPE_CHECKING:
@@ -55,12 +55,10 @@ class BotHookBus:
     ) -> None:
         if not wait:
             for runner in self.store[hook_type]:
-                asyncio.create_task(self._run_on_ctx(runner, *args, **kwargs))
+                to_task(self._run_on_ctx(runner, *args, **kwargs))
         else:
             tasks = []
             for runner in self.store[hook_type]:
-                tasks.append(
-                    asyncio.create_task(self._run_on_ctx(runner, *args, **kwargs))
-                )
+                tasks.append(to_task(self._run_on_ctx(runner, *args, **kwargs)))
             if len(tasks):
                 await asyncio.wait(tasks)

@@ -3,7 +3,13 @@ import json
 from abc import ABC, abstractmethod, abstractproperty
 from copy import deepcopy
 
-from .exceptions import BotActionError, BotCheckerError, BotMatcherError, TryFlagFailed
+from .exceptions import (
+    BotActionError,
+    BotCheckerError,
+    BotMatcherError,
+    TryFlagFailed,
+    get_better_exc,
+)
 from .typing import (
     TYPE_CHECKING,
     Any,
@@ -39,24 +45,21 @@ class AbstractConnector(ABC):
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
     """
 
-    def __init__(
-        self,
-        max_retry: int,
-        retry_delay: float,
-        cd_time: float,
-    ) -> None:
+    def __init__(self, cd_time: float) -> None:
         super().__init__()
+        #: 连接器的日志器
+        self.logger: "Logger"
         #: 是否在 slack 状态
         self.slack: bool = False
-        #: 连接失败最大重试次数
-        self.max_retry: int = max_retry
-        #: 连接失败重试间隔
-        self.retry_delay: float = retry_delay if retry_delay > 0 else 0
         #: 连接器发送行为操作的冷却时间
         self.cd_time = cd_time
 
         self._ref_flag: bool = False
         self._ready_signal = asyncio.Event()
+        self._event_builder: Type["BotEventBuilder"]
+        self._bot_bus: "BotHookBus"
+        self._common_dispatcher: "BotDispatcher"
+        self._resp_dispatcher: "BotResponder"
 
     @abstractmethod
     async def __aenter__(self):
@@ -66,12 +69,17 @@ class AbstractConnector(ABC):
     async def __aexit__(
         self, exc_type: Type[Exception], exc_val: Exception, exc_tb: ModuleType
     ) -> bool:
-        pass
+        if exc_type is None:
+            return True
+        elif exc_type == asyncio.CancelledError:
+            return True
+        else:
+            self.logger.error("连接器出现预期外的异常：\n" + get_better_exc(exc_val))
+            return False
 
     def _set_ready(self) -> None:
         self._ready_signal.set()
 
-    @abstractmethod
     def _bind(
         self,
         dispatcher: "BotDispatcher",
@@ -80,10 +88,14 @@ class AbstractConnector(ABC):
         bot_bus: "BotHookBus",
         logger: "Logger",
     ) -> None:
-        pass
+        self._event_builder = event_builder
+        self._bot_bus = bot_bus
+        self.logger = logger
+        self._common_dispatcher = dispatcher
+        self._resp_dispatcher = responder
 
     @abstractmethod
-    async def _start_tasks(self) -> list[asyncio.Task]:
+    async def _alive_tasks(self) -> list[asyncio.Task]:
         pass
 
     @abstractmethod

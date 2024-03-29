@@ -2,7 +2,7 @@ import asyncio
 
 from ..base.abc import BotParser
 from ..base.exceptions import DirectRetSignal, EventHandlerError, get_better_exc
-from ..base.tools import get_rich_str
+from ..base.tools import get_rich_str, to_task
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -90,7 +90,7 @@ class EventHandler:
             BotSessionManager.inject(session, self)
         try:
             s_token = SESSION_LOCAL._add_ctx(session)
-            return await asyncio.wait_for(asyncio.create_task(coro), timeout=timeout)
+            return await asyncio.wait_for(to_task(coro), timeout=timeout)
         finally:
             SESSION_LOCAL._del_ctx(s_token)
             # 这里可能因 bot 停止运行，导致退出事件执行方法时 session 为挂起态。因此需要强制唤醒
@@ -158,12 +158,12 @@ class EventHandler:
             return False
 
         if not self.temp:
-            asyncio.create_task(self._run(event))
+            to_task(self._run(event))
             return True
 
         async with self._run_lock:
             if self.is_valid:
-                asyncio.create_task(self._run(event))
+                to_task(self._run(event))
                 self.is_valid = False
                 return True
             else:

@@ -134,3 +134,24 @@ typing 模块
     .. code:: python
 
        VoidType: TypeAlias = Type[Void]
+
+.. data:: melobot.base.typing.T
+
+   泛型 T，无约束
+
+.. data:: melobot.base.typing.T1
+
+   泛型 T1，无约束
+
+.. data:: melobot.base.typing.T2
+
+   泛型 T2，无约束
+
+.. data:: melobot.base.typing.T3
+
+   泛型 T3，无约束
+
+.. data:: melobot.base.typing.P
+
+   :obj:`~typing.ParamSpec` 泛型 P，无约束
+

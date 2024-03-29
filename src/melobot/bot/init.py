@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from ..base.abc import AbstractConnector
 from ..base.exceptions import BotRuntimeError, DuplicateError, get_better_exc
-from ..base.tools import get_rich_str
+from ..base.tools import get_rich_str, to_task
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -217,9 +217,12 @@ class MeloBot:
                 self._dispatcher._set_ready()
                 self._responder._set_ready()
                 self.connector._set_ready()
-                self._life = await self.connector._start_tasks()
+                self._life = await self.connector._alive_tasks()
                 self.__run_flag__ = True
                 self.logger.info("bot 开始正常运行")
+                self.logger.debug(
+                    f"使用的连接器类型：{self.connector.__class__.__name__}"
+                )
                 await asyncio.wait(self._life)
         except Exception as e:
             self.logger.error(f"bot 核心无法继续运行。异常：{e}")
@@ -338,7 +341,7 @@ class MeloBot:
         async def bots_run():
             tasks = []
             for bot in bots:
-                tasks.append(asyncio.create_task(bot._run()))
+                tasks.append(to_task(bot._run()))
             try:
                 await asyncio.wait(tasks)
             except asyncio.CancelledError:
@@ -414,7 +417,7 @@ class MeloBot:
         tasks = []
         for name in _targets:
             tasks.append(
-                asyncio.create_task(
+                to_task(
                     cls.unicast(name, namespace, signal, *args, **kwargs, wait=wait)
                 )
             )

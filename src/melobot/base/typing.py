@@ -136,10 +136,15 @@ class BotLife(Enum):
     ACTION_PRESEND = 6
 
 
+#: 泛型 T，无约束
 T = TypeVar("T")
+#: 泛型 T，无约束
 T1 = TypeVar("T1")
+#: 泛型 T，无约束
 T2 = TypeVar("T2")
+#: 泛型 T，无约束
 T3 = TypeVar("T3")
+#: :obj:`typing.ParamSpec` 泛型 P，无约束
 P = ParamSpec("P")
 
 

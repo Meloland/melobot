@@ -12,6 +12,8 @@ class BotEventBuilder:
     def build(rawEvent: dict | str) -> BotEvent:
         if isinstance(rawEvent, str):
             raw: dict[str, str | float | int] = json.loads(rawEvent)
+        else:
+            raw = rawEvent
 
         etype = raw.get("post_type")
         if etype in ("message_sent", "message"):

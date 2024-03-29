@@ -7,22 +7,25 @@ import websockets.exceptions as wse
 
 from ..base.abc import AbstractConnector, BotLife
 from ..base.exceptions import BotConnectFailed, get_better_exc
-from ..base.tools import get_rich_str
+from ..base.tools import get_rich_str, to_task
 from ..base.typing import TYPE_CHECKING, ModuleType, Type
 
 if TYPE_CHECKING:
-    import websockets.legacy.client as wlc
+    import websockets.client
 
     from ..base.abc import BotAction
-    from ..bot.hook import BotHookBus
-    from ..controller.dispatcher import BotDispatcher
-    from ..controller.responder import BotResponder
-    from ..models.event import BotEventBuilder
-    from ..utils.logger import Logger
 
 
 class ForwardWsConn(AbstractConnector):
-    """正向 websocket 连接器"""
+    """正向 websocket 连接器
+
+    .. admonition:: 注意
+       :class: caution
+
+       注意：在 melobot 中，正向 websocket 连接器会开启一个 ws 客户端。这个客户端只能和一个服务端通信。
+
+    正向 websocket 通信方式暂时不支持断连后尝试重连。断连后将会直接停止 bot
+    """
 
     def __init__(
         self,
@@ -34,38 +37,24 @@ class ForwardWsConn(AbstractConnector):
     ) -> None:
         """初始化一个正向 websocket 连接器
 
-        :param connect_host: 连接的 hostname
+        :param connect_host: 连接的 host
         :param connect_port: 连接的 port
-        :param max_retry: 最大重试次数，默认 -1 代表无限次重试
-        :param retry_delay: 重试间隔时间
-        :param cd_time: action 发送冷却时间（用于防止风控）
+        :param max_retry: 初始连接最大重试次数，默认 -1 代表无限次重试
+        :param retry_delay: 初始连接重试间隔时间
+        :param cd_time: 行为操作冷却时间（用于防止风控）
         """
-        super().__init__(max_retry, retry_delay, cd_time)
-        self.logger: "Logger"
+        super().__init__(cd_time)
+        #: 连接失败最大重试次数
+        self.max_retry: int = max_retry
+        #: 连接失败重试间隔
+        self.retry_delay: float = retry_delay if retry_delay > 0 else 0
+        #: ws 连接的 url（形如：ws://xxx:xxx）
         self.url = f"ws://{connect_host}:{connect_port}"
-        self.conn: "wlc.Connect"
+        #: 连接对象
+        self.conn: "websockets.client.WebSocketClientProtocol"
 
-        self._event_builder: Type["BotEventBuilder"]
-        self._bot_bus: "BotHookBus"
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_send_time = time.time()
-        self._common_dispatcher: "BotDispatcher"
-        self._resp_dispatcher: "BotResponder"
-
-    def _bind(
-        self,
-        common_dispatcher: "BotDispatcher",
-        resp_dispatcher: "BotResponder",
-        event_builder: Type["BotEventBuilder"],
-        bot_bus: "BotHookBus",
-        logger: "Logger",
-    ) -> None:
-        """绑定其他核心组件的方法。"""
-        self._event_builder = event_builder
-        self._bot_bus = bot_bus
-        self.logger = logger
-        self._common_dispatcher = common_dispatcher
-        self._resp_dispatcher = resp_dispatcher
 
     async def _start(self) -> None:
         """启动连接."""
@@ -89,6 +78,7 @@ class ForwardWsConn(AbstractConnector):
     async def _close(self) -> None:
         """关闭连接."""
         await self.conn.close()
+        await self.conn.wait_closed()
         self.logger.info("连接器与前端的连接已安全关闭")
 
     async def __aenter__(self) -> "ForwardWsConn":
@@ -99,13 +89,7 @@ class ForwardWsConn(AbstractConnector):
         self, exc_type: Type[Exception], exc_val: Exception, exc_tb: ModuleType
     ) -> bool:
         await self._close()
-        if exc_type is None:
-            return True
-        elif exc_type == asyncio.CancelledError:
-            return True
-        else:
-            self.logger.error("连接器出现预期外的异常：\n" + get_better_exc(exc_val))
-            return False
+        return await super().__aexit__(exc_type, exc_val, exc_tb)
 
     async def _send(self, action: "BotAction") -> None:
         """发送一个 action 给连接器。实际上是先提交到 send_queue."""
@@ -140,10 +124,10 @@ class ForwardWsConn(AbstractConnector):
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")
         except wse.ConnectionClosed:
-            self.logger.error("连接器与前端的通信已经断开，无法再执行行为操作")
+            self.logger.error("连接器与前端的通信已经停止，无法再执行行为操作")
 
     async def _listen(self) -> None:
-        """从连接器接收一个事件，并转化为 BotEvent 对象传递给 dispatcher 处理."""
+        """从前端接收一个事件，并处理"""
         await self._ready_signal.wait()
 
         try:
@@ -159,21 +143,21 @@ class ForwardWsConn(AbstractConnector):
                         + get_rich_str(event.raw)
                     )
                     if event.is_resp_event():
-                        asyncio.create_task(self._resp_dispatcher.respond(event))  # type: ignore
+                        to_task(self._resp_dispatcher.respond(event))  # type: ignore
                     else:
-                        asyncio.create_task(self._common_dispatcher.dispatch(event))  # type: ignore
+                        to_task(self._common_dispatcher.dispatch(event))  # type: ignore
                 except wse.ConnectionClosed:
                     raise
                 except Exception as e:
-                    self.logger.error("bot life_task 抛出异常")
+                    self.logger.error("bot 连接器监听任务抛出异常")
                     self.logger.error(f"异常点 raw_event：{raw_event}")
                     self.logger.error("异常回溯栈：\n" + get_better_exc(e))
                     self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")
         except wse.ConnectionClosed:
-            self.logger.debug("连接器与前端的通信已经断开")
+            self.logger.debug("连接器与前端的通信已经停止")
 
-    async def _start_tasks(self) -> list[asyncio.Task]:
-        asyncio.create_task(self._send_queue_watch())
-        return [asyncio.create_task(self._listen())]
+    async def _alive_tasks(self) -> list[asyncio.Task]:
+        to_task(self._send_queue_watch())
+        return [to_task(self._listen())]

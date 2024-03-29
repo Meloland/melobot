@@ -27,7 +27,7 @@ from .context import (
     send_reply,
     send_wait,
 )
-from .io import ForwardWsConn
+from .io import ForwardWsConn, HttpConn, ReverseWsConn
 from .meta import MetaInfo
 from .plugin import BotPlugin
 from .utils import (

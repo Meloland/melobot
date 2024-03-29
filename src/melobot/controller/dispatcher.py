@@ -1,7 +1,7 @@
 import asyncio
 
 from ..base.exceptions import get_better_exc
-from ..base.tools import get_rich_str
+from ..base.tools import get_rich_str, to_task
 from ..base.typing import TYPE_CHECKING, BotLife, PriorLevel, Type, Union
 
 if TYPE_CHECKING:
@@ -89,4 +89,4 @@ class BotDispatcher:
         self.logger.debug(f"event {id(event)} built hook 已完成")
         for channel in self._channel_map[event.type]:
             self.logger.debug(f"向 {channel.__name__} 通道广播 event {id(event)}")
-            asyncio.create_task(self.broadcast(event, channel))
+            to_task(self.broadcast(event, channel))
