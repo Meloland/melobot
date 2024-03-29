@@ -14,7 +14,6 @@ melobot API 参考
 - :class:`.ForwardWsConn`
 - :class:`.ReverseWsConn`
 - :class:`.HttpConn`
-- :class:`.ForwardWsConn`
 - :class:`.AttrSessionRule`
 - :func:`.msg_event`
 - :func:`.msg_text`
