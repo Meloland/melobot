@@ -40,7 +40,7 @@ class MessageEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         #: 收到事件的机器人 qq 号
-        self.bot_id = rawEvent.get("self_id")
+        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
         #: 消息事件的消息 id
         self.id: int
         #: 消息事件的发送者数据结构
@@ -356,7 +356,7 @@ class RequestEvent(BotEvent):
         super().__init__(rawEvent)
 
         #: 收到事件的机器人 qq 号
-        self.bot_id = rawEvent.get("self_id")
+        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
         #: 事件的来源 qq 号
         self.from_id: int
         #: 事件的来源群号，请求来源于私聊时此属性为 :obj:`None`
@@ -425,7 +425,8 @@ class NoticeEvent(BotEvent):
 
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
-        self.bot_id = rawEvent.get("self_id")
+        #: 收到事件的机器人 qq 号
+        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
         # 修复某些 onebot 协议实现，user_id 缺失的问题
         if "target_id" in rawEvent.keys() and "user_id" not in rawEvent:
             rawEvent["user_id"] = rawEvent["target_id"]
@@ -680,7 +681,7 @@ class MetaEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         #: 收到事件的机器人 qq 号
-        self.bot_id = rawEvent.get("self_id")
+        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
 
     @property
     def time(self) -> int:
@@ -712,8 +713,7 @@ class ResponseEvent(BotEvent):
     .. admonition:: 提示
        :class: tip
 
-       本事件类型其实不是 onebot 标准的一部分，但是被广大 onebot 协议实现项目所采用，
-       因此 melobot 兼容此类事件。
+       onebot 标准中未定义“响应”为一种事件类型。但在 melobot 中，“响应”仍然被封装为一种事件类型。
     """
 
     def __init__(self, rawEvent: dict) -> None:

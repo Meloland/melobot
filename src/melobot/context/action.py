@@ -1262,7 +1262,7 @@ async def make_action(
     :param type: 行为的类型
     :param params: 行为的附加参数
     :param need_resp: 是否需要等待这个行为
-    :param trigger: 行为的触发事件
+    :param trigger: 行为的触发事件（一般不用填。如果不需要跟踪触发事件，则不填）
     :return: 行为对象
     """
     args = ActionArgs()

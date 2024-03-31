@@ -14,12 +14,12 @@ class MetaInfo:
 
     def __init__(self) -> None:
         #: melobot 版本
-        self.VER: str = "2.5.7"
+        self.VER: str = "2.5.8"
         #: melobot 项目名称
         self.PROJ_NAME: str = "melobot"
         #: melobot 项目描述
         self.PROJ_DESC: str = (
-            "A qbot module with friendly interface, session control and plugin-supported."
+            "A qq bot development framework with friendly APIs, session control and plugin-supported."
         )
         #: melobot 项目地址
         self.PROJ_SRC: str = "https://github.com/aicorein/melobot"

@@ -26,4 +26,5 @@ __all__ = (
     "cq_anti_escape",
     "to_cq_arr",
     "to_cq_str",
+    "custom_type_msg"
 )

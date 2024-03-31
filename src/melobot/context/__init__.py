@@ -10,7 +10,7 @@ from .session import (
     msg_text,
     notice_event,
     pause,
-    req_evnt,
+    req_event,
 )
 
 __all__ = (
@@ -60,6 +60,6 @@ __all__ = (
     "msg_text",
     "notice_event",
     "pause",
-    "req_evnt",
+    "req_event",
     "dispose",
 )

@@ -18,7 +18,7 @@ _need_ret_fix_funcs = melobot.context.action.__all__
 project = "MeloBot"
 copyright = "2024, aicorein"
 author = "aicorein"
-release = "2.5.7"
+release = "2.5.8"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

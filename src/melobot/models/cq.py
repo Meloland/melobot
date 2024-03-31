@@ -37,6 +37,7 @@ __all__ = (
     "to_cq_arr",
     "to_cq_str",
     "xml_msg",
+    "custom_type_msg"
 )
 
 
@@ -348,6 +349,19 @@ def refer_msg_node(id: int) -> MsgNodeDict:
     :return: onebot 标准中的消息段对象
     """
     return {"type": "node", "data": {"id": str(id)}}
+
+
+def custom_type_msg(type: str, params: dict[str, str]) -> CQMsgDict:
+    """生成一个自定义消息段对象
+
+    :param type: 消息段对象的类型标识
+    :param params: 消息段的参数
+    :return: 符合 onebot 格式，但不在 onebot 标准中的消息段对象
+    """
+    ret: CQMsgDict = {"type": type, "data": {}}
+    for k, v in params.items():
+        ret["data"][k] = str(v)
+    return ret
 
 
 def cq_filter_text(s: str) -> str:

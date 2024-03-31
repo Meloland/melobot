@@ -452,7 +452,7 @@ def notice_event() -> "NoticeEvent":
     return any_event()  # type: ignore
 
 
-def req_evnt() -> "RequestEvent":
+def req_event() -> "RequestEvent":
     """获取当前会话下的事件
 
     确定此事件是请求事件时使用，例如在请求事件的处理函数中，使用该方法即可获得精准的类型提示

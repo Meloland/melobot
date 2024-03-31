@@ -1,10 +1,8 @@
-<!-- start elevator-pitch -->
-
 <div align="center">
   <img width=200 src="https://github.com/aicorein/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
   <h1>MeloBot</h1>
   <p>
-    <strong>插件化管理、基于异步会话机制的 qbot 开发框架</strong>
+    <strong>插件化管理、基于异步会话机制的 qq 机器人开发框架</strong>
   </p>
   <p align="center">
     <a href="https://raw.githubusercontent.com/aicorein/melobot/main/LICENSE"><img src="https://img.shields.io/github/license/aicorein/melobot" alt="license"></a>
@@ -24,6 +22,8 @@
     <strong>本项目一切开发旨在学习，请勿用于商业用途和非法用途。任何使用本项目的用户群体，有义务遵守其所在国家或地区的相关法律规定。</strong>
   </p>
 </div>
+
+<!-- start elevator-pitch -->
 
 ## 🎉 简介
 

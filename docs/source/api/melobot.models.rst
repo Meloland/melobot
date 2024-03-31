@@ -3,6 +3,8 @@
 melobot.models
 ==============
 
+.. _event-type:
+
 事件类型
 --------
 
@@ -68,6 +70,23 @@ melobot 主要包含五种事件类型：:class:`.MessageEvent`, :class:`.Reques
 .. autofunction:: melobot.models.custom_msg_node
 
 .. autofunction:: melobot.models.refer_msg_node
+
+自定义消息内容
+--------------
+
+该方法可构造自定义的消息段对象，实现自定义的消息内容。
+
+.. autofunction:: melobot.models.custom_type_msg
+
+消息内容处理
+---------------
+
+使用以下函数可以处理消息内容，例如进行消息格式转换或实现特定的处理。
+
+.. admonition:: 提示
+   :class: tip
+
+   这些函数过于底层，在 melobot 实际使用中并不常用。有所了解即可。
 
 .. autofunction:: melobot.models.cq_filter_text
 
