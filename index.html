@@ -7,7 +7,7 @@
         <link rel="canonical" href="/melobot/index.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>MeloBot 2.5.7</title>
+        <title>MeloBot 2.5.8</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">MeloBot 2.5.7</div></a>
+      <a href="#"><div class="brand">MeloBot 2.5.8</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +151,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.7</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -162,7 +162,10 @@
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro/more-events.html">处理更多事件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/event-process.html">事件获取与处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/msg-action.html">消息行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -178,9 +181,11 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="references/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="references/event-action.html">事件和行为</a></li>
 <li class="toctree-l2"><a class="reference internal" href="references/msg.html">消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="references/forward-msg.html">转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references/preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 </ul>
@@ -235,30 +240,6 @@
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
-</div>
-<div align="center">
-  <img width=200 src="https://github.com/aicorein/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
-  <h1>MeloBot</h1>
-  <p>
-    <strong>插件化管理、基于异步会话机制的 qbot 开发框架</strong>
-  </p>
-  <p align="center">
-    <a href="https://raw.githubusercontent.com/aicorein/melobot/main/LICENSE"><img src="https://img.shields.io/github/license/aicorein/melobot" alt="license"></a>
-    <a href="https://docs.melobot.org/"><img src="https://img.shields.io/badge/doc-latest-blue.svg" alt="MeloBot docs"></a>
-    <a href="https://github.com/aicorein/melobot"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/aicorein/melobot"></a>
-    <a href="https://github.com/howmanybots/onebot/blob/master/README.md"><img src="https://img.shields.io/badge/OneBot-v11-blue?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAIVBMVEUAAAAAAAADAwMHBwceHh4UFBQNDQ0ZGRkoKCgvLy8iIiLWSdWYAAAAAXRSTlMAQObYZgAAAQVJREFUSMftlM0RgjAQhV+0ATYK6i1Xb+iMd0qgBEqgBEuwBOxU2QDKsjvojQPvkJ/ZL5sXkgWrFirK4MibYUdE3OR2nEpuKz1/q8CdNxNQgthZCXYVLjyoDQftaKuniHHWRnPh2GCUetR2/9HsMAXyUT4/3UHwtQT2AggSCGKeSAsFnxBIOuAggdh3AKTL7pDuCyABcMb0aQP7aM4AnAbc/wHwA5D2wDHTTe56gIIOUA/4YYV2e1sg713PXdZJAuncdZMAGkAukU9OAn40O849+0ornPwT93rphWF0mgAbauUrEOthlX8Zu7P5A6kZyKCJy75hhw1Mgr9RAUvX7A3csGqZegEdniCx30c3agAAAABJRU5ErkJggg==" alt="cqhttp"></a>
-  </p>
-  <p align="center">
-    <a href="https://python.org" title="Go to Python homepage"><img src="https://img.shields.io/badge/Python-%3E=3.10-green?logo=python&logoColor=white" alt="Made with Python"></a>
-    <a href="https://pdm-project.org"><img src="https://img.shields.io/badge/PDM-Managed-purple?logo=pdm&logoColor=white" alt="PDM - Managed"></a>
-    <a href="https://pypi.org/project/melobot/"><img alt="PyPI" src="https://img.shields.io/pypi/v/melobot"></a>
-    <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-    <a href="https://mypy-lang.org/"><img src="https://www.mypy-lang.org/static/mypy_badge.svg" alt="Checked with mypy"></a>
-  </p>
-  <p>
-    郑重承诺和提示：
-    <strong>本项目一切开发旨在学习，请勿用于商业用途和非法用途。任何使用本项目的用户群体，有义务遵守其所在国家或地区的相关法律规定。</strong>
-  </p>
 </div>
 <section id="id1">
 <h2>🎉 简介<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
@@ -384,7 +365,7 @@ pdm<span class="w"> </span>install
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=42d402af"></script>
+</div><script src="_static/documentation_options.js?v=a8b75639"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

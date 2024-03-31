@@ -6,7 +6,9 @@
 :maxdepth: 1
 
 onebot
+connector
 event-action
 msg
 forward-msg
+preprocess
 ```

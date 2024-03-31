@@ -7,7 +7,7 @@
         <link rel="canonical" href="/melobot/references/msg.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>消息内容的数据结构 - MeloBot 2.5.7</title>
+        <title>消息内容的数据结构 - MeloBot 2.5.8</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.7</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.8</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +151,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.7</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -162,7 +162,10 @@
   <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/more-events.html">处理更多事件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件获取与处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -178,9 +181,11 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">相关参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="event-action.html">事件和行为</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="forward-msg.html">转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 </ul>
@@ -232,8 +237,8 @@
         <article role="main">
           <section id="id1">
 <h1>消息内容的数据结构<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
-<p>消息事件中的消息内容，由于有文本、语音、图片等多种类型。因此需要统一的数据结构来表示。</p>
-<p>在 OneBot 中，主要有两种格式，来表示消息内容这种数据结构：字符串（string）和数组（array）。</p>
+<p>消息内容，由于有文本、语音、图片等多种类型。因此需要统一的数据结构来表示。</p>
+<p>在 OneBot 标准中，主要有两种格式，来表示消息内容这种数据结构：字符串（string）和数组（array）。</p>
 <p>在 melobot 中，你不需要手动构造消息内容的数据结构，构造方法参考：<a class="reference internal" href="../api/melobot.models.html#cq-msgs"><span class="std std-ref">消息内容构造</span></a>（不用马上跳转，看完本篇文章再去看更好哦）。<strong>虽然无需手动构造，但是了解消息内容的数据结构，有助于你设计实现更复杂的功能</strong>。</p>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
@@ -245,7 +250,7 @@
 </div>
 <section id="id2">
 <h2>字符串格式<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
-<p>字符串格式是 CKYU（早年一个很著名的项目）原生所使用的消息格式。在字符串格式中，无论纯文本还是图片、表情、链接分享等多媒体内容都放在同一个字符串里，即，一条消息对应一个字符串。以下是一个字符串格式消息的例子：</p>
+<p>在字符串格式中，无论纯文本还是图片、表情、链接分享等多媒体内容都放在同一个字符串里，即，一条消息对应一个字符串。以下是一个字符串格式消息的例子：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">face</span><span class="p">,</span><span class="nb">id</span><span class="o">=</span><span class="mi">178</span><span class="p">]</span><span class="n">看看我刚拍的照片</span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">image</span><span class="p">,</span><span class="n">file</span><span class="o">=</span><span class="mf">123.</span><span class="n">jpg</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -479,7 +484,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=42d402af"></script>
+</div><script src="../_static/documentation_options.js?v=a8b75639"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

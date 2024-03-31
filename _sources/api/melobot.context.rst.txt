@@ -21,7 +21,7 @@ melobot.context
 
 .. autofunction:: melobot.context.msg_text
 
-.. autofunction:: melobot.context.req_evnt
+.. autofunction:: melobot.context.req_event
 
 .. autofunction:: melobot.context.notice_event
 

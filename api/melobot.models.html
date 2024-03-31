@@ -7,7 +7,7 @@
         <link rel="canonical" href="/melobot/api/melobot.models.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.models - MeloBot 2.5.7</title>
+        <title>melobot.models - MeloBot 2.5.8</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.7</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.8</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +151,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.7</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -162,7 +162,10 @@
   <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/more-events.html">处理更多事件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件获取与处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">melobot API 参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -178,9 +181,11 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../references/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/event-action.html">事件和行为</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/msg.html">消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/forward-msg.html">转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../references/preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 </ul>
@@ -232,8 +237,8 @@
         <article role="main">
           <section id="melobot-models">
 <h1>melobot.models<a class="headerlink" href="#melobot-models" title="Link to this heading">#</a></h1>
-<section id="id1">
-<h2>事件类型<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="event-type">
+<span id="id1"></span><h2>事件类型<a class="headerlink" href="#event-type" title="Link to this heading">#</a></h2>
 <p>melobot 主要包含五种事件类型：<a class="reference internal" href="#melobot.models.MessageEvent" title="melobot.models.MessageEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageEvent</span></code></a>, <a class="reference internal" href="#melobot.models.RequestEvent" title="melobot.models.RequestEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestEvent</span></code></a>, <a class="reference internal" href="#melobot.models.NoticeEvent" title="melobot.models.NoticeEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoticeEvent</span></code></a>,
 <a class="reference internal" href="#melobot.models.ResponseEvent" title="melobot.models.ResponseEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResponseEvent</span></code></a>, <a class="reference internal" href="#melobot.models.MetaEvent" title="melobot.models.MetaEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetaEvent</span></code></a>。</p>
 <dl class="py class">
@@ -247,7 +252,7 @@
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.MessageEvent.bot_id">
-<span class="sig-name descname"><span class="pre">bot_id</span></span><a class="headerlink" href="#melobot.models.MessageEvent.bot_id" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">bot_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.MessageEvent.bot_id" title="Link to this definition">#</a></dt>
 <dd><p>收到事件的机器人 qq 号</p>
 </dd></dl>
 
@@ -532,7 +537,7 @@
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.RequestEvent.bot_id">
-<span class="sig-name descname"><span class="pre">bot_id</span></span><a class="headerlink" href="#melobot.models.RequestEvent.bot_id" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">bot_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.RequestEvent.bot_id" title="Link to this definition">#</a></dt>
 <dd><p>收到事件的机器人 qq 号</p>
 </dd></dl>
 
@@ -608,6 +613,12 @@
 <p>例如你想要处理一个群禁言通知事件，建议先绑定“群禁言通知事件”的事件处理器，
 然后调试查看事件都有哪些属性。这样就可以确定对“群禁言”这一类别的通知事件哪些属性可用。</p>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.models.NoticeEvent.bot_id">
+<span class="sig-name descname"><span class="pre">bot_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.bot_id" title="Link to this definition">#</a></dt>
+<dd><p>收到事件的机器人 qq 号</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.notice_user_id">
 <span class="sig-name descname"><span class="pre">notice_user_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.notice_user_id" title="Link to this definition">#</a></dt>
@@ -913,8 +924,7 @@
 </div>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
-<p>本事件类型其实不是 onebot 标准的一部分，但是被广大 onebot 协议实现项目所采用，
-因此 melobot 兼容此类事件。</p>
+<p>onebot 标准中未定义“响应”为一种事件类型。但在 melobot 中，“响应”仍然被封装为一种事件类型。</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.ResponseEvent.id">
@@ -977,7 +987,7 @@
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.MetaEvent.bot_id">
-<span class="sig-name descname"><span class="pre">bot_id</span></span><a class="headerlink" href="#melobot.models.MetaEvent.bot_id" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">bot_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.MetaEvent.bot_id" title="Link to this definition">#</a></dt>
 <dd><p>收到事件的机器人 qq 号</p>
 </dd></dl>
 
@@ -1261,6 +1271,35 @@
 </dl>
 </dd></dl>
 
+</section>
+<section id="id11">
+<h2>自定义消息内容<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<p>该方法可构造自定义的消息段对象，实现自定义的消息内容。</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.models.custom_type_msg">
+<span class="sig-prename descclassname"><span class="pre">melobot.models.</span></span><span class="sig-name descname"><span class="pre">custom_type_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.12）"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="melobot.base.html#melobot.base.typing.CQMsgDict" title="melobot.base.typing.CQMsgDict"><span class="pre">CQMsgDict</span></a></span></span><a class="reference internal" href="../_modules/melobot/models/cq.html#custom_type_msg"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.models.custom_type_msg" title="Link to this definition">#</a></dt>
+<dd><p>生成一个自定义消息段对象</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> – 消息段对象的类型标识</p></li>
+<li><p><strong>params</strong> – 消息段的参数</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>符合 onebot 格式，但不在 onebot 标准中的消息段对象</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id12">
+<h2>消息内容处理<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<p>使用以下函数可以处理消息内容，例如进行消息格式转换或实现特定的处理。</p>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>这些函数过于底层，在 melobot 实际使用中并不常用。有所了解即可。</p>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.models.cq_filter_text">
 <span class="sig-prename descclassname"><span class="pre">melobot.models.</span></span><span class="sig-name descname"><span class="pre">cq_filter_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/melobot/models/cq.html#cq_filter_text"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.models.cq_filter_text" title="Link to this definition">#</a></dt>
@@ -1400,7 +1439,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">melobot.models</a><ul>
-<li><a class="reference internal" href="#id1">事件类型</a><ul>
+<li><a class="reference internal" href="#event-type">事件类型</a><ul>
 <li><a class="reference internal" href="#melobot.models.MessageEvent"><code class="docutils literal notranslate"><span class="pre">MessageEvent</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.RequestEvent"><code class="docutils literal notranslate"><span class="pre">RequestEvent</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.NoticeEvent"><code class="docutils literal notranslate"><span class="pre">NoticeEvent</span></code></a></li>
@@ -1423,6 +1462,13 @@
 <li><a class="reference internal" href="#melobot.models.json_msg"><code class="docutils literal notranslate"><span class="pre">json_msg()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.custom_msg_node"><code class="docutils literal notranslate"><span class="pre">custom_msg_node()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.refer_msg_node"><code class="docutils literal notranslate"><span class="pre">refer_msg_node()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id11">自定义消息内容</a><ul>
+<li><a class="reference internal" href="#melobot.models.custom_type_msg"><code class="docutils literal notranslate"><span class="pre">custom_type_msg()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id12">消息内容处理</a><ul>
 <li><a class="reference internal" href="#melobot.models.cq_filter_text"><code class="docutils literal notranslate"><span class="pre">cq_filter_text()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.cq_escape"><code class="docutils literal notranslate"><span class="pre">cq_escape()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.cq_anti_escape"><code class="docutils literal notranslate"><span class="pre">cq_anti_escape()</span></code></a></li>
@@ -1441,7 +1487,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=42d402af"></script>
+</div><script src="../_static/documentation_options.js?v=a8b75639"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

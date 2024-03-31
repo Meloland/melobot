@@ -2,11 +2,12 @@
 <html class="no-js" lang="zh-CN" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" />
-        <link rel="canonical" href="/melobot/_modules/index.html" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot API 参考" href="../api/index.html" /><link rel="prev" title="其他行为操作" href="action.html" />
+        <link rel="canonical" href="/melobot/intro/event-preprocess.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>概览：模块代码 - MeloBot 2.5.8</title>
+        <title>事件预处理 - MeloBot 2.5.8</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -135,7 +136,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -158,13 +159,13 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/action.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始使用</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="first-bot.html">创建第一个机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-process.html">事件获取与处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msg-action.html">消息行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action.html">其他行为操作</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">事件预处理</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -211,7 +212,16 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          <div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/aicorein/melobot/tree/main/docs/source/intro/event-preprocess.md" title="Edit this page">
+    <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
+      <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
+    </svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -219,40 +229,56 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <h1>代码可用的所有模块</h1>
-<ul><li><a href="melobot/base/abc.html">melobot.base.abc</a></li>
-<li><a href="melobot/base/exceptions.html">melobot.base.exceptions</a></li>
-<li><a href="melobot/base/tools.html">melobot.base.tools</a></li>
-<li><a href="melobot/base/typing.html">melobot.base.typing</a></li>
-<li><a href="melobot/bot/init.html">melobot.bot.init</a></li>
-<li><a href="melobot/context/action.html">melobot.context.action</a></li>
-<li><a href="melobot/context/session.html">melobot.context.session</a></li>
-<li><a href="melobot/io/forward_ws.html">melobot.io.forward_ws</a></li>
-<li><a href="melobot/io/full_duplex_http.html">melobot.io.full_duplex_http</a></li>
-<li><a href="melobot/io/reverse_ws.html">melobot.io.reverse_ws</a></li>
-<li><a href="melobot/meta.html">melobot.meta</a></li>
-<li><a href="melobot/models/cq.html">melobot.models.cq</a></li>
-<li><a href="melobot/models/event.html">melobot.models.event</a></li>
-<li><a href="melobot/plugin/init.html">melobot.plugin.init</a></li>
-<li><a href="melobot/utils/checker.html">melobot.utils.checker</a></li>
-<li><a href="melobot/utils/formatter.html">melobot.utils.formatter</a></li>
-<li><a href="melobot/utils/logger.html">melobot.utils.logger</a></li>
-<li><a href="melobot/utils/matcher.html">melobot.utils.matcher</a></li>
-<li><a href="melobot/utils/parser.html">melobot.utils.parser</a></li>
-</ul>
+          <section id="id1">
+<h1>事件预处理<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<div class="attention admonition">
+<p class="admonition-title">特别注意</p>
+<p>此页面仍在施工中，内容并不完整。</p>
+</div>
+<p>现目前，我们通过事件绑定方法可以绑定事件处理的逻辑。在处理方法中，依靠事件对象、行为操作丰富的 API 接口，我们可以让机器人实现各种各样丰富的功能。</p>
+<p>听起来似乎已经很不错了。但接下来的<strong>事件预处理</strong>部分将会让整个过程更加简洁和优雅。</p>
+<div class="note admonition">
+<p class="admonition-title">相关知识</p>
+<p>建议先阅读：<a class="reference internal" href="../references/preprocess.html"><span class="doc std std-doc">什么是事件预处理？</span></a></p>
+</div>
+<section id="id2">
+<h2>匹配或解析<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>第一环节主要的预处理工作是：匹配或解析。先说匹配。</p>
+<p>任何继承匹配器抽象类 <a class="reference internal" href="../api/melobot.base.html#melobot.base.abc.BotMatcher" title="melobot.base.abc.BotMatcher"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotMatcher</span></code></a> 并实现了 <a class="reference internal" href="../api/melobot.base.html#melobot.base.abc.BotMatcher.match" title="melobot.base.abc.BotMatcher.match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">match()</span></code></a> 接口的类，即定义了一类匹配规则。</p>
+</section>
+</section>
+
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="../api/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">melobot API 参考</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="action.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">其他行为操作</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -278,8 +304,27 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">事件预处理</a><ul>
+<li><a class="reference internal" href="#id2">匹配或解析</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

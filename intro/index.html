@@ -7,7 +7,7 @@
         <link rel="canonical" href="/melobot/intro/index.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>开始使用 - MeloBot 2.5.7</title>
+        <title>开始使用 - MeloBot 2.5.8</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.7</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.8</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +151,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.7</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -162,7 +162,10 @@
   <ul class="current">
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">开始使用</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="more-events.html">处理更多事件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-process.html">事件获取与处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msg-action.html">消息行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -178,9 +181,11 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../references/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/event-action.html">事件和行为</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/msg.html">消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/forward-msg.html">转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../references/preprocess.html">事件预处理</a></li>
 </ul>
 </li>
 </ul>
@@ -234,11 +239,16 @@
 <h1>开始使用<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>接下来的教程将以最快速度带您学会 melobot 最基础的使用方法。这适用于最简单的使用场景。</p>
-<div class="note admonition">
-<p class="admonition-title">备注</p>
-<p>能顺利地使用 melobot 框架进行开发，需要对 python asyncio 模块的使用方法，及异步编程的理论有所了解。</p>
+<div class="caution admonition">
+<p class="admonition-title">先决条件</p>
+<p>由于 melobot 是基于 python asyncio 的开发框架，因此你需要对基于 asyncio 的异步编程有所了解和掌握。</p>
 </div>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>如果文档没有告诉你指定的 类/方法/函数 该从何处导入，请点击这些 类/方法/函数 的链接，跳转到它们的 API 文档页面。这个页面会显示这个 类/方法/函数 所在的位置。</p>
+<p>就像这样：<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.MeloBot" title="melobot.bot.MeloBot"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeloBot</span></code></a></p>
+</div>
+<p>接下来的教程将以最快速度带你学会 melobot 基础的使用方法。这适用于简单的使用场景。</p>
 <p>点击页面右下角的“Next”开始吧！</p>
 </section>
 
@@ -298,7 +308,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=42d402af"></script>
+</div><script src="../_static/documentation_options.js?v=a8b75639"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

@@ -19,9 +19,9 @@
 
 from melobot import MeloBot, BotPlugin, send, ForwardWsConn
 
-the_plugin = BotPlugin(__name__, "1.0.0")
+plugin = BotPlugin(__name__, "1.0.0")
 
-@the_plugin.on_start_match("hello melobot")
+@plugin.on_start_match(".hello")
 async def echo() -> None:
     await send("你好呀！我是 melobot >w<")
 
@@ -29,11 +29,11 @@ if __name__ == "__main__":
     bot = MeloBot(__name__)
     # 如果你的 OneBot 实现程序的服务的 host 和 port 不一致，请自行修改
     bot.init(ForwardWsConn("127.0.0.1", 8080))
-    bot.load_plugin(the_plugin)
+    bot.load_plugin(plugin)
     bot.run()
 ```
 
-运行后，在机器人加入的任何一个群聊或与机器人的私聊中，输入以 `hello melobot` 开始的消息，即可得到回复：`你好呀！我是 melobot >w<`。
+运行后，在机器人加入的任何一个群聊或与机器人的私聊中，输入以 `.hello` 开始的消息，即可得到回复：`你好呀！我是 melobot >w<`。
 
 ## 小 demo 讲解
 
@@ -43,13 +43,13 @@ if __name__ == "__main__":
 
 ```python
 # 参数分别是插件名和插件版本
-the_plugin = BotPlugin(__name__, "1.0.0")
+plugin = BotPlugin(__name__, "1.0.0")
 ```
 
 接下来，使用插件对象上的装饰器成员 {meth}`~.BotPlugin.on_start_match`，即可在本插件上添加一个**字符串起始匹配的消息事件处理方法**。
 
 ```python
-@the_plugin.on_start_match("hello melobot")
+@plugin.on_start_match(".hello")
 async def echo() -> None:
     await send("你好呀！我是 melobot >w<")
 ```
@@ -75,10 +75,15 @@ bot = MeloBot(__name__)
 bot.init(ForwardWsConn("127.0.0.1", 8080))
 ```
 
+```{admonition} 相关知识
+:class: note
+更多连接器类型，请参考：[连接器类型](../references/connector)
+```
+
 最后加载插件到 bot，启动 bot 就可以了：
 
 ```python
-bot.load_plugin(the_plugin)
+bot.load_plugin(plugin)
 bot.run()
 ```
 
