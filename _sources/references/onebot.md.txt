@@ -9,6 +9,7 @@ melobot 目前版本与“媒介”的数据交换，必须遵循一种特定的
 - [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) （如果你过去就使用它，且目前仍工作良好，推荐；否则不推荐使用）
 - [OpenShamrock](https://github.com/whitechi73/OpenShamrock)
 - [Lagrange.Core](https://github.com/KonataDev/Lagrange.Core)
+- [LLOneBot](https://github.com/LLOneBot/LLOneBot)
 - ...
 
 你可自行查阅这些项目的文档，了解和学习它们的配置方法。

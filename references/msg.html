@@ -6,8 +6,15 @@
 <link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="转发消息与消息结点" href="forward-msg.html" /><link rel="prev" title="事件和行为" href="event-action.html" />
         <link rel="canonical" href="/melobot/references/msg.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>消息内容的数据结构 - MeloBot 2.5.8</title>
+        <title>消息内容的数据结构 - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -161,10 +168,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -237,13 +244,8 @@
         <article role="main">
           <section id="id1">
 <h1>消息内容的数据结构<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
-<p>消息内容，由于有文本、语音、图片等多种类型。因此需要统一的数据结构来表示。</p>
-<p>在 OneBot 标准中，主要有两种格式，来表示消息内容这种数据结构：字符串（string）和数组（array）。</p>
-<p>在 melobot 中，你不需要手动构造消息内容的数据结构，构造方法参考：<a class="reference internal" href="../api/melobot.models.html#cq-msgs"><span class="std std-ref">消息内容构造</span></a>（不用马上跳转，看完本篇文章再去看更好哦）。<strong>虽然无需手动构造，但是了解消息内容的数据结构，有助于你设计实现更复杂的功能</strong>。</p>
-<div class="note admonition">
-<p class="admonition-title">相关知识</p>
-<p>在 melobot 中，涉及单条消息发送的“行为操作函数”主要有：<a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a>, <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_custom_msg" title="melobot.context.send_custom_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom_msg()</span></code></a>。阅读以下内容后，你会对这些函数的使用方法有更清晰的理解。</p>
-</div>
+<p>消息内容，由于有文本、语音、图片等多种类型。因此需要统一的数据结构来表示。在 OneBot 标准中，主要有两种格式，来表示消息内容这种数据结构：字符串（string）和数组（array）。</p>
+<p>在 melobot 中，你不需要手动处理消息内容的数据结构，<strong>虽然无需手动处理，但是了解消息内容的数据结构，有助于你使用 melobot 提供的相关方法</strong>。</p>
 <div class="caution admonition">
 <p class="admonition-title">注意</p>
 <p>本页以下部分为保证阅读流畅性，直接复制了来源于 <a class="reference external" href="https://github.com/botuniverse/onebot-11">OneBot 标准</a>的一些内容。</p>
@@ -398,6 +400,14 @@
 </div>
 </section>
 </section>
+<section id="melobot">
+<h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">#</a></h2>
+<p>在 melobot 中：</p>
+<ul class="simple">
+<li><p>CQ 字符串使用字符串表示</p></li>
+<li><p>消息段对象，使用类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code></a> 的字典表示</p></li>
+</ul>
+</section>
 </section>
 
         </article>
@@ -473,6 +483,7 @@
 <li><a class="reference internal" href="#id6">消息段数组</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#melobot">melobot 中的表示</a></li>
 </ul>
 </li>
 </ul>
@@ -484,7 +495,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

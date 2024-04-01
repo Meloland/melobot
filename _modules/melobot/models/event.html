@@ -5,8 +5,15 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
         <link rel="canonical" href="/melobot/_modules/melobot/models/event.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.models.event - MeloBot 2.5.8</title>
+        <title>melobot.models.event - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -160,10 +167,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -231,8 +238,8 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotEvent</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">CQMsgDict</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
-<span class="kn">from</span> <span class="nn">.cq</span> <span class="kn">import</span> <span class="n">_get_cq</span><span class="p">,</span> <span class="n">_get_cq_params</span><span class="p">,</span> <span class="n">to_cq_arr</span><span class="p">,</span> <span class="n">to_cq_str</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">.msg</span> <span class="kn">import</span> <span class="n">_get_cq</span><span class="p">,</span> <span class="n">_get_cq_params</span><span class="p">,</span> <span class="n">to_cq_arr</span><span class="p">,</span> <span class="n">to_cq_str</span>
 
 
 <span class="k">class</span> <span class="nc">BotEventBuilder</span><span class="p">:</span>
@@ -280,7 +287,7 @@
         <span class="c1">#: 使用 CQ 字符串表示的，本事件的所有消息内容</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_content</span><span class="p">:</span> <span class="nb">str</span>
         <span class="c1">#: 使用消息段对象列表表示的，本事件的所有消息内容</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]</span>
         <span class="c1">#: 本事件的所有消息内容中，纯文本消息的合并字符串</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
         <span class="c1">#: 消息字体</span>
@@ -344,7 +351,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">content</span>
 
-    <span class="k">def</span> <span class="nf">_format_to_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_format_to_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;对外部零信任，强制转换为消息段格式.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
@@ -364,7 +371,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">to_cq_arr</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取消息中所有文本消息，返回合并字符串.&quot;&quot;&quot;</span>
         <span class="n">text_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
@@ -372,43 +379,43 @@
                 <span class="n">text_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text_list</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MessageEvent.get_cq">
-<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.get_cq">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_cq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;提取指定类型的消息组成消息段对象列表</span>
+<div class="viewcode-block" id="MessageEvent.get_segments">
+<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.get_segments">[文档]</a>
+    <span class="k">def</span> <span class="nf">get_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;提取指定类型的，消息段对象组成的消息段对象列表</span>
 
-<span class="sd">        :param cq_type: 消息段对象类型</span>
+<span class="sd">        :param type: 消息段类型（对应 OneBot 标准中每种消息段对象的 type）</span>
 <span class="sd">        :return: 消息段对象列表</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_get_cq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">cq_type</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_get_cq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MessageEvent.get_cq_params">
-<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.get_cq_params">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_cq_params</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="MessageEvent.get_datas">
+<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.get_datas">[文档]</a>
+    <span class="k">def</span> <span class="nf">get_datas</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">convert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;提取指定类型的消息中的指定参数</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;提取指定类型的消息段对象中的指定数据</span>
 
-<span class="sd">        当没有任何对应类型的消息时，为空列表。如果有对应类型的消息，但是指定的参数不存在，</span>
+<span class="sd">        当没有任何对应类型的消息段时，为空列表。如果有对应类型的消息段，但是指定的数据键名不存在，</span>
 <span class="sd">        则在列表中产生 :obj:`None` 值.</span>
 
-<span class="sd">        可以指定 type 来强制转换类型，不填则使用智能解析出的类型</span>
+<span class="sd">        可以指定 `convert` 来强制转换类型，不填则不使用类型转换</span>
 
 <span class="sd">        使用示例如下：</span>
 
 <span class="sd">        .. code:: python</span>
 
 <span class="sd">           # 假设 event 是 MessageEvent 对象，即象征一个消息事件</span>
-<span class="sd">           params = event.get_cq_params(&#39;at&#39;, &#39;qq&#39;)</span>
-<span class="sd">           # params 将是此事件中，所有 at 类型消息的 &quot;qq&quot; 参数所组成的列表</span>
+<span class="sd">           datas = event.get_datas(&#39;at&#39;, &#39;qq&#39;)</span>
+<span class="sd">           # datas 将是此事件中，所有 at 消息段的 &quot;qq&quot; 数据值所组成的列表</span>
 
-<span class="sd">        :param cq_type: 消息类型</span>
-<span class="sd">        :param param: 该类消息中的参数名</span>
-<span class="sd">        :param type: 类型转换使用的类</span>
-<span class="sd">        :return: 参数值列表</span>
+<span class="sd">        :param type: 消息段类型（对应 OneBot 标准中每种消息段对象的 type）</span>
+<span class="sd">        :param data: 消息段对象 `data` 中的键名</span>
+<span class="sd">        :param convert: 类型转换使用的函数</span>
+<span class="sd">        :return: 值列表</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_get_cq_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">cq_type</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_get_cq_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">convert</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_private">
@@ -709,11 +716,11 @@
 <span class="sd">    .. admonition:: 注意</span>
 <span class="sd">       :class: caution</span>
 
-<span class="sd">       受 onebot 协议实现项目的影响，以及对通知事件本身复杂性的考虑，通知事件的所有实例属性，</span>
-<span class="sd">       都只会在特定类别的通知事件中存在。想要使用这些属性，最好先经过实际验证。</span>
+<span class="sd">       受 onebot 协议实现项目的影响，及对通知事件本身复杂性的考虑，通知事件大多数实例属性，</span>
+<span class="sd">       只会在特定类别的通知事件中存在。各个属性的含义与存在的时机，已在下方的注释说明。</span>
 
-<span class="sd">       例如你想要处理一个群禁言通知事件，建议先绑定“群禁言通知事件”的事件处理器，</span>
-<span class="sd">       然后调试查看事件都有哪些属性。这样就可以确定对“群禁言”这一类别的通知事件哪些属性可用。</span>
+<span class="sd">       如果你仍不确定某个属性在何时出现，建议直接调试查看存在的属性。例如通过</span>
+<span class="sd">       `print(event.__dict__)` 或调试器查看。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1083,8 +1090,6 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
-
-        <span class="c1">#: 响应标识符。当响应是对 resp_id 属性不为空的 :class:`.BotAction` 的回应时，此属性才不为 :obj:`None`</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1">#: 响应的状态码</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span> <span class="nb">int</span>
@@ -1171,7 +1176,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

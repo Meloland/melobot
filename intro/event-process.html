@@ -3,11 +3,18 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="消息行为操作" href="msg-action.html" /><link rel="prev" title="创建第一个机器人" href="first-bot.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="消息操作" href="msg-action.html" /><link rel="prev" title="开始创建机器人" href="create-bot.html" />
         <link rel="canonical" href="/melobot/intro/event-process.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>事件获取与处理 - MeloBot 2.5.8</title>
+        <title>事件与事件处理 - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -161,10 +168,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始使用</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -236,7 +243,7 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>事件获取与处理<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>事件与事件处理<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p>如果你不知道什么是“事件”，建议先浏览：<a class="reference internal" href="../references/event-action.html"><span class="doc std std-doc">事件的相关知识</span></a></p>
@@ -247,7 +254,7 @@
 <p>以下将这些方法称为“绑定方法”，同时将绑定方法绑定的函数称为：“处理方法”或“处理函数”。</p>
 <ul class="simple">
 <li><p>绑定一个任意事件的处理方法：<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_event" title="melobot.plugin.BotPlugin.on_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_event()</span></code></a></p></li>
-<li><p>绑定一个消息事件的处理方法：<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_message" title="melobot.plugin.BotPlugin.on_message"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_message()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_every_message" title="melobot.plugin.BotPlugin.on_every_message"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_every_message()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_at_qq" title="melobot.plugin.BotPlugin.on_at_qq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_at_qq()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_start_match" title="melobot.plugin.BotPlugin.on_start_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_contain_match" title="melobot.plugin.BotPlugin.on_contain_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_contain_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_full_match" title="melobot.plugin.BotPlugin.on_full_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_full_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_end_match" title="melobot.plugin.BotPlugin.on_end_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_end_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_regex_match" title="melobot.plugin.BotPlugin.on_regex_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_regex_match()</span></code></a></p></li>
+<li><p>绑定一个消息事件的处理方法：<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_message" title="melobot.plugin.BotPlugin.on_message"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_message()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_at_qq" title="melobot.plugin.BotPlugin.on_at_qq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_at_qq()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_start_match" title="melobot.plugin.BotPlugin.on_start_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_contain_match" title="melobot.plugin.BotPlugin.on_contain_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_contain_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_full_match" title="melobot.plugin.BotPlugin.on_full_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_full_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_end_match" title="melobot.plugin.BotPlugin.on_end_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_end_match()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_regex_match" title="melobot.plugin.BotPlugin.on_regex_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_regex_match()</span></code></a></p></li>
 <li><p>绑定一个请求事件的处理方法：<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_request" title="melobot.plugin.BotPlugin.on_request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_request()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_friend_request" title="melobot.plugin.BotPlugin.on_friend_request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_friend_request()</span></code></a>、<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_group_request" title="melobot.plugin.BotPlugin.on_group_request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_group_request()</span></code></a></p></li>
 <li><p>绑定一个通知事件的处理方法：<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_notice" title="melobot.plugin.BotPlugin.on_notice"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_notice()</span></code></a></p></li>
 <li><p>绑定一个元事件的处理方法：<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_meta_event" title="melobot.plugin.BotPlugin.on_meta_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_meta_event()</span></code></a></p></li>
@@ -263,9 +270,9 @@
 </section>
 <section id="id3">
 <h2>获取事件对象<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
-<p>现在我们已经学会如何绑定事件处理方法了。但是如果能<strong>获得事件的一些信息，基于这些信息做针对性处理</strong>会更好。</p>
+<p>现在我们已经学会绑定事件处理方法了。如果事件处理方法，能<strong>获得触发事件的一些信息，基于这些信息做针对性处理</strong>就更好了。</p>
 <p>通过 <a class="reference internal" href="../api/melobot.context.html#melobot.context.any_event" title="melobot.context.any_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">any_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_event" title="melobot.context.msg_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.req_event" title="melobot.context.req_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">req_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.notice_event" title="melobot.context.notice_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">notice_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.meta_event" title="melobot.context.meta_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">meta_event()</span></code></a> 函数，即可在事件处理方法中获得触发的事件。获得的事件是一个事件对象。</p>
-<p>当然这五个方法都只做一件事：获得当前的事件。它们唯一的不同在于，返回值的类型注解是不一样的。因此<strong>建议在指定类型的事件处理方法中，用对应的函数</strong>：</p>
+<p>当然这五个方法都只做一件事：获得当前的事件。它们唯一的不同在于，返回值的类型注解不一样。<strong>建议在指定类型的事件处理方法中，用对应的事件获取方法</strong>。这样可以获得精准的类型提示：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">func1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># on_event 绑定的处理方法，可能被各种类型的事件触发</span>
@@ -281,7 +288,7 @@
     <span class="o">...</span>
 </pre></div>
 </div>
-<p>不同类型的事件对象有哪些属性和方法可用，请参考定义：<a class="reference internal" href="../api/melobot.models.html#event-type"><span class="std std-ref">事件类型</span></a></p>
+<p>不同类型的事件对象有哪些属性和方法可用，请参考：<a class="reference internal" href="../api/melobot.models.html#event-type"><span class="std std-ref">事件类型</span></a></p>
 </section>
 <section id="id4">
 <h2>基于事件信息的处理逻辑<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
@@ -327,13 +334,43 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 获取消息中的文本内容</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">msg_text</span><span class="p">()</span>  <span class="c1"># 等价于：msg_event().text</span>
 <span class="c1"># 获取消息的命令解析参数（需要在绑定方法中指定解析器，这个以后会细说）</span>
-<span class="n">args</span> <span class="o">=</span> <span class="n">msg_args</span><span class="p">()</span>  <span class="c1"># 等价于：msg_event().args</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">msg_args</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>一个消息事件就象征一条消息，它最重要的信息就是<strong>消息内容</strong>。获取文本内容可以使用刚才提到的 <a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_text" title="melobot.context.msg_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_text()</span></code></a>。如果要获取多媒体内容，例如图片、表情等，可以使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent.get_segments" title="melobot.models.MessageEvent.get_segments"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_segments()</span></code></a> 方法获得多媒体内容对应的<strong>消息段对象列表</strong>。</p>
+<div class="note admonition">
+<p class="admonition-title">相关知识</p>
+<p>如果你不知道，消息段对象是消息内容的表示方式之一，建议先浏览：<a class="reference internal" href="../references/msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a></p>
+</div>
+<p>需要哪种类型的消息段，就传递哪种消息段的 type 作为参数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">e</span> <span class="o">=</span> <span class="n">msg_event</span><span class="p">()</span>
+<span class="c1"># 获取当前这条消息所有的图片（image 是图片消息段的类型名）</span>
+<span class="n">images</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_segments</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
+<span class="c1"># 获取当前这条消息所有的 qq 表情（face 是 qq 表情消息段的类型名）</span>
+<span class="n">faces</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_segments</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>随后，读取列表中消息段对象的 data 字段可获得相关数据：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 遍历所有图片的 url 和文件名</span>
+<span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;file&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">相关知识</p>
+<p>所有媒体内容对应的消息段表示：<a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/message/segment.md">OneBot 消息段</a></p>
+<p>此链接也包含了每种消息段的 type 标识，及 data 字段拥有的参数。</p>
+</div>
+<p>如果只需要 data 字段的某一参数，使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent.get_datas" title="melobot.models.MessageEvent.get_datas"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_datas()</span></code></a> 即可：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 获取当前这条消息，所有图片的 url</span>
+<span class="n">img_urls</span> <span class="o">=</span> <span class="n">msg_event</span><span class="p">()</span><span class="o">.</span><span class="n">get_datas</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;url&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="id6">
 <h2>总结<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
-<p>本篇主要说明了如何绑定事件处理方法，以及如何获取事件对象，来实现更丰富的处理逻辑。</p>
+<p>本篇主要说明了如何绑定事件处理方法，以及如何通过事件对象的属性和方法，来实现更丰富的处理逻辑。</p>
 <p>下一篇将重点说明：如何构造和发送各种消息。</p>
 </section>
 </section>
@@ -348,18 +385,18 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">消息行为操作</div>
+                <div class="title">消息操作</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="first-bot.html">
+          <a class="prev-page" href="create-bot.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">创建第一个机器人</div>
+                <div class="title">开始创建机器人</div>
                 
               </div>
             </a>
@@ -400,7 +437,7 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">事件获取与处理</a><ul>
+<li><a class="reference internal" href="#">事件与事件处理</a><ul>
 <li><a class="reference internal" href="#id2">绑定方法与处理方法</a></li>
 <li><a class="reference internal" href="#id3">获取事件对象</a></li>
 <li><a class="reference internal" href="#id4">基于事件信息的处理逻辑</a></li>
@@ -417,7 +454,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

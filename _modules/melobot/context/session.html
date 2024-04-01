@@ -5,8 +5,15 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
         <link rel="canonical" href="/melobot/_modules/melobot/context/session.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.context.session - MeloBot 2.5.8</title>
+        <title>melobot.context.session - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -160,10 +167,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -296,11 +303,11 @@
             <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="p">,</span> <span class="s2">&quot;parser&quot;</span><span class="p">)</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">_args_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
-            <span class="n">args_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">_args_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">args_group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">_args_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
-            <span class="k">for</span> <span class="n">cmd_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
-                <span class="n">args</span> <span class="o">=</span> <span class="n">args_group</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cmd_name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="n">args_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;尝试获取的命令解析参数不存在&quot;</span><span class="p">)</span>
@@ -724,12 +731,12 @@
 <div class="viewcode-block" id="msg_text">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.msg_text">[文档]</a>
 <span class="k">def</span> <span class="nf">msg_text</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取当前会话下的消息事件的，所有纯文本消息的合并字符串。</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取当前会话下的，消息事件的纯文本内容的合并字符串。</span>
 <span class="sd">    等价于手动读取消息事件的 :attr:`~.MessageEvent.text` 属性</span>
 
 <span class="sd">    只能在确定当前会话下必为消息事件时使用</span>
 
-<span class="sd">    :return: 所有纯文本消息的合并字符串</span>
+<span class="sd">    :return: 纯文本内容的合并字符串</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;MessageEvent&quot;</span> <span class="o">=</span> <span class="n">any_event</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
     <span class="k">return</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span></div>
@@ -798,7 +805,7 @@
 <span class="sd">    此时调用该方法的函数依然可以运行，但是此会话状态下无法再进行行为操作。</span>
 
 <span class="sd">    一般来说，会话将会自动销毁。</span>
-<span class="sd">    只有在注册事件处理函数时使用 `session_hold=True`，才会需要使用此函数。</span>
+<span class="sd">    只有在绑定事件处理函数时使用 `session_hold=True`，才会需要使用此函数。</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -845,7 +852,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

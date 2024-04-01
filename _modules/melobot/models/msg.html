@@ -3,10 +3,17 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
-        <link rel="canonical" href="/melobot/_modules/melobot/models/cq.html" />
+        <link rel="canonical" href="/melobot/_modules/melobot/models/msg.html" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.models.cq - MeloBot 2.5.8</title>
+        <title>melobot.models.msg - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -160,10 +167,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -225,7 +232,7 @@
           </label>
         </div>
         <article role="main">
-          <h1>melobot.models.cq 源代码</h1><div class="highlight"><pre>
+          <h1>melobot.models.msg 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">zip_longest</span>
@@ -234,11 +241,11 @@
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
-    <span class="n">CQMsgDict</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Literal</span><span class="p">,</span>
-    <span class="n">MsgNodeDict</span><span class="p">,</span>
+    <span class="n">MsgNode</span><span class="p">,</span>
+    <span class="n">MsgSegment</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
-    <span class="n">Type</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -265,7 +272,8 @@
     <span class="s2">&quot;to_cq_arr&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_cq_str&quot;</span><span class="p">,</span>
     <span class="s2">&quot;xml_msg&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;custom_type_msg&quot;</span>
+    <span class="s2">&quot;custom_type_msg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;forward_msg&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -273,12 +281,12 @@
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.text_msg">[文档]</a>
 <span class="k">def</span> <span class="nf">text_msg</span><span class="p">(</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成普通文本消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`纯文本 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#纯文本&gt;`_</span>
 
-<span class="sd">    :param text: 消息内容</span>
+<span class="sd">    :param text: 文本内容</span>
 <span class="sd">    :return: onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">}}</span></div>
@@ -289,7 +297,7 @@
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.face_msg">[文档]</a>
 <span class="k">def</span> <span class="nf">face_msg</span><span class="p">(</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成 qq 表情消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`QQ 表情 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#qq-表情&gt;`_</span>
@@ -309,7 +317,7 @@
     <span class="n">cache</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">proxy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成语音消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`语音 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#语音&gt;`_</span>
@@ -321,7 +329,7 @@
 <span class="sd">    :param timeout: 超时时间，默认不启用</span>
 <span class="sd">    :return: onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base</span><span class="p">:</span> <span class="n">CQMsgDict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">base</span><span class="p">:</span> <span class="n">MsgSegment</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;record&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file</span><span class="p">,</span>
@@ -338,7 +346,7 @@
 
 <div class="viewcode-block" id="at_msg">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.at_msg">[文档]</a>
-<span class="k">def</span> <span class="nf">at_msg</span><span class="p">(</span><span class="n">qq</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">at_msg</span><span class="p">(</span><span class="n">qq</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成艾特消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`某人 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#某人&gt;`_</span>
@@ -346,7 +354,7 @@
 <span class="sd">    :param qq: 艾特的 qq 号，&quot;all&quot; 表示艾特全体成员</span>
 <span class="sd">    :return: onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base</span><span class="p">:</span> <span class="n">CQMsgDict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">base</span><span class="p">:</span> <span class="n">MsgSegment</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;at&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;qq&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">qq</span><span class="p">),</span>
@@ -363,7 +371,7 @@
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成链接分享消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`链接分享 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#链接分享&gt;`_</span>
@@ -374,7 +382,7 @@
 <span class="sd">    :param image: 消息的封面图 url（可选）</span>
 <span class="sd">    :return: onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base</span><span class="p">:</span> <span class="n">CQMsgDict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">base</span><span class="p">:</span> <span class="n">MsgSegment</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;share&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
@@ -394,7 +402,7 @@
 <span class="k">def</span> <span class="nf">music_msg</span><span class="p">(</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;qq&quot;</span><span class="p">,</span> <span class="s2">&quot;163&quot;</span><span class="p">,</span> <span class="s2">&quot;xm&quot;</span><span class="p">],</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成音乐分享消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`音乐分享 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#音乐分享-&gt;`_</span>
@@ -415,7 +423,7 @@
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成音乐自定义分享 url</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`音乐自定义分享 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#音乐自定义分享-&gt;`_</span>
@@ -427,7 +435,7 @@
 <span class="sd">    :param image: 封面图 url（可选）</span>
 <span class="sd">    :return: onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base</span><span class="p">:</span> <span class="n">CQMsgDict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">base</span><span class="p">:</span> <span class="n">MsgSegment</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;music&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
@@ -452,7 +460,7 @@
     <span class="n">cache</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">proxy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成图片消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`图片 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#图片&gt;`_</span>
@@ -464,7 +472,7 @@
 <span class="sd">    :param timeout: 超时时间，默认不超时</span>
 <span class="sd">    :return: onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base</span><span class="p">:</span> <span class="n">CQMsgDict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">base</span><span class="p">:</span> <span class="n">MsgSegment</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file</span><span class="p">,</span>
@@ -484,7 +492,7 @@
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.reply_msg">[文档]</a>
 <span class="k">def</span> <span class="nf">reply_msg</span><span class="p">(</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成回复消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`回复 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#回复&gt;`_</span>
@@ -505,7 +513,7 @@
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.poke_msg">[文档]</a>
 <span class="k">def</span> <span class="nf">poke_msg</span><span class="p">(</span>
     <span class="n">qq</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成戳一戳消息</span>
 
 <span class="sd">    .. admonition:: 提示</span>
@@ -527,7 +535,7 @@
 
 <div class="viewcode-block" id="xml_msg">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.xml_msg">[文档]</a>
-<span class="k">def</span> <span class="nf">xml_msg</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">xml_msg</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成 xml 消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`xml 消息 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#xml-消息&gt;`_</span>
@@ -541,7 +549,7 @@
 
 <div class="viewcode-block" id="json_msg">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.json_msg">[文档]</a>
-<span class="k">def</span> <span class="nf">json_msg</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">json_msg</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成 json 消息</span>
 
 <span class="sd">    参数详细说明参考 onebot 标准：`json 消息 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#json-消息&gt;`_</span>
@@ -553,15 +561,35 @@
 
 
 
+<div class="viewcode-block" id="forward_msg">
+<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.forward_msg">[文档]</a>
+<span class="k">def</span> <span class="nf">forward_msg</span><span class="p">(</span><span class="n">forwardId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;生成一条完整的转发消息，以消息段的形式</span>
+
+<span class="sd">    .. admonition:: 注意</span>
+<span class="sd">       :class: caution</span>
+
+<span class="sd">       这与通过结点来构造转发消息是不同的，这里直接构造一个消息段对象，就可以代表整条转发消息。</span>
+<span class="sd">       因为这里使用的是转发 id。</span>
+
+<span class="sd">    参数详细说明参考 onebot 标准：`forward 消息段 &lt;https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#合并转发-&gt;`_</span>
+
+<span class="sd">    :param forwardId: 转发 id</span>
+<span class="sd">    :return: onebot 标准中的消息段对象</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">forwardId</span><span class="p">)}}</span></div>
+
+
+
 <div class="viewcode-block" id="custom_msg_node">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.custom_msg_node">[文档]</a>
 <span class="k">def</span> <span class="nf">custom_msg_node</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">sendName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">sendId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">seq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">seq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">useStd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgNodeDict</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成一个自定义合并消息转发结点</span>
 
 <span class="sd">    .. admonition:: 提示</span>
@@ -594,12 +622,12 @@
                 <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">)</span>
         <span class="n">msgs</span> <span class="o">=</span> <span class="n">temp</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">useStd</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">:</span> <span class="n">MsgNodeDict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">ret</span><span class="p">:</span> <span class="n">MsgNode</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;node&quot;</span><span class="p">,</span>
             <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">sendName</span><span class="p">,</span> <span class="s2">&quot;uin&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sendId</span><span class="p">),</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">msgs</span><span class="p">},</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">:</span> <span class="n">MsgNodeDict</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># type: ignore</span>
+        <span class="n">ret</span><span class="p">:</span> <span class="n">MsgNode</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># type: ignore</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;node&quot;</span><span class="p">,</span>
             <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">sendId</span><span class="p">,</span> <span class="s2">&quot;nickname&quot;</span><span class="p">:</span> <span class="n">sendName</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">msgs</span><span class="p">},</span>
         <span class="p">}</span>
@@ -611,7 +639,7 @@
 
 <div class="viewcode-block" id="refer_msg_node">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.refer_msg_node">[文档]</a>
-<span class="k">def</span> <span class="nf">refer_msg_node</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgNodeDict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">refer_msg_node</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成一个引用合并消息转发结点</span>
 
 <span class="sd">    :param id: 消息 id</span>
@@ -623,14 +651,14 @@
 
 <div class="viewcode-block" id="custom_type_msg">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.custom_type_msg">[文档]</a>
-<span class="k">def</span> <span class="nf">custom_type_msg</span><span class="p">(</span><span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CQMsgDict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">custom_type_msg</span><span class="p">(</span><span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MsgSegment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;生成一个自定义消息段对象</span>
 
 <span class="sd">    :param type: 消息段对象的类型标识</span>
 <span class="sd">    :param params: 消息段的参数</span>
 <span class="sd">    :return: 符合 onebot 格式，但不在 onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ret</span><span class="p">:</span> <span class="n">CQMsgDict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">ret</span><span class="p">:</span> <span class="n">MsgSegment</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}}</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret</span></div>
@@ -692,7 +720,7 @@
 
 <div class="viewcode-block" id="to_cq_arr">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.to_cq_arr">[文档]</a>
-<span class="k">def</span> <span class="nf">to_cq_arr</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">to_cq_arr</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;将 cq 字符串转换为消息段对象列表</span>
 
 <span class="sd">    :param s: cq 字符串</span>
@@ -739,7 +767,7 @@
 
 <div class="viewcode-block" id="to_cq_str">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.to_cq_str">[文档]</a>
-<span class="k">def</span> <span class="nf">to_cq_str</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">to_cq_str</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;将消息段对象列表转换为 cq 字符串</span>
 
 <span class="sd">    :param content: 消息段对象列表</span>
@@ -781,12 +809,15 @@
     <span class="k">return</span> <span class="n">_action</span>
 
 
-<span class="k">def</span> <span class="nf">_get_cq</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span> <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_get_cq</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span> <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cq_type</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_get_cq_params</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span> <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
+    <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
@@ -835,7 +866,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

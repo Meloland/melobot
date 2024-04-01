@@ -5,8 +5,15 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
         <link rel="canonical" href="/melobot/_modules/melobot/utils/formatter.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.utils.formatter - MeloBot 2.5.8</title>
+        <title>melobot.utils.formatter - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -160,10 +167,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -263,7 +270,7 @@
         <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">exc_type</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
         <span class="n">exc_tb</span><span class="p">:</span> <span class="n">ModuleType</span><span class="p">,</span>
-        <span class="n">cmd_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">group_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1">#: 命令参数格式化前的原值</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">src</span>
@@ -278,20 +285,20 @@
         <span class="c1">#: 命令参数格式化异常时的调用栈信息</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exc_tb</span> <span class="o">=</span> <span class="n">exc_tb</span>
         <span class="c1">#: 命令参数所属命令的命令名</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_name</span> <span class="o">=</span> <span class="n">cmd_name</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">group_id</span></div>
 
 
 
-<div class="viewcode-block" id="ArgFormatter">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.ArgFormatter">[文档]</a>
-<span class="k">class</span> <span class="nc">ArgFormatter</span><span class="p">:</span>
+<div class="viewcode-block" id="CmdArgFormatter">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdArgFormatter">[文档]</a>
+<span class="k">class</span> <span class="nc">CmdArgFormatter</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;命令参数格式化器</span>
 
 <span class="sd">    用于格式化命令解析器解析出的命令参数。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ArgFormatter.__init__">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.ArgFormatter.__init__">[文档]</a>
+<div class="viewcode-block" id="CmdArgFormatter.__init__">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdArgFormatter.__init__">[文档]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">convert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -348,7 +355,7 @@
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">format</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">cmd_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">group_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span><span class="p">,</span>
         <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -372,7 +379,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="n">ArgVerifyFailed</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">FormatInfo</span><span class="p">(</span>
-                <span class="n">src</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="n">cmd_name</span>
+                <span class="n">src</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="n">group_id</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_fail</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_fail</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
@@ -381,7 +388,7 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">except</span> <span class="n">ArgLackError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">FormatInfo</span><span class="p">(</span>
-                <span class="n">Void</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="n">cmd_name</span>
+                <span class="n">Void</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="n">group_id</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_lack</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_lack</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
@@ -390,7 +397,7 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">FormatInfo</span><span class="p">(</span>
-                <span class="n">src</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="n">cmd_name</span>
+                <span class="n">src</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="n">group_id</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_fail</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_fail</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
@@ -409,7 +416,7 @@
         <span class="p">)</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">详细错误描述：[</span><span class="si">{</span><span class="n">e_class</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">exc_type</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">cmd_name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tip</span>
+        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tip</span>
         <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_verify_fail_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -421,14 +428,14 @@
             <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;给定的值 </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> 不符合要求。&quot;</span>
         <span class="p">)</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">cmd_name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tip</span>
+        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tip</span>
         <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_arglack_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;第 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> 个参数&quot;</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;（</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_desc</span><span class="si">}</span><span class="s2">）缺失。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_desc</span> <span class="k">else</span> <span class="s2">&quot;缺失。&quot;</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">cmd_name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tip</span>
+        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tip</span>
         <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span></div>
 
 </pre></div>
@@ -470,7 +477,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

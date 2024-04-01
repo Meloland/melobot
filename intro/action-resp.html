@@ -3,11 +3,18 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="事件预处理" href="event-preprocess.html" /><link rel="prev" title="消息行为操作" href="msg-action.html" />
-        <link rel="canonical" href="/melobot/intro/action.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="事件预处理" href="event-preprocess.html" /><link rel="prev" title="消息操作" href="msg-action.html" />
+        <link rel="canonical" href="/melobot/intro/action-resp.html" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>其他行为操作 - MeloBot 2.5.8</title>
+        <title>其他行为操作 - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -161,9 +168,9 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始使用</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="msg-action.html">消息行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msg-action.html">消息操作</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">事件预处理</a></li>
 </ul>
@@ -213,7 +220,7 @@
         </a>
         <div class="content-icon-container">
           <div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/aicorein/melobot/tree/main/docs/source/intro/action.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/aicorein/melobot/tree/main/docs/source/intro/action-resp.md" title="Edit this page">
     <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
       <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
@@ -250,9 +257,9 @@
 <h2>行为响应<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>行为操作的响应被称为“行为响应”，以下简称“响应”。响应是 melobot 发送行为操作给 OneBot 实现程序后，等待 OneBot 完成后的结果。响应<strong>被用来检查行为有没有被正确处理，或被用来获取返回数据</strong>。</p>
 <p>响应在 melobot 中是一种事件类型。参考：<a class="reference internal" href="../api/melobot.models.html#melobot.models.ResponseEvent" title="melobot.models.ResponseEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResponseEvent</span></code></a>。</p>
-<p>通过 API 参考文档，可以发现：行为操作函数，有一个共有参数 <code class="docutils literal notranslate"><span class="pre">wait</span></code>。当不指定这个 wait 参数，或设置 <code class="docutils literal notranslate"><span class="pre">wait=False</span></code> 时，行为操作函数在将行为传递给 OneBot 实现程序后，就<strong>立即返回</strong>。即使这个行为<strong>还没有被 OneBot 实现程序“完成”</strong>（即提交给 qq 服务器）。</p>
+<p>通过 API 参考文档，可以发现：大多数行为操作函数都有参数 <code class="docutils literal notranslate"><span class="pre">wait</span></code>。当不指定这个 wait 参数，或设置 <code class="docutils literal notranslate"><span class="pre">wait=False</span></code> 时，行为操作函数在将行为传递给 OneBot 实现程序后，就<strong>立即返回</strong>。即使这个行为<strong>还没有被 OneBot 实现程序“完成”</strong>（即提交给 qq 服务器）。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">这里也可以是 reply, send_reply, finish, reply_finish, send_forward 等一系列行为操作函数 </span>
+<span class="sd">这里可以是任何拥有 wait 参数的行为操作函数</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>                    <span class="c1"># res 为 None</span>
 <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">msg_recall</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># res 为 None</span>
@@ -260,7 +267,7 @@
 </div>
 <p>而如果设置了 <code class="docutils literal notranslate"><span class="pre">wait=True</span></code>，此时返回的结果会是一个响应对象（<a class="reference internal" href="../api/melobot.models.html#melobot.models.ResponseEvent" title="melobot.models.ResponseEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResponseEvent</span></code></a> 对象）。此时的行为操作函数，必须等待 OneBot 将这个行为“完成”了，并获得一个响应，才能产生返回值。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">这里也可以是 reply, send_reply, finish, reply_finish, send_forward 等一系列行为操作函数 </span>
+<span class="sd">这里可以是任何拥有 wait 参数的行为操作函数</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">msg_recall</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># resp 为响应对象</span>
 </pre></div>
@@ -280,14 +287,15 @@
     <span class="o">...</span>
 </pre></div>
 </div>
-<p>响应对象的 <a class="reference internal" href="../api/melobot.models.html#melobot.models.ResponseEvent.data" title="melobot.models.ResponseEvent.data"><code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code></a> 属性是一个字典。不同的行为操作函数，会有不同的返回数据。返回数据和行为操作函数的对照表，参考 <a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/api/public.md">OneBot 标准</a> 中的响应数据。</p>
+<p>响应对象的 <a class="reference internal" href="../api/melobot.models.html#melobot.models.ResponseEvent.data" title="melobot.models.ResponseEvent.data"><code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code></a> 属性是一个字典。不同的行为操作函数，会有不同的返回数据。所有可以返回响应的行为操作函数，都标注了返回数据的数据结构，可自行参考 API 文档：<a class="reference internal" href="../api/melobot.context.html#action-operations"><span class="std std-ref">行为操作函数</span></a></p>
 <div class="caution admonition">
 <p class="admonition-title">注意</p>
 <p>对于特定的行为操作，返回数据可能为空。但是只要等待响应（<code class="docutils literal notranslate"><span class="pre">wait=True</span></code>），就一定会产生响应。</p>
+<p>没有 <code class="docutils literal notranslate"><span class="pre">wait</span></code> 参数的行为操作函数，不支持返回响应。</p>
 </div>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
-<p>不需要返回数据时，不建议等待响应（<code class="docutils literal notranslate"><span class="pre">wait=True</span></code>）。等待响应总是需要更多时间，大量使用会降低并发性能。</p>
+<p>不建议<strong>大量使用等待响应</strong>（<code class="docutils literal notranslate"><span class="pre">wait=True</span></code>）。等待响应总是需要更多时间，大量使用会降低运行效率。</p>
 <p>建议只在<strong>必须等待此行为完成才能继续执行</strong>，或<strong>需要返回数据</strong>时才去等待响应。</p>
 </div>
 </section>
@@ -298,20 +306,16 @@
 <li><p>产生一个 <a class="reference internal" href="../api/melobot.base.html#melobot.base.abc.BotAction" title="melobot.base.abc.BotAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotAction</span></code></a> 对象（行为对象）</p></li>
 <li><p>格式化这个行为对象，然后发送给 OneBot 实现程序执行</p></li>
 </ul>
-<p>某些情况下，我们可能不希望行为对象构建完成后，就被直接发送。行为操作函数可以使用 <code class="docutils literal notranslate"><span class="pre">auto</span></code> 参数干预这个过程。<code class="docutils literal notranslate"><span class="pre">auto=False</span></code> 时，行为操作函数产生行为对象后，将会立即返回。</p>
+<p>某些情况下，我们可能不希望行为对象构建完成后，就被直接发送。大多数行为操作函数都拥有 <code class="docutils literal notranslate"><span class="pre">auto</span></code> 参数，当 <code class="docutils literal notranslate"><span class="pre">auto=False</span></code> 时，行为操作函数产生行为对象后，就会立即返回。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">这里也可以是 reply, send_reply, finish, reply_finish, send_forward 等一系列行为操作函数 </span>
+<span class="sd">这里可以是任何拥有 auto 参数的行为操作函数</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="n">action</span> <span class="o">=</span> <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">auto</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>            <span class="c1"># action 为行为对象</span>
 <span class="n">action</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_group_list</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">auto</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># action 为行为对象</span>
 </pre></div>
 </div>
 <p>随后可以操作这个行为对象，操作完成后，使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.take_custom_action" title="melobot.context.take_custom_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">take_custom_action()</span></code></a> 手动发送这个行为：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">这里也可以是 reply, send_reply, finish, reply_finish, send_forward 等一系列行为操作函数 </span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="c1"># wait=False，对应不产生响应的行为对象</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># wait=False，对应不产生响应的行为对象</span>
 <span class="n">action</span> <span class="o">=</span> <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="c1"># 一些对 action 的操作</span>
 <span class="o">...</span>
@@ -324,13 +328,29 @@
 <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">take_custom_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>  <span class="c1"># resp 为响应对象</span>
 </pre></div>
 </div>
-<p>和之前提到的自定义消息内容一样，如果需要发送 OneBot 标准中不存在，但 OneBot 实现程序支持的行为，使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.make_action" title="melobot.context.make_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_action()</span></code></a> 构造行为对象：</p>
+<div class="caution admonition">
+<p class="admonition-title">注意</p>
+<p>没有 <code class="docutils literal notranslate"><span class="pre">auto</span></code> 参数的行为操作函数，不支持获取行为对象后手动操作。</p>
+</div>
+<p>和之前提到的自定义消息段一样，如果需要发送 OneBot 标准中不存在，但 OneBot 实现程序支持的行为，使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.make_action" title="melobot.context.make_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_action()</span></code></a> 构造行为对象：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 指定 need_resp=True，则产生一个有响应的行为对象；反之则无响应</span>
 <span class="n">action</span> <span class="o">=</span> <span class="n">make_action</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;custom_type&quot;</span><span class="p">,</span> 
                      <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="s2">&quot;12345&quot;</span><span class="p">},</span> 
                      <span class="n">need_resp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># 发送</span>
 <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">take_custom_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 你也可以再自行封装一下 :)</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="k">def</span> <span class="nf">my_action</span><span class="p">(</span><span class="n">param1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">param2</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">make_action</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;custom_type&quot;</span><span class="p">,</span> 
+                       <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="n">param1</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="n">param2</span><span class="p">},</span> 
+                       <span class="n">need_resp</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span>
+
+<span class="k">await</span> <span class="n">take_custom_action</span><span class="p">(</span><span class="n">my_action</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="s2">&quot;12345&quot;</span><span class="p">))</span>
+<span class="k">await</span> <span class="n">take_custom_action</span><span class="p">(</span><span class="n">my_action</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="s2">&quot;12345&quot;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
@@ -362,7 +382,7 @@
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">消息行为操作</div>
+                <div class="title">消息操作</div>
                 
               </div>
             </a>
@@ -418,7 +438,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

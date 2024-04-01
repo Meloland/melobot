@@ -20,9 +20,9 @@ melobot.utils
 .. admonition:: 相关知识
    :class: seealso
 
-   对于消息事件处理器来说，预处理过程主要分为三步：匹配或解析、检查和格式化。
+   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
 
-   但对于其他事件处理器来说，预处理过程只有一步：检查。
+   但对于其他事件来说，预处理过程只有一步：检查。
 
 .. autoclass:: melobot.utils.StartMatcher
    :members:
@@ -57,9 +57,9 @@ melobot.utils
 .. admonition:: 相关知识
    :class: seealso
 
-   对于消息事件处理器来说，预处理过程主要分为三步：匹配或解析、检查和格式化。
+   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
    
-   但对于其他事件处理器来说，预处理过程只有一步：检查。
+   但对于其他事件来说，预处理过程只有一步：检查。
 
 .. autoclass:: melobot.utils.MsgLvlChecker
    :members:
@@ -108,11 +108,12 @@ melobot.utils
 .. admonition:: 相关知识
    :class: seealso
 
-   对于消息事件处理器来说，预处理过程主要分为三步：匹配或解析、检查和格式化。
+   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
    
-   但对于其他事件处理器来说，预处理过程只有一步：检查。
+   但对于其他事件来说，预处理过程只有一步：检查。
 
 .. autoclass:: melobot.utils.CmdParser
+   :show-inheritance:
    :members:
 
 .. autoclass:: melobot.utils.CmdParserGen
@@ -126,11 +127,11 @@ melobot.utils
 .. admonition:: 相关知识
    :class: seealso
 
-   对于消息事件处理器来说，预处理过程主要分为三步：匹配或解析、检查和格式化。
+   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
    
-   但对于其他事件处理器来说，预处理过程只有一步：检查。
+   但对于其他事件来说，预处理过程只有一步：检查。
 
-.. autoclass:: melobot.utils.ArgFormatter
+.. autoclass:: melobot.utils.CmdArgFormatter
    :members:
 
 .. autoclass:: melobot.utils.FormatInfo

@@ -32,7 +32,7 @@ melobot API 参考
 - :class:`.AtChecker`
 - :class:`.CmdParser`
 - :class:`.CmdParserGen`
-- :class:`.ArgFormatter`
+- :class:`.CmdArgFormatter`
 - :func:`.lock`
 - :func:`.cooldown`
 - :func:`.timelimit`

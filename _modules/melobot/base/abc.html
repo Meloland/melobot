@@ -5,8 +5,15 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
         <link rel="canonical" href="/melobot/_modules/melobot/base/abc.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.base.abc - MeloBot 2.5.8</title>
+        <title>melobot.base.abc - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -160,10 +167,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -256,12 +263,13 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">logging</span>
+
     <span class="kn">from</span> <span class="nn">..bot.hook</span> <span class="kn">import</span> <span class="n">BotHookBus</span>
     <span class="kn">from</span> <span class="nn">..controller.dispatcher</span> <span class="kn">import</span> <span class="n">BotDispatcher</span>
     <span class="kn">from</span> <span class="nn">..controller.responder</span> <span class="kn">import</span> <span class="n">BotResponder</span>
     <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">BotEventBuilder</span>
     <span class="kn">from</span> <span class="nn">..plugin.handler</span> <span class="kn">import</span> <span class="n">EventHandler</span>
-    <span class="kn">from</span> <span class="nn">..utils.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
 
 
 <div class="viewcode-block" id="AbstractConnector">
@@ -278,7 +286,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cd_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1">#: 连接器的日志器</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span> <span class="s2">&quot;Logger&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span> <span class="s2">&quot;logging.Logger&quot;</span>
         <span class="c1">#: 是否在 slack 状态</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">slack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1">#: 连接器发送行为操作的冷却时间</span>
@@ -316,7 +324,7 @@
         <span class="n">responder</span><span class="p">:</span> <span class="s2">&quot;BotResponder&quot;</span><span class="p">,</span>
         <span class="n">event_builder</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;BotEventBuilder&quot;</span><span class="p">],</span>
         <span class="n">bot_bus</span><span class="p">:</span> <span class="s2">&quot;BotHookBus&quot;</span><span class="p">,</span>
-        <span class="n">logger</span><span class="p">:</span> <span class="s2">&quot;Logger&quot;</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="s2">&quot;logging.Logger&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span> <span class="o">=</span> <span class="n">event_builder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span> <span class="o">=</span> <span class="n">bot_bus</span>
@@ -382,7 +390,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1">#: 从 onebot 实现项目获得的未格式化的事件</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">rawEvent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">rawEvent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_args_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@abstractproperty</span>
@@ -436,11 +444,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parser_id</span><span class="p">,</span> <span class="n">Void</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_store_args</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">parser_id</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">args_group</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">parser_id</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">args_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_args_map</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_args_map</span><span class="p">[</span><span class="n">parser_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">args_group</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args_map</span><span class="p">[</span><span class="n">parser_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">args_dict</span></div>
 
 
 
@@ -474,14 +482,13 @@
         <span class="n">ready</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="c1">#: 响应标识 id。只有选择等待响应时，才会生成 id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resp_id</span> <span class="o">=</span> <span class="n">resp_id</span>
         <span class="c1">#: 行为类型。对应 onebot 标准中的 API 终结点名称</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">action_args</span><span class="o">.</span><span class="n">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">action_args</span><span class="o">.</span><span class="n">type</span>
         <span class="c1">#: 行为参数。对应 onebot 标准中向 API 传送的数据的 params 字段</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">action_args</span><span class="o">.</span><span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">action_args</span><span class="o">.</span><span class="n">params</span>
         <span class="c1">#: 行为的触发事件，一般是行为生成时所在会话的事件</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span> <span class="o">=</span> <span class="n">triggerEvent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BotEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">triggerEvent</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_ready</span> <span class="o">=</span> <span class="n">ready</span>
 
@@ -810,27 +817,84 @@
 
 
 
+<div class="viewcode-block" id="BotParser">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.abc.BotParser">[文档]</a>
 <span class="k">class</span> <span class="nc">BotParser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="c1"># 解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;解析器基类</span>
 
+<span class="sd">    解析器一般用作从消息文本中按规则批量提取参数</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BotParser.__init__">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.abc.BotParser.__init__">[文档]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">need_format</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个解析器</span>
 
+<span class="sd">        :param id: 解析器解析规则的标识</span>
+
+<span class="sd">           id 相同，意味着解析规则相同。一组解析规则相同的解析器，只有第一个会实际运行解析。其他后续解析器会复用这个解析结果。</span>
+
+<span class="sd">           id 标识存在的意义是增强复用性。如果你不需要复用，id 值给定不同的随机值即可。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1">#: 解析器的 id，即解析规则的表示</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="c1">#: 是否需要格式化（此属性可在继承后进行修改，若为否，则不再进行格式化）</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">need_format</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="BotParser.parse">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.abc.BotParser.parse">[文档]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">]]:</span>
-        <span class="k">pass</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;解析方法</span>
 
+<span class="sd">        任何解析器应该实现此抽象方法</span>
+
+<span class="sd">        :param text: 消息文本内容</span>
+<span class="sd">        :return: 解析结果</span>
+
+<span class="sd">           因为一次解析可能会得到多组结果，结果为字典或空值。字典键为一组解析结果的识别标志（例如命令解析中的命令名），值为解析参数对象（象征一组解析结果）</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BotParser.test">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.abc.BotParser.test">[文档]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">test</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">args_group</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">args_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParseArgs</span><span class="p">]]:</span>
-        <span class="k">pass</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;解析测试方法</span>
 
+<span class="sd">        任何解析器应该实现此抽象方法</span>
+
+<span class="sd">        :param args_dict: 之前的解析结果</span>
+<span class="sd">        :return: 返回元组：(判断是否解析成功, 可为空的一组解析结果的识别标志, 可为空的解析参数对象)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BotParser.format">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.abc.BotParser.format">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">pass</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;格式化方法</span>
+
+<span class="sd">        任何解析器应该实现此抽象方法</span>
+
+<span class="sd">        格式化是否进行，会受解析器 `need_fotmat` 参数和 :meth:`~.BotParser.test` 的影响。</span>
+<span class="sd">        如果你确定你的解析器子类 100% 不需要格式化，那么继承这个方法再次标记为 pass 即可。</span>
+
+<span class="sd">        格式化过程最后只返回是否格式化成功，格式化的结果将会被直接保存，并可通过 :func:`.msg_args` 获得。</span>
+
+<span class="sd">        :param group_id: 一组解析结果的识别标志</span>
+<span class="sd">        :param args: 解析参数对象</span>
+<span class="sd">        :return: 格式化是否成功</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
 </pre></div>
         </article>
       </div>
@@ -870,7 +934,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

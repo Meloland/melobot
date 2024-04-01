@@ -5,8 +5,15 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
         <link rel="canonical" href="/melobot/_modules/melobot/context/action.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.context.action - MeloBot 2.5.8</title>
+        <title>melobot.context.action - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -160,10 +167,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -231,8 +238,8 @@
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">ActionArgs</span><span class="p">,</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotEvent</span>
 <span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotActionError</span><span class="p">,</span> <span class="n">BotSessionError</span><span class="p">,</span> <span class="n">DirectRetSignal</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">get_id</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">CQMsgDict</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgNodeDict</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">..models.cq</span> <span class="kn">import</span> <span class="n">_to_cq_str_action</span><span class="p">,</span> <span class="n">reply_msg</span><span class="p">,</span> <span class="n">text_msg</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgNode</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">..models.msg</span> <span class="kn">import</span> <span class="n">_to_cq_str_action</span><span class="p">,</span> <span class="n">reply_msg</span><span class="p">,</span> <span class="n">text_msg</span>
 <span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">SESSION_LOCAL</span>
 <span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">BotSessionManager</span> <span class="k">as</span> <span class="n">CtxManager</span>
 
@@ -285,7 +292,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">msgs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+        <span class="n">msgs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
         <span class="n">isPrivate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">userId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">groupId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -307,7 +314,7 @@
             <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;将多种可能的消息格式，统一转换为 cq 消息列表.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">text_msg</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
@@ -332,7 +339,7 @@
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_custom_msg">[文档]</a>
 <span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_custom_msg</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">isPrivate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">userId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -351,13 +358,16 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
 
 <span class="sd">    此接口合并了 onebot 标准中的私聊消息发送、群聊消息发送接口。</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-2 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2&gt;`_</span>
 
 <span class="sd">    :param content: 发送内容</span>
 <span class="sd">    :param isPrivate: 是否是私聊</span>
@@ -392,7 +402,7 @@
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send">[文档]</a>
 <span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -408,11 +418,14 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-2 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2&gt;`_</span>
 
 <span class="sd">    :param content: 发送内容（可以是文本、消息段对象、消息段对象列表）</span>
 <span class="sd">    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)</span>
@@ -450,7 +463,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">msgs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNodeDict</span><span class="p">],</span>
+        <span class="n">msgs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNode</span><span class="p">],</span>
         <span class="n">isPrivate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">userId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">groupId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -468,7 +481,7 @@
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_custom_forward">[文档]</a>
 <span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_custom_forward</span><span class="p">(</span>
-    <span class="n">msgNodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNodeDict</span><span class="p">],</span>
+    <span class="n">msgNodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNode</span><span class="p">],</span>
     <span class="n">isPrivate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">userId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -487,11 +500,20 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">       {</span>
+<span class="sd">           &quot;message_id&quot;: xxx,  # int</span>
+<span class="sd">           &quot;forward_id&quot;: xxx   # str</span>
+<span class="sd">       }</span>
 
 <span class="sd">    :param msgNodes: 消息结点列表</span>
 <span class="sd">    :param isPrivate: 是否是私聊</span>
@@ -522,7 +544,7 @@
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_forward">[文档]</a>
 <span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_forward</span><span class="p">(</span>
-    <span class="n">msgNodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNodeDict</span><span class="p">],</span>
+    <span class="n">msgNodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNode</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -538,11 +560,20 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">       {</span>
+<span class="sd">           &quot;message_id&quot;: xxx,  # int</span>
+<span class="sd">           &quot;forward_id&quot;: xxx   # str</span>
+<span class="sd">       }</span>
 
 <span class="sd">    :param msgNodes: 消息结点列表</span>
 <span class="sd">    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)</span>
@@ -592,6 +623,9 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">msg_recall</span><span class="p">(</span><span class="n">msgId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;撤回消息</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-3 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-3&gt;`_</span>
+
 <span class="sd">    :param msgId: 消息 id</span>
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
@@ -623,6 +657,9 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_msg</span><span class="p">(</span><span class="n">msgId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取消息详细信息</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-4 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-4&gt;`_</span>
+
 <span class="sd">    :param msgId: 消息 id</span>
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
@@ -645,7 +682,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forwardId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;get_forward_msg&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message_id&quot;</span><span class="p">:</span> <span class="n">forwardId</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">forwardId</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_forward_msg">
@@ -655,6 +692,9 @@
     <span class="n">forwardId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取转发消息的详细信息</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-5 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-5&gt;`_</span>
 
 <span class="sd">    :param forwardId: 转发 id</span>
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
@@ -686,6 +726,9 @@
 <span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="n">fileName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取图片信息</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-31 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-31&gt;`_</span>
 
 <span class="sd">    :param fileName: 图片文件名</span>
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
@@ -719,6 +762,9 @@
     <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;发送好友赞</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-6 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-6&gt;`_</span>
 
 <span class="sd">    :param userId: qq 号</span>
 <span class="sd">    :param times: 赞的数量，默认为 1，每天最多 10</span>
@@ -764,6 +810,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;群组踢人</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-7 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-7&gt;`_</span>
+
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param userId: 被踢的 qq 号</span>
 <span class="sd">    :param laterReject: 是否拒绝此人再次加群</span>
@@ -805,6 +854,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;群组禁言</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-8 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-8&gt;`_</span>
+
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param userId: 禁言的 qq 号</span>
 <span class="sd">    :param duration: 禁言时长，为 0 则表示取消禁言</span>
@@ -842,6 +894,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;群组全员禁言</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-10 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-10&gt;`_</span>
+
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param enable: 是则禁言，否则取消禁言</span>
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
@@ -877,6 +932,9 @@
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群管理员</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-11 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-11&gt;`_</span>
 
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param userId: 设置的 qq 号</span>
@@ -915,6 +973,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群名片</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-13 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-13&gt;`_</span>
+
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param userId: 设置的 qq 号</span>
 <span class="sd">    :param card: 新名片内容</span>
@@ -952,6 +1013,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群名</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-14 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-14&gt;`_</span>
+
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param name: 新群名</span>
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
@@ -987,6 +1051,9 @@
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">isDismiss</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;退出群</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-15 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-15&gt;`_</span>
 
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param isDismiss: 是否解散群（仅在 bot 为群主时可用）</span>
@@ -1040,6 +1107,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群特殊头衔</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-16 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-16&gt;`_</span>
+
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param userId: 设置的 qq 号</span>
 <span class="sd">    :param title: 头衔名</span>
@@ -1076,6 +1146,9 @@
     <span class="n">addFlag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">approve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">remark</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;处理加好友请求</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-17 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-17&gt;`_</span>
 
 <span class="sd">    :param addFlag: 好友添加 flag，对应 :attr:`~.RequestEvent.req_flag` 属性</span>
 <span class="sd">    :param approve: 是否通过</span>
@@ -1131,6 +1204,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;处理加群请求（只有 bot 是群管理时有用）</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-18 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-18&gt;`_</span>
+
 <span class="sd">    :param addFlag: 加群 flag，对应 :attr:`~.RequestEvent.req_flag` 属性</span>
 <span class="sd">    :param addType: 加群类型，对应 :attr:`~.RequestEvent.group_req_type` 属性</span>
 <span class="sd">    :param approve: 是否通过</span>
@@ -1167,6 +1243,9 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_login_info</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获得 bot 登录号信息</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-19 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-19&gt;`_</span>
+
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
 <span class="sd">    :return:</span>
@@ -1198,6 +1277,9 @@
     <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取陌生人信息，也可以对好友使用</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-20 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-20&gt;`_</span>
 
 <span class="sd">    :param userId: qq 号</span>
 <span class="sd">    :param noCache: 是否不使用缓存</span>
@@ -1233,6 +1315,9 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_friend_list</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取好友列表</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-21 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-21&gt;`_</span>
+
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
 <span class="sd">    :return:</span>
@@ -1264,6 +1349,9 @@
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群信息，可以是未加入的群聊</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-22 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-22&gt;`_</span>
 
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param noCache: 是否不使用缓存</span>
@@ -1299,7 +1387,10 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_group_list</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群列表。</span>
 
-<span class="sd">    可能返回的建群时间都是 0，这是不准确的。准确的时间可以通过 :meth:`get_group_info` 获得.</span>
+<span class="sd">    可能返回的建群时间都是 0，这是不准确的。准确的时间可以通过 :meth:`get_group_info` 获得</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-23 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-23&gt;`_</span>
 
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
@@ -1332,6 +1423,9 @@
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群成员信息</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-24 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-24&gt;`_</span>
 
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param userId: qq 号</span>
@@ -1369,6 +1463,9 @@
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群成员列表</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-25 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-25&gt;`_</span>
 
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param noCache: 是否不使用缓存</span>
@@ -1420,6 +1517,9 @@
 <span class="sd">    详细说明参考：</span>
 <span class="sd">    `获取群荣誉信息 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_honor_info-获取群荣誉信息&gt;`_</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-26 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-26&gt;`_</span>
+
 <span class="sd">    :param groupId: 群号</span>
 <span class="sd">    :param type: 荣誉类型</span>
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
@@ -1454,6 +1554,9 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">check_send_image</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送图片</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-32 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-32&gt;`_</span>
+
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
 <span class="sd">    :return:</span>
@@ -1483,6 +1586,9 @@
 <span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">check_send_record</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送语音</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-33 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-33&gt;`_</span>
 
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
@@ -1514,6 +1620,9 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_onebot_version</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现项目的版本</span>
 
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-35 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-35&gt;`_</span>
+
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
 <span class="sd">    :return:</span>
@@ -1543,6 +1652,9 @@
 <span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_onebot_status</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现项目的状态</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-34 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-34&gt;`_</span>
 
 <span class="sd">    :param wait: 是否等待这个行为的响应</span>
 <span class="sd">    :param auto: 是否自动发送</span>
@@ -1600,7 +1712,7 @@
 <div class="viewcode-block" id="send_wait">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_wait">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_wait</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">overtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1617,9 +1729,9 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
 
@@ -1638,10 +1750,11 @@
 <div class="viewcode-block" id="send_reply">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_reply">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_reply</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ResponseEvent&quot;</span><span class="p">]:</span>
+    <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BotAction</span><span class="p">,</span> <span class="s2">&quot;ResponseEvent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;发送一条回复消息（在当前会话下自动定位发送目标）</span>
 
 <span class="sd">    .. admonition:: 小技巧</span>
@@ -1653,19 +1766,25 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
+
+<span class="sd">    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：</span>
+<span class="sd">    `响应数据-2 &lt;https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2&gt;`_</span>
 
 <span class="sd">    :param content: 发送内容</span>
 <span class="sd">    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)</span>
 <span class="sd">    :param wait: 是否等待发送后的响应</span>
+<span class="sd">    :param auto: 是否自动发送</span>
 <span class="sd">    :return:</span>
-<span class="sd">       若指定等待 -&gt; :class:`.ResponseEvent` 对象</span>
+<span class="sd">       `auto=False` -&gt; :class:`.BotAction` 对象</span>
 
-<span class="sd">       若未指定等待 -&gt; :obj:`None`</span>
+<span class="sd">       `auto=True, wait=True` -&gt; :class:`.ResponseEvent` 对象</span>
+
+<span class="sd">       `auto=True, wait=False` -&gt; :obj:`None`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">content_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">reply_msg</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span>
@@ -1678,14 +1797,14 @@
         <span class="n">content_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">content_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content_arr</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">,</span> <span class="n">wait</span><span class="p">)</span>  <span class="c1"># type: ignore</span></div>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content_arr</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">,</span> <span class="n">wait</span><span class="p">,</span> <span class="n">auto</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="finish">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.finish">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;发送一条消息，然后直接结束当前事件处理方法（在当前会话下自动定位发送目标）</span>
@@ -1701,9 +1820,9 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
 
@@ -1722,9 +1841,9 @@
 <div class="viewcode-block" id="reply_finish">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.reply_finish">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">reply_finish</span><span class="p">(</span>
-    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CQMsgDict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">CQMsgDict</span><span class="p">],</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ResponseEvent&quot;</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;发送一条回复消息，然后直接结束当前事件处理方法（在当前会话下自动定位发送目标）</span>
 
 <span class="sd">    只可在事件处理方法中使用。</span>
@@ -1738,9 +1857,9 @@
 <span class="sd">    .. admonition:: 警告</span>
 <span class="sd">       :class: attention</span>
 
-<span class="sd">       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：</span>
-<span class="sd">       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
-<span class="sd">       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。</span>
+<span class="sd">       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：</span>
+<span class="sd">       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！</span>
+<span class="sd">       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</span>
 
 <span class="sd">       任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。</span>
 
@@ -1804,7 +1923,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

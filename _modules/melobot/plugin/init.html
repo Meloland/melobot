@@ -5,8 +5,15 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
         <link rel="canonical" href="/melobot/_modules/melobot/plugin/init.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.plugin.init - MeloBot 2.5.8</title>
+        <title>melobot.plugin.init - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -124,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -160,10 +167,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -281,8 +288,18 @@
     <span class="kn">from</span> <span class="nn">..utils.parser</span> <span class="kn">import</span> <span class="n">BotParser</span>
 
 
+<div class="viewcode-block" id="PluginProxy">
+<a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.PluginProxy">[文档]</a>
 <span class="k">class</span> <span class="nc">PluginProxy</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bot 插件代理类。供外部使用.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bot 插件代理类</span>
+
+<span class="sd">    通过 bot 实例获取插件时，将获取此对象的列表</span>
+
+<span class="sd">    .. admonition:: 提示</span>
+<span class="sd">       :class: tip</span>
+
+<span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -296,15 +313,25 @@
         <span class="n">share_cbs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
         <span class="n">signal_methods</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">ver</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="n">desc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="o">=</span> <span class="n">keywords</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shares</span> <span class="o">=</span> <span class="n">share_objs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">share_cbs</span> <span class="o">=</span> <span class="n">share_cbs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">signal_methods</span> <span class="o">=</span> <span class="n">signal_methods</span>
+        <span class="c1">#: 插件的 id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="c1">#: 插件的版本</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ver</span>
+        <span class="c1">#: 插件的简短描述</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">desc</span>
+        <span class="c1">#: 插件的长篇描述</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doc</span>
+        <span class="c1">#: 插件的关键词</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">keywords</span>
+        <span class="c1">#: 插件的项目地址</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="c1">#: 插件的共享对象标识：[(命名空间，id), ...]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shares</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">share_objs</span>
+        <span class="c1">#: 插件的共享对象回调标识：[(命名空间，id), ...]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_cbs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">share_cbs</span>
+        <span class="c1">#: 插件的信号处理方法标识：[(命名空间, 信号名), ...]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_methods</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">signal_methods</span></div>
+
 
 
 <span class="k">class</span> <span class="nc">PluginLoader</span><span class="p">:</span>
@@ -350,10 +377,7 @@
 <div class="viewcode-block" id="BotPlugin">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin">[文档]</a>
 <span class="k">class</span> <span class="nc">BotPlugin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;插件类，使用该类实例化一个插件</span>
-
-<span class="sd">    同时该类会提供各种接口用于注册事件处理器、共享对象、共享对象回调方法和信号处理方法。</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;插件类，使用该类实例化一个插件&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BotPlugin.__init__">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.__init__">[文档]</a>
@@ -410,7 +434,7 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">check_pass</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PluginInitError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;插件 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2"> 不能为不属于自己的共享对象注册回调&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;插件 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2"> 不能为不属于自己的共享对象绑定回调&quot;</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="BotPlugin.on_event">
@@ -427,7 +451,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个任意事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个任意事件处理方法</span>
 
 <span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
 <span class="sd">        :param priority: 优先级</span>
@@ -481,7 +505,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个消息事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个消息事件处理方法</span>
 
 <span class="sd">        :param matcher: 使用的匹配器（和解析器二选一）</span>
 <span class="sd">        :param parser: 使用的解析器（和匹配器二选一）</span>
@@ -523,60 +547,6 @@
         <span class="k">return</span> <span class="n">make_args</span></div>
 
 
-<div class="viewcode-block" id="BotPlugin.on_every_message">
-<a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_every_message">[文档]</a>
-    <span class="k">def</span> <span class="nf">on_every_message</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
-        <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个任意消息事件处理器</span>
-
-<span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
-<span class="sd">        :param priority: 优先级</span>
-<span class="sd">        :param block: 是否进行优先级阻断</span>
-<span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="kc">None</span><span class="p">,</span>
-                        <span class="kc">None</span><span class="p">,</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
-
-
 <div class="viewcode-block" id="BotPlugin.on_at_qq">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_at_qq">[文档]</a>
     <span class="k">def</span> <span class="nf">on_at_qq</span><span class="p">(</span>
@@ -594,7 +564,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个艾特消息事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个艾特消息事件处理方法</span>
 
 <span class="sd">        消息必须是艾特消息，且匹配成功才能被进一步处理。</span>
 
@@ -661,7 +631,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个字符串起始匹配的消息事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串起始匹配的消息事件处理方法</span>
 
 <span class="sd">        `target` 为字符串时，只进行一次起始匹配，即判断是否匹配成功。</span>
 <span class="sd">        `target` 为字符串列表时，所有字符串都进行起始匹配，再将所有结果使用给定</span>
@@ -726,7 +696,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个字符串包含匹配的消息事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串包含匹配的消息事件处理方法</span>
 
 <span class="sd">        `target` 为字符串时，只进行一次包含匹配，即判断是否匹配成功。</span>
 <span class="sd">        `target` 为字符串列表时，所有字符串都进行包含匹配，再将所有结果使用给定</span>
@@ -791,7 +761,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个字符串全匹配的消息事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串全匹配的消息事件处理方法</span>
 
 <span class="sd">        `target` 为字符串时，只进行一次全匹配，即判断是否匹配成功。</span>
 <span class="sd">        `target` 为字符串列表时，所有字符串都进行全匹配，再将所有结果使用给定</span>
@@ -856,7 +826,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个字符串结尾匹配的消息事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串结尾匹配的消息事件处理方法</span>
 
 <span class="sd">        `target` 为字符串时，只进行一次结尾匹配，即判断是否匹配成功。</span>
 <span class="sd">        `target` 为字符串列表时，所有字符串都进行结尾匹配，再将所有结果使用给定</span>
@@ -920,7 +890,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个字符串正则匹配的消息事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串正则匹配的消息事件处理方法</span>
 
 <span class="sd">        消息必须匹配成功才能被进一步处理。</span>
 
@@ -978,7 +948,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个请求事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个请求事件处理方法</span>
 
 <span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
 <span class="sd">        :param priority: 优先级</span>
@@ -1030,7 +1000,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个好友请求事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个好友请求事件处理方法</span>
 
 <span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
 <span class="sd">        :param priority: 优先级</span>
@@ -1088,7 +1058,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个加群请求事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个加群请求事件处理方法</span>
 
 <span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
 <span class="sd">        :param priority: 优先级</span>
@@ -1166,7 +1136,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个通知事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个通知事件处理方法</span>
 
 <span class="sd">        :param type: 通知的类型，为 &quot;ALL&quot; 时接受所有通知</span>
 <span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
@@ -1225,7 +1195,7 @@
         <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个元事件处理器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个元事件处理方法</span>
 
 <span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
 <span class="sd">        :param priority: 优先级</span>
@@ -1266,9 +1236,9 @@
 <div class="viewcode-block" id="BotPlugin.on_signal">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_signal">[文档]</a>
     <span class="k">def</span> <span class="nf">on_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signal</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个信号处理方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个信号处理方法</span>
 
-<span class="sd">        本方法作为异步函数的装饰器使用，此时可注册一个函数为信号处理方法。</span>
+<span class="sd">        本方法作为异步函数的装饰器使用，此时可绑定一个函数为信号处理方法。</span>
 
 <span class="sd">        .. code:: python</span>
 
@@ -1284,7 +1254,7 @@
 <span class="sd">        .. admonition:: 注意</span>
 <span class="sd">           :class: caution</span>
 
-<span class="sd">           在一个 bot 实例的范围内，同命名空间同名称的信号，只能注册一个处理方法。</span>
+<span class="sd">           在一个 bot 实例的范围内，同命名空间同名称的信号，只能绑定一个处理方法。</span>
 
 <span class="sd">        :param namespace: 信号的命名空间</span>
 <span class="sd">        :param signal: 信号的名称</span>
@@ -1334,7 +1304,7 @@
 
 <span class="sd">        :param namespace: 共享对象的命名空间</span>
 <span class="sd">        :param id: 共享对象的 id 标识</span>
-<span class="sd">        :param reflector: 为空时，本方法当作异步函数的装饰器使用；否则应该直接使用，此处提供共享对象值获取的反射函数</span>
+<span class="sd">        :param reflector: 本方法当作异步函数的装饰器使用时，本参数为空；直接使用本方法时，参数为共享对象值获取的同步函数</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">reflector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">to_async</span><span class="p">(</span><span class="n">reflector</span><span class="p">)))</span>
@@ -1352,9 +1322,9 @@
 <div class="viewcode-block" id="BotPlugin.on_share_affected">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_share_affected">[文档]</a>
     <span class="k">def</span> <span class="nf">on_share_affected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;为一个共享对象注册回调方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;为一个共享对象绑定回调方法</span>
 
-<span class="sd">        本方法作为异步函数的装饰器使用，此时可为一个共享对象注册回调方法。</span>
+<span class="sd">        本方法作为异步函数的装饰器使用，此时可为一个共享对象绑定回调方法。</span>
 
 <span class="sd">        .. code:: python</span>
 
@@ -1371,8 +1341,8 @@
 <span class="sd">        .. admonition:: 注意</span>
 <span class="sd">           :class: caution</span>
 
-<span class="sd">           在一个 bot 实例的范围内，同命名空间同名称的共享对象，只能注册一个回调方法。</span>
-<span class="sd">           而且这个共享对象必须在本插件通过 :meth:`on_share` 注册（共享对象注册、共享对象回调注册先后顺序不重要）</span>
+<span class="sd">           在一个 bot 实例的范围内，同命名空间同名称的共享对象，只能绑定一个回调方法。</span>
+<span class="sd">           而且这个共享对象必须在本插件通过 :meth:`on_share` 注册（共享对象注册、共享对象回调绑定先后顺序不重要）</span>
 
 <span class="sd">        :param namespace: 共享对象的命名空间</span>
 <span class="sd">        :param id: 共享对象的 id 标识</span>
@@ -1390,9 +1360,9 @@
 <div class="viewcode-block" id="BotPlugin.on_bot_life">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_bot_life">[文档]</a>
     <span class="k">def</span> <span class="nf">on_bot_life</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">BotLife</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册 bot 在某个生命周期的 hook 方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在某个生命周期的 hook 方法</span>
 
-<span class="sd">        本方法作为异步函数的装饰器使用，此时可注册一个函数为 bot 生命周期 hook 方法。</span>
+<span class="sd">        本方法作为异步函数的装饰器使用，此时可绑定一个函数为 bot 生命周期 hook 方法。</span>
 
 <span class="sd">        .. code:: python</span>
 
@@ -1418,7 +1388,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">on_plugins_loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册 bot 在 :attr:`.BotLife.LOADED` 生命周期的 hook 方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在 :attr:`.BotLife.LOADED` 生命周期的 hook 方法</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1426,7 +1396,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">on_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册 bot 在 :attr:`.BotLife.CONNECTED` 生命周期的 hook 方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在 :attr:`.BotLife.CONNECTED` 生命周期的 hook 方法</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1434,7 +1404,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">on_before_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册 bot 在 :attr:`.BotLife.BEFORE_CLOSE` 生命周期的 hook 方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在 :attr:`.BotLife.BEFORE_CLOSE` 生命周期的 hook 方法</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1442,7 +1412,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">on_before_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册 bot 在 :attr:`.BotLife.BEFORE_STOP` 生命周期的 hook 方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在 :attr:`.BotLife.BEFORE_STOP` 生命周期的 hook 方法</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1450,7 +1420,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">on_event_built</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册 bot 在 :attr:`.BotLife.EVENT_BUILT` 生命周期的 hook 方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在 :attr:`.BotLife.EVENT_BUILT` 生命周期的 hook 方法</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1458,7 +1428,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">on_action_presend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册 bot 在 :attr:`.BotLife.ACTION_PRESEND` 生命周期的 hook 方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在 :attr:`.BotLife.ACTION_PRESEND` 生命周期的 hook 方法</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1503,7 +1473,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

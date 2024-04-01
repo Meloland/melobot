@@ -6,8 +6,15 @@
 <link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="事件预处理" href="preprocess.html" /><link rel="prev" title="消息内容的数据结构" href="msg.html" />
         <link rel="canonical" href="/melobot/references/forward-msg.html" />
 
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>转发消息与消息结点 - MeloBot 2.5.8</title>
+        <title>转发消息与消息结点 - MeloBot 2.5.9</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -125,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.8</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.8</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -161,10 +168,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/first-bot.html">创建第一个机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件获取与处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/action.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action-resp.html">其他行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
 </ul>
 </li>
@@ -238,23 +245,58 @@
           <section id="id1">
 <h1>转发消息与消息结点<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
 <p>在前一篇文章 <a class="reference internal" href="msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a> 中我们说明了 OneBot 标准是如何表示<strong>单条 qq 消息中</strong>可能存在的多种类型的内容的（如文本、语音或图片），主要是通过 <strong>CQ 字符串</strong>或<strong>消息段数组</strong>的形式。</p>
-<p>但是如果是转发消息这种包含<strong>多条消息</strong>的消息，要如何表示呢？这个时候就需要消息结点了。</p>
-<p>在 melobot 中，你不需要手动构造消息结点的数据结构，构造方法参考：<a class="reference internal" href="../api/melobot.models.html#melobot.models.custom_msg_node" title="melobot.models.custom_msg_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">custom_msg_node()</span></code></a> 和 <a class="reference internal" href="../api/melobot.models.html#melobot.models.refer_msg_node" title="melobot.models.refer_msg_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">refer_msg_node()</span></code></a>（不用马上跳转，看完本篇文章再去看更好哦）。<strong>虽然无需手动构造，但是了解转发消息的数据结构，有助于你设计实现更复杂的功能</strong>。</p>
+<p>但是如果是转发消息这种包含<strong>多条消息</strong>的消息，要如何表示呢？这个时候就需要<strong>转发消息段或消息结点</strong>了。</p>
+<p>在 melobot 中，你不需要手动处理“转发消息段”、“消息结点”的数据结构。<strong>虽然无需手动处理，但是了解这些数据结构，有助于你使用 melobot 提供的相关方法</strong>。</p>
+<section id="id2">
+<h2>转发消息段<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>每一条已存在的转发消息，都对应一个唯一的转发 id。使用转发 id 就可以表示<strong>一条已存在的转发消息</strong>。</p>
+<p>两种格式的表示方法：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;forward&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxxxxxxxx&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">forward</span><span class="p">,</span><span class="nb">id</span><span class="o">=</span><span class="n">xxxxxxxxx</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>收</p></th>
+<th class="head"><p>发</p></th>
+<th class="head"><p>可能的值</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+<td><p>-</p></td>
+<td><p>转发 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id3">
+<h2>消息结点<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
 <p>在 OneBot 标准和其他一些文档中，习惯说“消息节点”，这与本文档中的“消息结点”完全是同一概念。</p>
 </div>
-<div class="note admonition">
-<p class="admonition-title">相关知识</p>
-<p>在 melobot 中，涉及转发消息发送的“行为操作函数”主要有：<a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a>, <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_custom_forward" title="melobot.context.send_custom_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom_forward()</span></code></a>。阅读以下内容后，你会对这些函数的使用方法有更清晰的理解。</p>
-</div>
-<p>在 OneBot 标准中，转发消息中的单条消息，需要用一个“消息结点”表示。而消息结点的数组，自然也就可以表示转发消息中的“多条消息”。消息结点主要分为两种：</p>
+<p>除了使用转发 ID 表示已存在的转发消息，我们也可以通过<strong>已存在的单条消息</strong>或<strong>一条新消息</strong>来构造<strong>一条过去不存在的转发消息（新转发消息）</strong>。</p>
+<p>此时，<strong>已存在的单条消息</strong>、<strong>一条新消息</strong>都需要用“消息结点”来表示。而消息结点的数组，自然也就可以表示整条“新转发消息”了。消息结点有两种：</p>
 <ul class="simple">
-<li><p>合并转发结点（转发现有的一条消息，需要消息 ID 定位“已经存在的这条消息”）</p></li>
-<li><p>合并转发自定义结点（这条消息之前完全不存在，直接自定义出来的）</p></li>
+<li><p>合并转发结点（对应“已存在的单条消息”，需要消息 ID 来标识）</p></li>
+<li><p>合并转发自定义结点（对应“一条新消息”，这条消息之前完全不存在）</p></li>
 </ul>
-<section id="id2">
-<h2>合并转发结点<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h3>合并转发结点<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <p>两种格式的表示方法：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
@@ -287,10 +329,14 @@
 </tbody>
 </table>
 </div>
-<p>消息 ID 在 melobot 中可通过消息事件的 <a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent.id" title="melobot.models.MessageEvent.id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">id</span></code></a> 属性获得，或通过行为操作函数 <a class="reference internal" href="../api/melobot.context.html#melobot.context.get_forward_msg" title="melobot.context.get_forward_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_forward_msg()</span></code></a> 的响应获得。</p>
+<p>消息 ID 在 melobot 中可通过消息事件的 <a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent.id" title="melobot.models.MessageEvent.id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">id</span></code></a> 属性获得。</p>
 </section>
-<section id="id3">
-<h2>合并转发自定义结点<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="id5">
+<h3>合并转发自定义结点<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>合并转发自定义结点的 <code class="docutils literal notranslate"><span class="pre">content</span></code> 字段，可以是“CQ字符串”或“消息段数组”。</p>
+</div>
 <p>例子 1：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
@@ -351,6 +397,16 @@
 </tbody>
 </table>
 </div>
+</section>
+</section>
+<section id="melobot">
+<h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">#</a></h2>
+<p>在 melobot 中：</p>
+<ul class="simple">
+<li><p>转发消息段，作为消息段对象（类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code></a> 的字典）的一种表示</p></li>
+<li><p>消息结点，由类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgNode" title="melobot.base.typing.MsgNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgNode</span></code></a> 的字典表示</p></li>
+<li><p>转发消息，由消息结点的列表（<code class="xref py py-obj docutils literal notranslate"><span class="pre">list[MsgNode]</span></code>）表示</p></li>
+</ul>
 </section>
 </section>
 
@@ -417,8 +473,13 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">转发消息与消息结点</a><ul>
-<li><a class="reference internal" href="#id2">合并转发结点</a></li>
-<li><a class="reference internal" href="#id3">合并转发自定义结点</a></li>
+<li><a class="reference internal" href="#id2">转发消息段</a></li>
+<li><a class="reference internal" href="#id3">消息结点</a><ul>
+<li><a class="reference internal" href="#id4">合并转发结点</a></li>
+<li><a class="reference internal" href="#id5">合并转发自定义结点</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot">melobot 中的表示</a></li>
 </ul>
 </li>
 </ul>
@@ -430,7 +491,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=a8b75639"></script>
+</div><script src="../_static/documentation_options.js?v=ba716a23"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
