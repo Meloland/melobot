@@ -3,8 +3,8 @@ import re
 import time
 
 from ..base.abc import BotEvent
-from ..base.typing import Any, CQMsgDict, Literal, Optional, Type
-from .cq import _get_cq, _get_cq_params, to_cq_arr, to_cq_str
+from ..base.typing import Any, Callable, Literal, MsgSegment, Optional
+from .msg import _get_cq, _get_cq_params, to_cq_arr, to_cq_str
 
 
 class BotEventBuilder:
@@ -50,7 +50,7 @@ class MessageEvent(BotEvent):
         #: 使用 CQ 字符串表示的，本事件的所有消息内容
         self.raw_content: str
         #: 使用消息段对象列表表示的，本事件的所有消息内容
-        self.content: list[CQMsgDict]
+        self.content: list[MsgSegment]
         #: 本事件的所有消息内容中，纯文本消息的合并字符串
         self.text: str
         #: 消息字体
@@ -114,7 +114,7 @@ class MessageEvent(BotEvent):
         else:
             return content
 
-    def _format_to_array(self, content: list | str) -> list[CQMsgDict]:
+    def _format_to_array(self, content: list | str) -> list[MsgSegment]:
         """对外部零信任，强制转换为消息段格式."""
         if not isinstance(content, str):
             for item in content:
@@ -134,7 +134,7 @@ class MessageEvent(BotEvent):
         else:
             return to_cq_arr(content)
 
-    def _get_text(self, content: list[CQMsgDict]) -> str:
+    def _get_text(self, content: list[MsgSegment]) -> str:
         """获取消息中所有文本消息，返回合并字符串."""
         text_list: list[str] = []
         for item in content:
@@ -142,38 +142,38 @@ class MessageEvent(BotEvent):
                 text_list.append(item["data"]["text"])  # type: ignore
         return "".join(text_list)
 
-    def get_cq(self, cq_type: str) -> list[CQMsgDict]:
-        """提取指定类型的消息组成消息段对象列表
+    def get_segments(self, type: str) -> list[MsgSegment]:
+        """提取指定类型的，消息段对象组成的消息段对象列表
 
-        :param cq_type: 消息段对象类型
+        :param type: 消息段类型（对应 OneBot 标准中每种消息段对象的 type）
         :return: 消息段对象列表
         """
-        return _get_cq(self.content, cq_type)
+        return _get_cq(self.content, type)
 
-    def get_cq_params(
-        self, cq_type: str, param: str, type: Optional[Type[Any]] = None
+    def get_datas(
+        self, type: str, data: str, convert: Optional[Callable[[Any], Any]] = None
     ) -> list[Any]:
-        """提取指定类型的消息中的指定参数
+        """提取指定类型的消息段对象中的指定数据
 
-        当没有任何对应类型的消息时，为空列表。如果有对应类型的消息，但是指定的参数不存在，
+        当没有任何对应类型的消息段时，为空列表。如果有对应类型的消息段，但是指定的数据键名不存在，
         则在列表中产生 :obj:`None` 值.
 
-        可以指定 type 来强制转换类型，不填则使用智能解析出的类型
+        可以指定 `convert` 来强制转换类型，不填则不使用类型转换
 
         使用示例如下：
 
         .. code:: python
 
            # 假设 event 是 MessageEvent 对象，即象征一个消息事件
-           params = event.get_cq_params('at', 'qq')
-           # params 将是此事件中，所有 at 类型消息的 "qq" 参数所组成的列表
+           datas = event.get_datas('at', 'qq')
+           # datas 将是此事件中，所有 at 消息段的 "qq" 数据值所组成的列表
 
-        :param cq_type: 消息类型
-        :param param: 该类消息中的参数名
-        :param type: 类型转换使用的类
-        :return: 参数值列表
+        :param type: 消息段类型（对应 OneBot 标准中每种消息段对象的 type）
+        :param data: 消息段对象 `data` 中的键名
+        :param convert: 类型转换使用的函数
+        :return: 值列表
         """
-        return _get_cq_params(self.content, cq_type, param, type)
+        return _get_cq_params(self.content, type, data, convert)
 
     def is_private(self) -> bool:
         """是否为私聊消息（注意群临时会话属于该类别）"""
@@ -416,11 +416,11 @@ class NoticeEvent(BotEvent):
     .. admonition:: 注意
        :class: caution
 
-       受 onebot 协议实现项目的影响，以及对通知事件本身复杂性的考虑，通知事件的所有实例属性，
-       都只会在特定类别的通知事件中存在。想要使用这些属性，最好先经过实际验证。
+       受 onebot 协议实现项目的影响，及对通知事件本身复杂性的考虑，通知事件大多数实例属性，
+       只会在特定类别的通知事件中存在。各个属性的含义与存在的时机，已在下方的注释说明。
 
-       例如你想要处理一个群禁言通知事件，建议先绑定“群禁言通知事件”的事件处理器，
-       然后调试查看事件都有哪些属性。这样就可以确定对“群禁言”这一类别的通知事件哪些属性可用。
+       如果你仍不确定某个属性在何时出现，建议直接调试查看存在的属性。例如通过
+       `print(event.__dict__)` 或调试器查看。
     """
 
     def __init__(self, rawEvent: dict) -> None:
@@ -718,8 +718,6 @@ class ResponseEvent(BotEvent):
 
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
-
-        #: 响应标识符。当响应是对 resp_id 属性不为空的 :class:`.BotAction` 的回应时，此属性才不为 :obj:`None`
         self.id: Optional[str] = None
         #: 响应的状态码
         self.status: int

@@ -17,11 +17,11 @@
 
 在 OneBot 标准中，事件有[四种类型](https://github.com/botuniverse/onebot-11/blob/master/event/README.md)。而在 melobot 中，为方便使用，额外了添加一种事件类型。melobot 所有事件类型如下：
 
-- 消息事件：{class}`.MessageEvent`
-- 请求事件：{class}`.RequestEvent`
-- 通知事件：{class}`.NoticeEvent`
-- 元事件：{class}`.MetaEvent`
-- 响应事件：{class}`.ResponseEvent`
+- 消息事件：{class}`.MessageEvent`（事件处理方法中使用 {func}`.msg_event` 获得）
+- 请求事件：{class}`.RequestEvent`（事件处理方法中使用 {func}`.req_event` 获得）
+- 通知事件：{class}`.NoticeEvent`（事件处理方法中使用 {func}`.notice_event` 获得）
+- 元事件：{class}`.MetaEvent`（事件处理方法中使用 {func}`.meta_event` 获得）
+- 响应事件：{class}`.ResponseEvent`（行为操作函数执行时，指定 `wait=True` 获得）
 
 前四种事件类型都是 OneBot 标准中的类型，它们都是 OneBot 实现程序上报事件给 melobot 后，经过格式化后产生的。但是最后一种事件，响应事件，情况有所不同。它是 melobot 内部产生行为后，发送给 OneBot 实现程序，等待 OneBot 完成这个行为后的“响应”。
 

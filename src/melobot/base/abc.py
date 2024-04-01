@@ -28,12 +28,13 @@ from .typing import (
 )
 
 if TYPE_CHECKING:
+    import logging
+
     from ..bot.hook import BotHookBus
     from ..controller.dispatcher import BotDispatcher
     from ..controller.responder import BotResponder
     from ..models.event import BotEventBuilder
     from ..plugin.handler import EventHandler
-    from ..utils.logger import Logger
 
 
 class AbstractConnector(ABC):
@@ -48,7 +49,7 @@ class AbstractConnector(ABC):
     def __init__(self, cd_time: float) -> None:
         super().__init__()
         #: 连接器的日志器
-        self.logger: "Logger"
+        self.logger: "logging.Logger"
         #: 是否在 slack 状态
         self.slack: bool = False
         #: 连接器发送行为操作的冷却时间
@@ -86,7 +87,7 @@ class AbstractConnector(ABC):
         responder: "BotResponder",
         event_builder: Type["BotEventBuilder"],
         bot_bus: "BotHookBus",
-        logger: "Logger",
+        logger: "logging.Logger",
     ) -> None:
         self._event_builder = event_builder
         self._bot_bus = bot_bus
@@ -149,7 +150,7 @@ class BotEvent(ABC, Flagable):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__()
         #: 从 onebot 实现项目获得的未格式化的事件
-        self.raw = rawEvent
+        self.raw: dict = rawEvent
         self._args_map: Optional[dict[Any, dict[str, ParseArgs] | None]] = None
 
     @abstractproperty
@@ -188,11 +189,11 @@ class BotEvent(ABC, Flagable):
         return self._args_map.get(parser_id, Void)
 
     def _store_args(
-        self, parser_id: Any, args_group: dict[str, ParseArgs] | None
+        self, parser_id: Any, args_dict: dict[str, ParseArgs] | None
     ) -> None:
         if self._args_map is None:
             self._args_map = {}
-        self._args_map[parser_id] = args_group
+        self._args_map[parser_id] = args_dict
 
 
 class ActionArgs(ABC):
@@ -223,14 +224,13 @@ class BotAction(Flagable, Cloneable):
         ready: bool = False,
     ) -> None:
         super().__init__()
-        #: 响应标识 id。只有选择等待响应时，才会生成 id
         self.resp_id = resp_id
         #: 行为类型。对应 onebot 标准中的 API 终结点名称
-        self.type = action_args.type
+        self.type: str = action_args.type
         #: 行为参数。对应 onebot 标准中向 API 传送的数据的 params 字段
-        self.params = action_args.params
+        self.params: dict = action_args.params
         #: 行为的触发事件，一般是行为生成时所在会话的事件
-        self.trigger = triggerEvent
+        self.trigger: Optional[BotEvent] = triggerEvent
 
         self._ready = ready
 
@@ -526,23 +526,65 @@ class WrappedMatcher(BotMatcher):
 
 
 class BotParser(ABC):
-    # 解析器基类。解析器一般用作从消息文本中按规则提取指定字符串或字符串组合
+    """解析器基类
+
+    解析器一般用作从消息文本中按规则批量提取参数
+    """
 
     def __init__(self, id: Any) -> None:
+        """初始化一个解析器
+
+        :param id: 解析器解析规则的标识
+
+           id 相同，意味着解析规则相同。一组解析规则相同的解析器，只有第一个会实际运行解析。其他后续解析器会复用这个解析结果。
+
+           id 标识存在的意义是增强复用性。如果你不需要复用，id 值给定不同的随机值即可。
+        """
         super().__init__()
-        self.id = id
+        #: 解析器的 id，即解析规则的表示
+        self.id: Any = id
+        #: 是否需要格式化（此属性可在继承后进行修改，若为否，则不再进行格式化）
         self.need_format: bool = False
 
     @abstractmethod
     def parse(self, text: str) -> Optional[dict[str, ParseArgs]]:
+        """解析方法
+
+        任何解析器应该实现此抽象方法
+
+        :param text: 消息文本内容
+        :return: 解析结果
+
+           因为一次解析可能会得到多组结果，结果为字典或空值。字典键为一组解析结果的识别标志（例如命令解析中的命令名），值为解析参数对象（象征一组解析结果）
+        """
         pass
 
     @abstractmethod
     def test(
-        self, args_group: dict[str, ParseArgs] | None
+        self, args_dict: Optional[dict[str, ParseArgs]]
     ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
+        """解析测试方法
+
+        任何解析器应该实现此抽象方法
+
+        :param args_dict: 之前的解析结果
+        :return: 返回元组：(判断是否解析成功, 可为空的一组解析结果的识别标志, 可为空的解析参数对象)
+        """
         pass
 
     @abstractmethod
-    async def format(self, cmd_name: str, args: ParseArgs) -> bool:
+    async def format(self, group_id: str, args: ParseArgs) -> bool:
+        """格式化方法
+
+        任何解析器应该实现此抽象方法
+
+        格式化是否进行，会受解析器 `need_fotmat` 参数和 :meth:`~.BotParser.test` 的影响。
+        如果你确定你的解析器子类 100% 不需要格式化，那么继承这个方法再次标记为 pass 即可。
+
+        格式化过程最后只返回是否格式化成功，格式化的结果将会被直接保存，并可通过 :func:`.msg_args` 获得。
+
+        :param group_id: 一组解析结果的识别标志
+        :param args: 解析参数对象
+        :return: 格式化是否成功
+        """
         pass

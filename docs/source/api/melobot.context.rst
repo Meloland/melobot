@@ -36,12 +36,12 @@ melobot.context
 高级行为操作
 -------------
 在 melobot 中，所有行为都是 :class:`.BotAction` 类的实例对象。
-调用行为操作函数，即可生成 :class:`.BotAction` 对象并自动完成一个行为。
+调用行为操作函数，即可生成 :class:`.BotAction` 对象并自动发送一个行为。
 
 所有行为操作分为两大类：高级行为操作与基本行为操作。
 
-高级行为操作是 melobot 在 onebot 基础上，利用会话信息进一步封装的行为操作。
-以下所有函数均为高级行为操作函数：
+高级行为操作是 melobot 在 onebot 标准的基础上，利用会话信息进一步封装的行为操作。
+以下函数均为高级行为操作函数：
 
 .. autofunction:: melobot.context.send
 
@@ -61,9 +61,6 @@ melobot.context
 ------------------
 
 基本行为操作是与 onebot 标准中的“API 接口”相吻合的行为操作。
-
-如果你需要等待这些行为操作的响应，那么你可能对它们的响应数据感兴趣： `onebot 标准的 API 接口 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md>`_ 。
-需要注意的是：这些响应数据将会在返回的 :class:`.ResponseEvent` 的 :attr:`~.ResponseEvent.data` 属性。
 
 注意部分 onebot API 接口在 melobot 中未提供支持：
 

@@ -36,12 +36,12 @@ melobot 主要包含五种事件类型：:class:`.MessageEvent`, :class:`.Reques
    :show-inheritance:
    :exclude-members: __init__
 
-.. _cq-msgs:
+.. _msg-build:
 
 消息构造
 ----------------
 
-在 melobot 中，使用以下函数构造符合 onebot 标准的消息内容。不过部分标准中的方法没有被包含，同时部分方法有所改变。
+在 melobot 中，使用以下函数构造符合 onebot 标准的消息段。不过部分标准中的方法没有被包含，同时部分方法有所改变。
 
 .. autofunction:: melobot.models.text_msg
 
@@ -71,10 +71,12 @@ melobot 主要包含五种事件类型：:class:`.MessageEvent`, :class:`.Reques
 
 .. autofunction:: melobot.models.refer_msg_node
 
+.. autofunction:: melobot.models.forward_msg
+
 自定义消息内容
 --------------
 
-该方法可构造自定义的消息段对象，实现自定义的消息内容。
+该方法可构造自定义的消息段对象，实现自定义的消息段。
 
 .. autofunction:: melobot.models.custom_type_msg
 

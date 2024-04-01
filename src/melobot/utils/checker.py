@@ -262,7 +262,7 @@ class AtChecker(BotChecker):
     async def check(self, event: "MessageEvent") -> bool:  # type: ignore
         if not event.is_msg_event():
             return False
-        id_list = event.get_cq_params("at", "qq")
+        id_list = event.get_datas("at", "qq")
         if self.qid is None:
             status = len(id_list) > 0
         else:

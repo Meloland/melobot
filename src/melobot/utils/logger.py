@@ -149,15 +149,15 @@ class BotLogger(Logger):
         self._handler_arr.append(handler)
 
     def setLevel(self, level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"]) -> None:  # type: ignore
+        """设置日志等级
+
+        日志等级自动应用于包含的所有 handler
+
+        :param level: 日志等级字面量
+        """
         super().setLevel(level)
         for handler in self._handler_arr:
             handler.setLevel(level)
-
-    # def to_console(self) -> None:
-    #     self._add_console_handler()
-
-    # def to_dir(self, log_dir: str) -> None:
-    #     self._add_file_handler(log_dir)
 
 
 _SysExcInfoType: TypeAlias = (

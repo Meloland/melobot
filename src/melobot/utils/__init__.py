@@ -8,7 +8,7 @@ from .checker import (
     NoticeTypeChecker,
     PrivateMsgLvlChecker,
 )
-from .formatter import ArgFormatter, FormatInfo
+from .formatter import CmdArgFormatter, FormatInfo
 from .logger import BotLogger
 from .matcher import ContainMatcher, EndMatcher, FullMatcher, RegexMatcher, StartMatcher
 from .parser import CmdParser, CmdParserGen
@@ -22,7 +22,7 @@ __all__ = (
     "MsgLvlChecker",
     "NoticeTypeChecker",
     "PrivateMsgLvlChecker",
-    "ArgFormatter",
+    "CmdArgFormatter",
     "FormatInfo",
     "BotLogger",
     "ContainMatcher",

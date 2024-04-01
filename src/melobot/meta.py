@@ -14,7 +14,7 @@ class MetaInfo:
 
     def __init__(self) -> None:
         #: melobot 版本
-        self.VER: str = "2.5.8"
+        self.VER: str = "2.5.9"
         #: melobot 项目名称
         self.PROJ_NAME: str = "melobot"
         #: melobot 项目描述

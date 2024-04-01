@@ -29,7 +29,7 @@ better_exceptions.formatter.ENCODING = sys.stdout.encoding
 better_exceptions.hook()
 
 
-class CQMsgDict(TypedDict):
+class MsgSegment(TypedDict):
     """onebot 标准的消息段对象"""
 
     type: str
@@ -41,8 +41,8 @@ class CustomNodeData(TypedDict):
 
     name: str
     uin: str
-    content: list[CQMsgDict]
-    seq: NotRequired[list[CQMsgDict]]
+    content: list[MsgSegment]
+    seq: NotRequired[list[MsgSegment]]
 
 
 class ReferNodeData(TypedDict):
@@ -51,7 +51,7 @@ class ReferNodeData(TypedDict):
     id: str
 
 
-class MsgNodeDict(TypedDict):
+class MsgNode(TypedDict):
     """onebot 标准的转发消息结点"""
 
     type: Literal["node"]
@@ -59,11 +59,15 @@ class MsgNodeDict(TypedDict):
 
 
 class ParseArgs:
-    # 命令参数类
+    """命令参数类"""
 
     def __init__(self, values: list[Any] | None) -> None:
-        self.vals = values
-        self.formatted = False
+        """实例化一组命令参数，对应一次解析的结果
+
+        :param values: 参数值
+        """
+        #: 保存的一组命令参数值
+        self.vals: Optional[list[Any]] = values
 
 
 class LogicMode(Enum):
@@ -115,7 +119,7 @@ class User(int, Enum):
 
 
 class PriorLevel(int, Enum):
-    """事件处理器优先级枚举
+    """事件处理优先级枚举
 
     为方便进行优先级设置，有 MIN, MAX, MEAN 三个枚举值
     """

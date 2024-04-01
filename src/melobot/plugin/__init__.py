@@ -1,3 +1,3 @@
-from .init import BotPlugin
+from .init import BotPlugin, PluginProxy
 
-__all__ = ("BotPlugin",)
+__all__ = ("BotPlugin", "PluginProxy")

@@ -38,7 +38,7 @@ class BotDispatcher:
                     self.handlers[channel] = []
 
     def add_handlers(self, handlers: list["EventHandler"]) -> None:
-        """绑定事件处理器列表."""
+        """绑定事件处理器列表"""
         for handler in handlers:
             self.handlers[handler.__class__].append(handler)
         for k in self.handlers.keys():

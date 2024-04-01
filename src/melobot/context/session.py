@@ -68,11 +68,11 @@ class BotSession:
             and hasattr(self._handler, "parser")
             and self.event._args_map is not None
         ):
-            args_group = self.event._args_map.get(self._handler.parser.id)
-            if args_group is None:
+            args_dict = self.event._args_map.get(self._handler.parser.id)
+            if args_dict is None:
                 return None
-            for cmd_name in self._handler.parser.target:
-                args = args_group.get(cmd_name)
+            for group_id in self._handler.parser.target:
+                args = args_dict.get(group_id)
                 if args is not None:
                     return deepcopy(args.vals)
             raise BotSessionError("尝试获取的命令解析参数不存在")
@@ -473,12 +473,12 @@ def meta_event() -> "MetaEvent":
 
 
 def msg_text() -> str:
-    """获取当前会话下的消息事件的，所有纯文本消息的合并字符串。
+    """获取当前会话下的，消息事件的纯文本内容的合并字符串。
     等价于手动读取消息事件的 :attr:`~.MessageEvent.text` 属性
 
     只能在确定当前会话下必为消息事件时使用
 
-    :return: 所有纯文本消息的合并字符串
+    :return: 纯文本内容的合并字符串
     """
     event: "MessageEvent" = any_event()  # type: ignore
     return event.text
@@ -535,7 +535,7 @@ def dispose() -> None:
     此时调用该方法的函数依然可以运行，但是此会话状态下无法再进行行为操作。
 
     一般来说，会话将会自动销毁。
-    只有在注册事件处理函数时使用 `session_hold=True`，才会需要使用此函数。
+    只有在绑定事件处理函数时使用 `session_hold=True`，才会需要使用此函数。
 
     """
     try:

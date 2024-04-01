@@ -18,7 +18,7 @@ _need_ret_fix_funcs = melobot.context.action.__all__
 project = "MeloBot"
 copyright = "2024, aicorein"
 author = "aicorein"
-release = "2.5.8"
+release = "2.5.9"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -76,7 +76,7 @@ html_static_path = ["_static"]
 
 
 def fix_annotation(app, what, name, obj, options, signature, return_annotation):
-    if name == "melobot.utils.ArgFormatter.__init__":
+    if name == "melobot.utils.CmdArgFormatter.__init__":
         return (
             signature.replace("<class 'melobot.base.typing.Void'>", "Void"),
             return_annotation,

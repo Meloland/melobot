@@ -3,8 +3,8 @@ import warnings
 from ..base.abc import ActionArgs, BotAction, BotEvent
 from ..base.exceptions import BotActionError, BotSessionError, DirectRetSignal
 from ..base.tools import get_id
-from ..base.typing import TYPE_CHECKING, CQMsgDict, Literal, MsgNodeDict, Optional
-from ..models.cq import _to_cq_str_action, reply_msg, text_msg
+from ..base.typing import TYPE_CHECKING, Literal, MsgNode, MsgSegment, Optional, Union
+from ..models.msg import _to_cq_str_action, reply_msg, text_msg
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as CtxManager
 
@@ -57,7 +57,7 @@ class MsgActionArgs(ActionArgs):
 
     def __init__(
         self,
-        msgs: list[CQMsgDict],
+        msgs: list[MsgSegment],
         isPrivate: bool,
         userId: Optional[int] = None,
         groupId: Optional[int] = None,
@@ -79,7 +79,7 @@ class MsgActionArgs(ActionArgs):
             }
 
 
-def _process_msg(content: str | CQMsgDict | list[CQMsgDict]) -> list[CQMsgDict]:
+def _process_msg(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegment]:
     """将多种可能的消息格式，统一转换为 cq 消息列表."""
     if isinstance(content, str):
         _ = text_msg(content)
@@ -102,7 +102,7 @@ def _process_msg(content: str | CQMsgDict | list[CQMsgDict]) -> list[CQMsgDict]:
 
 @CtxManager._activate
 async def send_custom_msg(
-    content: str | CQMsgDict | list[CQMsgDict],
+    content: str | MsgSegment | list[MsgSegment],
     isPrivate: bool,
     userId: Optional[int] = None,
     groupId: Optional[int] = None,
@@ -121,13 +121,16 @@ async def send_custom_msg(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
     此接口合并了 onebot 标准中的私聊消息发送、群聊消息发送接口。
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
 
     :param content: 发送内容
     :param isPrivate: 是否是私聊
@@ -159,7 +162,7 @@ async def send_custom_msg(
 
 @CtxManager._activate
 async def send(
-    content: str | CQMsgDict | list[CQMsgDict],
+    content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
@@ -175,11 +178,14 @@ async def send(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
 
     :param content: 发送内容（可以是文本、消息段对象、消息段对象列表）
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
@@ -216,7 +222,7 @@ class ForwardMsgActionArgs(ActionArgs):
 
     def __init__(
         self,
-        msgs: list[MsgNodeDict],
+        msgs: list[MsgNode],
         isPrivate: bool,
         userId: Optional[int] = None,
         groupId: Optional[int] = None,
@@ -232,7 +238,7 @@ class ForwardMsgActionArgs(ActionArgs):
 
 @CtxManager._activate
 async def send_custom_forward(
-    msgNodes: list[MsgNodeDict],
+    msgNodes: list[MsgNode],
     isPrivate: bool,
     userId: Optional[int] = None,
     groupId: Optional[int] = None,
@@ -251,11 +257,20 @@ async def send_custom_forward(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+
+    .. code:: python
+
+       {
+           "message_id": xxx,  # int
+           "forward_id": xxx   # str
+       }
 
     :param msgNodes: 消息结点列表
     :param isPrivate: 是否是私聊
@@ -283,7 +298,7 @@ async def send_custom_forward(
 
 @CtxManager._activate
 async def send_forward(
-    msgNodes: list[MsgNodeDict],
+    msgNodes: list[MsgNode],
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
@@ -299,11 +314,20 @@ async def send_forward(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+
+    .. code:: python
+
+       {
+           "message_id": xxx,  # int
+           "forward_id": xxx   # str
+       }
 
     :param msgNodes: 消息结点列表
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
@@ -350,6 +374,9 @@ class MsgDelActionArgs(ActionArgs):
 async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
     """撤回消息
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-3 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-3>`_
+
     :param msgId: 消息 id
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
@@ -378,6 +405,9 @@ class GetMsgActionArgs(ActionArgs):
 async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction:
     """获取消息详细信息
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-4 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-4>`_
+
     :param msgId: 消息 id
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
@@ -399,7 +429,7 @@ class getForwardActionArgs(ActionArgs):
     def __init__(self, forwardId: str) -> None:
         super().__init__()
         self.type = "get_forward_msg"
-        self.params = {"message_id": forwardId}
+        self.params = {"id": forwardId}
 
 
 @CtxManager._activate
@@ -407,6 +437,9 @@ async def get_forward_msg(
     forwardId: str, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取转发消息的详细信息
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-5 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-5>`_
 
     :param forwardId: 转发 id
     :param wait: 是否等待这个行为的响应
@@ -435,6 +468,9 @@ class getImageActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotAction:
     """获取图片信息
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-31 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-31>`_
 
     :param fileName: 图片文件名
     :param wait: 是否等待这个行为的响应
@@ -465,6 +501,9 @@ async def send_like(
     userId: int, times: int = 1, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """发送好友赞
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-6 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-6>`_
 
     :param userId: qq 号
     :param times: 赞的数量，默认为 1，每天最多 10
@@ -507,6 +546,9 @@ async def group_kick(
 ) -> BotAction:
     """群组踢人
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-7 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-7>`_
+
     :param groupId: 群号
     :param userId: 被踢的 qq 号
     :param laterReject: 是否拒绝此人再次加群
@@ -545,6 +587,9 @@ async def group_ban(
 ) -> BotAction:
     """群组禁言
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-8 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-8>`_
+
     :param groupId: 群号
     :param userId: 禁言的 qq 号
     :param duration: 禁言时长，为 0 则表示取消禁言
@@ -579,6 +624,9 @@ async def group_whole_ban(
 ) -> BotAction:
     """群组全员禁言
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-10 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-10>`_
+
     :param groupId: 群号
     :param enable: 是则禁言，否则取消禁言
     :param wait: 是否等待这个行为的响应
@@ -611,6 +659,9 @@ async def set_group_admin(
     groupId: int, userId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """设置群管理员
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-11 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-11>`_
 
     :param groupId: 群号
     :param userId: 设置的 qq 号
@@ -646,6 +697,9 @@ async def set_group_card(
 ) -> BotAction:
     """设置群名片
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-13 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-13>`_
+
     :param groupId: 群号
     :param userId: 设置的 qq 号
     :param card: 新名片内容
@@ -680,6 +734,9 @@ async def set_group_name(
 ) -> BotAction:
     """设置群名
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-14 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-14>`_
+
     :param groupId: 群号
     :param name: 新群名
     :param wait: 是否等待这个行为的响应
@@ -712,6 +769,9 @@ async def group_leave(
     groupId: int, isDismiss: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """退出群
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-15 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-15>`_
 
     :param groupId: 群号
     :param isDismiss: 是否解散群（仅在 bot 为群主时可用）
@@ -762,6 +822,9 @@ async def set_group_title(
 ) -> BotAction:
     """设置群特殊头衔
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-16 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-16>`_
+
     :param groupId: 群号
     :param userId: 设置的 qq 号
     :param title: 头衔名
@@ -795,6 +858,9 @@ async def set_friend_add(
     addFlag: str, approve: bool, remark: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """处理加好友请求
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-17 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-17>`_
 
     :param addFlag: 好友添加 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
     :param approve: 是否通过
@@ -847,6 +913,9 @@ async def set_group_add(
 ) -> BotAction:
     """处理加群请求（只有 bot 是群管理时有用）
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-18 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-18>`_
+
     :param addFlag: 加群 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
     :param addType: 加群类型，对应 :attr:`~.RequestEvent.group_req_type` 属性
     :param approve: 是否通过
@@ -880,6 +949,9 @@ class GetLoginInfoActionArgs(ActionArgs):
 async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
     """获得 bot 登录号信息
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-19 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-19>`_
+
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
     :return:
@@ -908,6 +980,9 @@ async def get_stranger_info(
     userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取陌生人信息，也可以对好友使用
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-20 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-20>`_
 
     :param userId: qq 号
     :param noCache: 是否不使用缓存
@@ -940,6 +1015,9 @@ class GetFriendlistActionArgs(ActionArgs):
 async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
     """获取好友列表
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-21 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-21>`_
+
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
     :return:
@@ -968,6 +1046,9 @@ async def get_group_info(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取群信息，可以是未加入的群聊
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-22 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-22>`_
 
     :param groupId: 群号
     :param noCache: 是否不使用缓存
@@ -1000,7 +1081,10 @@ class GetGrouplistActionArgs(ActionArgs):
 async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
     """获取群列表。
 
-    可能返回的建群时间都是 0，这是不准确的。准确的时间可以通过 :meth:`get_group_info` 获得.
+    可能返回的建群时间都是 0，这是不准确的。准确的时间可以通过 :meth:`get_group_info` 获得
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-23 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-23>`_
 
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
@@ -1030,6 +1114,9 @@ async def get_group_member_info(
     groupId: int, userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取群成员信息
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-24 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-24>`_
 
     :param groupId: 群号
     :param userId: qq 号
@@ -1064,6 +1151,9 @@ async def get_group_member_list(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取群成员列表
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-25 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-25>`_
 
     :param groupId: 群号
     :param noCache: 是否不使用缓存
@@ -1112,6 +1202,9 @@ async def get_group_honor(
     详细说明参考：
     `获取群荣誉信息 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_honor_info-获取群荣誉信息>`_
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-26 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-26>`_
+
     :param groupId: 群号
     :param type: 荣誉类型
     :param wait: 是否等待这个行为的响应
@@ -1143,6 +1236,9 @@ class CheckSendImageActionArgs(ActionArgs):
 async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送图片
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-32 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-32>`_
+
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
     :return:
@@ -1169,6 +1265,9 @@ class CheckSendRecordActionArgs(ActionArgs):
 @CtxManager._activate
 async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送语音
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-33 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-33>`_
 
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
@@ -1197,6 +1296,9 @@ class GetCqVersionActionArgs(ActionArgs):
 async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的版本
 
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-35 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-35>`_
+
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
     :return:
@@ -1223,6 +1325,9 @@ class GetCqStatusActionArgs(ActionArgs):
 @CtxManager._activate
 async def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的状态
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-34 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-34>`_
 
     :param wait: 是否等待这个行为的响应
     :param auto: 是否自动发送
@@ -1271,7 +1376,7 @@ async def make_action(
 
 
 async def send_wait(
-    content: str | CQMsgDict | list[CQMsgDict],
+    content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
     overtime: Optional[int] = None,
 ) -> None:
@@ -1288,9 +1393,9 @@ async def send_wait(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
@@ -1306,10 +1411,11 @@ async def send_wait(
 
 
 async def send_reply(
-    content: str | CQMsgDict | list[CQMsgDict],
+    content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
     wait: bool = False,
-) -> Optional["ResponseEvent"]:
+    auto: bool = True,
+) -> Union[BotAction, "ResponseEvent", None]:
     """发送一条回复消息（在当前会话下自动定位发送目标）
 
     .. admonition:: 小技巧
@@ -1321,19 +1427,25 @@ async def send_reply(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
+
+    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
 
     :param content: 发送内容
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
     :param wait: 是否等待发送后的响应
+    :param auto: 是否自动发送
     :return:
-       若指定等待 -> :class:`.ResponseEvent` 对象
+       `auto=False` -> :class:`.BotAction` 对象
 
-       若未指定等待 -> :obj:`None`
+       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+
+       `auto=True, wait=False` -> :obj:`None`
     """
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
@@ -1346,11 +1458,11 @@ async def send_reply(
         content_arr.append(content)
     else:
         content_arr.extend(content)
-    return await send(content_arr, cq_str, wait)  # type: ignore
+    return await send(content_arr, cq_str, wait, auto)
 
 
 async def finish(
-    content: str | CQMsgDict | list[CQMsgDict],
+    content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
 ) -> None:
     """发送一条消息，然后直接结束当前事件处理方法（在当前会话下自动定位发送目标）
@@ -1366,9 +1478,9 @@ async def finish(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
@@ -1384,9 +1496,9 @@ async def finish(
 
 
 async def reply_finish(
-    content: str | CQMsgDict | list[CQMsgDict],
+    content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
-) -> Optional["ResponseEvent"]:
+) -> None:
     """发送一条回复消息，然后直接结束当前事件处理方法（在当前会话下自动定位发送目标）
 
     只可在事件处理方法中使用。
@@ -1400,9 +1512,9 @@ async def reply_finish(
     .. admonition:: 警告
        :class: attention
 
-       这个小技巧可以让你发送有效的 cq 码字符串。但是存在潜在的安全问题：
-       如果将用户输入作为 cq 码字符串的一部分发送出去，这将会造成“注入攻击”！
-       用户可以构造包含恶意图片、语音的 cq 码，让 bot 发送。
+       这个小技巧可以让你直接发送 CQ 码字符串。但是存在潜在的安全问题：
+       如果将用户输入作为 CQ 码字符串的一部分发送出去，这将会造成“注入攻击”！
+       用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 

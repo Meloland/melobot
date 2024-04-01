@@ -56,7 +56,7 @@ class HttpConn(AbstractConnector):
         self.port: int = listen_port
         #: 本连接器服务端的站点对象
         self.serve_site: aiohttp.web.TCPSite
-        #: 本连接器客户端的 HTTP 会话
+        #: 本连接器客户端的会话
         self.client_session: aiohttp.ClientSession
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()

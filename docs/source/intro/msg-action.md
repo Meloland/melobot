@@ -1,11 +1,11 @@
-# 消息行为操作
+# 消息操作
 
 ```{admonition} 相关知识
 :class: note
 如果你不知道什么是“行为”和“行为操作”，建议先浏览：[行为的相关知识](../references/event-action)
 ```
 
-消息行为操作作为 melobot 中最主要的行为操作，十分常用。
+消息操作作为 melobot 中最主要的行为操作，十分常用。
 
 ## 单条消息的构造
 
@@ -30,7 +30,7 @@ img = image_msg("https://www.glowmem.com/static/avatar.jpg")
 await send(img)
 ```
 
-其他多媒体消息构造函数，及这些函数的参数，参考：[消息构造函数](#cq-msgs)
+其他多媒体消息构造函数，及这些函数的参数，参考：[消息构造函数](#msg-build)
 
 单条消息中，自然可能有多种类型的内容同时存在。此时这样处理：
 
@@ -43,13 +43,13 @@ await send([
 ])
 ```
 
-## 自定义消息内容的构造
+## 自定义消息段的构造
 
-一般来说，melobot 自带的消息构造函数已足够使用。但是某些 OneBot 实现程序，可能会支持某些自定义的消息内容，**这些自定义消息内容，是 OneBot 标准中没有的，也不被 melobot 所直接支持**。
+一般来说，melobot 自带的消息构造函数已足够使用。但是某些 OneBot 实现程序，可能会支持某些自定义的消息段，**这些自定义消息段，是 OneBot 标准中没有的，也不被 melobot 所直接支持**。
 
 这时你可以使用 {func}`.custom_type_msg` 来构造**自定义消息段对象**。
 
-例如在知名 OneBot 实现项目 [OpenShamrock](https://github.com/whitechi73/OpenShamrock) 中，存在一种自定义的消息内容 [touch 消息](https://whitechi73.github.io/OpenShamrock/message/special.html#%E6%88%B3%E4%B8%80%E6%88%B3-%E5%8F%8C%E5%87%BB%E5%A4%B4%E5%83%8F)（戳一戳，双击头像）。对应的消息段数据结构如下：
+例如在知名 OneBot 实现项目 [OpenShamrock](https://github.com/whitechi73/OpenShamrock) 中，存在一种自定义的消息段 [touch 消息](https://whitechi73.github.io/OpenShamrock/message/special.html#%E6%88%B3%E4%B8%80%E6%88%B3-%E5%8F%8C%E5%87%BB%E5%A4%B4%E5%83%8F)（戳一戳，双击头像）。对应的消息段数据结构如下：
 
 ```json
 {
@@ -60,7 +60,7 @@ await send([
 }
 ```
 
-如何让 melobot 发送这种自定义的消息内容？非常简单：
+如何让 melobot 发送这种自定义的消息段？非常简单：
 
 ```python
 touch = custom_type_msg("touch", {"id": "1574260633"})
@@ -68,12 +68,14 @@ await send(touch)
 
 # 或者再自行封装一下 :)
 from functools import partial
+
 def touch_msg(uid: int):
     return custom_type_msg("touch", {"id": str(uid)})
+
 await send(touch_msg(1574260633))
 ```
 
-## 单条消息的发送方法
+## 单条消息的其他发送方法
 
 {func}`.send` 可根据当前触发事件，自动定位要向何处发送消息。如果想要自定义发送目标，也很容易。只需要将{func}`.send` 换成 {func}`.send_custom_msg` 即可，它的第一参数与 {func}`.send` 完全相同。
 
@@ -122,10 +124,6 @@ async def say_hi() -> None:
 用 {func}`.finish` 可以把 `return` 简化掉：
 
 ```python
-# 就目前我们掌握的知识来看，可以认为 finish 等价于以下代码：
-await send(...)
-return
-
 # 刚才的代码，使用 finish 优化后
 @plugin.on_start_match(".hello")
 async def say_hi() -> None:
@@ -138,24 +136,63 @@ async def say_hi() -> None:
 
 同理，{func}`.send_reply` 对应的优化版本是：{func}`.reply_finish`。使用方法和特征与 {func}`.finish` 类似。但是它发送的是回复消息。
 
+## 使用 CQ 字符串
+
+除使用消息段对象外，你也可以使用**CQ 字符串**直接表示单条消息的所有消息内容。
+
+只要是有 `cq_str` 参数的行为操作函数，设置 `cq_str=True` 后，此行为操作函数将不再认为字符串是纯文本内容。而会认为字符串是可解释的 CQ 字符串。
+
+```python
+# 第一参数是字符串，无论内容是什么，都是纯文本消息内容
+await send("[CQ:face,id=178]")
+# 启用了 cq_str 后，第一参数如果是字符串，将会被解释为 CQ 字符串
+# 如果存在有效的 CQ 字符串，将会被直接应用
+await send("[CQ:face,id=178]", cq_str=True)
+```
+
+```{admonition} 提示
+:class: tip
+你可自行浏览 API 文档：[行为操作函数](action-operations)，查看哪些支持 `cq_str` 参数。
+```
+
+```{admonition} 警告
+:class: attention
+发送 CQ 字符串存在潜在的安全问题：
+
+如果将用户输入（通过 {func}`.msg_text` 获得的消息内容）作为 CQ 字符串的一部分发送出去，这将会造成“注入攻击”！用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。
+
+任何时候启用 `cq_str` 选项，**如果拼接了用户输入字符串，务必校验**。
+```
+
 ## 转发消息的构造
 
 ```{admonition} 相关知识
 :class: note
-如果你不知道转发消息的表示，主要依托于消息结点，建议先浏览：[转发消息与消息结点](../references/forward-msg.md)
+如果你不知道转发消息的表示，主要依托于转发消息段和消息结点，建议先浏览：[转发消息与消息结点](../references/forward-msg.md)
 ```
 
-一个消息结点，实际上承载了之前提到的“单条消息”的所有内容。因此，它实际上是“单条消息”的等价表达。发送单条消息时，由于是一条一条发送的，因此不需要引入“消息结点”这个概念。
+### 转发消息段构造
 
-但是如果发送的是转发消息，由于转发消息是多个“单条消息”的汇总，因此便需要“消息结点”这一概念，用于描述转发消息中的单条消息。所以在 melobot 中，**转发消息中的单条消息是一个消息结点，转发消息本身是消息结点的列表**。
+构造“转发消息段”，使用 {func}`.forward_msg` 函数：
 
-很自然地，构造转发消息的第一步，是**构造消息结点**。
+```python
+# forward_id 是转发 id，可通过 msg_event().get_datas("forward", "id") 获得
+msg = forward_msg(forward_id)
+```
+
+此时，`msg` 已经是一条转发消息的等价表达了，直接使用 `send` 发送：
+
+```python
+# 这里也可以使用其他能发送消息段的方法：send_reply, finish...
+await send(msg)
+```
+
+### 消息结点构造
 
 构造“合并转发结点”，使用 {func}`.refer_msg_node` 函数：
 
 ```python
-# 这里的 msg_id 是已存在的消息的 id
-# 可通过消息事件的 id 属性获得，或通过 get_forward_msg 行为操作的响应获得
+# 这里的 msg_id 是已存在的消息的 id，可通过 msg_event().id 获得
 refer_node = refer_msg_node(msg_id)
 ```
 
@@ -163,7 +200,7 @@ refer_node = refer_msg_node(msg_id)
 
 ```python
 # 第一参数是消息内容，与上述单条消息的发送方法的第一参数相同
-# 后续参数用于表示，在转发消息中显示的 发送人昵称 和 发送人的qq号（int 类型）
+# 后续参数是在转发消息中显示的，发送人昵称 和 发送人的qq号（int 类型）
 node1 = custom_msg_node("你好", sendName="机器人", sendId=xxxxxx)
 
 node2 = custom_msg_node(image_msg(...),
@@ -175,13 +212,13 @@ node3 = custom_msg_node([text_msg(...), image_msg(...)],
                         sendId=xxxxxx)
 ```
 
-将消息结点组成列表，实际上就是“一条转发消息”的等价表达了，使用 {func}`.send_forward` 来发送它：
+将消息结点组成列表，就是一条转发消息的等价表达了，使用 {func}`.send_forward` 来发送它：
 
 ```python
 await send_forward([refer_node, node1, node2, node3])
 ```
 
-## 转发消息的发送方法
+## 转发消息的其他发送方法
 
 {func}`.send_forward` 可根据当前触发事件，自动定位要向何处发送消息。同理，要自定义发送目标，将{func}`.send_forward` 换成 {func}`.send_custom_forward` 即可，它的第一参数与 {func}`.send_forward` 完全相同。
 

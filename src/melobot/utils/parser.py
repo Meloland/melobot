@@ -5,7 +5,7 @@ from ..base.exceptions import ArgParseError
 from ..base.typing import TYPE_CHECKING, Optional, ParseArgs
 
 if TYPE_CHECKING:
-    from .formatter import ArgFormatter
+    from .formatter import CmdArgFormatter
 
 
 class CmdParser(BotParser):
@@ -19,7 +19,7 @@ class CmdParser(BotParser):
         cmd_start: str | list[str],
         cmd_sep: str | list[str],
         target: str | list[str],
-        formatters: Optional[list[Optional["ArgFormatter"]]] = None,
+        formatters: Optional[list[Optional["CmdArgFormatter"]]] = None,
     ) -> None:
         """初始化一个命令解析器
 
@@ -104,29 +104,29 @@ class CmdParser(BotParser):
             return None
 
     def test(
-        self, args_group: dict[str, ParseArgs] | None
+        self, args_dict: dict[str, ParseArgs] | None
     ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
         # 测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
         # 最后两个返回值若不存在，则返回 None。
-        if args_group is None:
+        if args_dict is None:
             return (False, None, None)
-        for cmd_name in args_group.keys():
-            if cmd_name in self.target:
-                return (True, cmd_name, args_group[cmd_name])
+        for group_id in args_dict.keys():
+            if group_id in self.target:
+                return (True, group_id, args_dict[group_id])
         return (False, None, None)
 
-    async def format(self, cmd_name: str, args: ParseArgs) -> bool:
+    async def format(self, group_id: str, args: ParseArgs) -> bool:
         # 格式化命令解析参数
-        if args.formatted:
+        if hasattr(args, "formatted"):
             return True
         for idx, formatter in enumerate(self.formatters):
             if formatter is None:
                 continue
-            status = await formatter.format(cmd_name, args, idx)
+            status = await formatter.format(group_id, args, idx)
             if not status:
                 return False
         args.vals = args.vals[: len(self.formatters)]  # type: ignore
-        args.formatted = True
+        args.formatted = True  # type: ignore
         return True
 
 
@@ -154,7 +154,7 @@ class CmdParserGen:
     def gen(
         self,
         target: str | list[str],
-        formatters: Optional[list[Optional["ArgFormatter"]]] = None,
+        formatters: Optional[list[Optional["CmdArgFormatter"]]] = None,
     ) -> CmdParser:
         """生成匹配指定命令名的命令解析器
 

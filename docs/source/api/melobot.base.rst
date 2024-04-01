@@ -37,6 +37,9 @@ abc 模块
    :members:
    :exclude-members: __init__, match
 
+.. autoclass:: melobot.base.abc.BotParser
+   :members:
+
 exceptions 模块
 ------------------------------
 
@@ -89,7 +92,7 @@ typing 模块
 
 本模块包含了 melobot 自定义的、用于类型注解的类型。可供外部参考。
 
-.. autoclass:: melobot.base.typing.CQMsgDict
+.. autoclass:: melobot.base.typing.MsgSegment
    :members:
    :undoc-members:
 
@@ -101,7 +104,11 @@ typing 模块
    :members:
    :undoc-members:
 
-.. autoclass:: melobot.base.typing.MsgNodeDict
+.. autoclass:: melobot.base.typing.MsgNode
+   :members:
+   :undoc-members:
+
+.. autoclass:: melobot.base.typing.ParseArgs
    :members:
    :undoc-members:
 

@@ -250,20 +250,20 @@ class MsgEventHandler(EventHandler):
         if self.parser:
             _ = event._get_args(self.parser.id)
             if _ is Void:
-                args_group = self.parser.parse(event.text)
-                event._store_args(self.parser.id, args_group)
+                args_dict = self.parser.parse(event.text)
+                event._store_args(self.parser.id, args_dict)
             else:
-                args_group = _
-            res, cmd_name, args = self.parser.test(args_group)
-            return res, cmd_name, args
+                args_dict = _
+            res, group_id, args = self.parser.test(args_dict)
+            return res, group_id, args
         return True
 
-    async def _format(self, cmd_name: str, args: ParseArgs) -> bool:
+    async def _format(self, group_id: str, args: ParseArgs) -> bool:
         """格式化。只有 parser 存在时需要."""
         self.parser = cast(BotParser, self.parser)
         if not self.parser.need_format:
             return True
-        status = await self.parser.format(cmd_name, args)
+        status = await self.parser.format(group_id, args)
         return status
 
     async def _pre_process(self, event: "MessageEvent") -> bool:  # type: ignore
@@ -274,7 +274,7 @@ class MsgEventHandler(EventHandler):
             if not match_res:
                 return False
         else:
-            res, cmd_name, args = match_res
+            res, group_id, args = match_res
             if not res:
                 return False
 
@@ -282,7 +282,7 @@ class MsgEventHandler(EventHandler):
             if not (await self._verify()):
                 return False
             if self.parser:
-                if not (await self._format(cmd_name, args)):  # type: ignore
+                if not (await self._format(group_id, args)):  # type: ignore
                     return False
             return True
 

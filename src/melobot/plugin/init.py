@@ -54,7 +54,15 @@ if TYPE_CHECKING:
 
 
 class PluginProxy:
-    """Bot 插件代理类。供外部使用."""
+    """Bot 插件代理类
+
+    通过 bot 实例获取插件时，将获取此对象的列表
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
 
     def __init__(
         self,
@@ -68,15 +76,24 @@ class PluginProxy:
         share_cbs: list[tuple[str, str]],
         signal_methods: list[tuple[str, str]],
     ) -> None:
-        self.id = id
-        self.version = ver
-        self.desc = desc
-        self.doc = doc
-        self.keywords = keywords
-        self.url = url
-        self.shares = share_objs
-        self.share_cbs = share_cbs
-        self.signal_methods = signal_methods
+        #: 插件的 id
+        self.id: str = id
+        #: 插件的版本
+        self.version: str = ver
+        #: 插件的简短描述
+        self.desc: str = desc
+        #: 插件的长篇描述
+        self.doc: str = doc
+        #: 插件的关键词
+        self.keywords: list[str] = keywords
+        #: 插件的项目地址
+        self.url: str = url
+        #: 插件的共享对象标识：[(命名空间，id), ...]
+        self.shares: list[tuple[str, str]] = share_objs
+        #: 插件的共享对象回调标识：[(命名空间，id), ...]
+        self.share_cbs: list[tuple[str, str]] = share_cbs
+        #: 插件的信号处理方法标识：[(命名空间, 信号名), ...]
+        self.signal_methods: list[tuple[str, str]] = signal_methods
 
 
 class PluginLoader:
@@ -120,10 +137,7 @@ class PluginLoader:
 
 
 class BotPlugin:
-    """插件类，使用该类实例化一个插件
-
-    同时该类会提供各种接口用于注册事件处理器、共享对象、共享对象回调方法和信号处理方法。
-    """
+    """插件类，使用该类实例化一个插件"""
 
     def __init__(
         self,
@@ -177,7 +191,7 @@ class BotPlugin:
         )
         if not check_pass:
             raise PluginInitError(
-                f"插件 {self.__id__} 不能为不属于自己的共享对象注册回调"
+                f"插件 {self.__id__} 不能为不属于自己的共享对象绑定回调"
             )
 
     def on_event(
@@ -192,7 +206,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个任意事件处理器
+        """绑定一个任意事件处理方法
 
         :param checker: 使用的检查器，为空则默认通过检查
         :param priority: 优先级
@@ -243,7 +257,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个消息事件处理器
+        """绑定一个消息事件处理方法
 
         :param matcher: 使用的匹配器（和解析器二选一）
         :param parser: 使用的解析器（和匹配器二选一）
@@ -284,57 +298,6 @@ class BotPlugin:
 
         return make_args
 
-    def on_every_message(
-        self,
-        checker: Optional["BotChecker"] = None,
-        priority: PriorLevel = PriorLevel.MEAN,
-        block: bool = False,
-        temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = False,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-    ):
-        """注册一个任意消息事件处理器
-
-        :param checker: 使用的检查器，为空则默认通过检查
-        :param priority: 优先级
-        :param block: 是否进行优先级阻断
-        :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
-        """
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        None,
-                        None,
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
-
     def on_at_qq(
         self,
         qid: Optional[int] = None,
@@ -350,7 +313,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个艾特消息事件处理器
+        """绑定一个艾特消息事件处理方法
 
         消息必须是艾特消息，且匹配成功才能被进一步处理。
 
@@ -414,7 +377,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个字符串起始匹配的消息事件处理器
+        """绑定一个字符串起始匹配的消息事件处理方法
 
         `target` 为字符串时，只进行一次起始匹配，即判断是否匹配成功。
         `target` 为字符串列表时，所有字符串都进行起始匹配，再将所有结果使用给定
@@ -476,7 +439,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个字符串包含匹配的消息事件处理器
+        """绑定一个字符串包含匹配的消息事件处理方法
 
         `target` 为字符串时，只进行一次包含匹配，即判断是否匹配成功。
         `target` 为字符串列表时，所有字符串都进行包含匹配，再将所有结果使用给定
@@ -538,7 +501,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个字符串全匹配的消息事件处理器
+        """绑定一个字符串全匹配的消息事件处理方法
 
         `target` 为字符串时，只进行一次全匹配，即判断是否匹配成功。
         `target` 为字符串列表时，所有字符串都进行全匹配，再将所有结果使用给定
@@ -600,7 +563,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个字符串结尾匹配的消息事件处理器
+        """绑定一个字符串结尾匹配的消息事件处理方法
 
         `target` 为字符串时，只进行一次结尾匹配，即判断是否匹配成功。
         `target` 为字符串列表时，所有字符串都进行结尾匹配，再将所有结果使用给定
@@ -661,7 +624,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个字符串正则匹配的消息事件处理器
+        """绑定一个字符串正则匹配的消息事件处理方法
 
         消息必须匹配成功才能被进一步处理。
 
@@ -716,7 +679,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个请求事件处理器
+        """绑定一个请求事件处理方法
 
         :param checker: 使用的检查器，为空则默认通过检查
         :param priority: 优先级
@@ -765,7 +728,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个好友请求事件处理器
+        """绑定一个好友请求事件处理方法
 
         :param checker: 使用的检查器，为空则默认通过检查
         :param priority: 优先级
@@ -820,7 +783,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个加群请求事件处理器
+        """绑定一个加群请求事件处理方法
 
         :param checker: 使用的检查器，为空则默认通过检查
         :param priority: 优先级
@@ -895,7 +858,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个通知事件处理器
+        """绑定一个通知事件处理方法
 
         :param type: 通知的类型，为 "ALL" 时接受所有通知
         :param checker: 使用的检查器，为空则默认通过检查
@@ -951,7 +914,7 @@ class BotPlugin:
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
-        """注册一个元事件处理器
+        """绑定一个元事件处理方法
 
         :param checker: 使用的检查器，为空则默认通过检查
         :param priority: 优先级
@@ -989,9 +952,9 @@ class BotPlugin:
         return make_args
 
     def on_signal(self, namespace: str, signal: str):
-        """注册一个信号处理方法
+        """绑定一个信号处理方法
 
-        本方法作为异步函数的装饰器使用，此时可注册一个函数为信号处理方法。
+        本方法作为异步函数的装饰器使用，此时可绑定一个函数为信号处理方法。
 
         .. code:: python
 
@@ -1007,7 +970,7 @@ class BotPlugin:
         .. admonition:: 注意
            :class: caution
 
-           在一个 bot 实例的范围内，同命名空间同名称的信号，只能注册一个处理方法。
+           在一个 bot 实例的范围内，同命名空间同名称的信号，只能绑定一个处理方法。
 
         :param namespace: 信号的命名空间
         :param signal: 信号的名称
@@ -1054,7 +1017,7 @@ class BotPlugin:
 
         :param namespace: 共享对象的命名空间
         :param id: 共享对象的 id 标识
-        :param reflector: 为空时，本方法当作异步函数的装饰器使用；否则应该直接使用，此处提供共享对象值获取的反射函数
+        :param reflector: 本方法当作异步函数的装饰器使用时，本参数为空；直接使用本方法时，参数为共享对象值获取的同步函数
         """
         if reflector is not None:
             self.__share_args__.append(ShareObjArgs(namespace, id, to_async(reflector)))
@@ -1069,9 +1032,9 @@ class BotPlugin:
         return make_args
 
     def on_share_affected(self, namespace: str, id: str):
-        """为一个共享对象注册回调方法
+        """为一个共享对象绑定回调方法
 
-        本方法作为异步函数的装饰器使用，此时可为一个共享对象注册回调方法。
+        本方法作为异步函数的装饰器使用，此时可为一个共享对象绑定回调方法。
 
         .. code:: python
 
@@ -1088,8 +1051,8 @@ class BotPlugin:
         .. admonition:: 注意
            :class: caution
 
-           在一个 bot 实例的范围内，同命名空间同名称的共享对象，只能注册一个回调方法。
-           而且这个共享对象必须在本插件通过 :meth:`on_share` 注册（共享对象注册、共享对象回调注册先后顺序不重要）
+           在一个 bot 实例的范围内，同命名空间同名称的共享对象，只能绑定一个回调方法。
+           而且这个共享对象必须在本插件通过 :meth:`on_share` 注册（共享对象注册、共享对象回调绑定先后顺序不重要）
 
         :param namespace: 共享对象的命名空间
         :param id: 共享对象的 id 标识
@@ -1104,9 +1067,9 @@ class BotPlugin:
         return make_args
 
     def on_bot_life(self, type: BotLife):
-        """注册 bot 在某个生命周期的 hook 方法
+        """绑定 bot 在某个生命周期的 hook 方法
 
-        本方法作为异步函数的装饰器使用，此时可注册一个函数为 bot 生命周期 hook 方法。
+        本方法作为异步函数的装饰器使用，此时可绑定一个函数为 bot 生命周期 hook 方法。
 
         .. code:: python
 
@@ -1131,7 +1094,7 @@ class BotPlugin:
 
     @property
     def on_plugins_loaded(self):
-        """注册 bot 在 :attr:`.BotLife.LOADED` 生命周期的 hook 方法
+        """绑定 bot 在 :attr:`.BotLife.LOADED` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """
@@ -1139,7 +1102,7 @@ class BotPlugin:
 
     @property
     def on_connected(self):
-        """注册 bot 在 :attr:`.BotLife.CONNECTED` 生命周期的 hook 方法
+        """绑定 bot 在 :attr:`.BotLife.CONNECTED` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """
@@ -1147,7 +1110,7 @@ class BotPlugin:
 
     @property
     def on_before_close(self):
-        """注册 bot 在 :attr:`.BotLife.BEFORE_CLOSE` 生命周期的 hook 方法
+        """绑定 bot 在 :attr:`.BotLife.BEFORE_CLOSE` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """
@@ -1155,7 +1118,7 @@ class BotPlugin:
 
     @property
     def on_before_stop(self):
-        """注册 bot 在 :attr:`.BotLife.BEFORE_STOP` 生命周期的 hook 方法
+        """绑定 bot 在 :attr:`.BotLife.BEFORE_STOP` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """
@@ -1163,7 +1126,7 @@ class BotPlugin:
 
     @property
     def on_event_built(self):
-        """注册 bot 在 :attr:`.BotLife.EVENT_BUILT` 生命周期的 hook 方法
+        """绑定 bot 在 :attr:`.BotLife.EVENT_BUILT` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """
@@ -1171,7 +1134,7 @@ class BotPlugin:
 
     @property
     def on_action_presend(self):
-        """注册 bot 在 :attr:`.BotLife.ACTION_PRESEND` 生命周期的 hook 方法
+        """绑定 bot 在 :attr:`.BotLife.ACTION_PRESEND` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """

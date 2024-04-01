@@ -1,5 +1,5 @@
-from .cq import *
 from .event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent, ResponseEvent
+from .msg import *
 
 __all__ = (
     "MessageEvent",
@@ -26,5 +26,6 @@ __all__ = (
     "cq_anti_escape",
     "to_cq_arr",
     "to_cq_str",
-    "custom_type_msg"
+    "custom_type_msg",
+    "forward_msg",
 )

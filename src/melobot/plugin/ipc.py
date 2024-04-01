@@ -73,7 +73,7 @@ class PluginStore:
             )
         if self.store[namespace][id].__cb_set.is_set():
             raise ShareObjError(
-                f"{namespace} 中标记为 {id} 的共享对象已被注册过回调，拒绝再次注册"
+                f"{namespace} 中标记为 {id} 的共享对象已被绑定过回调，拒绝再次绑定"
             )
         self.store[namespace][id]._fill_cb(cb)
 
@@ -89,7 +89,7 @@ class PluginStore:
 
 
 class PluginSignalHandler:
-    """插件信号处理器."""
+    """插件信号处理器"""
 
     def __init__(
         self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
@@ -112,7 +112,7 @@ class PluginBus:
     def register(
         self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
     ) -> None:
-        """注册一个插件信号处理方法。由 plugin build 过程调用."""
+        """绑定一个插件信号处理方法。由 plugin build 过程调用."""
         if namespace not in self.store.keys():
             self.store[namespace] = {}
         if signal in self.store[namespace].keys():

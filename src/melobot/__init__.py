@@ -31,8 +31,8 @@ from .io import ForwardWsConn, HttpConn, ReverseWsConn
 from .meta import MetaInfo
 from .plugin import BotPlugin
 from .utils import (
-    ArgFormatter,
     AtChecker,
+    CmdArgFormatter,
     CmdParser,
     CmdParserGen,
     GroupMsgLvlChecker,

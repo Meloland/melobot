@@ -6,11 +6,11 @@ from ..base.exceptions import BotActionError
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
-    CQMsgDict,
+    Callable,
     Literal,
-    MsgNodeDict,
+    MsgNode,
+    MsgSegment,
     Optional,
-    Type,
 )
 
 if TYPE_CHECKING:
@@ -37,18 +37,19 @@ __all__ = (
     "to_cq_arr",
     "to_cq_str",
     "xml_msg",
-    "custom_type_msg"
+    "custom_type_msg",
+    "forward_msg",
 )
 
 
 def text_msg(
     text: str,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成普通文本消息
 
     参数详细说明参考 onebot 标准：`纯文本 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#纯文本>`_
 
-    :param text: 消息内容
+    :param text: 文本内容
     :return: onebot 标准中的消息段对象
     """
     return {"type": "text", "data": {"text": text}}
@@ -56,7 +57,7 @@ def text_msg(
 
 def face_msg(
     id: int,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成 qq 表情消息
 
     参数详细说明参考 onebot 标准：`QQ 表情 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#qq-表情>`_
@@ -73,7 +74,7 @@ def record_msg(
     cache: Literal[0, 1] = 1,
     proxy: Literal[0, 1] = 1,
     timeout: Optional[int] = None,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成语音消息
 
     参数详细说明参考 onebot 标准：`语音 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#语音>`_
@@ -85,7 +86,7 @@ def record_msg(
     :param timeout: 超时时间，默认不启用
     :return: onebot 标准中的消息段对象
     """
-    base: CQMsgDict = {
+    base: MsgSegment = {
         "type": "record",
         "data": {
             "file": file,
@@ -99,7 +100,7 @@ def record_msg(
     return base
 
 
-def at_msg(qq: int | Literal["all"]) -> CQMsgDict:
+def at_msg(qq: int | Literal["all"]) -> MsgSegment:
     """生成艾特消息
 
     参数详细说明参考 onebot 标准：`某人 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#某人>`_
@@ -107,7 +108,7 @@ def at_msg(qq: int | Literal["all"]) -> CQMsgDict:
     :param qq: 艾特的 qq 号，"all" 表示艾特全体成员
     :return: onebot 标准中的消息段对象
     """
-    base: CQMsgDict = {
+    base: MsgSegment = {
         "type": "at",
         "data": {
             "qq": str(qq),
@@ -121,7 +122,7 @@ def share_msg(
     title: str,
     content: Optional[str] = None,
     image: Optional[str] = None,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成链接分享消息
 
     参数详细说明参考 onebot 标准：`链接分享 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#链接分享>`_
@@ -132,7 +133,7 @@ def share_msg(
     :param image: 消息的封面图 url（可选）
     :return: onebot 标准中的消息段对象
     """
-    base: CQMsgDict = {
+    base: MsgSegment = {
         "type": "share",
         "data": {
             "url": url,
@@ -149,7 +150,7 @@ def share_msg(
 def music_msg(
     type: Literal["qq", "163", "xm"],
     id: str,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成音乐分享消息
 
     参数详细说明参考 onebot 标准：`音乐分享 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#音乐分享->`_
@@ -167,7 +168,7 @@ def custom_music_msg(
     title: str,
     content: Optional[str] = None,
     image: Optional[str] = None,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成音乐自定义分享 url
 
     参数详细说明参考 onebot 标准：`音乐自定义分享 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#音乐自定义分享->`_
@@ -179,7 +180,7 @@ def custom_music_msg(
     :param image: 封面图 url（可选）
     :return: onebot 标准中的消息段对象
     """
-    base: CQMsgDict = {
+    base: MsgSegment = {
         "type": "music",
         "data": {
             "type": "custom",
@@ -201,7 +202,7 @@ def image_msg(
     cache: Literal[0, 1] = 1,
     proxy: Literal[0, 1] = 1,
     timeout: Optional[int] = None,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成图片消息
 
     参数详细说明参考 onebot 标准：`图片 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#图片>`_
@@ -213,7 +214,7 @@ def image_msg(
     :param timeout: 超时时间，默认不超时
     :return: onebot 标准中的消息段对象
     """
-    base: CQMsgDict = {
+    base: MsgSegment = {
         "type": "image",
         "data": {
             "file": file,
@@ -230,7 +231,7 @@ def image_msg(
 
 def reply_msg(
     id: int,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成回复消息
 
     参数详细说明参考 onebot 标准：`回复 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#回复>`_
@@ -248,7 +249,7 @@ def reply_msg(
 
 def poke_msg(
     qq: int,
-) -> CQMsgDict:
+) -> MsgSegment:
     """生成戳一戳消息
 
     .. admonition:: 提示
@@ -267,7 +268,7 @@ def poke_msg(
     }
 
 
-def xml_msg(data: str) -> CQMsgDict:
+def xml_msg(data: str) -> MsgSegment:
     """生成 xml 消息
 
     参数详细说明参考 onebot 标准：`xml 消息 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#xml-消息>`_
@@ -278,7 +279,7 @@ def xml_msg(data: str) -> CQMsgDict:
     return {"type": "xml", "data": {"data": data}}
 
 
-def json_msg(data: str) -> CQMsgDict:
+def json_msg(data: str) -> MsgSegment:
     """生成 json 消息
 
     参数详细说明参考 onebot 标准：`json 消息 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#json-消息>`_
@@ -289,13 +290,30 @@ def json_msg(data: str) -> CQMsgDict:
     return {"type": "json", "data": {"data": data}}
 
 
+def forward_msg(forwardId: str) -> MsgSegment:
+    """生成一条完整的转发消息，以消息段的形式
+
+    .. admonition:: 注意
+       :class: caution
+
+       这与通过结点来构造转发消息是不同的，这里直接构造一个消息段对象，就可以代表整条转发消息。
+       因为这里使用的是转发 id。
+
+    参数详细说明参考 onebot 标准：`forward 消息段 <https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#合并转发->`_
+
+    :param forwardId: 转发 id
+    :return: onebot 标准中的消息段对象
+    """
+    return {"type": "forward", "data": {"id": str(forwardId)}}
+
+
 def custom_msg_node(
-    content: str | CQMsgDict | list[CQMsgDict],
+    content: str | MsgSegment | list[MsgSegment],
     sendName: str,
     sendId: int,
-    seq: Optional[list[CQMsgDict]] = None,
+    seq: Optional[list[MsgSegment]] = None,
     useStd: bool = False,
-) -> MsgNodeDict:
+) -> MsgNode:
     """生成一个自定义合并消息转发结点
 
     .. admonition:: 提示
@@ -328,12 +346,12 @@ def custom_msg_node(
                 temp.append(_)
         msgs = temp
     if not useStd:
-        ret: MsgNodeDict = {
+        ret: MsgNode = {
             "type": "node",
             "data": {"name": sendName, "uin": str(sendId), "content": msgs},
         }
     else:
-        ret: MsgNodeDict = {  # type: ignore
+        ret: MsgNode = {  # type: ignore
             "type": "node",
             "data": {"user_id": sendId, "nickname": sendName, "content": msgs},
         }
@@ -342,7 +360,7 @@ def custom_msg_node(
     return ret
 
 
-def refer_msg_node(id: int) -> MsgNodeDict:
+def refer_msg_node(id: int) -> MsgNode:
     """生成一个引用合并消息转发结点
 
     :param id: 消息 id
@@ -351,14 +369,14 @@ def refer_msg_node(id: int) -> MsgNodeDict:
     return {"type": "node", "data": {"id": str(id)}}
 
 
-def custom_type_msg(type: str, params: dict[str, str]) -> CQMsgDict:
+def custom_type_msg(type: str, params: dict[str, str]) -> MsgSegment:
     """生成一个自定义消息段对象
 
     :param type: 消息段对象的类型标识
     :param params: 消息段的参数
     :return: 符合 onebot 格式，但不在 onebot 标准中的消息段对象
     """
-    ret: CQMsgDict = {"type": type, "data": {}}
+    ret: MsgSegment = {"type": type, "data": {}}
     for k, v in params.items():
         ret["data"][k] = str(v)
     return ret
@@ -408,7 +426,7 @@ def cq_anti_escape(text: str) -> str:
     )
 
 
-def to_cq_arr(s: str) -> list[CQMsgDict]:
+def to_cq_arr(s: str) -> list[MsgSegment]:
     """将 cq 字符串转换为消息段对象列表
 
     :param s: cq 字符串
@@ -452,7 +470,7 @@ def to_cq_arr(s: str) -> list[CQMsgDict]:
     return content
 
 
-def to_cq_str(content: list[CQMsgDict]) -> str:
+def to_cq_str(content: list[MsgSegment]) -> str:
     """将消息段对象列表转换为 cq 字符串
 
     :param content: 消息段对象列表
@@ -493,12 +511,15 @@ def _to_cq_str_action(action: "BotAction") -> "BotAction":
     return _action
 
 
-def _get_cq(content: list[CQMsgDict], cq_type: str) -> list[CQMsgDict]:
+def _get_cq(content: list[MsgSegment], cq_type: str) -> list[MsgSegment]:
     return [item for item in content if item["type"] == cq_type]
 
 
 def _get_cq_params(
-    content: list[CQMsgDict], cq_type: str, param: str, type: Optional[Type[Any]] = None
+    content: list[MsgSegment],
+    cq_type: str,
+    param: str,
+    type: Optional[Callable[[Any], Any]] = None,
 ) -> list[Any]:
     res: list[Any] = []
     for item in content:

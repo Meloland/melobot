@@ -33,7 +33,7 @@ class FormatInfo:
         idx: int,
         exc_type: Exception,
         exc_tb: ModuleType,
-        cmd_name: str,
+        group_id: str,
     ) -> None:
         #: 命令参数格式化前的原值
         self.src = src
@@ -48,10 +48,10 @@ class FormatInfo:
         #: 命令参数格式化异常时的调用栈信息
         self.exc_tb = exc_tb
         #: 命令参数所属命令的命令名
-        self.cmd_name = cmd_name
+        self.group_id = group_id
 
 
-class ArgFormatter:
+class CmdArgFormatter:
     """命令参数格式化器
 
     用于格式化命令解析器解析出的命令参数。
@@ -112,7 +112,7 @@ class ArgFormatter:
 
     async def format(
         self,
-        cmd_name: str,
+        group_id: str,
         args: ParseArgs,
         idx: int,
     ) -> bool:
@@ -136,7 +136,7 @@ class ArgFormatter:
             return True
         except ArgVerifyFailed as e:
             info = FormatInfo(
-                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
+                src, self.src_desc, self.src_expect, idx, e, traceback, group_id
             )
             if self.verify_fail:
                 await self.verify_fail(info)
@@ -145,7 +145,7 @@ class ArgFormatter:
             return False
         except ArgLackError as e:
             info = FormatInfo(
-                Void, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
+                Void, self.src_desc, self.src_expect, idx, e, traceback, group_id
             )
             if self.arg_lack:
                 await self.arg_lack(info)
@@ -154,7 +154,7 @@ class ArgFormatter:
             return False
         except Exception as e:
             info = FormatInfo(
-                src, self.src_desc, self.src_expect, idx, e, traceback, cmd_name
+                src, self.src_desc, self.src_expect, idx, e, traceback, group_id
             )
             if self.convert_fail:
                 await self.convert_fail(info)
@@ -173,7 +173,7 @@ class ArgFormatter:
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip += f"\n详细错误描述：[{e_class}] {info.exc_type}"
-        tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
+        tip = f"命令 {info.group_id} 参数格式化失败：\n" + tip
         await send(tip)
 
     async def _verify_fail_default(self, info: FormatInfo) -> None:
@@ -185,12 +185,12 @@ class ArgFormatter:
             else f"给定的值 {src} 不符合要求。"
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
+        tip = f"命令 {info.group_id} 参数格式化失败：\n" + tip
         await send(tip)
 
     async def _arglack_default(self, info: FormatInfo) -> None:
         tip = f"第 {info.idx+1} 个参数"
         tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = f"命令 {info.cmd_name} 参数格式化失败：\n" + tip
+        tip = f"命令 {info.group_id} 参数格式化失败：\n" + tip
         await send(tip)
