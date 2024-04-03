@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>事件与事件处理 - MeloBot 2.5.9</title>
+        <title>事件与事件处理 - MeloBot 2.5.10</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.9</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.10</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -289,6 +289,7 @@
 </pre></div>
 </div>
 <p>不同类型的事件对象有哪些属性和方法可用，请参考：<a class="reference internal" href="../api/melobot.models.html#event-type"><span class="std std-ref">事件类型</span></a></p>
+<p>所有类型的事件对象，都可通过 <a class="reference internal" href="../api/melobot.base.html#melobot.base.abc.BotEvent.raw" title="melobot.base.abc.BotEvent.raw"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span></code></a> 属性获得 OneBot 实现程序传递给 melobot 的，<strong>未经内部格式化</strong>的事件原始值。这可能在极少数情况下有用。一般使用事件对象的其他属性和方法即可。</p>
 </section>
 <section id="id4">
 <h2>基于事件信息的处理逻辑<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
@@ -333,7 +334,7 @@
 <p>对于消息事件，有一些额外的方法可以使用。在确定当前事件处理函数的触发事件为消息事件时，有以下方法可用：<a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_text" title="melobot.context.msg_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_text()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_args" title="melobot.context.msg_args"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_args()</span></code></a>。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 获取消息中的文本内容</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">msg_text</span><span class="p">()</span>  <span class="c1"># 等价于：msg_event().text</span>
-<span class="c1"># 获取消息的命令解析参数（需要在绑定方法中指定解析器，这个以后会细说）</span>
+<span class="c1"># 获取消息的解析参数（需要在绑定方法中指定解析器，这个以后会细说）</span>
 <span class="n">args</span> <span class="o">=</span> <span class="n">msg_args</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -454,7 +455,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=ba716a23"></script>
+</div><script src="../_static/documentation_options.js?v=d12534ae"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

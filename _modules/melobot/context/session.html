@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.context.session - MeloBot 2.5.9</title>
+        <title>melobot.context.session - MeloBot 2.5.10</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -310,7 +310,7 @@
                 <span class="n">args</span> <span class="o">=</span> <span class="n">args_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;尝试获取的命令解析参数不存在&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;尝试获取的解析参数不存在&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">hup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -332,8 +332,8 @@
             <span class="k">raise</span> <span class="n">SessionHupTimeout</span><span class="p">(</span><span class="s2">&quot;session 挂起超时&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">destory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;销毁方法。 其他 session 调用会立即清空 session 存储、事件记录、挂起时间记录。 如果调用 session 有</span>
-<span class="sd">        space_tag，还会从存储空间中移除该 session.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;销毁方法。会立即清空 session 存储。如果调用 session 有</span>
+<span class="sd">        space_tag，还会从存储空间中移除该 session。随后将会禁止所有行为操作&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_expire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
@@ -580,13 +580,11 @@
         <span class="n">event</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;MetaEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;NoticeEvent&quot;</span><span class="p">],</span>
         <span class="n">handler</span><span class="p">:</span> <span class="s2">&quot;EventHandler&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BotSession</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session。 或从</span>
-<span class="sd">        hup_session_space 中唤醒 session，或返回 None.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session，或返回 None.&quot;&quot;&quot;</span>
         <span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">check_rule</span><span class="p">,</span> <span class="n">session_space</span><span class="p">,</span> <span class="n">hup_session_space</span><span class="p">,</span> <span class="n">conflict_wait</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">check_rule</span><span class="p">,</span> <span class="n">session_space</span><span class="p">,</span> <span class="n">conflict_wait</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">handler</span><span class="o">.</span><span class="n">_rule</span><span class="p">,</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">STORAGE</span><span class="p">[</span><span class="n">handler</span><span class="p">],</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">HUP_STORAGE</span><span class="p">[</span><span class="n">handler</span><span class="p">],</span>
             <span class="n">handler</span><span class="o">.</span><span class="n">_wait_flag</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -852,7 +850,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
+</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.base - MeloBot 2.5.9</title>
+        <title>melobot.base - MeloBot 2.5.10</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.9</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.10</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -286,7 +286,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.abc.BotEvent.raw">
 <span class="sig-name descname"><span class="pre">raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.12）"><span class="pre">dict</span></a></em><a class="headerlink" href="#melobot.base.abc.BotEvent.raw" title="Link to this definition">#</a></dt>
-<dd><p>从 onebot 实现项目获得的未格式化的事件</p>
+<dd><p>从 onebot 实现项目获得的未格式化的事件原始值</p>
 </dd></dl>
 
 <dl class="py property">
@@ -972,11 +972,11 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.base.typing.ParseArgs">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.typing.</span></span><span class="sig-name descname"><span class="pre">ParseArgs</span></span><a class="reference internal" href="../_modules/melobot/base/typing.html#ParseArgs"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.typing.ParseArgs" title="Link to this definition">#</a></dt>
-<dd><p>命令参数类</p>
+<dd><p>解析参数类</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.base.typing.ParseArgs.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/base/typing.html#ParseArgs.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.typing.ParseArgs.__init__" title="Link to this definition">#</a></dt>
-<dd><p>实例化一组命令参数，对应一次解析的结果</p>
+<dd><p>实例化一组解析参数，对应一次解析的结果</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>values</strong> – 参数值</p>
@@ -987,7 +987,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.typing.ParseArgs.vals">
 <span class="sig-name descname"><span class="pre">vals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.base.typing.ParseArgs.vals" title="Link to this definition">#</a></dt>
-<dd><p>保存的一组命令参数值</p>
+<dd><p>保存的一组解析参数值</p>
 </dd></dl>
 
 </dd></dl>
@@ -1081,28 +1081,33 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.base.typing.BotLife.CONNECTED">
-<span class="sig-name descname"><span class="pre">CONNECTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.CONNECTED" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.base.typing.BotLife.FIRST_CONNECTED">
+<span class="sig-name descname"><span class="pre">FIRST_CONNECTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.FIRST_CONNECTED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.base.typing.BotLife.RECONNECTED">
+<span class="sig-name descname"><span class="pre">RECONNECTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.RECONNECTED" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.typing.BotLife.BEFORE_CLOSE">
-<span class="sig-name descname"><span class="pre">BEFORE_CLOSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.BEFORE_CLOSE" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">BEFORE_CLOSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.BEFORE_CLOSE" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.typing.BotLife.BEFORE_STOP">
-<span class="sig-name descname"><span class="pre">BEFORE_STOP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.BEFORE_STOP" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">BEFORE_STOP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.BEFORE_STOP" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.typing.BotLife.EVENT_BUILT">
-<span class="sig-name descname"><span class="pre">EVENT_BUILT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.EVENT_BUILT" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">EVENT_BUILT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.EVENT_BUILT" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.typing.BotLife.ACTION_PRESEND">
-<span class="sig-name descname"><span class="pre">ACTION_PRESEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.ACTION_PRESEND" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ACTION_PRESEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#melobot.base.typing.BotLife.ACTION_PRESEND" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1285,7 +1290,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=ba716a23"></script>
+</div><script src="../_static/documentation_options.js?v=d12534ae"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

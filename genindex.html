@@ -12,7 +12,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 --><title>索引 - MeloBot 2.5.9</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 --><title>索引 - MeloBot 2.5.10</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">MeloBot 2.5.9</div></a>
+      <a href="index.html"><div class="brand">MeloBot 2.5.10</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -156,7 +156,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -430,8 +430,6 @@
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/melobot.base.html#melobot.base.typing.BotLife.CONNECTED">CONNECTED（melobot.base.typing.BotLife 属性）</a>
-</li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.connector">connector（melobot.bot.MeloBot 属性）</a>
 </li>
         <li><a href="api/melobot.io.html#melobot.io.ForwardWsConn.conn">conn（melobot.io.ForwardWsConn 属性）</a>
@@ -502,7 +500,7 @@
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.FormatInfo.exc_tb">exc_tb（melobot.utils.FormatInfo 属性）</a>
 </li>
-        <li><a href="api/melobot.utils.html#melobot.utils.FormatInfo.exc_type">exc_type（melobot.utils.FormatInfo 属性）</a>
+        <li><a href="api/melobot.utils.html#melobot.utils.FormatInfo.exc">exc（melobot.utils.FormatInfo 属性）</a>
 </li>
     </ul></td>
   </tr></table>
@@ -518,11 +516,11 @@
 </li>
         <li><a href="api/melobot.context.html#melobot.context.finish">finish()（在 melobot.context 模块中）</a>
 </li>
+        <li><a href="api/melobot.base.html#melobot.base.typing.BotLife.FIRST_CONNECTED">FIRST_CONNECTED（melobot.base.typing.BotLife 属性）</a>
+</li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.font">font（melobot.models.MessageEvent 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.BotParser.format">format() （melobot.base.abc.BotParser 方法）</a>
-</li>
-        <li><a href="api/melobot.utils.html#melobot.utils.CmdParser.format">format() （melobot.utils.CmdParser 方法）</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
@@ -834,6 +832,8 @@
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.BotMatcher.match">match() （melobot.base.abc.BotMatcher 方法）</a>
 </li>
+        <li><a href="api/melobot.io.html#melobot.io.HttpConn.max_interval">max_interval（melobot.io.HttpConn 属性）</a>
+</li>
         <li><a href="api/melobot.io.html#melobot.io.ForwardWsConn.max_retry">max_retry（melobot.io.ForwardWsConn 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.PriorLevel.MAX">MAX（melobot.base.typing.PriorLevel 属性）</a>
@@ -875,10 +875,10 @@
         </ul></li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot">MeloBot（melobot.bot 中的类）</a>
 </li>
-        <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender">MessageEvent.Sender（melobot.models 中的类）</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender">MessageEvent.Sender（melobot.models 中的类）</a>
+</li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent">MessageEvent（melobot.models 中的类）</a>
 </li>
         <li><a href="api/melobot.context.html#melobot.context.meta_event">meta_event()（在 melobot.context 模块中）</a>
@@ -996,6 +996,8 @@
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_event_built">on_event_built（melobot.plugin.BotPlugin 属性）</a>
 </li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_first_connected">on_first_connected（melobot.plugin.BotPlugin 属性）</a>
+</li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_friend_request">on_friend_request() （melobot.plugin.BotPlugin 方法）</a>
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_full_match">on_full_match() （melobot.plugin.BotPlugin 方法）</a>
@@ -1011,6 +1013,8 @@
         <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_notice">on_notice() （melobot.plugin.BotPlugin 方法）</a>
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_plugins_loaded">on_plugins_loaded（melobot.plugin.BotPlugin 属性）</a>
+</li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_reconnected">on_reconnected（melobot.plugin.BotPlugin 属性）</a>
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.on_regex_match">on_regex_match() （melobot.plugin.BotPlugin 方法）</a>
 </li>
@@ -1047,8 +1051,6 @@
         <li><a href="api/melobot.base.html#melobot.base.abc.BotAction.params">params（melobot.base.abc.BotAction 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.BotParser.parse">parse() （melobot.base.abc.BotParser 方法）</a>
-</li>
-        <li><a href="api/melobot.utils.html#melobot.utils.CmdParser.parse">parse() （melobot.utils.CmdParser 方法）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.ParseArgs">ParseArgs（melobot.base.typing 中的类）</a>
 </li>
@@ -1093,6 +1095,8 @@
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.raw_content">raw_content（melobot.models.MessageEvent 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.BotEvent.raw">raw（melobot.base.abc.BotEvent 属性）</a>
+</li>
+        <li><a href="api/melobot.base.html#melobot.base.typing.BotLife.RECONNECTED">RECONNECTED（melobot.base.typing.BotLife 属性）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.record_msg">record_msg()（在 melobot.models 模块中）</a>
 </li>
@@ -1221,8 +1225,6 @@
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.temp_src">temp_src（melobot.models.MessageEvent 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.BotParser.test">test() （melobot.base.abc.BotParser 方法）</a>
-</li>
-        <li><a href="api/melobot.utils.html#melobot.utils.CmdParser.test">test() （melobot.utils.CmdParser 方法）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.text_msg">text_msg()（在 melobot.models 模块中）</a>
 </li>
@@ -1393,7 +1395,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=ba716a23"></script>
+</div><script src="_static/documentation_options.js?v=d12534ae"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.utils.formatter - MeloBot 2.5.9</title>
+        <title>melobot.utils.formatter - MeloBot 2.5.10</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -268,7 +268,7 @@
         <span class="n">src_desc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">src_expect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">exc_type</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
+        <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
         <span class="n">exc_tb</span><span class="p">:</span> <span class="n">ModuleType</span><span class="p">,</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -281,7 +281,7 @@
         <span class="c1">#: 命令参数值的顺序（从 0 开始索引）</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span>
         <span class="c1">#: 命令参数格式化异常时的异常对象</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exc_type</span> <span class="o">=</span> <span class="n">exc_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span>
         <span class="c1">#: 命令参数格式化异常时的调用栈信息</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exc_tb</span> <span class="o">=</span> <span class="n">exc_tb</span>
         <span class="c1">#: 命令参数所属命令的命令名</span>
@@ -406,7 +406,7 @@
             <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_convert_fail_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">e_class</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">exc_type</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">e_class</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">src</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">info</span><span class="o">.</span><span class="n">src</span>
         <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;第 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> 个参数&quot;</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="p">(</span>
@@ -415,7 +415,7 @@
             <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;给定的值 </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> 无法处理。&quot;</span>
         <span class="p">)</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">详细错误描述：[</span><span class="si">{</span><span class="n">e_class</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">exc_type</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">详细错误描述：[</span><span class="si">{</span><span class="n">e_class</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tip</span>
         <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
 
@@ -477,7 +477,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
+</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

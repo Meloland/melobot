@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.io.full_duplex_http - MeloBot 2.5.9</title>
+        <title>melobot.io.full_duplex_http - MeloBot 2.5.10</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.9</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.9</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -235,15 +235,17 @@
           <h1>melobot.io.full_duplex_http 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">DEBUG</span>
 
 <span class="kn">import</span> <span class="nn">aiohttp</span>
+<span class="kn">import</span> <span class="nn">aiohttp.log</span>
 <span class="kn">import</span> <span class="nn">aiohttp.web</span>
 <span class="kn">from</span> <span class="nn">aiohttp.client_exceptions</span> <span class="kn">import</span> <span class="n">ClientConnectorError</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span><span class="p">,</span> <span class="n">BotLife</span>
 <span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">get_better_exc</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">get_rich_str</span><span class="p">,</span> <span class="n">to_task</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">ModuleType</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">ModuleType</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotAction</span>
@@ -263,7 +265,9 @@
 <span class="sd">    .. admonition:: 注意</span>
 <span class="sd">       :class: caution</span>
 
-<span class="sd">       HTTP 连接是无状态的，因此本连接器无法及时察觉 OneBot 实现程序掉线。只有在后续执行行为操作失败时，才会发现 OneBot 实现程序掉线。</span>
+<span class="sd">       HTTP 连接是无状态的，因此本连接器无法及时察觉 OneBot 实现程序掉线。只有在后续执行行为操作失败，或等待上报超时，才会发现 OneBot 实现程序掉线。</span>
+
+<span class="sd">       本连接器目前暂不支持鉴权。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="HttpConn.__init__">
@@ -276,15 +280,23 @@
         <span class="n">listen_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">cd_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">allow_reconnect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_interval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个 HTTP 全双工连接器</span>
+
+<span class="sd">        HTTP 全双工连接器与 ws 有所不同。它无法即时发现 OneBot 实现程序掉线。</span>
+
+<span class="sd">        可以通过 `max_interval` 参数，启用“超时无上报则认为掉线”的功能。这一般要和 OneBot 实现程序的心跳功能一同使用。推荐设置值为心跳时间 + 1。</span>
+
+<span class="sd">        当然即使不启用此功能，当本连接器尝试发送行为操作失败时，也会认为 OneBot 实现程序已掉线。</span>
 
 <span class="sd">        :param onebot_host: onebot 实现程序 HTTP 服务的 host</span>
 <span class="sd">        :param onebot_port: onebot 实现程序 HTTP 服务的 port</span>
 <span class="sd">        :param listen_host: 此连接器服务端监听的 host</span>
 <span class="sd">        :param listen_port: 此连接器服务端监听的 port</span>
-<span class="sd">        :param allow_reconnect: 是否等待 OneBot 实现程序重新上线。默认为 `False`，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 `True`，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞</span>
 <span class="sd">        :param cd_time: 行为操作冷却时间（用于防止风控）</span>
+<span class="sd">        :param allow_reconnect: 是否等待 OneBot 实现程序重新上线。默认为 `False`，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 `True`，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞</span>
+<span class="sd">        :param max_interval: 等待 OneBot 实现程序上报的超时时间。超过此时间无任何上报，则认为已经掉线（默认值为 `None`，此时不启用此功能）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cd_time</span><span class="p">)</span>
         <span class="c1">#: onebot 实现程序提供服务的 base_url（形如：http://xxx:xxx）</span>
@@ -297,13 +309,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">serve_site</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">TCPSite</span>
         <span class="c1">#: 本连接器客户端的会话</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_session</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span>
+        <span class="c1">#: 本连接器用于掉线判定的超时时间</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_interval</span> <span class="o">=</span> <span class="n">max_interval</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_recv_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_close_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span> <span class="o">=</span> <span class="n">allow_reconnect</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span> <span class="o">=</span> <span class="n">allow_reconnect</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_had_connected</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -320,8 +336,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;HTTP 通信就绪，等待 OneBot 实现程序上线中&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;HTTP 双向通信已建立&quot;</span><span class="p">)</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">CONNECTED</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;CONNECTED hook 已完成&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_had_connected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">FIRST_CONNECTED</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;FIRST_CONNECTED hook 已完成&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_interval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_interval</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">to_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_overtime_monitor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_interval</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;关闭连接器&quot;&quot;&quot;</span>
@@ -337,6 +356,20 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;HTTP 双向通信已停止&quot;</span><span class="p">)</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_overtime_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;通过是否超时判断 OneBot 实现程序是否掉线&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_recv_time</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">interval</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;OneBot 实现程序已掉线，正在等待 OneBot 实现程序重新上线&quot;</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;HttpConn&quot;</span><span class="p">:</span>
         <span class="n">to_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -348,18 +381,28 @@
         <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__aexit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_listen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;从前端接收一个事件，并处理&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;从 OneBot 实现程序接收一个事件，并处理&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_recv_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ready_signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_had_connected</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;OneBot 实现程序已经重新上线&quot;</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">RECONNECTED</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;RECONNECTED hook 已完成&quot;</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;收到事件，未格式化的字典对象：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;收到事件，未格式化的字典对象：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="si">}</span><span class="s2"> 构建完成，结构：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="si">}</span><span class="s2"> 构建完成，结构：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="n">to_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_common_dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;bot 连接器监听任务抛出异常&quot;</span><span class="p">)</span>
@@ -370,6 +413,7 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;发送一个 action 给连接器，实际上是先提交到 send_queue&quot;&quot;&quot;</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ready_signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slack</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 因 slack 状态被丢弃&quot;</span><span class="p">)</span>
@@ -406,10 +450,11 @@
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">action</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 准备发送，结构如下：</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 准备发送，结构如下：</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+                    <span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">ACTION_PRESEND</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> presend hook 已完成&quot;</span><span class="p">)</span>
                 <span class="n">wait_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cd_time</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span><span class="p">)</span>
@@ -470,7 +515,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=ba716a23"></script>
+</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

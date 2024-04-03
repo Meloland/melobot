@@ -15,7 +15,7 @@ melobot.utils
 匹配器
 ---------------
 
-匹配器被用于消息事件处理的文本匹配过程。
+匹配器被用于消息事件预处理的文本匹配过程。
 
 .. admonition:: 相关知识
    :class: seealso
@@ -52,7 +52,7 @@ melobot.utils
 检查器
 ---------------
 
-检查器被用于所有事件处理的事件检查。
+检查器被用于所有事件预处理的事件检查过程。
 
 .. admonition:: 相关知识
    :class: seealso
@@ -103,7 +103,7 @@ melobot.utils
 解析器
 ---------------
 
-解析器被用于消息事件处理的命令参数解析过程。
+解析器被用于消息事件预处理的参数解析。
 
 .. admonition:: 相关知识
    :class: seealso
@@ -115,6 +115,7 @@ melobot.utils
 .. autoclass:: melobot.utils.CmdParser
    :show-inheritance:
    :members:
+   :exclude-members: parse, test, format
 
 .. autoclass:: melobot.utils.CmdParserGen
    :members:
@@ -122,7 +123,7 @@ melobot.utils
 格式化器
 ----------------
 
-格式化器被用于消息事件处理的命令参数格式化过程。
+格式化器被用于消息事件预处理的参数格式化过程。
 
 .. admonition:: 相关知识
    :class: seealso
