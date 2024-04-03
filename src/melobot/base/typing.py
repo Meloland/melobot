@@ -59,14 +59,14 @@ class MsgNode(TypedDict):
 
 
 class ParseArgs:
-    """命令参数类"""
+    """解析参数类"""
 
     def __init__(self, values: list[Any] | None) -> None:
-        """实例化一组命令参数，对应一次解析的结果
+        """实例化一组解析参数，对应一次解析的结果
 
         :param values: 参数值
         """
-        #: 保存的一组命令参数值
+        #: 保存的一组解析参数值
         self.vals: Optional[list[Any]] = values
 
 
@@ -133,11 +133,12 @@ class BotLife(Enum):
     """bot 实例的生命周期枚举"""
 
     LOADED = 1
-    CONNECTED = 2
-    BEFORE_CLOSE = 3
-    BEFORE_STOP = 4
-    EVENT_BUILT = 5
-    ACTION_PRESEND = 6
+    FIRST_CONNECTED = 2
+    RECONNECTED = 3
+    BEFORE_CLOSE = 4
+    BEFORE_STOP = 5
+    EVENT_BUILT = 6
+    ACTION_PRESEND = 7
 
 
 #: 泛型 T，无约束

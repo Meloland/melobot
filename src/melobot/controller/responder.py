@@ -1,5 +1,6 @@
 import asyncio
 from asyncio import Future
+from logging import DEBUG
 
 from ..base.exceptions import get_better_exc
 from ..base.tools import get_rich_str
@@ -33,9 +34,10 @@ class BotResponder:
         await self._ready_signal.wait()
 
         try:
-            self.logger.debug(
-                f"收到 resp {id(resp)}，结构：\n" + get_rich_str(resp.raw)
-            )
+            if self.logger.level == DEBUG:
+                self.logger.debug(
+                    f"收到 resp {id(resp)}，结构：\n" + get_rich_str(resp.raw)
+                )
             if resp.id is None:
                 return
             else:

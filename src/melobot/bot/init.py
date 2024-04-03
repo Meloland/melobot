@@ -3,6 +3,7 @@ import os
 import sys
 from contextvars import ContextVar, Token
 from copy import deepcopy
+from logging import DEBUG
 
 from ..base.abc import AbstractConnector
 from ..base.exceptions import BotRuntimeError, DuplicateError, get_better_exc
@@ -19,7 +20,7 @@ from ..base.typing import (
 from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..controller.dispatcher import BotDispatcher
 from ..controller.responder import BotResponder
-from ..meta import MELOBOT_LOGO, MELOBOT_LOGO_LEN, MetaInfo
+from ..meta import MetaInfo
 from ..models.event import BotEventBuilder
 from ..plugin.handler import EVENT_HANDLER_MAP
 from ..plugin.init import BotPlugin, PluginLoader, PluginProxy
@@ -30,23 +31,16 @@ from .hook import BotHookBus
 if TYPE_CHECKING:
     from ..plugin.ipc import ShareObject
 
-if sys.platform != "win32":
+if sys.platform not in ("win32", "cygwin", "cli"):
     import uvloop
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-_ = BotLogger("__MELOBOT_ENTRY__", no_tag=True)
-__ = MetaInfo()
-for line in MELOBOT_LOGO.split("\n"):
-    _.info(line)
-_.info(f" 运行版本：{__.VER} | 平台：{__.PLATFORM}")
-_.info("-" * MELOBOT_LOGO_LEN)
 
-
-def _safe_run_bot(main_coro: Coroutine[Any, Any, None]) -> None:
+def _safe_block_run(main: Coroutine[Any, Any, None]) -> None:
     try:
         asyncio.set_event_loop(asyncio.get_event_loop())
-        asyncio.run(main_coro)
+        asyncio.run(main)
     except KeyboardInterrupt:
         pass
 
@@ -74,7 +68,7 @@ class MeloBot:
         #: bot 的连接器
         self.connector: AbstractConnector
 
-        self.__plugins: dict[str, BotPlugin] = {}
+        self._plugins: dict[str, BotPlugin] = {}
         self._loader = PluginLoader
         self._ctx_manager = BotSessionManager
         self._event_builder = BotEventBuilder
@@ -158,7 +152,7 @@ class MeloBot:
         else:
             self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
         plugin = self._loader.load(plugin_target)
-        exist_plugin = self.__plugins.get(plugin.__id__)
+        exist_plugin = self._plugins.get(plugin.__id__)
         if exist_plugin is not None:
             self.logger.error(
                 f"加载插件出错：插件 id 重复, 重复的 id 为：{plugin.__id__}，已取消该插件加载"
@@ -179,7 +173,7 @@ class MeloBot:
         for _ in plugin.__hook_args__:
             self._bot_bus.register(_.type, _.func)
 
-        self.__plugins[plugin.__id__] = plugin
+        self._plugins[plugin.__id__] = plugin
         self._dispatcher.add_handlers(handlers)
         self.logger.info(f"成功加载插件：{plugin.__id__}")
         return self
@@ -206,9 +200,10 @@ class MeloBot:
             raise BotRuntimeError("bot 尚未初始化，不能启动")
         if self.__run_flag__:
             raise BotRuntimeError("bot 已在运行，无需再次启动")
-        if len(self.__plugins) == 0:
+        if len(self._plugins) == 0:
             self.logger.warning("没有加载任何插件，bot 将不会有任何操作")
 
+        self.logger.info(f"运行版本：{self.info.VER} | 平台：{self.info.PLATFORM}")
         bot_token = BOT_LOCAL._add_ctx(self)
         await self._bot_bus.emit(BotLife.LOADED)
         self.logger.debug("LOADED hook 已完成")
@@ -237,7 +232,7 @@ class MeloBot:
 
     def run(self) -> None:
         """运行 bot 实例"""
-        _safe_run_bot(self._run())
+        _safe_block_run(self._run())
 
     async def close(self) -> None:
         """停止 bot 实例"""
@@ -297,7 +292,7 @@ class MeloBot:
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
-        return {name: deepcopy(p.__proxy__) for name, p in self.__plugins.items()}
+        return {name: deepcopy(p.__proxy__) for name, p in self._plugins.items()}
 
     def emit_signal(
         self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any
@@ -314,8 +309,11 @@ class MeloBot:
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
-        self.logger.debug(f"bot 信号总线信号触发：{namespace}.{signal} | wait: {wait}")
-        self.logger.debug("本次信号触发参数：\n" + get_rich_str(args))
+        if self.logger.level == DEBUG:
+            self.logger.debug(
+                f"bot 信号总线信号触发：{namespace}.{signal} | wait: {wait}"
+            )
+            self.logger.debug("本次信号触发参数：\n" + get_rich_str(args))
         return self._plugin_bus.emit(namespace, signal, *args, wait=wait, **kwargs)
 
     def get_share(self, namespace: str, id: str) -> "ShareObject":
@@ -347,7 +345,7 @@ class MeloBot:
             except asyncio.CancelledError:
                 pass
 
-        _safe_run_bot(bots_run())
+        _safe_block_run(bots_run())
 
     @classmethod
     async def unicast(

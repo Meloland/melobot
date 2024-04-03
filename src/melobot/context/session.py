@@ -75,7 +75,7 @@ class BotSession:
                 args = args_dict.get(group_id)
                 if args is not None:
                     return deepcopy(args.vals)
-            raise BotSessionError("尝试获取的命令解析参数不存在")
+            raise BotSessionError("尝试获取的解析参数不存在")
         return None
 
     async def hup(self, overtime: Optional[int] = None) -> None:
@@ -97,8 +97,8 @@ class BotSession:
             raise SessionHupTimeout("session 挂起超时")
 
     def destory(self) -> None:
-        """销毁方法。 其他 session 调用会立即清空 session 存储、事件记录、挂起时间记录。 如果调用 session 有
-        space_tag，还会从存储空间中移除该 session."""
+        """销毁方法。会立即清空 session 存储。如果调用 session 有
+        space_tag，还会从存储空间中移除该 session。随后将会禁止所有行为操作"""
         self._manager._expire(self)
 
 
@@ -339,13 +339,11 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: "EventHandler",
     ) -> Optional[BotSession]:
-        """根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session。 或从
-        hup_session_space 中唤醒 session，或返回 None."""
+        """根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session，或返回 None."""
         session = None
-        check_rule, session_space, hup_session_space, conflict_wait = (
+        check_rule, session_space, conflict_wait = (
             handler._rule,
             cls.STORAGE[handler],
-            cls.HUP_STORAGE[handler],
             handler._wait_flag,
         )
 

@@ -31,7 +31,7 @@ class FormatInfo:
         src_desc: Optional[str],
         src_expect: Optional[str],
         idx: int,
-        exc_type: Exception,
+        exc: Exception,
         exc_tb: ModuleType,
         group_id: str,
     ) -> None:
@@ -44,7 +44,7 @@ class FormatInfo:
         #: 命令参数值的顺序（从 0 开始索引）
         self.idx = idx
         #: 命令参数格式化异常时的异常对象
-        self.exc_type = exc_type
+        self.exc = exc
         #: 命令参数格式化异常时的调用栈信息
         self.exc_tb = exc_tb
         #: 命令参数所属命令的命令名
@@ -163,7 +163,7 @@ class CmdArgFormatter:
             return False
 
     async def _convert_fail_default(self, info: FormatInfo) -> None:
-        e_class = info.exc_type.__class__.__name__
+        e_class = info.exc.__class__.__name__
         src = info.src.__repr__() if isinstance(info.src, str) else info.src
         tip = f"第 {info.idx+1} 个参数"
         tip += (
@@ -172,7 +172,7 @@ class CmdArgFormatter:
             else f"给定的值 {src} 无法处理。"
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip += f"\n详细错误描述：[{e_class}] {info.exc_type}"
+        tip += f"\n详细错误描述：[{e_class}] {info.exc}"
         tip = f"命令 {info.group_id} 参数格式化失败：\n" + tip
         await send(tip)
 

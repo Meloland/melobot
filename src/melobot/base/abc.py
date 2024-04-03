@@ -1,6 +1,6 @@
 import asyncio
 import json
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from copy import deepcopy
 
 from .exceptions import (
@@ -149,16 +149,18 @@ class BotEvent(ABC, Flagable):
 
     def __init__(self, rawEvent: dict) -> None:
         super().__init__()
-        #: 从 onebot 实现项目获得的未格式化的事件
+        #: 从 onebot 实现项目获得的未格式化的事件原始值
         self.raw: dict = rawEvent
         self._args_map: Optional[dict[Any, dict[str, ParseArgs] | None]] = None
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def time(self) -> int:
         """事件发生的时间"""
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def type(self) -> Literal["message", "request", "notice", "meta", "response"]:
         """事件类型"""
         pass

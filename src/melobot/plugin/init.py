@@ -1066,8 +1066,8 @@ class BotPlugin:
 
         return make_args
 
-    def on_bot_life(self, type: BotLife):
-        """绑定 bot 在某个生命周期的 hook 方法
+    def on_bot_life(self, *types: BotLife):
+        """绑定 bot 在某个/某些生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用，此时可绑定一个函数为 bot 生命周期 hook 方法。
 
@@ -1081,13 +1081,14 @@ class BotPlugin:
                await send_custom_msg("Hello~", isPrivate=True, userId=xxxxx)
            # 在这个示例中，bot 登录上号后，便会向 xxxxx 发送一条 Hello~ 消息
 
-        :param type: bot 生命周期类型枚举值
+        :param types: bot 生命周期类型枚举值，可传入多个
         """
 
         def make_args(
             func: Callable[P, Coroutine[Any, Any, None]]
         ) -> Callable[P, Coroutine[Any, Any, None]]:
-            self.__hook_args__.append(BotHookRunnerArgs(func, type))
+            for type in types:
+                self.__hook_args__.append(BotHookRunnerArgs(func, type))
             return func
 
         return make_args
@@ -1101,12 +1102,28 @@ class BotPlugin:
         return self.on_bot_life(BotLife.LOADED)
 
     @property
-    def on_connected(self):
-        """绑定 bot 在 :attr:`.BotLife.CONNECTED` 生命周期的 hook 方法
+    def on_first_connected(self):
+        """绑定 bot 在 :attr:`.BotLife.FIRST_CONNECTED` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """
-        return self.on_bot_life(BotLife.CONNECTED)
+        return self.on_bot_life(BotLife.FIRST_CONNECTED)
+
+    @property
+    def on_reconnected(self):
+        """绑定 bot 在 :attr:`.BotLife.RECONNECTED` 生命周期的 hook 方法
+
+        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
+        """
+        return self.on_bot_life(BotLife.RECONNECTED)
+
+    @property
+    def on_connected(self):
+        """绑定 bot 在 :attr:`.BotLife.FIRST_CONNECTED` 和 :attr:`.BotLife.RECONNECTED`生命周期的 hook 方法
+
+        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
+        """
+        return self.on_bot_life(BotLife.FIRST_CONNECTED, BotLife.RECONNECTED)
 
     @property
     def on_before_close(self):
