@@ -1119,7 +1119,7 @@ class BotPlugin:
 
     @property
     def on_connected(self):
-        """绑定 bot 在 :attr:`.BotLife.FIRST_CONNECTED` 和 :attr:`.BotLife.RECONNECTED`生命周期的 hook 方法
+        """绑定 bot 在 :attr:`.BotLife.FIRST_CONNECTED` 和 :attr:`.BotLife.RECONNECTED` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。
         """
