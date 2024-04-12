@@ -41,36 +41,82 @@ class MetaInfo(metaclass=ReadOnly):
        一般无需手动实例化该类，多数情况会直接使用本类的属性，或将本类用作类型注解。
     """
 
-    #: melobot 版本
     VER: str = "2.5.11"
-    #: melobot 项目名称
+    """melobot 版本
+
+       :meta hide-value:
+    """
+
     PROJ_NAME: str = "melobot"
-    #: melobot 项目描述
+    """melobot 项目名称
+
+       :meta hide-value:
+    """
+
     PROJ_DESC: str = (
         "A qq bot development framework with friendly APIs, session control and plugin-supported."
     )
-    #: melobot 项目地址
+    """melobot 项目描述
+
+       :meta hide-value:
+    """
+
     PROJ_SRC: str = "https://github.com/aicorein/melobot"
-    #: melobot 项目作者
-    AUTHOR: str = "aicorein"
-    #: melobot 项目作者邮箱
-    AUTHOR_EMAIL: str = "melodyecho@glowmem.com"
-    #: 当前运行的 argv
+    """melobot 项目地址
+
+       :meta hide-value:
+    """
+
     ARGV: list[str] = sys.argv
-    #: 当前系统平台
+    """当前运行的 argv
+
+       :meta hide-value:
+    """
+
     PLATFORM: str = sys.platform
-    #: 当前 python 版本
+    """当前系统平台
+
+       :meta hide-value:
+    """
+
     PY_VER: str = sys.version
-    #: 当前 python 信息
+    """当前 python 版本
+
+       :meta hide-value:
+    """
+
     PY_INFO: "sys._version_info" = sys.version_info
-    #: 当前系统路径分隔符号，如 win 平台下的 "\\"
+    """当前 python 信息
+
+       :meta hide-value:
+    """
+
     OS_SEP: str = os.sep
-    #: 当前系统路径间的分隔符号，如 win 平台下的 ";"
+
+    """当前系统路径分隔符号，如 win 平台下的 "\\"
+
+       :meta hide-value:
+    """
+
     PATH_SEP: str = os.pathsep
-    #: 当前系统行尾序列，如 win 平台下的 "\\r\\n"
+
+    """当前系统路径间的分隔符号，如 win 平台下的 ";"
+
+       :meta hide-value:
+    """
+
     LINE_SEP: str = os.linesep
-    #: 当前运行的环境变量
+
+    """当前系统行尾序列，如 win 平台下的 "\\r\\n"
+
+       :meta hide-value:
+    """
+
     ENV: os._Environ[str] = os.environ
+    """当前运行的环境变量
+
+       :meta hide-value:
+    """
 
     @classmethod
     def get_all(cls) -> dict[str, Any]:

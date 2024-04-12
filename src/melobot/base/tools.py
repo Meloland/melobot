@@ -540,7 +540,7 @@ def speedlimit(
 ):
     """流量/速率限制装饰器
 
-    本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：duration 秒内只允许 limit 次调用。
+    本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：`duration` 秒内只允许 `limit` 次调用。
 
     超出调用速率限制后，调用 `callback` 获得回调并执行，同时取消原任务。
 
@@ -550,7 +550,7 @@ def speedlimit(
 
     :param callback: 超出速率限制时的回调
     :param limit: `duration` 秒内允许调用多少次
-    :parma duration: 时长区间
+    :param duration: 时长区间
     """
     called_num = 0
     min_start = time.perf_counter()

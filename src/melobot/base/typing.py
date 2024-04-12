@@ -4,13 +4,10 @@ from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
     Callable,
     Coroutine,
     Literal,
-    NamedTuple,
     Optional,
-    OrderedDict,
     ParamSpec,
     Type,
     TypeAlias,
@@ -36,8 +33,16 @@ class MsgSegment(TypedDict):
     data: dict[str, float | int | str]
 
 
-class CustomNodeData(TypedDict):
+class StdCustomNodeData(TypedDict):
     """onebot 标准的自定义消息结点数据"""
+
+    nickname: str
+    user_id: str
+    content: list[MsgSegment]
+
+
+class GocqCustomNodeData(TypedDict):
+    """gocq 风格的自定义消息结点数据"""
 
     name: str
     uin: str
@@ -55,7 +60,7 @@ class MsgNode(TypedDict):
     """onebot 标准的转发消息结点"""
 
     type: Literal["node"]
-    data: CustomNodeData | ReferNodeData
+    data: StdCustomNodeData | GocqCustomNodeData | ReferNodeData
 
 
 class ParseArgs:

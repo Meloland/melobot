@@ -98,7 +98,11 @@ typing 模块
    :members:
    :undoc-members:
 
-.. autoclass:: melobot.base.typing.CustomNodeData
+.. autoclass:: melobot.base.typing.StdCustomNodeData
+   :members:
+   :undoc-members:
+
+.. autoclass:: melobot.base.typing.GocqCustomNodeData
    :members:
    :undoc-members:
 
