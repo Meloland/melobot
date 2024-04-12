@@ -1,7 +1,7 @@
 import asyncio
 
 from ..base.abc import BotParser
-from ..base.exceptions import DirectRetSignal, EventHandlerError, get_better_exc
+from ..base.exceptions import EventHandlerError, FuncSafeExited, get_better_exc
 from ..base.tools import get_rich_str, to_task
 from ..base.typing import (
     TYPE_CHECKING,
@@ -73,6 +73,15 @@ class EventHandler:
                 "参数 conflict_wait 为 True 时，冲突回调永远不会被调用"
             )
 
+    def __format__(self, format_spec: str) -> str:
+        match format_spec:
+            case "hexid":
+                return f"{id(self):#x}"
+            case _:
+                raise EventHandlerError(
+                    f"未知的 EventHandler 格式化标识符：{format_spec}"
+                )
+
     async def _verify(self) -> bool:
         """验证事件是否有触发执行的资格（验权）"""
         if self.checker:
@@ -117,9 +126,11 @@ class EventHandler:
                 return
             # 如果没有冲突，正常获得到了 session
             exec_coro = self.executor()
-            self.logger.debug(f"event {id(event)} 准备在 session {id(session)} 中处理")
+            self.logger.debug(
+                f"event {event:hexid} 准备在 session {session:hexid} 中处理"
+            )
             await self._run_on_ctx(exec_coro, session)
-        except DirectRetSignal:
+        except FuncSafeExited:
             pass
         except Exception as e:
             executor_name = self.executor.__qualname__
@@ -132,7 +143,9 @@ class EventHandler:
         finally:
             if session is None:
                 return
-            self.logger.debug(f"event {id(event)} 在 session {id(session)} 中运行完毕")
+            self.logger.debug(
+                f"event {event:hexid} 在 session {session:hexid} 中运行完毕"
+            )
             BotSessionManager.recycle(session, alive=self._hold)
 
     async def _pre_process(
@@ -152,7 +165,7 @@ class EventHandler:
         status = await self._pre_process(event)
         if status:
             self.logger.debug(
-                f"event {id(event)} 在 handler {id(self)} pre_process 通过，处理方法为：{self.executor.__qualname__}"
+                f"event {event:hexid} 在 handler {self:hexid} pre_process 通过，处理方法为：{self.executor.__qualname__}"
             )
         if not status:
             return False

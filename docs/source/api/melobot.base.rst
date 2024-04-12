@@ -77,6 +77,8 @@ tools 模块
 
 .. autofunction:: melobot.base.tools.timelimit
 
+.. autofunction:: melobot.base.tools.speedlimit
+
 .. autofunction:: melobot.base.tools.call_later
 
 .. autofunction:: melobot.base.tools.call_at

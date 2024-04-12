@@ -4,11 +4,12 @@ import io
 import os
 import pathlib
 import time
-from asyncio import iscoroutine, iscoroutinefunction
+from asyncio import iscoroutine
 from contextlib import asynccontextmanager
 from functools import wraps
 
-import rich
+import rich.console
+import rich.pretty
 
 from .exceptions import BotBaseUtilsError, BotRuntimeError
 from .typing import T1, T2, T3, Any, Callable, Coroutine, Optional, P, T
@@ -140,7 +141,7 @@ class IdWorker:
 
     def __gen_timestamp(self) -> int:
         """生成整数时间戳."""
-        return int(time.time() * 1000)
+        return int(time.time_ns() / 1e6)
 
     def get_id(self) -> int:
         """获取新 ID."""
@@ -172,7 +173,7 @@ class IdWorker:
         return timestamp
 
 
-ID_WORKER = IdWorker(1, 1, 0)
+_ID_WORKER = IdWorker(1, 1, 0)
 
 
 def get_id() -> str:
@@ -180,14 +181,28 @@ def get_id() -> str:
 
     :return: id 值
     """
-    return str(ID_WORKER.get_id())
+    return str(_ID_WORKER.get_id())
 
 
-def get_rich_str(obj: object) -> str:
+_CONSOLE_IO = io.StringIO()
+_CONSOLE = rich.console.Console(file=_CONSOLE_IO)
+
+
+def get_rich_str(obj: object, max_string: Optional[int] = 1000) -> str:
     """返回使用 rich 格式化的 object."""
-    sio = io.StringIO()
-    rich.print(obj, file=sio)
-    return sio.getvalue().strip("\n")
+    _CONSOLE.print(
+        rich.pretty.Pretty(
+            obj,
+            indent_guides=True,
+            max_string=max_string,
+            overflow="ignore",
+        ),
+        crop=False,
+    )
+    string = _CONSOLE_IO.getvalue().strip("\n")
+    _CONSOLE_IO.seek(0)
+    _CONSOLE_IO.truncate(0)
+    return string
 
 
 def this_dir(*relative_path: str) -> str:
@@ -277,53 +292,63 @@ def to_async(func: Callable[[], T]) -> Callable[[], Coroutine[Any, Any, T]]:
     async def wrapper():
         return func()
 
-    return wrapper
+    if callable(func):
+        return wrapper
+    else:
+        raise BotBaseUtilsError("to_async 函数只支持同步函数作为参数")
 
 
-def to_coro(func: Callable[[], T]) -> Coroutine[Any, Any, T]:
+def to_coro(obj: Callable[[], T] | asyncio.Future[T]) -> Coroutine[Any, Any, T]:
     """协程包装函数
 
-    将一个同步函数包装为协程，保留返回值。如果需要传参使用 partial 包裹。
+    将一个同步函数或 Future 对象包装为协程，保留返回值。如果需要传参使用 partial 包裹。
 
-    :param func: 需要包装的函数
+    :param obj: 需要包装的同步函数或 Future 对象
     :return: 协程
     """
 
-    f = to_async(func)
-    return f()
+    async def as_coro(obj: asyncio.Future[T]) -> T:
+        return await obj
+
+    if isinstance(obj, asyncio.Future):
+        return as_coro(obj)
+    elif callable(obj):
+        return to_async(obj)()
+    else:
+        raise BotBaseUtilsError("to_coro 函数只支持同步函数或 Future 对象作为参数")
 
 
-def to_task(obj: Callable[[], T] | Coroutine[Any, Any, T]) -> asyncio.Task[T]:
+def to_task(obj: Coroutine[Any, Any, T] | asyncio.Future[T]) -> asyncio.Task[T]:
     """任务包装器
 
-    将一个同步函数或协程包装为任务，保留返回值。如果需要传参使用 partial 包裹。
+    将一个协程或 Future 对象包装为任务，保留返回值。
 
-    :param obj: 同步函数或协程
+    :param obj: 协程或 Future 对象
     :return: 任务
     """
     if iscoroutine(obj):
         return asyncio.create_task(obj)
-    elif iscoroutinefunction(obj):
-        return asyncio.create_task(obj())
+    elif isinstance(obj, asyncio.Future):
+        return asyncio.create_task(to_coro(obj))
     else:
-        return asyncio.create_task(to_coro(obj))  # type: ignore
+        raise BotBaseUtilsError("to_task 函数只支持协程或 Future 对象作为参数")
 
 
-def lock(callback: Callable[[], Coroutine[Any, Any, T1]]):
+def lock(callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None):
     """锁装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数加锁。
 
-    在获取锁冲突时，调用 `callback` 获得一个回调并执行。回调执行完毕后直接返回
+    在获取锁冲突时，调用 `callback` 获得一个回调并执行。回调执行完毕后直接返回。
+
+    `callback` 参数为空，只应用 :class:`asyncio.Lock` 的锁功能。
+
+    被装饰函数的返回值：被装饰函数被执行 -> 被装饰函数返回值；执行任何回调 -> 那个回调的返回值
 
     :param callback: 获取锁冲突时的回调
-    :return:
-       获取锁未冲突 -> 被装饰函数返回值
-
-       获取锁冲突 -> 回调的返回值
     """
     alock = asyncio.Lock()
-    if not callable(callback):
+    if callback is not None and not callable(callback):
         raise BotBaseUtilsError(
             f"lock 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
@@ -333,7 +358,7 @@ def lock(callback: Callable[[], Coroutine[Any, Any, T1]]):
     ) -> Callable[P, Coroutine[Any, Any, T1 | T2]]:
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
-            if alock.locked():
+            if callback is not None and alock.locked():
                 cb = callback()
                 if not iscoroutine(cb):
                     raise BotBaseUtilsError(
@@ -349,7 +374,7 @@ def lock(callback: Callable[[], Coroutine[Any, Any, T1]]):
 
 
 def cooldown(
-    busy_callback: Callable[[], Coroutine[Any, Any, T1]],
+    busy_callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None,
     cd_callback: Optional[Callable[[float], Coroutine[Any, Any, T2]]] = None,
     interval: float = 5,
 ):
@@ -359,24 +384,22 @@ def cooldown(
 
     如果被装饰函数已有一个在运行，此时调用 `busy_callback` 生成回调并执行。回调执行完毕后直接返回。
 
-    如果被装饰函数没有在运行的，但在冷却完成前被调用：
+    `busy_callback` 参数为空，则等待已运行的运行完成。随后执行下面的“冷却”处理逻辑。
+
+    当被装饰函数没有在运行的，但冷却时间未结束：
 
        - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。
-       - `cd_callback` 为空， 被装饰函数持续等待，直至冷却结束再执行。
+       - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。
+
+    被装饰函数的返回值：被装饰函数被执行 -> 被装饰函数返回值；执行任何回调 -> 那个回调的返回值
 
     :param busy_callback: 已运行时的回调
-    :param cd_callback: 冷却时间未到的回调
+    :param cd_callback: 冷却时间未结束的回调
     :param interval: 冷却时间
-    :return:
-       被装饰函数可执行 -> 被装饰函数返回值
-
-       发生已运行冲突 -> `busy_callback` 的返回值
-
-       冷却时间未到 -> `cd_callback` 的返回值
     """
     alock = asyncio.Lock()
-    pre_finish_t = time.time() - interval - 1
-    if not callable(busy_callback):
+    pre_finish_t = time.perf_counter() - interval - 1
+    if busy_callback is not None and not callable(busy_callback):
         raise BotBaseUtilsError(
             f"cooldown 装饰器的 busy_callback 参数不可调用，busy_callback 值为：{busy_callback}"
         )
@@ -391,7 +414,7 @@ def cooldown(
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2 | T3:
             nonlocal pre_finish_t
-            if alock.locked():
+            if busy_callback is not None and alock.locked():
                 busy_cb = busy_callback()
                 if not iscoroutine(busy_cb):
                     raise BotBaseUtilsError(
@@ -400,10 +423,10 @@ def cooldown(
                 return await busy_cb
 
             async with alock:
-                duration = time.time() - pre_finish_t
+                duration = time.perf_counter() - pre_finish_t
                 if duration > interval:
                     ret = await func(*args, **kwargs)
-                    pre_finish_t = time.time()
+                    pre_finish_t = time.perf_counter()
                     return ret
 
                 remain_t = interval - duration
@@ -417,7 +440,7 @@ def cooldown(
                 else:
                     await asyncio.sleep(remain_t)
                     ret = await func(*args, **kwargs)
-                    pre_finish_t = time.time()
+                    pre_finish_t = time.perf_counter()
                     return ret
 
         return wrapped_func
@@ -425,22 +448,24 @@ def cooldown(
     return deco_func
 
 
-def semaphore(callback: Callable[[], Coroutine[Any, Any, T1]], value: int = -1):
+def semaphore(
+    callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None, value: int = -1
+):
     """信号量装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加信号量控制。
 
     在信号量无法立刻获取时，将调用 `callback` 获得回调并执行。回调执行完毕后直接返回。
 
+    `callback` 参数为空，只应用 :class:`asyncio.Semaphore` 的信号量功能。
+
+    被装饰函数的返回值：被装饰函数被执行 -> 被装饰函数返回值；执行任何回调 -> 那个回调的返回值
+
     :param callback: 信号量无法立即获取的回调
     :param value: 信号量阈值
-    :return:
-       可以立即获取信号量 -> 被装饰函数返回值
-
-       不能立即获取信号量 -> 回调的返回值
     """
     a_semaphore = asyncio.Semaphore(value)
-    if not callable(callback):
+    if callback is not None and not callable(callback):
         raise BotBaseUtilsError(
             f"semaphore 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
@@ -450,7 +475,7 @@ def semaphore(callback: Callable[[], Coroutine[Any, Any, T1]], value: int = -1):
     ) -> Callable[P, Coroutine[Any, Any, T1 | T2]]:
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
-            if a_semaphore.locked():
+            if callback is not None and a_semaphore.locked():
                 cb = callback()
                 if not iscoroutine(cb):
                     raise BotBaseUtilsError(
@@ -465,21 +490,23 @@ def semaphore(callback: Callable[[], Coroutine[Any, Any, T1]], value: int = -1):
     return deco_func
 
 
-def timelimit(callback: Callable[[], Coroutine[Any, Any, T1]], timeout: float = 5):
+def timelimit(
+    callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None, timeout: float = 5
+):
     """时间限制装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加超时控制。
 
-    超时之后，调用 `callback` 获得回调并执行，同时取消原任务
+    超时之后，调用 `callback` 获得回调并执行，同时取消原任务。
+
+    `callback` 参数为空，如果超时，则抛出 :class:`asyncio.TimeoutError` 异常。
+
+    被装饰函数的返回值：被装饰函数被执行 -> 被装饰函数返回值；执行任何回调 -> 那个回调的返回值
 
     :param callback: 超时时的回调
-    :param timeout: 超时时间, defaults to 5
-    :return:
-       被装饰函数未超时 -> 被装饰函数返回值
-
-       被装饰函数超时 -> 回调的返回值
+    :param timeout: 超时时间
     """
-    if not callable(callback):
+    if callback is not None and not callable(callback):
         raise BotBaseUtilsError(
             f"timelimit 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
@@ -492,6 +519,8 @@ def timelimit(callback: Callable[[], Coroutine[Any, Any, T1]], timeout: float = 
             try:
                 return await asyncio.wait_for(func(*args, **kwargs), timeout)
             except asyncio.TimeoutError:
+                if callback is None:
+                    raise
                 cb = callback()
                 if not iscoroutine(cb):
                     raise BotBaseUtilsError(
@@ -500,6 +529,103 @@ def timelimit(callback: Callable[[], Coroutine[Any, Any, T1]], timeout: float = 
                 return await cb
 
         return wrapped_func
+
+    return deco_func
+
+
+def speedlimit(
+    callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None,
+    limit: int = 60,
+    duration: int = 60,
+):
+    """流量/速率限制装饰器
+
+    本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：duration 秒内只允许 limit 次调用。
+
+    超出调用速率限制后，调用 `callback` 获得回调并执行，同时取消原任务。
+
+    `callback` 参数为空，等待直至满足速率控制要求再调用。
+
+    被装饰函数的返回值：被装饰函数被执行 -> 被装饰函数返回值；执行任何回调 -> 那个回调的返回值。
+
+    :param callback: 超出速率限制时的回调
+    :param limit: `duration` 秒内允许调用多少次
+    :parma duration: 时长区间
+    """
+    called_num = 0
+    min_start = time.perf_counter()
+    if limit <= 0:
+        raise BotBaseUtilsError("speedlimit 装饰器的 limit 参数必须 > 0")
+    if duration <= 0:
+        raise BotBaseUtilsError("speedlimit 装饰器的 duration 参数必须 > 0")
+    if callback is not None and not callable(callback):
+        raise BotBaseUtilsError(
+            f"speedlimit 装饰器的 callback 参数不可调用，callback 值为：{callback}"
+        )
+
+    def deco_func(
+        func: Callable[P, Coroutine[Any, Any, T2]]
+    ) -> Callable[P, Coroutine[Any, Any, T1 | T2]]:
+        # 不直接使用 wrapped_func，目的是保留原有函数签名，同时保留异步函数的接口
+
+        @wraps(func)
+        async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
+            res_fut = _wrapped_func(func, *args, **kwargs)
+            fut_ret = await res_fut
+            if isinstance(fut_ret, Exception):
+                raise fut_ret
+            return fut_ret
+
+        return wrapped_func
+
+    def _wrapped_func(
+        func: Callable[P, Coroutine[Any, Any, T2]], *args: Any, **kwargs: Any
+    ) -> asyncio.Future[T1 | T2 | Exception]:
+        # 分离出来定义，方便 result_set 调用。主要逻辑通过 Future 辅助实现，有利于避免竞争问题。
+        nonlocal called_num, min_start
+        passed_time = time.perf_counter() - min_start
+        res_fut: Any = asyncio.Future()
+
+        if passed_time <= duration:
+            if called_num < limit:
+                called_num += 1
+                to_task(result_set(func, res_fut, -1, *args, **kwargs))
+            elif callback is not None:
+                to_task(result_set(callback, res_fut, -1))
+            else:
+                to_task(
+                    result_set(func, res_fut, duration - passed_time, *args, **kwargs)
+                )
+        else:
+            called_num, min_start = 0, time.perf_counter()
+            called_num += 1
+            to_task(result_set(func, res_fut, -1, *args, **kwargs))
+        return res_fut
+
+    async def result_set(
+        func: Callable[P, Coroutine[Any, Any, T]],
+        fut: asyncio.Future[T | Exception],
+        delay: float,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        nonlocal called_num
+        try:
+            """
+            只有依然在当前 duration 区间内，但超出调用次数限制的，需要等待。
+            随后就是递归调用。delay > 0 为需要递归的分支。
+            这个递归层数不会很深，除非被装饰函数不断在被调用（这自然是不太合理的）
+            提示：sleep 后，进入新的 _wrapped_func 函数中，其实 passed_time 绝对小于 <= duration
+            """
+            if delay > 0:
+                await asyncio.sleep(delay)
+                res = await _wrapped_func(func, *args, **kwargs)
+                fut.set_result(res)  # type: ignore
+                return
+            res = await func(*args, **kwargs)
+            fut.set_result(res)
+        except Exception as e:
+            fut.set_result(e)
 
     return deco_func
 
@@ -525,10 +651,12 @@ def call_at(callback: Callable[[], None], timestamp: float):
     :param timestamp: 在什么时刻调度
     :return: :class:`asyncio.TimerHandle` 对象
     """
-    if timestamp <= time.time():
+    if timestamp <= time.time_ns() / 1e9:
         return asyncio.get_running_loop().call_soon(callback)
     else:
-        return asyncio.get_running_loop().call_later(timestamp - time.time(), callback)
+        return asyncio.get_running_loop().call_later(
+            timestamp - time.time_ns() / 1e9, callback
+        )
 
 
 def async_later(callback: Coroutine[Any, Any, T], delay: float) -> asyncio.Future[T]:
@@ -571,10 +699,10 @@ def async_at(callback: Coroutine[Any, Any, T], timestamp: float) -> asyncio.Futu
     :param timestamp: 在什么时刻调度
     :return: :class:`asyncio.Future` 对象
     """
-    if timestamp <= time.time():
+    if timestamp <= time.time_ns() / 1e9:
         return async_later(callback, 0)
     else:
-        return async_later(callback, timestamp - time.time())
+        return async_later(callback, timestamp - time.time_ns() / 1e9)
 
 
 def async_interval(

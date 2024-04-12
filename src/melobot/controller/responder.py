@@ -36,7 +36,7 @@ class BotResponder:
         try:
             if self.logger.level == DEBUG:
                 self.logger.debug(
-                    f"收到 resp {id(resp)}，结构：\n" + get_rich_str(resp.raw)
+                    f"收到 resp {resp:hexid}，结构：\n" + get_rich_str(resp.raw)
                 )
             if resp.id is None:
                 return

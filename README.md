@@ -82,6 +82,7 @@ MeloBot 的很多设计也是从别处借鉴而来的。虽然 MeloBot 并未直
 - [Flask](https://github.com/pallets/flask)
 - [nonebot](https://github.com/nonebot/nonebot)
 - [nonebot2](https://github.com/nonebot/nonebot2)
+- [Vue.js](https://vuejs.org/)
 
 <!-- end elevator-pitch -->
 

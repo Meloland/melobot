@@ -44,7 +44,7 @@ class ForwardWsConn(AbstractConnector):
         :param max_retry: 连接最大重试次数，默认 -1 代表无限次重试
         :param retry_delay: 连接重试间隔时间
         :param cd_time: 行为操作冷却时间（用于防止风控）
-        :param allow_reconnect: 是否在断连后重连。默认为 `False`，即服务端断线直接停止 bot；若为 `True`，则会按照 `max_retry`, `retry_delay` 不断尝试重连，重连成功前时所有行为操作将阻塞。
+        :param allow_reconnect: 建立连接失败是否重连。默认为 `False`，即服务端断线直接停止 bot；若为 `True`，则会按照 `max_retry`, `retry_delay` 不断尝试重连，重连成功前时所有行为操作将阻塞。
         """
         super().__init__(cd_time)
         #: 连接失败最大重试次数
@@ -57,7 +57,7 @@ class ForwardWsConn(AbstractConnector):
         self.conn: "websockets.client.WebSocketClientProtocol"
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
-        self._pre_send_time = time.time()
+        self._pre_send_time = time.time_ns()
         self._client_close: asyncio.Future[Any]
         self._conn_ready = asyncio.Event()
         self._allow_reconn = allow_reconnect
@@ -90,12 +90,9 @@ class ForwardWsConn(AbstractConnector):
             try:
                 self.logger.info("连接器与 OneBot 实现程序建立了 ws 连接")
                 self._conn_ready.set()
-                to_task(self._listen)
+                to_task(self._listen())
                 await self._client_close
             finally:
-                # 默认关闭等待时长是 10s，某些服务端对“礼貌的连接关闭”不响应
-                # 不等待它们, CLOSE anyway!!! :)
-                self.conn.close_timeout = 0.01
                 await self.conn.close()
                 await self.conn.wait_closed()
                 self.logger.info("ws 客户端连接已关闭")
@@ -133,10 +130,10 @@ class ForwardWsConn(AbstractConnector):
         await self._conn_ready.wait()
 
         if self.slack:
-            self.logger.debug(f"action {id(action)} 因 slack 状态被丢弃")
+            self.logger.debug(f"action {action:hexid} 因 slack 状态被丢弃")
             return
         await self._send_queue.put(action)
-        self.logger.debug(f"action {id(action)} 已成功加入发送队列")
+        self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
     async def _send_queue_watch(self) -> None:
         """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作."""
@@ -148,18 +145,20 @@ class ForwardWsConn(AbstractConnector):
                 await self._conn_ready.wait()
                 if self.logger.level == DEBUG:
                     self.logger.debug(
-                        f"action {id(action)} 准备发送，结构如下：\n"
+                        f"action {action:hexid} 准备发送，结构如下：\n"
                         + get_rich_str(action.__dict__)
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
-                self.logger.debug(f"action {id(action)} presend hook 已完成")
+                self.logger.debug(f"action {action:hexid} presend hook 已完成")
                 action_str = action.flatten()
-                wait_time = self.cd_time - (time.time() - self._pre_send_time)
-                self.logger.debug(f"action {id(action)} 冷却等待：{wait_time}")
+                wait_time = self.cd_time - (
+                    (time.time_ns() - self._pre_send_time) / 1e9
+                )
+                self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
                 await self.conn.send(action_str)
-                self.logger.debug(f"action {id(action)} 已发送")
-                self._pre_send_time = time.time()
+                self.logger.debug(f"action {action:hexid} 已发送")
+                self._pre_send_time = time.time_ns()
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")
         except ConnectionClosed:
@@ -188,7 +187,7 @@ class ForwardWsConn(AbstractConnector):
                     event = self._event_builder.build(raw_event)
                     if self.logger.level == DEBUG:
                         self.logger.debug(
-                            f"event {id(event)} 构建完成，结构：\n"
+                            f"event {event:hexid} 构建完成，结构：\n"
                             + get_rich_str(event.raw)
                         )
                     if event.is_resp_event():

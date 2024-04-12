@@ -2,14 +2,12 @@ import logging
 import logging.config
 import logging.handlers
 import os
-from collections.abc import Mapping
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
-from types import TracebackType
 
-import coloredlogs
+import colorlog
 
 from ..base.exceptions import DuplicateError
-from ..base.typing import Literal, Optional, Type, TypeAlias
+from ..base.typing import Literal, Optional
 
 
 class NullLogger(Logger):
@@ -25,25 +23,21 @@ class BotLogger(Logger):
 
     LOGGERS: dict[str, "BotLogger"] = {}
 
-    FIELD_COLORS = {
-        "asctime": {"color": "white"},
-        "hostname": {"color": "magenta"},
-        "levelname": {"bold": True, "color": "white"},
-        "name": {"color": "blue"},
-        "programname": {"color": "cyan"},
-        "username": {"color": "yellow"},
+    LOG_COLORS = {
+        "DEBUG": "cyan,bold",
+        "INFO": "green,bold",
+        "WARNING": "yellow,bold",
+        "ERROR": "red,bold",
+        "CRITIAL": "red,bold,bg_white",
     }
 
-    LEVEL_COLORS = {
-        "critical": {"bold": True, "color": "red"},
-        "debug": {"color": "magenta"},
-        "error": {"color": "red"},
-        "info": {},
-        "notice": {"color": "magenta"},
-        "spam": {"color": "green", "faint": True},
-        "success": {"bold": True, "color": "green"},
-        "verbose": {"color": "blue"},
-        "warning": {"color": "yellow"},
+    SECOND_LOG_COLORS = {
+        "message": {
+            "DEBUG": "cyan",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITIAL": "red,bg_white",
+        }
     }
 
     LEVEL_MAP = {
@@ -56,17 +50,23 @@ class BotLogger(Logger):
 
     @staticmethod
     def _console_fmt(name: str, no_tag: bool = False) -> logging.Formatter:
-        fmt_s = (
-            f"[%(asctime)s] [%(levelname)s] [{name}] %(message)s"
-            if not no_tag
-            else "[%(asctime)s] [%(levelname)s] %(message)s"
-        )
-        fmt = coloredlogs.ColoredFormatter(
-            fmt=fmt_s,
+        fmt_arr = [
+            "%(asctime)s.%(msecs)03d",
+            "%(log_color)s%(levelname)-8s%(reset)s",
+            "%(module)-10s : %(blue)s%(lineno)-4d%(reset)s",
+            "%(message_log_color)s%(message)s%(reset)s",
+        ]
+        if not no_tag:
+            fmt_arr.insert(0, f"%(purple)s{name}%(reset)s")
+        fmt_s = " " + " │ ".join(fmt_arr)
+        fmt = colorlog.ColoredFormatter(
+            fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
-            level_styles=BotLogger.LEVEL_COLORS,
-            field_styles=BotLogger.FIELD_COLORS,
+            log_colors=BotLogger.LOG_COLORS,
+            secondary_log_colors=BotLogger.SECOND_LOG_COLORS,
+            reset=True,
         )
+        fmt.default_msec_format = "%s.%03d"
         return fmt
 
     @staticmethod
@@ -77,15 +77,20 @@ class BotLogger(Logger):
 
     @staticmethod
     def _file_fmt(name: str, no_tag: bool = False) -> logging.Formatter:
-        fmt_s = (
-            f"[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] [{name}] %(message)s"
-            if not no_tag
-            else "[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] %(message)s"
-        )
+        fmt_arr = [
+            "%(asctime)s.%(msecs)03d",
+            "%(levelname)-8s",
+            "%(module)-12s %(lineno)-4d %(funcName)-20s",
+            "%(message)s",
+        ]
+        if not no_tag:
+            fmt_arr.insert(0, name)
+        fmt_s = " │ ".join(fmt_arr)
         fmt = logging.Formatter(
             fmt=fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
         )
+        fmt.default_msec_format = "%s.%03d"
         return fmt
 
     @staticmethod
@@ -158,116 +163,3 @@ class BotLogger(Logger):
         super().setLevel(level)
         for handler in self._handler_arr:
             handler.setLevel(level)
-
-
-_SysExcInfoType: TypeAlias = (
-    tuple[Type[BaseException], BaseException, Optional[TracebackType]]
-    | tuple[None, None, None]
-)
-_ExcInfoType: TypeAlias = None | bool | _SysExcInfoType | BaseException
-
-
-class PrefixLogger:
-    """二次包装的日志器."""
-
-    def __init__(self, ref: BotLogger, prefix: str) -> None:
-        self._logger = ref
-        self._prefix = prefix
-
-    def _add_prefix(self, s: object) -> str:
-        return f"[{self._prefix}] {s}"
-
-    def info(
-        self,
-        msg: object,
-        *args: object,
-        exc_info: _ExcInfoType = None,
-        stack_info: bool = False,
-        stacklevel: int = 1,
-        extra: Optional[Mapping[str, object]] = None,
-    ) -> None:
-        msg = self._add_prefix(msg)
-        return self._logger.info(
-            msg,
-            *args,
-            exc_info=exc_info,
-            stack_info=stack_info,
-            stacklevel=stacklevel,
-            extra=extra,
-        )
-
-    def warning(
-        self,
-        msg: object,
-        *args: object,
-        exc_info: _ExcInfoType = None,
-        stack_info: bool = False,
-        stacklevel: int = 1,
-        extra: Optional[Mapping[str, object]] = None,
-    ) -> None:
-        msg = self._add_prefix(msg)
-        return self._logger.warning(
-            msg,
-            *args,
-            exc_info=exc_info,
-            stack_info=stack_info,
-            stacklevel=stacklevel,
-            extra=extra,
-        )
-
-    def error(
-        self,
-        msg: object,
-        *args: object,
-        exc_info: _ExcInfoType = None,
-        stack_info: bool = False,
-        stacklevel: int = 1,
-        extra: Optional[Mapping[str, object]] = None,
-    ) -> None:
-        msg = self._add_prefix(msg)
-        return self._logger.error(
-            msg,
-            *args,
-            exc_info=exc_info,
-            stack_info=stack_info,
-            stacklevel=stacklevel,
-            extra=extra,
-        )
-
-    def debug(
-        self,
-        msg: object,
-        *args: object,
-        exc_info: _ExcInfoType = None,
-        stack_info: bool = False,
-        stacklevel: int = 1,
-        extra: Optional[Mapping[str, object]] = None,
-    ) -> None:
-        msg = self._add_prefix(msg)
-        return self._logger.debug(
-            msg,
-            *args,
-            exc_info=exc_info,
-            stack_info=stack_info,
-            stacklevel=stacklevel,
-            extra=extra,
-        )
-
-    def critical(
-        self,
-        msg: object,
-        *args: object,
-        exc_info: _ExcInfoType = None,
-        stack_info: bool = False,
-        stacklevel: int = 1,
-        extra: Optional[Mapping[str, object]] = None,
-    ) -> None:
-        msg = self._add_prefix(msg)
-        return self._logger.critical(
-            msg,
-            *args,
-            exc_info=exc_info,
-            stack_info=stack_info,
-            stacklevel=stacklevel,
-            extra=extra,
-        )

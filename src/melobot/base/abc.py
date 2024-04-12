@@ -7,6 +7,7 @@ from .exceptions import (
     BotActionError,
     BotCheckerError,
     BotMatcherError,
+    BotValueError,
     TryFlagFailed,
     get_better_exc,
 )
@@ -16,7 +17,6 @@ from .typing import (
     BotLife,
     Callable,
     Coroutine,
-    Enum,
     Literal,
     LogicMode,
     ModuleType,
@@ -153,6 +153,15 @@ class BotEvent(ABC, Flagable):
         self.raw: dict = rawEvent
         self._args_map: Optional[dict[Any, dict[str, ParseArgs] | None]] = None
 
+    def __format__(self, format_spec: str) -> str:
+        match format_spec:
+            case "hexid":
+                return f"{id(self):#x}"
+            case "raw":
+                return self.raw.__str__()
+            case _:
+                raise BotValueError(f"未知的 event 格式标识符：{format_spec}")
+
     @property
     @abstractmethod
     def time(self) -> int:
@@ -235,6 +244,23 @@ class BotAction(Flagable, Cloneable):
         self.trigger: Optional[BotEvent] = triggerEvent
 
         self._ready = ready
+
+    def __format__(self, format_spec: str) -> str:
+        match format_spec:
+            case "hexid":
+                return f"{id(self):#x}"
+            case "raw":
+                trigger = (
+                    f"{self.trigger.__class__.__name__}[{self.trigger:hexid}]"
+                    if self.trigger is not None
+                    else None
+                )
+                return (
+                    f"BotAction(type={self.type}, trigger={trigger}, "
+                    f"resp_id={self.resp_id}, params={self.params})"
+                )
+            case _:
+                raise BotValueError(f"未知的 action 格式标识符：{format_spec}")
 
     def extract(self) -> dict:
         # 从对象提取标准 cq action dict

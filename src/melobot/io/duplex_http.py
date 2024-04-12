@@ -74,8 +74,8 @@ class HttpConn(AbstractConnector):
         self.max_interval = max_interval
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
-        self._pre_recv_time = time.time()
-        self._pre_send_time = time.time()
+        self._pre_recv_time = time.time_ns()
+        self._pre_send_time = time.time_ns()
         self._closed = asyncio.Event()
         self._close_lock = asyncio.Lock()
         self._onebot_onlined = asyncio.Event()
@@ -93,14 +93,18 @@ class HttpConn(AbstractConnector):
         await runner.setup()
         self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
         await self.serve_site.start()
-        self.logger.info("HTTP 通信就绪，等待 OneBot 实现程序上线中")
+
+        self.logger.info(
+            "HTTP 通信就绪，等待 OneBot 实现程序上线中（即上报第一个事件）"
+        )
         await self._onebot_onlined.wait()
         self.logger.info("HTTP 双向通信已建立")
         self._had_connected = True
-        await self._bot_bus.emit(BotLife.FIRST_CONNECTED)
-        self.logger.debug("FIRST_CONNECTED hook 已完成")
+
         if self.max_interval is not None and self.max_interval > 0:
             to_task(self._overtime_monitor(self.max_interval))
+        await self._bot_bus.emit(BotLife.FIRST_CONNECTED)
+        self.logger.debug("FIRST_CONNECTED hook 已完成")
 
     async def _close(self) -> None:
         """关闭连接器"""
@@ -120,7 +124,7 @@ class HttpConn(AbstractConnector):
         """通过是否超时判断 OneBot 实现程序是否掉线"""
         try:
             while True:
-                if abs(time.time() - self._pre_recv_time) > interval:
+                if (abs(time.time_ns() - self._pre_recv_time)) / 1e9 > interval:
                     self.logger.warning(
                         "OneBot 实现程序已掉线，正在等待 OneBot 实现程序重新上线"
                     )
@@ -140,9 +144,9 @@ class HttpConn(AbstractConnector):
         await self._close()
         return await super().__aexit__(exc_type, exc_val, exc_tb)
 
-    async def _listen(self, request: aiohttp.web.Request) -> None:
+    async def _listen(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
         """从 OneBot 实现程序接收一个事件，并处理"""
-        self._pre_recv_time = time.time()
+        self._pre_recv_time = time.time_ns()
 
         await self._ready_signal.wait()
         if not self._onebot_onlined.is_set():
@@ -161,7 +165,7 @@ class HttpConn(AbstractConnector):
             event = self._event_builder.build(data)
             if self.logger.level == DEBUG:
                 self.logger.debug(
-                    f"event {id(event)} 构建完成，结构：\n" + get_rich_str(event.raw)
+                    f"event {event:hexid} 构建完成，结构：\n" + get_rich_str(event.raw)
                 )
             to_task(self._common_dispatcher.dispatch(event))  # type: ignore
         except Exception as e:
@@ -169,6 +173,8 @@ class HttpConn(AbstractConnector):
             self.logger.error(f"异常点 raw_event：{data}")
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
             self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+        finally:
+            return aiohttp.web.Response(status=204)
 
     async def _send(self, action: "BotAction") -> None:
         """发送一个 action 给连接器，实际上是先提交到 send_queue"""
@@ -176,10 +182,10 @@ class HttpConn(AbstractConnector):
         await self._onebot_onlined.wait()
 
         if self.slack:
-            self.logger.debug(f"action {id(action)} 因 slack 状态被丢弃")
+            self.logger.debug(f"action {action:hexid} 因 slack 状态被丢弃")
             return
         await self._send_queue.put(action)
-        self.logger.debug(f"action {id(action)} 已成功加入发送队列")
+        self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
     async def _send_queue_watch(self) -> None:
         """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作."""
@@ -212,17 +218,19 @@ class HttpConn(AbstractConnector):
                 await self._onebot_onlined.wait()
                 if self.logger.level == DEBUG:
                     self.logger.debug(
-                        f"action {id(action)} 准备发送，结构如下：\n"
+                        f"action {action:hexid} 准备发送，结构如下：\n"
                         + get_rich_str(action.__dict__)
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
-                self.logger.debug(f"action {id(action)} presend hook 已完成")
-                wait_time = self.cd_time - (time.time() - self._pre_send_time)
-                self.logger.debug(f"action {id(action)} 冷却等待：{wait_time}")
+                self.logger.debug(f"action {action:hexid} presend hook 已完成")
+                wait_time = self.cd_time - (
+                    (time.time_ns() - self._pre_send_time) / 1e9
+                )
+                self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
                 to_task(take_action(action))
-                self.logger.debug(f"action {id(action)} 已发送")
-                self._pre_send_time = time.time()
+                self.logger.debug(f"action {action:hexid} 已发送")
+                self._pre_send_time = time.time_ns()
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")
 

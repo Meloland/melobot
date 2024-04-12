@@ -51,7 +51,7 @@ class ReverseWsConn(AbstractConnector):
         self.server: "websockets.server.WebSocketServer"
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
-        self._pre_send_time = time.time()
+        self._pre_send_time = time.time_ns()
         self._server_close: asyncio.Future[Any]
         self._conn: "websockets.server.WebSocketServerProtocol"
         self._conn_requested = False
@@ -120,10 +120,10 @@ class ReverseWsConn(AbstractConnector):
         await self._conn_ready.wait()
 
         if self.slack:
-            self.logger.debug(f"action {id(action)} 因 slack 状态被丢弃")
+            self.logger.debug(f"action {action:hexid} 因 slack 状态被丢弃")
             return
         await self._send_queue.put(action)
-        self.logger.debug(f"action {id(action)} 已成功加入发送队列")
+        self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
     async def _send_queue_watch(self) -> None:
         """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作."""
@@ -135,18 +135,20 @@ class ReverseWsConn(AbstractConnector):
                 await self._conn_ready.wait()
                 if self.logger.level == DEBUG:
                     self.logger.debug(
-                        f"action {id(action)} 准备发送，结构如下：\n"
+                        f"action {action:hexid} 准备发送，结构如下：\n"
                         + get_rich_str(action.__dict__)
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
-                self.logger.debug(f"action {id(action)} presend hook 已完成")
+                self.logger.debug(f"action {action:hexid} presend hook 已完成")
                 action_str = action.flatten()
-                wait_time = self.cd_time - (time.time() - self._pre_send_time)
-                self.logger.debug(f"action {id(action)} 冷却等待：{wait_time}")
+                wait_time = self.cd_time - (
+                    (time.time_ns() - self._pre_send_time) / 1e9
+                )
+                self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
                 await self._conn.send(action_str)
-                self.logger.debug(f"action {id(action)} 已发送")
-                self._pre_send_time = time.time()
+                self.logger.debug(f"action {action:hexid} 已发送")
+                self._pre_send_time = time.time_ns()
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")
         except wse.ConnectionClosed:
@@ -177,7 +179,7 @@ class ReverseWsConn(AbstractConnector):
                     event = self._event_builder.build(raw_event)
                     if self.logger.level == DEBUG:
                         self.logger.debug(
-                            f"event {id(event)} 构建完成，结构：\n"
+                            f"event {event:hexid} 构建完成，结构：\n"
                             + get_rich_str(event.raw)
                         )
                     if event.is_resp_event():
@@ -196,10 +198,6 @@ class ReverseWsConn(AbstractConnector):
         except wse.ConnectionClosed:
             self.logger.debug("连接器与 OneBot 实现程序的通信已经停止")
         finally:
-            # 默认关闭等待时长是 10s，某些客户端对“礼貌的连接关闭”不响应
-            # 不等待它们, CLOSE anyway!!! :)
-            ws.close_timeout = 0.01
-            await ws.close()
             if self._server_close.done():
                 return
             if not self._allow_reconn:

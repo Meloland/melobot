@@ -1,7 +1,5 @@
-import warnings
-
 from ..base.abc import ActionArgs, BotAction, BotEvent
-from ..base.exceptions import BotActionError, BotSessionError, DirectRetSignal
+from ..base.exceptions import BotActionError, BotSessionError, FuncSafeExited
 from ..base.tools import get_id
 from ..base.typing import TYPE_CHECKING, Literal, MsgNode, MsgSegment, Optional, Union
 from ..models.msg import _to_cq_str_action, reply_msg, text_msg
@@ -73,7 +71,6 @@ class MsgActionArgs(ActionArgs):
         else:
             self.params = {
                 "message_type": "group",
-                "user_id": userId,
                 "group_id": groupId,
                 "message": msgs,
             }
@@ -1492,7 +1489,7 @@ async def finish(
         SESSION_LOCAL.destory()
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
-    raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
+    raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")
 
 
 async def reply_finish(
@@ -1537,4 +1534,4 @@ async def reply_finish(
         SESSION_LOCAL.destory()
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
-    raise DirectRetSignal("事件处理方法被安全地递归 return，请无视这个异常")
+    raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")

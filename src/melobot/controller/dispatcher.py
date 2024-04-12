@@ -86,7 +86,7 @@ class BotDispatcher:
         """把事件分发到对应的事件通道."""
         await self._ready_signal.wait()
         await self._bot_bus.emit(BotLife.EVENT_BUILT, event, wait=True)
-        self.logger.debug(f"event {id(event)} built hook 已完成")
+        self.logger.debug(f"event {event:hexid} built hook 已完成")
         for channel in self._channel_map[event.type]:
-            self.logger.debug(f"向 {channel.__name__} 通道广播 event {id(event)}")
+            self.logger.debug(f"向 {channel.__name__} 通道广播 event {event:hexid}")
             to_task(self.broadcast(event, channel))

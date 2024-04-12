@@ -2,6 +2,7 @@ import asyncio
 from contextvars import ContextVar, Token
 from copy import deepcopy
 from functools import wraps
+from logging import DEBUG
 
 from ..base.abc import SessionRule
 from ..base.exceptions import BotSessionError, SessionHupTimeout
@@ -61,6 +62,13 @@ class BotSession:
         # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
         self._handler: Optional["EventHandler"] = None
 
+    def __format__(self, format_spec: str) -> str:
+        match format_spec:
+            case "hexid":
+                return f"{id(self):#x}"
+            case _:
+                raise BotSessionError(f"未知的 session 格式化标识符：{format_spec}")
+
     @property
     def args(self):
         if (
@@ -113,6 +121,18 @@ class SessionLocal:
     def __init__(self) -> None:
         object.__setattr__(self, "__storage__", ContextVar("session_ctx"))
         self.__storage__: ContextVar[BotSession | VoidType]
+
+    def __format__(self, format_spec: str) -> str:
+        match format_spec:
+            case "hexid":
+                try:
+                    return f"{self._get_var():hexid}"
+                except LookupError:
+                    return "None"
+            case _:
+                raise BotSessionError(
+                    f"未知的 SessionLocal 格式化标识符：{format_spec}"
+                )
 
     def _get_var(self) -> BotSession:
         var = self.__storage__.get()
@@ -185,11 +205,11 @@ class BotSessionManager:
     DEADLOCK_FLAGS: dict["EventHandler", asyncio.Event] = {}
     # 对应每个 handler 的 try_attach 过程的操作锁
     ATTACH_LOCKS: dict["EventHandler", asyncio.Lock] = {}
-    BOT: "MeloBot"  # type: ignore
+    BOT_CTX: "MeloBot"  # type: ignore
 
     @classmethod
     def _bind(cls, bot_local_var: "BotLocal") -> None:
-        cls.BOT = bot_local_var  # type: ignore
+        cls.BOT_CTX = bot_local_var  # type: ignore
 
     @classmethod
     def register(cls, handler: "EventHandler") -> None:
@@ -403,6 +423,10 @@ class BotSessionManager:
                 pass
 
             action: "BotAction" = await action_getter(*args, **kwargs)
+            if cls.BOT_CTX.logger.level == DEBUG:
+                cls.BOT_CTX.logger.debug(
+                    f"action {action:hexid} 构建完成（当前 session 上下文：{SESSION_LOCAL:hexid}）"
+                )
             try:
                 action._fill_trigger(SESSION_LOCAL.event)
             except LookupError:
@@ -411,10 +435,10 @@ class BotSessionManager:
             if not action._ready:
                 return action
             if action.resp_id is None:
-                await cls.BOT._responder.take_action(action)
+                await cls.BOT_CTX._responder.take_action(action)
                 return None
             else:
-                return await (await cls.BOT._responder.take_action_wait(action))
+                return await (await cls.BOT_CTX._responder.take_action_wait(action))
 
         return activated_action
 

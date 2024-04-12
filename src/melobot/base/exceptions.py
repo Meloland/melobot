@@ -23,6 +23,11 @@ class DuplicateError(BotException):
         super().__init__(msg)
 
 
+class BotValueError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
 class BotRuntimeError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
@@ -113,7 +118,7 @@ class ArgLackError(BotException):
         super().__init__(msg)
 
 
-class DirectRetSignal(BotException):
+class FuncSafeExited(BotException):
     def __init__(self, msg: str = ""):
         super().__init__(msg)
 

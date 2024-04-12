@@ -90,6 +90,7 @@ class MeloBot:
         log_level: Literal["DEBUG", "ERROR", "INFO", "WARNING", "CRITICAL"] = "INFO",
         log_to_console: bool = True,
         log_to_dir: Optional[str] = None,
+        log_tag: bool = False,
         custom_logger: Optional[Logger] = None,
     ) -> "MeloBot":
         """初始化 bot 实例
@@ -100,6 +101,7 @@ class MeloBot:
         :param log_level: 日志器日志等级
         :param log_to_console: 日志是否输出到控制台
         :param log_to_dir: 保存日志文件的目录，为空则不保存
+        :param log_tag: 是否在日志中输出日志器名称，默认不输出
         :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数
         :return: bot 实例（因此支持链式调用）
         """
@@ -117,6 +119,7 @@ class MeloBot:
                 log_level,
                 log_to_console,
                 log_to_dir,
+                not log_tag,
             )
         self.logger.debug(f"连接器已初始化，类型：{connector.__class__.__name__}")
 
@@ -311,9 +314,9 @@ class MeloBot:
 
         if self.logger.level == DEBUG:
             self.logger.debug(
-                f"bot 信号总线信号触发：{namespace}.{signal} | wait: {wait}"
+                f"bot 信号触发：{namespace}.{signal} | wait: {wait}"
+                + f"（当前 session 上下文：{SESSION_LOCAL:hexid}），传递参数：args={args}, kwargs={kwargs}"
             )
-            self.logger.debug("本次信号触发参数：\n" + get_rich_str(args))
         return self._plugin_bus.emit(namespace, signal, *args, wait=wait, **kwargs)
 
     def get_share(self, namespace: str, id: str) -> "ShareObject":
@@ -326,7 +329,9 @@ class MeloBot:
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
-        self.logger.debug(f"获取共享对象行为：{namespace}.{id}")
+        self.logger.debug(
+            f"获取共享对象行为：{namespace}.{id}（当前 session 上下文：{SESSION_LOCAL:hexid}）"
+        )
         return self._plugin_store.get(namespace, id)
 
     @classmethod
