@@ -40,4 +40,4 @@ from .utils import (
     PrivateMsgLvlChecker,
 )
 
-__version__ = MetaInfo().VER
+__version__ = MetaInfo.VER

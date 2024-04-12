@@ -55,7 +55,7 @@ class AbstractConnector(ABC):
         #: 连接器发送行为操作的冷却时间
         self.cd_time = cd_time
 
-        self._ref_flag: bool = False
+        self._used: bool = False
         self._ready_signal = asyncio.Event()
         self._event_builder: Type["BotEventBuilder"]
         self._bot_bus: "BotHookBus"

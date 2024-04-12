@@ -25,6 +25,7 @@ from ..base.typing import (
     PriorLevel,
     Union,
 )
+from ..meta import MetaInfo, ReadOnly
 from ..utils.checker import (
     AtChecker,
     FriendReqChecker,
@@ -53,7 +54,7 @@ if TYPE_CHECKING:
     from ..utils.parser import BotParser
 
 
-class PluginProxy:
+class PluginProxy(metaclass=ReadOnly):
     """Bot 插件代理类
 
     通过 bot 实例获取插件时，将获取此对象的列表
@@ -72,6 +73,7 @@ class PluginProxy:
         doc: str,
         keywords: list[str],
         url: str,
+        multi_use: bool,
         share_objs: list[tuple[str, str]],
         share_cbs: list[tuple[str, str]],
         signal_methods: list[tuple[str, str]],
@@ -88,6 +90,8 @@ class PluginProxy:
         self.keywords: list[str] = keywords
         #: 插件的项目地址
         self.url: str = url
+        #: 是否支持同时被多个 bot 实例加载
+        self.multi_use = multi_use
         #: 插件的共享对象标识：[(命名空间，id), ...]
         self.shares: list[tuple[str, str]] = share_objs
         #: 插件的共享对象回调标识：[(命名空间，id), ...]
@@ -147,6 +151,7 @@ class BotPlugin:
         doc: str = "",
         keywords: Optional[list[str]] = None,
         url: str = "",
+        multi_use: bool = False,
     ) -> None:
         """初始化一个插件
 
@@ -156,30 +161,40 @@ class BotPlugin:
         :param doc: 插件简单的文档说明
         :param keywords: 关键词列表
         :param url: 插件项目地址
+        :param multi_use: 是否支持同时被多个 bot 实例加载
         """
-        self.__id__ = id
-        self.__version__ = version
-        self.__desc__ = desc
-        self.__keywords__ = keywords if keywords is not None else []
-        self.__url__ = url
-        self.__pdoc__ = doc
+        #: 功能与初始化参数一一对应
+        self.ID = id
+        #: 功能与初始化参数一一对应
+        self.VER = version
+        #: 功能与初始化参数一一对应
+        self.DESC = desc
+        #: 功能与初始化参数一一对应
+        self.KEYWORDS = keywords if keywords is not None else []
+        #: 功能与初始化参数一一对应
+        self.URL = url
+        #: 功能与初始化参数一一对应
+        self.DOC = doc
+        #: 功能与初始化参数一一对应
+        self.MULTI_USE = multi_use
 
+        self._loaded_once = False
         self.__handler_args__: list[EventHandlerArgs] = []
         self.__signal_args__: list[PluginSignalHandlerArgs] = []
         self.__share_args__: list[ShareObjArgs] = []
         self.__share_cb_args__: list[ShareObjCbArgs] = []
         self.__hook_args__: list[BotHookRunnerArgs] = []
-
         self.__proxy__: PluginProxy
 
     def _self_build(self) -> None:
         self.__proxy__ = PluginProxy(
-            self.__id__,
-            self.__version__,
-            self.__desc__,
-            self.__pdoc__,
-            self.__keywords__,
-            self.__url__,
+            self.ID,
+            self.VER,
+            self.DESC,
+            self.DOC,
+            self.KEYWORDS,
+            self.URL,
+            self.MULTI_USE,
             [(args.namespace, args.id) for args in self.__share_args__],
             [(args.namespace, args.id) for args in self.__share_cb_args__],
             [(args.namespace, args.signal) for args in self.__signal_args__],
@@ -190,9 +205,7 @@ class BotPlugin:
             if pair not in self.__proxy__.shares
         )
         if not check_pass:
-            raise PluginInitError(
-                f"插件 {self.__id__} 不能为不属于自己的共享对象绑定回调"
-            )
+            raise PluginInitError(f"插件 {self.ID} 不能为不属于自己的共享对象绑定回调")
 
     def on_event(
         self,

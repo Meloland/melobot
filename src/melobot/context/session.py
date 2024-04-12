@@ -1,6 +1,5 @@
 import asyncio
 from contextvars import ContextVar, Token
-from copy import deepcopy
 from functools import wraps
 from logging import DEBUG
 
@@ -82,7 +81,7 @@ class BotSession:
             for group_id in self._handler.parser.target:
                 args = args_dict.get(group_id)
                 if args is not None:
-                    return deepcopy(args.vals)
+                    return args.vals if args.vals is None else args.vals.copy()
             raise BotSessionError("尝试获取的解析参数不存在")
         return None
 

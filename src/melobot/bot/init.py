@@ -2,7 +2,6 @@ import asyncio
 import os
 import sys
 from contextvars import ContextVar, Token
-from copy import deepcopy
 from logging import DEBUG
 
 from ..base.abc import AbstractConnector
@@ -62,7 +61,7 @@ class MeloBot:
         #: bot 的名字（唯一）
         self.name: str = name
         #: 元信息
-        self.info: MetaInfo = MetaInfo()
+        self.info: type[MetaInfo] = MetaInfo
         #: bot 的日志器
         self.logger: Logger
         #: bot 的连接器
@@ -105,10 +104,11 @@ class MeloBot:
         :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数
         :return: bot 实例（因此支持链式调用）
         """
-        if connector._ref_flag:
+        if connector._used:
             raise DuplicateError("bot 初始化时，不可使用已被其他 bot 实例使用的连接器")
+        connector._used = True
         self.connector = connector
-        self.connector._ref_flag = True
+
         if custom_logger is not None:
             self.logger = custom_logger
         elif not enable_log:
@@ -155,12 +155,17 @@ class MeloBot:
         else:
             self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
         plugin = self._loader.load(plugin_target)
-        exist_plugin = self._plugins.get(plugin.__id__)
+        exist_plugin = self._plugins.get(plugin.ID)
         if exist_plugin is not None:
             self.logger.error(
-                f"加载插件出错：插件 id 重复, 重复的 id 为：{plugin.__id__}，已取消该插件加载"
+                f"加载插件出错：插件 id 重复, 重复的 id 为：{plugin.ID}，已取消该插件加载"
             )
             return self
+        if not plugin.MULTI_USE and plugin._loaded_once:
+            raise BotRuntimeError(
+                f"插件 {plugin.ID} 不支持多 bot，但它已被其他 bot 加载"
+            )
+        plugin._loaded_once = True
 
         handlers = []
         for _ in plugin.__handler_args__:
@@ -176,9 +181,9 @@ class MeloBot:
         for _ in plugin.__hook_args__:
             self._bot_bus.register(_.type, _.func)
 
-        self._plugins[plugin.__id__] = plugin
+        self._plugins[plugin.ID] = plugin
         self._dispatcher.add_handlers(handlers)
-        self.logger.info(f"成功加载插件：{plugin.__id__}")
+        self.logger.info(f"成功加载插件：{plugin.ID}")
         return self
 
     def load_plugins(self, plugins_dir: str) -> "MeloBot":
@@ -295,7 +300,7 @@ class MeloBot:
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
-        return {name: deepcopy(p.__proxy__) for name, p in self._plugins.items()}
+        return {name: p.__proxy__ for name, p in self._plugins.items()}
 
     def emit_signal(
         self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any

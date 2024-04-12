@@ -135,7 +135,7 @@ class EventHandler:
         except Exception as e:
             executor_name = self.executor.__qualname__
             self.logger.error(
-                f"插件 {self._plugin.__id__} 事件处理方法 {executor_name} 发生异常"
+                f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常"
             )
             self.logger.error("异常点 event：\n" + get_rich_str(event.raw))
             self.logger.error("异常回溯栈：\n" + get_better_exc(e))
