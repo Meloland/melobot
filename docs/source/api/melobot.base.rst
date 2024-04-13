@@ -48,7 +48,7 @@ exceptions 模块
 .. autoclass:: melobot.base.exceptions.BotException
    :exclude-members: __init__
 
-.. autoclass:: melobot.base.exceptions.SessionHupTimeout
+.. autoclass:: melobot.base.exceptions.BotSessionTimeout
    :exclude-members: __init__
 
 tools 模块

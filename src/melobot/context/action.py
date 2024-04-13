@@ -1,5 +1,5 @@
 from ..base.abc import ActionArgs, BotAction, BotEvent
-from ..base.exceptions import BotActionError, BotSessionError, FuncSafeExited
+from ..base.exceptions import BotValueError, BotSessionError, FuncSafeExited
 from ..base.tools import get_id
 from ..base.typing import TYPE_CHECKING, Literal, MsgNode, MsgSegment, Optional, Union
 from ..models.msg import _to_cq_str_action, reply_msg, text_msg
@@ -93,7 +93,9 @@ def _process_msg(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegmen
                 temp.append(_)
         msgs = temp
     else:
-        raise BotActionError("content 参数类型不正确，无法封装")
+        raise BotValueError(
+            "消息内容格式不正确。必须是以下格式之一：字符串、消息段对象、消息段对象的列表"
+        )
     return msgs
 
 
@@ -144,9 +146,9 @@ async def send_custom_msg(
        `auto=True, wait=False` -> :obj:`None`
     """
     if isPrivate and userId is None:
-        raise BotActionError("为私聊时，构建 action 必须提供 userId 参数")
+        raise BotValueError("为私聊时，构建发送消息 action 必须提供 userId 参数")
     if not isPrivate and groupId is None:
-        raise BotActionError("为群聊时，构建 action 必须提供 groupId 参数")
+        raise BotValueError("为群聊时，构建发送消息 action 必须提供 groupId 参数")
     action = BotAction(
         MsgActionArgs(_process_msg(content), isPrivate, userId, groupId),
         resp_id=get_id() if wait else None,
@@ -1398,7 +1400,7 @@ async def send_wait(
 
     :param content: 发送内容
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
-    :param overtime: 会话暂停的超时时间，超时将抛出 :class:`.SessionHupTimeout` 异常
+    :param overtime: 会话暂停的超时时间，超时将抛出 :class:`.BotSessionTimeout` 异常
     """
     await send(content, cq_str)
     try:

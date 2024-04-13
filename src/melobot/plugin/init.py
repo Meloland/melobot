@@ -11,7 +11,7 @@ from ..base.abc import (
     ShareObjArgs,
     ShareObjCbArgs,
 )
-from ..base.exceptions import PluginInitError
+from ..base.exceptions import BotPluginError
 from ..base.tools import to_async
 from ..base.typing import (
     TYPE_CHECKING,
@@ -107,7 +107,7 @@ class PluginLoader:
     def load_from_dir(plugin_path: str) -> "BotPlugin":
         """从指定插件目录加载插件"""
         if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
-            raise PluginInitError(
+            raise BotPluginError(
                 f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
             )
         plugin_name = os.path.basename(plugin_path)
@@ -126,7 +126,7 @@ class PluginLoader:
                 plugin = obj
                 break
         if plugin is None:
-            raise PluginInitError("指定的入口主文件中，未发现 Plugin 实例，无效导入")
+            raise BotPluginError("指定的入口主文件中，未发现 Plugin 实例，无效导入")
         return plugin
 
     @staticmethod
@@ -205,7 +205,7 @@ class BotPlugin:
             if pair not in self.__proxy__.shares
         )
         if not check_pass:
-            raise PluginInitError(f"插件 {self.ID} 不能为不属于自己的共享对象绑定回调")
+            raise BotPluginError(f"插件 {self.ID} 不能为不属于自己的共享对象绑定回调")
 
     def on_event(
         self,

@@ -75,7 +75,7 @@ html_theme_options = {
 html_static_path = ["_static"]
 
 
-def fix_annotation(app, what, name, obj, options, signature, return_annotation):
+def fix_type_annotation(app, what, name, obj, options, signature, return_annotation):
     if name == "melobot.utils.CmdArgFormatter.__init__":
         return (
             signature.replace("<class 'melobot.base.typing.Void'>", "Void"),
@@ -98,4 +98,4 @@ def fix_annotation(app, what, name, obj, options, signature, return_annotation):
 
 
 def setup(app):
-    app.connect("autodoc-process-signature", fix_annotation)
+    app.connect("autodoc-process-signature", fix_type_annotation)

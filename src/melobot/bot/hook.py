@@ -1,7 +1,7 @@
 import asyncio
 
 from ..base.abc import BotLife
-from ..base.exceptions import BotHookError, get_better_exc
+from ..base.exceptions import BotValueError, get_better_exc
 from ..base.tools import get_rich_str, to_task
 from ..base.typing import TYPE_CHECKING, Any, Callable, Coroutine
 
@@ -35,7 +35,7 @@ class BotHookBus:
         self, hook_type: BotLife, hook_func: Callable[..., Coroutine[Any, Any, None]]
     ) -> None:
         if hook_type not in self.store.keys():
-            raise BotHookError(
+            raise BotValueError(
                 f"尝试添加一个生命周期 hook 方法，但是其指定的类型 {hook_type} 不存在"
             )
         runner = HookRunner(hook_type, hook_func)

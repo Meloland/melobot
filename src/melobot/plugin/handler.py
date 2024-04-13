@@ -1,7 +1,7 @@
 import asyncio
 
 from ..base.abc import BotParser
-from ..base.exceptions import EventHandlerError, FuncSafeExited, get_better_exc
+from ..base.exceptions import BotValueError, FuncSafeExited, get_better_exc
 from ..base.tools import get_rich_str, to_task
 from ..base.typing import (
     TYPE_CHECKING,
@@ -63,24 +63,20 @@ class EventHandler:
 
         if session_rule is None:
             if session_hold or direct_rouse or conflict_wait or conflict_cb:
-                raise EventHandlerError(
-                    "提供 session_rule 后才能使用以下参数：session_hold， direct_rouse, \
-                                      conflict_wait, conflict_callback"
+                raise BotValueError(
+                    "提供 session_rule 后才能使用以下参数：session_hold， direct_rouse, "
+                    "conflict_wait, conflict_callback"
                 )
 
         if conflict_wait and conflict_cb:
-            raise EventHandlerError(
-                "参数 conflict_wait 为 True 时，冲突回调永远不会被调用"
-            )
+            raise BotValueError("参数 conflict_wait 为 True 时，冲突回调永远不会被调用")
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
             case "hexid":
                 return f"{id(self):#x}"
             case _:
-                raise EventHandlerError(
-                    f"未知的 EventHandler 格式化标识符：{format_spec}"
-                )
+                raise BotValueError(f"未知的 EventHandler 格式化标识符：{format_spec}")
 
     async def _verify(self) -> bool:
         """验证事件是否有触发执行的资格（验权）"""
@@ -252,7 +248,7 @@ class MsgEventHandler(EventHandler):
 
         # matcher 和 parser 不能同时存在
         if self.matcher and self.parser:
-            raise EventHandlerError("参数 matcher 和 parser 不能同时存在")
+            raise BotValueError("参数 matcher 和 parser 不能同时存在")
 
     def _match(
         self, event: "MessageEvent"

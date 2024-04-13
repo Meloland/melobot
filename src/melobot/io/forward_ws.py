@@ -7,7 +7,7 @@ import websockets
 from websockets.exceptions import ConnectionClosed
 
 from ..base.abc import AbstractConnector, BotLife
-from ..base.exceptions import BotConnectFailed, get_better_exc
+from ..base.exceptions import BotRuntimeError, get_better_exc
 from ..base.tools import get_rich_str, to_task
 from ..base.typing import TYPE_CHECKING, Any, ModuleType, Type
 
@@ -85,7 +85,7 @@ class ForwardWsConn(AbstractConnector):
                     )
                     await asyncio.sleep(self.retry_delay)
             if not created_flag:
-                raise BotConnectFailed("连接重试已达最大重试次数，已放弃建立连接")
+                raise BotRuntimeError("连接重试已达最大重试次数，已放弃建立连接")
 
             try:
                 self.logger.info("连接器与 OneBot 实现程序建立了 ws 连接")

@@ -1,7 +1,7 @@
 import re
 
 from ..base.abc import BotParser
-from ..base.exceptions import ArgParseError
+from ..base.exceptions import BotValueError
 from ..base.typing import TYPE_CHECKING, Optional, ParseArgs
 
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ class CmdParser(BotParser):
         self._build_parse_regex()
 
         if self.ban_regex.findall(f"{''.join(cmd_start)}{''.join(cmd_sep)}"):
-            raise ArgParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
+            raise BotValueError("存在命令解析器不支持的命令起始符，或命令间隔符")
 
     def _build_parse_regex(self):
         """建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和 命令间隔符正则 pattern"""
@@ -67,7 +67,7 @@ class CmdParser(BotParser):
             self.sep_parse_regex = re.compile(rf"{'|'.join(self.cmd_sep)}")
             self.start_parse_regex = re.compile(rf"{'|'.join(self.cmd_start)}")
         else:
-            raise ArgParseError("命令解析器起始符不能和间隔符重合")
+            raise BotValueError("命令解析器起始符不能和间隔符重合")
 
     def _clean(self, text: str) -> str:
         return text.strip()

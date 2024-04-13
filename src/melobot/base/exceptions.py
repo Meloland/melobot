@@ -1,6 +1,12 @@
 import sys
 
+import better_exceptions
 from better_exceptions import ExceptionFormatter
+
+# 修复在 windows powershell 显示错误的 bug
+better_exceptions.encoding.ENCODING = sys.stdout.encoding
+better_exceptions.formatter.ENCODING = sys.stdout.encoding
+better_exceptions.hook()
 
 
 class BotException(Exception):
@@ -18,11 +24,6 @@ class BotException(Exception):
         return self.err
 
 
-class DuplicateError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
 class BotValueError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
@@ -33,57 +34,17 @@ class BotRuntimeError(BotException):
         super().__init__(msg)
 
 
-class PluginInitError(BotException):
+class BotPluginError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
 
 
-class PluginBuildError(BotException):
+class BotUtilsError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
 
 
-class BotConnectFailed(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class BotHookError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class EventHandlerError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class BotCheckerError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class BotMatcherError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class TryFlagFailed(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class ShareObjError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class PluginSignalError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class BotActionError(BotException):
+class BotIpcError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
 
@@ -93,39 +54,19 @@ class BotSessionError(BotException):
         super().__init__(msg)
 
 
-class BotBaseUtilsError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+class BotSessionTimeout(BotException):
+    """会话暂停的超时异常"""
 
-
-class ArgParseError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class ArgFormatInitError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class ArgVerifyFailed(BotException):
     def __init__(self, msg: str = ""):
         super().__init__(msg)
 
 
-class ArgLackError(BotException):
-    def __init__(self, msg: str = ""):
+class BotToolsError(BotException):
+    def __init__(self, msg: str):
         super().__init__(msg)
 
 
 class FuncSafeExited(BotException):
-    def __init__(self, msg: str = ""):
-        super().__init__(msg)
-
-
-class SessionHupTimeout(BotException):
-    """会话暂停的超时异常"""
-
     def __init__(self, msg: str = ""):
         super().__init__(msg)
 

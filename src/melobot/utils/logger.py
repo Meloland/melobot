@@ -6,7 +6,7 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 
 import colorlog
 
-from ..base.exceptions import DuplicateError
+from ..base.exceptions import BotValueError
 from ..base.typing import Literal, Optional
 
 
@@ -126,7 +126,7 @@ class BotLogger(Logger):
         """
 
         if name in BotLogger.LOGGERS.keys():
-            raise DuplicateError(f"名为 {name} 的日志器已存在，请修改 name")
+            raise BotValueError(f"名为 {name} 的日志器已存在，请修改 name")
         super().__init__(name, BotLogger.LEVEL_MAP[level])
         BotLogger.LOGGERS[name] = self
         self._con_handler: Optional[logging.Handler] = None

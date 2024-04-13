@@ -3,7 +3,6 @@ from .session import (
     AttrSessionRule,
     any_event,
     dispose,
-    get_store,
     meta_event,
     msg_args,
     msg_event,
@@ -11,6 +10,7 @@ from .session import (
     notice_event,
     pause,
     req_event,
+    session_store,
 )
 
 __all__ = (
@@ -53,7 +53,7 @@ __all__ = (
     "reply_finish",
     "AttrSessionRule",
     "any_event",
-    "get_store",
+    "session_store",
     "meta_event",
     "msg_args",
     "msg_event",

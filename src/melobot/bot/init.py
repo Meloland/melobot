@@ -1,11 +1,10 @@
 import asyncio
 import os
-import sys
 from contextvars import ContextVar, Token
 from logging import DEBUG
 
 from ..base.abc import AbstractConnector
-from ..base.exceptions import BotRuntimeError, DuplicateError, get_better_exc
+from ..base.exceptions import BotRuntimeError, BotValueError, get_better_exc
 from ..base.tools import get_rich_str, to_task
 from ..base.typing import (
     TYPE_CHECKING,
@@ -30,13 +29,13 @@ from .hook import BotHookBus
 if TYPE_CHECKING:
     from ..plugin.ipc import ShareObject
 
-if sys.platform not in ("win32", "cygwin", "cli"):
+if MetaInfo.PLATFORM not in ("win32", "cygwin", "cli"):
     import uvloop
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
-def _safe_block_run(main: Coroutine[Any, Any, None]) -> None:
+def _safe_blocked_run(main: Coroutine[Any, Any, None]) -> None:
     try:
         asyncio.set_event_loop(asyncio.get_event_loop())
         asyncio.run(main)
@@ -55,7 +54,7 @@ class MeloBot:
         :param name: bot 实例的名字（唯一）
         """
         if name in MeloBot.BOTS.keys():
-            raise DuplicateError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
+            raise BotValueError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
         MeloBot.BOTS[name] = self
 
         #: bot 的名字（唯一）
@@ -105,7 +104,7 @@ class MeloBot:
         :return: bot 实例（因此支持链式调用）
         """
         if connector._used:
-            raise DuplicateError("bot 初始化时，不可使用已被其他 bot 实例使用的连接器")
+            raise BotRuntimeError("bot 初始化时，不可使用已被其他 bot 实例使用的连接器")
         connector._used = True
         self.connector = connector
 
@@ -239,7 +238,7 @@ class MeloBot:
 
     def run(self) -> None:
         """运行 bot 实例"""
-        _safe_block_run(self._run())
+        _safe_blocked_run(self._run())
 
     async def close(self) -> None:
         """停止 bot 实例"""
@@ -353,7 +352,7 @@ class MeloBot:
             except asyncio.CancelledError:
                 pass
 
-        _safe_block_run(bots_run())
+        _safe_blocked_run(bots_run())
 
     @classmethod
     async def unicast(
@@ -376,7 +375,7 @@ class MeloBot:
         """
         bot = cls.BOTS.get(target)
         if bot is None:
-            raise BotRuntimeError(f"单播指定的 bot 实例 {target} 不存在")
+            raise BotValueError(f"单播指定的 bot 实例 {target} 不存在")
 
         b_token = BOT_LOCAL._add_ctx(bot)
         s_token = SESSION_LOCAL._add_ctx(Void)
@@ -385,7 +384,7 @@ class MeloBot:
         except AttributeError as e:
             if "Void" in e.__str__():
                 raise BotRuntimeError(
-                    "多播或单播时，bot 和 session 上下文的传递将会被阻隔，如需要请将它们作为参数显式传递"
+                    "多播或单播时，bot 和 session 的上下文传递将会被阻隔。如需使用，请将它们作为参数显式传递"
                 )
             else:
                 raise e

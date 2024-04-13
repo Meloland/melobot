@@ -1,6 +1,6 @@
 import re
 
-from ..base.abc import BotMatcher, BotMatcherError
+from ..base.abc import BotMatcher
 from ..base.typing import Any, LogicMode
 
 

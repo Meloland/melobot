@@ -4,7 +4,7 @@ from functools import wraps
 from logging import DEBUG
 
 from ..base.abc import SessionRule
-from ..base.exceptions import BotSessionError, SessionHupTimeout
+from ..base.exceptions import BotSessionError, BotSessionTimeout
 from ..base.tools import get_twin_event, to_task
 from ..base.typing import (
     TYPE_CHECKING,
@@ -87,7 +87,7 @@ class BotSession:
 
     async def hup(self, overtime: Optional[int] = None) -> None:
         """当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入， session
-        所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session， 并抛出 SessionHupTimeout 异常."""
+        所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session， 并抛出 BotSessionTimeout 异常."""
         self._manager._hup(self)
         if overtime is None:
             await self._awake_signal.wait()
@@ -101,7 +101,7 @@ class BotSession:
             if self._awake_signal.is_set():
                 return
             self._manager._rouse(self)
-            raise SessionHupTimeout("session 挂起超时")
+            raise BotSessionTimeout("session 挂起超时")
 
     def destory(self) -> None:
         """销毁方法。会立即清空 session 存储。如果调用 session 有
@@ -518,7 +518,7 @@ def msg_args() -> list[Any] | None:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
-def get_store() -> dict:
+def session_store() -> dict:
     """返回当前会话的存储字典对象，可直接操作
 
     会话存储字典对象用于在会话层面保存和共享数据。
@@ -538,7 +538,7 @@ async def pause(overtime: Optional[int] = None) -> None:
     本会话将自动被唤醒。
 
     可指定超时时间。如果超时时间结束会话仍未被唤醒，此时将会被强制唤醒，
-    并抛出一个 :class:`.SessionHupTimeout` 异常。可以捕获此异常，
+    并抛出一个 :class:`.BotSessionTimeout` 异常。可以捕获此异常，
     实现自定义的超时处理逻辑
 
     :param overtime: 超时时间

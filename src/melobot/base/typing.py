@@ -1,4 +1,3 @@
-import sys
 from enum import Enum
 from types import ModuleType
 from typing import (
@@ -17,13 +16,7 @@ from typing import (
     cast,
 )
 
-import better_exceptions
 from typing_extensions import NotRequired
-
-# 修复在 windows powershell 显示错误的 bug
-better_exceptions.encoding.ENCODING = sys.stdout.encoding
-better_exceptions.formatter.ENCODING = sys.stdout.encoding
-better_exceptions.hook()
 
 
 class MsgSegment(TypedDict):

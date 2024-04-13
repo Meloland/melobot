@@ -1,6 +1,6 @@
 import traceback
 
-from ..base.exceptions import ArgFormatInitError, ArgLackError, ArgVerifyFailed
+from ..base.exceptions import BotException
 from ..base.typing import (
     Any,
     Callable,
@@ -12,6 +12,21 @@ from ..base.typing import (
     VoidType,
 )
 from ..context.action import send
+
+
+class ArgFormatInitError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
+class ArgVerifyFailed(BotException):
+    def __init__(self, msg: str = ""):
+        super().__init__(msg)
+
+
+class ArgLackError(BotException):
+    def __init__(self, msg: str = ""):
+        super().__init__(msg)
 
 
 class FormatInfo:

@@ -3,14 +3,7 @@ import json
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
-from .exceptions import (
-    BotActionError,
-    BotCheckerError,
-    BotMatcherError,
-    BotValueError,
-    TryFlagFailed,
-    get_better_exc,
-)
+from .exceptions import BotRuntimeError, BotUtilsError, BotValueError, get_better_exc
 from .typing import (
     TYPE_CHECKING,
     Any,
@@ -111,7 +104,7 @@ class Flagable:
         if self._flags_store.get(namespace) is None:
             self._flags_store[namespace] = {}
         if flag_name in self._flags_store[namespace].keys():
-            raise TryFlagFailed(
+            raise BotUtilsError(
                 f"对象不可被重复标记。在命名空间 {namespace} 中名为 {flag_name} 的标记已存在"
             )
         self._flags_store[namespace][flag_name] = val
@@ -277,7 +270,7 @@ class BotAction(Flagable, Cloneable):
         if self.trigger is None:
             self.trigger = event
             return
-        raise BotActionError("action 已记录触发 event，拒绝再次记录")
+        raise BotRuntimeError("action 已记录触发它的 event，拒绝再次记录")
 
 
 class SessionRule(ABC):
@@ -378,16 +371,12 @@ class BotChecker(ABC, Cloneable):
 
     def __and__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotCheckerError(
-                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
-            )
+            raise BotUtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotCheckerError(
-                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
-            )
+            raise BotUtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedChecker":
@@ -395,21 +384,19 @@ class BotChecker(ABC, Cloneable):
 
     def __xor__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
-            raise BotCheckerError(
-                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
-            )
+            raise BotUtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.XOR, self, other)
 
     def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
         """后期指定 ok_cb 回调"""
         if self.ok_cb is not None:
-            raise BotCheckerError(f"ok_cb 回调已经被初始化，值为：{self.ok_cb}")
+            raise BotUtilsError(f"ok_cb 回调已经被初始化，值为：{self.ok_cb}")
         self.ok_cb = ok_cb
 
     def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
         """后期指定 fail_cb 回调"""
         if self.fail_cb is not None:
-            raise BotCheckerError(f"fail_cb 回调已经被初始化，值为：{self.fail_cb}")
+            raise BotUtilsError(f"fail_cb 回调已经被初始化，值为：{self.fail_cb}")
         self.fail_cb = fail_cb
 
     @abstractmethod
@@ -480,16 +467,12 @@ class BotMatcher(ABC, Cloneable):
 
     def __and__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotMatcherError(
-                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
-            )
+            raise BotUtilsError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotMatcherError(
-                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
-            )
+            raise BotUtilsError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> "WrappedMatcher":
@@ -497,9 +480,7 @@ class BotMatcher(ABC, Cloneable):
 
     def __xor__(self, other: "BotMatcher") -> "WrappedMatcher":
         if not isinstance(other, BotMatcher):
-            raise BotMatcherError(
-                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
-            )
+            raise BotUtilsError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod

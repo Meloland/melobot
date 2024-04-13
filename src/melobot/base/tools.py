@@ -11,7 +11,7 @@ from functools import wraps
 import rich.console
 import rich.pretty
 
-from .exceptions import BotBaseUtilsError, BotRuntimeError
+from .exceptions import BotRuntimeError, BotToolsError
 from .typing import T1, T2, T3, Any, Callable, Coroutine, Optional, P, T
 
 
@@ -295,7 +295,7 @@ def to_async(func: Callable[[], T]) -> Callable[[], Coroutine[Any, Any, T]]:
     if callable(func):
         return wrapper
     else:
-        raise BotBaseUtilsError("to_async 函数只支持同步函数作为参数")
+        raise BotToolsError("to_async 函数只支持同步函数作为参数")
 
 
 def to_coro(obj: Callable[[], T] | asyncio.Future[T]) -> Coroutine[Any, Any, T]:
@@ -315,7 +315,7 @@ def to_coro(obj: Callable[[], T] | asyncio.Future[T]) -> Coroutine[Any, Any, T]:
     elif callable(obj):
         return to_async(obj)()
     else:
-        raise BotBaseUtilsError("to_coro 函数只支持同步函数或 Future 对象作为参数")
+        raise BotToolsError("to_coro 函数只支持同步函数或 Future 对象作为参数")
 
 
 def to_task(obj: Coroutine[Any, Any, T] | asyncio.Future[T]) -> asyncio.Task[T]:
@@ -331,7 +331,7 @@ def to_task(obj: Coroutine[Any, Any, T] | asyncio.Future[T]) -> asyncio.Task[T]:
     elif isinstance(obj, asyncio.Future):
         return asyncio.create_task(to_coro(obj))
     else:
-        raise BotBaseUtilsError("to_task 函数只支持协程或 Future 对象作为参数")
+        raise BotToolsError("to_task 函数只支持协程或 Future 对象作为参数")
 
 
 def lock(callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None):
@@ -349,7 +349,7 @@ def lock(callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None):
     """
     alock = asyncio.Lock()
     if callback is not None and not callable(callback):
-        raise BotBaseUtilsError(
+        raise BotToolsError(
             f"lock 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
@@ -361,7 +361,7 @@ def lock(callback: Optional[Callable[[], Coroutine[Any, Any, T1]]] = None):
             if callback is not None and alock.locked():
                 cb = callback()
                 if not iscoroutine(cb):
-                    raise BotBaseUtilsError(
+                    raise BotToolsError(
                         f"lock 装饰器的 callback 返回的不是协程，返回的回调为：{cb}"
                     )
                 return await cb
@@ -400,11 +400,11 @@ def cooldown(
     alock = asyncio.Lock()
     pre_finish_t = time.perf_counter() - interval - 1
     if busy_callback is not None and not callable(busy_callback):
-        raise BotBaseUtilsError(
+        raise BotToolsError(
             f"cooldown 装饰器的 busy_callback 参数不可调用，busy_callback 值为：{busy_callback}"
         )
     if cd_callback is not None and not callable(cd_callback):
-        raise BotBaseUtilsError(
+        raise BotToolsError(
             f"cooldown 装饰器的 cd_callback 参数不可调用，cd_callback 值为：{cd_callback}"
         )
 
@@ -417,7 +417,7 @@ def cooldown(
             if busy_callback is not None and alock.locked():
                 busy_cb = busy_callback()
                 if not iscoroutine(busy_cb):
-                    raise BotBaseUtilsError(
+                    raise BotToolsError(
                         f"cooldown 装饰器的 busy_callback 返回的不是协程，返回的回调为：{busy_cb}"
                     )
                 return await busy_cb
@@ -433,7 +433,7 @@ def cooldown(
                 if cd_callback is not None:
                     cd_cb = cd_callback(remain_t)
                     if not iscoroutine(cd_cb):
-                        raise BotBaseUtilsError(
+                        raise BotToolsError(
                             f"cooldown 装饰器的 cd_callback 返回的不是协程，返回的回调为：{cd_cb}"
                         )
                     return await cd_cb
@@ -466,7 +466,7 @@ def semaphore(
     """
     a_semaphore = asyncio.Semaphore(value)
     if callback is not None and not callable(callback):
-        raise BotBaseUtilsError(
+        raise BotToolsError(
             f"semaphore 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
@@ -478,7 +478,7 @@ def semaphore(
             if callback is not None and a_semaphore.locked():
                 cb = callback()
                 if not iscoroutine(cb):
-                    raise BotBaseUtilsError(
+                    raise BotToolsError(
                         f"semaphore 装饰器的 callback 返回的不是协程，返回的回调为：{cb}"
                     )
                 return await cb
@@ -507,7 +507,7 @@ def timelimit(
     :param timeout: 超时时间
     """
     if callback is not None and not callable(callback):
-        raise BotBaseUtilsError(
+        raise BotToolsError(
             f"timelimit 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 
@@ -523,7 +523,7 @@ def timelimit(
                     raise
                 cb = callback()
                 if not iscoroutine(cb):
-                    raise BotBaseUtilsError(
+                    raise BotToolsError(
                         f"timelimit 装饰器的 callback 返回的不是协程，返回的回调为：{cb}"
                     )
                 return await cb
@@ -555,11 +555,11 @@ def speedlimit(
     called_num = 0
     min_start = time.perf_counter()
     if limit <= 0:
-        raise BotBaseUtilsError("speedlimit 装饰器的 limit 参数必须 > 0")
+        raise BotToolsError("speedlimit 装饰器的 limit 参数必须 > 0")
     if duration <= 0:
-        raise BotBaseUtilsError("speedlimit 装饰器的 duration 参数必须 > 0")
+        raise BotToolsError("speedlimit 装饰器的 duration 参数必须 > 0")
     if callback is not None and not callable(callback):
-        raise BotBaseUtilsError(
+        raise BotToolsError(
             f"speedlimit 装饰器的 callback 参数不可调用，callback 值为：{callback}"
         )
 

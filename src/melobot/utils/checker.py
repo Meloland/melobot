@@ -1,5 +1,5 @@
 from ..base.abc import BotChecker
-from ..base.exceptions import BotCheckerError
+from ..base.exceptions import BotUtilsError
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -363,7 +363,7 @@ class NoticeTypeChecker(BotChecker):
         """
         super().__init__(None, None)
         if sub_type not in NoticeTypeChecker.SUB_TYPES:
-            raise BotCheckerError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
+            raise BotUtilsError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
         self.sub_type = sub_type
 
     async def check(self, event: "NoticeEvent") -> bool:  # type: ignore

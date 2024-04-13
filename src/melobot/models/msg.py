@@ -2,7 +2,7 @@ import re
 from copy import deepcopy
 from itertools import chain, zip_longest
 
-from ..base.exceptions import BotActionError
+from ..base.exceptions import BotValueError
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -507,7 +507,9 @@ def _to_cq_str_action(action: "BotAction") -> "BotAction":
     elif _action.type in ("send_private_forward_msg", "send_group_forward_msg"):
         _format_forward_action(_action)
     else:
-        raise BotActionError("传入的 action 因类型不匹配，不可被 cq 序列化")
+        raise BotValueError(
+            "传入的 action 类型不是发送消息、发送转发消息，因此不可被 cq 序列化"
+        )
     return _action
 
 
