@@ -31,6 +31,10 @@ if MetaInfo.PLATFORM not in ("win32", "cygwin", "cli"):
     import uvloop
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+else:
+    import winloop
+
+    asyncio.set_event_loop_policy(winloop.EventLoopPolicy())
 
 
 def _safe_blocked_run(main: Coroutine[Any, Any, None]) -> None:
@@ -425,6 +429,16 @@ class MeloBot:
             )
         if len(tasks):
             await asyncio.wait(tasks)
+
+    @classmethod
+    def use_default_loop_policy(cls) -> None:
+        """使用默认的事件策略模式
+
+        在类 `Unix` 平台上，这会停止 `uvloop` 的使用
+
+        在 `Windows` 平台上，这会停止 `winloop` 的使用
+        """
+        asyncio.set_event_loop_policy(None)
 
 
 class BotLocal:

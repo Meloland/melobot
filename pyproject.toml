@@ -6,7 +6,8 @@ authors = [
     {name = "aicorein", email = "melodyecho@glowmem.com"},
 ]
 dependencies = [
-    "uvloop>=0.17.0; platform_system==\"Linux\"",
+    "uvloop>=0.17.0; platform_system!=\"Windows\"",
+    "winloop>=0.1.2; platform_system==\"Windows\"",
     "websockets>=10.4",
     "better-exceptions==0.3.3",
     "rich>=13.7.1",
