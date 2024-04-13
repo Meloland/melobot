@@ -12,7 +12,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 --><title>索引 - MeloBot 2.5.10</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 --><title>索引 - MeloBot 2.5.12</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -156,7 +156,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -324,10 +324,10 @@
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender.anonym_id">anonym_id（melobot.models.MessageEvent.Sender 属性）</a>
 </li>
-        <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender.anonym_name">anonym_name（melobot.models.MessageEvent.Sender 属性）</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender.anonym_name">anonym_name（melobot.models.MessageEvent.Sender 属性）</a>
+</li>
         <li><a href="api/melobot.context.html#melobot.context.any_event">any_event()（在 melobot.context 模块中）</a>
 </li>
         <li><a href="api/melobot.meta.html#melobot.meta.MetaInfo.ARGV">ARGV（melobot.meta.MetaInfo 属性）</a>
@@ -344,10 +344,6 @@
 </li>
         <li><a href="api/melobot.context.html#melobot.context.AttrSessionRule">AttrSessionRule（melobot.context 中的类）</a>
 </li>
-        <li><a href="api/melobot.meta.html#melobot.meta.MetaInfo.AUTHOR_EMAIL">AUTHOR_EMAIL（melobot.meta.MetaInfo 属性）</a>
-</li>
-        <li><a href="api/melobot.meta.html#melobot.meta.MetaInfo.AUTHOR">AUTHOR（melobot.meta.MetaInfo 属性）</a>
-</li>
     </ul></td>
   </tr></table>
 </section>
@@ -357,6 +353,8 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.ban_time">ban_time（melobot.models.NoticeEvent 属性）</a>
+</li>
+        <li><a href="api/melobot.base.html#melobot.base.abc.BaseLogger">BaseLogger（melobot.base.abc 中的类）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.BotLife.BEFORE_CLOSE">BEFORE_CLOSE（melobot.base.typing.BotLife 属性）</a>
 </li>
@@ -391,6 +389,8 @@
         <li><a href="api/melobot.base.html#melobot.base.abc.BotParser">BotParser（melobot.base.abc 中的类）</a>
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin">BotPlugin（melobot.plugin 中的类）</a>
+</li>
+        <li><a href="api/melobot.base.html#melobot.base.exceptions.BotSessionTimeout">BotSessionTimeout（melobot.base.exceptions 中的类）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.File.busid">busid（melobot.models.NoticeEvent.File 属性）</a>
 </li>
@@ -436,7 +436,9 @@
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.ContainMatcher">ContainMatcher（melobot.utils 中的类）</a>
 </li>
-        <li><a href="api/melobot.base.html#melobot.base.typing.CustomNodeData.content">content（melobot.base.typing.CustomNodeData 属性）</a>
+        <li><a href="api/melobot.base.html#melobot.base.typing.GocqCustomNodeData.content">content（melobot.base.typing.GocqCustomNodeData 属性）</a>
+</li>
+        <li><a href="api/melobot.base.html#melobot.base.typing.StdCustomNodeData.content">content（melobot.base.typing.StdCustomNodeData 属性）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.content">content（melobot.models.MessageEvent 属性）</a>
 </li>
@@ -454,8 +456,6 @@
 </li>
         <li><a href="api/melobot.models.html#melobot.models.custom_type_msg">custom_type_msg()（在 melobot.models 模块中）</a>
 </li>
-        <li><a href="api/melobot.base.html#melobot.base.typing.CustomNodeData">CustomNodeData（melobot.base.typing 中的类）</a>
-</li>
     </ul></td>
   </tr></table>
 </section>
@@ -470,11 +470,15 @@
 </li>
         <li><a href="api/melobot.models.html#melobot.models.ResponseEvent.data">data（melobot.models.ResponseEvent 属性）</a>
 </li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.DESC">DESC（melobot.plugin.BotPlugin 属性）</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.plugin.html#melobot.plugin.PluginProxy.desc">desc（melobot.plugin.PluginProxy 属性）</a>
 </li>
         <li><a href="api/melobot.context.html#melobot.context.dispose">dispose()（在 melobot.context 模块中）</a>
+</li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.DOC">DOC（melobot.plugin.BotPlugin 属性）</a>
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.PluginProxy.doc">doc（melobot.plugin.PluginProxy 属性）</a>
 </li>
@@ -554,7 +558,7 @@
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.MsgCheckerGen.gen_private">gen_private() （melobot.utils.MsgCheckerGen 方法）</a>
 </li>
-        <li><a href="api/melobot.meta.html#melobot.meta.MetaInfo.get_all">get_all() （melobot.meta.MetaInfo 方法）</a>
+        <li><a href="api/melobot.meta.html#melobot.meta.MetaInfo.get_all">get_all()（melobot.meta.MetaInfo 类方法）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.get_datas">get_datas() （melobot.models.MessageEvent 方法）</a>
 </li>
@@ -584,17 +588,17 @@
 </li>
         <li><a href="api/melobot.context.html#melobot.context.get_onebot_version">get_onebot_version()（在 melobot.context 模块中）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.get_plugins">get_plugins() （melobot.bot.MeloBot 方法）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.get_segments">get_segments() （melobot.models.MessageEvent 方法）</a>
 </li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.get_share">get_share() （melobot.bot.MeloBot 方法）</a>
 </li>
-        <li><a href="api/melobot.context.html#melobot.context.get_store">get_store()（在 melobot.context 模块中）</a>
-</li>
         <li><a href="api/melobot.context.html#melobot.context.get_stranger_info">get_stranger_info()（在 melobot.context 模块中）</a>
+</li>
+        <li><a href="api/melobot.base.html#melobot.base.typing.GocqCustomNodeData">GocqCustomNodeData（melobot.base.typing 中的类）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender.group_area">group_area（melobot.models.MessageEvent.Sender 属性）</a>
 </li>
@@ -605,6 +609,8 @@
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender.group_card">group_card（melobot.models.MessageEvent.Sender 属性）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.group_id">group_id（melobot.models.MessageEvent 属性）</a>
+</li>
+        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.group_id">group_id（melobot.models.NoticeEvent 属性）</a>
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.FormatInfo.group_id">group_id（melobot.utils.FormatInfo 属性）</a>
 </li>
@@ -665,6 +671,8 @@
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.Client.id">id（melobot.models.NoticeEvent.Client 属性）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.File.id">id（melobot.models.NoticeEvent.File 属性）</a>
+</li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.ID">ID（melobot.plugin.BotPlugin 属性）</a>
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.PluginProxy.id">id（melobot.plugin.PluginProxy 属性）</a>
 </li>
@@ -786,10 +794,12 @@
   <h2>K</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/melobot.plugin.html#melobot.plugin.PluginProxy.keywords">keywords（melobot.plugin.PluginProxy 属性）</a>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.KEYWORDS">KEYWORDS（melobot.plugin.BotPlugin 属性）</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.PluginProxy.keywords">keywords（melobot.plugin.PluginProxy 属性）</a>
+</li>
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.Client.kind">kind（melobot.models.NoticeEvent.Client 属性）</a>
 </li>
     </ul></td>
@@ -808,11 +818,13 @@
 </li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.load_plugins">load_plugins() （melobot.bot.MeloBot 方法）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.base.html#melobot.base.typing.BotLife.LOADED">LOADED（melobot.base.typing.BotLife 属性）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.base.html#melobot.base.tools.lock">lock()（在 melobot.base.tools 模块中）</a>
+</li>
+        <li><a href="api/melobot.utils.html#melobot.utils.logger_patch">logger_patch()（在 melobot.utils 模块中）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.AbstractConnector.logger">logger（melobot.base.abc.AbstractConnector 属性）</a>
 </li>
@@ -875,12 +887,12 @@
         </ul></li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot">MeloBot（melobot.bot 中的类）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender">MessageEvent.Sender（melobot.models 中的类）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent">MessageEvent（melobot.models 中的类）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.context.html#melobot.context.meta_event">meta_event()（在 melobot.context 模块中）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MetaEvent">MetaEvent（melobot.models 中的类）</a>
@@ -904,6 +916,8 @@
 </li>
         <li><a href="api/melobot.context.html#melobot.context.msg_event">msg_event()（在 melobot.context 模块中）</a>
 </li>
+        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.msg_id">msg_id（melobot.models.NoticeEvent 属性）</a>
+</li>
         <li><a href="api/melobot.context.html#melobot.context.msg_recall">msg_recall()（在 melobot.context 模块中）</a>
 </li>
         <li><a href="api/melobot.context.html#melobot.context.msg_text">msg_text()（在 melobot.context 模块中）</a>
@@ -915,6 +929,10 @@
         <li><a href="api/melobot.base.html#melobot.base.typing.MsgNode">MsgNode（melobot.base.typing 中的类）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.MsgSegment">MsgSegment（melobot.base.typing 中的类）</a>
+</li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.MULTI_USE">MULTI_USE（melobot.plugin.BotPlugin 属性）</a>
+</li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.PluginProxy.multi_use">multi_use（melobot.plugin.PluginProxy 属性）</a>
 </li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.multicast">multicast()（melobot.bot.MeloBot 类方法）</a>
 </li>
@@ -928,7 +946,7 @@
   <h2>N</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/melobot.base.html#melobot.base.typing.CustomNodeData.name">name（melobot.base.typing.CustomNodeData 属性）</a>
+        <li><a href="api/melobot.base.html#melobot.base.typing.GocqCustomNodeData.name">name（melobot.base.typing.GocqCustomNodeData 属性）</a>
 </li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.name">name（melobot.bot.MeloBot 属性）</a>
 </li>
@@ -942,19 +960,13 @@
 </li>
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.new_title">new_title（melobot.models.NoticeEvent 属性）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/melobot.base.html#melobot.base.typing.StdCustomNodeData.nickname">nickname（melobot.base.typing.StdCustomNodeData 属性）</a>
+</li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender.nickname">nickname（melobot.models.MessageEvent.Sender 属性）</a>
 </li>
         <li><a href="api/melobot.context.html#melobot.context.notice_event">notice_event()（在 melobot.context 模块中）</a>
-</li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.notice_group_id">notice_group_id（melobot.models.NoticeEvent 属性）</a>
-</li>
-        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.notice_msg_id">notice_msg_id（melobot.models.NoticeEvent 属性）</a>
-</li>
-        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.notice_operator_id">notice_operator_id（melobot.models.NoticeEvent 属性）</a>
-</li>
-        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.notice_user_id">notice_user_id（melobot.models.NoticeEvent 属性）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.Client">NoticeEvent.Client（melobot.models 中的类）</a>
 </li>
@@ -1033,6 +1045,8 @@
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.Client.online">online（melobot.models.NoticeEvent.Client 属性）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.Sender.only_group_member">only_group_member() （melobot.models.MessageEvent.Sender 方法）</a>
+</li>
+        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.operator_id">operator_id（melobot.models.NoticeEvent 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.LogicMode.OR">OR（melobot.base.typing.LogicMode 属性）</a>
 </li>
@@ -1156,13 +1170,13 @@
 </li>
         <li><a href="api/melobot.models.html#melobot.models.MessageEvent.sender">sender（melobot.models.MessageEvent 属性）</a>
 </li>
-        <li><a href="api/melobot.base.html#melobot.base.typing.CustomNodeData.seq">seq（melobot.base.typing.CustomNodeData 属性）</a>
+        <li><a href="api/melobot.base.html#melobot.base.typing.GocqCustomNodeData.seq">seq（melobot.base.typing.GocqCustomNodeData 属性）</a>
 </li>
         <li><a href="api/melobot.io.html#melobot.io.HttpConn.serve_site">serve_site（melobot.io.HttpConn 属性）</a>
 </li>
         <li><a href="api/melobot.io.html#melobot.io.ReverseWsConn.server">server（melobot.io.ReverseWsConn 属性）</a>
 </li>
-        <li><a href="api/melobot.base.html#melobot.base.exceptions.SessionHupTimeout">SessionHupTimeout（melobot.base.exceptions 中的类）</a>
+        <li><a href="api/melobot.context.html#melobot.context.session_store">session_store()（在 melobot.context 模块中）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.SessionRule">SessionRule（melobot.base.abc 中的类）</a>
 </li>
@@ -1174,10 +1188,10 @@
 </li>
         <li><a href="api/melobot.context.html#melobot.context.set_group_card">set_group_card()（在 melobot.context 模块中）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.context.html#melobot.context.set_group_name">set_group_name()（在 melobot.context 模块中）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.context.html#melobot.context.set_group_title">set_group_title()（在 melobot.context 模块中）</a>
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.BotLogger.setLevel">setLevel() （melobot.utils.BotLogger 方法）</a>
@@ -1198,6 +1212,8 @@
 </li>
         <li><a href="api/melobot.base.html#melobot.base.abc.AbstractConnector.slack">slack（melobot.base.abc.AbstractConnector 属性）</a>
 </li>
+        <li><a href="api/melobot.base.html#melobot.base.tools.speedlimit">speedlimit()（在 melobot.base.tools 模块中）</a>
+</li>
         <li><a href="api/melobot.utils.html#melobot.utils.FormatInfo.src_desc">src_desc（melobot.utils.FormatInfo 属性）</a>
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.FormatInfo.src_expect">src_expect（melobot.utils.FormatInfo 属性）</a>
@@ -1209,6 +1225,8 @@
         <li><a href="api/melobot.utils.html#melobot.utils.StartMatcher">StartMatcher（melobot.utils 中的类）</a>
 </li>
         <li><a href="api/melobot.models.html#melobot.models.ResponseEvent.status">status（melobot.models.ResponseEvent 属性）</a>
+</li>
+        <li><a href="api/melobot.base.html#melobot.base.typing.StdCustomNodeData">StdCustomNodeData（melobot.base.typing 中的类）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.User.SU">SU（melobot.base.typing.User 属性）</a>
 </li>
@@ -1288,17 +1306,25 @@
   <h2>U</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/melobot.base.html#melobot.base.typing.CustomNodeData.uin">uin（melobot.base.typing.CustomNodeData 属性）</a>
+        <li><a href="api/melobot.base.html#melobot.base.typing.GocqCustomNodeData.uin">uin（melobot.base.typing.GocqCustomNodeData 属性）</a>
 </li>
         <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.unicast">unicast()（melobot.bot.MeloBot 类方法）</a>
 </li>
         <li><a href="api/melobot.io.html#melobot.io.ForwardWsConn.url">url（melobot.io.ForwardWsConn 属性）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.File.url">url（melobot.models.NoticeEvent.File 属性）</a>
 </li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.URL">URL（melobot.plugin.BotPlugin 属性）</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.plugin.html#melobot.plugin.PluginProxy.url">url（melobot.plugin.PluginProxy 属性）</a>
+</li>
+        <li><a href="api/melobot.bot.html#melobot.bot.MeloBot.use_default_loop_policy">use_default_loop_policy()（melobot.bot.MeloBot 类方法）</a>
+</li>
+        <li><a href="api/melobot.base.html#melobot.base.typing.StdCustomNodeData.user_id">user_id（melobot.base.typing.StdCustomNodeData 属性）</a>
+</li>
+        <li><a href="api/melobot.models.html#melobot.models.NoticeEvent.user_id">user_id（melobot.models.NoticeEvent 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.User">User（melobot.base.typing 中的类）</a>
 </li>
@@ -1319,6 +1345,8 @@
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.meta.html#melobot.meta.MetaInfo.VER">VER（melobot.meta.MetaInfo 属性）</a>
+</li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.BotPlugin.VER">VER（melobot.plugin.BotPlugin 属性）</a>
 </li>
         <li><a href="api/melobot.base.html#melobot.base.typing.Void">Void（melobot.base.typing 中的类）</a>
 </li>
@@ -1395,7 +1423,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

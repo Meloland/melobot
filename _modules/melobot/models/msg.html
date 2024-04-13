@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.models.msg - MeloBot 2.5.10</title>
+        <title>melobot.models.msg - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -237,7 +237,7 @@
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">zip_longest</span>
 
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotActionError</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotValueError</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
@@ -805,7 +805,9 @@
     <span class="k">elif</span> <span class="n">_action</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;send_private_forward_msg&quot;</span><span class="p">,</span> <span class="s2">&quot;send_group_forward_msg&quot;</span><span class="p">):</span>
         <span class="n">_format_forward_action</span><span class="p">(</span><span class="n">_action</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotActionError</span><span class="p">(</span><span class="s2">&quot;传入的 action 因类型不匹配，不可被 cq 序列化&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+            <span class="s2">&quot;传入的 action 类型不是发送消息、发送转发消息，因此不可被 cq 序列化&quot;</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">_action</span>
 
 
@@ -866,7 +868,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

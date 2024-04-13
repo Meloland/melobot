@@ -12,6 +12,8 @@ melobot.utils
    :members:
    :show-inheritance:
 
+.. autofunction:: melobot.utils.logger_patch
+
 匹配器
 ---------------
 

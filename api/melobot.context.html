@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.context - MeloBot 2.5.10</title>
+        <title>melobot.context - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -365,8 +365,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="melobot.context.get_store">
-<span class="sig-prename descclassname"><span class="pre">melobot.context.</span></span><span class="sig-name descname"><span class="pre">get_store</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.12）"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/melobot/context/session.html#get_store"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.context.get_store" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.context.session_store">
+<span class="sig-prename descclassname"><span class="pre">melobot.context.</span></span><span class="sig-name descname"><span class="pre">session_store</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.12）"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/melobot/context/session.html#session_store"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.context.session_store" title="Link to this definition">#</a></dt>
 <dd><p>返回当前会话的存储字典对象，可直接操作</p>
 <p>会话存储字典对象用于在会话层面保存和共享数据。</p>
 <dl class="field-list simple">
@@ -383,7 +383,7 @@
 <p>暂时停止本会话。当本会话的会话规则判断有属于本会话的另一事件发生，
 本会话将自动被唤醒。</p>
 <p>可指定超时时间。如果超时时间结束会话仍未被唤醒，此时将会被强制唤醒，
-并抛出一个 <a class="reference internal" href="melobot.base.html#melobot.base.exceptions.SessionHupTimeout" title="melobot.base.exceptions.SessionHupTimeout"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionHupTimeout</span></code></a> 异常。可以捕获此异常，
+并抛出一个 <a class="reference internal" href="melobot.base.html#melobot.base.exceptions.BotSessionTimeout" title="melobot.base.exceptions.BotSessionTimeout"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotSessionTimeout</span></code></a> 异常。可以捕获此异常，
 实现自定义的超时处理逻辑</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -509,7 +509,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>content</strong> – 发送内容</p></li>
 <li><p><strong>cq_str</strong> – 是否以 cq 字符串发送（默认格式是消息段对象)</p></li>
-<li><p><strong>overtime</strong> – 会话暂停的超时时间，超时将抛出 <a class="reference internal" href="melobot.base.html#melobot.base.exceptions.SessionHupTimeout" title="melobot.base.exceptions.SessionHupTimeout"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionHupTimeout</span></code></a> 异常</p></li>
+<li><p><strong>overtime</strong> – 会话暂停的超时时间，超时将抛出 <a class="reference internal" href="melobot.base.html#melobot.base.exceptions.BotSessionTimeout" title="melobot.base.exceptions.BotSessionTimeout"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotSessionTimeout</span></code></a> 异常</p></li>
 </ul>
 </dd>
 </dl>
@@ -1470,7 +1470,7 @@
 <li><a class="reference internal" href="#melobot.context.req_event"><code class="docutils literal notranslate"><span class="pre">req_event()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.context.notice_event"><code class="docutils literal notranslate"><span class="pre">notice_event()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.context.meta_event"><code class="docutils literal notranslate"><span class="pre">meta_event()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.context.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.context.session_store"><code class="docutils literal notranslate"><span class="pre">session_store()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.context.pause"><code class="docutils literal notranslate"><span class="pre">pause()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.context.dispose"><code class="docutils literal notranslate"><span class="pre">dispose()</span></code></a></li>
 </ul>
@@ -1532,7 +1532,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

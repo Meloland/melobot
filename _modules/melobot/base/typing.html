@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.base.typing - MeloBot 2.5.10</title>
+        <title>melobot.base.typing - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -233,19 +233,15 @@
         </div>
         <article role="main">
           <h1>melobot.base.typing 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
-    <span class="n">AsyncIterator</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Coroutine</span><span class="p">,</span>
     <span class="n">Literal</span><span class="p">,</span>
-    <span class="n">NamedTuple</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
-    <span class="n">OrderedDict</span><span class="p">,</span>
     <span class="n">ParamSpec</span><span class="p">,</span>
     <span class="n">Type</span><span class="p">,</span>
     <span class="n">TypeAlias</span><span class="p">,</span>
@@ -255,13 +251,7 @@
     <span class="n">cast</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">better_exceptions</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">NotRequired</span>
-
-<span class="c1"># 修复在 windows powershell 显示错误的 bug</span>
-<span class="n">better_exceptions</span><span class="o">.</span><span class="n">encoding</span><span class="o">.</span><span class="n">ENCODING</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">encoding</span>
-<span class="n">better_exceptions</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">ENCODING</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">encoding</span>
-<span class="n">better_exceptions</span><span class="o">.</span><span class="n">hook</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="MsgSegment">
@@ -274,10 +264,21 @@
 
 
 
-<div class="viewcode-block" id="CustomNodeData">
-<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.typing.CustomNodeData">[文档]</a>
-<span class="k">class</span> <span class="nc">CustomNodeData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<div class="viewcode-block" id="StdCustomNodeData">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.typing.StdCustomNodeData">[文档]</a>
+<span class="k">class</span> <span class="nc">StdCustomNodeData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;onebot 标准的自定义消息结点数据&quot;&quot;&quot;</span>
+
+    <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="GocqCustomNodeData">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.typing.GocqCustomNodeData">[文档]</a>
+<span class="k">class</span> <span class="nc">GocqCustomNodeData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;gocq 风格的自定义消息结点数据&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">uin</span><span class="p">:</span> <span class="nb">str</span>
@@ -301,7 +302,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;onebot 标准的转发消息结点&quot;&quot;&quot;</span>
 
     <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;node&quot;</span><span class="p">]</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">CustomNodeData</span> <span class="o">|</span> <span class="n">ReferNodeData</span></div>
+    <span class="n">data</span><span class="p">:</span> <span class="n">StdCustomNodeData</span> <span class="o">|</span> <span class="n">GocqCustomNodeData</span> <span class="o">|</span> <span class="n">ReferNodeData</span></div>
 
 
 
@@ -473,7 +474,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

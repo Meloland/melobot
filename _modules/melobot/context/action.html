@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.context.action - MeloBot 2.5.10</title>
+        <title>melobot.context.action - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -233,10 +233,8 @@
         </div>
         <article role="main">
           <h1>melobot.context.action 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">warnings</span>
-
-<span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">ActionArgs</span><span class="p">,</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotEvent</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotActionError</span><span class="p">,</span> <span class="n">BotSessionError</span><span class="p">,</span> <span class="n">DirectRetSignal</span>
+<span></span><span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">ActionArgs</span><span class="p">,</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotEvent</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotSessionError</span><span class="p">,</span> <span class="n">BotValueError</span><span class="p">,</span> <span class="n">FuncSafeExited</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">get_id</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgNode</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">..models.msg</span> <span class="kn">import</span> <span class="n">_to_cq_str_action</span><span class="p">,</span> <span class="n">reply_msg</span><span class="p">,</span> <span class="n">text_msg</span>
@@ -288,7 +286,7 @@
 
 
 <span class="k">class</span> <span class="nc">MsgActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -308,14 +306,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;message_type&quot;</span><span class="p">:</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">userId</span><span class="p">,</span>
                 <span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">groupId</span><span class="p">,</span>
                 <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">msgs</span><span class="p">,</span>
             <span class="p">}</span>
 
 
 <span class="k">def</span> <span class="nf">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;将多种可能的消息格式，统一转换为 cq 消息列表.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;将多种可能的消息格式，统一转换为 cq 消息列表&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">text_msg</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -331,7 +328,9 @@
                 <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">)</span>
         <span class="n">msgs</span> <span class="o">=</span> <span class="n">temp</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotActionError</span><span class="p">(</span><span class="s2">&quot;content 参数类型不正确，无法封装&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+            <span class="s2">&quot;消息内容格式不正确。必须是以下格式之一：字符串、消息段对象、消息段对象的列表&quot;</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">msgs</span>
 
 
@@ -384,9 +383,9 @@
 <span class="sd">       `auto=True, wait=False` -&gt; :obj:`None`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">isPrivate</span> <span class="ow">and</span> <span class="n">userId</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotActionError</span><span class="p">(</span><span class="s2">&quot;为私聊时，构建 action 必须提供 userId 参数&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="s2">&quot;为私聊时，构建发送消息 action 必须提供 userId 参数&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">isPrivate</span> <span class="ow">and</span> <span class="n">groupId</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotActionError</span><span class="p">(</span><span class="s2">&quot;为群聊时，构建 action 必须提供 groupId 参数&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="s2">&quot;为群聊时，构建发送消息 action 必须提供 groupId 参数&quot;</span><span class="p">)</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">BotAction</span><span class="p">(</span>
         <span class="n">MsgActionArgs</span><span class="p">(</span><span class="n">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">isPrivate</span><span class="p">,</span> <span class="n">userId</span><span class="p">,</span> <span class="n">groupId</span><span class="p">),</span>
         <span class="n">resp_id</span><span class="o">=</span><span class="n">get_id</span><span class="p">()</span> <span class="k">if</span> <span class="n">wait</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
@@ -459,7 +458,7 @@
 
 
 <span class="k">class</span> <span class="nc">ForwardMsgActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;转发消息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;转发消息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -607,7 +606,7 @@
 
 
 <span class="k">class</span> <span class="nc">MsgDelActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;撤回消息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;撤回消息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msgId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -643,7 +642,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetMsgActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息信息获取 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息信息获取 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msgId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -677,7 +676,7 @@
 
 
 <span class="k">class</span> <span class="nc">getForwardActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;转发消息获取 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;转发消息获取 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forwardId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -713,7 +712,7 @@
 
 
 <span class="k">class</span> <span class="nc">getImageActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取图片信息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取图片信息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -786,7 +785,7 @@
 
 
 <span class="k">class</span> <span class="nc">GroupKickActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;群组踢人 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;群组踢人 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">laterReject</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -834,7 +833,7 @@
 
 
 <span class="k">class</span> <span class="nc">GroupBanActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;群组禁言 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;群组禁言 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -878,7 +877,7 @@
 
 
 <span class="k">class</span> <span class="nc">GroupWholeBanActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;群组全员禁言 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;群组全员禁言 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -917,7 +916,7 @@
 
 
 <span class="k">class</span> <span class="nc">SetGroupAdminActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群管理员 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群管理员 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -957,7 +956,7 @@
 
 
 <span class="k">class</span> <span class="nc">SetGroupCardActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群名片 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群名片 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -997,7 +996,7 @@
 
 
 <span class="k">class</span> <span class="nc">SetGroupNameActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群名 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群名 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1036,7 +1035,7 @@
 
 
 <span class="k">class</span> <span class="nc">GroupLeaveActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;退出群组 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;退出群组 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">isDismiss</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1075,7 +1074,7 @@
 
 
 <span class="k">class</span> <span class="nc">SetGroupTitleActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群特殊头衔 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置群特殊头衔 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1133,7 +1132,7 @@
 
 <span class="k">class</span> <span class="nc">SetFriendAddActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addFlag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">approve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">remark</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;处理加好友请求 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;处理加好友请求 action 信息构造类&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;set_friend_add_request&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;flag&quot;</span><span class="p">:</span> <span class="n">addFlag</span><span class="p">,</span> <span class="s2">&quot;approve&quot;</span><span class="p">:</span> <span class="n">approve</span><span class="p">,</span> <span class="s2">&quot;remark&quot;</span><span class="p">:</span> <span class="n">remark</span><span class="p">}</span>
@@ -1171,7 +1170,7 @@
 
 
 <span class="k">class</span> <span class="nc">SetGroupAddActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;处理加群请求 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;处理加群请求 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1229,7 +1228,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetLoginInfoActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取登录号信息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取登录号信息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1262,7 +1261,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetStrangerInfoActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取陌生人信息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取陌生人信息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1301,7 +1300,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetFriendlistActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取好友列表 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取好友列表 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1334,7 +1333,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetGroupInfoActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群信息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群信息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1373,7 +1372,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetGrouplistActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群列表 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群列表 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1408,7 +1407,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetGroupMemberInfoActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群成员信息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群成员信息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1448,7 +1447,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetGroupMemberlistActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群成员列表 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群成员列表 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1487,7 +1486,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetGroupHonorActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群荣誉信息 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群荣誉信息 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1540,7 +1539,7 @@
 
 
 <span class="k">class</span> <span class="nc">CheckSendImageActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送图片 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送图片 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1573,7 +1572,7 @@
 
 
 <span class="k">class</span> <span class="nc">CheckSendRecordActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送语音 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送语音 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1606,7 +1605,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetCqVersionActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现版本 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现版本 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1639,7 +1638,7 @@
 
 
 <span class="k">class</span> <span class="nc">GetCqStatusActionArgs</span><span class="p">(</span><span class="n">ActionArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现 状态 action 信息构造类.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现 状态 action 信息构造类&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1737,7 +1736,7 @@
 
 <span class="sd">    :param content: 发送内容</span>
 <span class="sd">    :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)</span>
-<span class="sd">    :param overtime: 会话暂停的超时时间，超时将抛出 :class:`.SessionHupTimeout` 异常</span>
+<span class="sd">    :param overtime: 会话暂停的超时时间，超时将抛出 :class:`.BotSessionTimeout` 异常</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1834,7 +1833,7 @@
         <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">destory</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="n">DirectRetSignal</span><span class="p">(</span><span class="s2">&quot;事件处理方法被安全地递归 return，请无视这个异常&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="n">FuncSafeExited</span><span class="p">(</span><span class="s2">&quot;改函数或方法被安全地直接结束，请无视这个异常&quot;</span><span class="p">)</span></div>
 
 
 
@@ -1882,7 +1881,7 @@
         <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">destory</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="n">DirectRetSignal</span><span class="p">(</span><span class="s2">&quot;事件处理方法被安全地递归 return，请无视这个异常&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="n">FuncSafeExited</span><span class="p">(</span><span class="s2">&quot;改函数或方法被安全地直接结束，请无视这个异常&quot;</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -1923,7 +1922,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

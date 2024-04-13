@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.bot.init - MeloBot 2.5.10</title>
+        <title>melobot.bot.init - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -235,14 +235,10 @@
           <h1>melobot.bot.init 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">contextvars</span> <span class="kn">import</span> <span class="n">ContextVar</span><span class="p">,</span> <span class="n">Token</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">DEBUG</span>
 
-<span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotRuntimeError</span><span class="p">,</span> <span class="n">DuplicateError</span><span class="p">,</span> <span class="n">get_better_exc</span>
-<span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">get_rich_str</span><span class="p">,</span> <span class="n">to_task</span>
+<span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span><span class="p">,</span> <span class="n">BaseLogger</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotRuntimeError</span><span class="p">,</span> <span class="n">BotValueError</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
@@ -260,19 +256,23 @@
 <span class="kn">from</span> <span class="nn">..plugin.handler</span> <span class="kn">import</span> <span class="n">EVENT_HANDLER_MAP</span>
 <span class="kn">from</span> <span class="nn">..plugin.init</span> <span class="kn">import</span> <span class="n">BotPlugin</span><span class="p">,</span> <span class="n">PluginLoader</span><span class="p">,</span> <span class="n">PluginProxy</span>
 <span class="kn">from</span> <span class="nn">..plugin.ipc</span> <span class="kn">import</span> <span class="n">PluginBus</span><span class="p">,</span> <span class="n">PluginStore</span>
-<span class="kn">from</span> <span class="nn">..utils.logger</span> <span class="kn">import</span> <span class="n">BotLogger</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">NullLogger</span>
+<span class="kn">from</span> <span class="nn">..utils.logger</span> <span class="kn">import</span> <span class="n">BotLogger</span><span class="p">,</span> <span class="n">NullLogger</span><span class="p">,</span> <span class="n">log_exc</span>
 <span class="kn">from</span> <span class="nn">.hook</span> <span class="kn">import</span> <span class="n">BotHookBus</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..plugin.ipc</span> <span class="kn">import</span> <span class="n">ShareObject</span>
 
-<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;win32&quot;</span><span class="p">,</span> <span class="s2">&quot;cygwin&quot;</span><span class="p">,</span> <span class="s2">&quot;cli&quot;</span><span class="p">):</span>
+<span class="k">if</span> <span class="n">MetaInfo</span><span class="o">.</span><span class="n">PLATFORM</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;win32&quot;</span><span class="p">,</span> <span class="s2">&quot;cygwin&quot;</span><span class="p">,</span> <span class="s2">&quot;cli&quot;</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">uvloop</span>
 
     <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop_policy</span><span class="p">(</span><span class="n">uvloop</span><span class="o">.</span><span class="n">EventLoopPolicy</span><span class="p">())</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">winloop</span>
+
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop_policy</span><span class="p">(</span><span class="n">winloop</span><span class="o">.</span><span class="n">EventLoopPolicy</span><span class="p">())</span>
 
 
-<span class="k">def</span> <span class="nf">_safe_block_run</span><span class="p">(</span><span class="n">main</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_safe_blocked_run</span><span class="p">(</span><span class="n">main</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">())</span>
         <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">)</span>
@@ -295,15 +295,15 @@
 <span class="sd">        :param name: bot 实例的名字（唯一）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">MeloBot</span><span class="o">.</span><span class="n">BOTS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">DuplicateError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;命名为 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 的 bot 实例已存在，请改名避免冲突&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;命名为 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 的 bot 实例已存在，请改名避免冲突&quot;</span><span class="p">)</span>
         <span class="n">MeloBot</span><span class="o">.</span><span class="n">BOTS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
 
         <span class="c1">#: bot 的名字（唯一）</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
         <span class="c1">#: 元信息</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">:</span> <span class="n">MetaInfo</span> <span class="o">=</span> <span class="n">MetaInfo</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">MetaInfo</span><span class="p">]</span> <span class="o">=</span> <span class="n">MetaInfo</span>
         <span class="c1">#: bot 的日志器</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span> <span class="n">BaseLogger</span>
         <span class="c1">#: bot 的连接器</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="p">:</span> <span class="n">AbstractConnector</span>
 
@@ -311,12 +311,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span> <span class="o">=</span> <span class="n">PluginLoader</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ctx_manager</span> <span class="o">=</span> <span class="n">BotSessionManager</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span> <span class="o">=</span> <span class="n">BotEventBuilder</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_life</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_store</span> <span class="o">=</span> <span class="n">PluginStore</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_bus</span> <span class="o">=</span> <span class="n">PluginBus</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span> <span class="o">=</span> <span class="n">BotHookBus</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_responder</span> <span class="o">=</span> <span class="n">BotResponder</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span> <span class="o">=</span> <span class="n">BotDispatcher</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_life_ended</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__run_flag__</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
@@ -329,10 +329,11 @@
         <span class="n">connector</span><span class="p">:</span> <span class="n">AbstractConnector</span><span class="p">,</span>
         <span class="n">enable_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">logger_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">log_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
         <span class="n">log_to_console</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">log_to_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">custom_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_tag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">custom_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseLogger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MeloBot&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化 bot 实例</span>
 
@@ -342,13 +343,15 @@
 <span class="sd">        :param log_level: 日志器日志等级</span>
 <span class="sd">        :param log_to_console: 日志是否输出到控制台</span>
 <span class="sd">        :param log_to_dir: 保存日志文件的目录，为空则不保存</span>
+<span class="sd">        :param log_tag: 是否在日志中输出日志器名称，默认不输出</span>
 <span class="sd">        :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数</span>
 <span class="sd">        :return: bot 实例（因此支持链式调用）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">connector</span><span class="o">.</span><span class="n">_ref_flag</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DuplicateError</span><span class="p">(</span><span class="s2">&quot;bot 初始化时，不可使用已被其他 bot 实例使用的连接器&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">connector</span><span class="o">.</span><span class="n">_used</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 初始化时，不可使用已被其他 bot 实例使用的连接器&quot;</span><span class="p">)</span>
+        <span class="n">connector</span><span class="o">.</span><span class="n">_used</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connector</span> <span class="o">=</span> <span class="n">connector</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">_ref_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="k">if</span> <span class="n">custom_logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">custom_logger</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">enable_log</span><span class="p">:</span>
@@ -359,6 +362,7 @@
                 <span class="n">log_level</span><span class="p">,</span>
                 <span class="n">log_to_console</span><span class="p">,</span>
                 <span class="n">log_to_dir</span><span class="p">,</span>
+                <span class="ow">not</span> <span class="n">log_tag</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;连接器已初始化，类型：</span><span class="si">{</span><span class="n">connector</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -397,12 +401,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;尝试加载来自 </span><span class="si">{</span><span class="n">plugin_dir</span><span class="si">}</span><span class="s2"> 的插件&quot;</span><span class="p">)</span>
         <span class="n">plugin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">plugin_target</span><span class="p">)</span>
-        <span class="n">exist_plugin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="p">)</span>
+        <span class="n">exist_plugin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exist_plugin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;加载插件出错：插件 id 重复, 重复的 id 为：</span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2">，已取消该插件加载&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;加载插件出错：插件 id 重复, 重复的 id 为：</span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">ID</span><span class="si">}</span><span class="s2">，已取消该插件加载&quot;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">plugin</span><span class="o">.</span><span class="n">MULTI_USE</span> <span class="ow">and</span> <span class="n">plugin</span><span class="o">.</span><span class="n">_loaded_once</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;插件 </span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">ID</span><span class="si">}</span><span class="s2"> 不支持多 bot，但它已被其他 bot 加载&quot;</span>
+            <span class="p">)</span>
+        <span class="n">plugin</span><span class="o">.</span><span class="n">_loaded_once</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">plugin</span><span class="o">.</span><span class="n">__handler_args__</span><span class="p">:</span>
@@ -418,9 +427,9 @@
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">plugin</span><span class="o">.</span><span class="n">__hook_args__</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">_</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="p">[</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="p">]</span> <span class="o">=</span> <span class="n">plugin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="p">[</span><span class="n">plugin</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">plugin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">add_handlers</span><span class="p">(</span><span class="n">handlers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功加载插件：</span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功加载插件：</span><span class="si">{</span><span class="n">plugin</span><span class="o">.</span><span class="n">ID</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
@@ -461,17 +470,15 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">_set_ready</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_responder</span><span class="o">.</span><span class="n">_set_ready</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">_set_ready</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_life</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">_alive_tasks</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__run_flag__</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;bot 开始正常运行&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;使用的连接器类型：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_life</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_ended</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bot 核心无法继续运行。异常：</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;异常回溯栈：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_better_exc</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;异常点局部变量：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="nb">locals</span><span class="p">()))</span>
+            <span class="n">log_exc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">BEFORE_STOP</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;BEFORE_STOP hook 已完成&quot;</span><span class="p">)</span>
@@ -483,7 +490,7 @@
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.MeloBot.run">[文档]</a>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 实例&quot;&quot;&quot;</span>
-        <span class="n">_safe_block_run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">())</span></div>
+        <span class="n">_safe_blocked_run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.close">
@@ -495,8 +502,7 @@
 
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">BEFORE_CLOSE</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;BEFORE_CLOSE hook 已完成&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life</span><span class="p">:</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_life_ended</span><span class="o">.</span><span class="n">set</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.is_activate">
@@ -558,7 +564,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能执行此方法&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">__proxy__</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">__proxy__</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.emit_signal">
@@ -578,11 +584,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能执行此方法&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;bot 信号总线信号触发：</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">signal</span><span class="si">}</span><span class="s2"> | wait: </span><span class="si">{</span><span class="n">wait</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;bot 信号触发：</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">signal</span><span class="si">}</span><span class="s2"> | wait: </span><span class="si">{</span><span class="n">wait</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;（当前 session 上下文：</span><span class="si">{</span><span class="n">SESSION_LOCAL</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2">），传递参数：args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, kwargs=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;本次信号触发参数：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -598,7 +604,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init_flag__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能执行此方法&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;获取共享对象行为：</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;获取共享对象行为：</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">（当前 session 上下文：</span><span class="si">{</span><span class="n">SESSION_LOCAL</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2">）&quot;</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_store</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></div>
 
 
@@ -614,13 +622,13 @@
         <span class="k">async</span> <span class="k">def</span> <span class="nf">bots_run</span><span class="p">():</span>
             <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="n">bots</span><span class="p">:</span>
-                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_task</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">_run</span><span class="p">()))</span>
+                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">_run</span><span class="p">()))</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-        <span class="n">_safe_block_run</span><span class="p">(</span><span class="n">bots_run</span><span class="p">())</span></div>
+        <span class="n">_safe_blocked_run</span><span class="p">(</span><span class="n">bots_run</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="MeloBot.unicast">
@@ -646,7 +654,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bot</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">BOTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;单播指定的 bot 实例 </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> 不存在&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;单播指定的 bot 实例 </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> 不存在&quot;</span><span class="p">)</span>
 
         <span class="n">b_token</span> <span class="o">=</span> <span class="n">BOT_LOCAL</span><span class="o">.</span><span class="n">_add_ctx</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
         <span class="n">s_token</span> <span class="o">=</span> <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_add_ctx</span><span class="p">(</span><span class="n">Void</span><span class="p">)</span>
@@ -655,7 +663,7 @@
         <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;Void&quot;</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="fm">__str__</span><span class="p">():</span>
                 <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;多播或单播时，bot 和 session 上下文的传递将会被阻隔，如需要请将它们作为参数显式传递&quot;</span>
+                    <span class="s2">&quot;多播或单播时，bot 和 session 的上下文传递将会被阻隔。如需使用，请将它们作为参数显式传递&quot;</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">e</span>
@@ -696,12 +704,25 @@
         <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_targets</span><span class="p">:</span>
             <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">to_task</span><span class="p">(</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
                     <span class="bp">cls</span><span class="o">.</span><span class="n">unicast</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MeloBot.use_default_loop_policy">
+<a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.MeloBot.use_default_loop_policy">[文档]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">use_default_loop_policy</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;使用默认的事件策略模式</span>
+
+<span class="sd">        在类 `Unix` 平台上，这会停止 `uvloop` 的使用</span>
+
+<span class="sd">        在 `Windows` 平台上，这会停止 `winloop` 的使用</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop_policy</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
 </div>
 
 
@@ -772,7 +793,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

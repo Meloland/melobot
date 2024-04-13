@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.plugin.init - MeloBot 2.5.10</title>
+        <title>melobot.plugin.init - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -246,7 +246,7 @@
     <span class="n">ShareObjArgs</span><span class="p">,</span>
     <span class="n">ShareObjCbArgs</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">PluginInitError</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotPluginError</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">to_async</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
@@ -260,6 +260,7 @@
     <span class="n">PriorLevel</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..meta</span> <span class="kn">import</span> <span class="n">MetaInfo</span><span class="p">,</span> <span class="n">ReadOnly</span>
 <span class="kn">from</span> <span class="nn">..utils.checker</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AtChecker</span><span class="p">,</span>
     <span class="n">FriendReqChecker</span><span class="p">,</span>
@@ -290,7 +291,7 @@
 
 <div class="viewcode-block" id="PluginProxy">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.PluginProxy">[文档]</a>
-<span class="k">class</span> <span class="nc">PluginProxy</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">PluginProxy</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ReadOnly</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bot 插件代理类</span>
 
 <span class="sd">    通过 bot 实例获取插件时，将获取此对象的列表</span>
@@ -309,6 +310,7 @@
         <span class="n">doc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">multi_use</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">share_objs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
         <span class="n">share_cbs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
         <span class="n">signal_methods</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
@@ -325,6 +327,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">keywords</span>
         <span class="c1">#: 插件的项目地址</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="c1">#: 是否支持同时被多个 bot 实例加载</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_use</span> <span class="o">=</span> <span class="n">multi_use</span>
         <span class="c1">#: 插件的共享对象标识：[(命名空间，id), ...]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shares</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">share_objs</span>
         <span class="c1">#: 插件的共享对象回调标识：[(命名空间，id), ...]</span>
@@ -335,13 +339,13 @@
 
 
 <span class="k">class</span> <span class="nc">PluginLoader</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;插件加载器.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;插件加载器&quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load_from_dir</span><span class="p">(</span><span class="n">plugin_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BotPlugin&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;从指定插件目录加载插件.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;从指定插件目录加载插件&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plugin_path</span><span class="p">,</span> <span class="s2">&quot;__init__.py&quot;</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="n">PluginInitError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">BotPluginError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">plugin_path</span><span class="si">}</span><span class="s2"> 缺乏入口主文件 __init__.py，插件无法加载&quot;</span>
             <span class="p">)</span>
         <span class="n">plugin_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">plugin_path</span><span class="p">)</span>
@@ -360,12 +364,12 @@
                 <span class="n">plugin</span> <span class="o">=</span> <span class="n">obj</span>
                 <span class="k">break</span>
         <span class="k">if</span> <span class="n">plugin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PluginInitError</span><span class="p">(</span><span class="s2">&quot;指定的入口主文件中，未发现 Plugin 实例，无效导入&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">BotPluginError</span><span class="p">(</span><span class="s2">&quot;指定的入口主文件中，未发现 Plugin 实例，无效导入&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plugin</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;BotPlugin&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;BotPlugin&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;加载插件.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;加载插件&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">plugin</span> <span class="o">=</span> <span class="n">PluginLoader</span><span class="o">.</span><span class="n">load_from_dir</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -389,6 +393,7 @@
         <span class="n">doc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">multi_use</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个插件</span>
 
@@ -398,31 +403,41 @@
 <span class="sd">        :param doc: 插件简单的文档说明</span>
 <span class="sd">        :param keywords: 关键词列表</span>
 <span class="sd">        :param url: 插件项目地址</span>
+<span class="sd">        :param multi_use: 是否支持同时被多个 bot 实例加载</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__id__</span> <span class="o">=</span> <span class="nb">id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__version__</span> <span class="o">=</span> <span class="n">version</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__desc__</span> <span class="o">=</span> <span class="n">desc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__keywords__</span> <span class="o">=</span> <span class="n">keywords</span> <span class="k">if</span> <span class="n">keywords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__url__</span> <span class="o">=</span> <span class="n">url</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__pdoc__</span> <span class="o">=</span> <span class="n">doc</span>
+        <span class="c1">#: 功能与初始化参数一一对应</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="c1">#: 功能与初始化参数一一对应</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">VER</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="c1">#: 功能与初始化参数一一对应</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DESC</span> <span class="o">=</span> <span class="n">desc</span>
+        <span class="c1">#: 功能与初始化参数一一对应</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">KEYWORDS</span> <span class="o">=</span> <span class="n">keywords</span> <span class="k">if</span> <span class="n">keywords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="c1">#: 功能与初始化参数一一对应</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">URL</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="c1">#: 功能与初始化参数一一对应</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DOC</span> <span class="o">=</span> <span class="n">doc</span>
+        <span class="c1">#: 功能与初始化参数一一对应</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MULTI_USE</span> <span class="o">=</span> <span class="n">multi_use</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loaded_once</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EventHandlerArgs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__signal_args__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PluginSignalHandlerArgs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ShareObjArgs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__share_cb_args__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ShareObjCbArgs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__hook_args__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BotHookRunnerArgs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">__proxy__</span><span class="p">:</span> <span class="n">PluginProxy</span></div>
 
 
     <span class="k">def</span> <span class="nf">_self_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__proxy__</span> <span class="o">=</span> <span class="n">PluginProxy</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__id__</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__desc__</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__pdoc__</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__keywords__</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__url__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">VER</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DESC</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DOC</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">KEYWORDS</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MULTI_USE</span><span class="p">,</span>
             <span class="p">[(</span><span class="n">args</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="p">],</span>
             <span class="p">[(</span><span class="n">args</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__share_cb_args__</span><span class="p">],</span>
             <span class="p">[(</span><span class="n">args</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">signal</span><span class="p">)</span> <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signal_args__</span><span class="p">],</span>
@@ -433,9 +448,7 @@
             <span class="k">if</span> <span class="n">pair</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__proxy__</span><span class="o">.</span><span class="n">shares</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">check_pass</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PluginInitError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;插件 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__id__</span><span class="si">}</span><span class="s2"> 不能为不属于自己的共享对象绑定回调&quot;</span>
-            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">BotPluginError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;插件 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="si">}</span><span class="s2"> 不能为不属于自己的共享对象绑定回调&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BotPlugin.on_event">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_event">[文档]</a>
@@ -1235,8 +1248,10 @@
 
 <div class="viewcode-block" id="BotPlugin.on_signal">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_signal">[文档]</a>
-    <span class="k">def</span> <span class="nf">on_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signal</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个信号处理方法</span>
+
+<span class="sd">        `namespace` 为空时，自动设置它为当前插件的 :attr:`~.BotPlugin.ID`</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用，此时可绑定一个函数为信号处理方法。</span>
 
@@ -1244,7 +1259,7 @@
 
 <span class="sd">           # 假设存在一个名为 plugin 的变量，是 BotPlugin 实例</span>
 <span class="sd">           # 为在命名空间 BaseUtils 中，名为 txt2img 的信号绑定处理方法：</span>
-<span class="sd">           @plugin.on_signal(&quot;BaseUtils&quot;, &quot;txt2img&quot;)</span>
+<span class="sd">           @plugin.on_signal(&quot;txt2img&quot;, &quot;BaseUtils&quot;)</span>
 <span class="sd">           async def get_img_of_txt(text: str, format: Any) -&gt; bytes:</span>
 <span class="sd">               # melobot 对被装饰函数的参数类型和返回值没有限制</span>
 <span class="sd">               # 接下来是具体逻辑</span>
@@ -1264,7 +1279,9 @@
             <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__signal_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">PluginSignalHandlerArgs</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
+                <span class="n">PluginSignalHandlerArgs</span><span class="p">(</span>
+                    <span class="n">func</span><span class="p">,</span> <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="n">signal</span>
+                <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
 
@@ -1274,9 +1291,14 @@
 <div class="viewcode-block" id="BotPlugin.on_share">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_share">[文档]</a>
     <span class="k">def</span> <span class="nf">on_share</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reflector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reflector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个共享对象，同时绑定它的值获取方法</span>
+
+<span class="sd">        `namespace` 为空时，自动设置它为当前插件的 :attr:`~.BotPlugin.ID`</span>
 
 <span class="sd">        本方法可作为异步函数的装饰器使用，此时被装饰函数就是共享对象的值获取方法：</span>
 
@@ -1284,7 +1306,7 @@
 
 <span class="sd">           # 假设存在一个名为 plugin 的变量，是 BotPlugin 实例</span>
 <span class="sd">           # 在命名空间 HelpUtils 中，注册一个名为 all_helps 的共享对象，且绑定值获取方法：</span>
-<span class="sd">           @plugin.on_share(&quot;HelpUtils&quot;, &quot;all_helps&quot;)</span>
+<span class="sd">           @plugin.on_share(&quot;all_helps&quot;, &quot;HelpUtils&quot;)</span>
 <span class="sd">           async def get_all_helps() -&gt; str:</span>
 <span class="sd">               # melobot 对被装饰函数的要求：无参数，但必须有返回值</span>
 <span class="sd">               return ALL_HELPS_INFO_STR</span>
@@ -1295,7 +1317,7 @@
 <span class="sd">        .. code:: python</span>
 
 <span class="sd">           # 最后一个参数不能给定具体的值，必须为一个同步函数</span>
-<span class="sd">           plugin.on_share(&quot;HelpUtils&quot;, &quot;all_helps&quot;, lambda: ALL_HELPS_INFO_STR)</span>
+<span class="sd">           plugin.on_share(&quot;all_helps&quot;, &quot;HelpUtils&quot;, lambda: ALL_HELPS_INFO_STR)</span>
 
 <span class="sd">        .. admonition:: 注意</span>
 <span class="sd">           :class: caution</span>
@@ -1306,14 +1328,17 @@
 <span class="sd">        :param id: 共享对象的 id 标识</span>
 <span class="sd">        :param reflector: 本方法当作异步函数的装饰器使用时，本参数为空；直接使用本方法时，参数为共享对象值获取的同步函数</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_namespace</span> <span class="o">=</span> <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span>
         <span class="k">if</span> <span class="n">reflector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">to_async</span><span class="p">(</span><span class="n">reflector</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">_namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">to_async</span><span class="p">(</span><span class="n">reflector</span><span class="p">))</span>
+            <span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
             <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">_namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">func</span>
 
         <span class="k">return</span> <span class="n">make_args</span></div>
@@ -1321,8 +1346,10 @@
 
 <div class="viewcode-block" id="BotPlugin.on_share_affected">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_share_affected">[文档]</a>
-    <span class="k">def</span> <span class="nf">on_share_affected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_share_affected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;为一个共享对象绑定回调方法</span>
+
+<span class="sd">        `namespace` 为空时，自动设置它为当前插件的 :attr:`~.BotPlugin.ID`</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用，此时可为一个共享对象绑定回调方法。</span>
 
@@ -1330,7 +1357,7 @@
 
 <span class="sd">           # 假设存在一个名为 plugin 的变量，是 BotPlugin 实例</span>
 <span class="sd">           # 为在命名空间 HelpUtils 中，名为 all_helps 的共享对象绑定回调方法：</span>
-<span class="sd">           @plugin.on_share_affected(&quot;HelpUtils&quot;, &quot;all_helps&quot;)</span>
+<span class="sd">           @plugin.on_share_affected(&quot;all_helps&quot;, &quot;HelpUtils&quot;)</span>
 <span class="sd">           async def add_a_help(text: str) -&gt; bool:</span>
 <span class="sd">               # melobot 对被装饰函数的参数类型和返回值没有限制</span>
 <span class="sd">               # 接下来是具体逻辑</span>
@@ -1351,7 +1378,11 @@
         <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
             <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__share_cb_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ShareObjCbArgs</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__share_cb_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ShareObjCbArgs</span><span class="p">(</span>
+                    <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">func</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
 
         <span class="k">return</span> <span class="n">make_args</span></div>
@@ -1490,7 +1521,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

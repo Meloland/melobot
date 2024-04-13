@@ -8,6 +8,10 @@ abc 模块
 
 本模块包含 melobot 重要的抽象类或基类。
 
+.. autoclass:: melobot.base.abc.BaseLogger
+   :members:
+   :exclude-members: __init__, check_level_flag
+
 .. autoclass:: melobot.base.abc.AbstractConnector
    :members:
    :exclude-members: __init__
@@ -48,7 +52,7 @@ exceptions 模块
 .. autoclass:: melobot.base.exceptions.BotException
    :exclude-members: __init__
 
-.. autoclass:: melobot.base.exceptions.SessionHupTimeout
+.. autoclass:: melobot.base.exceptions.BotSessionTimeout
    :exclude-members: __init__
 
 tools 模块
@@ -77,6 +81,8 @@ tools 模块
 
 .. autofunction:: melobot.base.tools.timelimit
 
+.. autofunction:: melobot.base.tools.speedlimit
+
 .. autofunction:: melobot.base.tools.call_later
 
 .. autofunction:: melobot.base.tools.call_at
@@ -96,7 +102,11 @@ typing 模块
    :members:
    :undoc-members:
 
-.. autoclass:: melobot.base.typing.CustomNodeData
+.. autoclass:: melobot.base.typing.StdCustomNodeData
+   :members:
+   :undoc-members:
+
+.. autoclass:: melobot.base.typing.GocqCustomNodeData
    :members:
    :undoc-members:
 

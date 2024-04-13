@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.utils.logger - MeloBot 2.5.10</title>
+        <title>melobot.utils.logger - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -233,22 +233,27 @@
         </div>
         <article role="main">
           <h1>melobot.utils.logger 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">logging.config</span>
 <span class="kn">import</span> <span class="nn">logging.handlers</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
-<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">CRITICAL</span><span class="p">,</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">WARNING</span><span class="p">,</span> <span class="n">Logger</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">TracebackType</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">CRITICAL</span>
 
-<span class="kn">import</span> <span class="nn">coloredlogs</span>
+<span class="kn">import</span> <span class="nn">colorlog</span>
+<span class="kn">import</span> <span class="nn">rich.console</span>
+<span class="kn">import</span> <span class="nn">rich.pretty</span>
+<span class="kn">from</span> <span class="nn">better_exceptions</span> <span class="kn">import</span> <span class="n">ExceptionFormatter</span>
 
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">DuplicateError</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeAlias</span>
+<span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BaseLogger</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotValueError</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
 
 
-<span class="k">class</span> <span class="nc">NullLogger</span><span class="p">(</span><span class="n">Logger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得一个空日志器，支持所有日志操作， 但是丢弃所有日志.&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">NullLogger</span><span class="p">(</span><span class="n">BaseLogger</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得一个空日志器，支持所有日志操作， 但是丢弃所有日志&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">CRITICAL</span><span class="p">)</span>
@@ -257,53 +262,47 @@
 
 <div class="viewcode-block" id="BotLogger">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.BotLogger">[文档]</a>
-<span class="k">class</span> <span class="nc">BotLogger</span><span class="p">(</span><span class="n">Logger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;日志器类&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">BotLogger</span><span class="p">(</span><span class="n">BaseLogger</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 内置日志器类&quot;&quot;&quot;</span>
 
     <span class="n">LOGGERS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;BotLogger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">FIELD_COLORS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;asctime&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;hostname&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;magenta&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;levelname&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;programname&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;cyan&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">},</span>
+    <span class="n">LOG_COLORS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="s2">&quot;cyan,bold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;INFO&quot;</span><span class="p">:</span> <span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow,bold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span> <span class="s2">&quot;red,bold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CRITIAL&quot;</span><span class="p">:</span> <span class="s2">&quot;red,bold,bg_white&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">LEVEL_COLORS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;magenta&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{},</span>
-        <span class="s2">&quot;notice&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;magenta&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;spam&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;faint&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-        <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;warning&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">},</span>
-    <span class="p">}</span>
-
-    <span class="n">LEVEL_MAP</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="n">DEBUG</span><span class="p">,</span>
-        <span class="s2">&quot;INFO&quot;</span><span class="p">:</span> <span class="n">INFO</span><span class="p">,</span>
-        <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span> <span class="n">WARNING</span><span class="p">,</span>
-        <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span> <span class="n">ERROR</span><span class="p">,</span>
-        <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span> <span class="n">CRITICAL</span><span class="p">,</span>
+    <span class="n">SECOND_LOG_COLORS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="s2">&quot;cyan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;CRITIAL&quot;</span><span class="p">:</span> <span class="s2">&quot;red,bg_white&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
     <span class="p">}</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_console_fmt</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">no_tag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">:</span>
-        <span class="n">fmt_s</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;[%(asctime)s] [%(levelname)s] [</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">] %(message)s&quot;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span>
-            <span class="k">else</span> <span class="s2">&quot;[</span><span class="si">%(asctime)s</span><span class="s2">] [</span><span class="si">%(levelname)s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-        <span class="n">fmt</span> <span class="o">=</span> <span class="n">coloredlogs</span><span class="o">.</span><span class="n">ColoredFormatter</span><span class="p">(</span>
-            <span class="n">fmt</span><span class="o">=</span><span class="n">fmt_s</span><span class="p">,</span>
+        <span class="n">fmt_arr</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;</span><span class="si">%(green)s%(asctime)s</span><span class="s2">.</span><span class="si">%(msecs)03d%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(log_color)s%(levelname)-8s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(blue)s%(module)-10s%(reset)s</span><span class="s2"> : </span><span class="si">%(green)s%(lineno)-4d%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(message_log_color)s%(message)s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span><span class="p">:</span>
+            <span class="n">fmt_arr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;%(purple)s</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">%(reset)s&quot;</span><span class="p">)</span>
+        <span class="n">fmt_s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="s1">&#39; │ &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmt_arr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">colorlog</span><span class="o">.</span><span class="n">ColoredFormatter</span><span class="p">(</span>
+            <span class="n">fmt_s</span><span class="p">,</span>
             <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span>
-            <span class="n">level_styles</span><span class="o">=</span><span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_COLORS</span><span class="p">,</span>
-            <span class="n">field_styles</span><span class="o">=</span><span class="n">BotLogger</span><span class="o">.</span><span class="n">FIELD_COLORS</span><span class="p">,</span>
+            <span class="n">log_colors</span><span class="o">=</span><span class="n">BotLogger</span><span class="o">.</span><span class="n">LOG_COLORS</span><span class="p">,</span>
+            <span class="n">secondary_log_colors</span><span class="o">=</span><span class="n">BotLogger</span><span class="o">.</span><span class="n">SECOND_LOG_COLORS</span><span class="p">,</span>
+            <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">default_msec_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%03d</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">fmt</span>
 
     <span class="nd">@staticmethod</span>
@@ -314,15 +313,20 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_file_fmt</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">no_tag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">:</span>
-        <span class="n">fmt_s</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;[%(asctime)s] [%(filename)s %(lineno)d] [%(levelname)s] [</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">] %(message)s&quot;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span>
-            <span class="k">else</span> <span class="s2">&quot;[</span><span class="si">%(asctime)s</span><span class="s2">] [</span><span class="si">%(filename)s</span><span class="s2"> </span><span class="si">%(lineno)d</span><span class="s2">] [</span><span class="si">%(levelname)s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        <span class="n">fmt_arr</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">.</span><span class="si">%(msecs)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(levelname)-8s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(module)-12s</span><span class="s2"> </span><span class="si">%(lineno)-4d</span><span class="s2"> </span><span class="si">%(funcName)-20s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span><span class="p">:</span>
+            <span class="n">fmt_arr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">fmt_s</span> <span class="o">=</span> <span class="s2">&quot; │ &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmt_arr</span><span class="p">)</span>
         <span class="n">fmt</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
             <span class="n">fmt</span><span class="o">=</span><span class="n">fmt_s</span><span class="p">,</span>
             <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">default_msec_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%03d</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">fmt</span>
 
     <span class="nd">@staticmethod</span>
@@ -345,7 +349,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
         <span class="n">to_console</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">to_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">no_tag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -360,7 +364,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LOGGERS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">DuplicateError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;名为 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 的日志器已存在，请修改 name&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;名为 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 的日志器已存在，请修改 name&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">level</span><span class="p">])</span>
         <span class="n">BotLogger</span><span class="o">.</span><span class="n">LOGGERS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -390,7 +394,7 @@
 
 <div class="viewcode-block" id="BotLogger.setLevel">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.BotLogger.setLevel">[文档]</a>
-    <span class="k">def</span> <span class="nf">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span> <span class="nf">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;设置日志等级</span>
 
 <span class="sd">        日志等级自动应用于包含的所有 handler</span>
@@ -399,122 +403,82 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler_arr</span><span class="p">:</span>
-            <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span></div>
+            <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__LOG_LEVEL_FLAG__</span> <span class="o">=</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">level</span><span class="p">]</span></div>
 </div>
 
 
 
-<span class="n">_SysExcInfoType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="nb">tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="ne">BaseException</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]]</span>
-    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-<span class="p">)</span>
-<span class="n">_ExcInfoType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">_SysExcInfoType</span> <span class="o">|</span> <span class="ne">BaseException</span>
+<span class="n">_EXC_FORMATTER</span> <span class="o">=</span> <span class="n">ExceptionFormatter</span><span class="p">(</span><span class="n">colored</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">PrefixLogger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;二次包装的日志器.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">get_exc_stack</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回生成更好的异常字符串&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">_EXC_FORMATTER</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">BotLogger</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">ref</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">=</span> <span class="n">prefix</span>
 
-    <span class="k">def</span> <span class="nf">_add_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">_CONSOLE_IO</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="n">_CONSOLE</span> <span class="o">=</span> <span class="n">rich</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">Console</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">_CONSOLE_IO</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">msg</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="n">exc_info</span><span class="p">:</span> <span class="n">_ExcInfoType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">stack_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">extra</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_prefix</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="n">msg</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-            <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span><span class="p">,</span>
-            <span class="n">stack_info</span><span class="o">=</span><span class="n">stack_info</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span><span class="p">,</span>
-            <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
-        <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">msg</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="n">exc_info</span><span class="p">:</span> <span class="n">_ExcInfoType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">stack_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">extra</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_prefix</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="n">msg</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-            <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span><span class="p">,</span>
-            <span class="n">stack_info</span><span class="o">=</span><span class="n">stack_info</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span><span class="p">,</span>
-            <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
-        <span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">max_string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回使用 rich 格式化的 object&quot;&quot;&quot;</span>
+    <span class="n">_CONSOLE</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+        <span class="n">rich</span><span class="o">.</span><span class="n">pretty</span><span class="o">.</span><span class="n">Pretty</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span>
+            <span class="n">indent_guides</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">max_string</span><span class="o">=</span><span class="n">max_string</span><span class="p">,</span>
+            <span class="n">overflow</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">crop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string</span>
 
-    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">msg</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="n">exc_info</span><span class="p">:</span> <span class="n">_ExcInfoType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">stack_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">extra</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_prefix</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="n">msg</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-            <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span><span class="p">,</span>
-            <span class="n">stack_info</span><span class="o">=</span><span class="n">stack_info</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span><span class="p">,</span>
-            <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
-        <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">msg</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="n">exc_info</span><span class="p">:</span> <span class="n">_ExcInfoType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">stack_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">extra</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_prefix</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="n">msg</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-            <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span><span class="p">,</span>
-            <span class="n">stack_info</span><span class="o">=</span><span class="n">stack_info</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span><span class="p">,</span>
-            <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
-        <span class="p">)</span>
+<span class="k">def</span> <span class="nf">log_exc</span><span class="p">(</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">BaseLogger</span><span class="p">,</span>
+    <span class="nb">locals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">e</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;异常回溯栈：</span><span class="se">\n</span><span class="si">{</span><span class="n">get_exc_stack</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;异常抛出点局部变量：</span><span class="se">\n</span><span class="si">{</span><span class="n">get_rich_str</span><span class="p">(</span><span class="nb">locals</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">critical</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">msg</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="n">exc_info</span><span class="p">:</span> <span class="n">_ExcInfoType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">stack_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">extra</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_prefix</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
-            <span class="n">msg</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-            <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span><span class="p">,</span>
-            <span class="n">stack_info</span><span class="o">=</span><span class="n">stack_info</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span><span class="p">,</span>
-            <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
-        <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">log_obj</span><span class="p">(</span><span class="n">log_method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">obj_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">：</span><span class="se">\n</span><span class="si">{</span><span class="n">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">log_method</span><span class="p">(</span><span class="n">obj_str</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="logger_patch">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.logger_patch">[文档]</a>
+<span class="k">def</span> <span class="nf">logger_patch</span><span class="p">(</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">log_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;修复任何非 :class:`.BotLogger` 类型的日志器，使其可以被用于 bot 实例初始化</span>
+
+<span class="sd">    .. admonition:: 注意</span>
+<span class="sd">       :class: caution</span>
+
+<span class="sd">       非 :class:`.BotLogger` 类型的日志器，不使用该方法打补丁，无法被用于 bot 实例。但如果不用于 bot 实例，可以不打补丁。</span>
+
+<span class="sd">    如果日志器的日志等级是可变的，请在更新后再次使用该方法修补</span>
+
+<span class="sd">    :param logger: 任意日志器对象（支持 debug, info, warning, error, critical 方法即可）</span>
+<span class="sd">    :param log_level: 日志器此时可以输出的最小日志等级（&quot;DEBUG&quot; 一端为小，&quot;CRITICAL&quot; 一端为大）</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">BaseLogger</span><span class="o">.</span><span class="n">LEVEL_FLAG_NAME</span><span class="p">,</span> <span class="n">BaseLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">log_level</span><span class="p">])</span>
+    <span class="nb">setattr</span><span class="p">(</span>
+        <span class="n">logger</span><span class="p">,</span>
+        <span class="n">BaseLogger</span><span class="o">.</span><span class="n">LEVEL_CHECK_METH_NAME</span><span class="p">,</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">BaseLogger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">,</span> <span class="n">logger</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -554,7 +518,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

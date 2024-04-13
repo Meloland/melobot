@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.models - MeloBot 2.5.10</title>
+        <title>melobot.models - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -627,26 +627,26 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.models.NoticeEvent.notice_user_id">
-<span class="sig-name descname"><span class="pre">notice_user_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.notice_user_id" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.models.NoticeEvent.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.user_id" title="Link to this definition">#</a></dt>
 <dd><p>通知作用者或主体方的 id，如被禁言的一方</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.models.NoticeEvent.notice_group_id">
-<span class="sig-name descname"><span class="pre">notice_group_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.notice_group_id" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.models.NoticeEvent.group_id">
+<span class="sig-name descname"><span class="pre">group_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.group_id" title="Link to this definition">#</a></dt>
 <dd><p>通知若发生在群中的群 id</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.models.NoticeEvent.notice_operator_id">
-<span class="sig-name descname"><span class="pre">notice_operator_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.notice_operator_id" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.models.NoticeEvent.operator_id">
+<span class="sig-name descname"><span class="pre">operator_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.operator_id" title="Link to this definition">#</a></dt>
 <dd><p>通知发起者或操作方的 id，如禁言别人的管理员</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.models.NoticeEvent.notice_msg_id">
-<span class="sig-name descname"><span class="pre">notice_msg_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.notice_msg_id" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.models.NoticeEvent.msg_id">
+<span class="sig-name descname"><span class="pre">msg_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.msg_id" title="Link to this definition">#</a></dt>
 <dd><p>通知涉及消息时的消息 id</p>
 </dd></dl>
 
@@ -1509,7 +1509,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

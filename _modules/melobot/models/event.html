@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.models.event - MeloBot 2.5.10</title>
+        <title>melobot.models.event - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -345,14 +345,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_format_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;对外部零信任，强制转换为 cq 字符串格式.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;对外部零信任，强制转换为 cq 字符串格式&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">to_cq_str</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">content</span>
 
     <span class="k">def</span> <span class="nf">_format_to_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;对外部零信任，强制转换为消息段格式.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;对外部零信任，强制转换为消息段格式&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
@@ -372,7 +372,7 @@
             <span class="k">return</span> <span class="n">to_cq_arr</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取消息中所有文本消息，返回合并字符串.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取消息中所有文本消息，返回合并字符串&quot;&quot;&quot;</span>
         <span class="n">text_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
@@ -580,7 +580,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
 
         <span class="k">def</span> <span class="nf">_gen_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;当传入的 rawEvent 缺失 sender 时，把属性直接置空.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;当传入的 rawEvent 缺失 sender 时，把属性直接置空&quot;&quot;&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
@@ -732,13 +732,13 @@
             <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
 
         <span class="c1">#: 通知作用者或主体方的 id，如被禁言的一方</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 通知若发生在群中的群 id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 通知发起者或操作方的 id，如禁言别人的管理员</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 通知涉及消息时的消息 id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notice_msg_id</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 入群通知事件的入群类型：管理员同意或管理员邀请</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">join_group_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;approve&quot;</span><span class="p">,</span> <span class="s2">&quot;invite&quot;</span><span class="p">]</span>
         <span class="c1">#: 退群通知事件的退群类型：自退群、踢出、bot 账号被踢</span>
@@ -779,72 +779,72 @@
         <span class="n">rawEvent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_friend_recall</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_recall</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_increase</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">join_group_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_decrease</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">leave_group_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_admin</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">admin_change_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_upload</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">,</span> <span class="n">isGroup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_ban</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_ban_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ban_time</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_friend_add</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_poke</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="k">if</span> <span class="s2">&quot;group_id&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_lucky_king</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_honor</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">honor_change_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;honor_type&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_title</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">new_title</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_card</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">old_card</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;card_old&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">new_card</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;card_new&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_offline_file</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">,</span> <span class="n">isGroup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_client_status</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_essence</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">essence_change_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">notice_msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="NoticeEvent.is_group">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.NoticeEvent.is_group">[文档]</a>
@@ -1176,7 +1176,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

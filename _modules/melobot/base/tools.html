@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.base.tools - MeloBot 2.5.10</title>
+        <title>melobot.base.tools - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -235,17 +235,14 @@
           <h1>melobot.base.tools 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">iscoroutine</span><span class="p">,</span> <span class="n">iscoroutinefunction</span>
+<span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">iscoroutine</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 
-<span class="kn">import</span> <span class="nn">rich</span>
-
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">BotBaseUtilsError</span><span class="p">,</span> <span class="n">BotRuntimeError</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">BotRuntimeError</span><span class="p">,</span> <span class="n">BotToolsError</span>
 <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">T3</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span>
 
 
@@ -282,7 +279,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_twin_event</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得两个时刻保持状态相反的 asyncio.Event。 获得的第一个为 unset，另一个为 set.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得两个时刻保持状态相反的 asyncio.Event。 获得的第一个为 unset，另一个为 set&quot;&quot;&quot;</span>
     <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">AsyncTwinEvent</span><span class="p">(),</span> <span class="n">AsyncTwinEvent</span><span class="p">()</span>
     <span class="n">a</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="n">b</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
@@ -359,7 +356,7 @@
 
 
 <span class="k">class</span> <span class="nc">IdWorker</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;雪花算法生成 ID.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;雪花算法生成 ID&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datacenter_id</span><span class="p">,</span> <span class="n">worker_id</span><span class="p">,</span> <span class="n">sequence</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MAX_WORKER_ID</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">^</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span>
@@ -380,11 +377,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
     <span class="k">def</span> <span class="nf">__gen_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成整数时间戳.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成整数时间戳&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取新 ID.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取新 ID&quot;&quot;&quot;</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_timestamp</span><span class="p">()</span>
 
         <span class="c1"># 时钟回拨</span>
@@ -406,14 +403,14 @@
         <span class="k">return</span> <span class="n">new_id</span>
 
     <span class="k">def</span> <span class="nf">__til_next_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_timestamp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;等到下一毫秒.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;等到下一毫秒&quot;&quot;&quot;</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_timestamp</span><span class="p">()</span>
         <span class="k">while</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">last_timestamp</span><span class="p">:</span>
             <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_timestamp</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">timestamp</span>
 
 
-<span class="n">ID_WORKER</span> <span class="o">=</span> <span class="n">IdWorker</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">_ID_WORKER</span> <span class="o">=</span> <span class="n">IdWorker</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_id">
@@ -423,15 +420,8 @@
 
 <span class="sd">    :return: id 值</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ID_WORKER</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span></div>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">_ID_WORKER</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span></div>
 
-
-
-<span class="k">def</span> <span class="nf">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回使用 rich 格式化的 object.&quot;&quot;&quot;</span>
-    <span class="n">sio</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-    <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sio</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">sio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="this_dir">
@@ -526,63 +516,73 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">func</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="n">wrapper</span></div>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span><span class="s2">&quot;to_async 函数只支持同步函数作为参数&quot;</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="to_coro">
 <a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.to_coro">[文档]</a>
-<span class="k">def</span> <span class="nf">to_coro</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">to_coro</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;协程包装函数</span>
 
-<span class="sd">    将一个同步函数包装为协程，保留返回值。如果需要传参使用 partial 包裹。</span>
+<span class="sd">    将一个同步函数或 Future 对象包装为协程，保留返回值。如果需要传参使用 partial 包裹。</span>
 
-<span class="sd">    :param func: 需要包装的函数</span>
+<span class="sd">    :param obj: 需要包装的同步函数或 Future 对象</span>
 <span class="sd">    :return: 协程</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">f</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">()</span></div>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">as_coro</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">obj</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">as_coro</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">to_async</span><span class="p">(</span><span class="n">obj</span><span class="p">)()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span><span class="s2">&quot;to_coro 函数只支持同步函数或 Future 对象作为参数&quot;</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="to_task">
 <a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.to_task">[文档]</a>
-<span class="k">def</span> <span class="nf">to_task</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">to_task</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;任务包装器</span>
 
-<span class="sd">    将一个同步函数或协程包装为任务，保留返回值。如果需要传参使用 partial 包裹。</span>
+<span class="sd">    将一个协程或 Future 对象包装为任务，保留返回值。</span>
 
-<span class="sd">    :param obj: 同步函数或协程</span>
+<span class="sd">    :param obj: 协程或 Future 对象</span>
 <span class="sd">    :return: 任务</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">obj</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">to_coro</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">to_coro</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>  <span class="c1"># type: ignore</span></div>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span><span class="s2">&quot;to_task 函数只支持协程或 Future 对象作为参数&quot;</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="lock">
 <a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.lock">[文档]</a>
-<span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]]):</span>
+<span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;锁装饰器</span>
 
 <span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数加锁。</span>
 
-<span class="sd">    在获取锁冲突时，调用 `callback` 获得一个回调并执行。回调执行完毕后直接返回</span>
+<span class="sd">    在获取锁冲突时，调用 `callback` 获得一个回调并执行。回调执行完毕后直接返回。</span>
+
+<span class="sd">    `callback` 参数为空，只应用 :class:`asyncio.Lock` 的锁功能。</span>
+
+<span class="sd">    被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</span>
 
 <span class="sd">    :param callback: 获取锁冲突时的回调</span>
-<span class="sd">    :return:</span>
-<span class="sd">       获取锁未冲突 -&gt; 被装饰函数返回值</span>
-
-<span class="sd">       获取锁冲突 -&gt; 回调的返回值</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">alock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;lock 装饰器的 callback 参数不可调用，callback 值为：</span><span class="si">{</span><span class="n">callback</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
@@ -591,10 +591,10 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">]]:</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
                 <span class="n">cb</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                    <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;lock 装饰器的 callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cb</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">cb</span>
@@ -610,7 +610,7 @@
 <div class="viewcode-block" id="cooldown">
 <a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.cooldown">[文档]</a>
 <span class="k">def</span> <span class="nf">cooldown</span><span class="p">(</span>
-    <span class="n">busy_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]],</span>
+    <span class="n">busy_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">cd_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T2</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
 <span class="p">):</span>
@@ -620,29 +620,27 @@
 
 <span class="sd">    如果被装饰函数已有一个在运行，此时调用 `busy_callback` 生成回调并执行。回调执行完毕后直接返回。</span>
 
-<span class="sd">    如果被装饰函数没有在运行的，但在冷却完成前被调用：</span>
+<span class="sd">    `busy_callback` 参数为空，则等待已运行的运行完成。随后执行下面的“冷却”处理逻辑。</span>
+
+<span class="sd">    当被装饰函数没有在运行的，但冷却时间未结束：</span>
 
 <span class="sd">       - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。</span>
-<span class="sd">       - `cd_callback` 为空， 被装饰函数持续等待，直至冷却结束再执行。</span>
+<span class="sd">       - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。</span>
+
+<span class="sd">    被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</span>
 
 <span class="sd">    :param busy_callback: 已运行时的回调</span>
-<span class="sd">    :param cd_callback: 冷却时间未到的回调</span>
+<span class="sd">    :param cd_callback: 冷却时间未结束的回调</span>
 <span class="sd">    :param interval: 冷却时间</span>
-<span class="sd">    :return:</span>
-<span class="sd">       被装饰函数可执行 -&gt; 被装饰函数返回值</span>
-
-<span class="sd">       发生已运行冲突 -&gt; `busy_callback` 的返回值</span>
-
-<span class="sd">       冷却时间未到 -&gt; `cd_callback` 的返回值</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">alock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
-    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">interval</span> <span class="o">-</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">busy_callback</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">interval</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">busy_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">busy_callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 busy_callback 参数不可调用，busy_callback 值为：</span><span class="si">{</span><span class="n">busy_callback</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">cd_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">cd_callback</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 cd_callback 参数不可调用，cd_callback 值为：</span><span class="si">{</span><span class="n">cd_callback</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
@@ -652,33 +650,33 @@
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span> <span class="o">|</span> <span class="n">T3</span><span class="p">:</span>
             <span class="k">nonlocal</span> <span class="n">pre_finish_t</span>
-            <span class="k">if</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">busy_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
                 <span class="n">busy_cb</span> <span class="o">=</span> <span class="n">busy_callback</span><span class="p">()</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">busy_cb</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                    <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 busy_callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">busy_cb</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">busy_cb</span>
 
             <span class="k">async</span> <span class="k">with</span> <span class="n">alock</span><span class="p">:</span>
-                <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">pre_finish_t</span>
+                <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">pre_finish_t</span>
                 <span class="k">if</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="n">interval</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
                     <span class="k">return</span> <span class="n">ret</span>
 
                 <span class="n">remain_t</span> <span class="o">=</span> <span class="n">interval</span> <span class="o">-</span> <span class="n">duration</span>
                 <span class="k">if</span> <span class="n">cd_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">cd_cb</span> <span class="o">=</span> <span class="n">cd_callback</span><span class="p">(</span><span class="n">remain_t</span><span class="p">)</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cd_cb</span><span class="p">):</span>
-                        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s2">&quot;cooldown 装饰器的 cd_callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cd_cb</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
                     <span class="k">return</span> <span class="k">await</span> <span class="n">cd_cb</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">remain_t</span><span class="p">)</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                    <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
                     <span class="k">return</span> <span class="n">ret</span>
 
         <span class="k">return</span> <span class="n">wrapped_func</span>
@@ -689,23 +687,25 @@
 
 <div class="viewcode-block" id="semaphore">
 <a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.semaphore">[文档]</a>
-<span class="k">def</span> <span class="nf">semaphore</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]],</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">semaphore</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;信号量装饰器</span>
 
 <span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数添加信号量控制。</span>
 
 <span class="sd">    在信号量无法立刻获取时，将调用 `callback` 获得回调并执行。回调执行完毕后直接返回。</span>
 
+<span class="sd">    `callback` 参数为空，只应用 :class:`asyncio.Semaphore` 的信号量功能。</span>
+
+<span class="sd">    被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</span>
+
 <span class="sd">    :param callback: 信号量无法立即获取的回调</span>
 <span class="sd">    :param value: 信号量阈值</span>
-<span class="sd">    :return:</span>
-<span class="sd">       可以立即获取信号量 -&gt; 被装饰函数返回值</span>
-
-<span class="sd">       不能立即获取信号量 -&gt; 回调的返回值</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">a_semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;semaphore 装饰器的 callback 参数不可调用，callback 值为：</span><span class="si">{</span><span class="n">callback</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
@@ -714,10 +714,10 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">]]:</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">a_semaphore</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">a_semaphore</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
                 <span class="n">cb</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                    <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;semaphore 装饰器的 callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cb</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">cb</span>
@@ -732,22 +732,24 @@
 
 <div class="viewcode-block" id="timelimit">
 <a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.timelimit">[文档]</a>
-<span class="k">def</span> <span class="nf">timelimit</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]],</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">timelimit</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;时间限制装饰器</span>
 
 <span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数添加超时控制。</span>
 
-<span class="sd">    超时之后，调用 `callback` 获得回调并执行，同时取消原任务</span>
+<span class="sd">    超时之后，调用 `callback` 获得回调并执行，同时取消原任务。</span>
+
+<span class="sd">    `callback` 参数为空，如果超时，则抛出 :class:`asyncio.TimeoutError` 异常。</span>
+
+<span class="sd">    被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</span>
 
 <span class="sd">    :param callback: 超时时的回调</span>
-<span class="sd">    :param timeout: 超时时间, defaults to 5</span>
-<span class="sd">    :return:</span>
-<span class="sd">       被装饰函数未超时 -&gt; 被装饰函数返回值</span>
-
-<span class="sd">       被装饰函数超时 -&gt; 回调的返回值</span>
+<span class="sd">    :param timeout: 超时时间</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;timelimit 装饰器的 callback 参数不可调用，callback 值为：</span><span class="si">{</span><span class="n">callback</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
@@ -759,14 +761,112 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">timeout</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span>
                 <span class="n">cb</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">iscoroutine</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">BotBaseUtilsError</span><span class="p">(</span>
+                    <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;timelimit 装饰器的 callback 返回的不是协程，返回的回调为：</span><span class="si">{</span><span class="n">cb</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">cb</span>
 
         <span class="k">return</span> <span class="n">wrapped_func</span>
+
+    <span class="k">return</span> <span class="n">deco_func</span></div>
+
+
+
+<div class="viewcode-block" id="speedlimit">
+<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.tools.speedlimit">[文档]</a>
+<span class="k">def</span> <span class="nf">speedlimit</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;流量/速率限制装饰器</span>
+
+<span class="sd">    本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：`duration` 秒内只允许 `limit` 次调用。</span>
+
+<span class="sd">    超出调用速率限制后，调用 `callback` 获得回调并执行，同时取消原任务。</span>
+
+<span class="sd">    `callback` 参数为空，等待直至满足速率控制要求再调用。</span>
+
+<span class="sd">    被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值。</span>
+
+<span class="sd">    :param callback: 超出速率限制时的回调</span>
+<span class="sd">    :param limit: `duration` 秒内允许调用多少次</span>
+<span class="sd">    :param duration: 时长区间</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">called_num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">min_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span><span class="s2">&quot;speedlimit 装饰器的 limit 参数必须 &gt; 0&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">duration</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span><span class="s2">&quot;speedlimit 装饰器的 duration 参数必须 &gt; 0&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">BotToolsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;speedlimit 装饰器的 callback 参数不可调用，callback 值为：</span><span class="si">{</span><span class="n">callback</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T2</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">]]:</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span><span class="p">:</span>
+            <span class="n">res_fut</span> <span class="o">=</span> <span class="n">_wrapped_func</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">fut_ret</span> <span class="o">=</span> <span class="k">await</span> <span class="n">res_fut</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fut_ret</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">fut_ret</span>
+            <span class="k">return</span> <span class="n">fut_ret</span>
+
+        <span class="k">return</span> <span class="n">wrapped_func</span>
+
+    <span class="k">def</span> <span class="nf">_wrapped_func</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T2</span><span class="p">]],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T1</span> <span class="o">|</span> <span class="n">T2</span> <span class="o">|</span> <span class="ne">Exception</span><span class="p">]:</span>
+        <span class="c1"># 分离出来定义，方便 result_set 调用形成递归。主要逻辑通过 Future 实现，有利于避免竞争问题。</span>
+        <span class="k">nonlocal</span> <span class="n">called_num</span><span class="p">,</span> <span class="n">min_start</span>
+        <span class="n">passed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">min_start</span>
+        <span class="n">res_fut</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">passed_time</span> <span class="o">&lt;=</span> <span class="n">duration</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">called_num</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">:</span>
+                <span class="n">called_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">result_set</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">result_set</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                    <span class="n">result_set</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="n">duration</span> <span class="o">-</span> <span class="n">passed_time</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">called_num</span><span class="p">,</span> <span class="n">min_start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            <span class="n">called_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">result_set</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">res_fut</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">result_set</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span>
+        <span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span> <span class="o">|</span> <span class="ne">Exception</span><span class="p">],</span>
+        <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">nonlocal</span> <span class="n">called_num</span>
+        <span class="k">try</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            只有依然在当前 duration 区间内，但超出调用次数限制的，需要等待。</span>
+<span class="sd">            随后就是递归调用。delay &gt; 0 为需要递归的分支。</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">delay</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_wrapped_func</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">fut</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="k">return</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">fut</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">fut</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">deco_func</span></div>
 
@@ -798,10 +898,12 @@
 <span class="sd">    :param timestamp: 在什么时刻调度</span>
 <span class="sd">    :return: :class:`asyncio.TimerHandle` 对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_soon</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="n">timestamp</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">callback</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span>
+            <span class="n">timestamp</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">,</span> <span class="n">callback</span>
+        <span class="p">)</span></div>
 
 
 
@@ -850,10 +952,10 @@
 <span class="sd">    :param timestamp: 在什么时刻调度</span>
 <span class="sd">    :return: :class:`asyncio.Future` 对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">timestamp</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">timestamp</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">)</span></div>
 
 
 
@@ -924,7 +1026,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

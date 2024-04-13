@@ -27,7 +27,7 @@ melobot.context
 
 .. autofunction:: melobot.context.meta_event
 
-.. autofunction:: melobot.context.get_store
+.. autofunction:: melobot.context.session_store
 
 .. autofunction:: melobot.context.pause
 

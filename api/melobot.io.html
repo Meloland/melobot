@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.io - MeloBot 2.5.10</title>
+        <title>melobot.io - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -268,7 +268,7 @@
 <li><p><strong>max_retry</strong> – 连接最大重试次数，默认 -1 代表无限次重试</p></li>
 <li><p><strong>retry_delay</strong> – 连接重试间隔时间</p></li>
 <li><p><strong>cd_time</strong> – 行为操作冷却时间（用于防止风控）</p></li>
-<li><p><strong>allow_reconnect</strong> – 是否在断连后重连。默认为 <cite>False</cite>，即服务端断线直接停止 bot；若为 <cite>True</cite>，则会按照 <cite>max_retry</cite>, <cite>retry_delay</cite> 不断尝试重连，重连成功前时所有行为操作将阻塞。</p></li>
+<li><p><strong>allow_reconnect</strong> – 建立连接失败是否重连。默认为 <cite>False</cite>，即服务端断线直接停止 bot；若为 <cite>True</cite>，则会按照 <cite>max_retry</cite>, <cite>retry_delay</cite> 不断尝试重连，重连成功前时所有行为操作将阻塞。</p></li>
 </ul>
 </dd>
 </dl>
@@ -348,7 +348,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.HttpConn">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">HttpConn</span></span><a class="reference internal" href="../_modules/melobot/io/full_duplex_http.html#HttpConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">HttpConn</span></span><a class="reference internal" href="../_modules/melobot/io/duplex_http.html#HttpConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn" title="Link to this definition">#</a></dt>
 <dd><p>基类：<a class="reference internal" href="melobot.base.html#melobot.base.abc.AbstractConnector" title="melobot.base.abc.AbstractConnector"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></p>
 <p>HTTP 全双工连接器</p>
 <p>HTTP 全双工连接器将会同时开启 HTTP 服务端和客户端。</p>
@@ -361,7 +361,7 @@ OneBot 实现程序将会向服务端发起 HTTP POST 请求用于事件上报�
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.io.HttpConn.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onebot_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">onebot_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/full_duplex_http.html#HttpConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onebot_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">onebot_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/duplex_http.html#HttpConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn.__init__" title="Link to this definition">#</a></dt>
 <dd><p>初始化一个 HTTP 全双工连接器</p>
 <p>HTTP 全双工连接器与 ws 有所不同。它无法即时发现 OneBot 实现程序掉线。</p>
 <p>可以通过 <cite>max_interval</cite> 参数，启用“超时无上报则认为掉线”的功能。这一般要和 OneBot 实现程序的心跳功能一同使用。推荐设置值为心跳时间 + 1。</p>
@@ -524,7 +524,7 @@ OneBot 实现程序将会向服务端发起 HTTP POST 请求用于事件上报�
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

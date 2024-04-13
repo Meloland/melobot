@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.base - MeloBot 2.5.10</title>
+        <title>melobot.base - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +158,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -248,6 +248,16 @@
 <h2>abc 模块<a class="headerlink" href="#abc" title="Link to this heading">#</a></h2>
 <p>本模块包含 melobot 重要的抽象类或基类。</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="melobot.base.abc.BaseLogger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.abc.</span></span><span class="sig-name descname"><span class="pre">BaseLogger</span></span><a class="reference internal" href="../_modules/melobot/base/abc.html#BaseLogger"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.abc.BaseLogger" title="Link to this definition">#</a></dt>
+<dd><p>日志器基类</p>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="melobot.base.abc.AbstractConnector">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.abc.</span></span><span class="sig-name descname"><span class="pre">AbstractConnector</span></span><a class="reference internal" href="../_modules/melobot/base/abc.html#AbstractConnector"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.abc.AbstractConnector" title="Link to this definition">#</a></dt>
 <dd><p>抽象连接器类</p>
@@ -257,7 +267,7 @@
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.abc.AbstractConnector.logger">
-<span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="（在 Python v3.12）"><span class="pre">logging.Logger</span></a></em><a class="headerlink" href="#melobot.base.abc.AbstractConnector.logger" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.base.abc.BaseLogger" title="melobot.base.abc.BaseLogger"><span class="pre">BaseLogger</span></a></em><a class="headerlink" href="#melobot.base.abc.AbstractConnector.logger" title="Link to this definition">#</a></dt>
 <dd><p>连接器的日志器</p>
 </dd></dl>
 
@@ -575,8 +585,8 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.base.exceptions.SessionHupTimeout">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionHupTimeout</span></span><a class="reference internal" href="../_modules/melobot/base/exceptions.html#SessionHupTimeout"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.exceptions.SessionHupTimeout" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.base.exceptions.BotSessionTimeout">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.exceptions.</span></span><span class="sig-name descname"><span class="pre">BotSessionTimeout</span></span><a class="reference internal" href="../_modules/melobot/base/exceptions.html#BotSessionTimeout"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.exceptions.BotSessionTimeout" title="Link to this definition">#</a></dt>
 <dd><p>会话暂停的超时异常</p>
 </dd></dl>
 
@@ -683,12 +693,12 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.base.tools.to_coro">
-<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">to_coro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/base/tools.html#to_coro"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.to_coro" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">to_coro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Future</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/base/tools.html#to_coro"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.to_coro" title="Link to this definition">#</a></dt>
 <dd><p>协程包装函数</p>
-<p>将一个同步函数包装为协程，保留返回值。如果需要传参使用 partial 包裹。</p>
+<p>将一个同步函数或 Future 对象包装为协程，保留返回值。如果需要传参使用 partial 包裹。</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> – 需要包装的函数</p>
+<dd class="field-odd"><p><strong>obj</strong> – 需要包装的同步函数或 Future 对象</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>协程</p>
@@ -698,12 +708,12 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.base.tools.to_task">
-<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">to_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Task</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/base/tools.html#to_task"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.to_task" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">to_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Future</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Task</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/base/tools.html#to_task"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.to_task" title="Link to this definition">#</a></dt>
 <dd><p>任务包装器</p>
-<p>将一个同步函数或协程包装为任务，保留返回值。如果需要传参使用 partial 包裹。</p>
+<p>将一个协程或 Future 对象包装为任务，保留返回值。</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>obj</strong> – 同步函数或协程</p>
+<dd class="field-odd"><p><strong>obj</strong> – 协程或 Future 对象</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>任务</p>
@@ -713,58 +723,53 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.base.tools.lock">
-<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">lock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#lock"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.lock" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">lock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#lock"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.lock" title="Link to this definition">#</a></dt>
 <dd><p>锁装饰器</p>
 <p>本方法作为异步函数的装饰器使用，可以为被装饰函数加锁。</p>
-<p>在获取锁冲突时，调用 <cite>callback</cite> 获得一个回调并执行。回调执行完毕后直接返回</p>
+<p>在获取锁冲突时，调用 <cite>callback</cite> 获得一个回调并执行。回调执行完毕后直接返回。</p>
+<p><cite>callback</cite> 参数为空，只应用 <a class="reference external" href="https://docs.python.org/3/library/asyncio-sync.html#asyncio.Lock" title="（在 Python v3.12）"><code class="xref py py-class docutils literal notranslate"><span class="pre">asyncio.Lock</span></code></a> 的锁功能。</p>
+<p>被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>callback</strong> – 获取锁冲突时的回调</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>获取锁未冲突 -&gt; 被装饰函数返回值</p>
-<p>获取锁冲突 -&gt; 回调的返回值</p>
-</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.base.tools.cooldown">
-<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">cooldown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">busy_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T2</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#cooldown"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.cooldown" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">cooldown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">busy_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T2</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#cooldown"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.cooldown" title="Link to this definition">#</a></dt>
 <dd><p>冷却装饰器</p>
 <p>本方法作为异步函数的装饰器使用，可以为被装饰函数添加 cd 时间。</p>
 <p>如果被装饰函数已有一个在运行，此时调用 <cite>busy_callback</cite> 生成回调并执行。回调执行完毕后直接返回。</p>
-<p>如果被装饰函数没有在运行的，但在冷却完成前被调用：</p>
+<p><cite>busy_callback</cite> 参数为空，则等待已运行的运行完成。随后执行下面的“冷却”处理逻辑。</p>
+<p>当被装饰函数没有在运行的，但冷却时间未结束：</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><cite>cd_callback</cite> 不为空：使用 <cite>cd_callback</cite> 生成回调并执行。</p></li>
-<li><p><cite>cd_callback</cite> 为空， 被装饰函数持续等待，直至冷却结束再执行。</p></li>
+<li><p><cite>cd_callback</cite> 为空，被装饰函数持续等待，直至冷却结束再执行。</p></li>
 </ul>
 </div></blockquote>
+<p>被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>busy_callback</strong> – 已运行时的回调</p></li>
-<li><p><strong>cd_callback</strong> – 冷却时间未到的回调</p></li>
+<li><p><strong>cd_callback</strong> – 冷却时间未结束的回调</p></li>
 <li><p><strong>interval</strong> – 冷却时间</p></li>
 </ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>被装饰函数可执行 -&gt; 被装饰函数返回值</p>
-<p>发生已运行冲突 -&gt; <cite>busy_callback</cite> 的返回值</p>
-<p>冷却时间未到 -&gt; <cite>cd_callback</cite> 的返回值</p>
-</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.base.tools.semaphore">
-<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">semaphore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#semaphore"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.semaphore" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">semaphore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#semaphore"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.semaphore" title="Link to this definition">#</a></dt>
 <dd><p>信号量装饰器</p>
 <p>本方法作为异步函数的装饰器使用，可以为被装饰函数添加信号量控制。</p>
 <p>在信号量无法立刻获取时，将调用 <cite>callback</cite> 获得回调并执行。回调执行完毕后直接返回。</p>
+<p><cite>callback</cite> 参数为空，只应用 <a class="reference external" href="https://docs.python.org/3/library/asyncio-sync.html#asyncio.Semaphore" title="（在 Python v3.12）"><code class="xref py py-class docutils literal notranslate"><span class="pre">asyncio.Semaphore</span></code></a> 的信号量功能。</p>
+<p>被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -772,31 +777,42 @@
 <li><p><strong>value</strong> – 信号量阈值</p></li>
 </ul>
 </dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>可以立即获取信号量 -&gt; 被装饰函数返回值</p>
-<p>不能立即获取信号量 -&gt; 回调的返回值</p>
-</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.base.tools.timelimit">
-<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">timelimit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#timelimit"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.timelimit" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">timelimit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#timelimit"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.timelimit" title="Link to this definition">#</a></dt>
 <dd><p>时间限制装饰器</p>
 <p>本方法作为异步函数的装饰器使用，可以为被装饰函数添加超时控制。</p>
-<p>超时之后，调用 <cite>callback</cite> 获得回调并执行，同时取消原任务</p>
+<p>超时之后，调用 <cite>callback</cite> 获得回调并执行，同时取消原任务。</p>
+<p><cite>callback</cite> 参数为空，如果超时，则抛出 <a class="reference external" href="https://docs.python.org/3/library/asyncio-exceptions.html#asyncio.TimeoutError" title="（在 Python v3.12）"><code class="xref py py-class docutils literal notranslate"><span class="pre">asyncio.TimeoutError</span></code></a> 异常。</p>
+<p>被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>callback</strong> – 超时时的回调</p></li>
-<li><p><strong>timeout</strong> – 超时时间, defaults to 5</p></li>
+<li><p><strong>timeout</strong> – 超时时间</p></li>
 </ul>
 </dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>被装饰函数未超时 -&gt; 被装饰函数返回值</p>
-<p>被装饰函数超时 -&gt; 回调的返回值</p>
-</p>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.base.tools.speedlimit">
+<span class="sig-prename descclassname"><span class="pre">melobot.base.tools.</span></span><span class="sig-name descname"><span class="pre">speedlimit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Coroutine" title="（在 Python v3.12）"><span class="pre">Coroutine</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/base/tools.html#speedlimit"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.tools.speedlimit" title="Link to this definition">#</a></dt>
+<dd><p>流量/速率限制装饰器</p>
+<p>本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：<cite>duration</cite> 秒内只允许 <cite>limit</cite> 次调用。</p>
+<p>超出调用速率限制后，调用 <cite>callback</cite> 获得回调并执行，同时取消原任务。</p>
+<p><cite>callback</cite> 参数为空，等待直至满足速率控制要求再调用。</p>
+<p>被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>callback</strong> – 超出速率限制时的回调</p></li>
+<li><p><strong>limit</strong> – <cite>duration</cite> 秒内允许调用多少次</p></li>
+<li><p><strong>duration</strong> – 时长区间</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -917,27 +933,48 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.base.typing.CustomNodeData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.typing.</span></span><span class="sig-name descname"><span class="pre">CustomNodeData</span></span><a class="reference internal" href="../_modules/melobot/base/typing.html#CustomNodeData"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.typing.CustomNodeData" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.base.typing.StdCustomNodeData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.typing.</span></span><span class="sig-name descname"><span class="pre">StdCustomNodeData</span></span><a class="reference internal" href="../_modules/melobot/base/typing.html#StdCustomNodeData"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.typing.StdCustomNodeData" title="Link to this definition">#</a></dt>
 <dd><p>onebot 标准的自定义消息结点数据</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.base.typing.CustomNodeData.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.base.typing.CustomNodeData.name" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.base.typing.StdCustomNodeData.nickname">
+<span class="sig-name descname"><span class="pre">nickname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.base.typing.StdCustomNodeData.nickname" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.base.typing.CustomNodeData.uin">
-<span class="sig-name descname"><span class="pre">uin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.base.typing.CustomNodeData.uin" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.base.typing.StdCustomNodeData.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.base.typing.StdCustomNodeData.user_id" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.base.typing.CustomNodeData.content">
-<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.base.typing.CustomNodeData.content" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.base.typing.StdCustomNodeData.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.base.typing.StdCustomNodeData.content" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.base.typing.GocqCustomNodeData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.base.typing.</span></span><span class="sig-name descname"><span class="pre">GocqCustomNodeData</span></span><a class="reference internal" href="../_modules/melobot/base/typing.html#GocqCustomNodeData"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.base.typing.GocqCustomNodeData" title="Link to this definition">#</a></dt>
+<dd><p>gocq 风格的自定义消息结点数据</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.base.typing.GocqCustomNodeData.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.base.typing.GocqCustomNodeData.name" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.base.typing.CustomNodeData.seq">
-<span class="sig-name descname"><span class="pre">seq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.base.typing.CustomNodeData.seq" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="melobot.base.typing.GocqCustomNodeData.uin">
+<span class="sig-name descname"><span class="pre">uin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.base.typing.GocqCustomNodeData.uin" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.base.typing.GocqCustomNodeData.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.base.typing.GocqCustomNodeData.content" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.base.typing.GocqCustomNodeData.seq">
+<span class="sig-name descname"><span class="pre">seq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.base.typing.GocqCustomNodeData.seq" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -964,7 +1001,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.typing.MsgNode.data">
-<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.base.typing.CustomNodeData" title="melobot.base.typing.CustomNodeData"><span class="pre">CustomNodeData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.base.typing.ReferNodeData" title="melobot.base.typing.ReferNodeData"><span class="pre">ReferNodeData</span></a></em><a class="headerlink" href="#melobot.base.typing.MsgNode.data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.base.typing.StdCustomNodeData" title="melobot.base.typing.StdCustomNodeData"><span class="pre">StdCustomNodeData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.base.typing.GocqCustomNodeData" title="melobot.base.typing.GocqCustomNodeData"><span class="pre">GocqCustomNodeData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.base.typing.ReferNodeData" title="melobot.base.typing.ReferNodeData"><span class="pre">ReferNodeData</span></a></em><a class="headerlink" href="#melobot.base.typing.MsgNode.data" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1226,6 +1263,7 @@
             <ul>
 <li><a class="reference internal" href="#">melobot.base</a><ul>
 <li><a class="reference internal" href="#abc">abc 模块</a><ul>
+<li><a class="reference internal" href="#melobot.base.abc.BaseLogger"><code class="docutils literal notranslate"><span class="pre">BaseLogger</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.abc.AbstractConnector"><code class="docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.abc.BotEvent"><code class="docutils literal notranslate"><span class="pre">BotEvent</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.abc.BotAction"><code class="docutils literal notranslate"><span class="pre">BotAction</span></code></a></li>
@@ -1239,7 +1277,7 @@
 </li>
 <li><a class="reference internal" href="#exceptions">exceptions 模块</a><ul>
 <li><a class="reference internal" href="#melobot.base.exceptions.BotException"><code class="docutils literal notranslate"><span class="pre">BotException</span></code></a></li>
-<li><a class="reference internal" href="#melobot.base.exceptions.SessionHupTimeout"><code class="docutils literal notranslate"><span class="pre">SessionHupTimeout</span></code></a></li>
+<li><a class="reference internal" href="#melobot.base.exceptions.BotSessionTimeout"><code class="docutils literal notranslate"><span class="pre">BotSessionTimeout</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#tools">tools 模块</a><ul>
@@ -1253,6 +1291,7 @@
 <li><a class="reference internal" href="#melobot.base.tools.cooldown"><code class="docutils literal notranslate"><span class="pre">cooldown()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.tools.semaphore"><code class="docutils literal notranslate"><span class="pre">semaphore()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.tools.timelimit"><code class="docutils literal notranslate"><span class="pre">timelimit()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.base.tools.speedlimit"><code class="docutils literal notranslate"><span class="pre">speedlimit()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.tools.call_later"><code class="docutils literal notranslate"><span class="pre">call_later()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.tools.call_at"><code class="docutils literal notranslate"><span class="pre">call_at()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.tools.async_later"><code class="docutils literal notranslate"><span class="pre">async_later()</span></code></a></li>
@@ -1262,7 +1301,8 @@
 </li>
 <li><a class="reference internal" href="#typing">typing 模块</a><ul>
 <li><a class="reference internal" href="#melobot.base.typing.MsgSegment"><code class="docutils literal notranslate"><span class="pre">MsgSegment</span></code></a></li>
-<li><a class="reference internal" href="#melobot.base.typing.CustomNodeData"><code class="docutils literal notranslate"><span class="pre">CustomNodeData</span></code></a></li>
+<li><a class="reference internal" href="#melobot.base.typing.StdCustomNodeData"><code class="docutils literal notranslate"><span class="pre">StdCustomNodeData</span></code></a></li>
+<li><a class="reference internal" href="#melobot.base.typing.GocqCustomNodeData"><code class="docutils literal notranslate"><span class="pre">GocqCustomNodeData</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.typing.ReferNodeData"><code class="docutils literal notranslate"><span class="pre">ReferNodeData</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.typing.MsgNode"><code class="docutils literal notranslate"><span class="pre">MsgNode</span></code></a></li>
 <li><a class="reference internal" href="#melobot.base.typing.ParseArgs"><code class="docutils literal notranslate"><span class="pre">ParseArgs</span></code></a></li>
@@ -1290,7 +1330,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

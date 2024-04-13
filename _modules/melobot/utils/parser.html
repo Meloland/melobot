@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.utils.parser - MeloBot 2.5.10</title>
+        <title>melobot.utils.parser - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -236,7 +236,7 @@
 <span></span><span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotParser</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">ArgParseError</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotValueError</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">ParseArgs</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -275,7 +275,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">i1</span> <span class="o">=</span> <span class="n">cmd_start</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd_start</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_start</span><span class="p">)</span>
         <span class="n">i2</span> <span class="o">=</span> <span class="n">cmd_sep</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd_sep</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_sep</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">i1</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\u0000</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">i2</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i1</span><span class="si">}</span><span class="se">\u0000</span><span class="si">{</span><span class="n">i2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">target</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formatters</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">formatters</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">formatters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">need_format</span> <span class="o">=</span> <span class="p">(</span>
@@ -287,12 +287,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ban_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\&#39;</span><span class="se">\&quot;\\</span><span class="s2">\(\)\[\]\{\}\r\n\ta-zA-Z0-9]&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_parse_regex</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ban_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_start</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_sep</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="n">ArgParseError</span><span class="p">(</span><span class="s2">&quot;存在命令解析器不支持的命令起始符，或命令间隔符&quot;</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ban_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_start</span><span class="p">)</span><span class="si">}{</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_sep</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="s2">&quot;存在命令解析器不支持的命令起始符，或命令间隔符&quot;</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_build_parse_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和 命令间隔符正则 pattern.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和 命令间隔符正则 pattern&quot;&quot;&quot;</span>
         <span class="n">temp_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
             <span class="sa">r</span><span class="s2">&quot;([\`\-\=\~\!\@\#\$\%\^\&amp;\*\(\)\_\+\[\]\{\}\|\:\,\.\/\&lt;\&gt;\?])&quot;</span>
         <span class="p">)</span>
@@ -307,16 +307,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">sep_parse_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_sep</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">start_parse_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_start</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ArgParseError</span><span class="p">(</span><span class="s2">&quot;命令解析器起始符不能和间隔符重合&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="s2">&quot;命令解析器起始符不能和间隔符重合&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_purify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;处理首尾的空格和行尾序列.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_split_string</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">,</span> <span class="n">popFirst</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;按照指定正则 pattern，对 string 进行分割.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;按照指定正则 pattern，对 string 进行分割&quot;&quot;&quot;</span>
         <span class="c1"># 将复杂的各种分隔符替换为 特殊字符，方便分割</span>
         <span class="n">temp_string</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u0000</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
         <span class="n">temp_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u0000</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">temp_string</span><span class="p">)</span>
@@ -325,7 +324,7 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">temp_list</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">textFilter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
-        <span class="n">pure_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_purify</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">textFilter</span> <span class="k">else</span> <span class="n">text</span>
+        <span class="n">pure_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">textFilter</span> <span class="k">else</span> <span class="n">text</span>
         <span class="n">cmd_strings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_string</span><span class="p">(</span><span class="n">pure_string</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_parse_regex</span><span class="p">)</span>
         <span class="n">cmd_list</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_split_string</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep_parse_regex</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">cmd_strings</span>
@@ -451,7 +450,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

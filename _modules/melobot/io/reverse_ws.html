@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>melobot.io.reverse_ws - MeloBot 2.5.10</title>
+        <title>melobot.io.reverse_ws - MeloBot 2.5.12</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.10</div></a>
+      <a href="../../../index.html"><div class="brand">MeloBot 2.5.12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.10</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -236,20 +236,14 @@
 <span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">http</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">DEBUG</span>
 
 <span class="kn">import</span> <span class="nn">websockets</span>
 <span class="kn">import</span> <span class="nn">websockets.exceptions</span> <span class="k">as</span> <span class="nn">wse</span>
+<span class="kn">import</span> <span class="nn">websockets.server</span>
 
-<span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span><span class="p">,</span> <span class="n">BotLife</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">get_better_exc</span>
-<span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">get_rich_str</span><span class="p">,</span> <span class="n">to_task</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ModuleType</span>
-
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">websockets.server</span>
-
-    <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotAction</span>
+<span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span><span class="p">,</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotLife</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ModuleType</span>
+<span class="kn">from</span> <span class="nn">..utils.logger</span> <span class="kn">import</span> <span class="n">log_exc</span><span class="p">,</span> <span class="n">log_obj</span>
 
 
 <div class="viewcode-block" id="ReverseWsConn">
@@ -290,7 +284,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">:</span> <span class="s2">&quot;websockets.server.WebSocketServer&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server_close</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="p">:</span> <span class="s2">&quot;websockets.server.WebSocketServerProtocol&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn_requested</span> <span class="o">=</span> <span class="kc">False</span>
@@ -317,11 +311,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;运行服务&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server_close</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="k">await</span> <span class="n">websockets</span><span class="o">.</span><span class="n">serve</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listen</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
-            <span class="n">process_request</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_check</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listen</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">process_request</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_check</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;连接器启动了 ws 服务，等待 ws 连接中&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server_close</span>
@@ -345,14 +335,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_reconn_flag</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ReverseWsConn&quot;</span><span class="p">:</span>
-        <span class="n">to_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">())</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">())</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_send_queue_watch</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__aexit__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="n">exc_val</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">:</span> <span class="n">ModuleType</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__aexit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__aexit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;连接器出现预期外的异常&quot;</span><span class="p">)</span>
+        <span class="n">log_exc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">exc_val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;发送一个 action 给连接器，实际上是先提交到 send_queue&quot;&quot;&quot;</span>
@@ -360,33 +355,36 @@
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn_ready</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slack</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 因 slack 状态被丢弃&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 因 slack 状态被丢弃&quot;</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 已成功加入发送队列&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 已成功加入发送队列&quot;</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_send_queue_watch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作&quot;&quot;&quot;</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ready_signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">action</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn_ready</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 准备发送，结构如下：</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
+                    <span class="n">log_obj</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+                        <span class="n">action</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 准备发送&quot;</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">ACTION_PRESEND</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> presend hook 已完成&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> presend hook 已完成&quot;</span><span class="p">)</span>
                 <span class="n">action_str</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-                <span class="n">wait_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cd_time</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 冷却等待：</span><span class="si">{</span><span class="n">wait_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">wait_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cd_time</span> <span class="o">-</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e9</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 冷却等待：</span><span class="si">{</span><span class="n">wait_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action_str</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2"> 已发送&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 已发送&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;连接器发送队列监视任务已被结束&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">wse</span><span class="o">.</span><span class="n">ConnectionClosed</span><span class="p">:</span>
@@ -415,47 +413,34 @@
                     <span class="k">if</span> <span class="n">raw_event</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
                         <span class="k">continue</span>
                     <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">raw_event</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="si">}</span><span class="s2"> 构建完成，结构：</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
+                        <span class="n">log_obj</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+                            <span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="n">event</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 构建完成&quot;</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_resp_event</span><span class="p">():</span>
-                        <span class="n">to_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+                        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">to_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_common_dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+                        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_common_dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
                 <span class="k">except</span> <span class="n">wse</span><span class="o">.</span><span class="n">ConnectionClosed</span><span class="p">:</span>
                     <span class="k">raise</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;bot 连接器监听任务抛出异常&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;异常点 raw_event：</span><span class="si">{</span><span class="n">raw_event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;异常回溯栈：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_better_exc</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;异常点局部变量：</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="nb">locals</span><span class="p">()))</span>
+                    <span class="n">log_obj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">raw_event</span><span class="p">,</span> <span class="s2">&quot;异常点 raw_event&quot;</span><span class="p">)</span>
+                    <span class="n">log_exc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;连接器监听任务已停止&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">wse</span><span class="o">.</span><span class="n">ConnectionClosed</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;连接器与 OneBot 实现程序的通信已经停止&quot;</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="c1"># 默认关闭等待时长是 10s，某些客户端对“礼貌的连接关闭”不响应</span>
-            <span class="c1"># 不等待它们, CLOSE anyway!!! :)</span>
-            <span class="n">ws</span><span class="o">.</span><span class="n">close_timeout</span> <span class="o">=</span> <span class="mf">0.01</span>
-            <span class="k">await</span> <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">close_timeout</span> <span class="o">=</span> <span class="mi">2</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server_close</span><span class="o">.</span><span class="n">done</span><span class="p">():</span>
                 <span class="k">return</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
                 <span class="k">return</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_restore_wait</span><span class="p">()</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_alive_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">]:</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">alive</span><span class="p">():</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server_close</span>
-            <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
-
-        <span class="n">to_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_send_queue_watch</span><span class="p">())</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">to_task</span><span class="p">(</span><span class="n">alive</span><span class="p">())]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_restore_wait</span><span class="p">()</span></div>
 
 </pre></div>
         </article>
@@ -496,7 +481,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=d12534ae"></script>
+</div><script src="../../../_static/documentation_options.js?v=f4a94c9a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
