@@ -47,8 +47,8 @@ class BotHookBus:
         except Exception as e:
             func_name = runner.cb.__qualname__
             self.logger.error(f"hook 方法 {func_name} 发生异常")
-            self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
 
     async def emit(
         self, hook_type: BotLife, *args: Any, wait: bool = False, **kwargs: Any

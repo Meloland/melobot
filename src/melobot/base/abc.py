@@ -75,7 +75,7 @@ class AbstractConnector(ABC):
         elif exc_type == asyncio.CancelledError:
             return True
         else:
-            self.logger.error("连接器出现预期外的异常：\n" + get_better_exc(exc_val))
+            self.logger.error(f"连接器出现预期外的异常：\n{get_better_exc(exc_val)}")
             return False
 
     def _set_ready(self) -> None:
@@ -94,10 +94,6 @@ class AbstractConnector(ABC):
         self.logger = logger
         self._common_dispatcher = dispatcher
         self._resp_dispatcher = responder
-
-    @abstractmethod
-    async def _alive_tasks(self) -> list[asyncio.Task]:
-        pass
 
     @abstractmethod
     async def _send(self, action: "BotAction") -> None:
@@ -121,7 +117,7 @@ class Flagable:
         self._flags_store[namespace][flag_name] = val
 
     def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
-        """检查此对象是否携带有指定的标记."""
+        """检查此对象是否携带有指定的标记"""
         self._flags_store = self._flags_store
         if self._flags_store is None:
             return False
@@ -134,7 +130,7 @@ class Flagable:
 
 class Cloneable:
     def copy(self):
-        """返回一个本对象的一个深拷贝对象."""
+        """返回一个本对象的一个深拷贝对象"""
         return deepcopy(self)
 
 
@@ -307,7 +303,7 @@ class SessionRule(ABC):
 
 
 class EventHandlerArgs:
-    """事件方法（事件执行器）构造参数."""
+    """事件方法（事件执行器）构造参数"""
 
     def __init__(
         self,
@@ -321,7 +317,7 @@ class EventHandlerArgs:
 
 
 class ShareObjArgs:
-    """插件共享对象构造参数."""
+    """插件共享对象构造参数"""
 
     def __init__(
         self, namespace: str, id: str, reflector: Callable[[], Coroutine[Any, Any, Any]]
@@ -332,7 +328,7 @@ class ShareObjArgs:
 
 
 class ShareObjCbArgs:
-    """插件共享对象回调的构造参数."""
+    """插件共享对象回调的构造参数"""
 
     def __init__(
         self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
@@ -343,7 +339,7 @@ class ShareObjCbArgs:
 
 
 class PluginSignalHandlerArgs:
-    """插件信号方法构造参数."""
+    """插件信号方法构造参数"""
 
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, Any]], namespace: str, signal: str
@@ -354,7 +350,7 @@ class PluginSignalHandlerArgs:
 
 
 class BotHookRunnerArgs:
-    """钩子方法（生命周期回调）构造参数."""
+    """钩子方法（生命周期回调）构造参数"""
 
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
@@ -405,13 +401,13 @@ class BotChecker(ABC, Cloneable):
         return WrappedChecker(LogicMode.XOR, self, other)
 
     def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 ok_cb 回调."""
+        """后期指定 ok_cb 回调"""
         if self.ok_cb is not None:
             raise BotCheckerError(f"ok_cb 回调已经被初始化，值为：{self.ok_cb}")
         self.ok_cb = ok_cb
 
     def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 fail_cb 回调."""
+        """后期指定 fail_cb 回调"""
         if self.fail_cb is not None:
             raise BotCheckerError(f"fail_cb 回调已经被初始化，值为：{self.fail_cb}")
         self.fail_cb = fail_cb
@@ -456,13 +452,13 @@ class WrappedChecker(BotChecker):
         self.c1, self.c2 = checker1, checker2
 
     def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 ok_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器."""
+        """后期指定 ok_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器"""
         super()._fill_ok_cb(ok_cb)
         self.c1._fill_ok_cb(ok_cb)
         self.c2._fill_ok_cb(ok_cb) if self.c2 else None
 
     def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 fail_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器."""
+        """后期指定 fail_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器"""
         super()._fill_fail_cb(fail_cb)
         self.c1._fill_fail_cb(fail_cb)
         self.c2._fill_fail_cb(fail_cb) if self.c2 else None

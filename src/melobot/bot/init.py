@@ -71,12 +71,12 @@ class MeloBot:
         self._loader = PluginLoader
         self._ctx_manager = BotSessionManager
         self._event_builder = BotEventBuilder
-        self._life: list[asyncio.Task]
         self._plugin_store = PluginStore()
         self._plugin_bus = PluginBus()
         self._bot_bus = BotHookBus()
         self._responder = BotResponder()
         self._dispatcher = BotDispatcher()
+        self._life_ended = asyncio.Event()
 
         self.__init_flag__: bool = False
         self.__run_flag__: bool = False
@@ -220,17 +220,16 @@ class MeloBot:
                 self._dispatcher._set_ready()
                 self._responder._set_ready()
                 self.connector._set_ready()
-                self._life = await self.connector._alive_tasks()
                 self.__run_flag__ = True
                 self.logger.info("bot 开始正常运行")
                 self.logger.debug(
                     f"使用的连接器类型：{self.connector.__class__.__name__}"
                 )
-                await asyncio.wait(self._life)
+                await self._life_ended.wait()
         except Exception as e:
             self.logger.error(f"bot 核心无法继续运行。异常：{e}")
-            self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
         finally:
             await self._bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.debug("BEFORE_STOP hook 已完成")
@@ -249,8 +248,7 @@ class MeloBot:
 
         await self._bot_bus.emit(BotLife.BEFORE_CLOSE, wait=True)
         self.logger.debug("BEFORE_CLOSE hook 已完成")
-        for task in self._life:
-            task.cancel()
+        self._life_ended.set()
 
     def is_activate(self) -> bool:
         """判断 bot 实例是否在非 slack 状态
@@ -320,7 +318,7 @@ class MeloBot:
         if self.logger.level == DEBUG:
             self.logger.debug(
                 f"bot 信号触发：{namespace}.{signal} | wait: {wait}"
-                + f"（当前 session 上下文：{SESSION_LOCAL:hexid}），传递参数：args={args}, kwargs={kwargs}"
+                f"（当前 session 上下文：{SESSION_LOCAL:hexid}），传递参数：args={args}, kwargs={kwargs}"
             )
         return self._plugin_bus.emit(namespace, signal, *args, wait=wait, **kwargs)
 

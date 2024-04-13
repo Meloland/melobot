@@ -51,7 +51,7 @@ __all__ = (
 
 
 class MsgActionArgs(ActionArgs):
-    """消息 action 信息构造类."""
+    """消息 action 信息构造类"""
 
     def __init__(
         self,
@@ -77,7 +77,7 @@ class MsgActionArgs(ActionArgs):
 
 
 def _process_msg(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegment]:
-    """将多种可能的消息格式，统一转换为 cq 消息列表."""
+    """将多种可能的消息格式，统一转换为 cq 消息列表"""
     if isinstance(content, str):
         _ = text_msg(content)
         if not isinstance(_, list):
@@ -215,7 +215,7 @@ async def send(
 
 
 class ForwardMsgActionArgs(ActionArgs):
-    """转发消息 action 信息构造类."""
+    """转发消息 action 信息构造类"""
 
     def __init__(
         self,
@@ -357,7 +357,7 @@ async def send_forward(
 
 
 class MsgDelActionArgs(ActionArgs):
-    """撤回消息 action 信息构造类."""
+    """撤回消息 action 信息构造类"""
 
     def __init__(self, msgId: int) -> None:
         super().__init__()
@@ -390,7 +390,7 @@ async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAc
 
 
 class GetMsgActionArgs(ActionArgs):
-    """消息信息获取 action 信息构造类."""
+    """消息信息获取 action 信息构造类"""
 
     def __init__(self, msgId: int) -> None:
         super().__init__()
@@ -421,7 +421,7 @@ async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction
 
 
 class getForwardActionArgs(ActionArgs):
-    """转发消息获取 action 信息构造类."""
+    """转发消息获取 action 信息构造类"""
 
     def __init__(self, forwardId: str) -> None:
         super().__init__()
@@ -454,7 +454,7 @@ async def get_forward_msg(
 
 
 class getImageActionArgs(ActionArgs):
-    """获取图片信息 action 信息构造类."""
+    """获取图片信息 action 信息构造类"""
 
     def __init__(self, fileName: str) -> None:
         super().__init__()
@@ -521,7 +521,7 @@ async def send_like(
 
 
 class GroupKickActionArgs(ActionArgs):
-    """群组踢人 action 信息构造类."""
+    """群组踢人 action 信息构造类"""
 
     def __init__(self, groupId: int, userId: int, laterReject: bool = False) -> None:
         super().__init__()
@@ -566,7 +566,7 @@ async def group_kick(
 
 
 class GroupBanActionArgs(ActionArgs):
-    """群组禁言 action 信息构造类."""
+    """群组禁言 action 信息构造类"""
 
     def __init__(self, groupId: int, userId: int, duration: int) -> None:
         super().__init__()
@@ -607,7 +607,7 @@ async def group_ban(
 
 
 class GroupWholeBanActionArgs(ActionArgs):
-    """群组全员禁言 action 信息构造类."""
+    """群组全员禁言 action 信息构造类"""
 
     def __init__(self, groupId: int, enable: bool) -> None:
         super().__init__()
@@ -643,7 +643,7 @@ async def group_whole_ban(
 
 
 class SetGroupAdminActionArgs(ActionArgs):
-    """设置群管理员 action 信息构造类."""
+    """设置群管理员 action 信息构造类"""
 
     def __init__(self, groupId: int, userId: int, enable: bool) -> None:
         super().__init__()
@@ -680,7 +680,7 @@ async def set_group_admin(
 
 
 class SetGroupCardActionArgs(ActionArgs):
-    """设置群名片 action 信息构造类."""
+    """设置群名片 action 信息构造类"""
 
     def __init__(self, groupId: int, userId: int, card: str) -> None:
         super().__init__()
@@ -717,7 +717,7 @@ async def set_group_card(
 
 
 class SetGroupNameActionArgs(ActionArgs):
-    """设置群名 action 信息构造类."""
+    """设置群名 action 信息构造类"""
 
     def __init__(self, groupId: int, name: str) -> None:
         super().__init__()
@@ -753,7 +753,7 @@ async def set_group_name(
 
 
 class GroupLeaveActionArgs(ActionArgs):
-    """退出群组 action 信息构造类."""
+    """退出群组 action 信息构造类"""
 
     def __init__(self, groupId: int, isDismiss: bool) -> None:
         super().__init__()
@@ -789,7 +789,7 @@ async def group_leave(
 
 
 class SetGroupTitleActionArgs(ActionArgs):
-    """设置群特殊头衔 action 信息构造类."""
+    """设置群特殊头衔 action 信息构造类"""
 
     def __init__(
         self,
@@ -844,7 +844,7 @@ async def set_group_title(
 
 class SetFriendAddActionArgs(ActionArgs):
     def __init__(self, addFlag: str, approve: bool, remark: str) -> None:
-        """处理加好友请求 action 信息构造类."""
+        """处理加好友请求 action 信息构造类"""
         super().__init__()
         self.type = "set_friend_add_request"
         self.params = {"flag": addFlag, "approve": approve, "remark": remark}
@@ -879,7 +879,7 @@ async def set_friend_add(
 
 
 class SetGroupAddActionArgs(ActionArgs):
-    """处理加群请求 action 信息构造类."""
+    """处理加群请求 action 信息构造类"""
 
     def __init__(
         self,
@@ -934,7 +934,7 @@ async def set_group_add(
 
 
 class GetLoginInfoActionArgs(ActionArgs):
-    """获取登录号信息 action 信息构造类."""
+    """获取登录号信息 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -964,7 +964,7 @@ async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
 
 
 class GetStrangerInfoActionArgs(ActionArgs):
-    """获取陌生人信息 action 信息构造类."""
+    """获取陌生人信息 action 信息构造类"""
 
     def __init__(self, userId: int, noCache: bool) -> None:
         super().__init__()
@@ -1000,7 +1000,7 @@ async def get_stranger_info(
 
 
 class GetFriendlistActionArgs(ActionArgs):
-    """获取好友列表 action 信息构造类."""
+    """获取好友列表 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1030,7 +1030,7 @@ async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
 
 
 class GetGroupInfoActionArgs(ActionArgs):
-    """获取群信息 action 信息构造类."""
+    """获取群信息 action 信息构造类"""
 
     def __init__(self, groupId: int, noCache: bool) -> None:
         super().__init__()
@@ -1066,7 +1066,7 @@ async def get_group_info(
 
 
 class GetGrouplistActionArgs(ActionArgs):
-    """获取群列表 action 信息构造类."""
+    """获取群列表 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1098,7 +1098,7 @@ async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
 
 
 class GetGroupMemberInfoActionArgs(ActionArgs):
-    """获取群成员信息 action 信息构造类."""
+    """获取群成员信息 action 信息构造类"""
 
     def __init__(self, groupId: int, userId: int, noCache: bool) -> None:
         super().__init__()
@@ -1135,7 +1135,7 @@ async def get_group_member_info(
 
 
 class GetGroupMemberlistActionArgs(ActionArgs):
-    """获取群成员列表 action 信息构造类."""
+    """获取群成员列表 action 信息构造类"""
 
     def __init__(self, groupId: int, noCache: bool) -> None:
         super().__init__()
@@ -1171,7 +1171,7 @@ async def get_group_member_list(
 
 
 class GetGroupHonorActionArgs(ActionArgs):
-    """获取群荣誉信息 action 信息构造类."""
+    """获取群荣誉信息 action 信息构造类"""
 
     def __init__(
         self,
@@ -1221,7 +1221,7 @@ async def get_group_honor(
 
 
 class CheckSendImageActionArgs(ActionArgs):
-    """检查是否可以发送图片 action 信息构造类."""
+    """检查是否可以发送图片 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1251,7 +1251,7 @@ async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
 
 
 class CheckSendRecordActionArgs(ActionArgs):
-    """检查是否可以发送语音 action 信息构造类."""
+    """检查是否可以发送语音 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1281,7 +1281,7 @@ async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
 
 
 class GetCqVersionActionArgs(ActionArgs):
-    """获取 onebot 实现版本 action 信息构造类."""
+    """获取 onebot 实现版本 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1311,7 +1311,7 @@ async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
 
 
 class GetCqStatusActionArgs(ActionArgs):
-    """获取 onebot 实现 状态 action 信息构造类."""
+    """获取 onebot 实现 状态 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()

@@ -102,8 +102,6 @@ class ForwardWsConn(AbstractConnector):
         if self._client_close.done():
             return
         else:
-            # 当 ctrl-c 发生后运行至此，或当 alive 任务被取消后运行至此
-            # 无论是否指定允许重连，都要立刻重设 _allow_reconn。以此保证 _listen 结束后不会再发起 _reconnect
             self._allow_reconn = False
             self._client_close.set_result(True)
 
@@ -116,6 +114,7 @@ class ForwardWsConn(AbstractConnector):
 
     async def __aenter__(self) -> "ForwardWsConn":
         to_task(self._run())
+        to_task(self._send_queue_watch())
         return self
 
     async def __aexit__(
@@ -125,7 +124,7 @@ class ForwardWsConn(AbstractConnector):
         return await super().__aexit__(exc_type, exc_val, exc_tb)
 
     async def _send(self, action: "BotAction") -> None:
-        """发送一个 action 给连接器。实际上是先提交到 send_queue."""
+        """发送一个 action 给连接器。实际上是先提交到 send_queue"""
         await self._ready_signal.wait()
         await self._conn_ready.wait()
 
@@ -136,7 +135,7 @@ class ForwardWsConn(AbstractConnector):
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
     async def _send_queue_watch(self) -> None:
-        """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作."""
+        """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作"""
         await self._ready_signal.wait()
 
         try:
@@ -145,8 +144,7 @@ class ForwardWsConn(AbstractConnector):
                 await self._conn_ready.wait()
                 if self.logger.level == DEBUG:
                     self.logger.debug(
-                        f"action {action:hexid} 准备发送，结构如下：\n"
-                        + get_rich_str(action.__dict__)
+                        f"action {action:hexid} 准备发送，结构如下：\n{get_rich_str(action.__dict__)}"
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
@@ -187,8 +185,7 @@ class ForwardWsConn(AbstractConnector):
                     event = self._event_builder.build(raw_event)
                     if self.logger.level == DEBUG:
                         self.logger.debug(
-                            f"event {event:hexid} 构建完成，结构：\n"
-                            + get_rich_str(event.raw)
+                            f"event {event:hexid} 构建完成，结构：\n{get_rich_str(event.raw)}"
                         )
                     if event.is_resp_event():
                         to_task(self._resp_dispatcher.respond(event))  # type: ignore
@@ -199,30 +196,17 @@ class ForwardWsConn(AbstractConnector):
                 except Exception as e:
                     self.logger.error("bot 连接器监听任务抛出异常")
                     self.logger.error(f"异常点 raw_event：{raw_event}")
-                    self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-                    self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+                    self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+                    self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")
         except ConnectionClosed:
             self.logger.debug("连接器与 OneBot 实现程序的通信已经停止")
         finally:
+            self.conn.close_timeout = 2
             if self._client_close.done():
                 return
             if not self._allow_reconn:
                 self._close()
                 return
             await self._reconnect()
-
-    async def _alive_tasks(self) -> list[asyncio.Task]:
-        async def alive():
-            try:
-                while True:
-                    await self._client_close
-                    if not self._allow_reconn:
-                        return
-                    await self._conn_ready.wait()
-            except asyncio.CancelledError:
-                self._close()
-
-        to_task(self._send_queue_watch())
-        return [to_task(alive())]

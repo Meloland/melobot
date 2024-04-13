@@ -110,7 +110,7 @@ class BotSession:
 
 
 class SessionLocal:
-    """Session 自动上下文."""
+    """Session 自动上下文"""
 
     __slots__ = tuple(
         list(filter(lambda x: not (len(x) >= 2 and x[:2] == "__"), dir(BotSession)))
@@ -212,7 +212,7 @@ class BotSessionManager:
 
     @classmethod
     def register(cls, handler: "EventHandler") -> None:
-        """以 handler 为键，注册 handler 对应的 session 空间、操作锁和挂起 session 空间."""
+        """以 handler 为键，注册 handler 对应的 session 空间、操作锁和挂起 session 空间"""
         cls.STORAGE[handler] = set()
         cls.WORK_LOCKS[handler] = asyncio.Lock()
         cls.HUP_STORAGE[handler] = set()
@@ -221,7 +221,7 @@ class BotSessionManager:
 
     @classmethod
     def inject(cls, session: BotSession, handler: "EventHandler") -> None:
-        """Handler 内绑定 handler 引用到 session."""
+        """Handler 内绑定 handler 引用到 session"""
         session._handler = handler
 
     @classmethod
@@ -230,7 +230,7 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: "EventHandler",
     ) -> bool:
-        """Session 附着操作，临界区操作。只能在 cls.try_attach 中进行."""
+        """Session 附着操作，临界区操作。只能在 cls.try_attach 中进行"""
         session = None
         for s in cls.HUP_STORAGE[handler]:
             # session 的挂起方法，保证 session 一定未过期，因此不进行过期检查
@@ -272,7 +272,7 @@ class BotSessionManager:
 
     @classmethod
     def _hup(cls, session: BotSession) -> None:
-        """挂起 session."""
+        """挂起 session"""
         if session._space_tag is None:
             raise BotSessionError(
                 "当前 session 上下文因为缺乏 session_rule 作为唤醒标志，无法挂起"
@@ -285,7 +285,7 @@ class BotSessionManager:
 
     @classmethod
     def _rouse(cls, session: BotSession) -> None:
-        """唤醒 session."""
+        """唤醒 session"""
         cls.HUP_STORAGE[session._space_tag].remove(session)  # type: ignore
         cls.STORAGE[session._space_tag].add(session)  # type: ignore
         session._awake_signal.set()
@@ -302,7 +302,7 @@ class BotSessionManager:
 
     @classmethod
     def recycle(cls, session: BotSession, alive: bool = False) -> None:
-        """Session 所在方法运行结束后，回收 session。 默认将 session 销毁。若 alive 为 True，则保留."""
+        """Session 所在方法运行结束后，回收 session。 默认将 session 销毁。若 alive 为 True，则保留"""
         session._free_signal.set()
         if not alive:
             cls._expire(session)
@@ -349,7 +349,7 @@ class BotSessionManager:
     def make_temp(
         cls, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
     ) -> BotSession:
-        """创建一次性 session。确定无需 session 管理机制时可以使用。 否则一定使用 cls.get 方法."""
+        """创建一次性 session。确定无需 session 管理机制时可以使用。 否则一定使用 cls.get 方法"""
         return cls._make(event)
 
     @classmethod
@@ -358,7 +358,7 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: "EventHandler",
     ) -> Optional[BotSession]:
-        """根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session，或返回 None."""
+        """根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session，或返回 None"""
         session = None
         check_rule, session_space, conflict_wait = (
             handler._rule,
@@ -407,7 +407,7 @@ class BotSessionManager:
     def _activate(
         cls, action_getter: Callable[P, Coroutine[Any, Any, "BotAction"]]
     ) -> Callable[P, Coroutine[Any, Any, Union["BotAction", "ResponseEvent", None]]]:
-        """对 action 构造器进行装饰，使产生的 action “活化”。 让其能自动识别上下文，自动附加触发 event，并自动完成发送过程."""
+        """对 action 构造器进行装饰，使产生的 action “活化”。 让其能自动识别上下文，自动附加触发 event，并自动完成发送过程"""
 
         @wraps(action_getter)
         async def activated_action(

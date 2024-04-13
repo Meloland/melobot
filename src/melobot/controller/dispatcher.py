@@ -54,7 +54,7 @@ class BotDispatcher:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         channel: Type["EventHandler"],
     ) -> None:
-        """向指定的通道推送事件."""
+        """向指定的通道推送事件"""
         try:
             permit_priority = PriorLevel.MIN.value
             handlers = self.handlers[channel]
@@ -76,14 +76,14 @@ class BotDispatcher:
                     permit_priority = handler.priority
         except Exception as e:
             self.logger.error("bot dispatcher 抛出异常")
-            self.logger.error("异常点 event：\n" + get_rich_str(event.raw))
-            self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+            self.logger.error(f"异常点 event：\n{get_rich_str(f'{event:hexid}')}")
+            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
 
     async def dispatch(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
     ) -> None:
-        """把事件分发到对应的事件通道."""
+        """把事件分发到对应的事件通道"""
         await self._ready_signal.wait()
         await self._bot_bus.emit(BotLife.EVENT_BUILT, event, wait=True)
         self.logger.debug(f"event {event:hexid} built hook 已完成")

@@ -49,7 +49,7 @@ class MsgLvlChecker(BotChecker):
         self.black_list = black_users if black_users is not None else []
 
     def _get_level(self, event: "MessageEvent") -> User:
-        """获得事件对应的登记."""
+        """获得事件对应的登记"""
         qid = event.sender.id
 
         if qid in self.black_list:
@@ -372,6 +372,6 @@ class NoticeTypeChecker(BotChecker):
         if self.sub_type == "ALL":
             status = True
         else:
-            check_method = getattr(event, "is_" + self.sub_type)
+            check_method = getattr(event, f"is_{self.sub_type}")
             status = check_method()
         return status

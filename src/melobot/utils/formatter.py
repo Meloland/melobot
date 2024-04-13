@@ -173,7 +173,7 @@ class CmdArgFormatter:
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip += f"\n详细错误描述：[{e_class}] {info.exc}"
-        tip = f"命令 {info.group_id} 参数格式化失败：\n" + tip
+        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
         await send(tip)
 
     async def _verify_fail_default(self, info: FormatInfo) -> None:
@@ -185,12 +185,12 @@ class CmdArgFormatter:
             else f"给定的值 {src} 不符合要求。"
         )
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = f"命令 {info.group_id} 参数格式化失败：\n" + tip
+        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
         await send(tip)
 
     async def _arglack_default(self, info: FormatInfo) -> None:
         tip = f"第 {info.idx+1} 个参数"
         tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = f"命令 {info.group_id} 参数格式化失败：\n" + tip
+        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
         await send(tip)

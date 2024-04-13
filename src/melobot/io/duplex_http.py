@@ -80,7 +80,7 @@ class HttpConn(AbstractConnector):
         self._close_lock = asyncio.Lock()
         self._onebot_onlined = asyncio.Event()
         self._allow_reconn = allow_reconnect
-        self._had_connected = False
+        self._connected_flag = False
 
     async def _start(self) -> None:
         """启动连接器"""
@@ -99,7 +99,7 @@ class HttpConn(AbstractConnector):
         )
         await self._onebot_onlined.wait()
         self.logger.info("HTTP 双向通信已建立")
-        self._had_connected = True
+        self._connected_flag = True
 
         if self.max_interval is not None and self.max_interval > 0:
             to_task(self._overtime_monitor(self.max_interval))
@@ -136,6 +136,7 @@ class HttpConn(AbstractConnector):
 
     async def __aenter__(self) -> "HttpConn":
         to_task(self._start())
+        to_task(self._send_queue_watch())
         return self
 
     async def __aexit__(
@@ -151,7 +152,7 @@ class HttpConn(AbstractConnector):
         await self._ready_signal.wait()
         if not self._onebot_onlined.is_set():
             self._onebot_onlined.set()
-            if self._had_connected:
+            if self._connected_flag:
                 self.logger.info("OneBot 实现程序已经重新上线")
                 await self._bot_bus.emit(BotLife.RECONNECTED)
                 self.logger.debug("RECONNECTED hook 已完成")
@@ -159,20 +160,18 @@ class HttpConn(AbstractConnector):
         try:
             data: dict = await request.json()
             if self.logger.level == DEBUG:
-                self.logger.debug(
-                    "收到事件，未格式化的字典对象：\n" + get_rich_str(data)
-                )
+                self.logger.debug(f"收到事件，未格式化的字典对象：\n{data}")
             event = self._event_builder.build(data)
             if self.logger.level == DEBUG:
                 self.logger.debug(
-                    f"event {event:hexid} 构建完成，结构：\n" + get_rich_str(event.raw)
+                    f"event {event:hexid} 构建完成，结构：\n{get_rich_str(event.raw)}"
                 )
             to_task(self._common_dispatcher.dispatch(event))  # type: ignore
         except Exception as e:
             self.logger.error("bot 连接器监听任务抛出异常")
             self.logger.error(f"异常点 raw_event：{data}")
-            self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
         finally:
             return aiohttp.web.Response(status=204)
 
@@ -188,12 +187,12 @@ class HttpConn(AbstractConnector):
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
     async def _send_queue_watch(self) -> None:
-        """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作."""
+        """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作"""
 
         async def take_action(action: "BotAction") -> None:
             try:
                 _ = await self.client_session.post(
-                    self.onebot_url + f"/{action.type}", json=action.params
+                    f"{self.onebot_url}/{action.type}", json=action.params
                 )
                 if action.resp_id is None:
                     return
@@ -218,8 +217,7 @@ class HttpConn(AbstractConnector):
                 await self._onebot_onlined.wait()
                 if self.logger.level == DEBUG:
                     self.logger.debug(
-                        f"action {action:hexid} 准备发送，结构如下：\n"
-                        + get_rich_str(action.__dict__)
+                        f"action {action:hexid} 准备发送，结构如下：\n{get_rich_str(action.__dict__)}"
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
@@ -233,13 +231,3 @@ class HttpConn(AbstractConnector):
                 self._pre_send_time = time.time_ns()
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")
-
-    async def _alive_tasks(self) -> list[asyncio.Task]:
-        async def alive() -> None:
-            try:
-                await self._closed.wait()
-            except asyncio.CancelledError:
-                await self._close()
-
-        to_task(self._send_queue_watch())
-        return [to_task(alive())]

@@ -11,7 +11,7 @@ from ..base.typing import Literal, Optional
 
 
 class NullLogger(Logger):
-    """获得一个空日志器，支持所有日志操作， 但是丢弃所有日志."""
+    """获得一个空日志器，支持所有日志操作， 但是丢弃所有日志"""
 
     def __init__(self, name: str) -> None:
         super().__init__(name, CRITICAL)
@@ -58,7 +58,7 @@ class BotLogger(Logger):
         ]
         if not no_tag:
             fmt_arr.insert(0, f"%(purple)s{name}%(reset)s")
-        fmt_s = " " + " │ ".join(fmt_arr)
+        fmt_s = f" {' │ '.join(fmt_arr)}"
         fmt = colorlog.ColoredFormatter(
             fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",

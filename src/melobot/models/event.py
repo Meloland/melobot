@@ -108,14 +108,14 @@ class MessageEvent(BotEvent):
             self.group_id = rawEvent["group_id"]
 
     def _format_to_str(self, content: list | str) -> str:
-        """对外部零信任，强制转换为 cq 字符串格式."""
+        """对外部零信任，强制转换为 cq 字符串格式"""
         if not isinstance(content, str):
             return to_cq_str(content)
         else:
             return content
 
     def _format_to_array(self, content: list | str) -> list[MsgSegment]:
-        """对外部零信任，强制转换为消息段格式."""
+        """对外部零信任，强制转换为消息段格式"""
         if not isinstance(content, str):
             for item in content:
                 if item["type"] == "text":
@@ -135,7 +135,7 @@ class MessageEvent(BotEvent):
             return to_cq_arr(content)
 
     def _get_text(self, content: list[MsgSegment]) -> str:
-        """获取消息中所有文本消息，返回合并字符串."""
+        """获取消息中所有文本消息，返回合并字符串"""
         text_list: list[str] = []
         for item in content:
             if item["type"] == "text":
@@ -308,7 +308,7 @@ class MessageEvent(BotEvent):
                     self.group_title = rawEvent["sender"]["title"]
 
         def _gen_empty(self) -> None:
-            """当传入的 rawEvent 缺失 sender 时，把属性直接置空."""
+            """当传入的 rawEvent 缺失 sender 时，把属性直接置空"""
             self.id = self._rawEvent["user_id"]
             self.nickname = None
             self.sex = None

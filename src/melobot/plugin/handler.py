@@ -94,7 +94,7 @@ class EventHandler:
         session: "BotSession",
         timeout: Optional[float] = None,
     ) -> T:
-        """在指定 session 上下文中运行协程。异常将会抛出."""
+        """在指定 session 上下文中运行协程。异常将会抛出"""
         if session._handler is None:
             BotSessionManager.inject(session, self)
         try:
@@ -109,7 +109,7 @@ class EventHandler:
     async def _run(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
     ) -> None:
-        """获取 session 然后准备运行 executor."""
+        """获取 session 然后准备运行 executor"""
         try:
             session = None
             if not self._direct_rouse:
@@ -137,9 +137,9 @@ class EventHandler:
             self.logger.error(
                 f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常"
             )
-            self.logger.error("异常点 event：\n" + get_rich_str(event.raw))
-            self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+            self.logger.error(f"异常点 event：\n{f'{event:hexid}'}")
+            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
         finally:
             if session is None:
                 return
@@ -257,7 +257,7 @@ class MsgEventHandler(EventHandler):
     def _match(
         self, event: "MessageEvent"
     ) -> bool | tuple[bool, str | None, ParseArgs | None]:
-        """检查是否匹配."""
+        """检查是否匹配"""
         if self.matcher:
             return self.matcher.match(event.text)
         if self.parser:
@@ -272,7 +272,7 @@ class MsgEventHandler(EventHandler):
         return True
 
     async def _format(self, group_id: str, args: ParseArgs) -> bool:
-        """格式化。只有 parser 存在时需要."""
+        """格式化。只有 parser 存在时需要"""
         self.parser = cast(BotParser, self.parser)
         if not self.parser.need_format:
             return True

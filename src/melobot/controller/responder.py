@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class BotResponder:
-    """Bot 响应模块，是 action 发送方和 bot 连接模块的媒介。 提供 action 发送、响应回送功能."""
+    """Bot 响应模块，是 action 发送方和 bot 连接模块的媒介。 提供 action 发送、响应回送功能"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -36,7 +36,7 @@ class BotResponder:
         try:
             if self.logger.level == DEBUG:
                 self.logger.debug(
-                    f"收到 resp {resp:hexid}，结构：\n" + get_rich_str(resp.raw)
+                    f"收到 resp {resp:hexid}，结构：\n{get_rich_str(resp.raw)}"
                 )
             if resp.id is None:
                 return
@@ -54,18 +54,18 @@ class BotResponder:
             self._resp_table.pop(resp.id)  # type: ignore
         except Exception as e:
             self.logger.error("bot responder.dispatch 抛出异常")
-            self.logger.error("异常点 resp_event：\n" + get_rich_str(resp))
-            self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+            self.logger.error(f"异常点 resp_event：\n{get_rich_str(resp)}")
+            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
 
     async def take_action(self, action: "BotAction") -> None:
-        """响应器发送 action, 不等待响应."""
+        """响应器发送 action, 不等待响应"""
         await self._ready_signal.wait()
         await self._action_sender._send(action)
         return None
 
     async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
-        """响应器发送 action，并返回一个 Future 用于等待响应."""
+        """响应器发送 action，并返回一个 Future 用于等待响应"""
         await self._ready_signal.wait()
         fut: Future["ResponseEvent"] = Future()
         self._resp_table[action.resp_id] = fut  # type: ignore

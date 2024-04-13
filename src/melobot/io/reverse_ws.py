@@ -106,6 +106,7 @@ class ReverseWsConn(AbstractConnector):
 
     async def __aenter__(self) -> "ReverseWsConn":
         to_task(self._run())
+        to_task(self._send_queue_watch())
         return self
 
     async def __aexit__(
@@ -126,7 +127,7 @@ class ReverseWsConn(AbstractConnector):
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
     async def _send_queue_watch(self) -> None:
-        """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作."""
+        """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作"""
         await self._ready_signal.wait()
 
         try:
@@ -135,8 +136,7 @@ class ReverseWsConn(AbstractConnector):
                 await self._conn_ready.wait()
                 if self.logger.level == DEBUG:
                     self.logger.debug(
-                        f"action {action:hexid} 准备发送，结构如下：\n"
-                        + get_rich_str(action.__dict__)
+                        f"action {action:hexid} 准备发送，结构如下：\n{get_rich_str(action.__dict__)}"
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
@@ -179,8 +179,7 @@ class ReverseWsConn(AbstractConnector):
                     event = self._event_builder.build(raw_event)
                     if self.logger.level == DEBUG:
                         self.logger.debug(
-                            f"event {event:hexid} 构建完成，结构：\n"
-                            + get_rich_str(event.raw)
+                            f"event {event:hexid} 构建完成，结构：\n{get_rich_str(event.raw)}"
                         )
                     if event.is_resp_event():
                         to_task(self._resp_dispatcher.respond(event))  # type: ignore
@@ -191,26 +190,17 @@ class ReverseWsConn(AbstractConnector):
                 except Exception as e:
                     self.logger.error("bot 连接器监听任务抛出异常")
                     self.logger.error(f"异常点 raw_event：{raw_event}")
-                    self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-                    self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+                    self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+                    self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")
         except wse.ConnectionClosed:
             self.logger.debug("连接器与 OneBot 实现程序的通信已经停止")
         finally:
+            self._conn.close_timeout = 2
             if self._server_close.done():
                 return
             if not self._allow_reconn:
                 self._close()
                 return
             self._restore_wait()
-
-    async def _alive_tasks(self) -> list[asyncio.Task]:
-        async def alive():
-            try:
-                await self._server_close
-            except asyncio.CancelledError:
-                self._close()
-
-        to_task(self._send_queue_watch())
-        return [to_task(alive())]

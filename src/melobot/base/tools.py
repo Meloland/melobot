@@ -48,7 +48,7 @@ class AsyncTwinEvent(asyncio.Event):
 
 
 def get_twin_event() -> tuple[asyncio.Event, asyncio.Event]:
-    """获得两个时刻保持状态相反的 asyncio.Event。 获得的第一个为 unset，另一个为 set."""
+    """获得两个时刻保持状态相反的 asyncio.Event。 获得的第一个为 unset，另一个为 set"""
     a, b = AsyncTwinEvent(), AsyncTwinEvent()
     a.bind(b)
     b.bind(a)
@@ -119,7 +119,7 @@ class RWController:
 
 
 class IdWorker:
-    """雪花算法生成 ID."""
+    """雪花算法生成 ID"""
 
     def __init__(self, datacenter_id, worker_id, sequence=0) -> None:
         self.MAX_WORKER_ID = -1 ^ (-1 << 3)
@@ -140,11 +140,11 @@ class IdWorker:
         self.last_timestamp = -1
 
     def __gen_timestamp(self) -> int:
-        """生成整数时间戳."""
+        """生成整数时间戳"""
         return int(time.time_ns() / 1e6)
 
     def get_id(self) -> int:
-        """获取新 ID."""
+        """获取新 ID"""
         timestamp = self.__gen_timestamp()
 
         # 时钟回拨
@@ -166,7 +166,7 @@ class IdWorker:
         return new_id
 
     def __til_next_millis(self, last_timestamp) -> int:
-        """等到下一毫秒."""
+        """等到下一毫秒"""
         timestamp = self.__gen_timestamp()
         while timestamp <= last_timestamp:
             timestamp = self.__gen_timestamp()
@@ -189,7 +189,7 @@ _CONSOLE = rich.console.Console(file=_CONSOLE_IO)
 
 
 def get_rich_str(obj: object, max_string: Optional[int] = 1000) -> str:
-    """返回使用 rich 格式化的 object."""
+    """返回使用 rich 格式化的 object"""
     _CONSOLE.print(
         rich.pretty.Pretty(
             obj,

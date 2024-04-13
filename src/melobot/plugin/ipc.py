@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class ShareObject:
-    """共享对象."""
+    """共享对象"""
 
     def __init__(self, namespace: str, id: str) -> None:
         self.namespace = namespace
@@ -29,19 +29,19 @@ class ShareObject:
 
     @property
     async def val(self) -> Any:
-        """共享对象引用的值."""
+        """共享对象引用的值"""
         async with self.__rwc.safe_read():
             return await self.__reflect()
 
     async def affect(self, *args: Any, **kwargs: Any) -> Any:
-        """触发共享对象的回调，回调未设置时会等待。 如果本来就没有回调，则会陷入无休止等待."""
+        """触发共享对象的回调，回调未设置时会等待。 如果本来就没有回调，则会陷入无休止等待"""
         await self.__cb_set.wait()
         async with self.__rwc.safe_write():
             return await self.__callback(*args, **kwargs)
 
 
 class PluginStore:
-    """插件共享存储."""
+    """插件共享存储"""
 
     def __init__(self) -> None:
         self.store: dict[str, dict[str, ShareObject]] = {}
@@ -49,7 +49,7 @@ class PluginStore:
     def create_so(
         self, reflector: Callable[[], Coroutine[Any, Any, Any]], namespace: str, id: str
     ) -> None:
-        """创建共享对象."""
+        """创建共享对象"""
         if namespace not in self.store.keys():
             self.store[namespace] = {}
         obj = self.store[namespace].get(id)
@@ -64,7 +64,7 @@ class PluginStore:
     def bind_cb(
         self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
     ) -> None:
-        """为共享对象绑定回调."""
+        """为共享对象绑定回调"""
         if namespace not in self.store.keys():
             raise ShareObjError(f"共享对象回调指定的命名空间 {namespace} 不存在")
         if id not in self.store[namespace].keys():
@@ -78,7 +78,7 @@ class PluginStore:
         self.store[namespace][id]._fill_cb(cb)
 
     def get(self, namespace: str, id: str) -> ShareObject:
-        """获取共享对象."""
+        """获取共享对象"""
         if namespace not in self.store.keys():
             raise ShareObjError(
                 f"无法获取不存在的共享对象：命名空间 {namespace} 不存在"
@@ -100,7 +100,7 @@ class PluginSignalHandler:
 
 
 class PluginBus:
-    """插件信号总线."""
+    """插件信号总线"""
 
     def __init__(self) -> None:
         self.store: dict[str, dict[str, PluginSignalHandler]] = {}
@@ -112,7 +112,7 @@ class PluginBus:
     def register(
         self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
     ) -> None:
-        """绑定一个插件信号处理方法。由 plugin build 过程调用."""
+        """绑定一个插件信号处理方法。由 plugin build 过程调用"""
         if namespace not in self.store.keys():
             self.store[namespace] = {}
         if signal in self.store[namespace].keys():
@@ -122,15 +122,15 @@ class PluginBus:
     async def _run_on_ctx(
         self, handler: PluginSignalHandler, *args: Any, **kwargs: Any
     ) -> Any:
-        """在指定的上下文下运行插件信号处理方法."""
+        """在指定的上下文下运行插件信号处理方法"""
         try:
             ret = await handler.cb(*args, **kwargs)
             return ret
         except Exception as e:
             func_name = handler.cb.__qualname__
             self.logger.error(f"插件信号处理方法 {func_name} 发生异常")
-            self.logger.error("异常回溯栈：\n" + get_better_exc(e))
-            self.logger.error("异常点局部变量：\n" + get_rich_str(locals()))
+            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
+            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
 
     async def emit(
         self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any

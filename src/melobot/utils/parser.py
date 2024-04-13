@@ -36,7 +36,7 @@ class CmdParser(BotParser):
         """
         i1 = cmd_start if isinstance(cmd_start, str) else "".join(cmd_start)
         i2 = cmd_sep if isinstance(cmd_sep, str) else "".join(cmd_sep)
-        super().__init__(i1 + "\u0000" + i2)
+        super().__init__(f"{i1}\u0000{i2}")
         self.target = target if isinstance(target, list) else [target]
         self.formatters = [] if formatters is None else formatters
         self.need_format = (
@@ -48,11 +48,11 @@ class CmdParser(BotParser):
         self.ban_regex = re.compile(r"[\'\"\\\(\)\[\]\{\}\r\n\ta-zA-Z0-9]")
         self._build_parse_regex()
 
-        if self.ban_regex.findall("".join(cmd_start) + "".join(cmd_sep)):
+        if self.ban_regex.findall(f"{''.join(cmd_start)}{''.join(cmd_sep)}"):
             raise ArgParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
 
     def _build_parse_regex(self):
-        """建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和 命令间隔符正则 pattern."""
+        """建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和 命令间隔符正则 pattern"""
         temp_regex = re.compile(
             r"([\`\-\=\~\!\@\#\$\%\^\&\*\(\)\_\+\[\]\{\}\|\:\,\.\/\<\>\?])"
         )
@@ -69,14 +69,13 @@ class CmdParser(BotParser):
         else:
             raise ArgParseError("命令解析器起始符不能和间隔符重合")
 
-    def _purify(self, text: str) -> str:
-        """处理首尾的空格和行尾序列."""
-        return text.strip(" ").strip("\r\n").strip("\n").strip("\r").strip(" ")
+    def _clean(self, text: str) -> str:
+        return text.strip()
 
     def _split_string(
         self, string: str, regex: re.Pattern, popFirst: bool = True
     ) -> list[str]:
-        """按照指定正则 pattern，对 string 进行分割."""
+        """按照指定正则 pattern，对 string 进行分割"""
         # 将复杂的各种分隔符替换为 特殊字符，方便分割
         temp_string = regex.sub("\u0000", string)
         temp_list = re.split("\u0000", temp_string)
@@ -85,7 +84,7 @@ class CmdParser(BotParser):
         return list(filter(lambda x: x != "", temp_list))
 
     def _parse(self, text: str, textFilter: bool = True) -> Optional[list[list[str]]]:
-        pure_string = self._purify(text) if textFilter else text
+        pure_string = self._clean(text) if textFilter else text
         cmd_strings = self._split_string(pure_string, self.start_parse_regex)
         cmd_list = [
             self._split_string(s, self.sep_parse_regex, False) for s in cmd_strings

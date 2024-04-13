@@ -101,11 +101,11 @@ class PluginProxy(metaclass=ReadOnly):
 
 
 class PluginLoader:
-    """插件加载器."""
+    """插件加载器"""
 
     @staticmethod
     def load_from_dir(plugin_path: str) -> "BotPlugin":
-        """从指定插件目录加载插件."""
+        """从指定插件目录加载插件"""
         if not os.path.exists(os.path.join(plugin_path, "__init__.py")):
             raise PluginInitError(
                 f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
@@ -131,7 +131,7 @@ class PluginLoader:
 
     @staticmethod
     def load(target: Union[str, "BotPlugin"]) -> "BotPlugin":
-        """加载插件."""
+        """加载插件"""
         if isinstance(target, str):
             plugin = PluginLoader.load_from_dir(target)
         else:
