@@ -73,19 +73,10 @@ pdm build
 - platform == All
 - OneBot 标准 == 11
 
-## ❤️ 致谢
-
-MeloBot 的很多设计也是从别处借鉴而来的。虽然 MeloBot 并未直接引用这些项目的代码。
-
-但感谢这些优秀的开源项目，它们间接启发了 MeloBot 的架构设计：
-
-- [Flask](https://github.com/pallets/flask)
-- [nonebot](https://github.com/nonebot/nonebot)
-- [nonebot2](https://github.com/nonebot/nonebot2)
-- [Vue.js](https://vuejs.org/)
-
-<!-- end elevator-pitch -->
-
 ## 💬 更多
 
 项目文档：[MeloBot 文档](https://docs.melobot.org)
+
+对于文档可能出现的纰漏，还请各位包涵。欢迎提出修正和优化文档的 PR：[文档源文件](https://github.com/aicorein/melobot/tree/main/docs/source)
+
+<!-- end elevator-pitch -->
