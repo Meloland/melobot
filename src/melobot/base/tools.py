@@ -566,8 +566,6 @@ def speedlimit(
     def deco_func(
         func: Callable[P, Coroutine[Any, Any, T2]]
     ) -> Callable[P, Coroutine[Any, Any, T1 | T2]]:
-        # 不直接使用 wrapped_func，目的是保留原有函数签名，同时保留异步函数的接口
-
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
             res_fut = _wrapped_func(func, *args, **kwargs)
@@ -581,7 +579,7 @@ def speedlimit(
     def _wrapped_func(
         func: Callable[P, Coroutine[Any, Any, T2]], *args: Any, **kwargs: Any
     ) -> asyncio.Future[T1 | T2 | Exception]:
-        # 分离出来定义，方便 result_set 调用。主要逻辑通过 Future 辅助实现，有利于避免竞争问题。
+        # 分离出来定义，方便 result_set 调用形成递归。主要逻辑通过 Future 实现，有利于避免竞争问题。
         nonlocal called_num, min_start
         passed_time = time.perf_counter() - min_start
         res_fut: Any = asyncio.Future()
@@ -614,8 +612,6 @@ def speedlimit(
             """
             只有依然在当前 duration 区间内，但超出调用次数限制的，需要等待。
             随后就是递归调用。delay > 0 为需要递归的分支。
-            这个递归层数不会很深，除非被装饰函数不断在被调用（这自然是不太合理的）
-            提示：sleep 后，进入新的 _wrapped_func 函数中，其实 passed_time 绝对小于 <= duration
             """
             if delay > 0:
                 await asyncio.sleep(delay)
