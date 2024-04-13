@@ -134,7 +134,7 @@ class HttpConn(AbstractConnector):
 
     async def __aenter__(self) -> "HttpConn":
         asyncio.create_task(self._start())
-        asyncio.create_task(self._send_queue_watch())
+        asyncio.create_task(self._watch_queue())
         return self
 
     async def __aexit__(
@@ -185,7 +185,7 @@ class HttpConn(AbstractConnector):
         await self._send_queue.put(action)
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
-    async def _send_queue_watch(self) -> None:
+    async def _watch_queue(self) -> None:
         """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作"""
 
         async def take_action(action: "BotAction") -> None:

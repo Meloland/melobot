@@ -110,7 +110,7 @@ class ForwardWsConn(AbstractConnector):
 
     async def __aenter__(self) -> "ForwardWsConn":
         asyncio.create_task(self._run())
-        asyncio.create_task(self._send_queue_watch())
+        asyncio.create_task(self._watch_queue())
         return self
 
     async def __aexit__(
@@ -134,7 +134,7 @@ class ForwardWsConn(AbstractConnector):
         await self._send_queue.put(action)
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
-    async def _send_queue_watch(self) -> None:
+    async def _watch_queue(self) -> None:
         """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作"""
         await self._ready_signal.wait()
 

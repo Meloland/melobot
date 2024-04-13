@@ -432,7 +432,7 @@ class MeloBot:
 
     @classmethod
     def use_default_loop_policy(cls) -> None:
-        """使用默认的事件策略模式
+        """使用默认的事件循环策略
 
         在类 `Unix` 平台上，这会停止 `uvloop` 的使用
 

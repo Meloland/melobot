@@ -415,7 +415,7 @@ class BotSessionManager:
         """对 action 构造器进行装饰，使产生的 action “活化”。 让其能自动识别上下文，自动附加触发 event，并自动完成发送过程"""
 
         @wraps(action_getter)
-        async def activated_action(
+        async def wrapped_func(
             *args: Any, **kwargs: Any
         ) -> Union["BotAction", "ResponseEvent", None]:
             try:
@@ -444,7 +444,7 @@ class BotSessionManager:
             else:
                 return await (await cls.BOT_CTX._responder.take_action_wait(action))
 
-        return activated_action
+        return wrapped_func
 
 
 def any_event() -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]:

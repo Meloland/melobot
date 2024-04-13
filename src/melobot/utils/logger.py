@@ -52,7 +52,7 @@ class BotLogger(BaseLogger):
         fmt_arr = [
             "%(green)s%(asctime)s.%(msecs)03d%(reset)s",
             "%(log_color)s%(levelname)-8s%(reset)s",
-            "%(blue)s%(module)-10s%(reset)s : %(green)s%(lineno)-4d%(reset)s",
+            "%(blue)s%(module)-10s%(reset)s : %(green)s%(lineno)-4d%(reset)s -> %(blue)s%(funcName)-12s%(reset)s",
             "%(message_log_color)s%(message)s%(reset)s",
         ]
         if not no_tag:
@@ -79,7 +79,7 @@ class BotLogger(BaseLogger):
         fmt_arr = [
             "%(asctime)s.%(msecs)03d",
             "%(levelname)-8s",
-            "%(module)-12s %(lineno)-4d %(funcName)-20s",
+            "%(module)-10s : %(lineno)-4d -> %(funcName)-12s",
             "%(message)s",
         ]
         if not no_tag:

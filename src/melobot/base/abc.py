@@ -88,7 +88,7 @@ class AbstractConnector(ABC):
 
     @abstractmethod
     async def __aenter__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     async def __aexit__(
@@ -120,7 +120,7 @@ class AbstractConnector(ABC):
 
     @abstractmethod
     async def _send(self, action: "BotAction") -> None:
-        pass
+        raise NotImplementedError
 
 
 class Flagable:
@@ -185,13 +185,13 @@ class BotEvent(ABC, Flagable):
     @abstractmethod
     def time(self) -> int:
         """事件发生的时间"""
-        pass
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def type(self) -> Literal["message", "request", "notice", "meta", "response"]:
         """事件类型"""
-        pass
+        raise NotImplementedError
 
     def is_msg_event(self) -> bool:
         """判断是否是消息事件"""
@@ -322,7 +322,7 @@ class SessionRule(ABC):
         :param e2: 判断时的事件2
         :return: 判断结果
         """
-        pass
+        raise NotImplementedError
 
 
 class EventHandlerArgs:
@@ -438,7 +438,7 @@ class BotChecker(ABC, Cloneable):
         :param event: 给定的事件
         :return: 检查是否通过
         """
-        pass
+        raise NotImplementedError
 
 
 class WrappedChecker(BotChecker):
@@ -522,7 +522,7 @@ class BotMatcher(ABC, Cloneable):
         :param text: 消息事件的文本内容
         :return: 是否匹配
         """
-        pass
+        raise NotImplementedError
 
 
 class WrappedMatcher(BotMatcher):
@@ -592,7 +592,7 @@ class BotParser(ABC):
 
            因为一次解析可能会得到多组结果，结果为字典或空值。字典键为一组解析结果的识别标志（例如命令解析中的命令名），值为解析参数对象（象征一组解析结果）
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def test(
@@ -605,7 +605,7 @@ class BotParser(ABC):
         :param args_dict: 之前的解析结果
         :return: 返回元组：(判断是否解析成功, 可为空的一组解析结果的识别标志, 可为空的解析参数对象)
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     async def format(self, group_id: str, args: ParseArgs) -> bool:
@@ -614,7 +614,7 @@ class BotParser(ABC):
         任何解析器应该实现此抽象方法
 
         格式化是否进行，会受解析器 `need_fotmat` 参数和 :meth:`~.BotParser.test` 的影响。
-        如果你确定你的解析器子类 100% 不需要格式化，那么继承这个方法再次标记为 pass 即可。
+        如果你确定你的解析器子类 100% 不需要格式化，那么继承这个方法标记为 pass 即可。
 
         格式化过程最后只返回是否格式化成功，格式化的结果将会被直接保存，并可通过 :func:`.msg_args` 获得。
 
@@ -622,4 +622,4 @@ class BotParser(ABC):
         :param args: 解析参数对象
         :return: 格式化是否成功
         """
-        pass
+        raise NotImplementedError
