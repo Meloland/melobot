@@ -2,7 +2,7 @@ import asyncio
 
 from ..base.abc import BaseLogger
 from ..base.exceptions import BotIpcError
-from ..base.tools import RWController, to_task
+from ..base.tools import RWController
 from ..base.typing import Any, Callable, Coroutine
 from ..utils.logger import log_exc
 
@@ -146,7 +146,7 @@ class PluginBus:
 
         handler = self.store[namespace][signal]
         if not wait:
-            to_task(self._run_on_ctx(handler, *args, **kwargs))
+            asyncio.create_task(self._run_on_ctx(handler, *args, **kwargs))
             return None
         else:
             return await self._run_on_ctx(handler, *args, **kwargs)

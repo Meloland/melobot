@@ -4,7 +4,6 @@ from contextvars import ContextVar, Token
 
 from ..base.abc import AbstractConnector, BaseLogger
 from ..base.exceptions import BotRuntimeError, BotValueError
-from ..base.tools import to_task
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -344,7 +343,7 @@ class MeloBot:
         async def bots_run():
             tasks = []
             for bot in bots:
-                tasks.append(to_task(bot._run()))
+                tasks.append(asyncio.create_task(bot._run()))
             try:
                 await asyncio.wait(tasks)
             except asyncio.CancelledError:
@@ -420,7 +419,7 @@ class MeloBot:
         tasks = []
         for name in _targets:
             tasks.append(
-                to_task(
+                asyncio.create_task(
                     cls.unicast(name, namespace, signal, *args, **kwargs, wait=wait)
                 )
             )

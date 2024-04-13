@@ -1,6 +1,5 @@
 import asyncio
 
-from ..base.tools import to_task
 from ..base.typing import TYPE_CHECKING, BotLife, PriorLevel, Type, Union
 from ..utils.logger import log_exc
 
@@ -88,4 +87,4 @@ class BotDispatcher:
         self.logger.debug(f"event {event:hexid} built hook 已完成")
         for channel in self._channel_map[event.type]:
             self.logger.debug(f"向 {channel.__name__} 通道广播 event {event:hexid}")
-            to_task(self.broadcast(event, channel))
+            asyncio.create_task(self.broadcast(event, channel))

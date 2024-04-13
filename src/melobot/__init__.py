@@ -3,15 +3,7 @@
 项目源码和文档，请参考：https://github.com/aicorein/melobot
 """
 
-from .base import (
-    LogicMode,
-    PriorLevel,
-    SessionRule,
-    User,
-    lock,
-    this_dir,
-    timelimit,
-)
+from .base import LogicMode, PriorLevel, SessionRule, User, lock, this_dir, timelimit
 from .bot import MeloBot, thisbot
 from .context import (
     AttrSessionRule,
@@ -29,11 +21,6 @@ from .context import (
 from .io import ForwardWsConn, HttpConn, ReverseWsConn
 from .meta import MetaInfo
 from .plugin import BotPlugin
-from .utils import (
-    CmdArgFormatter,
-    CmdParser,
-    GroupMsgLvlChecker,
-    PrivateMsgLvlChecker,
-)
+from .utils import CmdArgFormatter, CmdParser, GroupMsgLvlChecker, PrivateMsgLvlChecker
 
 __version__ = MetaInfo.VER

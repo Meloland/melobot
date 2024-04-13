@@ -1,6 +1,5 @@
 import asyncio
 import inspect
-
 import os
 import pathlib
 import time
@@ -563,17 +562,17 @@ def speedlimit(
         if passed_time <= duration:
             if called_num < limit:
                 called_num += 1
-                to_task(result_set(func, res_fut, -1, *args, **kwargs))
+                asyncio.create_task(result_set(func, res_fut, -1, *args, **kwargs))
             elif callback is not None:
-                to_task(result_set(callback, res_fut, -1))
+                asyncio.create_task(result_set(callback, res_fut, -1))
             else:
-                to_task(
+                asyncio.create_task(
                     result_set(func, res_fut, duration - passed_time, *args, **kwargs)
                 )
         else:
             called_num, min_start = 0, time.perf_counter()
             called_num += 1
-            to_task(result_set(func, res_fut, -1, *args, **kwargs))
+            asyncio.create_task(result_set(func, res_fut, -1, *args, **kwargs))
         return res_fut
 
     async def result_set(

@@ -7,7 +7,6 @@ import aiohttp.web
 from aiohttp.client_exceptions import ClientConnectorError
 
 from ..base.abc import AbstractConnector, BotLife
-from ..base.tools import to_task
 from ..base.typing import TYPE_CHECKING, ModuleType, Optional
 from ..utils.logger import log_exc, log_obj
 
@@ -101,7 +100,7 @@ class HttpConn(AbstractConnector):
         self._connected_flag = True
 
         if self.max_interval is not None and self.max_interval > 0:
-            to_task(self._overtime_monitor(self.max_interval))
+            asyncio.create_task(self._overtime_monitor(self.max_interval))
         await self._bot_bus.emit(BotLife.FIRST_CONNECTED)
         self.logger.debug("FIRST_CONNECTED hook 已完成")
 
@@ -134,8 +133,8 @@ class HttpConn(AbstractConnector):
             pass
 
     async def __aenter__(self) -> "HttpConn":
-        to_task(self._start())
-        to_task(self._send_queue_watch())
+        asyncio.create_task(self._start())
+        asyncio.create_task(self._send_queue_watch())
         return self
 
     async def __aexit__(
@@ -167,7 +166,7 @@ class HttpConn(AbstractConnector):
             event = self._event_builder.build(raw_event)
             if self.logger.check_level_flag("DEBUG"):
                 log_obj(self.logger.debug, event.raw, f"event {event:hexid} 构建完成")
-            to_task(self._common_dispatcher.dispatch(event))  # type: ignore
+            asyncio.create_task(self._common_dispatcher.dispatch(event))  # type: ignore
         except Exception as e:
             self.logger.error("bot 连接器监听任务抛出异常")
             log_obj(self.logger.error, raw_event, "异常点 raw_event")
@@ -199,7 +198,7 @@ class HttpConn(AbstractConnector):
                 raw_resp: dict = await _.json()
                 resp: "ResponseEvent" = self._event_builder.build(raw_resp)  # type: ignore
                 resp.id = action.resp_id
-                to_task(self._resp_dispatcher.respond(resp))  # type: ignore
+                asyncio.create_task(self._resp_dispatcher.respond(resp))  # type: ignore
             except (RuntimeError, ClientConnectorError):
                 if not self._allow_reconn:
                     self.logger.error("OneBot 实现程序已掉线，无法再执行行为操作")
@@ -228,7 +227,7 @@ class HttpConn(AbstractConnector):
                 )
                 self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
-                to_task(take_action(action))
+                asyncio.create_task(take_action(action))
                 self.logger.debug(f"action {action:hexid} 已发送")
                 self._pre_send_time = time.time_ns()
         except asyncio.CancelledError:

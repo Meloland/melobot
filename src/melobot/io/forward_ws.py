@@ -7,7 +7,6 @@ from websockets.exceptions import ConnectionClosed
 
 from ..base.abc import AbstractConnector, BotLife
 from ..base.exceptions import BotRuntimeError
-from ..base.tools import to_task
 from ..base.typing import TYPE_CHECKING, Any, ModuleType, Type
 from ..utils.logger import log_exc, log_obj
 
@@ -87,7 +86,7 @@ class ForwardWsConn(AbstractConnector):
             try:
                 self.logger.info("连接器与 OneBot 实现程序建立了 ws 连接")
                 self._conn_ready.set()
-                to_task(self._listen())
+                asyncio.create_task(self._listen())
                 await self._client_close
             finally:
                 await self.conn.close()
@@ -107,11 +106,11 @@ class ForwardWsConn(AbstractConnector):
         self._conn_ready.clear()
         self._client_close.set_result(True)
         self._reconn_flag = True
-        to_task(self._run())
+        asyncio.create_task(self._run())
 
     async def __aenter__(self) -> "ForwardWsConn":
-        to_task(self._run())
-        to_task(self._send_queue_watch())
+        asyncio.create_task(self._run())
+        asyncio.create_task(self._send_queue_watch())
         return self
 
     async def __aexit__(
@@ -193,9 +192,9 @@ class ForwardWsConn(AbstractConnector):
                             f"event {event:hexid} 构建完成",
                         )
                     if event.is_resp_event():
-                        to_task(self._resp_dispatcher.respond(event))  # type: ignore
+                        asyncio.create_task(self._resp_dispatcher.respond(event))  # type: ignore
                     else:
-                        to_task(self._common_dispatcher.dispatch(event))  # type: ignore
+                        asyncio.create_task(self._common_dispatcher.dispatch(event))  # type: ignore
                 except ConnectionClosed:
                     raise
                 except Exception as e:

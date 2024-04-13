@@ -1,5 +1,5 @@
 from ..base.abc import ActionArgs, BotAction, BotEvent
-from ..base.exceptions import BotValueError, BotSessionError, FuncSafeExited
+from ..base.exceptions import BotSessionError, BotValueError, FuncSafeExited
 from ..base.tools import get_id
 from ..base.typing import TYPE_CHECKING, Literal, MsgNode, MsgSegment, Optional, Union
 from ..models.msg import _to_cq_str_action, reply_msg, text_msg

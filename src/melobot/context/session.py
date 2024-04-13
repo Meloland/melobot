@@ -4,7 +4,7 @@ from functools import wraps
 
 from ..base.abc import SessionRule
 from ..base.exceptions import BotSessionError, BotSessionTimeout
-from ..base.tools import get_twin_event, to_task
+from ..base.tools import get_twin_event
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -94,7 +94,10 @@ class BotSession:
             raise BotSessionError("session 挂起超时时间（秒数）必须 > 0")
         else:
             await asyncio.wait(
-                [to_task(self._awake_signal.wait()), to_task(asyncio.sleep(overtime))],
+                [
+                    asyncio.create_task(self._awake_signal.wait()),
+                    asyncio.create_task(asyncio.sleep(overtime)),
+                ],
                 return_when=asyncio.FIRST_COMPLETED,
             )
             if self._awake_signal.is_set():
@@ -382,7 +385,10 @@ class BotSessionManager:
             return None
         # 如果会话存在，且未过期，但是不空闲，选择等待，此时就不得不陷入等待（即将发生协程切换）
         await asyncio.wait(
-            [to_task(session._free_signal.wait()), to_task(session._hup_signal.wait())],
+            [
+                asyncio.create_task(session._free_signal.wait()),
+                asyncio.create_task(session._hup_signal.wait()),
+            ],
             return_when=asyncio.FIRST_COMPLETED,
         )
         if session._hup_signal.is_set():
