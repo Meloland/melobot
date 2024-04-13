@@ -1,15 +1,15 @@
 import asyncio
 
-from ..base.exceptions import get_better_exc
-from ..base.tools import get_rich_str, to_task
+from ..base.tools import to_task
 from ..base.typing import TYPE_CHECKING, BotLife, PriorLevel, Type, Union
+from ..utils.logger import log_exc
 
 if TYPE_CHECKING:
+    from ..base.abc import BaseLogger
     from ..bot.hook import BotHookBus
     from ..context.session import BotSessionManager
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..plugin.handler import EventHandler
-    from ..utils.logger import Logger
 
 
 class BotDispatcher:
@@ -25,7 +25,7 @@ class BotDispatcher:
         channel_map: dict[str, tuple[Type["EventHandler"], ...]],
         bot_bus: "BotHookBus",
         ctx_manager: Type["BotSessionManager"],
-        logger: "Logger",
+        logger: "BaseLogger",
     ) -> None:
         self.logger = logger
         self._channel_map = channel_map
@@ -76,9 +76,8 @@ class BotDispatcher:
                     permit_priority = handler.priority
         except Exception as e:
             self.logger.error("bot dispatcher 抛出异常")
-            self.logger.error(f"异常点 event：\n{get_rich_str(f'{event:hexid}')}")
-            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
-            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
+            self.logger.error(f"异常点 event：{event:hexid}")
+            log_exc(self.logger, locals(), e)
 
     async def dispatch(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]

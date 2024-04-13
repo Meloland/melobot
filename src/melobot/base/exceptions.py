@@ -1,7 +1,6 @@
 import sys
 
 import better_exceptions
-from better_exceptions import ExceptionFormatter
 
 # 修复在 windows powershell 显示错误的 bug
 better_exceptions.encoding.ENCODING = sys.stdout.encoding
@@ -69,13 +68,3 @@ class BotToolsError(BotException):
 class FuncSafeExited(BotException):
     def __init__(self, msg: str = ""):
         super().__init__(msg)
-
-
-_EXC_FORMATTER = ExceptionFormatter(colored=False)
-
-
-def get_better_exc(e: Exception) -> str:
-    """返回生成更好的异常字符串"""
-    return "".join(
-        _EXC_FORMATTER.format_exception(e.__class__, e, sys.exc_info()[2])
-    ).strip("\n")

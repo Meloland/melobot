@@ -964,8 +964,10 @@ class BotPlugin:
 
         return make_args
 
-    def on_signal(self, namespace: str, signal: str):
+    def on_signal(self, signal: str, namespace: Optional[str] = None):
         """绑定一个信号处理方法
+
+        `namespace` 为空时，自动设置它为当前插件的 :attr:`~.BotPlugin.ID`
 
         本方法作为异步函数的装饰器使用，此时可绑定一个函数为信号处理方法。
 
@@ -973,7 +975,7 @@ class BotPlugin:
 
            # 假设存在一个名为 plugin 的变量，是 BotPlugin 实例
            # 为在命名空间 BaseUtils 中，名为 txt2img 的信号绑定处理方法：
-           @plugin.on_signal("BaseUtils", "txt2img")
+           @plugin.on_signal("txt2img", "BaseUtils")
            async def get_img_of_txt(text: str, format: Any) -> bytes:
                # melobot 对被装饰函数的参数类型和返回值没有限制
                # 接下来是具体逻辑
@@ -993,16 +995,23 @@ class BotPlugin:
             func: Callable[P, Coroutine[Any, Any, Any]]
         ) -> Callable[P, Coroutine[Any, Any, Any]]:
             self.__signal_args__.append(
-                PluginSignalHandlerArgs(func, namespace, signal)
+                PluginSignalHandlerArgs(
+                    func, namespace if namespace is not None else self.ID, signal
+                )
             )
             return func
 
         return make_args
 
     def on_share(
-        self, namespace: str, id: str, reflector: Optional[Callable[[], Any]] = None
+        self,
+        id: str,
+        namespace: Optional[str] = None,
+        reflector: Optional[Callable[[], Any]] = None,
     ):
         """注册一个共享对象，同时绑定它的值获取方法
+
+        `namespace` 为空时，自动设置它为当前插件的 :attr:`~.BotPlugin.ID`
 
         本方法可作为异步函数的装饰器使用，此时被装饰函数就是共享对象的值获取方法：
 
@@ -1010,7 +1019,7 @@ class BotPlugin:
 
            # 假设存在一个名为 plugin 的变量，是 BotPlugin 实例
            # 在命名空间 HelpUtils 中，注册一个名为 all_helps 的共享对象，且绑定值获取方法：
-           @plugin.on_share("HelpUtils", "all_helps")
+           @plugin.on_share("all_helps", "HelpUtils")
            async def get_all_helps() -> str:
                # melobot 对被装饰函数的要求：无参数，但必须有返回值
                return ALL_HELPS_INFO_STR
@@ -1021,7 +1030,7 @@ class BotPlugin:
         .. code:: python
 
            # 最后一个参数不能给定具体的值，必须为一个同步函数
-           plugin.on_share("HelpUtils", "all_helps", lambda: ALL_HELPS_INFO_STR)
+           plugin.on_share("all_helps", "HelpUtils", lambda: ALL_HELPS_INFO_STR)
 
         .. admonition:: 注意
            :class: caution
@@ -1032,20 +1041,25 @@ class BotPlugin:
         :param id: 共享对象的 id 标识
         :param reflector: 本方法当作异步函数的装饰器使用时，本参数为空；直接使用本方法时，参数为共享对象值获取的同步函数
         """
+        _namespace = namespace if namespace is not None else self.ID
         if reflector is not None:
-            self.__share_args__.append(ShareObjArgs(namespace, id, to_async(reflector)))
+            self.__share_args__.append(
+                ShareObjArgs(_namespace, id, to_async(reflector))
+            )
             return
 
         def make_args(
             func: Callable[[], Coroutine[Any, Any, Any]]
         ) -> Callable[[], Coroutine[Any, Any, Any]]:
-            self.__share_args__.append(ShareObjArgs(namespace, id, func))
+            self.__share_args__.append(ShareObjArgs(_namespace, id, func))
             return func
 
         return make_args
 
-    def on_share_affected(self, namespace: str, id: str):
+    def on_share_affected(self, id: str, namespace: Optional[str] = None):
         """为一个共享对象绑定回调方法
+
+        `namespace` 为空时，自动设置它为当前插件的 :attr:`~.BotPlugin.ID`
 
         本方法作为异步函数的装饰器使用，此时可为一个共享对象绑定回调方法。
 
@@ -1053,7 +1067,7 @@ class BotPlugin:
 
            # 假设存在一个名为 plugin 的变量，是 BotPlugin 实例
            # 为在命名空间 HelpUtils 中，名为 all_helps 的共享对象绑定回调方法：
-           @plugin.on_share_affected("HelpUtils", "all_helps")
+           @plugin.on_share_affected("all_helps", "HelpUtils")
            async def add_a_help(text: str) -> bool:
                # melobot 对被装饰函数的参数类型和返回值没有限制
                # 接下来是具体逻辑
@@ -1074,7 +1088,11 @@ class BotPlugin:
         def make_args(
             func: Callable[P, Coroutine[Any, Any, Any]]
         ) -> Callable[P, Coroutine[Any, Any, Any]]:
-            self.__share_cb_args__.append(ShareObjCbArgs(namespace, id, func))
+            self.__share_cb_args__.append(
+                ShareObjCbArgs(
+                    namespace if namespace is not None else self.ID, id, func
+                )
+            )
             return func
 
         return make_args

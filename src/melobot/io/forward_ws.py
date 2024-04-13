@@ -1,15 +1,15 @@
 import asyncio
 import time
 from itertools import count
-from logging import DEBUG
 
 import websockets
 from websockets.exceptions import ConnectionClosed
 
 from ..base.abc import AbstractConnector, BotLife
-from ..base.exceptions import BotRuntimeError, get_better_exc
-from ..base.tools import get_rich_str, to_task
+from ..base.exceptions import BotRuntimeError
+from ..base.tools import to_task
 from ..base.typing import TYPE_CHECKING, Any, ModuleType, Type
+from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
     import websockets.client
@@ -73,10 +73,7 @@ class ForwardWsConn(AbstractConnector):
 
             for _ in iter:
                 try:
-                    self.conn = await websockets.connect(
-                        self.url,
-                        logger=self.logger if self.logger.level == DEBUG else None,
-                    )
+                    self.conn = await websockets.connect(self.url)
                     created_flag = True
                     break
                 except Exception as e:
@@ -121,7 +118,11 @@ class ForwardWsConn(AbstractConnector):
         self, exc_type: Type[Exception], exc_val: Exception, exc_tb: ModuleType
     ) -> bool:
         self._close()
-        return await super().__aexit__(exc_type, exc_val, exc_tb)
+        if await super().__aexit__(exc_type, exc_val, exc_tb):
+            return True
+        self.logger.error("连接器出现预期外的异常")
+        log_exc(self.logger, locals(), exc_val)
+        return False
 
     async def _send(self, action: "BotAction") -> None:
         """发送一个 action 给连接器。实际上是先提交到 send_queue"""
@@ -142,9 +143,11 @@ class ForwardWsConn(AbstractConnector):
             while True:
                 action = await self._send_queue.get()
                 await self._conn_ready.wait()
-                if self.logger.level == DEBUG:
-                    self.logger.debug(
-                        f"action {action:hexid} 准备发送，结构如下：\n{get_rich_str(action.__dict__)}"
+                if self.logger.check_level_flag("DEBUG"):
+                    log_obj(
+                        self.logger.debug,
+                        action.__dict__,
+                        f"action {action:hexid} 准备发送",
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
@@ -183,9 +186,11 @@ class ForwardWsConn(AbstractConnector):
                     if raw_event == "":
                         continue
                     event = self._event_builder.build(raw_event)
-                    if self.logger.level == DEBUG:
-                        self.logger.debug(
-                            f"event {event:hexid} 构建完成，结构：\n{get_rich_str(event.raw)}"
+                    if self.logger.check_level_flag("DEBUG"):
+                        log_obj(
+                            self.logger.debug,
+                            event.raw,
+                            f"event {event:hexid} 构建完成",
                         )
                     if event.is_resp_event():
                         to_task(self._resp_dispatcher.respond(event))  # type: ignore
@@ -195,9 +200,8 @@ class ForwardWsConn(AbstractConnector):
                     raise
                 except Exception as e:
                     self.logger.error("bot 连接器监听任务抛出异常")
-                    self.logger.error(f"异常点 raw_event：{raw_event}")
-                    self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
-                    self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
+                    log_obj(self.logger.error, raw_event, "异常点 raw_event")
+                    log_exc(self.logger, locals(), e)
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")
         except ConnectionClosed:

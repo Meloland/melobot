@@ -1,15 +1,12 @@
 import asyncio
 from asyncio import Future
-from logging import DEBUG
 
-from ..base.exceptions import get_better_exc
-from ..base.tools import get_rich_str
 from ..base.typing import TYPE_CHECKING
+from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
-    from ..base.abc import AbstractConnector, BotAction
+    from ..base.abc import AbstractConnector, BaseLogger, BotAction
     from ..models.event import ResponseEvent
-    from ..utils.logger import Logger
 
 
 class BotResponder:
@@ -18,12 +15,12 @@ class BotResponder:
     def __init__(self) -> None:
         super().__init__()
         self._resp_table: dict[str, Future["ResponseEvent"]] = {}
-        self.logger: "Logger"
+        self.logger: "BaseLogger"
         self._action_sender: "AbstractConnector"
 
         self._ready_signal = asyncio.Event()
 
-    def _bind(self, logger: "Logger", connector: "AbstractConnector") -> None:
+    def _bind(self, logger: "BaseLogger", connector: "AbstractConnector") -> None:
         self.logger = logger
         self._action_sender = connector
 
@@ -34,10 +31,8 @@ class BotResponder:
         await self._ready_signal.wait()
 
         try:
-            if self.logger.level == DEBUG:
-                self.logger.debug(
-                    f"收到 resp {resp:hexid}，结构：\n{get_rich_str(resp.raw)}"
-                )
+            if self.logger.check_level_flag("DEBUG"):
+                log_obj(self.logger.debug, resp.raw, f"收到 resp {resp:hexid}")
             if resp.id is None:
                 return
             else:
@@ -54,9 +49,8 @@ class BotResponder:
             self._resp_table.pop(resp.id)  # type: ignore
         except Exception as e:
             self.logger.error("bot responder.dispatch 抛出异常")
-            self.logger.error(f"异常点 resp_event：\n{get_rich_str(resp)}")
-            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
-            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
+            log_obj(self.logger.error, resp, "异常点 resp_event")
+            log_exc(self.logger, locals(), e)
 
     async def take_action(self, action: "BotAction") -> None:
         """响应器发送 action, 不等待响应"""

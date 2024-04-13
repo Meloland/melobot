@@ -1,11 +1,10 @@
 import asyncio
 
-from ..base.exceptions import BotIpcError, get_better_exc
-from ..base.tools import RWController, get_rich_str, to_task
-from ..base.typing import TYPE_CHECKING, Any, Callable, Coroutine
-
-if TYPE_CHECKING:
-    from ..utils.logger import Logger
+from ..base.abc import BaseLogger
+from ..base.exceptions import BotIpcError
+from ..base.tools import RWController, to_task
+from ..base.typing import Any, Callable, Coroutine
+from ..utils.logger import log_exc
 
 
 class ShareObject:
@@ -102,9 +101,9 @@ class PluginBus:
 
     def __init__(self) -> None:
         self.store: dict[str, dict[str, PluginSignalHandler]] = {}
-        self.logger: "Logger"
+        self.logger: BaseLogger
 
-    def _bind(self, logger: "Logger") -> None:
+    def _bind(self, logger: BaseLogger) -> None:
         self.logger = logger
 
     def register(
@@ -127,8 +126,7 @@ class PluginBus:
         except Exception as e:
             func_name = handler.cb.__qualname__
             self.logger.error(f"插件信号处理方法 {func_name} 发生异常")
-            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
-            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
+            log_exc(self.logger, locals(), e)
 
     async def emit(
         self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any

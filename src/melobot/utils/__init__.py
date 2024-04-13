@@ -9,7 +9,7 @@ from .checker import (
     PrivateMsgLvlChecker,
 )
 from .formatter import CmdArgFormatter, FormatInfo
-from .logger import BotLogger
+from .logger import BotLogger, logger_patch
 from .matcher import ContainMatcher, EndMatcher, FullMatcher, RegexMatcher, StartMatcher
 from .parser import CmdParser, CmdParserGen
 
@@ -25,6 +25,7 @@ __all__ = (
     "CmdArgFormatter",
     "FormatInfo",
     "BotLogger",
+    "logger_patch",
     "ContainMatcher",
     "EndMatcher",
     "FullMatcher",

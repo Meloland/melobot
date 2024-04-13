@@ -1,8 +1,8 @@
 import asyncio
 
 from ..base.abc import BotParser
-from ..base.exceptions import BotValueError, FuncSafeExited, get_better_exc
-from ..base.tools import get_rich_str, to_task
+from ..base.exceptions import BotValueError, FuncSafeExited
+from ..base.tools import to_task
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -18,6 +18,7 @@ from ..base.typing import (
     cast,
 )
 from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
+from ..utils.logger import log_exc
 
 if TYPE_CHECKING:
     from ..base.abc import BotChecker, BotMatcher, SessionRule
@@ -133,9 +134,8 @@ class EventHandler:
             self.logger.error(
                 f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常"
             )
-            self.logger.error(f"异常点 event：\n{f'{event:hexid}'}")
-            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
-            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
+            self.logger.error(f"异常点 event：{f'{event:hexid}'}")
+            log_exc(self.logger, locals(), e)
         finally:
             if session is None:
                 return

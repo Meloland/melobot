@@ -1,15 +1,12 @@
 import asyncio
 import inspect
-import io
+
 import os
 import pathlib
 import time
 from asyncio import iscoroutine
 from contextlib import asynccontextmanager
 from functools import wraps
-
-import rich.console
-import rich.pretty
 
 from .exceptions import BotRuntimeError, BotToolsError
 from .typing import T1, T2, T3, Any, Callable, Coroutine, Optional, P, T
@@ -182,27 +179,6 @@ def get_id() -> str:
     :return: id 值
     """
     return str(_ID_WORKER.get_id())
-
-
-_CONSOLE_IO = io.StringIO()
-_CONSOLE = rich.console.Console(file=_CONSOLE_IO)
-
-
-def get_rich_str(obj: object, max_string: Optional[int] = 1000) -> str:
-    """返回使用 rich 格式化的 object"""
-    _CONSOLE.print(
-        rich.pretty.Pretty(
-            obj,
-            indent_guides=True,
-            max_string=max_string,
-            overflow="ignore",
-        ),
-        crop=False,
-    )
-    string = _CONSOLE_IO.getvalue().strip("\n")
-    _CONSOLE_IO.seek(0)
-    _CONSOLE_IO.truncate(0)
-    return string
 
 
 def this_dir(*relative_path: str) -> str:

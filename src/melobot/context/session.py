@@ -1,7 +1,6 @@
 import asyncio
 from contextvars import ContextVar, Token
 from functools import wraps
-from logging import DEBUG
 
 from ..base.abc import SessionRule
 from ..base.exceptions import BotSessionError, BotSessionTimeout
@@ -422,7 +421,7 @@ class BotSessionManager:
                 pass
 
             action: "BotAction" = await action_getter(*args, **kwargs)
-            if cls.BOT_CTX.logger.level == DEBUG:
+            if cls.BOT_CTX.logger.check_level_flag("DEBUG"):
                 cls.BOT_CTX.logger.debug(
                     f"action {action:hexid} 构建完成（当前 session 上下文：{SESSION_LOCAL:hexid}）"
                 )

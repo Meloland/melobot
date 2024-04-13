@@ -1,6 +1,5 @@
 import asyncio
 import time
-from logging import DEBUG
 
 import aiohttp
 import aiohttp.log
@@ -8,9 +7,9 @@ import aiohttp.web
 from aiohttp.client_exceptions import ClientConnectorError
 
 from ..base.abc import AbstractConnector, BotLife
-from ..base.exceptions import get_better_exc
-from ..base.tools import get_rich_str, to_task
+from ..base.tools import to_task
 from ..base.typing import TYPE_CHECKING, ModuleType, Optional
+from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
     from ..base.abc import BotAction
@@ -143,7 +142,11 @@ class HttpConn(AbstractConnector):
         self, exc_type: type[Exception], exc_val: Exception, exc_tb: ModuleType
     ) -> bool:
         await self._close()
-        return await super().__aexit__(exc_type, exc_val, exc_tb)
+        if await super().__aexit__(exc_type, exc_val, exc_tb):
+            return True
+        self.logger.error("连接器出现预期外的异常")
+        log_exc(self.logger, locals(), exc_val)
+        return False
 
     async def _listen(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
         """从 OneBot 实现程序接收一个事件，并处理"""
@@ -158,20 +161,17 @@ class HttpConn(AbstractConnector):
                 self.logger.debug("RECONNECTED hook 已完成")
 
         try:
-            data: dict = await request.json()
-            if self.logger.level == DEBUG:
-                self.logger.debug(f"收到事件，未格式化的字典对象：\n{data}")
-            event = self._event_builder.build(data)
-            if self.logger.level == DEBUG:
-                self.logger.debug(
-                    f"event {event:hexid} 构建完成，结构：\n{get_rich_str(event.raw)}"
-                )
+            raw_event: dict = await request.json()
+            if self.logger.check_level_flag("DEBUG"):
+                self.logger.debug(f"收到事件，未格式化的字典对象：\n{raw_event}")
+            event = self._event_builder.build(raw_event)
+            if self.logger.check_level_flag("DEBUG"):
+                log_obj(self.logger.debug, event.raw, f"event {event:hexid} 构建完成")
             to_task(self._common_dispatcher.dispatch(event))  # type: ignore
         except Exception as e:
             self.logger.error("bot 连接器监听任务抛出异常")
-            self.logger.error(f"异常点 raw_event：{data}")
-            self.logger.error(f"异常回溯栈：\n{get_better_exc(e)}")
-            self.logger.error(f"异常点局部变量：\n{get_rich_str(locals())}")
+            log_obj(self.logger.error, raw_event, "异常点 raw_event")
+            log_exc(self.logger, locals(), e)
         finally:
             return aiohttp.web.Response(status=204)
 
@@ -215,9 +215,11 @@ class HttpConn(AbstractConnector):
             while True:
                 action = await self._send_queue.get()
                 await self._onebot_onlined.wait()
-                if self.logger.level == DEBUG:
-                    self.logger.debug(
-                        f"action {action:hexid} 准备发送，结构如下：\n{get_rich_str(action.__dict__)}"
+                if self.logger.check_level_flag("DEBUG"):
+                    log_obj(
+                        self.logger.debug,
+                        action.__dict__,
+                        f"action {action:hexid} 准备发送",
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")

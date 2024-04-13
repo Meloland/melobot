@@ -8,6 +8,10 @@ abc 模块
 
 本模块包含 melobot 重要的抽象类或基类。
 
+.. autoclass:: melobot.base.abc.BaseLogger
+   :members:
+   :exclude-members: __init__, check_level_flag
+
 .. autoclass:: melobot.base.abc.AbstractConnector
    :members:
    :exclude-members: __init__
