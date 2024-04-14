@@ -701,3 +701,37 @@ def async_interval(
 
     t = asyncio.create_task(interval_cb())
     return t
+
+
+def is_retcoro(obj: Any, safe_mode: bool = False) -> bool:
+    """判断是否是可以返回协程的可调用对象
+
+    如果使用安全模式，传入的 `obj` 参数如果已经是可等待对象，将会被自动取消。
+
+    :param obj: 对象
+    :param safe_mode: 是否启用安全模式。默认不启用。
+    :return: 判断结果
+    """
+    if safe_mode:
+        if inspect.iscoroutine(obj):
+            obj.close()
+            return False
+        elif isinstance(obj, asyncio.Task) or isinstance(obj, asyncio.Future):
+            obj.cancel()
+            return False
+
+    if not callable(obj):
+        return False
+    elif inspect.iscoroutinefunction(obj):
+        return True
+
+    try:
+        is_coro = False
+        res = obj()
+        is_coro = inspect.iscoroutine(res)
+    except Exception:
+        pass
+    finally:
+        if is_coro:
+            res.close()
+        return is_coro

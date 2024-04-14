@@ -1,6 +1,7 @@
 import traceback
 
-from ..base.exceptions import BotException
+from ..base.exceptions import BotException, BotValueError
+from ..base.tools import is_retcoro
 from ..base.typing import (
     Any,
     Callable,
@@ -12,11 +13,6 @@ from ..base.typing import (
     VoidType,
 )
 from ..context.action import send
-
-
-class ArgFormatInitError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
 
 
 class ArgVerifyFailed(BotException):
@@ -105,8 +101,20 @@ class CmdArgFormatter:
         self.default = default
         self.default_replace_flag = default_replace_flag
         if self.default is Void and self.default_replace_flag is not None:
-            raise ArgFormatInitError(
+            raise BotValueError(
                 "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
+            )
+        if convert_fail is not None and not is_retcoro(convert_fail):
+            raise BotValueError(
+                f"格式化器的类型转换失败回调 {convert_fail.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
+        if verify_fail is not None and not is_retcoro(verify_fail):
+            raise BotValueError(
+                f"格式化器的值验证失败回调 {verify_fail.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
+        if arg_lack is not None and not is_retcoro(arg_lack):
+            raise BotValueError(
+                f"格式化器的参数缺失回调 {arg_lack.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
             )
 
         self.convert_fail = convert_fail

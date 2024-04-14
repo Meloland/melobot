@@ -133,7 +133,7 @@ class EventHandler:
             self.logger.error(
                 f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常"
             )
-            self.logger.error(f"异常点 event：{f'{event:hexid}'}")
+            self.logger.error(f"异常点 event：{event:hexid}\n{event:raw}")
             log_exc(self.logger, locals(), e)
         finally:
             if session is None:

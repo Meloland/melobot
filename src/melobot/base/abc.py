@@ -5,6 +5,7 @@ from copy import deepcopy
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 
 from .exceptions import BotRuntimeError, BotUtilsError, BotValueError
+from .tools import is_retcoro
 from .typing import (
     TYPE_CHECKING,
     Any,
@@ -335,6 +336,10 @@ class EventHandlerArgs:
         params: list[Any],
     ) -> None:
         self.executor = executor
+        if not is_retcoro(executor):
+            raise BotValueError(
+                f"事件处理函数 {executor.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
         self.type = type
         self.params = params
 
@@ -345,6 +350,10 @@ class ShareObjArgs:
     def __init__(
         self, namespace: str, id: str, reflector: Callable[[], Coroutine[Any, Any, Any]]
     ) -> None:
+        if not is_retcoro(reflector):
+            raise BotValueError(
+                f"共享对象值获取函数 {reflector.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
         self.reflector = reflector
         self.namespace = namespace
         self.id = id
@@ -356,6 +365,10 @@ class ShareObjCbArgs:
     def __init__(
         self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
     ) -> None:
+        if not is_retcoro(cb):
+            raise BotValueError(
+                f"共享对象的回调 {cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
         self.namespace = namespace
         self.id = id
         self.cb = cb
@@ -367,6 +380,10 @@ class PluginSignalHandlerArgs:
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, Any]], namespace: str, signal: str
     ) -> None:
+        if not is_retcoro(func):
+            raise BotValueError(
+                f"插件信号处理函数 {func.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
         self.func = func
         self.namespace = namespace
         self.signal = signal
@@ -378,6 +395,10 @@ class BotHookRunnerArgs:
     def __init__(
         self, func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
     ) -> None:
+        if not is_retcoro(func):
+            raise BotValueError(
+                f"bot 生命周期 hook {func.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
         self.func = func
         self.type = type
 
@@ -396,6 +417,14 @@ class BotChecker(ABC, Cloneable):
         :param fail_cb: 检查不通过的回调
         """
         super().__init__()
+        if ok_cb is not None and not is_retcoro(ok_cb):
+            raise BotValueError(
+                f"检查器成功回调 {ok_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
+        if fail_cb is not None and not is_retcoro(fail_cb):
+            raise BotValueError(
+                f"检查器失败回调 {fail_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
         self.ok_cb = ok_cb
         self.fail_cb = fail_cb
 

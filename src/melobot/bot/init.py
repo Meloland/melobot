@@ -102,7 +102,7 @@ class MeloBot:
         :param log_to_console: 日志是否输出到控制台
         :param log_to_dir: 保存日志文件的目录，为空则不保存
         :param log_tag: 是否在日志中输出日志器名称，默认不输出
-        :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数
+        :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略所有其他日志相关参数（日志器对象如果不是 :class:`.BotLogger` 类的实例，需要先通过 :func:`.logger_patch` 修补）
         :return: bot 实例（因此支持链式调用）
         """
         if connector._used:

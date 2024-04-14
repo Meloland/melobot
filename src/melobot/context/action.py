@@ -1,7 +1,16 @@
 from ..base.abc import ActionArgs, BotAction, BotEvent
 from ..base.exceptions import BotSessionError, BotValueError, FuncSafeExited
 from ..base.tools import get_id
-from ..base.typing import TYPE_CHECKING, Literal, MsgNode, MsgSegment, Optional, Union
+from ..base.typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    MsgNode,
+    MsgSegment,
+    Optional,
+    Union,
+    cast,
+)
 from ..models.msg import _to_cq_str_action, reply_msg, text_msg
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as CtxManager
@@ -78,25 +87,31 @@ class MsgActionArgs(ActionArgs):
 
 def _process_msg(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegment]:
     """将多种可能的消息格式，统一转换为 cq 消息列表"""
+
+    def verify_segment(obj: Any) -> bool:
+        return (
+            isinstance(obj, dict)
+            and obj.get("type") is not None
+            and isinstance(obj.get("data"), dict)
+        )
+
     if isinstance(content, str):
-        _ = text_msg(content)
-        if not isinstance(_, list):
-            msgs = [_]
-    elif isinstance(content, dict):
-        msgs = [content]
-    elif isinstance(content, list):
-        temp = []
-        for _ in content:
-            if isinstance(_, list):
-                temp.extend(_)
-            else:
-                temp.append(_)
-        msgs = temp
+        return [text_msg(content)]
+
+    elif verify_segment(content):
+        return [cast(MsgSegment, content)]
+
+    elif (
+        isinstance(content, list)
+        and len(content) > 0
+        and all(verify_segment(obj) for obj in content)
+    ):
+        return content
+
     else:
         raise BotValueError(
-            "消息内容格式不正确。必须是以下格式之一：字符串、消息段对象、消息段对象的列表"
+            f"发送的消息内容有误，当前值是：{content}，但需要以下格式之一：字符串、消息段对象、消息段对象的列表（不可为空）"
         )
-    return msgs
 
 
 @CtxManager._activate
@@ -1450,13 +1465,7 @@ async def send_reply(
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
-
-    if isinstance(content, str):
-        content_arr.append(text_msg(content))
-    elif isinstance(content, dict):
-        content_arr.append(content)
-    else:
-        content_arr.extend(content)
+    content_arr.extend(_process_msg(content))
     return await send(content_arr, cq_str, wait, auto)
 
 
@@ -1525,12 +1534,7 @@ async def reply_finish(
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
-    if isinstance(content, str):
-        content_arr.append(text_msg(content))
-    elif isinstance(content, dict):
-        content_arr.append(content)
-    else:
-        content_arr.extend(content)
+    content_arr.extend(_process_msg(content))
     await send(content_arr, cq_str)
     try:
         SESSION_LOCAL.destory()

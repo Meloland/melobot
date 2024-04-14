@@ -75,7 +75,7 @@ class BotDispatcher:
                     permit_priority = handler.priority
         except Exception as e:
             self.logger.error("bot dispatcher 抛出异常")
-            self.logger.error(f"异常点 event：{event:hexid}")
+            self.logger.error(f"异常点 event：{event:hexid}\n{event:raw}")
             log_exc(self.logger, locals(), e)
 
     async def dispatch(

@@ -252,67 +252,38 @@ class MessageEvent(BotEvent):
             #: 发送者年龄
             self.age: Optional[int]
             #: 发送者的群名片
-            self.group_card: str
+            self.group_card: Optional[str]
             #: 发送者的群中角色
-            self.group_role: Literal["owner", "admin", "member", "anonymous"]
+            self.group_role: Optional[Literal["owner", "admin", "member", "anonymous"]]
             #: 发送者的群头衔
-            self.group_title: str
+            self.group_title: Optional[str]
             #: 发送者的地区
-            self.group_area: str
+            self.group_area: Optional[str]
             #: 发送者的群等级
-            self.group_level: str
+            self.group_level: Optional[str]
 
             #: 匿名发送者的 id（此属性只在事件为群匿名消息事件时存在）
-            self.anonym_id: int
+            self.anonym_id: Optional[int]
             #: 匿名发送者的名字（此属性只在事件为群匿名消息事件时存在）
-            self.anonym_name: str
+            self.anonym_name: Optional[str]
             #: 匿名发送者的匿名 flag（此属性只在事件为群匿名消息事件时存在）
-            self.anonym_flag: str
+            self.anonym_flag: Optional[str]
 
-            # 对应私聊可能缺失 sender 的情况
-            if len(rawEvent["sender"]) == 0:
-                self._gen_empty()
-                return
+            self.id = rawEvent["user_id"]
+            self.nickname = rawEvent["sender"].get("nickname", None)
+            self.sex = rawEvent["sender"].get("sex", None)
+            self.age = rawEvent["sender"].get("age", None)
 
-            self.id = rawEvent["sender"]["user_id"]
-            self.nickname = rawEvent["sender"]["nickname"]
-            self.sex = (
-                rawEvent["sender"]["sex"]
-                if "sex" in rawEvent["sender"].keys()
-                else None
-            )
-            self.age = (
-                rawEvent["sender"]["age"]
-                if "age" in rawEvent["sender"].keys()
-                else None
-            )
-            if isGroup:
-                if isGroupAnonym:
-                    self.group_card = ""
-                    self.group_area = rawEvent["sender"]["area"]
-                    self.group_level = rawEvent["sender"]["level"]
-                    self.group_role = "anonymous"
-                    self.group_title = ""
-                    self.anonym_id = rawEvent["anonymous"]["id"]
-                    self.anonym_name = rawEvent["anonymous"]["name"]
-                    self.anonym_flag = rawEvent["anonymous"]["flag"]
-                else:
-                    self.group_card = rawEvent["sender"]["card"]
-                    self.group_area = (
-                        rawEvent["sender"]["area"]
-                        if "area" in rawEvent["sender"].keys()
-                        else ""
-                    )
-                    self.group_level = rawEvent["sender"]["level"]
-                    self.group_role = rawEvent["sender"]["role"]
-                    self.group_title = rawEvent["sender"]["title"]
+            self.group_card = rawEvent["sender"].get("card", None)
+            self.group_role = rawEvent["sender"].get("role", None)
+            self.group_title = rawEvent["sender"].get("title", None)
+            self.group_area = rawEvent["sender"].get("area", None)
+            self.group_level = rawEvent["sender"].get("level", None)
 
-        def _gen_empty(self) -> None:
-            """当传入的 rawEvent 缺失 sender 时，把属性直接置空"""
-            self.id = self._rawEvent["user_id"]
-            self.nickname = None
-            self.sex = None
-            self.age = None
+            if isGroup and isGroupAnonym:
+                self.anonym_id = rawEvent["anonymous"].get("id", None)
+                self.anonym_name = rawEvent["anonymous"].get("name", None)
+                self.anonym_flag = rawEvent["anonymous"].get("flag", None)
 
         def is_group_owner(self) -> bool:
             """判断是否为群主，若不是或不是群类型消息，返回 False"""
@@ -331,12 +302,6 @@ class MessageEvent(BotEvent):
             if not self._isGroup:
                 return False
             return self.group_role == "member"
-
-        def is_anonym_member(self) -> bool:
-            """判断是否是群匿名，若不是或不是群类型消息，返回 False"""
-            if not self._isGroup:
-                return False
-            return self.group_role == "anonymous"
 
         def is_bot(self) -> bool:
             """判断消息是否是bot自己发送的"""
