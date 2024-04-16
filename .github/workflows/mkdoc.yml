@@ -17,11 +17,14 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Build the doc
-      uses: ammaraskar/sphinx-action@7.2.6
+      uses: actions/setup-python@v5
       with:
-        docs-folder: "docs/"
-        build-command: "sphinx-build -b html . build"
-    
+        python-version: '3.10' 
+        run: |
+          cd docs/
+          pip install -r requirements.txt
+          make html
+
     - name: Commit doc changes
       run: |
         git clone https://github.com/aicorein/melobot.git --branch gh-pages --single-branch gh-pages
