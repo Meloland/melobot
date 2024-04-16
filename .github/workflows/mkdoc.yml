@@ -1,0 +1,43 @@
+name: makedoc
+
+on:
+  push:
+    branches:    
+      main
+
+  pull_request:
+    branches:    
+      main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build the doc
+      uses: ammaraskar/sphinx-action@master
+      with:
+        docs-folder: "docs/"
+        build-command: "sphinx-build -b html . build"
+    
+    - name: Commit doc changes
+      run: |
+        git clone https://github.com/aicorein/melobot.git --branch gh-pages --single-branch gh-pages
+        mkdir tmp-files && cd gh-pages
+        mv CNAME .nojekyll README.md ../tmp-files
+        rm -rf * && cd ..
+        cp -r docs/build/html/* gh-pages/
+        cp tmp-files/* gh-pages/
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Update doc by Github Action" -a || true
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        branch: gh-pages
+        directory: gh-pages
+        github_token: ${{ secrets.MELOBOT_PAGE_TOKEN }}
