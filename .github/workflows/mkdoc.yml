@@ -20,10 +20,10 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10' 
-        run: |
-          cd docs/
-          pip install -r requirements.txt
-          make html
+    - run: |
+        cd docs/
+        pip install -r requirements.txt
+        make html
 
     - name: Commit doc changes
       run: |
