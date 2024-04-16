@@ -32,7 +32,7 @@ jobs:
         rm -rf * && rm .buildinfo && cd ..
         cp -r docs/build/html/* gh-pages
         cp docs/build/html/.buildinfo gh-pages
-        mv tmp-files/* tmp-files/.* gh-pages && rmdir tmp-files
+        mv tmp-files/* tmp-files/.buildinfo gh-pages && rmdir tmp-files
         cd gh-pages
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"

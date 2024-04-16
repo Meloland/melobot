@@ -41,7 +41,7 @@ class MetaInfo(metaclass=ReadOnly):
        一般无需手动实例化该类，多数情况会直接使用本类的属性，或将本类用作类型注解。
     """
 
-    VER: str = "2.5.12"
+    VER: str = "2.5.13"
     """melobot 版本
 
        :meta hide-value:
