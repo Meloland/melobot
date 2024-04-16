@@ -235,7 +235,8 @@
           <h1>melobot.utils.formatter 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">traceback</span>
 
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotException</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotException</span><span class="p">,</span> <span class="n">BotValueError</span>
+<span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">is_retcoro</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -247,11 +248,6 @@
     <span class="n">VoidType</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..context.action</span> <span class="kn">import</span> <span class="n">send</span>
-
-
-<span class="k">class</span> <span class="nc">ArgFormatInitError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">ArgVerifyFailed</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
@@ -347,8 +343,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_replace_flag</span> <span class="o">=</span> <span class="n">default_replace_flag</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="n">Void</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_replace_flag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ArgFormatInitError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
                 <span class="s2">&quot;初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">convert_fail</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_retcoro</span><span class="p">(</span><span class="n">convert_fail</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;格式化器的类型转换失败回调 </span><span class="si">{</span><span class="n">convert_fail</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 必须为异步函数，或其他返回协程的可调用对象&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">verify_fail</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_retcoro</span><span class="p">(</span><span class="n">verify_fail</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;格式化器的值验证失败回调 </span><span class="si">{</span><span class="n">verify_fail</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 必须为异步函数，或其他返回协程的可调用对象&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">arg_lack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_retcoro</span><span class="p">(</span><span class="n">arg_lack</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;格式化器的参数缺失回调 </span><span class="si">{</span><span class="n">arg_lack</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 必须为异步函数，或其他返回协程的可调用对象&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">convert_fail</span> <span class="o">=</span> <span class="n">convert_fail</span>

@@ -289,7 +289,7 @@
         <span class="n">fmt_arr</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;</span><span class="si">%(green)s%(asctime)s</span><span class="s2">.</span><span class="si">%(msecs)03d%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(log_color)s%(levelname)-8s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;</span><span class="si">%(blue)s%(module)-10s%(reset)s</span><span class="s2"> : </span><span class="si">%(green)s%(lineno)-4d%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(blue)s%(module)-10s%(reset)s</span><span class="s2"> : </span><span class="si">%(green)s%(lineno)-4d%(reset)s</span><span class="s2"> -&gt; </span><span class="si">%(blue)s%(funcName)-12s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(message_log_color)s%(message)s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span><span class="p">:</span>
@@ -316,7 +316,7 @@
         <span class="n">fmt_arr</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">.</span><span class="si">%(msecs)03d</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(levelname)-8s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;</span><span class="si">%(module)-12s</span><span class="s2"> </span><span class="si">%(lineno)-4d</span><span class="s2"> </span><span class="si">%(funcName)-20s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(module)-10s</span><span class="s2"> : </span><span class="si">%(lineno)-4d</span><span class="s2"> -&gt; </span><span class="si">%(funcName)-12s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span><span class="p">:</span>

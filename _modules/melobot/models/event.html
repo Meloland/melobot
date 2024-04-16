@@ -524,67 +524,38 @@
             <span class="c1">#: 发送者年龄</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
             <span class="c1">#: 发送者的群名片</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_card</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_card</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
             <span class="c1">#: 发送者的群中角色</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="s2">&quot;member&quot;</span><span class="p">,</span> <span class="s2">&quot;anonymous&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="s2">&quot;member&quot;</span><span class="p">,</span> <span class="s2">&quot;anonymous&quot;</span><span class="p">]]</span>
             <span class="c1">#: 发送者的群头衔</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
             <span class="c1">#: 发送者的地区</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_area</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_area</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
             <span class="c1">#: 发送者的群等级</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_level</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
             <span class="c1">#: 匿名发送者的 id（此属性只在事件为群匿名消息事件时存在）</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">anonym_id</span><span class="p">:</span> <span class="nb">int</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">anonym_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
             <span class="c1">#: 匿名发送者的名字（此属性只在事件为群匿名消息事件时存在）</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">anonym_name</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">anonym_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
             <span class="c1">#: 匿名发送者的匿名 flag（此属性只在事件为群匿名消息事件时存在）</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">anonym_flag</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">anonym_flag</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-            <span class="c1"># 对应私聊可能缺失 sender 的情况</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_gen_empty</span><span class="p">()</span>
-                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nickname&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;nickname&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;sex&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s2">&quot;sex&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;age&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s2">&quot;age&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">isGroup</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">isGroupAnonym</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_card</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_area</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_level</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;level&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">=</span> <span class="s2">&quot;anonymous&quot;</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">anonym_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">anonym_name</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">anonym_flag</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">][</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_card</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;card&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_area</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
-                        <span class="k">if</span> <span class="s2">&quot;area&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                        <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-                    <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_level</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;level&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;role&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_card</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;card&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_area</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_level</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;level&quot;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_gen_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;当传入的 rawEvent 缺失 sender 时，把属性直接置空&quot;&quot;&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">isGroup</span> <span class="ow">and</span> <span class="n">isGroupAnonym</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_name</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_flag</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;flag&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MessageEvent.Sender.is_group_owner">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.Sender.is_group_owner">[文档]</a>
@@ -611,15 +582,6 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isGroup</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;member&quot;</span></div>
-
-
-<div class="viewcode-block" id="MessageEvent.Sender.is_anonym_member">
-<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.Sender.is_anonym_member">[文档]</a>
-        <span class="k">def</span> <span class="nf">is_anonym_member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;判断是否是群匿名，若不是或不是群类型消息，返回 False&quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isGroup</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;anonymous&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.Sender.is_bot">

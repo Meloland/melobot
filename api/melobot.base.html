@@ -555,7 +555,7 @@
 <dd><p>格式化方法</p>
 <p>任何解析器应该实现此抽象方法</p>
 <p>格式化是否进行，会受解析器 <cite>need_fotmat</cite> 参数和 <a class="reference internal" href="#melobot.base.abc.BotParser.test" title="melobot.base.abc.BotParser.test"><code class="xref py py-meth docutils literal notranslate"><span class="pre">test()</span></code></a> 的影响。
-如果你确定你的解析器子类 100% 不需要格式化，那么继承这个方法再次标记为 pass 即可。</p>
+如果你确定你的解析器子类 100% 不需要格式化，那么继承这个方法标记为 pass 即可。</p>
 <p>格式化过程最后只返回是否格式化成功，格式化的结果将会被直接保存，并可通过 <a class="reference internal" href="melobot.context.html#melobot.context.msg_args" title="melobot.context.msg_args"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_args()</span></code></a> 获得。</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -974,7 +974,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.base.typing.GocqCustomNodeData.seq">
-<span class="sig-name descname"><span class="pre">seq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.base.typing.GocqCustomNodeData.seq" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">seq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">NotRequired</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.base.typing.GocqCustomNodeData.seq" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

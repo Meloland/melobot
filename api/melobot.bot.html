@@ -305,7 +305,7 @@
 <li><p><strong>log_to_console</strong> – 日志是否输出到控制台</p></li>
 <li><p><strong>log_to_dir</strong> – 保存日志文件的目录，为空则不保存</p></li>
 <li><p><strong>log_tag</strong> – 是否在日志中输出日志器名称，默认不输出</p></li>
-<li><p><strong>custom_logger</strong> – 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数</p></li>
+<li><p><strong>custom_logger</strong> – 自定义日志器对象。若不为空将使用该日志器，并忽略所有其他日志相关参数（日志器对象如果不是 <a class="reference internal" href="melobot.utils.html#melobot.utils.BotLogger" title="melobot.utils.BotLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotLogger</span></code></a> 类的实例，需要先通过 <a class="reference internal" href="melobot.utils.html#melobot.utils.logger_patch" title="melobot.utils.logger_patch"><code class="xref py py-func docutils literal notranslate"><span class="pre">logger_patch()</span></code></a> 修补）</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
@@ -489,7 +489,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.bot.MeloBot.use_default_loop_policy">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_default_loop_policy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/init.html#MeloBot.use_default_loop_policy"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.MeloBot.use_default_loop_policy" title="Link to this definition">#</a></dt>
-<dd><p>使用默认的事件策略模式</p>
+<dd><p>使用默认的事件循环策略</p>
 <p>在类 <cite>Unix</cite> 平台上，这会停止 <cite>uvloop</cite> 的使用</p>
 <p>在 <cite>Windows</cite> 平台上，这会停止 <cite>winloop</cite> 的使用</p>
 </dd></dl>

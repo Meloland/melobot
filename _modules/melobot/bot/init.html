@@ -344,7 +344,7 @@
 <span class="sd">        :param log_to_console: 日志是否输出到控制台</span>
 <span class="sd">        :param log_to_dir: 保存日志文件的目录，为空则不保存</span>
 <span class="sd">        :param log_tag: 是否在日志中输出日志器名称，默认不输出</span>
-<span class="sd">        :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略其他所有日志相关参数</span>
+<span class="sd">        :param custom_logger: 自定义日志器对象。若不为空将使用该日志器，并忽略所有其他日志相关参数（日志器对象如果不是 :class:`.BotLogger` 类的实例，需要先通过 :func:`.logger_patch` 修补）</span>
 <span class="sd">        :return: bot 实例（因此支持链式调用）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">connector</span><span class="o">.</span><span class="n">_used</span><span class="p">:</span>
@@ -716,7 +716,7 @@
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.MeloBot.use_default_loop_policy">[文档]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">use_default_loop_policy</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;使用默认的事件策略模式</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;使用默认的事件循环策略</span>
 
 <span class="sd">        在类 `Unix` 平台上，这会停止 `uvloop` 的使用</span>
 

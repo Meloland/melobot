@@ -656,7 +656,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;对 action 构造器进行装饰，使产生的 action “活化”。 让其能自动识别上下文，自动附加触发 event，并自动完成发送过程&quot;&quot;&quot;</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">action_getter</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">activated_action</span><span class="p">(</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span>
             <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">,</span> <span class="s2">&quot;ResponseEvent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -685,7 +685,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="p">(</span><span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span><span class="o">.</span><span class="n">_responder</span><span class="o">.</span><span class="n">take_action_wait</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">activated_action</span>
+        <span class="k">return</span> <span class="n">wrapped_func</span>
 
 
 <div class="viewcode-block" id="any_event">
@@ -764,8 +764,7 @@
 
 <span class="sd">    :return: 纯文本内容的合并字符串</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;MessageEvent&quot;</span> <span class="o">=</span> <span class="n">any_event</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
-    <span class="k">return</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span></div>
+    <span class="k">return</span> <span class="n">msg_event</span><span class="p">()</span><span class="o">.</span><span class="n">text</span></div>
 
 
 
