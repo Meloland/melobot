@@ -31,7 +31,7 @@ jobs:
         mv CNAME .nojekyll README.md .git ../tmp-files
         rm -rf * && rm .buildinfo && cd ..
         cp -r docs/build/html/* gh-pages
-        cp docs/build/html/.* gh-pages
+        cp docs/build/html/.buildinfo gh-pages
         mv tmp-files/* tmp-files/.* gh-pages && rmdir tmp-files
         cd gh-pages
         git config --local user.email "action@github.com"
