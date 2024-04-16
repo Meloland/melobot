@@ -29,7 +29,7 @@ jobs:
         git clone https://github.com/aicorein/melobot.git --branch gh-pages --single-branch gh-pages
         mkdir tmp-files && cd gh-pages
         mv CNAME .nojekyll README.md .git ../tmp-files
-        rm -rf * && rm .* && cd ..
+        rm -rf * && rm .buildinfo && cd ..
         cp -r docs/build/html/* gh-pages
         cp docs/build/html/.* gh-pages
         mv tmp-files/* tmp-files/.* gh-pages && rmdir tmp-files
