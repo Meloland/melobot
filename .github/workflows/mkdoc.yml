@@ -21,22 +21,24 @@ jobs:
       with:
         python-version: '3.10' 
     - run: |
-        cd docs/
-        pip install -r requirements.txt
-        make html
+        cd docs/ && pip install -r requirements.txt
+        make html && cd ..
 
     - name: Commit doc changes
       run: |
         git clone https://github.com/aicorein/melobot.git --branch gh-pages --single-branch gh-pages
         mkdir tmp-files && cd gh-pages
-        mv CNAME .nojekyll README.md ../tmp-files
-        rm -rf * && cd ..
-        cp -r docs/build/html/* gh-pages/
-        cp tmp-files/* gh-pages/
+        mv CNAME .nojekyll README.md .git ../tmp-files
+        rm -rf * && rm .* && cd ..
+        cp -r docs/build/html/* gh-pages
+        cp docs/build/html/.* gh-pages
+        mv tmp-files/* tmp-files/.* gh-pages && rmdir tmp-files
+        cd gh-pages
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
         git commit -m "Update doc by Github Action" -a || true
+        cd ..
 
     - name: Push changes
       uses: ad-m/github-push-action@master
