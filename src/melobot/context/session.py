@@ -506,8 +506,7 @@ def msg_text() -> str:
 
     :return: 纯文本内容的合并字符串
     """
-    event: "MessageEvent" = any_event()  # type: ignore
-    return event.text
+    return msg_event().text
 
 
 def msg_args() -> list[Any] | None:

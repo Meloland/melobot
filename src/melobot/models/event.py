@@ -270,20 +270,20 @@ class MessageEvent(BotEvent):
             self.anonym_flag: Optional[str]
 
             self.id = rawEvent["user_id"]
-            self.nickname = rawEvent["sender"].get("nickname", None)
-            self.sex = rawEvent["sender"].get("sex", None)
-            self.age = rawEvent["sender"].get("age", None)
+            self.nickname = rawEvent["sender"].get("nickname")
+            self.sex = rawEvent["sender"].get("sex")
+            self.age = rawEvent["sender"].get("age")
 
-            self.group_card = rawEvent["sender"].get("card", None)
-            self.group_role = rawEvent["sender"].get("role", None)
-            self.group_title = rawEvent["sender"].get("title", None)
-            self.group_area = rawEvent["sender"].get("area", None)
-            self.group_level = rawEvent["sender"].get("level", None)
+            self.group_card = rawEvent["sender"].get("card")
+            self.group_role = rawEvent["sender"].get("role")
+            self.group_title = rawEvent["sender"].get("title")
+            self.group_area = rawEvent["sender"].get("area")
+            self.group_level = rawEvent["sender"].get("level")
 
             if isGroup and isGroupAnonym:
-                self.anonym_id = rawEvent["anonymous"].get("id", None)
-                self.anonym_name = rawEvent["anonymous"].get("name", None)
-                self.anonym_flag = rawEvent["anonymous"].get("flag", None)
+                self.anonym_id = rawEvent["anonymous"].get("id")
+                self.anonym_name = rawEvent["anonymous"].get("name")
+                self.anonym_flag = rawEvent["anonymous"].get("flag")
 
         def is_group_owner(self) -> bool:
             """判断是否为群主，若不是或不是群类型消息，返回 False"""

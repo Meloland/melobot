@@ -48,7 +48,6 @@ check = {shell = "flake8 src/melobot"}
 analyse = {shell = "mypy src/melobot"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
-live-docs = {shell = "sphinx-autobuild -c docs/source docs docs/build/html"}
 
 [tool.pdm.dev-dependencies]
 test = [
