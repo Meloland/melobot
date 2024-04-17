@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>转发消息与消息结点 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,12 +243,12 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>转发消息与消息结点<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>转发消息与消息结点<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p>在前一篇文章 <a class="reference internal" href="msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a> 中我们说明了 OneBot 标准是如何表示<strong>单条 qq 消息中</strong>可能存在的多种类型的内容的（如文本、语音或图片），主要是通过 <strong>CQ 字符串</strong>或<strong>消息段数组</strong>的形式。</p>
 <p>但是如果是转发消息这种包含<strong>多条消息</strong>的消息，要如何表示呢？这个时候就需要<strong>转发消息段或消息结点</strong>了。</p>
 <p>在 melobot 中，你不需要手动处理“转发消息段”、“消息结点”的数据结构。<strong>虽然无需手动处理，但是了解这些数据结构，有助于你使用 melobot 提供的相关方法</strong>。</p>
 <section id="id2">
-<h2>转发消息段<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>转发消息段<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>每一条已存在的转发消息，都对应一个唯一的转发 id。使用转发 id 就可以表示<strong>一条已存在的转发消息</strong>。</p>
 <p>两种格式的表示方法：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -284,7 +284,7 @@
 </div>
 </section>
 <section id="id3">
-<h2>消息结点<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>消息结点<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
 <p>在 OneBot 标准和其他一些文档中，习惯说“消息节点”，这与本文档中的“消息结点”完全是同一概念。</p>
@@ -296,7 +296,7 @@
 <li><p>合并转发自定义结点（对应“一条新消息”，这条消息之前完全不存在）</p></li>
 </ul>
 <section id="id4">
-<h3>合并转发结点<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<h3>合并转发结点<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <p>两种格式的表示方法：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
@@ -332,7 +332,7 @@
 <p>消息 ID 在 melobot 中可通过消息事件的 <a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent.id" title="melobot.models.MessageEvent.id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">id</span></code></a> 属性获得。</p>
 </section>
 <section id="id5">
-<h3>合并转发自定义结点<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<h3>合并转发自定义结点<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
 <p>合并转发自定义结点的 <code class="docutils literal notranslate"><span class="pre">content</span></code> 字段，可以是“CQ字符串”或“消息段数组”。</p>
@@ -400,7 +400,7 @@
 </section>
 </section>
 <section id="melobot">
-<h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">#</a></h2>
+<h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h2>
 <p>在 melobot 中：</p>
 <ul class="simple">
 <li><p>转发消息段，作为消息段对象（类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code></a> 的字典）的一种表示</p></li>
@@ -492,7 +492,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>事件预处理 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,16 +243,16 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>事件预处理<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>事件预处理<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <section id="id2">
-<h2>预处理时机<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>预处理时机<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>事件预处理在事件处理过程前发生。预处理可能会得到一些中间结果，这些中间结果在事件处理过程中可用。</p>
 <p>预处理的结果，将会决定是否可以继续运行后续的事件处理过程。预处理失败，不会再进行事件处理；反之则可以运行事件处理。</p>
 <p>每一个事件处理方法，都会有<strong>一个独立的预处理过程</strong>。即使用户不自行指定预处理规则，事件绑定方法也会为事件处理方法<strong>自动应用默认的预处理规则</strong>。</p>
 <p>只有消息事件、请求事件、通知事件、元事件有预处理过程。响应事件没有预处理过程。</p>
 </section>
 <section id="id3">
-<h2>预处理流程<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>预处理流程<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>对于消息事件，它的预处理环节有两个，按顺序分别是：<code class="docutils literal notranslate"><span class="pre">匹配或解析</span></code>、<code class="docutils literal notranslate"><span class="pre">检查</span></code>。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">匹配</span></code>：对消息中的纯文本内容进行匹配</p></li>
@@ -352,7 +352,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

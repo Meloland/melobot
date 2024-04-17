@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>其他行为操作 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,7 +243,7 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>其他行为操作<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>其他行为操作<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p>如果你不知道什么是“行为”和“行为操作”，建议先浏览：<a class="reference internal" href="../references/event-action.html"><span class="doc std std-doc">行为的相关知识</span></a></p>
@@ -254,7 +254,7 @@
 </pre></div>
 </div>
 <section id="id2">
-<h2>行为响应<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>行为响应<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>行为操作的响应被称为“行为响应”，以下简称“响应”。响应是 melobot 发送行为操作给 OneBot 实现程序后，等待 OneBot 完成后的结果。响应<strong>被用来检查行为有没有被正确处理，或被用来获取返回数据</strong>。</p>
 <p>响应在 melobot 中是一种事件类型。参考：<a class="reference internal" href="../api/melobot.models.html#melobot.models.ResponseEvent" title="melobot.models.ResponseEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResponseEvent</span></code></a>。</p>
 <p>通过 API 参考文档，可以发现：大多数行为操作函数都有参数 <code class="docutils literal notranslate"><span class="pre">wait</span></code>。当不指定这个 wait 参数，或设置 <code class="docutils literal notranslate"><span class="pre">wait=False</span></code> 时，行为操作函数在将行为传递给 OneBot 实现程序后，就<strong>立即返回</strong>。即使这个行为<strong>还没有被 OneBot 实现程序“完成”</strong>（即提交给 qq 服务器）。</p>
@@ -300,7 +300,7 @@
 </div>
 </section>
 <section id="id3">
-<h2>自定义的行为操作<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>自定义的行为操作<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>实际上，行为操作函数的逻辑分为两步：</p>
 <ul class="simple">
 <li><p>产生一个 <a class="reference internal" href="../api/melobot.base.html#melobot.base.abc.BotAction" title="melobot.base.abc.BotAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotAction</span></code></a> 对象（行为对象）</p></li>
@@ -355,7 +355,7 @@
 </div>
 </section>
 <section id="id4">
-<h2>总结<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<h2>总结<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p>本篇主要说明了如何实现其他行为操作与行为操作的响应。</p>
 <p>下一篇将重点说明：事件预处理过程和对应的方法。</p>
 </section>
@@ -439,7 +439,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

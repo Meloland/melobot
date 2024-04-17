@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>事件和行为 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,7 +243,7 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>事件和行为<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>事件和行为<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p>事件和行为是 melobot 和 <a class="reference external" href="https://github.com/botuniverse/onebot-11/tree/master">OneBot 标准</a>中最重要的概念。melobot 内部的工作，总结下来也就四步：</p>
 <ol class="arabic simple">
 <li><p>接收来自 OneBot 实现程序的“事件”，并格式化</p></li>
@@ -255,7 +255,7 @@
 <p>“行为”或“行为操作”：<strong>发送给 OneBot 实现程序的，交由 OneBot 实现程序完成的操作</strong>。</p>
 <p>若无特别说明，本文档直接提及“事件”、“行为”、“行为操作”等词汇均是以上含义。</p>
 <section id="id2">
-<h2>事件类型<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>事件类型<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>在 OneBot 标准中，事件有<a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/event/README.md">四种类型</a>。而在 melobot 中，为方便使用，额外了添加一种事件类型。melobot 所有事件类型如下：</p>
 <ul class="simple">
 <li><p>消息事件：<a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent" title="melobot.models.MessageEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageEvent</span></code></a>（事件处理方法中使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_event" title="melobot.context.msg_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_event()</span></code></a> 获得）</p></li>
@@ -268,7 +268,7 @@
 <p>通过响应事件，可以检查行为有没有被正确完成，或者获得某些行为的返回数据。例如：某个行为是“获取 bot 加入的所有群的群号”，这个行为的返回数据就会通过响应事件来传输。</p>
 </section>
 <section id="id3">
-<h2>行为类型<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>行为类型<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>在 OneBot 标准中，行为通过不同的“类型标识”，产生了多种类型。在 melobot 中，各种各样行为的产生，主要由不同的“行为操作函数”完成，具体可以参阅：<a class="reference internal" href="../api/melobot.context.html#action-operations"><span class="std std-ref">行为操作函数</span></a>。</p>
 </section>
 </section>
@@ -350,7 +350,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

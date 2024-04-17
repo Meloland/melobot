@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>消息内容的数据结构 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,7 +243,7 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>消息内容的数据结构<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>消息内容的数据结构<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p>消息内容，由于有文本、语音、图片等多种类型。因此需要统一的数据结构来表示。在 OneBot 标准中，主要有两种格式，来表示消息内容这种数据结构：字符串（string）和数组（array）。</p>
 <p>在 melobot 中，你不需要手动处理消息内容的数据结构，<strong>虽然无需手动处理，但是了解消息内容的数据结构，有助于你使用 melobot 提供的相关方法</strong>。</p>
 <div class="caution admonition">
@@ -251,13 +251,13 @@
 <p>本页以下部分为保证阅读流畅性，直接复制了来源于 <a class="reference external" href="https://github.com/botuniverse/onebot-11">OneBot 标准</a>的一些内容。</p>
 </div>
 <section id="id2">
-<h2>字符串格式<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>字符串格式<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>在字符串格式中，无论纯文本还是图片、表情、链接分享等多媒体内容都放在同一个字符串里，即，一条消息对应一个字符串。以下是一个字符串格式消息的例子：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">face</span><span class="p">,</span><span class="nb">id</span><span class="o">=</span><span class="mi">178</span><span class="p">]</span><span class="n">看看我刚拍的照片</span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">image</span><span class="p">,</span><span class="n">file</span><span class="o">=</span><span class="mf">123.</span><span class="n">jpg</span><span class="p">]</span>
 </pre></div>
 </div>
 <section id="cq">
-<h3>CQ 码格式<a class="headerlink" href="#cq" title="Link to this heading">#</a></h3>
+<h3>CQ 码格式<a class="headerlink" href="#cq" title="Link to this heading">¶</a></h3>
 <p>消息中的多媒体内容使用 CQ 码来表示，形如 <code class="docutils literal notranslate"><span class="pre">[CQ:face,id=178]</span></code>。其中，<code class="docutils literal notranslate"><span class="pre">[CQ:]</span></code> 是固定格式；<code class="docutils literal notranslate"><span class="pre">face</span></code> 是「功能名」，除了 <code class="docutils literal notranslate"><span class="pre">face</span></code> 还有许多不同的功能名；<code class="docutils literal notranslate"><span class="pre">id=178</span></code> 是「参数」，某些功能不需要参数，而另一些需要多个参数，当有多个参数时，参数间使用逗号分隔。</p>
 <p>一些 CQ 码的例子如下：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">shake</span><span class="p">]</span>
@@ -273,7 +273,7 @@
 </div>
 </section>
 <section id="id3">
-<h3>CQ 码转义<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<h3>CQ 码转义<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <p>CQ 码中包含一些特殊字符：<code class="docutils literal notranslate"><span class="pre">[</span></code>、<code class="docutils literal notranslate"><span class="pre">]</span></code>、<code class="docutils literal notranslate"><span class="pre">,</span></code> 等，而 CQ 码又是可能混杂在纯文本内容之中的，因此消息中的纯文本内容需要对特殊字符进行转义，以避免歧义。具体的转义规则如下：</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
@@ -334,10 +334,10 @@
 </section>
 </section>
 <section id="id4">
-<h2>数组格式<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<h2>数组格式<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p>数组格式将消息表示为一系列消息段对象的数组，在基本语义上与字符串格式等价，可以相互转换，但数组格式的表达能力更强，例如可以嵌套、规定参数数据类型等。</p>
 <section id="id5">
-<h3>消息段<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<h3>消息段<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <p>在字符串格式中，使用 CQ 码表示多媒体内容，例如 <code class="docutils literal notranslate"><span class="pre">[CQ:image,file=123.jpg]</span></code>，这里 CQ 码功能名为 <code class="docutils literal notranslate"><span class="pre">image</span></code>，参数为 <code class="docutils literal notranslate"><span class="pre">file=123.jpg</span></code>，也即一个键值对。</p>
 <p>消息段是 CQ 码在数组格式中的表示形式，基本格式如下：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -363,7 +363,7 @@
 <p>更多消息段类型请参考 <a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/message/segment.md">消息段类型</a>。</p>
 </section>
 <section id="id6">
-<h3>消息段数组<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<h3>消息段数组<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <p>了解了消息段概念之后，就不难理解消息的数组格式了，即消息段组成的数组。</p>
 <p>例如，字符串格式下的这样一条消息：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&amp;</span><span class="c1">#91;第一部分&amp;#93;[CQ:image,file=123.jpg]图片之后的部分，表情：[CQ:face,id=123]</span>
@@ -401,7 +401,7 @@
 </section>
 </section>
 <section id="melobot">
-<h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">#</a></h2>
+<h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h2>
 <p>在 melobot 中：</p>
 <ul class="simple">
 <li><p>CQ 字符串使用字符串表示</p></li>
@@ -496,7 +496,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

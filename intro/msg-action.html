@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>消息操作 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,14 +243,14 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>消息操作<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>消息操作<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p>如果你不知道什么是“行为”和“行为操作”，建议先浏览：<a class="reference internal" href="../references/event-action.html"><span class="doc std std-doc">行为的相关知识</span></a></p>
 </div>
 <p>消息操作作为 melobot 中最主要的行为操作，十分常用。</p>
 <section id="id2">
-<h2>单条消息的构造<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>单条消息的构造<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p>如果你不知道单条消息的表示方式，有“cq 字符串”和“消息段”两种格式，建议先浏览：<a class="reference internal" href="../references/msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a></p>
@@ -278,7 +278,7 @@
 </div>
 </section>
 <section id="id3">
-<h2>自定义消息段的构造<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>自定义消息段的构造<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>一般来说，melobot 自带的消息构造函数已足够使用。但是某些 OneBot 实现程序，可能会支持某些自定义的消息段，<strong>这些自定义消息段，是 OneBot 标准中没有的，也不被 melobot 所直接支持</strong>。</p>
 <p>这时你可以使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.custom_type_msg" title="melobot.models.custom_type_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">custom_type_msg()</span></code></a> 来构造<strong>自定义消息段对象</strong>。</p>
 <p>例如在知名 OneBot 实现项目 <a class="reference external" href="https://github.com/whitechi73/OpenShamrock">OpenShamrock</a> 中，存在一种自定义的消息段 <a class="reference external" href="https://whitechi73.github.io/OpenShamrock/message/special.html#%E6%88%B3%E4%B8%80%E6%88%B3-%E5%8F%8C%E5%87%BB%E5%A4%B4%E5%83%8F">touch 消息</a>（戳一戳，双击头像）。对应的消息段数据结构如下：</p>
@@ -305,7 +305,7 @@
 </div>
 </section>
 <section id="id4">
-<h2>单条消息的其他发送方法<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<h2>单条消息的其他发送方法<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 可根据当前触发事件，自动定位要向何处发送消息。如果想要自定义发送目标，也很容易。只需要将<a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 换成 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_custom_msg" title="melobot.context.send_custom_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom_msg()</span></code></a> 即可，它的第一参数与 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 完全相同。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 发送一个自定义目标的私聊消息，userId 为 qq 号</span>
 <span class="k">await</span> <span class="n">send_custom_msg</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">isPrivate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">userId</span><span class="o">=</span><span class="mi">1574260633</span><span class="p">)</span>
@@ -356,7 +356,7 @@
 <p>同理，<a class="reference internal" href="../api/melobot.context.html#melobot.context.send_reply" title="melobot.context.send_reply"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_reply()</span></code></a> 对应的优化版本是：<a class="reference internal" href="../api/melobot.context.html#melobot.context.reply_finish" title="melobot.context.reply_finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">reply_finish()</span></code></a>。使用方法和特征与 <a class="reference internal" href="../api/melobot.context.html#melobot.context.finish" title="melobot.context.finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code></a> 类似。但是它发送的是回复消息。</p>
 </section>
 <section id="cq">
-<h2>使用 CQ 字符串<a class="headerlink" href="#cq" title="Link to this heading">#</a></h2>
+<h2>使用 CQ 字符串<a class="headerlink" href="#cq" title="Link to this heading">¶</a></h2>
 <p>除使用消息段对象外，你也可以使用<strong>CQ 字符串</strong>直接表示单条消息的所有消息内容。</p>
 <p>只要是有 <code class="docutils literal notranslate"><span class="pre">cq_str</span></code> 参数的行为操作函数，设置 <code class="docutils literal notranslate"><span class="pre">cq_str=True</span></code> 后，此行为操作函数将不再认为字符串是纯文本内容。而会认为字符串是可解释的 CQ 字符串。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 第一参数是字符串，无论内容是什么，都是纯文本消息内容</span>
@@ -378,13 +378,13 @@
 </div>
 </section>
 <section id="id5">
-<h2>转发消息的构造<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<h2>转发消息的构造<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p>如果你不知道转发消息的表示，主要依托于转发消息段和消息结点，建议先浏览：<a class="reference internal" href="../references/forward-msg.html"><span class="std std-doc">转发消息与消息结点</span></a></p>
 </div>
 <section id="id6">
-<h3>转发消息段构造<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<h3>转发消息段构造<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <p>构造“转发消息段”，使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.forward_msg" title="melobot.models.forward_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward_msg()</span></code></a> 函数：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># forward_id 是转发 id，可通过 msg_event().get_datas(&quot;forward&quot;, &quot;id&quot;) 获得</span>
 <span class="n">msg</span> <span class="o">=</span> <span class="n">forward_msg</span><span class="p">(</span><span class="n">forward_id</span><span class="p">)</span>
@@ -397,7 +397,7 @@
 </div>
 </section>
 <section id="id7">
-<h3>消息结点构造<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<h3>消息结点构造<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <p>构造“合并转发结点”，使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.refer_msg_node" title="melobot.models.refer_msg_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">refer_msg_node()</span></code></a> 函数：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 这里的 msg_id 是已存在的消息的 id，可通过 msg_event().id 获得</span>
 <span class="n">refer_node</span> <span class="o">=</span> <span class="n">refer_msg_node</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
@@ -424,7 +424,7 @@
 </section>
 </section>
 <section id="id8">
-<h2>转发消息的其他发送方法<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<h2>转发消息的其他发送方法<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 可根据当前触发事件，自动定位要向何处发送消息。同理，要自定义发送目标，将<a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 换成 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_custom_forward" title="melobot.context.send_custom_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom_forward()</span></code></a> 即可，它的第一参数与 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 完全相同。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 发送一个自定义目标的私聊消息，userId 为 qq 号</span>
 <span class="k">await</span> <span class="n">send_custom_forward</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">isPrivate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">userId</span><span class="o">=</span><span class="mi">1574260633</span><span class="p">)</span>
@@ -434,7 +434,7 @@
 </div>
 </section>
 <section id="id9">
-<h2>总结<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<h2>总结<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
 <p>本篇主要说明了如何构造和发送各种消息。</p>
 <p>下一篇将重点说明：如何实现其他行为操作与行为操作的响应。</p>
 </section>
@@ -526,7 +526,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

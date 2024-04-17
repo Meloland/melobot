@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>事件与事件处理 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,13 +243,13 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>事件与事件处理<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>事件与事件处理<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p>如果你不知道什么是“事件”，建议先浏览：<a class="reference internal" href="../references/event-action.html"><span class="doc std std-doc">事件的相关知识</span></a></p>
 </div>
 <section id="id2">
-<h2>绑定方法与处理方法<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>绑定方法与处理方法<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>除了刚才使用的 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_start_match" title="melobot.plugin.BotPlugin.on_start_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_start_match()</span></code></a> 方法，还有很多类似的方法，可以用于绑定事件处理的逻辑。</p>
 <p>以下将这些方法称为“绑定方法”，同时将绑定方法绑定的函数称为：“处理方法”或“处理函数”。</p>
 <ul class="simple">
@@ -269,7 +269,7 @@
 </div>
 </section>
 <section id="id3">
-<h2>获取事件对象<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>获取事件对象<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>现在我们已经学会绑定事件处理方法了。如果事件处理方法，能<strong>获得触发事件的一些信息，基于这些信息做针对性处理</strong>就更好了。</p>
 <p>通过 <a class="reference internal" href="../api/melobot.context.html#melobot.context.any_event" title="melobot.context.any_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">any_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_event" title="melobot.context.msg_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.req_event" title="melobot.context.req_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">req_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.notice_event" title="melobot.context.notice_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">notice_event()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.meta_event" title="melobot.context.meta_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">meta_event()</span></code></a> 函数，即可在事件处理方法中获得触发的事件。获得的事件是一个事件对象。</p>
 <p>当然这五个方法都只做一件事：获得当前的事件。它们唯一的不同在于，返回值的类型注解不一样。<strong>建议在指定类型的事件处理方法中，用对应的事件获取方法</strong>。这样可以获得精准的类型提示：</p>
@@ -292,7 +292,7 @@
 <p>所有类型的事件对象，都可通过 <a class="reference internal" href="../api/melobot.base.html#melobot.base.abc.BotEvent.raw" title="melobot.base.abc.BotEvent.raw"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span></code></a> 属性获得 OneBot 实现程序传递给 melobot 的，<strong>未经内部格式化</strong>的事件原始值。这可能在极少数情况下有用。一般使用事件对象的其他属性和方法即可。</p>
 </section>
 <section id="id4">
-<h2>基于事件信息的处理逻辑<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<h2>基于事件信息的处理逻辑<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p>通过事件对象提供的信息，可以实现更有趣的处理逻辑：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="linenos"> 2</span><span class="sd">通过消息事件对象的 time, sender.id 属性，产生不同的处理逻辑</span>
@@ -330,7 +330,7 @@
 </div>
 </section>
 <section id="id5">
-<h2>消息事件相关<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<h2>消息事件相关<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <p>对于消息事件，有一些额外的方法可以使用。在确定当前事件处理函数的触发事件为消息事件时，有以下方法可用：<a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_text" title="melobot.context.msg_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_text()</span></code></a>、<a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_args" title="melobot.context.msg_args"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_args()</span></code></a>。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 获取消息中的文本内容</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">msg_text</span><span class="p">()</span>  <span class="c1"># 等价于：msg_event().text</span>
@@ -370,7 +370,7 @@
 </div>
 </section>
 <section id="id6">
-<h2>总结<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<h2>总结<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <p>本篇主要说明了如何绑定事件处理方法，以及如何通过事件对象的属性和方法，来实现更丰富的处理逻辑。</p>
 <p>下一篇将重点说明：如何构造和发送各种消息。</p>
 </section>
@@ -456,7 +456,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

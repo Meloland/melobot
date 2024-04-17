@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>开始创建机器人 - MeloBot 2.5.13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -243,9 +243,9 @@
         </div>
         <article role="main">
           <section id="id1">
-<h1>开始创建机器人<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<h1>开始创建机器人<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <section id="id2">
-<h2>预先配置<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>预先配置<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>由于 melobot 目前是基于 OneBot 协议的 bot 开发框架，因此 melobot 需要一个“OneBot 实现程序”作为“前端”，
 完成与 qq 服务器的通信过程。请自行配置 OneBot 协议实现。</p>
 <div class="note admonition">
@@ -254,7 +254,7 @@
 </div>
 </section>
 <section id="demo">
-<h2>一个小 demo<a class="headerlink" href="#demo" title="Link to this heading">#</a></h2>
+<h2>一个小 demo<a class="headerlink" href="#demo" title="Link to this heading">¶</a></h2>
 <p>先来运行一段 demo 代码：（不要害怕，稍后我们会讲解其中的细节）</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">melobot</span> <span class="kn">import</span> <span class="n">MeloBot</span><span class="p">,</span> <span class="n">BotPlugin</span><span class="p">,</span> <span class="n">send</span><span class="p">,</span> <span class="n">ForwardWsConn</span>
 <span class="linenos"> 2</span>
@@ -275,7 +275,7 @@
 <p>运行后，在机器人加入的任何一个群聊或与机器人的私聊中，输入以 <code class="docutils literal notranslate"><span class="pre">.hello</span></code> 开始的消息，即可得到回复：<code class="docutils literal notranslate"><span class="pre">你好呀！我是</span> <span class="pre">melobot</span> <span class="pre">&gt;w&lt;</span></code>。</p>
 </section>
 <section id="id3">
-<h2>小 demo 讲解<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>小 demo 讲解<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>接下来逐行解释这个小 demo 的代码。</p>
 <p>首先，melobot 是基于插件化管理的，因此通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin" title="melobot.plugin.BotPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotPlugin</span></code></a> 新建一个“插件对象”，用于划分接下来的操作，应该被哪个插件管理。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 参数分别是插件名和插件版本</span>
@@ -394,7 +394,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=e66f7080"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
