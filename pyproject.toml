@@ -20,7 +20,7 @@ readme = "README.md"
 license = {text = "AGPL3"}
 
 [project.urls]
-Homepage = "https://github.com/aicorein/melobot"
+Homepage = "https://github.com/Meloland/melobot"
 
 [build-system]
 requires = ["pdm-backend"]

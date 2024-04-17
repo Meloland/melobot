@@ -26,7 +26,7 @@ jobs:
 
     - name: Commit doc changes
       run: |
-        git clone https://github.com/aicorein/melobot.git --branch gh-pages --single-branch gh-pages
+        git clone https://github.com/Meloland/melobot.git --branch gh-pages --single-branch gh-pages
         mkdir tmp-files && cd gh-pages
         mv CNAME .nojekyll README.md .git ../tmp-files
         rm -rf * && rm .buildinfo && cd ..
