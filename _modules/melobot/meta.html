@@ -12,8 +12,8 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
-        <title>melobot.meta - MeloBot 2.5.13</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>melobot.meta - MeloBot 2.5.14</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">MeloBot 2.5.13</div></a>
+      <a href="../../index.html"><div class="brand">MeloBot 2.5.14</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.13</span>
+  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -267,6 +267,9 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2.5.14&quot;</span>
+
+
 <div class="viewcode-block" id="MetaInfo">
 <a class="viewcode-back" href="../../api/melobot.meta.html#melobot.meta.MetaInfo">[文档]</a>
 <span class="k">class</span> <span class="nc">MetaInfo</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ReadOnly</span><span class="p">):</span>
@@ -278,7 +281,7 @@
 <span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类的属性，或将本类用作类型注解。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">VER</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;2.5.13&quot;</span>
+    <span class="n">VER</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">__version__</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 版本</span>
 
 <span class="sd">       :meta hide-value:</span>
@@ -291,14 +294,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">PROJ_DESC</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;A qq bot development framework with friendly APIs, session control and plugin-supported.&quot;</span>
+        <span class="s2">&quot;A bot development framework with friendly APIs, session control and plugin-supported.&quot;</span>
     <span class="p">)</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 项目描述</span>
 
 <span class="sd">       :meta hide-value:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">PROJ_SRC</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/aicorein/melobot&quot;</span>
+    <span class="n">PROJ_SRC</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/Meloland/melobot&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 项目地址</span>
 
 <span class="sd">       :meta hide-value:</span>
@@ -306,6 +309,12 @@
 
     <span class="n">ARGV</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;当前运行的 argv</span>
+
+<span class="sd">       :meta hide-value:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">OS_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;当前系统名称</span>
 
 <span class="sd">       :meta hide-value:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -414,7 +423,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=e66f7080"></script>
+</div><script src="../../_static/documentation_options.js?v=9a3dc4c6"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
