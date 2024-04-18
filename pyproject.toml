@@ -1,13 +1,16 @@
 [project]
 name = "melobot"
-version = "2.5.13"
-description = "A qq bot development framework with friendly APIs, session control and plugin-supported."
+dynamic = ["version"]
+description = "A bot development framework with friendly APIs, session control and plugin-supported."
 authors = [
     {name = "aicorein", email = "melodyecho@glowmem.com"},
 ]
+maintainers = [
+    {name = "aicorein", email = "melodyecho@glowmem.com"}
+]
 dependencies = [
-    "uvloop>=0.17.0; platform_system!=\"Windows\"",
-    "winloop>=0.1.2; platform_system==\"Windows\"",
+    "uvloop>=0.17.0; os_name != 'nt'",
+    "winloop>=0.1.2; os_name == 'nt'",
     "websockets>=10.4",
     "better-exceptions==0.3.3",
     "rich>=13.7.1",
@@ -17,10 +20,29 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 readme = "README.md"
-license = {text = "AGPL3"}
+license = { text = "BSD"}
+keywords = ["qq", "qq bot", "onebot", "bot framework", "asyncio", "coroutine", "concurrency"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
 
 [project.urls]
 Homepage = "https://github.com/Meloland/melobot"
+Documentation = "https://docs.melobot.org"
+Repository = "https://github.com/Meloland/melobot.git"
+Issues = "https://github.com/Meloland/melobot/issues"
 
 [build-system]
 requires = ["pdm-backend"]
@@ -41,6 +63,8 @@ line_length = 88
 
 [tool.pdm]
 distribution = true
+version = { source = "file", path = "src/melobot/meta.py" }
+
 [tool.pdm.scripts]
 isort = {shell = "isort src/melobot"}
 format = {shell = "black src/melobot"}

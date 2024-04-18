@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../src/"))
 import melobot
+import melobot.meta
 
 _need_ret_fix_funcs = melobot.context.action.__all__
 
@@ -19,7 +20,7 @@ _need_ret_fix_funcs = melobot.context.action.__all__
 project = "MeloBot"
 author = "contributors of this doc"
 copyright = f"{datetime.date.today().year}, {author}"
-release = "2.5.13"
+release = melobot.meta.MetaInfo.VER
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

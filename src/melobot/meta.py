@@ -32,6 +32,9 @@ class ReadOnly(type):
         return super().__call__(*args, **kwargs)
 
 
+__version__ = "2.5.14"
+
+
 class MetaInfo(metaclass=ReadOnly):
     """元信息类
 
@@ -41,7 +44,7 @@ class MetaInfo(metaclass=ReadOnly):
        一般无需手动实例化该类，多数情况会直接使用本类的属性，或将本类用作类型注解。
     """
 
-    VER: str = "2.5.13"
+    VER: str = __version__
     """melobot 版本
 
        :meta hide-value:
@@ -54,14 +57,14 @@ class MetaInfo(metaclass=ReadOnly):
     """
 
     PROJ_DESC: str = (
-        "A qq bot development framework with friendly APIs, session control and plugin-supported."
+        "A bot development framework with friendly APIs, session control and plugin-supported."
     )
     """melobot 项目描述
 
        :meta hide-value:
     """
 
-    PROJ_SRC: str = "https://github.com/aicorein/melobot"
+    PROJ_SRC: str = "https://github.com/Meloland/melobot"
     """melobot 项目地址
 
        :meta hide-value:
@@ -69,6 +72,12 @@ class MetaInfo(metaclass=ReadOnly):
 
     ARGV: list[str] = sys.argv
     """当前运行的 argv
+
+       :meta hide-value:
+    """
+
+    OS_NAME: str = os.name
+    """当前系统名称
 
        :meta hide-value:
     """

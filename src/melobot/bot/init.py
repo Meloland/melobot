@@ -27,7 +27,7 @@ from .hook import BotHookBus
 if TYPE_CHECKING:
     from ..plugin.ipc import ShareObject
 
-if MetaInfo.PLATFORM not in ("win32", "cygwin", "cli"):
+if MetaInfo.OS_NAME != 'nt':
     import uvloop
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())

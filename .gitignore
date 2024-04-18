@@ -3,12 +3,13 @@ __pycache__
 *.bak
 tests/private
 dev
-
+*/build
+dist
 .venv
 .vscode
 .mypy_cache
-*/build
-dist
+
+.pypirc
 .pdm-python
 .pdm-build
 .pdm.toml

@@ -1,6 +1,8 @@
-"""MeloBot 是插件化管理、基于异步会话机制的 qq 机器人开发框架。
+"""MeloBot 是插件化管理、基于异步会话机制的机器人开发框架。
 
-项目源码和文档，请参考：https://github.com/aicorein/melobot
+v2 版本目前仅适用于构建与 OneBot 实现对接的机器人服务。
+
+项目源码和文档，请参考：https://github.com/Meloland/melobot
 """
 
 from .base import LogicMode, PriorLevel, SessionRule, User, lock, this_dir, timelimit
