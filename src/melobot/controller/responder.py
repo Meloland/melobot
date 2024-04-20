@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import Future
 
-from ..base.typing import TYPE_CHECKING
+from ..base.typing import TYPE_CHECKING, cast
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
@@ -46,7 +46,7 @@ class BotResponder:
             self.logger.warning(
                 "等待响应事件的异步任务已被取消，这可能意味着连接器响应过慢，或任务设置的超时时间太短"
             )
-            self._resp_table.pop(resp.id)  # type: ignore
+            self._resp_table.pop(cast(str, resp.id))
         except Exception as e:
             self.logger.error("bot responder.dispatch 抛出异常")
             log_obj(self.logger.error, resp, "异常点 resp_event")
@@ -62,6 +62,6 @@ class BotResponder:
         """响应器发送 action，并返回一个 Future 用于等待响应"""
         await self._ready_signal.wait()
         fut: Future["ResponseEvent"] = Future()
-        self._resp_table[action.resp_id] = fut  # type: ignore
+        self._resp_table[cast(str, action.resp_id)] = fut
         await self._action_sender._send(action)
         return fut

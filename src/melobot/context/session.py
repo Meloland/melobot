@@ -168,11 +168,11 @@ class BotSessionManager:
     DEADLOCK_FLAGS: dict["EventHandler", asyncio.Event] = {}
     # 对应每个 handler 的 try_attach 过程的操作锁
     ATTACH_LOCKS: dict["EventHandler", asyncio.Lock] = {}
-    BOT_CTX: "MeloBot"  # type: ignore
+    BOT_CTX: "MeloBot"
 
     @classmethod
     def _bind(cls, bot_local_var: "BotLocal") -> None:
-        cls.BOT_CTX = bot_local_var  # type: ignore
+        cls.BOT_CTX = bot_local_var  # type: ignore[assignment]
 
     @classmethod
     def register(cls, handler: "EventHandler") -> None:
@@ -197,7 +197,8 @@ class BotSessionManager:
         session = None
         for s in cls.HUP_STORAGE[handler]:
             # session 的挂起方法，保证 session 一定未过期，因此不进行过期检查
-            if handler._rule.compare(s.event, event):  # type: ignore
+            handler._rule = cast(AttrSessionRule, handler._rule)
+            if handler._rule.compare(s.event, event):
                 session = s
                 break
         # 如果获得一个挂起的 session，它一定是可附着的，附着后需要唤醒
@@ -266,8 +267,12 @@ class BotSessionManager:
     @classmethod
     def _rouse(cls, session: BotSession) -> None:
         """唤醒 session"""
-        cls.HUP_STORAGE[session._space_tag].remove(session)  # type: ignore
-        cls.STORAGE[session._space_tag].add(session)  # type: ignore
+        if session._space_tag is None:
+            raise BotSessionError(
+                "当前 session 上下文因为缺乏 session_rule 作为唤醒标志，无法唤醒"
+            )
+        cls.HUP_STORAGE[session._space_tag].remove(session)
+        cls.STORAGE[session._space_tag].add(session)
         session._awake_signal.set()
 
     @classmethod
@@ -348,7 +353,8 @@ class BotSessionManager:
 
         # for 循环都需要即时 break，保证遍历 session_space 时没有协程切换。因为切换后 session_space 可能发生变动
         for s in session_space:
-            if check_rule.compare(s.event, event) and not s._expired:  # type: ignore
+            check_rule = cast(AttrSessionRule, check_rule)
+            if check_rule.compare(s.event, event) and not s._expired:
                 session = s
                 break
         # 如果会话不存在，生成一个新 session 变量
@@ -443,7 +449,7 @@ def msg_event() -> "MessageEvent":
 
     :return: 具体的事件
     """
-    return any_event()  # type: ignore
+    return cast("MessageEvent", any_event())
 
 
 def notice_event() -> "NoticeEvent":
@@ -453,7 +459,7 @@ def notice_event() -> "NoticeEvent":
 
     :return: 具体的事件
     """
-    return any_event()  # type: ignore
+    return cast("NoticeEvent", any_event())
 
 
 def req_event() -> "RequestEvent":
@@ -463,7 +469,7 @@ def req_event() -> "RequestEvent":
 
     :return: 具体的事件
     """
-    return any_event()  # type: ignore
+    return cast("RequestEvent", any_event())
 
 
 def meta_event() -> "MetaEvent":
@@ -473,7 +479,7 @@ def meta_event() -> "MetaEvent":
 
     :return: 具体的事件
     """
-    return any_event()  # type: ignore
+    return cast("MetaEvent", any_event())
 
 
 def msg_text() -> str:

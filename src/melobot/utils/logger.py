@@ -152,7 +152,9 @@ class BotLogger(BaseLogger):
         self.addHandler(handler)
         self._handler_arr.append(handler)
 
-    def setLevel(self, level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]) -> None:  # type: ignore
+    def setLevel(
+        self, level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]  # type: ignore[override]
+    ) -> None:
         """设置日志等级
 
         日志等级自动应用于包含的所有 handler

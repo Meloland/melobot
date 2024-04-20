@@ -9,10 +9,11 @@ from ..base.typing import (
     Literal,
     Optional,
     User,
+    cast,
 )
 
 if TYPE_CHECKING:
-    from ..models.event import MessageEvent, NoticeEvent, RequestEvent
+    from ..models.event import BotEvent, MessageEvent, NoticeEvent, RequestEvent
 
 
 class MsgLvlChecker(BotChecker):
@@ -75,7 +76,8 @@ class MsgLvlChecker(BotChecker):
         else:
             return User.USER
 
-    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
+    async def check(self, event: "BotEvent") -> bool:
+        event = cast("MessageEvent", event)
         if not event.is_msg_event():
             return False
         e_level = self._get_level(event)
@@ -123,7 +125,8 @@ class GroupMsgLvlChecker(MsgLvlChecker):
         )
         self.white_group_list = white_groups if white_groups is not None else []
 
-    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
+    async def check(self, event: "BotEvent") -> bool:
+        event = cast("MessageEvent", event)
         if not event.is_msg_event():
             return False
         if (
@@ -167,7 +170,8 @@ class PrivateMsgLvlChecker(MsgLvlChecker):
             level, owner, super_users, white_users, black_users, ok_cb, fail_cb
         )
 
-    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
+    async def check(self, event: "BotEvent") -> bool:
+        event = cast("MessageEvent", event)
         if not event.is_msg_event():
             return False
         if not event.is_private():
@@ -292,7 +296,8 @@ class AtChecker(BotChecker):
         super().__init__()
         self.qid = qid if qid is not None else None
 
-    async def check(self, event: "MessageEvent") -> bool:  # type: ignore
+    async def check(self, event: "BotEvent") -> bool:
+        event = cast("MessageEvent", event)
         if not event.is_msg_event():
             return False
         id_list = event.get_datas("at", "qq")
@@ -317,7 +322,8 @@ class FriendReqChecker(BotChecker):
         """
         super().__init__()
 
-    async def check(self, event: "RequestEvent") -> bool:  # type: ignore
+    async def check(self, event: "BotEvent") -> bool:
+        event = cast("RequestEvent", event)
         if not event.is_req_event():
             return False
         status = event.is_friend_req()
@@ -334,7 +340,8 @@ class GroupReqChecker(BotChecker):
         """
         super().__init__()
 
-    async def check(self, event: "RequestEvent") -> bool:  # type: ignore
+    async def check(self, event: "BotEvent") -> bool:
+        event = cast("RequestEvent", event)
         if not event.is_req_event():
             return False
         status = event.is_group_req()
@@ -399,7 +406,8 @@ class NoticeTypeChecker(BotChecker):
             raise BotUtilsError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
         self.sub_type = sub_type
 
-    async def check(self, event: "NoticeEvent") -> bool:  # type: ignore
+    async def check(self, event: "BotEvent") -> bool:
+        event = cast("NoticeEvent", event)
         if not event.is_notice_event():
             return False
         if self.sub_type == "ALL":

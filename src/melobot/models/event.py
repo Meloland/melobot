@@ -3,8 +3,8 @@ import re
 import time
 
 from ..base.abc import BotEvent
-from ..base.typing import Any, Callable, Literal, MsgSegment, Optional
-from .msg import _get_cq, _get_cq_params, to_cq_arr, to_cq_str
+from ..base.typing import Any, Callable, Literal, MsgSegment, Optional, cast
+from .msg import _get_seg_datas, _get_segs, to_cq_str, to_segments
 
 
 class BotEventBuilder:
@@ -40,7 +40,7 @@ class MessageEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         #: 收到事件的机器人 qq 号
-        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
+        self.bot_id: int = cast(int, rawEvent.get("self_id"))
         #: 消息事件的消息 id
         self.id: int
         #: 消息事件的发送者数据结构
@@ -56,26 +56,14 @@ class MessageEvent(BotEvent):
         #: 消息字体
         self.font: int
         #: 临时消息的来源标记，不是临时消息时为 :obj:`None`
-        self.temp_src: Optional[
-            Literal[
-                "群聊",
-                "QQ咨询",
-                "查找",
-                "QQ电影",
-                "热聊",
-                "验证消息",
-                "多人聊天",
-                "约会",
-                "通讯录",
-            ]
-        ]
+        self.temp_src: Optional[str]
 
         self._init()
 
     @property
     def time(self) -> int:
         """事件发生时刻的时间戳"""
-        return self.raw.get("time")  # type: ignore
+        return cast(int, self.raw.get("time"))
 
     @property
     def type(self) -> Literal["message"]:
@@ -95,7 +83,7 @@ class MessageEvent(BotEvent):
         self.temp_src = None
         temp_src = rawEvent.get("temp_source")
         if temp_src:
-            self.temp_src = MessageEvent._TEMP_SRC_MAP[temp_src]  # type: ignore
+            self.temp_src = MessageEvent._TEMP_SRC_MAP[temp_src]
 
         self.sender = MessageEvent.Sender(
             rawEvent=rawEvent,
@@ -132,14 +120,14 @@ class MessageEvent(BotEvent):
                         pass
             return content
         else:
-            return to_cq_arr(content)
+            return to_segments(content)
 
     def _get_text(self, content: list[MsgSegment]) -> str:
         """获取消息中所有文本消息，返回合并字符串"""
         text_list: list[str] = []
         for item in content:
             if item["type"] == "text":
-                text_list.append(item["data"]["text"])  # type: ignore
+                text_list.append(cast(str, item["data"]["text"]))
         return "".join(text_list)
 
     def get_segments(self, type: str) -> list[MsgSegment]:
@@ -148,7 +136,7 @@ class MessageEvent(BotEvent):
         :param type: 消息段类型（对应 OneBot 标准中每种消息段对象的 type）
         :return: 消息段对象列表
         """
-        return _get_cq(self.content, type)
+        return _get_segs(self.content, type)
 
     def get_datas(
         self, type: str, data: str, convert: Optional[Callable[[Any], Any]] = None
@@ -173,7 +161,7 @@ class MessageEvent(BotEvent):
         :param convert: 类型转换使用的函数
         :return: 值列表
         """
-        return _get_cq_params(self.content, type, data, convert)
+        return _get_seg_datas(self.content, type, data, convert)
 
     def is_private(self) -> bool:
         """是否为私聊消息（注意群临时会话属于该类别）"""
@@ -321,7 +309,7 @@ class RequestEvent(BotEvent):
         super().__init__(rawEvent)
 
         #: 收到事件的机器人 qq 号
-        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
+        self.bot_id: int = cast(int, rawEvent.get("self_id"))
         #: 事件的来源 qq 号
         self.from_id: int
         #: 事件的来源群号，请求来源于私聊时此属性为 :obj:`None`
@@ -338,7 +326,7 @@ class RequestEvent(BotEvent):
     @property
     def time(self) -> int:
         """事件发生时刻的时间戳"""
-        return self.raw.get("time")  # type: ignore
+        return cast(int, self.raw.get("time"))
 
     @property
     def type(self) -> Literal["request"]:
@@ -391,7 +379,7 @@ class NoticeEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         #: 收到事件的机器人 qq 号
-        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
+        self.bot_id: int = cast(int, rawEvent.get("self_id"))
         # 修复某些 onebot 协议实现，user_id 缺失的问题
         if "target_id" in rawEvent.keys() and "user_id" not in rawEvent:
             rawEvent["user_id"] = rawEvent["target_id"]
@@ -433,7 +421,7 @@ class NoticeEvent(BotEvent):
 
     @property
     def time(self) -> int:
-        return self.raw.get("time")  # type: ignore
+        return cast(int, self.raw.get("time"))
 
     @property
     def type(self) -> Literal["notice"]:
@@ -646,12 +634,12 @@ class MetaEvent(BotEvent):
     def __init__(self, rawEvent: dict) -> None:
         super().__init__(rawEvent)
         #: 收到事件的机器人 qq 号
-        self.bot_id: int = rawEvent.get("self_id")  # type: ignore
+        self.bot_id: int = cast(int, rawEvent.get("self_id"))
 
     @property
     def time(self) -> int:
         """事件发生时刻的时间戳"""
-        return self.raw.get("time")  # type: ignore
+        return cast(int, self.raw.get("time"))
 
     @property
     def type(self) -> Literal["meta"]:

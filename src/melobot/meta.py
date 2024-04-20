@@ -8,13 +8,13 @@ class ReadOnly(type):
         _class = super().__new__(cls, name, bases, dic)
         super().__setattr__(
             _class,
-            "__ro_cvars__",
+            "__cvars__",
             tuple(k for k in dic if not k.startswith("__")),
         )
         return _class
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name in self.__ro_cvars__:  # type: ignore
+        if name in self.__cvars__:  # type: ignore[attr-defined]
             raise AttributeError(
                 f"{self.__name__} 类的类属性 {name} 是只读的，无法修改"
             )
@@ -28,7 +28,7 @@ class ReadOnly(type):
         super(self.__class__, self).__setattr__(name, value)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.__setattr__ = ReadOnly.__instance_setattr  # type: ignore
+        self.__setattr__ = ReadOnly.__instance_setattr  # type: ignore[assignment]
         return super().__call__(*args, **kwargs)
 
 

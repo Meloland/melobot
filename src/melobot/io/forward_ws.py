@@ -7,13 +7,20 @@ from websockets.exceptions import ConnectionClosed
 
 from ..base.abc import AbstractConnector, BotLife
 from ..base.exceptions import BotRuntimeError
-from ..base.typing import TYPE_CHECKING, Any, ModuleType, Type
+from ..base.typing import TYPE_CHECKING, Any, ModuleType, Type, Union, cast
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
     import websockets.client
 
     from ..base.abc import BotAction
+    from ..models.event import (
+        MessageEvent,
+        MetaEvent,
+        NoticeEvent,
+        RequestEvent,
+        ResponseEvent,
+    )
 
 
 class ForwardWsConn(AbstractConnector):
@@ -192,9 +199,19 @@ class ForwardWsConn(AbstractConnector):
                             f"event {event:hexid} 构建完成",
                         )
                     if event.is_resp_event():
-                        asyncio.create_task(self._resp_dispatcher.respond(event))  # type: ignore
+                        event = cast("ResponseEvent", event)
+                        asyncio.create_task(self._resp_dispatcher.respond(event))
                     else:
-                        asyncio.create_task(self._common_dispatcher.dispatch(event))  # type: ignore
+                        event = cast(
+                            Union[
+                                "MessageEvent",
+                                "RequestEvent",
+                                "MetaEvent",
+                                "NoticeEvent",
+                            ],
+                            event,
+                        )
+                        asyncio.create_task(self._common_dispatcher.dispatch(event))
                 except ConnectionClosed:
                     raise
                 except Exception as e:

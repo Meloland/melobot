@@ -11,6 +11,7 @@ from ..base.typing import (
     MsgNode,
     MsgSegment,
     Optional,
+    cast,
 )
 
 if TYPE_CHECKING:
@@ -34,7 +35,7 @@ __all__ = (
     "reply_msg",
     "share_msg",
     "text_msg",
-    "to_cq_arr",
+    "to_segments",
     "to_cq_str",
     "xml_msg",
     "custom_type_msg",
@@ -350,13 +351,13 @@ def custom_msg_node(
             "type": "node",
             "data": {"name": sendName, "uin": str(sendId), "content": msgs},
         }
+        if seq:
+            ret["data"]["seq"] = seq  # type: ignore[typeddict-unknown-key]
     else:
-        ret: MsgNode = {  # type: ignore
+        ret: MsgNode = {  # type: ignore[no-redef]
             "type": "node",
             "data": {"user_id": sendId, "nickname": sendName, "content": msgs},
         }
-    if seq:
-        ret["data"]["seq"] = seq  # type: ignore
     return ret
 
 
@@ -426,7 +427,7 @@ def cq_anti_escape(text: str) -> str:
     )
 
 
-def to_cq_arr(s: str) -> list[MsgSegment]:
+def to_segments(s: str) -> list[MsgSegment]:
     """将 cq 字符串转换为消息段对象列表
 
     :param s: cq 字符串
@@ -481,7 +482,7 @@ def to_cq_str(content: list[MsgSegment]) -> str:
     msgs: list[str] = []
     for item in content:
         if item["type"] == "text":
-            msgs.append(item["data"]["text"])  # type: ignore
+            msgs.append(cast(str, item["data"]["text"]))
             continue
         s = f"[CQ:{item['type']}"
         for k, v in item["data"].items():
@@ -513,11 +514,11 @@ def _to_cq_str_action(action: "BotAction") -> "BotAction":
     return _action
 
 
-def _get_cq(content: list[MsgSegment], cq_type: str) -> list[MsgSegment]:
+def _get_segs(content: list[MsgSegment], cq_type: str) -> list[MsgSegment]:
     return [item for item in content if item["type"] == cq_type]
 
 
-def _get_cq_params(
+def _get_seg_datas(
     content: list[MsgSegment],
     cq_type: str,
     param: str,

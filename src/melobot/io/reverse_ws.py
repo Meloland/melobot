@@ -7,8 +7,17 @@ import websockets.exceptions as wse
 import websockets.server
 
 from ..base.abc import AbstractConnector, BotAction, BotLife
-from ..base.typing import Any, ModuleType
+from ..base.typing import TYPE_CHECKING, Any, ModuleType, Union, cast
 from ..utils.logger import log_exc, log_obj
+
+if TYPE_CHECKING:
+    from ..models.event import (
+        MessageEvent,
+        MetaEvent,
+        NoticeEvent,
+        RequestEvent,
+        ResponseEvent,
+    )
 
 
 class ReverseWsConn(AbstractConnector):
@@ -180,9 +189,19 @@ class ReverseWsConn(AbstractConnector):
                             f"event {event:hexid} 构建完成",
                         )
                     if event.is_resp_event():
-                        asyncio.create_task(self._resp_dispatcher.respond(event))  # type: ignore
+                        event = cast("ResponseEvent", event)
+                        asyncio.create_task(self._resp_dispatcher.respond(event))
                     else:
-                        asyncio.create_task(self._common_dispatcher.dispatch(event))  # type: ignore
+                        event = cast(
+                            Union[
+                                "MessageEvent",
+                                "RequestEvent",
+                                "MetaEvent",
+                                "NoticeEvent",
+                            ],
+                            event,
+                        )
+                        asyncio.create_task(self._common_dispatcher.dispatch(event))
                 except wse.ConnectionClosed:
                     raise
                 except Exception as e:

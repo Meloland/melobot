@@ -158,7 +158,7 @@ class CmdArgFormatter:
                 pass
             else:
                 raise ArgVerifyFailed
-            args.vals[idx] = res  # type: ignore
+            args.vals[idx] = res
             return True
         except ArgVerifyFailed as e:
             info = FormatInfo(

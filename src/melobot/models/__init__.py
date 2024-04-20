@@ -24,7 +24,7 @@ __all__ = (
     "cq_filter_text",
     "cq_escape",
     "cq_anti_escape",
-    "to_cq_arr",
+    "to_segments",
     "to_cq_str",
     "custom_type_msg",
     "forward_msg",

@@ -96,6 +96,6 @@ melobot 主要包含五种事件类型：:class:`.MessageEvent`, :class:`.Reques
 
 .. autofunction:: melobot.models.cq_anti_escape
 
-.. autofunction:: melobot.models.to_cq_arr
+.. autofunction:: melobot.models.to_segments
 
 .. autofunction:: melobot.models.to_cq_str

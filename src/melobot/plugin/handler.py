@@ -241,7 +241,10 @@ class MsgEventHandler(EventHandler):
         if self.matcher and self.parser:
             raise BotValueError("参数 matcher 和 parser 不能同时存在")
 
-    async def _pre_process(self, event: "MessageEvent") -> tuple[bool, "BotSession"]:  # type: ignore
+    async def _pre_process(
+        self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
+    ) -> tuple[bool, "BotSession"]:
+        event = cast("MessageEvent", event)
         session = BotSessionManager.make_temp(event)
         if self.matcher is not None:
             return (

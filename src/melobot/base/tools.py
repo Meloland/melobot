@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from functools import wraps
 
 from .exceptions import BotRuntimeError, BotToolsError
-from .typing import T1, T2, T3, Any, Callable, Coroutine, Optional, P, T
+from .typing import T1, T2, T3, Any, Callable, Coroutine, Optional, P, T, cast
 
 
 class Singleton:
@@ -591,7 +591,8 @@ def speedlimit(
             if delay > 0:
                 await asyncio.sleep(delay)
                 res = await _wrapped_func(func, *args, **kwargs)
-                fut.set_result(res)  # type: ignore
+                res = cast(T | Exception, res)
+                fut.set_result(res)
                 return
             res = await func(*args, **kwargs)
             fut.set_result(res)
