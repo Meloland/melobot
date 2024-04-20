@@ -12,7 +12,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>melobot.context.action - MeloBot 2.5.14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
@@ -248,7 +248,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..models.msg</span> <span class="kn">import</span> <span class="n">_to_cq_str_action</span><span class="p">,</span> <span class="n">reply_msg</span><span class="p">,</span> <span class="n">text_msg</span>
 <span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">SESSION_LOCAL</span>
-<span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">BotSessionManager</span> <span class="k">as</span> <span class="n">CtxManager</span>
+<span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">BotSessionManager</span> <span class="k">as</span> <span class="n">SessionManager</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">ResponseEvent</span>
@@ -351,7 +351,7 @@
 
 <div class="viewcode-block" id="send_custom_msg">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_custom_msg">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_custom_msg</span><span class="p">(</span>
     <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">isPrivate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -414,7 +414,7 @@
 
 <div class="viewcode-block" id="send">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send</span><span class="p">(</span>
     <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -493,7 +493,7 @@
 
 <div class="viewcode-block" id="send_custom_forward">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_custom_forward">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_custom_forward</span><span class="p">(</span>
     <span class="n">msgNodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNode</span><span class="p">],</span>
     <span class="n">isPrivate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -556,7 +556,7 @@
 
 <div class="viewcode-block" id="send_forward">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_forward">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_forward</span><span class="p">(</span>
     <span class="n">msgNodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgNode</span><span class="p">],</span>
     <span class="n">cq_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -633,7 +633,7 @@
 
 <div class="viewcode-block" id="msg_recall">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.msg_recall">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">msg_recall</span><span class="p">(</span><span class="n">msgId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;撤回消息</span>
 
@@ -667,7 +667,7 @@
 
 <div class="viewcode-block" id="get_msg">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_msg">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_msg</span><span class="p">(</span><span class="n">msgId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取消息详细信息</span>
 
@@ -701,7 +701,7 @@
 
 <div class="viewcode-block" id="get_forward_msg">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_forward_msg">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_forward_msg</span><span class="p">(</span>
     <span class="n">forwardId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -737,7 +737,7 @@
 
 <div class="viewcode-block" id="get_image">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_image">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="n">fileName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取图片信息</span>
 
@@ -771,7 +771,7 @@
 
 <div class="viewcode-block" id="send_like">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_like">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_like</span><span class="p">(</span>
     <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -814,7 +814,7 @@
 
 <div class="viewcode-block" id="group_kick">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.group_kick">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">group_kick</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -862,7 +862,7 @@
 
 <div class="viewcode-block" id="group_ban">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.group_ban">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">group_ban</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -902,7 +902,7 @@
 
 <div class="viewcode-block" id="group_whole_ban">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.group_whole_ban">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">group_whole_ban</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -941,7 +941,7 @@
 
 <div class="viewcode-block" id="set_group_admin">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.set_group_admin">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">set_group_admin</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -981,7 +981,7 @@
 
 <div class="viewcode-block" id="set_group_card">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.set_group_card">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">set_group_card</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1021,7 +1021,7 @@
 
 <div class="viewcode-block" id="set_group_name">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.set_group_name">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">set_group_name</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1060,7 +1060,7 @@
 
 <div class="viewcode-block" id="group_leave">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.group_leave">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">group_leave</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">isDismiss</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1110,7 +1110,7 @@
 
 <div class="viewcode-block" id="set_group_title">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.set_group_title">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">set_group_title</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1155,7 +1155,7 @@
 
 <div class="viewcode-block" id="set_friend_add">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.set_friend_add">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">set_friend_add</span><span class="p">(</span>
     <span class="n">addFlag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">approve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">remark</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1207,7 +1207,7 @@
 
 <div class="viewcode-block" id="set_group_add">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.set_group_add">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">set_group_add</span><span class="p">(</span>
     <span class="n">addFlag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">addType</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;invite&quot;</span><span class="p">],</span>
@@ -1253,7 +1253,7 @@
 
 <div class="viewcode-block" id="get_login_info">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_login_info">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_login_info</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获得 bot 登录号信息</span>
 
@@ -1286,7 +1286,7 @@
 
 <div class="viewcode-block" id="get_stranger_info">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_stranger_info">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_stranger_info</span><span class="p">(</span>
     <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1325,7 +1325,7 @@
 
 <div class="viewcode-block" id="get_friend_list">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_friend_list">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_friend_list</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取好友列表</span>
 
@@ -1358,7 +1358,7 @@
 
 <div class="viewcode-block" id="get_group_info">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_group_info">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_group_info</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1397,7 +1397,7 @@
 
 <div class="viewcode-block" id="get_group_list">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_group_list">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_group_list</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取群列表。</span>
 
@@ -1432,7 +1432,7 @@
 
 <div class="viewcode-block" id="get_group_member_info">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_group_member_info">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_group_member_info</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">userId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1472,7 +1472,7 @@
 
 <div class="viewcode-block" id="get_group_member_list">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_group_member_list">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_group_member_list</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noCache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1517,7 +1517,7 @@
 
 <div class="viewcode-block" id="get_group_honor">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_group_honor">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_group_honor</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
@@ -1564,7 +1564,7 @@
 
 <div class="viewcode-block" id="check_send_image">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.check_send_image">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">check_send_image</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送图片</span>
 
@@ -1597,7 +1597,7 @@
 
 <div class="viewcode-block" id="check_send_record">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.check_send_record">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">check_send_record</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否可以发送语音</span>
 
@@ -1630,7 +1630,7 @@
 
 <div class="viewcode-block" id="get_onebot_version">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_onebot_version">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_onebot_version</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现项目的版本</span>
 
@@ -1663,7 +1663,7 @@
 
 <div class="viewcode-block" id="get_onebot_status">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.get_onebot_status">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_onebot_status</span><span class="p">(</span><span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取 onebot 实现项目的状态</span>
 
@@ -1687,7 +1687,7 @@
 
 <div class="viewcode-block" id="take_custom_action">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.take_custom_action">[文档]</a>
-<span class="nd">@CtxManager</span><span class="o">.</span><span class="n">_activate</span>
+<span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_activate</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">take_custom_action</span><span class="p">(</span>
     <span class="n">action</span><span class="p">:</span> <span class="n">BotAction</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1755,7 +1755,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">hup</span><span class="p">(</span><span class="n">overtime</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">_hup</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">(),</span> <span class="n">overtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
 
@@ -1839,7 +1839,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">destory</span><span class="p">()</span>
+        <span class="n">SessionManager</span><span class="o">.</span><span class="n">_expire</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">())</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
     <span class="k">raise</span> <span class="n">FuncSafeExited</span><span class="p">(</span><span class="s2">&quot;改函数或方法被安全地直接结束，请无视这个异常&quot;</span><span class="p">)</span></div>
@@ -1882,7 +1882,7 @@
     <span class="n">content_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content_arr</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">destory</span><span class="p">()</span>
+        <span class="n">SessionManager</span><span class="o">.</span><span class="n">_expire</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">())</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
     <span class="k">raise</span> <span class="n">FuncSafeExited</span><span class="p">(</span><span class="s2">&quot;改函数或方法被安全地直接结束，请无视这个异常&quot;</span><span class="p">)</span></div>

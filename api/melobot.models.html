@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>melobot.models - MeloBot 2.5.14</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -271,7 +271,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.MessageEvent.sender">
-<span class="sig-name descname"><span class="pre">sender</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.models.MessageEvent.Sender" title="melobot.models.MessageEvent.Sender"><span class="pre">MessageEvent.Sender</span></a></em><a class="headerlink" href="#melobot.models.MessageEvent.sender" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sender</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.models.MessageEvent.Sender" title="melobot.models.event.MessageEvent.Sender"><span class="pre">Sender</span></a></em><a class="headerlink" href="#melobot.models.MessageEvent.sender" title="Link to this definition">¶</a></dt>
 <dd><p>消息事件的发送者数据结构</p>
 </dd></dl>
 
@@ -307,7 +307,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.MessageEvent.temp_src">
-<span class="sig-name descname"><span class="pre">temp_src</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'群聊'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'QQ咨询'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'查找'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'QQ电影'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'热聊'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'验证消息'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'多人聊天'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'约会'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'通讯录'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.models.MessageEvent.temp_src" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">temp_src</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.models.MessageEvent.temp_src" title="Link to this definition">¶</a></dt>
 <dd><p>临时消息的来源标记，不是临时消息时为 <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd></dl>
 
@@ -568,7 +568,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.RequestEvent.group_req_type">
-<span class="sig-name descname"><span class="pre">group_req_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'add'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'invite'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.models.RequestEvent.group_req_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">group_req_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.12）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'add'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'invite'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.models.RequestEvent.group_req_type" title="Link to this definition">¶</a></dt>
 <dd><p>加群请求类型：直接加入和邀请，请求来源于私聊时此属性为 <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd></dl>
 
@@ -646,31 +646,31 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.join_group_type">
-<span class="sig-name descname"><span class="pre">join_group_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'approve'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'invite'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.join_group_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">join_group_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.12）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'approve'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'invite'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.join_group_type" title="Link to this definition">¶</a></dt>
 <dd><p>入群通知事件的入群类型：管理员同意或管理员邀请</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.leave_group_type">
-<span class="sig-name descname"><span class="pre">leave_group_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'leave'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'kick'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'kick_me'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.leave_group_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">leave_group_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.12）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'leave'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'kick'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'kick_me'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.leave_group_type" title="Link to this definition">¶</a></dt>
 <dd><p>退群通知事件的退群类型：自退群、踢出、bot 账号被踢</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.admin_change_type">
-<span class="sig-name descname"><span class="pre">admin_change_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'set'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'unset'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.admin_change_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">admin_change_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.12）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'set'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'unset'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.admin_change_type" title="Link to this definition">¶</a></dt>
 <dd><p>群管理员变动通知事件类型：设置管理员或取消管理员</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.file">
-<span class="sig-name descname"><span class="pre">file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.models.NoticeEvent.File" title="melobot.models.NoticeEvent.File"><span class="pre">NoticeEvent.File</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.file" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.models.NoticeEvent.File" title="melobot.models.event.NoticeEvent.File"><span class="pre">File</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.file" title="Link to this definition">¶</a></dt>
 <dd><p>文件上传通知事件的文件信息数据结构</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.group_ban_type">
-<span class="sig-name descname"><span class="pre">group_ban_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ban'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'lift_ban'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.group_ban_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">group_ban_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.12）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ban'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'lift_ban'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.group_ban_type" title="Link to this definition">¶</a></dt>
 <dd><p>群禁言通知事件的类型：禁言、解除禁言</p>
 </dd></dl>
 
@@ -682,7 +682,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.honor_change_type">
-<span class="sig-name descname"><span class="pre">honor_change_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'talkactive'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'performer'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'emotion'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.honor_change_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">honor_change_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.12）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'talkactive'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'performer'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'emotion'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.honor_change_type" title="Link to this definition">¶</a></dt>
 <dd><p>群荣誉变更通知事件的荣誉类型：龙王、群聊之火、快乐源泉</p>
 </dd></dl>
 
@@ -706,13 +706,13 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.client">
-<span class="sig-name descname"><span class="pre">client</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.models.NoticeEvent.Client" title="melobot.models.NoticeEvent.Client"><span class="pre">NoticeEvent.Client</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.client" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">client</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.models.NoticeEvent.Client" title="melobot.models.event.NoticeEvent.Client"><span class="pre">Client</span></a></em><a class="headerlink" href="#melobot.models.NoticeEvent.client" title="Link to this definition">¶</a></dt>
 <dd><p>客户端在线状态变更的通知事件的，客户端信息数据结构</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.models.NoticeEvent.essence_change_type">
-<span class="sig-name descname"><span class="pre">essence_change_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'add'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'delete'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.essence_change_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">essence_change_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.12）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'add'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'delete'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.models.NoticeEvent.essence_change_type" title="Link to this definition">¶</a></dt>
 <dd><p>精华消息变更通知事件的类型：添加或删除</p>
 </dd></dl>
 
@@ -1361,8 +1361,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="melobot.models.to_cq_arr">
-<span class="sig-prename descclassname"><span class="pre">melobot.models.</span></span><span class="sig-name descname"><span class="pre">to_cq_arr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/models/msg.html#to_cq_arr"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.models.to_cq_arr" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="melobot.models.to_segments">
+<span class="sig-prename descclassname"><span class="pre">melobot.models.</span></span><span class="sig-name descname"><span class="pre">to_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><span class="pre">MsgSegment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/models/msg.html#to_segments"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.models.to_segments" title="Link to this definition">¶</a></dt>
 <dd><p>将 cq 字符串转换为消息段对象列表</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -1488,7 +1488,7 @@
 <li><a class="reference internal" href="#melobot.models.cq_filter_text"><code class="docutils literal notranslate"><span class="pre">cq_filter_text()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.cq_escape"><code class="docutils literal notranslate"><span class="pre">cq_escape()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.cq_anti_escape"><code class="docutils literal notranslate"><span class="pre">cq_anti_escape()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.models.to_cq_arr"><code class="docutils literal notranslate"><span class="pre">to_cq_arr()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.models.to_segments"><code class="docutils literal notranslate"><span class="pre">to_segments()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.models.to_cq_str"><code class="docutils literal notranslate"><span class="pre">to_cq_str()</span></code></a></li>
 </ul>
 </li>

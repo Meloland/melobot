@@ -12,7 +12,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>melobot.io.duplex_http - MeloBot 2.5.14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
@@ -242,12 +242,18 @@
 <span class="kn">from</span> <span class="nn">aiohttp.client_exceptions</span> <span class="kn">import</span> <span class="n">ClientConnectorError</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span><span class="p">,</span> <span class="n">BotLife</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">ModuleType</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">ModuleType</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 <span class="kn">from</span> <span class="nn">..utils.logger</span> <span class="kn">import</span> <span class="n">log_exc</span><span class="p">,</span> <span class="n">log_obj</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotAction</span>
-    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">ResponseEvent</span>
+    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="n">MessageEvent</span><span class="p">,</span>
+        <span class="n">MetaEvent</span><span class="p">,</span>
+        <span class="n">NoticeEvent</span><span class="p">,</span>
+        <span class="n">RequestEvent</span><span class="p">,</span>
+        <span class="n">ResponseEvent</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <div class="viewcode-block" id="HttpConn">
@@ -406,7 +412,11 @@
             <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">raw_event</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
                 <span class="n">log_obj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="n">event</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 构建完成&quot;</span><span class="p">)</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_common_dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;MetaEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;NoticeEvent&quot;</span><span class="p">],</span>
+                <span class="n">event</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_common_dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;bot 连接器监听任务抛出异常&quot;</span><span class="p">)</span>
             <span class="n">log_obj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">raw_event</span><span class="p">,</span> <span class="s2">&quot;异常点 raw_event&quot;</span><span class="p">)</span>
@@ -436,9 +446,9 @@
                 <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">resp_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span>
                 <span class="n">raw_resp</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-                <span class="n">resp</span><span class="p">:</span> <span class="s2">&quot;ResponseEvent&quot;</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">raw_resp</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="n">resp</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;ResponseEvent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">raw_resp</span><span class="p">))</span>
                 <span class="n">resp</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">resp_id</span>
-                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">resp</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">resp</span><span class="p">))</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">ClientConnectorError</span><span class="p">):</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;OneBot 实现程序已掉线，无法再执行行为操作&quot;</span><span class="p">)</span>

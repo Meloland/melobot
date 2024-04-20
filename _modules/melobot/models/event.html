@@ -12,7 +12,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>melobot.models.event - MeloBot 2.5.14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
@@ -238,8 +238,8 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotEvent</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">.msg</span> <span class="kn">import</span> <span class="n">_get_cq</span><span class="p">,</span> <span class="n">_get_cq_params</span><span class="p">,</span> <span class="n">to_cq_arr</span><span class="p">,</span> <span class="n">to_cq_str</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">.msg</span> <span class="kn">import</span> <span class="n">_get_seg_datas</span><span class="p">,</span> <span class="n">_get_segs</span><span class="p">,</span> <span class="n">to_cq_str</span><span class="p">,</span> <span class="n">to_segments</span>
 
 
 <span class="k">class</span> <span class="nc">BotEventBuilder</span><span class="p">:</span>
@@ -277,7 +277,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
         <span class="c1">#: 消息事件的消息 id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 消息事件的发送者数据结构</span>
@@ -293,26 +293,14 @@
         <span class="c1">#: 消息字体</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 临时消息的来源标记，不是临时消息时为 :obj:`None`</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
-            <span class="n">Literal</span><span class="p">[</span>
-                <span class="s2">&quot;群聊&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;QQ咨询&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;查找&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;QQ电影&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;热聊&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;验证消息&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;多人聊天&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;约会&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;通讯录&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
-        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_init</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;事件发生时刻的时间戳&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]:</span>
@@ -332,7 +320,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">temp_src</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temp_source&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">temp_src</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span> <span class="o">=</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">_TEMP_SRC_MAP</span><span class="p">[</span><span class="n">temp_src</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span> <span class="o">=</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">_TEMP_SRC_MAP</span><span class="p">[</span><span class="n">temp_src</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sender</span> <span class="o">=</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">Sender</span><span class="p">(</span>
             <span class="n">rawEvent</span><span class="o">=</span><span class="n">rawEvent</span><span class="p">,</span>
@@ -369,14 +357,14 @@
                         <span class="k">pass</span>
             <span class="k">return</span> <span class="n">content</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">to_cq_arr</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">to_segments</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取消息中所有文本消息，返回合并字符串&quot;&quot;&quot;</span>
         <span class="n">text_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
-                <span class="n">text_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore</span>
+                <span class="n">text_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]))</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text_list</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MessageEvent.get_segments">
@@ -387,7 +375,7 @@
 <span class="sd">        :param type: 消息段类型（对应 OneBot 标准中每种消息段对象的 type）</span>
 <span class="sd">        :return: 消息段对象列表</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_get_cq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_get_segs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.get_datas">
@@ -415,7 +403,7 @@
 <span class="sd">        :param convert: 类型转换使用的函数</span>
 <span class="sd">        :return: 值列表</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_get_cq_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">convert</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_get_seg_datas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">convert</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_private">
@@ -609,7 +597,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
 
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
         <span class="c1">#: 事件的来源 qq 号</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">from_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 事件的来源群号，请求来源于私聊时此属性为 :obj:`None`</span>
@@ -626,7 +614,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;事件发生时刻的时间戳&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]:</span>
@@ -688,7 +676,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
         <span class="c1"># 修复某些 onebot 协议实现，user_id 缺失的问题</span>
         <span class="k">if</span> <span class="s2">&quot;target_id&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;user_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="p">:</span>
             <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
@@ -730,7 +718,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;notice&quot;</span><span class="p">]:</span>
@@ -1006,12 +994,12 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;事件发生时刻的时间戳&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]:</span>

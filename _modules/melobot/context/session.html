@@ -12,7 +12,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>melobot.context.session - MeloBot 2.5.14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
@@ -251,10 +251,11 @@
     <span class="n">Union</span><span class="p">,</span>
     <span class="n">Void</span><span class="p">,</span>
     <span class="n">VoidType</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotEvent</span>
+    <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotEvent</span><span class="p">,</span> <span class="n">ParseArgs</span>
     <span class="kn">from</span> <span class="nn">..bot.init</span> <span class="kn">import</span> <span class="n">BotLocal</span><span class="p">,</span> <span class="n">MeloBot</span>
     <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="p">(</span>
         <span class="n">MessageEvent</span><span class="p">,</span>
@@ -279,6 +280,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># 永远指向当前上下文的 event</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;ParseArgs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">manager</span>
         <span class="c1"># session 是否空闲的标志，由 BotSessionManager 修改和管理</span>
@@ -290,10 +292,7 @@
         <span class="c1"># session 是否过期的标志，由 BotSessionManager 修改和管理</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_expired</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是一次性 session</span>
-        <span class="c1"># 其实这里如果传入 space_tag 则一定是所属 handler 的引用</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_space_tag</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;EventHandler&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">space_tag</span>
-        <span class="c1"># 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;EventHandler&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__format__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">match</span> <span class="n">format_spec</span><span class="p">:</span>
@@ -302,48 +301,10 @@
             <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;未知的 session 格式化标识符：</span><span class="si">{</span><span class="n">format_spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="p">,</span> <span class="s2">&quot;parser&quot;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">_args_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">):</span>
-            <span class="n">args_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">_args_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">args_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span>
-            <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
-                <span class="n">args</span> <span class="o">=</span> <span class="n">args_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">vals</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">vals</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">args</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;尝试获取的解析参数不存在&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">hup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入， session</span>
-<span class="sd">        所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session， 并抛出 BotSessionTimeout 异常.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_hup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">overtime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">overtime</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;session 挂起超时时间（秒数）必须 &gt; 0&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()),</span>
-                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">overtime</span><span class="p">)),</span>
-                <span class="p">],</span>
-                <span class="n">return_when</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
-                <span class="k">return</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_rouse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">BotSessionTimeout</span><span class="p">(</span><span class="s2">&quot;session 挂起超时&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">destory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;销毁方法。会立即清空 session 存储。如果调用 session 有</span>
-<span class="sd">        space_tag，还会从存储空间中移除该 session。随后将会禁止所有行为操作&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_expire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__lshift__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">another</span><span class="p">:</span> <span class="s2">&quot;BotSession&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;合并 session 的存储内容&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">another</span><span class="o">.</span><span class="n">store</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">another</span><span class="o">.</span><span class="n">args</span>
 
 
 <span class="k">class</span> <span class="nc">SessionLocal</span><span class="p">:</span>
@@ -374,7 +335,8 @@
         <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__storage__</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="n">Void</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;上下文当前为 Void，识别为跨 bot 通信&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">var</span>  <span class="c1"># type: ignore</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">BotSession</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">var</span>
 
     <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">__value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_var</span><span class="p">(),</span> <span class="n">__name</span><span class="p">,</span> <span class="n">__value</span><span class="p">)</span>
@@ -447,11 +409,11 @@
     <span class="n">DEADLOCK_FLAGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;EventHandler&quot;</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># 对应每个 handler 的 try_attach 过程的操作锁</span>
     <span class="n">ATTACH_LOCKS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;EventHandler&quot;</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">BOT_CTX</span><span class="p">:</span> <span class="s2">&quot;MeloBot&quot;</span>  <span class="c1"># type: ignore</span>
+    <span class="n">BOT_CTX</span><span class="p">:</span> <span class="s2">&quot;MeloBot&quot;</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_bind</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bot_local_var</span><span class="p">:</span> <span class="s2">&quot;BotLocal&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span> <span class="o">=</span> <span class="n">bot_local_var</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span> <span class="o">=</span> <span class="n">bot_local_var</span>  <span class="c1"># type: ignore[assignment]</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">handler</span><span class="p">:</span> <span class="s2">&quot;EventHandler&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -463,9 +425,8 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">ATTACH_LOCKS</span><span class="p">[</span><span class="n">handler</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">inject</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">BotSession</span><span class="p">,</span> <span class="n">handler</span><span class="p">:</span> <span class="s2">&quot;EventHandler&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handler 内绑定 handler 引用到 session&quot;&quot;&quot;</span>
-        <span class="n">session</span><span class="o">.</span><span class="n">_handler</span> <span class="o">=</span> <span class="n">handler</span>
+    <span class="k">def</span> <span class="nf">fill_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">BotSession</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;ParseArgs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_attach</span><span class="p">(</span>
@@ -477,7 +438,8 @@
         <span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">HUP_STORAGE</span><span class="p">[</span><span class="n">handler</span><span class="p">]:</span>
             <span class="c1"># session 的挂起方法，保证 session 一定未过期，因此不进行过期检查</span>
-            <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">_rule</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">_rule</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">AttrSessionRule</span><span class="p">,</span> <span class="n">handler</span><span class="o">.</span><span class="n">_rule</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">_rule</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
                 <span class="n">session</span> <span class="o">=</span> <span class="n">s</span>
                 <span class="k">break</span>
         <span class="c1"># 如果获得一个挂起的 session，它一定是可附着的，附着后需要唤醒</span>
@@ -514,7 +476,7 @@
                 <span class="k">return</span> <span class="n">res</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_hup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">BotSession</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_hup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">BotSession</span><span class="p">,</span> <span class="n">overtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;挂起 session&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span>
@@ -522,15 +484,36 @@
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">_expired</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;过期的 session 不能被挂起&quot;</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">fill_args</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">STORAGE</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">HUP_STORAGE</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
         <span class="n">session</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
+        <span class="k">if</span> <span class="n">overtime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">overtime</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;session 挂起超时时间（秒数）必须 &gt; 0&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()),</span>
+                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">overtime</span><span class="p">)),</span>
+                <span class="p">],</span>
+                <span class="n">return_when</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_rouse</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">BotSessionTimeout</span><span class="p">(</span><span class="s2">&quot;session 挂起超时&quot;</span><span class="p">)</span>
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_rouse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">BotSession</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;唤醒 session&quot;&quot;&quot;</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">HUP_STORAGE</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">STORAGE</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span>
+                <span class="s2">&quot;当前 session 上下文因为缺乏 session_rule 作为唤醒标志，无法唤醒&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">HUP_STORAGE</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">STORAGE</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">_space_tag</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
         <span class="n">session</span><span class="o">.</span><span class="n">_awake_signal</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
@@ -611,7 +594,8 @@
 
         <span class="c1"># for 循环都需要即时 break，保证遍历 session_space 时没有协程切换。因为切换后 session_space 可能发生变动</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">session_space</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">check_rule</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">_expired</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+            <span class="n">check_rule</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">AttrSessionRule</span><span class="p">,</span> <span class="n">check_rule</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">check_rule</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">_expired</span><span class="p">:</span>
                 <span class="n">session</span> <span class="o">=</span> <span class="n">s</span>
                 <span class="k">break</span>
         <span class="c1"># 如果会话不存在，生成一个新 session 变量</span>
@@ -711,7 +695,7 @@
 
 <span class="sd">    :return: 具体的事件</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">any_event</span><span class="p">()</span>  <span class="c1"># type: ignore</span></div>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">any_event</span><span class="p">())</span></div>
 
 
 
@@ -724,7 +708,7 @@
 
 <span class="sd">    :return: 具体的事件</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">any_event</span><span class="p">()</span>  <span class="c1"># type: ignore</span></div>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;NoticeEvent&quot;</span><span class="p">,</span> <span class="n">any_event</span><span class="p">())</span></div>
 
 
 
@@ -737,7 +721,7 @@
 
 <span class="sd">    :return: 具体的事件</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">any_event</span><span class="p">()</span>  <span class="c1"># type: ignore</span></div>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="n">any_event</span><span class="p">())</span></div>
 
 
 
@@ -750,7 +734,7 @@
 
 <span class="sd">    :return: 具体的事件</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">any_event</span><span class="p">()</span>  <span class="c1"># type: ignore</span></div>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MetaEvent&quot;</span><span class="p">,</span> <span class="n">any_event</span><span class="p">())</span></div>
 
 
 
@@ -778,7 +762,10 @@
 <span class="sd">    :return: 解析参数值列表或 :obj:`None`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">args</span>
+        <span class="k">if</span> <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">vals</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
 
@@ -802,7 +789,7 @@
 
 <div class="viewcode-block" id="pause">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.pause">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="n">overtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="n">overtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;会话暂停直到被同一会话的事件唤醒</span>
 
 <span class="sd">    暂时停止本会话。当本会话的会话规则判断有属于本会话的另一事件发生，</span>
@@ -815,7 +802,7 @@
 <span class="sd">    :param overtime: 超时时间</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">hup</span><span class="p">(</span><span class="n">overtime</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">BotSessionManager</span><span class="o">.</span><span class="n">_hup</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">(),</span> <span class="n">overtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
 
@@ -834,7 +821,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">destory</span><span class="p">()</span>
+        <span class="n">BotSessionManager</span><span class="o">.</span><span class="n">_expire</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">())</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
 

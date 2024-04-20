@@ -12,7 +12,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>melobot.utils.checker - MeloBot 2.5.14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
@@ -234,7 +234,8 @@
         <article role="main">
           <h1>melobot.utils.checker 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotChecker</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotUtilsError</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotUtilsError</span><span class="p">,</span> <span class="n">BotValueError</span>
+<span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">is_retcoro</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
@@ -243,10 +244,11 @@
     <span class="n">Literal</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
     <span class="n">User</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
+    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">BotEvent</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
 
 
 <div class="viewcode-block" id="MsgLvlChecker">
@@ -279,8 +281,19 @@
 <span class="sd">        :param ok_cb: 检查通过的回调</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ok_cb</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span> <span class="o">=</span> <span class="n">ok_cb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_lvl</span> <span class="o">=</span> <span class="n">level</span>
+
+        <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_retcoro</span><span class="p">(</span><span class="n">ok_cb</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;检查器成功回调 </span><span class="si">{</span><span class="n">ok_cb</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 必须为异步函数，或其他返回协程的可调用对象&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_retcoro</span><span class="p">(</span><span class="n">fail_cb</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;检查器失败回调 </span><span class="si">{</span><span class="n">fail_cb</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 必须为异步函数，或其他返回协程的可调用对象&quot;</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">owner</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span> <span class="o">=</span> <span class="n">super_users</span> <span class="k">if</span> <span class="n">super_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
@@ -303,7 +316,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;MessageEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">e_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_level</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
@@ -357,7 +371,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span> <span class="o">=</span> <span class="n">white_groups</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;MessageEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -407,7 +422,8 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;MessageEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_private</span><span class="p">():</span>
@@ -458,10 +474,17 @@
 
 <div class="viewcode-block" id="MsgCheckerGen.gen_base">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen.gen_base">[文档]</a>
-    <span class="k">def</span> <span class="nf">gen_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgLvlChecker</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">gen_base</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgLvlChecker</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;根据内部依据和给定等级，生成一个 :class:`MsgLvlChecker` 对象</span>
 
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
+<span class="sd">        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）</span>
+<span class="sd">        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）</span>
 <span class="sd">        :return: 消息分级检查器</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MsgLvlChecker</span><span class="p">(</span>
@@ -470,17 +493,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MsgCheckerGen.gen_group">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen.gen_group">[文档]</a>
-    <span class="k">def</span> <span class="nf">gen_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GroupMsgLvlChecker</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">gen_group</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GroupMsgLvlChecker</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;根据内部依据和给定等级，生成一个 :class:`GroupMsgLvlChecker` 对象</span>
 
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
+<span class="sd">        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）</span>
+<span class="sd">        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）</span>
 <span class="sd">        :return: 群聊消息分级检查器</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">GroupMsgLvlChecker</span><span class="p">(</span>
@@ -490,17 +520,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MsgCheckerGen.gen_private">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen.gen_private">[文档]</a>
-    <span class="k">def</span> <span class="nf">gen_private</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrivateMsgLvlChecker</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">gen_private</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrivateMsgLvlChecker</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;根据内部依据和给定等级，生成一个 :class:`PrivateMsgLvlChecker` 对象</span>
 
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
+<span class="sd">        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）</span>
+<span class="sd">        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）</span>
 <span class="sd">        :return: 私聊消息分级检查器</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PrivateMsgLvlChecker</span><span class="p">(</span>
@@ -509,8 +546,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -528,11 +565,12 @@
 
 <span class="sd">        :param qid: 被艾特的 qq 号。为空则接受所有艾特消息；不为空则只接受指定 qid 被艾特的艾特消息</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="o">=</span> <span class="n">qid</span> <span class="k">if</span> <span class="n">qid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;MessageEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">id_list</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_datas</span><span class="p">(</span><span class="s2">&quot;at&quot;</span><span class="p">,</span> <span class="s2">&quot;qq&quot;</span><span class="p">)</span>
@@ -560,10 +598,11 @@
 
 <span class="sd">        只有是请求类型中的好友请求才会通过检查</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;RequestEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_req_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">status</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">is_friend_req</span><span class="p">()</span>
@@ -583,10 +622,11 @@
 
 <span class="sd">        只有是请求类型中的加群请求才会通过检查</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;RequestEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_req_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">status</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">is_group_req</span><span class="p">()</span>
@@ -651,13 +691,14 @@
 
 <span class="sd">        :param sub_type: 通知的类型</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">sub_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NoticeTypeChecker</span><span class="o">.</span><span class="n">SUB_TYPES</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotUtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;通知事件类型校验器的子类型 </span><span class="si">{</span><span class="n">sub_type</span><span class="si">}</span><span class="s2"> 不合法&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">=</span> <span class="n">sub_type</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;NoticeEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;NoticeEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_notice_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;ALL&quot;</span><span class="p">:</span>
