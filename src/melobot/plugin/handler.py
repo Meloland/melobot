@@ -244,7 +244,10 @@ class MsgEventHandler(EventHandler):
     async def _pre_process(self, event: "MessageEvent") -> tuple[bool, "BotSession"]:  # type: ignore
         session = BotSessionManager.make_temp(event)
         if self.matcher is not None:
-            return self.matcher.match(event.text), session
+            return (
+                await self._run_on_ctx(self.matcher.match(event.text), session),
+                session,
+            )
 
         if self.parser is not None:
             args = await self._run_on_ctx(self.parser.parse(event.text), session)

@@ -4,14 +4,6 @@ from ..base.abc import BotMatcher
 from ..base.typing import Any, LogicMode
 
 
-class AlwaysMatcher(BotMatcher):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def match(self, text: str) -> bool:
-        return True
-
-
 class StartMatcher(BotMatcher):
     """字符串起始匹配器"""
 
@@ -29,7 +21,7 @@ class StartMatcher(BotMatcher):
         self.target = target
         self.mode = mode
 
-    def match(self, text: str) -> bool:
+    async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
             return text[: len(self.target)] == self.target
         else:
@@ -54,7 +46,7 @@ class ContainMatcher(BotMatcher):
         self.target = target
         self.mode = mode
 
-    def match(self, text: str) -> bool:
+    async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
             return self.target in text
         else:
@@ -79,7 +71,7 @@ class EndMatcher(BotMatcher):
         self.target = target
         self.mode = mode
 
-    def match(self, text: str) -> bool:
+    async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
             return text[-len(self.target) :] == self.target
         else:
@@ -104,7 +96,7 @@ class FullMatcher(BotMatcher):
         self.target = target
         self.mode = mode
 
-    def match(self, text: str) -> bool:
+    async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
             return text == self.target
         else:
@@ -125,5 +117,5 @@ class RegexMatcher(BotMatcher):
         self.pattern = regex_pattern
         self.flag = regex_flags
 
-    def match(self, text: str) -> bool:
+    async def match(self, text: str) -> bool:
         return len(re.findall(self.pattern, text, self.flag)) > 0

@@ -535,7 +535,7 @@ class BotMatcher(ABC, Cloneable):
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod
-    def match(self, text: str) -> bool:
+    async def match(self, text: str) -> bool:
         """匹配器匹配方法
 
         任何匹配器应该实现此抽象方法。
@@ -573,7 +573,7 @@ class WrappedMatcher(BotMatcher):
         self.mode = mode
         self.m1, self.m2 = matcher1, matcher2
 
-    def match(self, text: str) -> bool:
+    async def match(self, text: str) -> bool:
         return LogicMode.calc(
             self.mode,
             self.m1.match(text),
