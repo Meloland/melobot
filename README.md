@@ -44,12 +44,16 @@ melobot v2 以**Onebot 标准的实现项目**作为前端，通过对来自“�
 
 ## ✨ 特色
 
-- 高性能异步：基于 asyncio，但使用性能更优秀的事件循环策略：[uvloop](https://github.com/MagicStack/uvloop)/[winloop](https://github.com/Vizonex/Winloop)
-- 插件管理：更低耦合度的插件加载、通信模式
-- 会话控制：自动传递上下文（会话）、可自定义的会话
-- 流程与生命周期：支持事件预检查、预匹配和预解析；支持添加生命周期 hook
+为什么选择 melobot？因为 melobot 更**自由、优雅和强大**：
+
+- 异步性能：基于 asyncio，但使用性能更优秀的事件循环策略：[uvloop](https://github.com/MagicStack/uvloop)/[winloop](https://github.com/Vizonex/Winloop)
+- 插件管理：更低耦合度的插件加载与通信
+- 会话控制：自动传递的、可自定义的会话
+- 预处理流程：可传播会话信息的、灵活的、可自定义的事件预处理
+- 生命周期控制：支持 bot 生命周期 hook
 - 多实例协同：多 bot 实例运行，跨实例通信
-- 异步接口：封装了部分常用的异步控制流
+- 异步接口：常用异步逻辑的封装，使各种业务逻辑更简洁
+- 日志支持：日志记录兼容标准库和绝大多数日志框架
 
 使用本框架的机器人项目如下：
 
