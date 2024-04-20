@@ -16,10 +16,11 @@ from ..base.typing import (
     Union,
     Void,
     VoidType,
+    cast,
 )
 
 if TYPE_CHECKING:
-    from ..base.abc import BotAction, BotEvent
+    from ..base.abc import BotAction, BotEvent, ParseArgs
     from ..bot.init import BotLocal, MeloBot
     from ..models.event import (
         MessageEvent,
@@ -44,6 +45,7 @@ class BotSession:
         self.store: dict[str, Any] = {}
         # 永远指向当前上下文的 event
         self.event = event
+        self.args: Union["ParseArgs", None] = None
 
         self._manager = manager
         # session 是否空闲的标志，由 BotSessionManager 修改和管理
@@ -55,10 +57,7 @@ class BotSession:
         # session 是否过期的标志，由 BotSessionManager 修改和管理
         self._expired = False
         # 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是一次性 session
-        # 其实这里如果传入 space_tag 则一定是所属 handler 的引用
         self._space_tag: Optional["EventHandler"] = space_tag
-        # 所属 handler 的引用（和 space_tag 不一样，所有在 handler 中产生的 session，此属性必为非空）
-        self._handler: Optional["EventHandler"] = None
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
@@ -67,48 +66,10 @@ class BotSession:
             case _:
                 raise BotSessionError(f"未知的 session 格式化标识符：{format_spec}")
 
-    @property
-    def args(self):
-        if (
-            self._handler is not None
-            and hasattr(self._handler, "parser")
-            and self.event._args_map is not None
-        ):
-            args_dict = self.event._args_map.get(self._handler.parser.id)
-            if args_dict is None:
-                return None
-            for group_id in self._handler.parser.target:
-                args = args_dict.get(group_id)
-                if args is not None:
-                    return args.vals if args.vals is None else args.vals.copy()
-            raise BotSessionError("尝试获取的解析参数不存在")
-        return None
-
-    async def hup(self, overtime: Optional[int] = None) -> None:
-        """当前 session 挂起（也就是所在方法的挂起）。直到满足同一 session_rule 的事件重新进入， session
-        所在方法便会被唤醒。但如果设置了超时时间且在唤醒前超时，则会强制唤醒 session， 并抛出 BotSessionTimeout 异常."""
-        self._manager._hup(self)
-        if overtime is None:
-            await self._awake_signal.wait()
-        elif overtime <= 0:
-            raise BotSessionError("session 挂起超时时间（秒数）必须 > 0")
-        else:
-            await asyncio.wait(
-                [
-                    asyncio.create_task(self._awake_signal.wait()),
-                    asyncio.create_task(asyncio.sleep(overtime)),
-                ],
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-            if self._awake_signal.is_set():
-                return
-            self._manager._rouse(self)
-            raise BotSessionTimeout("session 挂起超时")
-
-    def destory(self) -> None:
-        """销毁方法。会立即清空 session 存储。如果调用 session 有
-        space_tag，还会从存储空间中移除该 session。随后将会禁止所有行为操作"""
-        self._manager._expire(self)
+    def __lshift__(self, another: "BotSession") -> None:
+        """合并 session 的存储内容"""
+        self.store.update(another.store)
+        self.args = another.args
 
 
 class SessionLocal:
@@ -139,7 +100,8 @@ class SessionLocal:
         var = self.__storage__.get()
         if var is Void:
             raise LookupError("上下文当前为 Void，识别为跨 bot 通信")
-        return var  # type: ignore
+        var = cast(BotSession, var)
+        return var
 
     def __setattr__(self, __name: str, __value: Any) -> None:
         setattr(self._get_var(), __name, __value)
@@ -222,9 +184,8 @@ class BotSessionManager:
         cls.ATTACH_LOCKS[handler] = asyncio.Lock()
 
     @classmethod
-    def inject(cls, session: BotSession, handler: "EventHandler") -> None:
-        """Handler 内绑定 handler 引用到 session"""
-        session._handler = handler
+    def fill_args(cls, session: BotSession, args: Union["ParseArgs", None]) -> None:
+        session.args = args
 
     @classmethod
     def _attach(
@@ -273,7 +234,7 @@ class BotSessionManager:
                 return res
 
     @classmethod
-    def _hup(cls, session: BotSession) -> None:
+    async def _hup(cls, session: BotSession, overtime: Optional[float] = None) -> None:
         """挂起 session"""
         if session._space_tag is None:
             raise BotSessionError(
@@ -281,9 +242,26 @@ class BotSessionManager:
             )
         elif session._expired:
             raise BotSessionError("过期的 session 不能被挂起")
+        cls.fill_args(session, None)
         cls.STORAGE[session._space_tag].remove(session)
         cls.HUP_STORAGE[session._space_tag].add(session)
         session._awake_signal.clear()
+
+        if overtime is None:
+            await session._awake_signal.wait()
+        elif overtime <= 0:
+            raise BotSessionError("session 挂起超时时间（秒数）必须 > 0")
+        else:
+            await asyncio.wait(
+                [
+                    asyncio.create_task(session._awake_signal.wait()),
+                    asyncio.create_task(asyncio.sleep(overtime)),
+                ],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            if not session._awake_signal.is_set():
+                cls._rouse(session)
+                raise BotSessionTimeout("session 挂起超时")
 
     @classmethod
     def _rouse(cls, session: BotSession) -> None:
@@ -517,7 +495,10 @@ def msg_args() -> list[Any] | None:
     :return: 解析参数值列表或 :obj:`None`
     """
     try:
-        return SESSION_LOCAL.args
+        if SESSION_LOCAL.args is not None:
+            return SESSION_LOCAL.args.vals
+        else:
+            return None
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
@@ -535,7 +516,7 @@ def session_store() -> dict:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
 
-async def pause(overtime: Optional[int] = None) -> None:
+async def pause(overtime: Optional[float] = None) -> None:
     """会话暂停直到被同一会话的事件唤醒
 
     暂时停止本会话。当本会话的会话规则判断有属于本会话的另一事件发生，
@@ -548,7 +529,7 @@ async def pause(overtime: Optional[int] = None) -> None:
     :param overtime: 超时时间
     """
     try:
-        await SESSION_LOCAL.hup(overtime)
+        await BotSessionManager._hup(SESSION_LOCAL._get_var(), overtime)
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
@@ -564,6 +545,6 @@ def dispose() -> None:
 
     """
     try:
-        SESSION_LOCAL.destory()
+        BotSessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")

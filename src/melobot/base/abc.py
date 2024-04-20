@@ -171,7 +171,6 @@ class BotEvent(ABC, Flagable):
         super().__init__()
         #: 从 onebot 实现项目获得的未格式化的事件原始值
         self.raw: dict = rawEvent
-        self._args_map: Optional[dict[Any, dict[str, ParseArgs] | None]] = None
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
@@ -213,18 +212,6 @@ class BotEvent(ABC, Flagable):
     def is_resp_event(self) -> bool:
         """判断是否是响应事件"""
         return self.type == "response"
-
-    def _get_args(self, parser_id: Any) -> dict[str, ParseArgs] | VoidType | None:
-        if self._args_map is None:
-            return Void
-        return self._args_map.get(parser_id, Void)
-
-    def _store_args(
-        self, parser_id: Any, args_dict: dict[str, ParseArgs] | None
-    ) -> None:
-        if self._args_map is None:
-            self._args_map = {}
-        self._args_map[parser_id] = args_dict
 
 
 class ActionArgs(ABC):
@@ -425,7 +412,9 @@ class BotChecker(ABC, Cloneable):
             raise BotValueError(
                 f"检查器失败回调 {fail_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
             )
+        #: 检查器成功回调
         self.ok_cb = ok_cb
+        #: 检查器失败回调
         self.fail_cb = fail_cb
 
     def __and__(self, other: "BotChecker") -> "WrappedChecker":
@@ -463,6 +452,9 @@ class BotChecker(ABC, Cloneable):
         """检查器检查方法
 
         任何检查器应该实现此抽象方法。
+
+        需要注意的是：如果你继承该类，实现本方法，成功和失败的回调需要在此方法内显式调用。
+        调回调的时机并不固定，因此交给用户决定
 
         :param event: 给定的事件
         :return: 检查是否通过
@@ -595,23 +587,8 @@ class BotParser(ABC):
     解析器一般用作从消息文本中按规则批量提取参数
     """
 
-    def __init__(self, id: Any) -> None:
-        """初始化一个解析器
-
-        :param id: 解析器解析规则的标识
-
-           id 相同，意味着解析规则相同。一组解析规则相同的解析器，只有第一个会实际运行解析。其他后续解析器会复用这个解析结果。
-
-           id 标识存在的意义是增强复用性。如果你不需要复用，id 值给定不同的随机值即可。
-        """
-        super().__init__()
-        #: 解析器的 id，即解析规则的表示
-        self.id: Any = id
-        #: 是否需要格式化（此属性可在继承后进行修改，若为否，则不再进行格式化）
-        self.need_format: bool = False
-
     @abstractmethod
-    def parse(self, text: str) -> Optional[dict[str, ParseArgs]]:
+    async def parse(self, text: str) -> Optional[ParseArgs]:
         """解析方法
 
         任何解析器应该实现此抽象方法
@@ -619,36 +596,5 @@ class BotParser(ABC):
         :param text: 消息文本内容
         :return: 解析结果
 
-           因为一次解析可能会得到多组结果，结果为字典或空值。字典键为一组解析结果的识别标志（例如命令解析中的命令名），值为解析参数对象（象征一组解析结果）
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def test(
-        self, args_dict: Optional[dict[str, ParseArgs]]
-    ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
-        """解析测试方法
-
-        任何解析器应该实现此抽象方法
-
-        :param args_dict: 之前的解析结果
-        :return: 返回元组：(判断是否解析成功, 可为空的一组解析结果的识别标志, 可为空的解析参数对象)
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    async def format(self, group_id: str, args: ParseArgs) -> bool:
-        """格式化方法
-
-        任何解析器应该实现此抽象方法
-
-        格式化是否进行，会受解析器 `need_fotmat` 参数和 :meth:`~.BotParser.test` 的影响。
-        如果你确定你的解析器子类 100% 不需要格式化，那么继承这个方法标记为 pass 即可。
-
-        格式化过程最后只返回是否格式化成功，格式化的结果将会被直接保存，并可通过 :func:`.msg_args` 获得。
-
-        :param group_id: 一组解析结果的识别标志
-        :param args: 解析参数对象
-        :return: 格式化是否成功
         """
         raise NotImplementedError

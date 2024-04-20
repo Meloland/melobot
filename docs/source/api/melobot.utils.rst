@@ -122,18 +122,6 @@ melobot.utils
 .. autoclass:: melobot.utils.CmdParserGen
    :members:
 
-格式化器
-----------------
-
-格式化器被用于消息事件预处理的参数格式化过程。
-
-.. admonition:: 相关知识
-   :class: seealso
-
-   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
-   
-   但对于其他事件来说，预处理过程只有一步：检查。
-
 .. autoclass:: melobot.utils.CmdArgFormatter
    :members:
 

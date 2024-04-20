@@ -8,10 +8,9 @@ from .checker import (
     NoticeTypeChecker,
     PrivateMsgLvlChecker,
 )
-from .formatter import CmdArgFormatter, FormatInfo
 from .logger import BotLogger, logger_patch
 from .matcher import ContainMatcher, EndMatcher, FullMatcher, RegexMatcher, StartMatcher
-from .parser import CmdParser, CmdParserGen
+from .parser import CmdArgFormatter, CmdParser, CmdParserGen, FormatInfo
 
 __all__ = (
     "AtChecker",

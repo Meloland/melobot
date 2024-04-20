@@ -215,7 +215,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -266,7 +266,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -322,7 +322,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -386,7 +386,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -448,7 +448,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -510,7 +510,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -572,7 +572,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -633,7 +633,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -688,7 +688,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -737,7 +737,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -792,7 +792,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -867,7 +867,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):
@@ -923,7 +923,7 @@ class BotPlugin:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
     ):

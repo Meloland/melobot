@@ -8,7 +8,6 @@ from ..base.typing import (
     Callable,
     Coroutine,
     Optional,
-    ParseArgs,
     PriorLevel,
     T,
     Type,
@@ -39,7 +38,7 @@ class EventHandler:
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ) -> None:
@@ -60,13 +59,6 @@ class EventHandler:
         self._direct_rouse = direct_rouse
         self._conflict_cb = conflict_cb
         self._wait_flag = conflict_wait
-
-        if session_rule is None:
-            if session_hold or direct_rouse or conflict_wait or conflict_cb:
-                raise BotValueError(
-                    "提供 session_rule 后才能使用以下参数：session_hold， direct_rouse, "
-                    "conflict_wait, conflict_callback"
-                )
 
         if conflict_wait and conflict_cb:
             raise BotValueError("参数 conflict_wait 为 True 时，冲突回调永远不会被调用")
@@ -91,8 +83,6 @@ class EventHandler:
         timeout: Optional[float] = None,
     ) -> T:
         """在指定 session 上下文中运行协程。异常将会抛出"""
-        if session._handler is None:
-            BotSessionManager.inject(session, self)
         try:
             s_token = SESSION_LOCAL._add_ctx(session)
             return await asyncio.wait_for(asyncio.create_task(coro), timeout=timeout)
@@ -103,7 +93,9 @@ class EventHandler:
                 BotSessionManager._rouse(session)
 
     async def _run(
-        self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
+        self,
+        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        pre_session: "BotSession",
     ) -> None:
         """获取 session 然后准备运行 executor"""
         try:
@@ -115,8 +107,7 @@ class EventHandler:
             session = await BotSessionManager.get(event, self)
             # 如果因为冲突没有获得 session，且指定了冲突回调
             if session is None and self._conflict_cb:
-                temp_session = BotSessionManager.make_temp(event)
-                await self._run_on_ctx(self._conflict_cb(), temp_session)
+                await self._run_on_ctx(self._conflict_cb(), pre_session)
             # 如果因为冲突没有获得 session，但没有冲突回调
             if session is None:
                 return
@@ -125,6 +116,7 @@ class EventHandler:
             self.logger.debug(
                 f"event {event:hexid} 准备在 session {session:hexid} 中处理"
             )
+            session << pre_session
             await self._run_on_ctx(exec_coro, session)
         except FuncSafeExited:
             pass
@@ -145,10 +137,10 @@ class EventHandler:
 
     async def _pre_process(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
-    ) -> bool:
+    ) -> tuple[bool, "BotSession"]:
         session = BotSessionManager.make_temp(event)
         status = await self._run_on_ctx(self._verify(), session)
-        return status
+        return status, session
 
     async def evoke(
         self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
@@ -157,7 +149,7 @@ class EventHandler:
         if not self.is_valid:
             return False
 
-        status = await self._pre_process(event)
+        status, tmp_session = await self._pre_process(event)
         if status:
             self.logger.debug(
                 f"event {event:hexid} 在 handler {self:hexid} pre_process 通过，处理方法为：{self.executor.__qualname__}"
@@ -166,12 +158,12 @@ class EventHandler:
             return False
 
         if not self.temp:
-            asyncio.create_task(self._run(event))
+            asyncio.create_task(self._run(event, tmp_session))
             return True
 
         async with self._run_lock:
             if self.is_valid:
-                asyncio.create_task(self._run(event))
+                asyncio.create_task(self._run(event, tmp_session))
                 self.is_valid = False
                 return True
             else:
@@ -184,15 +176,15 @@ class AllEventHandler(EventHandler):
         executor: Callable[[], Coroutine[Any, Any, None]],
         plugin: Any,
         logger: "BotLogger",
-        checker: "BotChecker",
-        priority: PriorLevel,
-        set_block: bool,
-        temp: bool,
-        session_rule: "SessionRule",
-        session_hold: bool,
-        direct_rouse: bool,
-        conflict_wait: bool,
-        conflict_cb: Callable[[], Coroutine],
+        checker: Optional["BotChecker"] = None,
+        priority: PriorLevel = PriorLevel.MEAN,
+        set_block: bool = False,
+        temp: bool = False,
+        session_rule: Optional["SessionRule"] = None,
+        session_hold: bool = False,
+        direct_rouse: bool = True,
+        conflict_wait: bool = False,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ) -> None:
         super().__init__(
             executor,
@@ -224,7 +216,7 @@ class MsgEventHandler(EventHandler):
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ) -> None:
@@ -249,53 +241,19 @@ class MsgEventHandler(EventHandler):
         if self.matcher and self.parser:
             raise BotValueError("参数 matcher 和 parser 不能同时存在")
 
-    def _match(
-        self, event: "MessageEvent"
-    ) -> bool | tuple[bool, str | None, ParseArgs | None]:
-        """检查是否匹配"""
-        if self.matcher:
-            return self.matcher.match(event.text)
-        if self.parser:
-            _ = event._get_args(self.parser.id)
-            if _ is Void:
-                args_dict = self.parser.parse(event.text)
-                event._store_args(self.parser.id, args_dict)
-            else:
-                args_dict = _
-            res, group_id, args = self.parser.test(args_dict)
-            return res, group_id, args
-        return True
-
-    async def _format(self, group_id: str, args: ParseArgs) -> bool:
-        """格式化。只有 parser 存在时需要"""
-        self.parser = cast(BotParser, self.parser)
-        if not self.parser.need_format:
-            return True
-        status = await self.parser.format(group_id, args)
-        return status
-
-    async def _pre_process(self, event: "MessageEvent") -> bool:  # type: ignore
+    async def _pre_process(self, event: "MessageEvent") -> tuple[bool, "BotSession"]:  # type: ignore
         session = BotSessionManager.make_temp(event)
-        # 先进行 match，match 不支持回调，因此可以直接同步运行，而且无需异步加锁
-        match_res = self._match(event)
-        if isinstance(match_res, bool):
-            if not match_res:
-                return False
-        else:
-            res, group_id, args = match_res
-            if not res:
-                return False
+        if self.matcher is not None:
+            return self.matcher.match(event.text), session
 
-        async def wrapped_func() -> bool:
-            if not (await self._verify()):
-                return False
-            if self.parser:
-                if not (await self._format(group_id, args)):  # type: ignore
-                    return False
-            return True
+        if self.parser is not None:
+            args = await self._run_on_ctx(self.parser.parse(event.text), session)
+            if args is None:
+                return False, session
+            else:
+                BotSessionManager.fill_args(session, args)
 
-        status = await self._run_on_ctx(wrapped_func(), session)
-        return status
+        return await self._run_on_ctx(self._verify(), session), session
 
 
 class ReqEventHandler(EventHandler):
@@ -310,7 +268,7 @@ class ReqEventHandler(EventHandler):
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ) -> None:
@@ -342,7 +300,7 @@ class NoticeEventHandler(EventHandler):
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ) -> None:
@@ -374,7 +332,7 @@ class MetaEventHandler(EventHandler):
         temp: bool = False,
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
-        direct_rouse: bool = False,
+        direct_rouse: bool = True,
         conflict_wait: bool = False,
         conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ) -> None:

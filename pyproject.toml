@@ -20,7 +20,7 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 readme = "README.md"
-license = { text = "BSD"}
+license = {text = "BSD"}
 keywords = ["qq", "qq bot", "onebot", "bot framework", "asyncio", "coroutine", "concurrency"]
 classifiers = [
     "Development Status :: 4 - Beta",

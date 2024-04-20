@@ -5,6 +5,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Iterator,
     Literal,
     Optional,
     ParamSpec,
@@ -59,13 +60,13 @@ class MsgNode(TypedDict):
 class ParseArgs:
     """解析参数类"""
 
-    def __init__(self, values: list[Any] | None) -> None:
+    def __init__(self, values: list[Any]) -> None:
         """实例化一组解析参数，对应一次解析的结果
 
-        :param values: 参数值
+        :param values: 参数值的列表（表示无可用参数用空列表，而不是 None 值）
         """
         #: 保存的一组解析参数值
-        self.vals: Optional[list[Any]] = values
+        self.vals: list[Any] = values
 
 
 class LogicMode(Enum):

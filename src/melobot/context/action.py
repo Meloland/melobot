@@ -13,7 +13,7 @@ from ..base.typing import (
 )
 from ..models.msg import _to_cq_str_action, reply_msg, text_msg
 from .session import SESSION_LOCAL
-from .session import BotSessionManager as CtxManager
+from .session import BotSessionManager as SessionManager
 
 if TYPE_CHECKING:
     from ..models.event import ResponseEvent
@@ -114,7 +114,7 @@ def _process_msg(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegmen
         )
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def send_custom_msg(
     content: str | MsgSegment | list[MsgSegment],
     isPrivate: bool,
@@ -174,7 +174,7 @@ async def send_custom_msg(
     return action
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def send(
     content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
@@ -250,7 +250,7 @@ class ForwardMsgActionArgs(ActionArgs):
             self.params = {"group_id": groupId, "messages": msgs, "auto_escape": True}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def send_custom_forward(
     msgNodes: list[MsgNode],
     isPrivate: bool,
@@ -310,7 +310,7 @@ async def send_custom_forward(
     return action
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def send_forward(
     msgNodes: list[MsgNode],
     cq_str: bool = False,
@@ -384,7 +384,7 @@ class MsgDelActionArgs(ActionArgs):
         }
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
     """撤回消息
 
@@ -415,7 +415,7 @@ class GetMsgActionArgs(ActionArgs):
         self.params = {"message_id": msgId}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction:
     """获取消息详细信息
 
@@ -446,7 +446,7 @@ class getForwardActionArgs(ActionArgs):
         self.params = {"id": forwardId}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_forward_msg(
     forwardId: str, wait: bool = True, auto: bool = True
 ) -> BotAction:
@@ -479,7 +479,7 @@ class getImageActionArgs(ActionArgs):
         self.params = {"file": fileName}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotAction:
     """获取图片信息
 
@@ -510,7 +510,7 @@ class SendLikeActionArgs(ActionArgs):
         self.params = {"user_id": userId, "times": times}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def send_like(
     userId: int, times: int = 1, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -550,7 +550,7 @@ class GroupKickActionArgs(ActionArgs):
         }
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def group_kick(
     groupId: int,
     userId: int,
@@ -595,7 +595,7 @@ class GroupBanActionArgs(ActionArgs):
         }
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def group_ban(
     groupId: int, userId: int, duration: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -632,7 +632,7 @@ class GroupWholeBanActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "enable": enable}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def group_whole_ban(
     groupId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -668,7 +668,7 @@ class SetGroupAdminActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "user_id": userId, "enable": enable}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def set_group_admin(
     groupId: int, userId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -705,7 +705,7 @@ class SetGroupCardActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "user_id": userId, "card": card}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def set_group_card(
     groupId: int, userId: int, card: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -742,7 +742,7 @@ class SetGroupNameActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "group_name": name}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def set_group_name(
     groupId: int, name: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -778,7 +778,7 @@ class GroupLeaveActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "is_dismiss": isDismiss}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def group_leave(
     groupId: int, isDismiss: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -825,7 +825,7 @@ class SetGroupTitleActionArgs(ActionArgs):
         }
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def set_group_title(
     groupId: int,
     userId: int,
@@ -867,7 +867,7 @@ class SetFriendAddActionArgs(ActionArgs):
         self.params = {"flag": addFlag, "approve": approve, "remark": remark}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def set_friend_add(
     addFlag: str, approve: bool, remark: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
@@ -916,7 +916,7 @@ class SetGroupAddActionArgs(ActionArgs):
             self.params["reason"] = reason
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def set_group_add(
     addFlag: str,
     addType: Literal["add", "invite"],
@@ -959,7 +959,7 @@ class GetLoginInfoActionArgs(ActionArgs):
         self.params = {}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
     """获得 bot 登录号信息
 
@@ -989,7 +989,7 @@ class GetStrangerInfoActionArgs(ActionArgs):
         self.params = {"user_id": userId, "no_cache": noCache}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_stranger_info(
     userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
@@ -1025,7 +1025,7 @@ class GetFriendlistActionArgs(ActionArgs):
         self.params = {}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
     """获取好友列表
 
@@ -1055,7 +1055,7 @@ class GetGroupInfoActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "no_cache": noCache}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_group_info(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
@@ -1091,7 +1091,7 @@ class GetGrouplistActionArgs(ActionArgs):
         self.params = {}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
     """获取群列表。
 
@@ -1123,7 +1123,7 @@ class GetGroupMemberInfoActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "user_id": userId, "no_cache": noCache}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_group_member_info(
     groupId: int, userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
@@ -1160,7 +1160,7 @@ class GetGroupMemberlistActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "no_cache": noCache}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_group_member_list(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
@@ -1202,7 +1202,7 @@ class GetGroupHonorActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "type": type}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_group_honor(
     groupId: int,
     type: Literal[
@@ -1246,7 +1246,7 @@ class CheckSendImageActionArgs(ActionArgs):
         self.params = {}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送图片
 
@@ -1276,7 +1276,7 @@ class CheckSendRecordActionArgs(ActionArgs):
         self.params = {}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送语音
 
@@ -1306,7 +1306,7 @@ class GetCqVersionActionArgs(ActionArgs):
         self.params = {}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的版本
 
@@ -1336,7 +1336,7 @@ class GetCqStatusActionArgs(ActionArgs):
         self.params = {}
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的状态
 
@@ -1357,7 +1357,7 @@ async def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
     )
 
 
-@CtxManager._activate
+@SessionManager._activate
 async def take_custom_action(
     action: BotAction,
 ) -> BotAction:
@@ -1419,7 +1419,7 @@ async def send_wait(
     """
     await send(content, cq_str)
     try:
-        await SESSION_LOCAL.hup(overtime)
+        await SessionManager._hup(SESSION_LOCAL._get_var(), overtime)
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
 
@@ -1497,7 +1497,7 @@ async def finish(
     """
     await send(content, cq_str)
     try:
-        SESSION_LOCAL.destory()
+        SessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
     raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")
@@ -1537,7 +1537,7 @@ async def reply_finish(
     content_arr.extend(_process_msg(content))
     await send(content_arr, cq_str)
     try:
-        SESSION_LOCAL.destory()
+        SessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
     raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")

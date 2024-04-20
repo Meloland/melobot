@@ -1,11 +1,258 @@
 import re
+import traceback
+from functools import lru_cache
 
 from ..base.abc import BotParser
-from ..base.exceptions import BotValueError
-from ..base.typing import TYPE_CHECKING, Optional, ParseArgs
+from ..base.exceptions import BotException, BotValueError
+from ..base.tools import is_retcoro
+from ..base.typing import (
+    Any,
+    Callable,
+    Coroutine,
+    Iterator,
+    ModuleType,
+    Optional,
+    ParseArgs,
+    Void,
+    VoidType,
+    cast,
+)
+from ..context.action import send
 
-if TYPE_CHECKING:
-    from .formatter import CmdArgFormatter
+
+class ArgVerifyFailed(BotException):
+    def __init__(self, msg: str = ""):
+        super().__init__(msg)
+
+
+class ArgLackError(BotException):
+    def __init__(self, msg: str = ""):
+        super().__init__(msg)
+
+
+class FormatInfo:
+    """命令参数格式化信息对象
+
+    用于在命令参数格式化异常时传递信息。
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
+
+    def __init__(
+        self,
+        src: str | VoidType,
+        src_desc: Optional[str],
+        src_expect: Optional[str],
+        idx: int,
+        exc: Exception,
+        exc_tb: ModuleType,
+        group_id: str,
+    ) -> None:
+        #: 命令参数格式化前的原值
+        self.src = src
+        #: 命令参数值的功能描述
+        self.src_desc = src_desc
+        #: 命令参数值的值期待描述
+        self.src_expect = src_expect
+        #: 命令参数值的顺序（从 0 开始索引）
+        self.idx = idx
+        #: 命令参数格式化异常时的异常对象
+        self.exc = exc
+        #: 命令参数格式化异常时的调用栈信息
+        self.exc_tb = exc_tb
+        #: 命令参数所属命令的命令名
+        self.group_id = group_id
+
+
+class CmdArgFormatter:
+    """命令参数格式化器
+
+    用于格式化命令解析器解析出的命令参数。搭配命令解析器 :class:`.CmdParser` 使用
+    """
+
+    def __init__(
+        self,
+        convert: Optional[Callable[[str], Any]] = None,
+        verify: Optional[Callable[[Any], bool]] = None,
+        src_desc: Optional[str] = None,
+        src_expect: Optional[str] = None,
+        default: Any = Void,
+        default_replace_flag: Optional[str] = None,
+        convert_fail: Optional[
+            Callable[[FormatInfo], Coroutine[Any, Any, None]]
+        ] = None,
+        verify_fail: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
+        arg_lack: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
+    ) -> None:
+        """初始化一个命令参数格式化器
+
+        :param convert: 类型转换方法，为空则不进行类型转换
+        :param verify: 值验证方法，为空则不对值进行验证
+        :param src_desc: 命令参数值的功能描述
+        :param src_expect: 命令参数值的值期待描述
+        :param default: 命令参数值的默认值（默认值 :class:`.Void` 表示无值，而不是 :obj:`None` 表达的空值）
+        :param default_replace_flag: 命令参数使用默认值的标志
+        :param convert_fail: 类型转换失败的回调，为空则使用默认回调
+        :param verify_fail: 值验证失败的回调，为空则使用默认回调
+        :param arg_lack: 参数缺失的回调，为空则使用默认回调
+        """
+        self.convert = convert
+        self.verify = verify
+        self.src_desc = src_desc
+        self.src_expect = src_expect
+        self.default = default
+        self.default_replace_flag = default_replace_flag
+        if self.default is Void and self.default_replace_flag is not None:
+            raise BotValueError(
+                "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
+            )
+        if convert_fail is not None and not is_retcoro(convert_fail):
+            raise BotValueError(
+                f"格式化器的类型转换失败回调 {convert_fail.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
+        if verify_fail is not None and not is_retcoro(verify_fail):
+            raise BotValueError(
+                f"格式化器的值验证失败回调 {verify_fail.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
+        if arg_lack is not None and not is_retcoro(arg_lack):
+            raise BotValueError(
+                f"格式化器的参数缺失回调 {arg_lack.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
+
+        self.convert_fail = convert_fail
+        self.verify_fail = verify_fail
+        self.arg_lack = arg_lack
+
+    def _get_val(self, args: ParseArgs, idx: int) -> Any:
+        if self.default is Void:
+            if len(args.vals) < idx + 1:
+                raise ArgLackError
+            else:
+                return args.vals[idx]
+        elif len(args.vals) < idx + 1:
+            args.vals.append(self.default)
+        return args.vals[idx]
+
+    async def format(
+        self,
+        group_id: str,
+        args: ParseArgs,
+        idx: int,
+    ) -> bool:
+        # 格式化参数为对应类型的变量
+        try:
+            src = self._get_val(args, idx)
+            if (
+                self.default_replace_flag is not None
+                and src == self.default_replace_flag
+            ):
+                src = self.default
+            res = self.convert(src) if self.convert is not None else src
+
+            if self.verify is None:
+                pass
+            elif self.verify(res):
+                pass
+            else:
+                raise ArgVerifyFailed
+            args.vals[idx] = res  # type: ignore
+            return True
+        except ArgVerifyFailed as e:
+            info = FormatInfo(
+                src, self.src_desc, self.src_expect, idx, e, traceback, group_id
+            )
+            if self.verify_fail:
+                await self.verify_fail(info)
+            else:
+                await self._verify_fail_default(info)
+            return False
+        except ArgLackError as e:
+            info = FormatInfo(
+                Void, self.src_desc, self.src_expect, idx, e, traceback, group_id
+            )
+            if self.arg_lack:
+                await self.arg_lack(info)
+            else:
+                await self._arglack_default(info)
+            return False
+        except Exception as e:
+            info = FormatInfo(
+                src, self.src_desc, self.src_expect, idx, e, traceback, group_id
+            )
+            if self.convert_fail:
+                await self.convert_fail(info)
+            else:
+                await self._convert_fail_default(info)
+            return False
+
+    async def _convert_fail_default(self, info: FormatInfo) -> None:
+        e_class = info.exc.__class__.__name__
+        src = info.src.__repr__() if isinstance(info.src, str) else info.src
+        tip = f"第 {info.idx+1} 个参数"
+        tip += (
+            f"（{info.src_desc}）无法处理，给定的值为：{src}。"
+            if info.src_desc
+            else f"给定的值 {src} 无法处理。"
+        )
+        tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+        tip += f"\n详细错误描述：[{e_class}] {info.exc}"
+        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
+        await send(tip)
+
+    async def _verify_fail_default(self, info: FormatInfo) -> None:
+        src = info.src.__repr__() if isinstance(info.src, str) else info.src
+        tip = f"第 {info.idx+1} 个参数"
+        tip += (
+            f"（{info.src_desc}）不符合要求，给定的值为：{src}。"
+            if info.src_desc
+            else f"给定的值 {src} 不符合要求。"
+        )
+        tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
+        await send(tip)
+
+    async def _arglack_default(self, info: FormatInfo) -> None:
+        tip = f"第 {info.idx+1} 个参数"
+        tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
+        tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
+        await send(tip)
+
+
+@lru_cache(maxsize=128)
+def cmd_parse(
+    text: str,
+    start_regex: re.Pattern[str],
+    sep_regex: re.Pattern[str],
+    rm_empty: bool = True,
+) -> dict[str, list[str]]:
+
+    def split_string(
+        string: str, regex: re.Pattern, popFirst: bool = True
+    ) -> Iterator[str]:
+        # 将复杂的各种分隔符替换为 特殊字符，方便分割
+        temp_string = regex.sub("\u0000", string)
+        temp_list = re.split("\u0000", temp_string)
+        if popFirst:
+            temp_list.pop(0)
+        return filter(lambda x: x != "", temp_list)
+
+    pure_string = text.strip() if rm_empty else text
+    cmd_seqs = [
+        list(split_string(s, sep_regex, False))
+        for s in split_string(pure_string, start_regex)
+    ]
+    cmd_seqs_iter = filter(lambda x: len(x) > 0, cmd_seqs)
+
+    cmd_dict: dict[str, list[str]] = {}
+    for seq in cmd_seqs_iter:
+        if len(seq) == 0:
+            continue
+        cmd_dict[seq[0]] = seq[1:]
+    return cmd_dict
 
 
 class CmdParser(BotParser):
@@ -19,7 +266,7 @@ class CmdParser(BotParser):
         cmd_start: str | list[str],
         cmd_sep: str | list[str],
         target: str | list[str],
-        formatters: Optional[list[Optional["CmdArgFormatter"]]] = None,
+        formatters: Optional[list[Optional[CmdArgFormatter]]] = None,
     ) -> None:
         """初始化一个命令解析器
 
@@ -34,14 +281,9 @@ class CmdParser(BotParser):
         :param target: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）
         """
-        i1 = cmd_start if isinstance(cmd_start, str) else "".join(cmd_start)
-        i2 = cmd_sep if isinstance(cmd_sep, str) else "".join(cmd_sep)
-        super().__init__(f"{i1}\u0000{i2}")
-        self.target = target if isinstance(target, list) else [target]
-        self.formatters = [] if formatters is None else formatters
-        self.need_format = (
-            True if target is not None and len(self.formatters) > 0 else False
-        )
+        self.targets = target if isinstance(target, list) else [target]
+        self.formatters = formatters
+        self.need_format = True if self.formatters is not None else False
 
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
         self.sep_tokens = cmd_sep if isinstance(cmd_sep, list) else [cmd_sep]
@@ -69,64 +311,31 @@ class CmdParser(BotParser):
         else:
             raise BotValueError("命令解析器起始符不能和间隔符重合")
 
-    def _clean(self, text: str) -> str:
-        return text.strip()
+    async def parse(self, text: str) -> Optional[ParseArgs]:
+        cmd_dict = cmd_parse(text, self.start_parse_regex, self.sep_parse_regex)
+        args_dict = {
+            cmd_name: ParseArgs(arg_vals) for cmd_name, arg_vals in cmd_dict.items()
+        }
 
-    def _split_string(
-        self, string: str, regex: re.Pattern, popFirst: bool = True
-    ) -> list[str]:
-        """按照指定正则 pattern，对 string 进行分割"""
-        # 将复杂的各种分隔符替换为 特殊字符，方便分割
-        temp_string = regex.sub("\u0000", string)
-        temp_list = re.split("\u0000", temp_string)
-        if popFirst:
-            temp_list.pop(0)
-        return list(filter(lambda x: x != "", temp_list))
-
-    def _parse(self, text: str, textFilter: bool = True) -> Optional[list[list[str]]]:
-        pure_string = self._clean(text) if textFilter else text
-        cmd_strings = self._split_string(pure_string, self.start_parse_regex)
-        cmd_list = [
-            self._split_string(s, self.sep_parse_regex, False) for s in cmd_strings
-        ]
-        cmd_list = list(filter(lambda x: x != [], cmd_list))
-        return cmd_list if len(cmd_list) else None
-
-    def parse(self, text: str) -> Optional[dict[str, ParseArgs]]:
-        str_list = self._parse(text)
-        if str_list:
-            return {
-                s[0]: ParseArgs(s[1:]) if len(s) > 1 else ParseArgs(None)
-                for s in str_list
-            }
+        for group_id in self.targets:
+            args = args_dict.get(group_id)
+            if args is not None:
+                break
         else:
             return None
 
-    def test(
-        self, args_dict: dict[str, ParseArgs] | None
-    ) -> tuple[bool, Optional[str], Optional[ParseArgs]]:
-        # 测试是否匹配。返回三元组：（是否匹配成功，匹配成功的命令名，匹配成功的命令参数）。
-        # 最后两个返回值若不存在，则返回 None。
-        if args_dict is None:
-            return (False, None, None)
-        for group_id in args_dict.keys():
-            if group_id in self.target:
-                return (True, group_id, args_dict[group_id])
-        return (False, None, None)
-
-    async def format(self, group_id: str, args: ParseArgs) -> bool:
-        # 格式化命令解析参数
-        if hasattr(args, "formatted"):
-            return True
-        for idx, formatter in enumerate(self.formatters):
-            if formatter is None:
+        if not self.need_format:
+            return args
+        self.formatters = cast(list[Optional[CmdArgFormatter]], self.formatters)
+        for idx, fmt in enumerate(self.formatters):
+            if fmt is None:
                 continue
-            status = await formatter.format(group_id, args, idx)
+            status = await fmt.format(group_id, args, idx)
             if not status:
-                return False
-        args.vals = args.vals[: len(self.formatters)]  # type: ignore
-        args.formatted = True  # type: ignore
-        return True
+                return None
+        args.vals = cast(list[Any], args.vals)
+        args.vals = args.vals[: len(self.formatters)]
+        return args
 
 
 class CmdParserGen:
@@ -152,12 +361,12 @@ class CmdParserGen:
 
     def gen(
         self,
-        target: str | list[str],
-        formatters: Optional[list[Optional["CmdArgFormatter"]]] = None,
+        targets: str | list[str],
+        formatters: Optional[list[Optional[CmdArgFormatter]]] = None,
     ) -> CmdParser:
         """生成匹配指定命令名的命令解析器
 
         :param target: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）
         """
-        return CmdParser(self.cmd_start, self.cmd_sep, target, formatters)
+        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters)
