@@ -19,7 +19,6 @@ from .typing import (
     ParseArgs,
     Type,
     Void,
-    VoidType,
 )
 
 if TYPE_CHECKING:
@@ -393,29 +392,9 @@ class BotHookRunnerArgs:
 class BotChecker(ABC, Cloneable):
     """检查器基类"""
 
-    def __init__(
-        self,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-    ) -> None:
-        """初始化一个检查器基类对象
-
-        :param ok_cb: 检查通过的回调
-        :param fail_cb: 检查不通过的回调
-        """
+    def __init__(self) -> None:
+        """初始化一个检查器基类对象"""
         super().__init__()
-        if ok_cb is not None and not is_retcoro(ok_cb):
-            raise BotValueError(
-                f"检查器成功回调 {ok_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        if fail_cb is not None and not is_retcoro(fail_cb):
-            raise BotValueError(
-                f"检查器失败回调 {fail_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        #: 检查器成功回调
-        self.ok_cb = ok_cb
-        #: 检查器失败回调
-        self.fail_cb = fail_cb
 
     def __and__(self, other: "BotChecker") -> "WrappedChecker":
         if not isinstance(other, BotChecker):
@@ -434,18 +413,6 @@ class BotChecker(ABC, Cloneable):
         if not isinstance(other, BotChecker):
             raise BotUtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.XOR, self, other)
-
-    def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 ok_cb 回调"""
-        if self.ok_cb is not None:
-            raise BotUtilsError(f"ok_cb 回调已经被初始化，值为：{self.ok_cb}")
-        self.ok_cb = ok_cb
-
-    def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 fail_cb 回调"""
-        if self.fail_cb is not None:
-            raise BotUtilsError(f"fail_cb 回调已经被初始化，值为：{self.fail_cb}")
-        self.fail_cb = fail_cb
 
     @abstractmethod
     async def check(self, event: BotEvent) -> bool:
@@ -488,18 +455,6 @@ class WrappedChecker(BotChecker):
         super().__init__()
         self.mode = mode
         self.c1, self.c2 = checker1, checker2
-
-    def _fill_ok_cb(self, ok_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 ok_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器"""
-        super()._fill_ok_cb(ok_cb)
-        self.c1._fill_ok_cb(ok_cb)
-        self.c2._fill_ok_cb(ok_cb) if self.c2 else None
-
-    def _fill_fail_cb(self, fail_cb: Callable[[], Coroutine[Any, Any, None]]) -> None:
-        """后期指定 fail_cb 回调，注意此时是联合检查器， 因此将被自动应用到所包含的所有检查器"""
-        super()._fill_fail_cb(fail_cb)
-        self.c1._fill_fail_cb(fail_cb)
-        self.c2._fill_fail_cb(fail_cb) if self.c2 else None
 
     async def check(self, event: BotEvent) -> bool:
         return LogicMode.calc(

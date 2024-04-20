@@ -1,5 +1,6 @@
 from ..base.abc import BotChecker
-from ..base.exceptions import BotUtilsError
+from ..base.exceptions import BotUtilsError, BotValueError
+from ..base.tools import is_retcoro
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
@@ -40,8 +41,19 @@ class MsgLvlChecker(BotChecker):
         :param ok_cb: 检查通过的回调
         :param fail_cb: 检查不通过的回调
         """
-        super().__init__(ok_cb, fail_cb)
+        super().__init__()
+        self.ok_cb = ok_cb
+        self.fail_cb = fail_cb
         self.check_lvl = level
+
+        if ok_cb is not None and not is_retcoro(ok_cb):
+            raise BotValueError(
+                f"检查器成功回调 {ok_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
+        if fail_cb is not None and not is_retcoro(fail_cb):
+            raise BotValueError(
+                f"检查器失败回调 {fail_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
+            )
 
         self.owner = owner
         self.su_list = super_users if super_users is not None else []
@@ -198,10 +210,17 @@ class MsgCheckerGen:
         self.united_ok_cb = ok_cb
         self.united_fail_cb = fail_cb
 
-    def gen_base(self, level: User = User.USER) -> MsgLvlChecker:
+    def gen_base(
+        self,
+        level: User = User.USER,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ) -> MsgLvlChecker:
         """根据内部依据和给定等级，生成一个 :class:`MsgLvlChecker` 对象
 
         :param level: 允许的等级（>= 此等级才能通过校验）
+        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）
+        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）
         :return: 消息分级检查器
         """
         return MsgLvlChecker(
@@ -210,14 +229,21 @@ class MsgCheckerGen:
             self.su_list,
             self.white_list,
             self.black_list,
-            self.united_ok_cb,
-            self.united_fail_cb,
+            self.united_ok_cb if ok_cb is None else ok_cb,
+            self.united_fail_cb if fail_cb is None else fail_cb,
         )
 
-    def gen_group(self, level: User = User.USER) -> GroupMsgLvlChecker:
+    def gen_group(
+        self,
+        level: User = User.USER,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ) -> GroupMsgLvlChecker:
         """根据内部依据和给定等级，生成一个 :class:`GroupMsgLvlChecker` 对象
 
         :param level: 允许的等级（>= 此等级才能通过校验）
+        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）
+        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）
         :return: 群聊消息分级检查器
         """
         return GroupMsgLvlChecker(
@@ -227,14 +253,21 @@ class MsgCheckerGen:
             self.white_list,
             self.black_list,
             self.white_group_list,
-            self.united_ok_cb,
-            self.united_fail_cb,
+            self.united_ok_cb if ok_cb is None else ok_cb,
+            self.united_fail_cb if fail_cb is None else fail_cb,
         )
 
-    def gen_private(self, level: User = User.USER) -> PrivateMsgLvlChecker:
+    def gen_private(
+        self,
+        level: User = User.USER,
+        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+    ) -> PrivateMsgLvlChecker:
         """根据内部依据和给定等级，生成一个 :class:`PrivateMsgLvlChecker` 对象
 
         :param level: 允许的等级（>= 此等级才能通过校验）
+        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）
+        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）
         :return: 私聊消息分级检查器
         """
         return PrivateMsgLvlChecker(
@@ -243,8 +276,8 @@ class MsgCheckerGen:
             self.su_list,
             self.white_list,
             self.black_list,
-            self.united_ok_cb,
-            self.united_fail_cb,
+            self.united_ok_cb if ok_cb is None else ok_cb,
+            self.united_fail_cb if fail_cb is None else fail_cb,
         )
 
 
@@ -256,7 +289,7 @@ class AtChecker(BotChecker):
 
         :param qid: 被艾特的 qq 号。为空则接受所有艾特消息；不为空则只接受指定 qid 被艾特的艾特消息
         """
-        super().__init__(None, None)
+        super().__init__()
         self.qid = qid if qid is not None else None
 
     async def check(self, event: "MessageEvent") -> bool:  # type: ignore
@@ -282,7 +315,7 @@ class FriendReqChecker(BotChecker):
 
         只有是请求类型中的好友请求才会通过检查
         """
-        super().__init__(None, None)
+        super().__init__()
 
     async def check(self, event: "RequestEvent") -> bool:  # type: ignore
         if not event.is_req_event():
@@ -299,7 +332,7 @@ class GroupReqChecker(BotChecker):
 
         只有是请求类型中的加群请求才会通过检查
         """
-        super().__init__(None, None)
+        super().__init__()
 
     async def check(self, event: "RequestEvent") -> bool:  # type: ignore
         if not event.is_req_event():
@@ -361,7 +394,7 @@ class NoticeTypeChecker(BotChecker):
 
         :param sub_type: 通知的类型
         """
-        super().__init__(None, None)
+        super().__init__()
         if sub_type not in NoticeTypeChecker.SUB_TYPES:
             raise BotUtilsError(f"通知事件类型校验器的子类型 {sub_type} 不合法")
         self.sub_type = sub_type

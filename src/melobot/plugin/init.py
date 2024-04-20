@@ -25,7 +25,7 @@ from ..base.typing import (
     PriorLevel,
     Union,
 )
-from ..meta import MetaInfo, ReadOnly
+from ..meta import ReadOnly
 from ..utils.checker import (
     AtChecker,
     FriendReqChecker,
