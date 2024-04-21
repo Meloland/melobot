@@ -8,17 +8,12 @@ from aiohttp.client_exceptions import ClientConnectorError
 
 from ..base.abc import AbstractConnector, BotLife
 from ..base.typing import TYPE_CHECKING, ModuleType, Optional, Union, cast
+from ..context.action import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
     from ..base.abc import BotAction
-    from ..models.event import (
-        MessageEvent,
-        MetaEvent,
-        NoticeEvent,
-        RequestEvent,
-        ResponseEvent,
-    )
+    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 
 class HttpConn(AbstractConnector):
@@ -168,9 +163,9 @@ class HttpConn(AbstractConnector):
         try:
             raw_event: dict = await request.json()
             if self.logger.check_level_flag("DEBUG"):
-                self.logger.debug(f"收到事件，未格式化的字典对象：\n{raw_event}")
-            event = self._event_builder.build(raw_event)
-            if self.logger.check_level_flag("DEBUG"):
+                self.logger.debug(f"收到上报，未格式化的字典：\n{raw_event}")
+            event = self._event_builder.try_build(raw_event)
+            if self.logger.check_level_flag("DEBUG") and event is not None:
                 log_obj(self.logger.debug, event.raw, f"event {event:hexid} 构建完成")
             event = cast(
                 Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
@@ -179,7 +174,7 @@ class HttpConn(AbstractConnector):
             asyncio.create_task(self._common_dispatcher.dispatch(event))
         except Exception as e:
             self.logger.error("bot 连接器监听任务抛出异常")
-            log_obj(self.logger.error, raw_event, "异常点 raw_event")
+            log_obj(self.logger.error, raw_event, "异常点的上报数据")
             log_exc(self.logger, locals(), e)
         finally:
             return aiohttp.web.Response(status=204)
@@ -206,7 +201,7 @@ class HttpConn(AbstractConnector):
                 if action.resp_id is None:
                     return
                 raw_resp: dict = await _.json()
-                resp = cast("ResponseEvent", self._event_builder.build(raw_resp))
+                resp = ActionResponse(raw_resp)
                 resp.id = action.resp_id
                 asyncio.create_task(self._resp_dispatcher.respond(resp))
             except (RuntimeError, ClientConnectorError):

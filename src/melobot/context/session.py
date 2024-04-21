@@ -22,14 +22,9 @@ from ..base.typing import (
 if TYPE_CHECKING:
     from ..base.abc import BotAction, BotEvent, ParseArgs
     from ..bot.init import BotLocal, MeloBot
-    from ..models.event import (
-        MessageEvent,
-        MetaEvent,
-        NoticeEvent,
-        RequestEvent,
-        ResponseEvent,
-    )
+    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..plugin.handler import EventHandler
+    from .action import ActionResponse
 
 
 class BotSession:
@@ -395,13 +390,13 @@ class BotSessionManager:
     @classmethod
     def _activate(
         cls, action_getter: Callable[P, Coroutine[Any, Any, "BotAction"]]
-    ) -> Callable[P, Coroutine[Any, Any, Union["BotAction", "ResponseEvent", None]]]:
+    ) -> Callable[P, Coroutine[Any, Any, Union["BotAction", "ActionResponse", None]]]:
         """对 action 构造器进行装饰，使产生的 action “活化”。 让其能自动识别上下文，自动附加触发 event，并自动完成发送过程"""
 
         @wraps(action_getter)
         async def wrapped_func(
             *args: Any, **kwargs: Any
-        ) -> Union["BotAction", "ResponseEvent", None]:
+        ) -> Union["BotAction", "ActionResponse", None]:
             try:
                 if SESSION_LOCAL._expired:
                     raise BotSessionError(

@@ -14,6 +14,7 @@ from .session import (
 )
 
 __all__ = (
+    "ActionResponse",
     "send_custom_msg",
     "send",
     "send_custom_forward",

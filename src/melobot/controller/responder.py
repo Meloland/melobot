@@ -2,11 +2,11 @@ import asyncio
 from asyncio import Future
 
 from ..base.typing import TYPE_CHECKING, cast
+from ..context.action import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
     from ..base.abc import AbstractConnector, BaseLogger, BotAction
-    from ..models.event import ResponseEvent
 
 
 class BotResponder:
@@ -14,7 +14,7 @@ class BotResponder:
 
     def __init__(self) -> None:
         super().__init__()
-        self._resp_table: dict[str, Future["ResponseEvent"]] = {}
+        self._resp_table: dict[str, Future[ActionResponse]] = {}
         self.logger: "BaseLogger"
         self._action_sender: "AbstractConnector"
 
@@ -27,7 +27,7 @@ class BotResponder:
     def _set_ready(self) -> None:
         self._ready_signal.set()
 
-    async def respond(self, resp: "ResponseEvent") -> None:
+    async def respond(self, resp: ActionResponse) -> None:
         await self._ready_signal.wait()
 
         try:
@@ -58,10 +58,10 @@ class BotResponder:
         await self._action_sender._send(action)
         return None
 
-    async def take_action_wait(self, action: "BotAction") -> Future["ResponseEvent"]:
+    async def take_action_wait(self, action: "BotAction") -> Future[ActionResponse]:
         """响应器发送 action，并返回一个 Future 用于等待响应"""
         await self._ready_signal.wait()
-        fut: Future["ResponseEvent"] = Future()
+        fut: Future[ActionResponse] = Future()
         self._resp_table[cast(str, action.resp_id)] = fut
         await self._action_sender._send(action)
         return fut

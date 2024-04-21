@@ -1,24 +1,16 @@
+import json
+import time
+
 from ..base.abc import ActionArgs, BotAction, BotEvent
 from ..base.exceptions import BotSessionError, BotValueError, FuncSafeExited
 from ..base.tools import get_id
-from ..base.typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    MsgNode,
-    MsgSegment,
-    Optional,
-    Union,
-    cast,
-)
+from ..base.typing import Any, Literal, MsgNode, MsgSegment, Optional, Union, cast
 from ..models.msg import _to_cq_str_action, reply_msg, text_msg
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as SessionManager
 
-if TYPE_CHECKING:
-    from ..models.event import ResponseEvent
-
 __all__ = (
+    "ActionResponse",
     "send_custom_msg",
     "send",
     "send_custom_forward",
@@ -57,6 +49,45 @@ __all__ = (
     "finish",
     "reply_finish",
 )
+
+
+class ActionResponse:
+    """行为响应类
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
+
+    def __init__(self, raw: dict | str) -> None:
+        self.raw = raw if isinstance(raw, dict) else json.loads(raw)
+        self.id: Optional[str] = None
+        #: 响应的状态码
+        self.status: int
+        #: 响应的数据
+        self.data: Optional[dict] = None
+        #: 响应创建的时间
+        self.time = int(time.time())
+
+        rawEvent = self.raw
+        self.status = rawEvent["retcode"]
+        if "echo" in rawEvent.keys() and rawEvent["echo"]:
+            self.id = rawEvent["echo"]
+        if "data" in rawEvent.keys() and rawEvent["data"]:
+            self.data = rawEvent["data"]
+
+    def is_ok(self) -> bool:
+        """是否为成功响应"""
+        return self.raw["status"] == "ok"
+
+    def is_processing(self) -> bool:
+        """是否为被异步处理的响应，即未完成但在处理中"""
+        return self.status == 202
+
+    def is_failed(self) -> bool:
+        """是否为失败响应"""
+        return self.raw["status"] != "ok"
 
 
 class MsgActionArgs(ActionArgs):
@@ -143,7 +174,7 @@ async def send_custom_msg(
 
     此接口合并了 onebot 标准中的私聊消息发送、群聊消息发送接口。
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
 
     :param content: 发送内容
@@ -156,7 +187,7 @@ async def send_custom_msg(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -198,7 +229,7 @@ async def send(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
 
     :param content: 发送内容（可以是文本、消息段对象、消息段对象列表）
@@ -208,7 +239,7 @@ async def send(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -277,7 +308,7 @@ async def send_custom_forward(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
 
     .. code:: python
 
@@ -296,7 +327,7 @@ async def send_custom_forward(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -334,7 +365,7 @@ async def send_forward(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
 
     .. code:: python
 
@@ -350,7 +381,7 @@ async def send_forward(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -388,7 +419,7 @@ class MsgDelActionArgs(ActionArgs):
 async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
     """撤回消息
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-3 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-3>`_
 
     :param msgId: 消息 id
@@ -397,7 +428,7 @@ async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAc
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -419,7 +450,7 @@ class GetMsgActionArgs(ActionArgs):
 async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction:
     """获取消息详细信息
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-4 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-4>`_
 
     :param msgId: 消息 id
@@ -428,7 +459,7 @@ async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -452,7 +483,7 @@ async def get_forward_msg(
 ) -> BotAction:
     """获取转发消息的详细信息
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-5 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-5>`_
 
     :param forwardId: 转发 id
@@ -461,7 +492,7 @@ async def get_forward_msg(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -483,7 +514,7 @@ class getImageActionArgs(ActionArgs):
 async def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotAction:
     """获取图片信息
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-31 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-31>`_
 
     :param fileName: 图片文件名
@@ -492,7 +523,7 @@ async def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotA
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -516,7 +547,7 @@ async def send_like(
 ) -> BotAction:
     """发送好友赞
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-6 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-6>`_
 
     :param userId: qq 号
@@ -526,7 +557,7 @@ async def send_like(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -560,7 +591,7 @@ async def group_kick(
 ) -> BotAction:
     """群组踢人
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-7 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-7>`_
 
     :param groupId: 群号
@@ -571,7 +602,7 @@ async def group_kick(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -601,7 +632,7 @@ async def group_ban(
 ) -> BotAction:
     """群组禁言
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-8 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-8>`_
 
     :param groupId: 群号
@@ -612,7 +643,7 @@ async def group_ban(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -638,7 +669,7 @@ async def group_whole_ban(
 ) -> BotAction:
     """群组全员禁言
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-10 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-10>`_
 
     :param groupId: 群号
@@ -648,7 +679,7 @@ async def group_whole_ban(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -674,7 +705,7 @@ async def set_group_admin(
 ) -> BotAction:
     """设置群管理员
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-11 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-11>`_
 
     :param groupId: 群号
@@ -685,7 +716,7 @@ async def set_group_admin(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -711,7 +742,7 @@ async def set_group_card(
 ) -> BotAction:
     """设置群名片
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-13 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-13>`_
 
     :param groupId: 群号
@@ -722,7 +753,7 @@ async def set_group_card(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -748,7 +779,7 @@ async def set_group_name(
 ) -> BotAction:
     """设置群名
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-14 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-14>`_
 
     :param groupId: 群号
@@ -758,7 +789,7 @@ async def set_group_name(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -784,7 +815,7 @@ async def group_leave(
 ) -> BotAction:
     """退出群
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-15 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-15>`_
 
     :param groupId: 群号
@@ -794,7 +825,7 @@ async def group_leave(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -836,7 +867,7 @@ async def set_group_title(
 ) -> BotAction:
     """设置群特殊头衔
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-16 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-16>`_
 
     :param groupId: 群号
@@ -848,7 +879,7 @@ async def set_group_title(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -873,7 +904,7 @@ async def set_friend_add(
 ) -> BotAction:
     """处理加好友请求
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-17 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-17>`_
 
     :param addFlag: 好友添加 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
@@ -884,7 +915,7 @@ async def set_friend_add(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -927,7 +958,7 @@ async def set_group_add(
 ) -> BotAction:
     """处理加群请求（只有 bot 是群管理时有用）
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-18 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-18>`_
 
     :param addFlag: 加群 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
@@ -939,7 +970,7 @@ async def set_group_add(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -963,7 +994,7 @@ class GetLoginInfoActionArgs(ActionArgs):
 async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
     """获得 bot 登录号信息
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-19 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-19>`_
 
     :param wait: 是否等待这个行为的响应
@@ -971,7 +1002,7 @@ async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -995,7 +1026,7 @@ async def get_stranger_info(
 ) -> BotAction:
     """获取陌生人信息，也可以对好友使用
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-20 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-20>`_
 
     :param userId: qq 号
@@ -1005,7 +1036,7 @@ async def get_stranger_info(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1029,7 +1060,7 @@ class GetFriendlistActionArgs(ActionArgs):
 async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
     """获取好友列表
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-21 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-21>`_
 
     :param wait: 是否等待这个行为的响应
@@ -1037,7 +1068,7 @@ async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1061,7 +1092,7 @@ async def get_group_info(
 ) -> BotAction:
     """获取群信息，可以是未加入的群聊
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-22 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-22>`_
 
     :param groupId: 群号
@@ -1071,7 +1102,7 @@ async def get_group_info(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1097,7 +1128,7 @@ async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
 
     可能返回的建群时间都是 0，这是不准确的。准确的时间可以通过 :meth:`get_group_info` 获得
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-23 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-23>`_
 
     :param wait: 是否等待这个行为的响应
@@ -1105,7 +1136,7 @@ async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1129,7 +1160,7 @@ async def get_group_member_info(
 ) -> BotAction:
     """获取群成员信息
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-24 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-24>`_
 
     :param groupId: 群号
@@ -1140,7 +1171,7 @@ async def get_group_member_info(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1166,7 +1197,7 @@ async def get_group_member_list(
 ) -> BotAction:
     """获取群成员列表
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-25 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-25>`_
 
     :param groupId: 群号
@@ -1176,7 +1207,7 @@ async def get_group_member_list(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1216,7 +1247,7 @@ async def get_group_honor(
     详细说明参考：
     `获取群荣誉信息 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_honor_info-获取群荣誉信息>`_
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-26 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-26>`_
 
     :param groupId: 群号
@@ -1226,7 +1257,7 @@ async def get_group_honor(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1250,7 +1281,7 @@ class CheckSendImageActionArgs(ActionArgs):
 async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送图片
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-32 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-32>`_
 
     :param wait: 是否等待这个行为的响应
@@ -1258,7 +1289,7 @@ async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1280,7 +1311,7 @@ class CheckSendRecordActionArgs(ActionArgs):
 async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送语音
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-33 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-33>`_
 
     :param wait: 是否等待这个行为的响应
@@ -1288,7 +1319,7 @@ async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1310,7 +1341,7 @@ class GetCqVersionActionArgs(ActionArgs):
 async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的版本
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-35 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-35>`_
 
     :param wait: 是否等待这个行为的响应
@@ -1318,7 +1349,7 @@ async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1340,7 +1371,7 @@ class GetCqStatusActionArgs(ActionArgs):
 async def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的状态
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-34 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-34>`_
 
     :param wait: 是否等待这个行为的响应
@@ -1348,7 +1379,7 @@ async def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """
@@ -1365,7 +1396,7 @@ async def take_custom_action(
 
     :param action: 行为对象
     :return:
-       若此 action 指定等待 -> :class:`.ResponseEvent` 对象
+       若此 action 指定等待 -> :class:`.ActionResponse` 对象
 
        若此 action 未指定等待 -> :obj:`None`
     """
@@ -1429,7 +1460,7 @@ async def send_reply(
     cq_str: bool = False,
     wait: bool = False,
     auto: bool = True,
-) -> Union[BotAction, "ResponseEvent", None]:
+) -> Union[BotAction, ActionResponse, None]:
     """发送一条回复消息（在当前会话下自动定位发送目标）
 
     .. admonition:: 小技巧
@@ -1447,7 +1478,7 @@ async def send_reply(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ResponseEvent.data` 属性，数据结构参考：
+    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
     `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
 
     :param content: 发送内容
@@ -1457,7 +1488,7 @@ async def send_reply(
     :return:
        `auto=False` -> :class:`.BotAction` 对象
 
-       `auto=True, wait=True` -> :class:`.ResponseEvent` 对象
+       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
 
        `auto=True, wait=False` -> :obj:`None`
     """

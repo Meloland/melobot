@@ -27,7 +27,7 @@ from .hook import BotHookBus
 if TYPE_CHECKING:
     from ..plugin.ipc import ShareObject
 
-if MetaInfo.OS_NAME != 'nt':
+if MetaInfo.OS_NAME != "nt":
     import uvloop
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -242,7 +242,7 @@ class MeloBot:
         _safe_blocked_run(self._run())
 
     async def close(self) -> None:
-        """停止 bot 实例"""
+        """关闭 bot 实例"""
         if not self.__run_flag__:
             raise BotRuntimeError("bot 尚未运行，无需停止")
 

@@ -1,15 +1,15 @@
 import json
 import re
-import time
 
 from ..base.abc import BotEvent
+from ..base.exceptions import BotValueError
 from ..base.typing import Any, Callable, Literal, MsgSegment, Optional, cast
 from .msg import _get_seg_datas, _get_segs, to_cq_str, to_segments
 
 
 class BotEventBuilder:
     @staticmethod
-    def build(rawEvent: dict | str) -> BotEvent:
+    def try_build(rawEvent: dict | str) -> BotEvent | None:
         if isinstance(rawEvent, str):
             raw: dict[str, str | float | int] = json.loads(rawEvent)
         else:
@@ -25,7 +25,7 @@ class BotEventBuilder:
         elif etype == "meta_event":
             return MetaEvent(raw)
         else:
-            return ResponseEvent(raw)
+            return None
 
 
 class MessageEvent(BotEvent):
@@ -653,58 +653,3 @@ class MetaEvent(BotEvent):
     def is_heartbeat(self) -> bool:
         """是否是心跳类型的元事件"""
         return self.raw["meta_event_type"] == "heartbeat"
-
-
-class ResponseEvent(BotEvent):
-    """响应事件类型
-
-    .. admonition:: 提示
-       :class: tip
-
-       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
-
-    .. admonition:: 提示
-       :class: tip
-
-       onebot 标准中未定义“响应”为一种事件类型。但在 melobot 中，“响应”仍然被封装为一种事件类型。
-    """
-
-    def __init__(self, rawEvent: dict) -> None:
-        super().__init__(rawEvent)
-        self.id: Optional[str] = None
-        #: 响应的状态码
-        self.status: int
-        #: 响应的数据
-        self.data: Optional[dict] = None
-
-        self._init()
-
-    @property
-    def time(self) -> int:
-        """响应被 melobot 接收时的时间戳"""
-        return int(time.time())
-
-    @property
-    def type(self) -> Literal["response"]:
-        """事件的类型（返回指定字面量）"""
-        return "response"
-
-    def _init(self) -> None:
-        rawEvent = self.raw
-        self.status = rawEvent["retcode"]
-        if "echo" in rawEvent.keys() and rawEvent["echo"]:
-            self.id = rawEvent["echo"]
-        if "data" in rawEvent.keys() and rawEvent["data"]:
-            self.data = rawEvent["data"]
-
-    def is_ok(self) -> bool:
-        """是否为成功响应"""
-        return self.raw["status"] == "ok"
-
-    def is_processing(self) -> bool:
-        """是否为被异步处理的响应，即未完成但在处理中"""
-        return self.status == 202
-
-    def is_failed(self) -> bool:
-        """是否为失败响应"""
-        return self.raw["status"] != "ok"

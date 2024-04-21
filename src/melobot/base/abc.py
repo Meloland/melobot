@@ -208,10 +208,6 @@ class BotEvent(ABC, Flagable):
         """判断是否是元事件"""
         return self.type == "meta"
 
-    def is_resp_event(self) -> bool:
-        """判断是否是响应事件"""
-        return self.type == "response"
-
 
 class ActionArgs(ABC):
     # 行为信息构造基类

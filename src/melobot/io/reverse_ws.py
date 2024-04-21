@@ -8,16 +8,11 @@ import websockets.server
 
 from ..base.abc import AbstractConnector, BotAction, BotLife
 from ..base.typing import TYPE_CHECKING, Any, ModuleType, Union, cast
+from ..context.action import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
-    from ..models.event import (
-        MessageEvent,
-        MetaEvent,
-        NoticeEvent,
-        RequestEvent,
-        ResponseEvent,
-    )
+    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 
 class ReverseWsConn(AbstractConnector):
@@ -177,20 +172,20 @@ class ReverseWsConn(AbstractConnector):
         try:
             while True:
                 try:
-                    raw_event = await self._conn.recv()
-                    self.logger.debug(f"收到事件，未格式化的字符串：\n{raw_event}")
-                    if raw_event == "":
+                    raw = await self._conn.recv()
+                    self.logger.debug(f"收到上报，未格式化的字符串：\n{raw}")
+                    if raw == "":
                         continue
-                    event = self._event_builder.build(raw_event)
-                    if self.logger.check_level_flag("DEBUG"):
+                    event = self._event_builder.try_build(raw)
+                    if self.logger.check_level_flag("DEBUG") and event is not None:
                         log_obj(
                             self.logger.debug,
                             event.raw,
                             f"event {event:hexid} 构建完成",
                         )
-                    if event.is_resp_event():
-                        event = cast("ResponseEvent", event)
-                        asyncio.create_task(self._resp_dispatcher.respond(event))
+                    if event is None:
+                        resp = ActionResponse(raw)
+                        asyncio.create_task(self._resp_dispatcher.respond(resp))
                     else:
                         event = cast(
                             Union[
@@ -206,7 +201,7 @@ class ReverseWsConn(AbstractConnector):
                     raise
                 except Exception as e:
                     self.logger.error("bot 连接器监听任务抛出异常")
-                    log_obj(self.logger.error, raw_event, "异常点 raw_event")
+                    log_obj(self.logger.error, raw, "异常点的上报数据")
                     log_exc(self.logger, locals(), e)
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")

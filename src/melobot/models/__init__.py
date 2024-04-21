@@ -1,4 +1,4 @@
-from .event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent, ResponseEvent
+from .event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 from .msg import *
 
 __all__ = (
@@ -6,7 +6,6 @@ __all__ = (
     "MetaEvent",
     "NoticeEvent",
     "RequestEvent",
-    "ResponseEvent",
     "text_msg",
     "face_msg",
     "record_msg",
