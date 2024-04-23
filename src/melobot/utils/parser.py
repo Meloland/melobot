@@ -338,14 +338,14 @@ class CmdParser(BotParser):
         return args
 
 
-class CmdParserGen:
-    """命令解析器的生成器
+class CmdParserFactory:
+    """命令解析器的工厂
 
     预先存储命令起始符和命令间隔符，指定匹配的命令名后返回一个命令解析器。
     """
 
     def __init__(self, cmd_start: str | list[str], cmd_sep: str | list[str]) -> None:
-        """初始化一个命令解析器的生成器
+        """初始化一个命令解析器的工厂
 
         .. admonition:: 注意
            :class: caution
@@ -359,7 +359,7 @@ class CmdParserGen:
         self.cmd_start = cmd_start
         self.cmd_sep = cmd_sep
 
-    def gen(
+    def get(
         self,
         targets: str | list[str],
         formatters: Optional[list[Optional[CmdArgFormatter]]] = None,

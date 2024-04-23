@@ -173,7 +173,7 @@ _ID_WORKER = IdWorker(1, 1, 0)
 
 
 def get_id() -> str:
-    """从 melobot 内部 id 生成器获得一个 id 值，不保证线程安全。
+    """从 melobot 内部 id 获取器获得一个 id 值，不保证线程安全。
 
     :return: id 值
     """

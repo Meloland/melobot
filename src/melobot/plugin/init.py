@@ -26,12 +26,7 @@ from ..base.typing import (
     Union,
 )
 from ..meta import ReadOnly
-from ..utils.checker import (
-    AtChecker,
-    FriendReqChecker,
-    GroupReqChecker,
-    NoticeTypeChecker,
-)
+from ..utils.checker import AtMsgChecker, NoticeChecker, ReqChecker
 from ..utils.matcher import (
     ContainMatcher,
     EndMatcher,
@@ -113,6 +108,7 @@ class PluginLoader:
         plugin_name = os.path.basename(plugin_path)
         plugins_folder = str(pathlib.Path(plugin_path).parent.resolve(strict=True))
         plugins_folder_name = os.path.basename(plugins_folder)
+
         if plugins_folder not in sys.path:
             importlib.import_module(plugins_folder_name)
             sys.path.insert(0, plugins_folder)
@@ -120,12 +116,11 @@ class PluginLoader:
             f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}"
         )
 
-        plugin = None
         for obj in module.__dict__.values():
             if isinstance(obj, BotPlugin):
                 plugin = obj
                 break
-        if plugin is None:
+        else:
             raise BotPluginError("指定的入口主文件中，未发现 Plugin 实例，无效导入")
         return plugin
 
@@ -343,8 +338,8 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        at_checker = AtChecker(qid)
-        wrapped_checker: AtChecker | "WrappedChecker"
+        at_checker = AtMsgChecker(qid)
+        wrapped_checker: AtMsgChecker | "WrappedChecker"
         if checker is not None:
             wrapped_checker = at_checker & checker
         else:
@@ -729,138 +724,8 @@ class BotPlugin:
 
         return make_args
 
-    def on_friend_request(
-        self,
-        checker: Optional["BotChecker"] = None,
-        priority: PriorLevel = PriorLevel.MEAN,
-        block: bool = False,
-        temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
-    ):
-        """绑定一个好友请求事件处理方法
-
-        :param checker: 使用的检查器，为空则默认通过检查
-        :param priority: 优先级
-        :param block: 是否进行优先级阻断
-        :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
-        """
-        friend_checker = FriendReqChecker()
-        wrapped_checker: FriendReqChecker | "WrappedChecker"
-        if checker is not None:
-            wrapped_checker = friend_checker & checker
-        else:
-            wrapped_checker = friend_checker
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=ReqEventHandler,
-                    params=[
-                        wrapped_checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
-
-    def on_group_request(
-        self,
-        checker: Optional["BotChecker"] = None,
-        priority: PriorLevel = PriorLevel.MEAN,
-        block: bool = False,
-        temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
-    ):
-        """绑定一个加群请求事件处理方法
-
-        :param checker: 使用的检查器，为空则默认通过检查
-        :param priority: 优先级
-        :param block: 是否进行优先级阻断
-        :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
-        """
-        group_checker = GroupReqChecker()
-        wrapped_checker: GroupReqChecker | "WrappedChecker"
-        if checker is not None:
-            wrapped_checker = group_checker & checker
-        else:
-            wrapped_checker = group_checker
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=ReqEventHandler,
-                    params=[
-                        wrapped_checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
-
     def on_notice(
         self,
-        type: Literal[
-            "group_upload",
-            "group_admin",
-            "group_decrease",
-            "group_increase",
-            "group_ban",
-            "friend_add",
-            "group_recall",
-            "friend_recall",
-            "group_card",
-            "offline_file",
-            "client_status",
-            "essence",
-            "notify",
-            "honor",
-            "poke",
-            "lucky_king",
-            "title",
-            "ALL",
-        ] = "ALL",
         checker: Optional["BotChecker"] = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
@@ -884,12 +749,6 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        type_checker = NoticeTypeChecker(type)
-        wrapped_checker: NoticeTypeChecker | "WrappedChecker"
-        if checker is not None:
-            wrapped_checker = type_checker & checker
-        else:
-            wrapped_checker = type_checker
 
         def make_args(
             executor: Callable[[], Coroutine[Any, Any, None]]
@@ -899,7 +758,7 @@ class BotPlugin:
                     executor=executor,
                     type=NoticeEventHandler,
                     params=[
-                        wrapped_checker,
+                        checker,
                         priority,
                         block,
                         temp,

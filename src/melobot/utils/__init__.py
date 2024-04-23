@@ -1,23 +1,24 @@
 from .checker import (
-    AtChecker,
-    FriendReqChecker,
+    AtMsgChecker,
     GroupMsgLvlChecker,
-    GroupReqChecker,
-    MsgCheckerGen,
+    MsgChecker,
+    MsgCheckerFactory,
     MsgLvlChecker,
-    NoticeTypeChecker,
+    NoticeChecker,
     PrivateMsgLvlChecker,
+    ReqChecker,
 )
 from .logger import BotLogger, logger_patch
 from .matcher import ContainMatcher, EndMatcher, FullMatcher, RegexMatcher, StartMatcher
-from .parser import CmdArgFormatter, CmdParser, CmdParserGen, FormatInfo
+from .parser import CmdArgFormatter, CmdParser, CmdParserFactory, FormatInfo
 
 __all__ = (
-    "AtChecker",
-    "FriendReqChecker",
+    "MsgChecker",
+    "ReqChecker",
+    "NoticeChecker",
+    "AtMsgChecker",
     "GroupMsgLvlChecker",
-    "GroupReqChecker",
-    "MsgCheckerGen",
+    "MsgCheckerFactory",
     "MsgLvlChecker",
     "NoticeTypeChecker",
     "PrivateMsgLvlChecker",
@@ -31,5 +32,5 @@ __all__ = (
     "RegexMatcher",
     "StartMatcher",
     "CmdParser",
-    "CmdParserGen",
+    "CmdParserFactory",
 )

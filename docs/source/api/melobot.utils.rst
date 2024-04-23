@@ -65,6 +65,11 @@ melobot.utils
    
    但对于其他事件来说，预处理过程只有一步：检查。
 
+.. autoclass:: melobot.utils.MsgChecker
+   :members:
+   :show-inheritance:
+   :exclude-members: check
+
 .. autoclass:: melobot.utils.MsgLvlChecker
    :members:
    :show-inheritance:
@@ -80,25 +85,20 @@ melobot.utils
    :show-inheritance:
    :exclude-members: check
 
-.. autoclass:: melobot.utils.MsgCheckerGen
+.. autoclass:: melobot.utils.MsgCheckerFactory
    :members:
 
-.. autoclass:: melobot.utils.AtChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
-.. autoclass:: melobot.utils.FriendReqChecker
+.. autoclass:: melobot.utils.AtMsgChecker
    :members:
    :show-inheritance:
    :exclude-members: check
 
-.. autoclass:: melobot.utils.GroupReqChecker
+.. autoclass:: melobot.utils.ReqChecker
    :members:
    :show-inheritance:
    :exclude-members: check
 
-.. autoclass:: melobot.utils.NoticeTypeChecker
+.. autoclass:: melobot.utils.NoticeChecker
    :members:
    :show-inheritance:
    :exclude-members: check
@@ -121,7 +121,7 @@ melobot.utils
    :members:
    :exclude-members: parse, test, format
 
-.. autoclass:: melobot.utils.CmdParserGen
+.. autoclass:: melobot.utils.CmdParserFactory
    :members:
 
 .. autoclass:: melobot.utils.CmdArgFormatter
