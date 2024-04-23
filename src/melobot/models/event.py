@@ -310,9 +310,9 @@ class RequestEvent(BotEvent):
         #: 收到事件的机器人 qq 号
         self.bot_id: int = cast(int, rawEvent.get("self_id"))
         #: 事件的来源 qq 号
-        self.from_id: int
+        self.operator_id: int
         #: 事件的来源群号，请求来源于私聊时此属性为 :obj:`None`
-        self.from_group_id: Optional[int]
+        self.group_id: Optional[int]
         #: 加群或加好友的验证消息
         self.req_comment: str
         #: 加群或加好友请求的 flag，调用相关 API 时，需要使用
@@ -335,16 +335,16 @@ class RequestEvent(BotEvent):
     def _init(self) -> None:
         rawEvent = self.raw
         self.group_req_type = None
-        self.from_group_id = None
+        self.group_id = None
 
         if self.is_friend_req():
-            self.from_id = rawEvent["user_id"]
+            self.operator_id = rawEvent["user_id"]
             self.req_comment = rawEvent["comment"]
             self.req_flag = rawEvent["flag"]
         elif self.is_group_req():
             self.group_req_type = rawEvent["sub_type"]
-            self.from_id = rawEvent["user_id"]
-            self.from_group_id = rawEvent["group_id"]
+            self.operator_id = rawEvent["user_id"]
+            self.group_id = rawEvent["group_id"]
             self.req_comment = rawEvent["comment"]
             self.req_flag = rawEvent["flag"]
 
