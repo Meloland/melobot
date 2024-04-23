@@ -1,7 +1,7 @@
 __pycache__
 */__pycache__
 *.bak
-tests/private
+private
 dev
 */build
 dist
