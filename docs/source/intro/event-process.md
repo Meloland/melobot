@@ -9,7 +9,7 @@
 
 除了刚才使用的 {meth}`~.BotPlugin.on_start_match` 方法，还有很多类似的方法，可以用于绑定事件处理的逻辑。
 
-以下将这些方法称为“绑定方法”，同时将绑定方法绑定的函数称为：“处理方法”或“处理函数”。
+本文档将这些方法称为“绑定方法”，同时将绑定方法绑定的函数称为：“处理方法”或“处理函数”。
 
 - 绑定一个任意事件的处理方法：{meth}`~.BotPlugin.on_event`
 - 绑定一个消息事件的处理方法：{meth}`~.BotPlugin.on_message`、{meth}`~.BotPlugin.on_at_qq`、{meth}`~.BotPlugin.on_start_match`、{meth}`~.BotPlugin.on_contain_match`、{meth}`~.BotPlugin.on_full_match`、{meth}`~.BotPlugin.on_end_match`、{meth}`~.BotPlugin.on_regex_match`
@@ -54,7 +54,7 @@ async def func1() -> None:
 
 不同类型的事件对象有哪些属性和方法可用，请参考：[事件类型](event-type)
 
-所有类型的事件对象，都可通过 {attr}`~.BotEvent.raw` 属性获得 OneBot 实现程序传递给 melobot 的，**未经内部格式化**的事件原始值。这可能在极少数情况下有用。一般使用事件对象的其他属性和方法即可。
+所有类型的事件对象，都可通过 {attr}`~.BotEvent.raw` 属性获得原始的 OneBot 标准事件字典。这可能在极少数情况下有用。一般使用事件对象的属性和方法即可。
 
 ## 基于事件信息的处理逻辑
 
@@ -129,7 +129,7 @@ faces = e.get_segments("face")
 
 ```python
 # 遍历所有图片的 url 和文件名
-for img in images:
+for img in msg_event().get_segments("image"):
     print(img["data"]["url"])
     print(img["data"]["file"])
 ```
@@ -146,6 +146,68 @@ for img in images:
 ```python
 # 获取当前这条消息，所有图片的 url
 img_urls = msg_event().get_datas("image", "url")
+```
+
+## 上下文的自动传播
+
+实际上，以上所有获取事件相关信息的方法，可以在任意深度的，同步或异步函数调用中使用。
+
+只要这些函数的调用都是事件处理方法发起的，它们就能获得对应的上下文信息：
+
+```python
+@plugin.on_full_match(...)
+async def func1() -> None:
+    e = msg_event()    # ok
+    func_a()
+
+def func_a():
+    e = msg_event()    # ok
+    await func_b()
+
+async def func_b():
+    text = msg_text()  # ok
+    func_c()
+
+def func_c():
+    args = msg_args()  # ok
+```
+
+当然，你自然也可以显式传参：
+
+```python
+@plugin.on_full_match(...)
+async def func1() -> None:
+    e = msg_event()    # ok
+    func_a(e)
+
+def func_a(event):
+    ...
+```
+
+各种相关方法太多，记不住？没问题，那我们直接导入模块吧！
+
+```python
+from melobot import context as ctx
+
+@plugin.on_full_match(...)
+async def func() -> None:
+    e1 = ctx.msg_event()
+    e2 = ctx.any_event()
+    text = ctx.msg_text()
+    args = ctx.msg_args()
+```
+
+习惯事件处理方法接受参数？那直接把模块作为默认参数吧！（笑）
+
+```python
+from melobot import context
+
+@plugin.on_full_match(...)
+async def func(ctx=context) -> None:
+    e1 = ctx.msg_event()
+    e2 = ctx.any_event()
+    text = ctx.msg_text()
+    args = ctx.msg_args()
 ```
 
 ## 总结

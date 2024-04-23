@@ -707,7 +707,7 @@ def async_interval(
 def is_retcoro(obj: Any, safe_mode: bool = False) -> bool:
     """判断是否是可以返回协程的可调用对象
 
-    如果使用安全模式，传入的 `obj` 参数如果已经是可等待对象，将会被自动取消。
+    如果启用安全模式，传入的 `obj` 参数是 Future、Coroutine、Task，将会被自动取消。
 
     :param obj: 对象
     :param safe_mode: 是否启用安全模式。默认不启用。

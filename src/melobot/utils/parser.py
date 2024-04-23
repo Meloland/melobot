@@ -265,7 +265,7 @@ class CmdParser(BotParser):
         self,
         cmd_start: str | list[str],
         cmd_sep: str | list[str],
-        target: str | list[str],
+        targets: str | list[str],
         formatters: Optional[list[Optional[CmdArgFormatter]]] = None,
     ) -> None:
         """初始化一个命令解析器
@@ -278,10 +278,10 @@ class CmdParser(BotParser):
 
         :param cmd_start: 命令起始符（可以是字符串或字符串列表）
         :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
-        :param target: 匹配的命令名
+        :param targets: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）
         """
-        self.targets = target if isinstance(target, list) else [target]
+        self.targets = targets if isinstance(targets, list) else [targets]
         self.formatters = formatters
         self.need_format = True if self.formatters is not None else False
 
@@ -366,7 +366,7 @@ class CmdParserGen:
     ) -> CmdParser:
         """生成匹配指定命令名的命令解析器
 
-        :param target: 匹配的命令名
+        :param targets: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）
         """
         return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters)

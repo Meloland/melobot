@@ -31,6 +31,7 @@ melobot API 参考
 - :class:`.CmdParser`
 - :class:`.CmdArgFormatter`
 - :func:`.lock`
+- :func:`.semaphore`
 - :func:`.timelimit`
 - :func:`.this_dir`
 - :class:`.User`

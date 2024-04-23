@@ -7,8 +7,16 @@ import websockets.exceptions as wse
 import websockets.server
 
 from ..base.abc import AbstractConnector, BotAction, BotLife
-from ..base.typing import TYPE_CHECKING, Any, ModuleType, Union, cast
-from ..context.action import ActionResponse
+from ..base.typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ModuleType,
+    Optional,
+    Union,
+    cast,
+)
+from ..context.session import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
@@ -22,8 +30,6 @@ class ReverseWsConn(AbstractConnector):
        :class: caution
 
        注意：在 melobot 中，反向 websocket 连接器会开启一个 ws 服务端。但是这个服务端只接受一个客户端连接，后续其他连接将被拒绝。
-
-       本连接器目前暂不支持鉴权。
     """
 
     def __init__(
@@ -31,13 +37,17 @@ class ReverseWsConn(AbstractConnector):
         listen_host: str,
         listen_port: int,
         cd_time: float = 0.2,
+        access_token: Optional[str] = None,
         allow_reconnect: bool = False,
     ) -> None:
         """初始化一个反向 websocket连接器
 
+        注意：服务提供路径为："/"
+
         :param listen_host: 监听的 host
         :param listen_port: 监听的 port
         :param cd_time: 行为操作冷却时间（用于防止风控）
+        :param access_token: 本连接器用于鉴权的 access_token（建议从环境变量或配置中读取）
         :param allow_reconnect: 是否允许客户端重新连接。默认为 `False`，即客户端连接后如果断连，将直接停止 bot；若为 `True`，则会等待客户端重连，等待时所有行为操作将阻塞
         """
         super().__init__(cd_time)
@@ -47,6 +57,8 @@ class ReverseWsConn(AbstractConnector):
         self.port: int = listen_port
         #: 服务端对象
         self.server: "websockets.server.WebSocketServer"
+        #: 连接器操作鉴权的 token
+        self.access_token = access_token
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_send_time = time.time_ns()
@@ -58,18 +70,33 @@ class ReverseWsConn(AbstractConnector):
         self._allow_reconn = allow_reconnect
         self._reconn_flag = False
 
-    async def _req_check(self, *args: Any, **kwargs: Any):
+    async def _req_check(
+        self, path: str, headers: websockets.HeadersLike
+    ) -> Optional[tuple[http.HTTPStatus, websockets.HeadersLike, bytes]]:
         """拦截握手请求，只允许一个客户端连接"""
-        if not self._conn_requested:
-            async with self._request_lock:
-                if not self._conn_requested:
-                    self._conn_requested = True
-                    return None
-        return (
+        resp_403: Callable[[str], tuple[http.HTTPStatus, list, bytes]] = lambda x: (
             http.HTTPStatus.FORBIDDEN,
             [],
-            b"Melobot already accepted the unique connection.\n",
+            x.encode(),
         )
+        reconn_refused = "Already accepted the unique connection\n"
+        auth_failed = "Authorization failed\n"
+
+        if self._conn_requested:
+            return resp_403(reconn_refused)
+
+        async with self._request_lock:
+            if self._conn_requested:
+                return resp_403(reconn_refused)
+            elif (
+                self.access_token is not None
+                and headers.get("Authorization") != f"Bearer {self.access_token}"
+            ):
+                self.logger.warning("OneBot 实现程序的 access_token 不匹配，拒绝连接")
+                return resp_403(auth_failed)
+
+            self._conn_requested = True
+            return None
 
     async def _run(self) -> None:
         """运行服务"""

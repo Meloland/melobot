@@ -1,15 +1,23 @@
 import asyncio
+import json
+import time
 from contextvars import ContextVar, Token
 from functools import wraps
 
 from ..base.abc import SessionRule
-from ..base.exceptions import BotSessionError, BotSessionTimeout
+from ..base.exceptions import (
+    BotRuntimeError,
+    BotSessionError,
+    BotSessionTimeout,
+    BotValueError,
+)
 from ..base.tools import get_twin_event
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
+    Literal,
     Optional,
     P,
     Type,
@@ -24,7 +32,6 @@ if TYPE_CHECKING:
     from ..bot.init import BotLocal, MeloBot
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..plugin.handler import EventHandler
-    from .action import ActionResponse
 
 
 class BotSession:
@@ -388,15 +395,12 @@ class BotSessionManager:
             return session
 
     @classmethod
-    def _activate(
-        cls, action_getter: Callable[P, Coroutine[Any, Any, "BotAction"]]
-    ) -> Callable[P, Coroutine[Any, Any, Union["BotAction", "ActionResponse", None]]]:
-        """对 action 构造器进行装饰，使产生的 action “活化”。 让其能自动识别上下文，自动附加触发 event，并自动完成发送过程"""
+    def _handle(
+        cls, action_getter: Callable[P, "BotAction"]
+    ) -> Callable[P, "ActionHandle"]:
 
         @wraps(action_getter)
-        async def wrapped_func(
-            *args: Any, **kwargs: Any
-        ) -> Union["BotAction", "ActionResponse", None]:
+        def wrapped_func(*args: Any, **kwargs: Any) -> ActionHandle:
             try:
                 if SESSION_LOCAL._expired:
                     raise BotSessionError(
@@ -405,7 +409,7 @@ class BotSessionManager:
             except LookupError:
                 pass
 
-            action: "BotAction" = await action_getter(*args, **kwargs)
+            action: "BotAction" = action_getter(*args, **kwargs)
             if cls.BOT_CTX.logger.check_level_flag("DEBUG"):
                 cls.BOT_CTX.logger.debug(
                     f"action {action:hexid} 构建完成（当前 session 上下文：{SESSION_LOCAL:hexid}）"
@@ -415,15 +419,138 @@ class BotSessionManager:
             except LookupError:
                 pass
 
+            handle = ActionHandle(
+                action,
+                (
+                    cls.BOT_CTX._responder.take_action
+                    if action.resp_id is None
+                    else cls.BOT_CTX._responder.take_action_wait
+                ),
+                action.resp_id is not None,
+            )
+
             if not action._ready:
-                return action
-            if action.resp_id is None:
-                await cls.BOT_CTX._responder.take_action(action)
-                return None
+                return handle
             else:
-                return await (await cls.BOT_CTX._responder.take_action_wait(action))
+                handle.execute()
+                return handle
 
         return wrapped_func
+
+
+class ActionResponse:
+    """行为响应类
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
+
+    def __init__(self, raw: dict | str) -> None:
+        self.raw = raw if isinstance(raw, dict) else json.loads(raw)
+        self.id: Optional[str] = None
+        #: 响应的状态码
+        self.status: int
+        #: 响应的数据
+        self.data: dict[str, Any]
+        #: 响应创建的时间
+        self.time: int = int(time.time())
+
+        rawEvent = self.raw
+        self.status = rawEvent["retcode"]
+        if "echo" in rawEvent.keys():
+            self.id = rawEvent["echo"]
+        if "data" in rawEvent.keys():
+            self.data = rawEvent["data"]
+        else:
+            self.data = {}
+
+    def __format__(self, format_spec: str) -> str:
+        match format_spec:
+            case "hexid":
+                return f"{id(self):#x}"
+            case "raw":
+                return self.raw.__str__()
+            case _:
+                raise BotValueError(f"未知的 resp 格式标识符：{format_spec}")
+
+    def is_ok(self) -> bool:
+        """是否为成功响应"""
+        return self.raw["status"] == "ok"
+
+    def is_processing(self) -> bool:
+        """是否为被异步处理的响应，即未完成但在处理中"""
+        return self.status == 202
+
+    def is_failed(self) -> bool:
+        """是否为失败响应"""
+        return self.raw["status"] != "ok"
+
+
+class ActionHandle:
+    """行为操作类
+
+    本类的实例是可等待对象。使用 await 会使行为操作尽快执行。不使用 await 会先创建异步任务，稍后执行
+
+    .. admonition:: 提示
+       :class: tip
+
+       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    """
+
+    def __init__(
+        self,
+        action: "BotAction",
+        exec_meth: Callable[
+            ["BotAction"], Coroutine[Any, Any, asyncio.Future[ActionResponse] | None]
+        ],
+        wait: bool,
+    ) -> None:
+        #: 本操作包含的行为对象
+        self.action: "BotAction" = action
+        #: 本操作当前状态。分别对应：未执行、执行中、执行完成
+        self.status: Literal["PENDING", "EXECUTING", "FINISHED"] = "PENDING"
+
+        self._resp: ActionResponse
+        self._wait = wait
+        self._exec_meth = exec_meth
+        self._resp_done = asyncio.Event()
+
+    @property
+    async def resp(self) -> ActionResponse:
+        """当前行为操作的响应数据，需要异步获取（行为操作函数 `wait` 参数为 :obj:`True` 时使用）"""
+        if not self._wait:
+            raise BotRuntimeError("行为操作未指定等待，无法获取响应")
+        await self._resp_done.wait()
+        return self._resp
+
+    def __await__(self):
+        yield
+
+    async def wait(self) -> None:
+        """等待当前行为操作完成（行为操作函数 `wait` 参数为 :obj:`True` 时使用）"""
+        if not self._wait:
+            raise BotRuntimeError("行为操作未指定等待，无法等待")
+        await self._resp_done.wait()
+
+    async def _execute(self) -> None:
+        ret = await self._exec_meth(self.action)
+        if self._wait:
+            self._resp = await cast(asyncio.Future[ActionResponse], ret)
+            self._resp_done.set()
+        self.status = "FINISHED"
+
+    def execute(self) -> "ActionHandle":
+        """手动触发行为操作的执行（行为操作函数 `auto` 参数为 :obj:`False` 时使用）
+
+        :return: 本实例对象（因此支持链式调用）
+        """
+        if self.status != "PENDING":
+            raise BotRuntimeError("行为操作正在执行或执行完毕，不应该再执行")
+        self.status = "EXECUTING"
+        asyncio.create_task(self._execute())
+        return self
 
 
 def any_event() -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]:

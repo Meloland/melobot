@@ -1,17 +1,13 @@
-import json
-import time
-
 from ..base.abc import ActionArgs, BotAction, BotEvent
 from ..base.exceptions import BotSessionError, BotValueError, FuncSafeExited
 from ..base.tools import get_id
-from ..base.typing import Any, Literal, MsgNode, MsgSegment, Optional, Union, cast
+from ..base.typing import Any, Literal, MsgNode, MsgSegment, Optional, cast
 from ..models.msg import _to_cq_str_action, reply_msg, text_msg
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as SessionManager
 
 __all__ = (
-    "ActionResponse",
-    "send_custom_msg",
+    "send_custom",
     "send",
     "send_custom_forward",
     "send_forward",
@@ -42,52 +38,12 @@ __all__ = (
     "check_send_record",
     "get_onebot_version",
     "get_onebot_status",
-    "take_custom_action",
-    "make_action",
+    "custom_action",
     "send_wait",
     "send_reply",
     "finish",
     "reply_finish",
 )
-
-
-class ActionResponse:
-    """行为响应类
-
-    .. admonition:: 提示
-       :class: tip
-
-       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
-    """
-
-    def __init__(self, raw: dict | str) -> None:
-        self.raw = raw if isinstance(raw, dict) else json.loads(raw)
-        self.id: Optional[str] = None
-        #: 响应的状态码
-        self.status: int
-        #: 响应的数据
-        self.data: Optional[dict] = None
-        #: 响应创建的时间
-        self.time = int(time.time())
-
-        rawEvent = self.raw
-        self.status = rawEvent["retcode"]
-        if "echo" in rawEvent.keys() and rawEvent["echo"]:
-            self.id = rawEvent["echo"]
-        if "data" in rawEvent.keys() and rawEvent["data"]:
-            self.data = rawEvent["data"]
-
-    def is_ok(self) -> bool:
-        """是否为成功响应"""
-        return self.raw["status"] == "ok"
-
-    def is_processing(self) -> bool:
-        """是否为被异步处理的响应，即未完成但在处理中"""
-        return self.status == 202
-
-    def is_failed(self) -> bool:
-        """是否为失败响应"""
-        return self.raw["status"] != "ok"
 
 
 class MsgActionArgs(ActionArgs):
@@ -145,8 +101,8 @@ def _process_msg(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegmen
         )
 
 
-@SessionManager._activate
-async def send_custom_msg(
+@SessionManager._handle
+def send_custom(
     content: str | MsgSegment | list[MsgSegment],
     isPrivate: bool,
     userId: Optional[int] = None,
@@ -174,22 +130,25 @@ async def send_custom_msg(
 
     此接口合并了 onebot 标准中的私聊消息发送、群聊消息发送接口。
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param content: 发送内容
     :param isPrivate: 是否是私聊
     :param userId: 如果是私聊，传入目标 qq 号；群聊置空即可
     :param groupId: 如果是群聊，传入群号；私聊置空即可
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     if isPrivate and userId is None:
         raise BotValueError("为私聊时，构建发送消息 action 必须提供 userId 参数")
@@ -205,8 +164,8 @@ async def send_custom_msg(
     return action
 
 
-@SessionManager._activate
-async def send(
+@SessionManager._handle
+def send(
     content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
     wait: bool = False,
@@ -229,19 +188,22 @@ async def send(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param content: 发送内容（可以是文本、消息段对象、消息段对象列表）
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     try:
         session = SESSION_LOCAL
@@ -281,8 +243,8 @@ class ForwardMsgActionArgs(ActionArgs):
             self.params = {"group_id": groupId, "messages": msgs, "auto_escape": True}
 
 
-@SessionManager._activate
-async def send_custom_forward(
+@SessionManager._handle
+def send_custom_forward(
     msgNodes: list[MsgNode],
     isPrivate: bool,
     userId: Optional[int] = None,
@@ -308,7 +270,7 @@ async def send_custom_forward(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
 
     .. code:: python
 
@@ -317,19 +279,22 @@ async def send_custom_forward(
            "forward_id": xxx   # str
        }
 
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
     :param msgNodes: 消息结点列表
     :param isPrivate: 是否是私聊
     :param userId: 如果是私聊，传入目标 qq 号；群聊置空即可
     :param groupId: 如果是群聊，传入群号；私聊置空即可
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     action = BotAction(
         ForwardMsgActionArgs(msgNodes, isPrivate, userId, groupId),
@@ -341,8 +306,8 @@ async def send_custom_forward(
     return action
 
 
-@SessionManager._activate
-async def send_forward(
+@SessionManager._handle
+def send_forward(
     msgNodes: list[MsgNode],
     cq_str: bool = False,
     wait: bool = False,
@@ -365,7 +330,7 @@ async def send_forward(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
 
     .. code:: python
 
@@ -374,16 +339,19 @@ async def send_forward(
            "forward_id": xxx   # str
        }
 
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
     :param msgNodes: 消息结点列表
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     try:
         session = SESSION_LOCAL
@@ -415,22 +383,25 @@ class MsgDelActionArgs(ActionArgs):
         }
 
 
-@SessionManager._activate
-async def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def msg_recall(msgId: int, wait: bool = False, auto: bool = True) -> BotAction:
     """撤回消息
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-3 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-3>`_
 
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
     :param msgId: 消息 id
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         MsgDelActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
@@ -446,22 +417,25 @@ class GetMsgActionArgs(ActionArgs):
         self.params = {"message_id": msgId}
 
 
-@SessionManager._activate
-async def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def get_msg(msgId: int, wait: bool = True, auto: bool = True) -> BotAction:
     """获取消息详细信息
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-4 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-4>`_
 
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
     :param msgId: 消息 id
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetMsgActionArgs(msgId), resp_id=get_id() if wait else None, ready=auto
@@ -477,24 +451,25 @@ class getForwardActionArgs(ActionArgs):
         self.params = {"id": forwardId}
 
 
-@SessionManager._activate
-async def get_forward_msg(
-    forwardId: str, wait: bool = True, auto: bool = True
-) -> BotAction:
+@SessionManager._handle
+def get_forward_msg(forwardId: str, wait: bool = True, auto: bool = True) -> BotAction:
     """获取转发消息的详细信息
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-5 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-5>`_
 
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
     :param forwardId: 转发 id
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         getForwardActionArgs(forwardId), resp_id=get_id() if wait else None, ready=auto
@@ -510,22 +485,25 @@ class getImageActionArgs(ActionArgs):
         self.params = {"file": fileName}
 
 
-@SessionManager._activate
-async def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def get_image(fileName: str, wait: bool = True, auto: bool = True) -> BotAction:
     """获取图片信息
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-31 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-31>`_
 
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
     :param fileName: 图片文件名
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         getImageActionArgs(fileName), resp_id=get_id() if wait else None, ready=auto
@@ -541,25 +519,28 @@ class SendLikeActionArgs(ActionArgs):
         self.params = {"user_id": userId, "times": times}
 
 
-@SessionManager._activate
-async def send_like(
+@SessionManager._handle
+def send_like(
     userId: int, times: int = 1, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """发送好友赞
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-6 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-6>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param userId: qq 号
     :param times: 赞的数量，默认为 1，每天最多 10
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         SendLikeActionArgs(userId, times),
@@ -581,8 +562,8 @@ class GroupKickActionArgs(ActionArgs):
         }
 
 
-@SessionManager._activate
-async def group_kick(
+@SessionManager._handle
+def group_kick(
     groupId: int,
     userId: int,
     laterReject: bool = False,
@@ -591,20 +572,23 @@ async def group_kick(
 ) -> BotAction:
     """群组踢人
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-7 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-7>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param userId: 被踢的 qq 号
     :param laterReject: 是否拒绝此人再次加群
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GroupKickActionArgs(groupId, userId, laterReject),
@@ -626,26 +610,29 @@ class GroupBanActionArgs(ActionArgs):
         }
 
 
-@SessionManager._activate
-async def group_ban(
+@SessionManager._handle
+def group_ban(
     groupId: int, userId: int, duration: int, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """群组禁言
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-8 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-8>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param userId: 禁言的 qq 号
     :param duration: 禁言时长，为 0 则表示取消禁言
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GroupBanActionArgs(groupId, userId, duration),
@@ -663,25 +650,28 @@ class GroupWholeBanActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "enable": enable}
 
 
-@SessionManager._activate
-async def group_whole_ban(
+@SessionManager._handle
+def group_whole_ban(
     groupId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """群组全员禁言
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-10 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-10>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param enable: 是则禁言，否则取消禁言
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GroupWholeBanActionArgs(groupId, enable),
@@ -699,26 +689,29 @@ class SetGroupAdminActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "user_id": userId, "enable": enable}
 
 
-@SessionManager._activate
-async def set_group_admin(
+@SessionManager._handle
+def set_group_admin(
     groupId: int, userId: int, enable: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """设置群管理员
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-11 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-11>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param userId: 设置的 qq 号
     :param enable: 是则设置，否则取消
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         SetGroupAdminActionArgs(groupId, userId, enable),
@@ -736,26 +729,29 @@ class SetGroupCardActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "user_id": userId, "card": card}
 
 
-@SessionManager._activate
-async def set_group_card(
+@SessionManager._handle
+def set_group_card(
     groupId: int, userId: int, card: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """设置群名片
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-13 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-13>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param userId: 设置的 qq 号
     :param card: 新名片内容
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         SetGroupCardActionArgs(groupId, userId, card),
@@ -773,25 +769,28 @@ class SetGroupNameActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "group_name": name}
 
 
-@SessionManager._activate
-async def set_group_name(
+@SessionManager._handle
+def set_group_name(
     groupId: int, name: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """设置群名
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-14 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-14>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param name: 新群名
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         SetGroupNameActionArgs(groupId, name),
@@ -809,25 +808,28 @@ class GroupLeaveActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "is_dismiss": isDismiss}
 
 
-@SessionManager._activate
-async def group_leave(
+@SessionManager._handle
+def group_leave(
     groupId: int, isDismiss: bool, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """退出群
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-15 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-15>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param isDismiss: 是否解散群（仅在 bot 为群主时可用）
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GroupLeaveActionArgs(groupId, isDismiss),
@@ -856,8 +858,8 @@ class SetGroupTitleActionArgs(ActionArgs):
         }
 
 
-@SessionManager._activate
-async def set_group_title(
+@SessionManager._handle
+def set_group_title(
     groupId: int,
     userId: int,
     title: str,
@@ -867,21 +869,24 @@ async def set_group_title(
 ) -> BotAction:
     """设置群特殊头衔
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-16 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-16>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param userId: 设置的 qq 号
     :param title: 头衔名
     :param duration: 生效时间，为 -1 则为无限期
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         SetGroupTitleActionArgs(groupId, userId, title, duration),
@@ -898,26 +903,29 @@ class SetFriendAddActionArgs(ActionArgs):
         self.params = {"flag": addFlag, "approve": approve, "remark": remark}
 
 
-@SessionManager._activate
-async def set_friend_add(
+@SessionManager._handle
+def set_friend_add(
     addFlag: str, approve: bool, remark: str, wait: bool = False, auto: bool = True
 ) -> BotAction:
     """处理加好友请求
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-17 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-17>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param addFlag: 好友添加 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
     :param approve: 是否通过
     :param remark: 添加后的好友备注（仅用于通过请求后）
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         SetFriendAddActionArgs(addFlag, approve, remark),
@@ -947,8 +955,8 @@ class SetGroupAddActionArgs(ActionArgs):
             self.params["reason"] = reason
 
 
-@SessionManager._activate
-async def set_group_add(
+@SessionManager._handle
+def set_group_add(
     addFlag: str,
     addType: Literal["add", "invite"],
     approve: bool,
@@ -958,21 +966,24 @@ async def set_group_add(
 ) -> BotAction:
     """处理加群请求（只有 bot 是群管理时有用）
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-18 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-18>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param addFlag: 加群 flag，对应 :attr:`~.RequestEvent.req_flag` 属性
     :param addType: 加群类型，对应 :attr:`~.RequestEvent.group_req_type` 属性
     :param approve: 是否通过
     :param rejectReason: 如果不通过的原因回复
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         SetGroupAddActionArgs(addFlag, addType, approve, rejectReason),
@@ -990,21 +1001,24 @@ class GetLoginInfoActionArgs(ActionArgs):
         self.params = {}
 
 
-@SessionManager._activate
-async def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def get_login_info(wait: bool = True, auto: bool = True) -> BotAction:
     """获得 bot 登录号信息
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-19 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-19>`_
 
-    :param wait: 是否等待这个行为的响应
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetLoginInfoActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1020,25 +1034,28 @@ class GetStrangerInfoActionArgs(ActionArgs):
         self.params = {"user_id": userId, "no_cache": noCache}
 
 
-@SessionManager._activate
-async def get_stranger_info(
+@SessionManager._handle
+def get_stranger_info(
     userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取陌生人信息，也可以对好友使用
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-20 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-20>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param userId: qq 号
     :param noCache: 是否不使用缓存
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetStrangerInfoActionArgs(userId, noCache),
@@ -1056,21 +1073,24 @@ class GetFriendlistActionArgs(ActionArgs):
         self.params = {}
 
 
-@SessionManager._activate
-async def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def get_friend_list(wait: bool = True, auto: bool = True) -> BotAction:
     """获取好友列表
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-21 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-21>`_
 
-    :param wait: 是否等待这个行为的响应
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetFriendlistActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1086,25 +1106,28 @@ class GetGroupInfoActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "no_cache": noCache}
 
 
-@SessionManager._activate
-async def get_group_info(
+@SessionManager._handle
+def get_group_info(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取群信息，可以是未加入的群聊
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-22 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-22>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param noCache: 是否不使用缓存
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetGroupInfoActionArgs(groupId, noCache),
@@ -1122,23 +1145,26 @@ class GetGrouplistActionArgs(ActionArgs):
         self.params = {}
 
 
-@SessionManager._activate
-async def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def get_group_list(wait: bool = True, auto: bool = True) -> BotAction:
     """获取群列表。
 
     可能返回的建群时间都是 0，这是不准确的。准确的时间可以通过 :meth:`get_group_info` 获得
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-23 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-23>`_
 
-    :param wait: 是否等待这个行为的响应
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetGrouplistActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1154,26 +1180,29 @@ class GetGroupMemberInfoActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "user_id": userId, "no_cache": noCache}
 
 
-@SessionManager._activate
-async def get_group_member_info(
+@SessionManager._handle
+def get_group_member_info(
     groupId: int, userId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取群成员信息
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-24 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-24>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param userId: qq 号
     :param noCache: 是否不使用缓存
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetGroupMemberInfoActionArgs(groupId, userId, noCache),
@@ -1191,25 +1220,28 @@ class GetGroupMemberlistActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "no_cache": noCache}
 
 
-@SessionManager._activate
-async def get_group_member_list(
+@SessionManager._handle
+def get_group_member_list(
     groupId: int, noCache: bool, wait: bool = True, auto: bool = True
 ) -> BotAction:
     """获取群成员列表
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-25 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-25>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param noCache: 是否不使用缓存
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetGroupMemberlistActionArgs(groupId, noCache),
@@ -1233,8 +1265,8 @@ class GetGroupHonorActionArgs(ActionArgs):
         self.params = {"group_id": groupId, "type": type}
 
 
-@SessionManager._activate
-async def get_group_honor(
+@SessionManager._handle
+def get_group_honor(
     groupId: int,
     type: Literal[
         "talkative", "performer", "legend", "strong_newbie", "emotion", "all"
@@ -1247,19 +1279,22 @@ async def get_group_honor(
     详细说明参考：
     `获取群荣誉信息 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_honor_info-获取群荣誉信息>`_
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-26 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-26>`_
+
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param groupId: 群号
     :param type: 荣誉类型
-    :param wait: 是否等待这个行为的响应
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetGroupHonorActionArgs(groupId, type),
@@ -1277,21 +1312,24 @@ class CheckSendImageActionArgs(ActionArgs):
         self.params = {}
 
 
-@SessionManager._activate
-async def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def check_send_image(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送图片
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-32 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-32>`_
 
-    :param wait: 是否等待这个行为的响应
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         CheckSendImageActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1307,21 +1345,24 @@ class CheckSendRecordActionArgs(ActionArgs):
         self.params = {}
 
 
-@SessionManager._activate
-async def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def check_send_record(wait: bool = True, auto: bool = True) -> BotAction:
     """检查是否可以发送语音
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-33 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-33>`_
 
-    :param wait: 是否等待这个行为的响应
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         CheckSendRecordActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1337,21 +1378,24 @@ class GetCqVersionActionArgs(ActionArgs):
         self.params = {}
 
 
-@SessionManager._activate
-async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的版本
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-35 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-35>`_
 
-    :param wait: 是否等待这个行为的响应
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetCqVersionActionArgs(), resp_id=get_id() if wait else None, ready=auto
@@ -1359,7 +1403,7 @@ async def get_onebot_version(wait: bool = True, auto: bool = True) -> BotAction:
 
 
 class GetCqStatusActionArgs(ActionArgs):
-    """获取 onebot 实现 状态 action 信息构造类"""
+    """获取 onebot 实现的状态 action 信息构造类"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -1367,57 +1411,53 @@ class GetCqStatusActionArgs(ActionArgs):
         self.params = {}
 
 
-@SessionManager._activate
-async def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
+@SessionManager._handle
+def get_onebot_status(wait: bool = True, auto: bool = True) -> BotAction:
     """获取 onebot 实现项目的状态
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
+    响应数据在返回对象的  :attr:`.ActionHandle.resp.data` 属性，数据结构参考：
     `响应数据-34 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-34>`_
 
-    :param wait: 是否等待这个行为的响应
+    .. admonition:: 提示
+       :class: tip
+
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
+
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
+
+    :param wait: 是否等待这个行为完成
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
+    :return: :class:`.ActionHandle` 对象
     """
     return BotAction(
         GetCqStatusActionArgs(), resp_id=get_id() if wait else None, ready=auto
     )
 
 
-@SessionManager._activate
-async def take_custom_action(
-    action: BotAction,
+@SessionManager._handle
+def custom_action(
+    type: str, params: dict, wait: bool = False, trigger: Optional[BotEvent] = None
 ) -> BotAction:
-    """发送给定的自定义行为
+    """创建并自动提交一个自定义行为
 
-    :param action: 行为对象
-    :return:
-       若此 action 指定等待 -> :class:`.ActionResponse` 对象
+    .. admonition:: 提示
+       :class: tip
 
-       若此 action 未指定等待 -> :obj:`None`
-    """
-    action._ready = True
-    return action
+       本函数虽然是同步函数，但返回的对象 :class:`.ActionHandle` 是可等待的（可使用 await）。
+       使用 await 会立即发生异步切换，这会使行为操作尽快执行。不使用时会创建异步任务，稍后执行
 
-
-async def make_action(
-    type: str, params: dict, need_resp: bool, trigger: Optional[BotEvent] = None
-) -> BotAction:
-    """创建一个自定义行为
+       如果你不太明白这些概念，建议直接对返回的对象使用 await
 
     :param type: 行为的类型
     :param params: 行为的附加参数
-    :param need_resp: 是否需要等待这个行为
-    :param trigger: 行为的触发事件（一般不用填。如果不需要跟踪触发事件，则不填）
-    :return: 行为对象
+    :param wait: 是否等待这个行为完成
+    :param trigger: 行为的触发事件（可选，这一般是给钩子函数检查触发事件用的）
+    :return: :class:`.ActionHandle` 对象
     """
     args = ActionArgs()
     args.type, args.params = type, params
-    return BotAction(args, get_id() if need_resp else None, trigger, ready=False)
+    return BotAction(args, get_id() if wait else None, trigger, ready=True)
 
 
 async def send_wait(
@@ -1458,9 +1498,8 @@ async def send_wait(
 async def send_reply(
     content: str | MsgSegment | list[MsgSegment],
     cq_str: bool = False,
-    wait: bool = False,
     auto: bool = True,
-) -> Union[BotAction, ActionResponse, None]:
+) -> None:
     """发送一条回复消息（在当前会话下自动定位发送目标）
 
     .. admonition:: 小技巧
@@ -1478,26 +1517,16 @@ async def send_reply(
 
        任何时候启用 `cq_str` 选项，如需用到用户输入，务必校验。
 
-    响应数据将会在响应的 :attr:`~.ActionResponse.data` 属性，数据结构参考：
-    `响应数据-2 <https://github.com/botuniverse/onebot-11/blob/master/api/public.md#响应数据-2>`_
-
     :param content: 发送内容
     :param cq_str: 是否以 cq 字符串发送（默认格式是消息段对象)
-    :param wait: 是否等待发送后的响应
     :param auto: 是否自动发送
-    :return:
-       `auto=False` -> :class:`.BotAction` 对象
-
-       `auto=True, wait=True` -> :class:`.ActionResponse` 对象
-
-       `auto=True, wait=False` -> :obj:`None`
     """
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
         raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
     content_arr.extend(_process_msg(content))
-    return await send(content_arr, cq_str, wait, auto)
+    await send(content_arr, cq_str, wait=False, auto=auto)
 
 
 async def finish(

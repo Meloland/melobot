@@ -1,5 +1,7 @@
 from .action import *
 from .session import (
+    ActionHandle,
+    ActionResponse,
     AttrSessionRule,
     any_event,
     dispose,
@@ -15,7 +17,8 @@ from .session import (
 
 __all__ = (
     "ActionResponse",
-    "send_custom_msg",
+    "ActionHandle",
+    "send_custom",
     "send",
     "send_custom_forward",
     "send_forward",
@@ -47,7 +50,7 @@ __all__ = (
     "get_onebot_version",
     "get_onebot_status",
     "take_custom_action",
-    "make_action",
+    "custom_action",
     "send_wait",
     "send_reply",
     "finish",

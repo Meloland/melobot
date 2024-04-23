@@ -2,7 +2,7 @@ import asyncio
 from asyncio import Future
 
 from ..base.typing import TYPE_CHECKING, cast
-from ..context.action import ActionResponse
+from ..context.session import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ class BotResponder:
                     self.logger.error(f"收到了不匹配的携带 id 的响应：{resp.raw}")
         except asyncio.InvalidStateError:
             self.logger.warning(
-                "等待响应事件的异步任务已被取消，这可能意味着连接器响应过慢，或任务设置的超时时间太短"
+                "等待响应的异步任务已被取消，这可能意味着连接器响应过慢，或任务设置的超时时间太短"
             )
             self._resp_table.pop(cast(str, resp.id))
         except Exception as e:
@@ -53,13 +53,13 @@ class BotResponder:
             log_exc(self.logger, locals(), e)
 
     async def take_action(self, action: "BotAction") -> None:
-        """响应器发送 action, 不等待响应"""
+        """响应器发送 action, 不等待完成"""
         await self._ready_signal.wait()
         await self._action_sender._send(action)
         return None
 
     async def take_action_wait(self, action: "BotAction") -> Future[ActionResponse]:
-        """响应器发送 action，并返回一个 Future 用于等待响应"""
+        """响应器发送 action，并返回一个 Future 用于等待完成"""
         await self._ready_signal.wait()
         fut: Future[ActionResponse] = Future()
         self._resp_table[cast(str, action.resp_id)] = fut

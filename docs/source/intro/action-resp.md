@@ -7,7 +7,7 @@
 
 其他行为操作都由对应的行为操作函数产生。关于这些函数和它们的参数，参考：[行为操作函数](action-operations)
 
-它们的用法，与前一篇文章中发送消息的行为的函数基本一致。都是异步函数，可在事件处理方法中直接调用。例如 {func}`.msg_recall` 这个行为操作函数：
+它们的用法，与上一篇文章中的消息行为函数基本一致。都是异步函数，可在事件处理方法中直接调用。例如 {func}`.msg_recall` 这个行为操作函数：
 
 ```python
 await msg_recall(...)
@@ -15,128 +15,139 @@ await msg_recall(...)
 
 ## 行为响应
 
-行为操作的响应被称为“行为响应”，以下简称“响应”。响应是 melobot 发送行为操作给 OneBot 实现程序后，等待 OneBot 完成后的结果。响应**被用来检查行为有没有被正确处理，或被用来获取返回数据**。
+通过 API 参考文档，可以发现：大多数行为操作函数都有参数 `wait`。当设置 `wait=False` 时，产生的行为操作将不会被等待，自然也就无法再获得响应。
 
-响应在 melobot 中是一种事件类型。参考：{class}`.ResponseEvent`。
-
-通过 API 参考文档，可以发现：大多数行为操作函数都有参数 `wait`。当不指定这个 wait 参数，或设置 `wait=False` 时，行为操作函数在将行为传递给 OneBot 实现程序后，就**立即返回**。即使这个行为**还没有被 OneBot 实现程序“完成”**（即提交给 qq 服务器）。
+如果我们不关心行为操作何时完成、也不需要响应，那么直接令 `wait=False`。此时的行为操作将尽快完成：
 
 ```python
-"""
-这里可以是任何拥有 wait 参数的行为操作函数
-"""
-res = await send(...)                    # res 为 None
-res = await msg_recall(..., wait=False)  # res 为 None
+# 以下可以是任何拥有 wait 参数的行为操作函数
+await send(..., wait=False)
+await msg_recall(..., wait=False)
 ```
 
-而如果设置了 `wait=True`，此时返回的结果会是一个响应对象（{class}`.ResponseEvent` 对象）。此时的行为操作函数，必须等待 OneBot 将这个行为“完成”了，并获得一个响应，才能产生返回值。
+当我们需要行为的响应时，令 `wait=True`，并异步等待 {attr}`~.ActionHandle.resp` 属性：
 
 ```python
-"""
-这里可以是任何拥有 wait 参数的行为操作函数
-"""
-resp = await msg_recall(..., wait=True)  # resp 为响应对象
+# response 是响应（melobot.context.ActionResponse 对象）
+response = await send(..., wait=True).resp
+
+# 不想行为操作一执行就立刻等待？没问题！
+# 先获取 action handle（melobot.context.ActionHandle 对象）
+handle = send(..., wait=True)
+# do something else now
+...
+# 需要这个响应时：
+response = await handle.resp
 ```
 
-根据响应对象，可以判断行为是否成功：
+接下来可以用响应判断行为操作是否成功，并获得响应数据：
 
 ```python
-if resp.is_ok():
-    ...
-# 或
-if resp.is_failed():
-    ...
+# 判断是否成功
+if response.is_ok():
+    print("行为操作成功")
+    print(f"响应数据为：{response.data}")
+elif response.is_failed():
+    print("行为操作失败")
 ```
+响应对象的 {attr}`~.ResponseEvent.data` 属性是一个字典。不同的行为操作函数，返回数据的格式不同。这些格式在 API 文档有标注：[行为操作函数](action-operations)
 
-如果行为有返回数据，还可以获得这些返回数据：
+有时候，我们只是希望一个行为操作被 OneBot 实现程序完成后，再执行之后的代码。我们实际上不关心响应。这时就不需要 {attr}`~.ActionHandle.resp` 属性了：
 
 ```python
-if resp.is_ok():
-    data = resp.data
-    # 使用返回数据做一些别的事情
-    ...
-```
+# 与等待 resp 属性不同，它返回 None
+await send(..., wait=True).wait()
 
-响应对象的 {attr}`~.ResponseEvent.data` 属性是一个字典。不同的行为操作函数，会有不同的返回数据。所有可以返回响应的行为操作函数，都标注了返回数据的数据结构，可自行参考 API 文档：[行为操作函数](action-operations)
-
-```{admonition} 注意
-:class: caution
-对于特定的行为操作，返回数据可能为空。但是只要等待响应（`wait=True`），就一定会产生响应。
-
-没有 `wait` 参数的行为操作函数，不支持返回响应。
+# 不想行为操作一执行就立刻等待？没问题！
+# 先获取 action handle（melobot.context.ActionHandle 对象）
+handle = send(..., wait=True)
+# now do something else
+...
+# 需要等待这个行为操作完成时
+await handle.wait()
 ```
 
 ```{admonition} 提示
 :class: tip
-不建议**大量使用等待响应**（`wait=True`）。等待响应总是需要更多时间，大量使用会降低运行效率。
+**不建议频繁等待行为操作**。等待总是需要更多时间，大量使用会降低运行效率。
 
-建议只在**必须等待此行为完成才能继续执行**，或**需要返回数据**时才去等待响应。
+建议只在**必须等待此操作完成才能继续执行**，或**需要返回数据**时才去等待。
 ```
 
-## 自定义的行为操作
+## 魔改行为对象
 
 实际上，行为操作函数的逻辑分为两步：
 
 - 产生一个 {class}`.BotAction` 对象（行为对象）
-- 格式化这个行为对象，然后发送给 OneBot 实现程序执行
+- 将这个行为提交给 OneBot 实现程序执行
 
-某些情况下，我们可能不希望行为对象构建完成后，就被直接发送。大多数行为操作函数都拥有 `auto` 参数，当 `auto=False` 时，行为操作函数产生行为对象后，就会立即返回。
+某些情况下，我们可能不希望行为对象构建完成后，就被直接发送。大多数行为操作函数都拥有 `auto` 参数。`auto=False` 时，行为操作函数产生行为对象后，就会立即返回：
 
 ```python
-"""
-这里可以是任何拥有 auto 参数的行为操作函数
-"""
-action = await send(..., auto=False)            # action 为行为对象
-action = await get_group_list(..., auto=False)  # action 为行为对象
+# 以下可以是任何拥有 auto 参数的行为操作函数
+handle1 = send(..., auto=False)
+# 当前这个操作的行为对象
+handle1.action
 ```
 
-随后可以操作这个行为对象，操作完成后，使用 {func}`.take_custom_action` 手动发送这个行为：
+随后可以修改这个行为对象（做一些操作），再手动提交这个行为操作即可：
 
 ```python
-# wait=False，对应不产生响应的行为对象
-action = await send(...)
-# 一些对 action 的操作
+handle = send(..., auto=False)
+handle.action.params = {...}    # 例如此处修改行为的参数
+# 手动提交
+handle.execute()
+```
+
+需要等待这个行为操作？没问题！
+
+```python
+handle = send(..., wait=True, auto=False)
+handle.action.params = {...}    # 对 action 操作
+
+# 手动提交并等待响应
+await handle.execute().resp
+# 或者手动提交并等待
+await handle.execute().wait()
+
+# 或者手动提交不立刻等待
+await handle.execute()
+# now do something else
 ...
-res = await take_custom_action(action)  # res 为 None
-
-# wait=True，对应产生响应的行为对象
-action = await send(..., wait=True)
-# 一些对 action 的操作
-...
-resp = await take_custom_action(action)  # resp 为响应对象
+# 开始等待
+await handle.resp
+await handle.wait()
 ```
 
-```{admonition} 注意
-:class: caution
-没有 `auto` 参数的行为操作函数，不支持获取行为对象后手动操作。
-```
+## 自定义行为操作
 
-和之前提到的自定义消息段一样，如果需要发送 OneBot 标准中不存在，但 OneBot 实现程序支持的行为，使用 {func}`.make_action` 构造行为对象：
+和之前提到的自定义消息段一样，如果需要发送 OneBot 标准中不存在的自定义行为操作，可以使用 {func}`.custom_action` 完成：
 
 ```python
-# 指定 need_resp=True，则产生一个有响应的行为对象；反之则无响应
-action = make_action(type="custom_type", 
-                     params={"param1": 123, "param2": "12345"}, 
-                     need_resp=True)
-# 发送
-resp = await take_custom_action(action)
+# 因为有参数 wait 和 auto，因此可以等待
+action = custom_action(type="custom_type", 
+                       params={"param1": 123, "param2": "12345"}, 
+                       wait=True)
+# 作为行为操作函数的一种，之后的用法类似
 ```
 
+当然，你也可以再自行封装一下 :)
+
 ```python
-# 你也可以再自行封装一下 :)
 from functools import partial
 
 def my_action(param1: int, param2: str, wait: bool=False):
-    return make_action(type="custom_type", 
-                       params={"param1": param1, "param2": param2}, 
-                       need_resp=wait)
+    return custom_action(type="custom_type", 
+                         params={"param1": param1, "param2": param2}, 
+                         wait=wait)
 
-await take_custom_action(my_action(123, "12345"))
-await take_custom_action(my_action(123, "12345", wait=True))
+await my_action(123, "12345")
+await my_action(123, "12345", wait=True).wait()
+await my_action(456, "hello", wait=True).resp
 ```
 
 ## 总结
 
-本篇主要说明了如何实现其他行为操作与行为操作的响应。
+本篇主要说明了行为操作函数的用法，及行为操作的流程控制。
 
-下一篇将重点说明：事件预处理过程和对应的方法。
+下一篇将重点说明：事件预处理过程。

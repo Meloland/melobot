@@ -2,7 +2,6 @@ import json
 import re
 
 from ..base.abc import BotEvent
-from ..base.exceptions import BotValueError
 from ..base.typing import Any, Callable, Literal, MsgSegment, Optional, cast
 from .msg import _get_seg_datas, _get_segs, to_cq_str, to_segments
 

@@ -5,7 +5,16 @@ v2 版本目前仅适用于构建与 OneBot 实现对接的机器人服务。
 项目源码和文档，请参考：https://github.com/Meloland/melobot
 """
 
-from .base import LogicMode, PriorLevel, SessionRule, User, lock, this_dir, timelimit
+from .base import (
+    LogicMode,
+    PriorLevel,
+    SessionRule,
+    User,
+    lock,
+    semaphore,
+    this_dir,
+    timelimit,
+)
 from .bot import MeloBot, thisbot
 from .context import (
     AttrSessionRule,

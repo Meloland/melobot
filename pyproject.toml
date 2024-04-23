@@ -1,7 +1,7 @@
 [project]
 name = "melobot"
 dynamic = ["version"]
-description = "A bot development framework with friendly APIs, session control and plugin-supported."
+description = "A bot framework with session control and plugin-supported."
 authors = [
     {name = "aicorein", email = "melodyecho@glowmem.com"},
 ]

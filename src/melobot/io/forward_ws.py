@@ -7,8 +7,8 @@ from websockets.exceptions import ConnectionClosed
 
 from ..base.abc import AbstractConnector, BotLife
 from ..base.exceptions import BotRuntimeError
-from ..base.typing import TYPE_CHECKING, Any, ModuleType, Type, Union, cast
-from ..context.action import ActionResponse
+from ..base.typing import TYPE_CHECKING, Any, ModuleType, Optional, Type, Union, cast
+from ..context.session import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
@@ -25,8 +25,6 @@ class ForwardWsConn(AbstractConnector):
        :class: caution
 
        在 melobot 中，正向 websocket 连接器会开启一个 ws 客户端。这个客户端只能和一个服务端通信。
-
-       本连接器目前暂不支持鉴权。
     """
 
     def __init__(
@@ -36,15 +34,19 @@ class ForwardWsConn(AbstractConnector):
         max_retry: int = -1,
         retry_delay: float = 4.0,
         cd_time: float = 0.2,
+        access_token: Optional[str] = None,
         allow_reconnect: bool = False,
     ) -> None:
         """初始化一个正向 websocket 连接器
+
+        注意：会向路径 "/" 发起行为操作
 
         :param connect_host: 连接的 host
         :param connect_port: 连接的 port
         :param max_retry: 连接最大重试次数，默认 -1 代表无限次重试
         :param retry_delay: 连接重试间隔时间
         :param cd_time: 行为操作冷却时间（用于防止风控）
+        :param access_token: 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）
         :param allow_reconnect: 建立连接失败是否重连。默认为 `False`，即服务端断线直接停止 bot；若为 `True`，则会按照 `max_retry`, `retry_delay` 不断尝试重连，重连成功前时所有行为操作将阻塞。
         """
         super().__init__(cd_time)
@@ -56,6 +58,8 @@ class ForwardWsConn(AbstractConnector):
         self.url = f"ws://{connect_host}:{connect_port}"
         #: 连接对象
         self.conn: "websockets.client.WebSocketClientProtocol"
+        #: 连接器操作鉴权的 token
+        self.access_token = access_token
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_send_time = time.time_ns()
@@ -67,20 +71,28 @@ class ForwardWsConn(AbstractConnector):
 
     async def _run(self) -> None:
         """运行客户端"""
+        headers: dict | None = None
+        if self.access_token is not None:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+
         async with self._run_lock:
             self._client_close = asyncio.Future()
             created_flag = False
-            iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
+            retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
 
-            for _ in iter:
+            for _ in retry_iter:
                 try:
-                    self.conn = await websockets.connect(self.url)
+                    self.conn = await websockets.connect(
+                        self.url, extra_headers=headers
+                    )
                     created_flag = True
                     break
                 except Exception as e:
                     self.logger.warning(
                         f"ws 连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}"
                     )
+                    if "403" in str(e):
+                        self.logger.warning("403 错误可能是 access_token 未配置或无效")
                     await asyncio.sleep(self.retry_delay)
             if not created_flag:
                 raise BotRuntimeError("连接重试已达最大重试次数，已放弃建立连接")

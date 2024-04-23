@@ -32,7 +32,7 @@ class ReadOnly(type):
         return super().__call__(*args, **kwargs)
 
 
-__version__ = "2.5.14"
+__version__ = "2.6.0"
 
 
 class MetaInfo(metaclass=ReadOnly):

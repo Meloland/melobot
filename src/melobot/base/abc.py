@@ -188,7 +188,7 @@ class BotEvent(ABC, Flagable):
 
     @property
     @abstractmethod
-    def type(self) -> Literal["message", "request", "notice", "meta", "response"]:
+    def type(self) -> Literal["message", "request", "notice", "meta"]:
         """事件类型"""
         raise NotImplementedError
 
@@ -242,7 +242,7 @@ class BotAction(Flagable, Cloneable):
         self.type: str = action_args.type
         #: 行为参数。对应 onebot 标准中向 API 传送的数据的 params 字段
         self.params: dict = action_args.params
-        #: 行为的触发事件，一般是行为生成时所在会话的事件
+        #: 行为的触发事件，一般是行为生成时所在会话的事件（大多数行为操作函数生成 :class:`.BotAction` 对象时，会自动填充此属性，但少数情况下此属性可能为空）
         self.trigger: Optional[BotEvent] = triggerEvent
 
         self._ready = ready
@@ -415,9 +415,6 @@ class BotChecker(ABC, Cloneable):
         """检查器检查方法
 
         任何检查器应该实现此抽象方法。
-
-        需要注意的是：如果你继承该类，实现本方法，成功和失败的回调需要在此方法内显式调用。
-        调回调的时机并不固定，因此交给用户决定
 
         :param event: 给定的事件
         :return: 检查是否通过

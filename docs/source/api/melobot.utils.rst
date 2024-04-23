@@ -6,7 +6,9 @@ melobot.utils
 日志器
 -------
 
-日志器可自行实例化，也可直接通过 :attr:`.thisbot.logger` 获取当前 bot 实例的日志器。
+日志器可使用内置的 :class:`.BotLogger`，也可以使用标准库或第三方的日志器。
+
+运行时通过 :attr:`.thisbot.logger` 获取当前 bot 实例的日志器。
 
 .. autoclass:: melobot.utils.BotLogger
    :members:

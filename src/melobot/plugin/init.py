@@ -163,19 +163,19 @@ class BotPlugin:
         :param url: 插件项目地址
         :param multi_use: 是否支持同时被多个 bot 实例加载
         """
-        #: 功能与初始化参数一一对应
+        #: 本实例属性与初始化参数一一对应
         self.ID = id
-        #: 功能与初始化参数一一对应
+        #: 本实例属性与初始化参数一一对应
         self.VER = version
-        #: 功能与初始化参数一一对应
+        #: 本实例属性与初始化参数一一对应
         self.DESC = desc
-        #: 功能与初始化参数一一对应
+        #: 本实例属性与初始化参数一一对应
         self.KEYWORDS = keywords if keywords is not None else []
-        #: 功能与初始化参数一一对应
+        #: 本实例属性与初始化参数一一对应
         self.URL = url
-        #: 功能与初始化参数一一对应
+        #: 本实例属性与初始化参数一一对应
         self.DOC = doc
-        #: 功能与初始化参数一一对应
+        #: 本实例属性与初始化参数一一对应
         self.MULTI_USE = multi_use
 
         self._loaded_once = False
@@ -217,7 +217,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个任意事件处理方法
 
@@ -268,7 +268,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个消息事件处理方法
 
@@ -324,7 +324,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个艾特消息事件处理方法
 
@@ -388,7 +388,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个字符串起始匹配的消息事件处理方法
 
@@ -450,7 +450,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个字符串包含匹配的消息事件处理方法
 
@@ -512,7 +512,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个字符串全匹配的消息事件处理方法
 
@@ -574,7 +574,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个字符串结尾匹配的消息事件处理方法
 
@@ -635,7 +635,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个字符串正则匹配的消息事件处理方法
 
@@ -690,7 +690,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个请求事件处理方法
 
@@ -739,7 +739,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个好友请求事件处理方法
 
@@ -794,7 +794,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个加群请求事件处理方法
 
@@ -869,7 +869,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个通知事件处理方法
 
@@ -925,7 +925,7 @@ class BotPlugin:
         session_hold: bool = False,
         direct_rouse: bool = True,
         conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        conflict_cb: Optional[Callable[[], Coroutine]] = None,
     ):
         """绑定一个元事件处理方法
 
@@ -1109,7 +1109,7 @@ class BotPlugin:
            @plugin.on_bot_life(BotLife.CONNECTED)
            async def say_hi() -> None:
                # melobot 对被装饰函数的要求：无参数，返回空值
-               await send_custom_msg("Hello~", isPrivate=True, userId=xxxxx)
+               await send_custom("Hello~", isPrivate=True, userId=xxxxx)
            # 在这个示例中，bot 登录上号后，便会向 xxxxx 发送一条 Hello~ 消息
 
         :param types: bot 生命周期类型枚举值，可传入多个

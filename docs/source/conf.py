@@ -17,7 +17,7 @@ _need_ret_fix_funcs = melobot.context.action.__all__
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "MeloBot"
+project = "melobot"
 author = "contributors of this doc"
 copyright = f"{datetime.date.today().year}, {author}"
 release = melobot.meta.MetaInfo.VER
@@ -55,7 +55,7 @@ language = "zh_CN"
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_title = f"MeloBot {release}"
+html_title = f"{project} {release}"
 html_baseurl = "/melobot/"
 html_logo = "logo.png"
 html_theme = "furo"
@@ -89,12 +89,7 @@ def fix_type_annotation(app, what, name, obj, options, signature, return_annotat
         and obj.__name__ in _need_ret_fix_funcs
         and return_annotation == "~melobot.base.abc.BotAction"
     ):
-        _return_annotation = "ResponseEvent | BotAction | None"
-        if obj.__name__ == "take_custom_action":
-            _return_annotation = "ResponseEvent | None"
-        if obj.__name__ == "make_action":
-            _return_annotation = "~melobot.base.abc.BotAction"
-        return signature, _return_annotation
+        return signature, "~melobot.context.ActionHandle"
     else:
         return signature, return_annotation
 

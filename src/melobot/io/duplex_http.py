@@ -1,4 +1,6 @@
 import asyncio
+import hmac
+import json
 import time
 
 import aiohttp
@@ -8,11 +10,11 @@ from aiohttp.client_exceptions import ClientConnectorError
 
 from ..base.abc import AbstractConnector, BotLife
 from ..base.typing import TYPE_CHECKING, ModuleType, Optional, Union, cast
-from ..context.action import ActionResponse
+from ..context.session import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
-    from ..base.abc import BotAction
+    from ..base.abc import BotAction, BotEvent
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 
@@ -28,8 +30,6 @@ class HttpConn(AbstractConnector):
        :class: caution
 
        HTTP 连接是无状态的，因此本连接器无法及时察觉 OneBot 实现程序掉线。只有在后续执行行为操作失败，或等待上报超时，才会发现 OneBot 实现程序掉线。
-
-       本连接器目前暂不支持鉴权。
     """
 
     def __init__(
@@ -38,11 +38,15 @@ class HttpConn(AbstractConnector):
         onebot_port: int,
         listen_host: str,
         listen_port: int,
+        secret: Optional[str] = None,
+        access_token: Optional[str] = None,
         cd_time: float = 0.2,
         allow_reconnect: bool = False,
         max_interval: Optional[float] = None,
     ) -> None:
         """初始化一个 HTTP 全双工连接器
+
+        注意：本连接器服务提供路径为："/"
 
         HTTP 全双工连接器与 ws 有所不同。它无法即时发现 OneBot 实现程序掉线。
 
@@ -54,6 +58,8 @@ class HttpConn(AbstractConnector):
         :param onebot_port: onebot 实现程序 HTTP 服务的 port
         :param listen_host: 此连接器服务端监听的 host
         :param listen_port: 此连接器服务端监听的 port
+        :param secret: onebot 实现程序上报鉴权的 secret（建议从环境变量或配置中读取）
+        :param access_token: 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）
         :param cd_time: 行为操作冷却时间（用于防止风控）
         :param allow_reconnect: 是否等待 OneBot 实现程序重新上线。默认为 `False`，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 `True`，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞
         :param max_interval: 等待 OneBot 实现程序上报的超时时间。超过此时间无任何上报，则认为已经掉线（默认值为 `None`，此时不启用此功能）
@@ -71,6 +77,10 @@ class HttpConn(AbstractConnector):
         self.client_session: aiohttp.ClientSession
         #: 本连接器用于掉线判定的超时时间
         self.max_interval = max_interval
+        #: 上报鉴权的 secret
+        self.secret = secret
+        #: 操作鉴权的 access_token
+        self.access_token = access_token
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_recv_time = time.time_ns()
@@ -149,19 +159,30 @@ class HttpConn(AbstractConnector):
         return False
 
     async def _listen(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
-        """从 OneBot 实现程序接收一个事件，并处理"""
+        """从 OneBot 实现程序接收一个上报，并处理"""
+        data = await request.content.read()
+
+        if self.secret is not None:
+            sign = hmac.new(self.secret.encode(), data, "sha1").hexdigest()
+            recv_sign = request.headers["X-Signature"][len("sha1=") :]
+            if sign != recv_sign:
+                self.logger.error("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
+                log_obj(self.logger.error, data, "试图上报的数据：")
+                return
+
         self._pre_recv_time = time.time_ns()
 
         await self._ready_signal.wait()
         if not self._onebot_onlined.is_set():
             self._onebot_onlined.set()
+
             if self._connected_flag:
                 self.logger.info("OneBot 实现程序已经重新上线")
                 await self._bot_bus.emit(BotLife.RECONNECTED)
                 self.logger.debug("RECONNECTED hook 已完成")
 
         try:
-            raw_event: dict = await request.json()
+            raw_event = json.loads(data.decode())
             if self.logger.check_level_flag("DEBUG"):
                 self.logger.debug(f"收到上报，未格式化的字典：\n{raw_event}")
             event = self._event_builder.try_build(raw_event)
@@ -195,13 +216,19 @@ class HttpConn(AbstractConnector):
 
         async def take_action(action: "BotAction") -> None:
             try:
-                _ = await self.client_session.post(
-                    f"{self.onebot_url}/{action.type}", json=action.params
+                headers: dict | None = None
+                if self.access_token is not None:
+                    headers = {"Authorization": f"Bearer {self.access_token}"}
+
+                http_resp = await self.client_session.post(
+                    f"{self.onebot_url}/{action.type}",
+                    json=action.params,
+                    headers=headers,
                 )
                 if action.resp_id is None:
                     return
-                raw_resp: dict = await _.json()
-                resp = ActionResponse(raw_resp)
+                resp_dict: dict = await http_resp.json()
+                resp = ActionResponse(resp_dict)
                 resp.id = action.resp_id
                 asyncio.create_task(self._resp_dispatcher.respond(resp))
             except (RuntimeError, ClientConnectorError):
@@ -213,6 +240,13 @@ class HttpConn(AbstractConnector):
                         "OneBot 实现程序已掉线，正在等待 OneBot 实现程序重新上线"
                     )
                     self._onebot_onlined.clear()
+            except aiohttp.ContentTypeError:
+                self.logger.error(
+                    "bot 连接器无法解析上报数据。可能是 access_token 未配置或错误"
+                )
+            except Exception as e:
+                self.logger.error("bot 连接器发送任务抛出预期外的异常：")
+                log_exc(self.logger, locals(), e)
 
         await self._ready_signal.wait()
         try:
