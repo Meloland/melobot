@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.base.abc - MeloBot 2.5.14</title>
+        <title>melobot.base.abc - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -42,7 +42,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -131,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +158,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -185,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/event-action.html">事件和行为</a></li>
@@ -431,7 +432,7 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;事件类型&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -461,13 +462,6 @@
     <span class="k">def</span> <span class="nf">is_meta_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;判断是否是元事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;meta&quot;</span></div>
-
-
-<div class="viewcode-block" id="BotEvent.is_resp_event">
-<a class="viewcode-back" href="../../../api/melobot.base.html#melobot.base.abc.BotEvent.is_resp_event">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_resp_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;判断是否是响应事件&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;response&quot;</span></div>
 </div>
 
 
@@ -507,7 +501,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">action_args</span><span class="o">.</span><span class="n">type</span>
         <span class="c1">#: 行为参数。对应 onebot 标准中向 API 传送的数据的 params 字段</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">action_args</span><span class="o">.</span><span class="n">params</span>
-        <span class="c1">#: 行为的触发事件，一般是行为生成时所在会话的事件</span>
+        <span class="c1">#: 行为的触发事件，一般是行为生成时所在会话的事件（大多数行为操作函数生成 :class:`.BotAction` 对象时，会自动填充此属性，但少数情况下此属性可能为空）</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BotEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">triggerEvent</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_ready</span> <span class="o">=</span> <span class="n">ready</span>
@@ -697,9 +691,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;检查器检查方法</span>
 
 <span class="sd">        任何检查器应该实现此抽象方法。</span>
-
-<span class="sd">        需要注意的是：如果你继承该类，实现本方法，成功和失败的回调需要在此方法内显式调用。</span>
-<span class="sd">        调回调的时机并不固定，因此交给用户决定</span>
 
 <span class="sd">        :param event: 给定的事件</span>
 <span class="sd">        :return: 检查是否通过</span>
@@ -893,7 +884,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

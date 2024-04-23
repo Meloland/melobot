@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>开始创建机器人 - MeloBot 2.5.14</title>
+        <title>开始创建机器人 - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -43,7 +43,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -132,7 +133,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +159,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -186,7 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../references/onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../references/event-action.html">事件和行为</a></li>
@@ -246,7 +247,7 @@
 <h1>开始创建机器人<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <section id="id2">
 <h2>预先配置<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>由于 melobot 目前是基于 OneBot 协议的 bot 开发框架，因此 melobot 需要一个“OneBot 实现程序”作为“前端”，
+<p>melobot 目前是基于 OneBot 协议的 bot 开发框架，因此 melobot 需要一个“OneBot 实现程序”作为“前端”，
 完成与 qq 服务器的通信过程。请自行配置 OneBot 协议实现。</p>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
@@ -262,7 +263,7 @@
 <span class="linenos"> 4</span>
 <span class="linenos"> 5</span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_start_match</span><span class="p">(</span><span class="s2">&quot;.hello&quot;</span><span class="p">)</span>
 <span class="linenos"> 6</span><span class="k">async</span> <span class="k">def</span> <span class="nf">echo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="linenos"> 7</span>    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;你好呀！我是 melobot &gt;w&lt;&quot;</span><span class="p">)</span>
+<span class="linenos"> 7</span>    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello melobot!&quot;</span><span class="p">)</span>
 <span class="linenos"> 8</span>
 <span class="linenos"> 9</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 <span class="linenos">10</span>    <span class="n">bot</span> <span class="o">=</span> <span class="n">MeloBot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -272,28 +273,27 @@
 <span class="linenos">14</span>    <span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>运行后，在机器人加入的任何一个群聊或与机器人的私聊中，输入以 <code class="docutils literal notranslate"><span class="pre">.hello</span></code> 开始的消息，即可得到回复：<code class="docutils literal notranslate"><span class="pre">你好呀！我是</span> <span class="pre">melobot</span> <span class="pre">&gt;w&lt;</span></code>。</p>
+<p>运行后，在机器人加入的任何一个群聊中，或与机器人的私聊中，输入以 <code class="docutils literal notranslate"><span class="pre">.hello</span></code> 开始的消息，即可得到回复：<code class="docutils literal notranslate"><span class="pre">Hello</span> <span class="pre">melobot!</span></code>。</p>
 </section>
 <section id="id3">
 <h2>小 demo 讲解<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>接下来逐行解释这个小 demo 的代码。</p>
-<p>首先，melobot 是基于插件化管理的，因此通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin" title="melobot.plugin.BotPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotPlugin</span></code></a> 新建一个“插件对象”，用于划分接下来的操作，应该被哪个插件管理。</p>
+<p>首先，melobot 是基于插件化管理的，因此通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin" title="melobot.plugin.BotPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotPlugin</span></code></a> 新建一个“插件对象”，用于划分接下来的操作被哪个插件管理。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 参数分别是插件名和插件版本</span>
 <span class="n">plugin</span> <span class="o">=</span> <span class="n">BotPlugin</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>接下来，使用插件对象上的装饰器成员 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_start_match" title="melobot.plugin.BotPlugin.on_start_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>，即可在本插件上添加一个<strong>字符串起始匹配的消息事件处理方法</strong>。</p>
+<p>接下来，使用插件对象上的装饰器成员 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_start_match" title="melobot.plugin.BotPlugin.on_start_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>，即可在本插件上添加一个<strong>字符串起始匹配的，消息事件处理方法</strong>。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_start_match</span><span class="p">(</span><span class="s2">&quot;.hello&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">echo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;你好呀！我是 melobot &gt;w&lt;&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello melobot!&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>这个事件处理方法做了件很简单的事：事件发生时，通过 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 发送一条消息：<code class="docutils literal notranslate"><span class="pre">你好呀！我是</span> <span class="pre">melobot</span> <span class="pre">&gt;w&lt;</span></code>。这种操作在 melobot 中被称为“行为”/“行为操作”。</p>
+<p>这个事件处理方法做了件很简单的事：事件发生时，通过 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 发送一条消息：<code class="docutils literal notranslate"><span class="pre">Hello</span> <span class="pre">melobot!</span></code>。这种操作在 melobot 中被称为“行为操作”。</p>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p><a class="reference internal" href="../references/event-action.html"><span class="doc std std-doc">什么是事件和行为？</span></a></p>
 </div>
-<p>插件初始化好了、事件处理方法也添加好了。但是还需要 bot 去加载这个插件哦，否则它无法在一个具体的 bot 上生效。但是我们连 bot 都还没有~ 所以先通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.MeloBot" title="melobot.bot.MeloBot"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeloBot</span></code></a> 类创建一个 bot：</p>
+<p>插件初始化好了、事件处理方法也添加好了。但是还需要一个具体的 bot 去加载这个插件，否则它无法生效。但是我们连 bot 都还没有，所以先通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.MeloBot" title="melobot.bot.MeloBot"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeloBot</span></code></a> 类创建一个 bot：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">MeloBot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -312,7 +312,7 @@
 <span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>到这里，你已经学会了如何创建自己的第一个机器人。接下来，让我们来试试其他有趣的东西！</p>
+<p>到这里，你已经学会了如何创建一个 melobot 机器人。接下来，让我们试试其他有趣的东西！</p>
 </section>
 </section>
 
@@ -393,7 +393,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

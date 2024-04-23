@@ -6,7 +6,9 @@ melobot.utils
 日志器
 -------
 
-日志器可自行实例化，也可直接通过 :attr:`.thisbot.logger` 获取当前 bot 实例的日志器。
+日志器可使用内置的 :class:`.BotLogger`，也可以使用标准库或第三方的日志器。
+
+运行时通过 :attr:`.thisbot.logger` 获取当前 bot 实例的日志器。
 
 .. autoclass:: melobot.utils.BotLogger
    :members:
@@ -63,6 +65,11 @@ melobot.utils
    
    但对于其他事件来说，预处理过程只有一步：检查。
 
+.. autoclass:: melobot.utils.MsgChecker
+   :members:
+   :show-inheritance:
+   :exclude-members: check
+
 .. autoclass:: melobot.utils.MsgLvlChecker
    :members:
    :show-inheritance:
@@ -78,25 +85,20 @@ melobot.utils
    :show-inheritance:
    :exclude-members: check
 
-.. autoclass:: melobot.utils.MsgCheckerGen
+.. autoclass:: melobot.utils.MsgCheckerFactory
    :members:
 
-.. autoclass:: melobot.utils.AtChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
-.. autoclass:: melobot.utils.FriendReqChecker
+.. autoclass:: melobot.utils.AtMsgChecker
    :members:
    :show-inheritance:
    :exclude-members: check
 
-.. autoclass:: melobot.utils.GroupReqChecker
+.. autoclass:: melobot.utils.ReqChecker
    :members:
    :show-inheritance:
    :exclude-members: check
 
-.. autoclass:: melobot.utils.NoticeTypeChecker
+.. autoclass:: melobot.utils.NoticeChecker
    :members:
    :show-inheritance:
    :exclude-members: check
@@ -119,7 +121,7 @@ melobot.utils
    :members:
    :exclude-members: parse, test, format
 
-.. autoclass:: melobot.utils.CmdParserGen
+.. autoclass:: melobot.utils.CmdParserFactory
    :members:
 
 .. autoclass:: melobot.utils.CmdArgFormatter

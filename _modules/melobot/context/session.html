@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.context.session - MeloBot 2.5.14</title>
+        <title>melobot.context.session - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -42,7 +42,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -131,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +158,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -185,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/event-action.html">事件和行为</a></li>
@@ -234,17 +235,25 @@
         <article role="main">
           <h1>melobot.context.session 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">contextvars</span> <span class="kn">import</span> <span class="n">ContextVar</span><span class="p">,</span> <span class="n">Token</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">SessionRule</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotSessionError</span><span class="p">,</span> <span class="n">BotSessionTimeout</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BotRuntimeError</span><span class="p">,</span>
+    <span class="n">BotSessionError</span><span class="p">,</span>
+    <span class="n">BotSessionTimeout</span><span class="p">,</span>
+    <span class="n">BotValueError</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">get_twin_event</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Coroutine</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
     <span class="n">P</span><span class="p">,</span>
     <span class="n">Type</span><span class="p">,</span>
@@ -257,13 +266,7 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotEvent</span><span class="p">,</span> <span class="n">ParseArgs</span>
     <span class="kn">from</span> <span class="nn">..bot.init</span> <span class="kn">import</span> <span class="n">BotLocal</span><span class="p">,</span> <span class="n">MeloBot</span>
-    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="p">(</span>
-        <span class="n">MessageEvent</span><span class="p">,</span>
-        <span class="n">MetaEvent</span><span class="p">,</span>
-        <span class="n">NoticeEvent</span><span class="p">,</span>
-        <span class="n">RequestEvent</span><span class="p">,</span>
-        <span class="n">ResponseEvent</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
     <span class="kn">from</span> <span class="nn">..plugin.handler</span> <span class="kn">import</span> <span class="n">EventHandler</span>
 
 
@@ -634,15 +637,12 @@
             <span class="k">return</span> <span class="n">session</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_activate</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">action_getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">]]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">,</span> <span class="s2">&quot;ResponseEvent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;对 action 构造器进行装饰，使产生的 action “活化”。 让其能自动识别上下文，自动附加触发 event，并自动完成发送过程&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">action_getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;ActionHandle&quot;</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">action_getter</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">,</span> <span class="s2">&quot;ResponseEvent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandle</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_expired</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span>
@@ -651,7 +651,7 @@
             <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-            <span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span> <span class="o">=</span> <span class="k">await</span> <span class="n">action_getter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span> <span class="o">=</span> <span class="n">action_getter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 构建完成（当前 session 上下文：</span><span class="si">{</span><span class="n">SESSION_LOCAL</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2">）&quot;</span>
@@ -661,15 +661,159 @@
             <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">ActionHandle</span><span class="p">(</span>
+                <span class="n">action</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span><span class="o">.</span><span class="n">_responder</span><span class="o">.</span><span class="n">take_action</span>
+                    <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">resp_id</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span><span class="o">.</span><span class="n">_responder</span><span class="o">.</span><span class="n">take_action_wait</span>
+                <span class="p">),</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">resp_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+
             <span class="k">if</span> <span class="ow">not</span> <span class="n">action</span><span class="o">.</span><span class="n">_ready</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">action</span>
-            <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">resp_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span><span class="o">.</span><span class="n">_responder</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-                <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="n">handle</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="k">await</span> <span class="p">(</span><span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">BOT_CTX</span><span class="o">.</span><span class="n">_responder</span><span class="o">.</span><span class="n">take_action_wait</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
+                <span class="n">handle</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">handle</span>
 
         <span class="k">return</span> <span class="n">wrapped_func</span>
+
+
+<div class="viewcode-block" id="ActionResponse">
+<a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.ActionResponse">[文档]</a>
+<span class="k">class</span> <span class="nc">ActionResponse</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;行为响应类</span>
+
+<span class="sd">    .. admonition:: 提示</span>
+<span class="sd">       :class: tip</span>
+
+<span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#: 响应的状态码</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="c1">#: 响应的数据</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+        <span class="c1">#: 响应创建的时间</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+
+        <span class="n">rawEvent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;retcode&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;echo&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__format__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">format_spec</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;hexid&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">:</span><span class="s2">#x</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">case</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;未知的 resp 格式标识符：</span><span class="si">{</span><span class="n">format_spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ActionResponse.is_ok">
+<a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.ActionResponse.is_ok">[文档]</a>
+    <span class="k">def</span> <span class="nf">is_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为成功响应&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ok&quot;</span></div>
+
+
+<div class="viewcode-block" id="ActionResponse.is_processing">
+<a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.ActionResponse.is_processing">[文档]</a>
+    <span class="k">def</span> <span class="nf">is_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为被异步处理的响应，即未完成但在处理中&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">202</span></div>
+
+
+<div class="viewcode-block" id="ActionResponse.is_failed">
+<a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.ActionResponse.is_failed">[文档]</a>
+    <span class="k">def</span> <span class="nf">is_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为失败响应&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;ok&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ActionHandle">
+<a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.ActionHandle">[文档]</a>
+<span class="k">class</span> <span class="nc">ActionHandle</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;行为操作类</span>
+
+<span class="sd">    本类的实例是可等待对象。使用 await 会使行为操作尽快执行。不使用 await 会先创建异步任务，稍后执行</span>
+
+<span class="sd">    .. admonition:: 提示</span>
+<span class="sd">       :class: tip</span>
+
+<span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">,</span>
+        <span class="n">exec_meth</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ActionResponse</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">],</span>
+        <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1">#: 本操作包含的行为对象</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="c1">#: 本操作当前状态。分别对应：未执行、执行中、执行完成</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;PENDING&quot;</span><span class="p">,</span> <span class="s2">&quot;EXECUTING&quot;</span><span class="p">,</span> <span class="s2">&quot;FINISHED&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;PENDING&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resp</span><span class="p">:</span> <span class="n">ActionResponse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wait</span> <span class="o">=</span> <span class="n">wait</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exec_meth</span> <span class="o">=</span> <span class="n">exec_meth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resp_done</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">resp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionResponse</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;当前行为操作的响应数据，需要异步获取（行为操作函数 `wait` 参数为 :obj:`True` 时使用）&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;行为操作未指定等待，无法获取响应&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_done</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp</span>
+
+    <span class="k">def</span> <span class="fm">__await__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span>
+
+<div class="viewcode-block" id="ActionHandle.wait">
+<a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.ActionHandle.wait">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;等待当前行为操作完成（行为操作函数 `wait` 参数为 :obj:`True` 时使用）&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;行为操作未指定等待，无法等待&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_done</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div>
+
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exec_meth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">cast</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ActionResponse</span><span class="p">],</span> <span class="n">ret</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resp_done</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;FINISHED&quot;</span>
+
+<div class="viewcode-block" id="ActionHandle.execute">
+<a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.ActionHandle.execute">[文档]</a>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ActionHandle&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;手动触发行为操作的执行（行为操作函数 `auto` 参数为 :obj:`False` 时使用）</span>
+
+<span class="sd">        :return: 本实例对象（因此支持链式调用）</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="s2">&quot;PENDING&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;行为操作正在执行或执行完毕，不应该再执行&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;EXECUTING&quot;</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="any_event">
@@ -864,7 +1008,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

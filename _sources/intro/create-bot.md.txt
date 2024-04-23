@@ -2,7 +2,7 @@
 
 ## 预先配置
 
-由于 melobot 目前是基于 OneBot 协议的 bot 开发框架，因此 melobot 需要一个“OneBot 实现程序”作为“前端”，
+melobot 目前是基于 OneBot 协议的 bot 开发框架，因此 melobot 需要一个“OneBot 实现程序”作为“前端”，
 完成与 qq 服务器的通信过程。请自行配置 OneBot 协议实现。
 
 ```{admonition} 相关知识
@@ -23,7 +23,7 @@ plugin = BotPlugin(__name__, "1.0.0")
 
 @plugin.on_start_match(".hello")
 async def echo() -> None:
-    await send("你好呀！我是 melobot >w<")
+    await send("Hello melobot!")
 
 if __name__ == "__main__":
     bot = MeloBot(__name__)
@@ -33,35 +33,33 @@ if __name__ == "__main__":
     bot.run()
 ```
 
-运行后，在机器人加入的任何一个群聊或与机器人的私聊中，输入以 `.hello` 开始的消息，即可得到回复：`你好呀！我是 melobot >w<`。
+运行后，在机器人加入的任何一个群聊中，或与机器人的私聊中，输入以 `.hello` 开始的消息，即可得到回复：`Hello melobot!`。
 
 ## 小 demo 讲解
 
-接下来逐行解释这个小 demo 的代码。
-
-首先，melobot 是基于插件化管理的，因此通过 {class}`.BotPlugin` 新建一个“插件对象”，用于划分接下来的操作，应该被哪个插件管理。
+首先，melobot 是基于插件化管理的，因此通过 {class}`.BotPlugin` 新建一个“插件对象”，用于划分接下来的操作被哪个插件管理。
 
 ```python
 # 参数分别是插件名和插件版本
 plugin = BotPlugin(__name__, "1.0.0")
 ```
 
-接下来，使用插件对象上的装饰器成员 {meth}`~.BotPlugin.on_start_match`，即可在本插件上添加一个**字符串起始匹配的消息事件处理方法**。
+接下来，使用插件对象上的装饰器成员 {meth}`~.BotPlugin.on_start_match`，即可在本插件上添加一个**字符串起始匹配的，消息事件处理方法**。
 
 ```python
 @plugin.on_start_match(".hello")
 async def echo() -> None:
-    await send("你好呀！我是 melobot >w<")
+    await send("Hello melobot!")
 ```
 
-这个事件处理方法做了件很简单的事：事件发生时，通过 {func}`.send` 发送一条消息：`你好呀！我是 melobot >w<`。这种操作在 melobot 中被称为“行为”/“行为操作”。
+这个事件处理方法做了件很简单的事：事件发生时，通过 {func}`.send` 发送一条消息：`Hello melobot!`。这种操作在 melobot 中被称为“行为操作”。
 
 ```{admonition} 相关知识
 :class: note
 [什么是事件和行为？](../references/event-action)
 ```
 
-插件初始化好了、事件处理方法也添加好了。但是还需要 bot 去加载这个插件哦，否则它无法在一个具体的 bot 上生效。但是我们连 bot 都还没有~ 所以先通过 {class}`.MeloBot` 类创建一个 bot：
+插件初始化好了、事件处理方法也添加好了。但是还需要一个具体的 bot 去加载这个插件，否则它无法生效。但是我们连 bot 都还没有，所以先通过 {class}`.MeloBot` 类创建一个 bot：
 
 ```python
 bot = MeloBot(__name__)
@@ -87,4 +85,4 @@ bot.load_plugin(plugin)
 bot.run()
 ```
 
-到这里，你已经学会了如何创建自己的第一个机器人。接下来，让我们来试试其他有趣的东西！
+到这里，你已经学会了如何创建一个 melobot 机器人。接下来，让我们试试其他有趣的东西！

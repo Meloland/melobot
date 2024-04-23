@@ -8,8 +8,7 @@ melobot.models
 事件类型
 --------
 
-melobot 主要包含五种事件类型：:class:`.MessageEvent`, :class:`.RequestEvent`, :class:`.NoticeEvent`, 
-:class:`.ResponseEvent`, :class:`.MetaEvent`。
+melobot 主要包含四种事件类型：:class:`.MessageEvent`, :class:`.RequestEvent`, :class:`.NoticeEvent`, :class:`.MetaEvent`。
 
 .. autoclass:: melobot.models.MessageEvent
    :members:
@@ -22,11 +21,6 @@ melobot 主要包含五种事件类型：:class:`.MessageEvent`, :class:`.Reques
    :exclude-members: __init__
 
 .. autoclass:: melobot.models.NoticeEvent
-   :members:
-   :show-inheritance:
-   :exclude-members: __init__
-
-.. autoclass:: melobot.models.ResponseEvent
    :members:
    :show-inheritance:
    :exclude-members: __init__

@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.utils.checker - MeloBot 2.5.14</title>
+        <title>melobot.utils.checker - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -42,7 +42,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -131,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +158,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -185,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/event-action.html">事件和行为</a></li>
@@ -233,8 +234,8 @@
         </div>
         <article role="main">
           <h1>melobot.utils.checker 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotChecker</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotUtilsError</span><span class="p">,</span> <span class="n">BotValueError</span>
+<span></span><span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotChecker</span><span class="p">,</span> <span class="n">BotEvent</span>
+<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotValueError</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">is_retcoro</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
@@ -248,13 +249,34 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">BotEvent</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
+    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
+
+
+<div class="viewcode-block" id="MsgChecker">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgChecker">[文档]</a>
+<span class="k">class</span> <span class="nc">MsgChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件通用检查器&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MsgChecker.__init__">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgChecker.__init__">[文档]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件通用检查器</span>
+
+<span class="sd">        :param check_func: 检查方法</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span> <span class="o">=</span> <span class="n">check_func</span></div>
+
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BotEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span></div>
+
 
 
 <div class="viewcode-block" id="MsgLvlChecker">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgLvlChecker">[文档]</a>
 <span class="k">class</span> <span class="nc">MsgLvlChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息分级检查器</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息事件分级权限检查器</span>
 
 <span class="sd">    主要分 主人、超级用户、白名单用户、普通用户、黑名单用户 五级</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -271,7 +293,7 @@
         <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息分级检查器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件分级权限检查器</span>
 
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param owner: 主人的 qq 号</span>
@@ -316,7 +338,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BotEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -333,12 +355,12 @@
 <div class="viewcode-block" id="GroupMsgLvlChecker">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.GroupMsgLvlChecker">[文档]</a>
 <span class="k">class</span> <span class="nc">GroupMsgLvlChecker</span><span class="p">(</span><span class="n">MsgLvlChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;群聊消息分级检查器</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;群聊消息事件分级权限检查器</span>
 
 <span class="sd">    基本功能与 :class:`MsgLvlChecker` 一致。但增加了白名单机制，</span>
-<span class="sd">    不提供 `white_groups` 参数默认拒绝所有群聊消息。</span>
+<span class="sd">    不提供 `white_groups` 参数默认拒绝所有群聊消息事件。</span>
 
-<span class="sd">    对所有私聊消息校验不通过。</span>
+<span class="sd">    对所有私聊消息事件校验不通过。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GroupMsgLvlChecker.__init__">
@@ -354,7 +376,7 @@
         <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个群聊消息分级检查器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个群聊消息事件分级权限检查器</span>
 
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param owner: 主人的 qq 号</span>
@@ -371,7 +393,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span> <span class="o">=</span> <span class="n">white_groups</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BotEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -388,11 +410,11 @@
 <div class="viewcode-block" id="PrivateMsgLvlChecker">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.PrivateMsgLvlChecker">[文档]</a>
 <span class="k">class</span> <span class="nc">PrivateMsgLvlChecker</span><span class="p">(</span><span class="n">MsgLvlChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;私聊消息分级检查器</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;私聊消息事件分级权限检查器</span>
 
 <span class="sd">    基本功能与 :class:`MsgLvlChecker` 一致。</span>
 
-<span class="sd">    对所有群聊消息校验不通过。</span>
+<span class="sd">    对所有群聊消息事件校验不通过。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PrivateMsgLvlChecker.__init__">
@@ -407,7 +429,7 @@
         <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个私聊消息分级检查器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个私聊消息事件分级权限检查器</span>
 
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param owner: 主人的 qq 号</span>
@@ -422,7 +444,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BotEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -432,16 +454,16 @@
 
 
 
-<div class="viewcode-block" id="MsgCheckerGen">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen">[文档]</a>
-<span class="k">class</span> <span class="nc">MsgCheckerGen</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息分级检查器的生成器</span>
+<div class="viewcode-block" id="MsgCheckerFactory">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerFactory">[文档]</a>
+<span class="k">class</span> <span class="nc">MsgCheckerFactory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;消息事件分级权限检查器的工厂</span>
 
 <span class="sd">    预先存储检查依据（各等级数据），指定检查等级后，可返回一个 :class:`MsgLvlChecker` 类的对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="MsgCheckerGen.__init__">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen.__init__">[文档]</a>
+<div class="viewcode-block" id="MsgCheckerFactory.__init__">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerFactory.__init__">[文档]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -452,7 +474,7 @@
         <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息分级检查器的生成器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件分级权限检查器的工厂</span>
 
 <span class="sd">        :param owner: 主人的 qq 号</span>
 <span class="sd">        :param super_users: 超级用户 qq 号列表</span>
@@ -472,9 +494,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span></div>
 
 
-<div class="viewcode-block" id="MsgCheckerGen.gen_base">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen.gen_base">[文档]</a>
-    <span class="k">def</span> <span class="nf">gen_base</span><span class="p">(</span>
+<div class="viewcode-block" id="MsgCheckerFactory.get_base">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerFactory.get_base">[文档]</a>
+    <span class="k">def</span> <span class="nf">get_base</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
         <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -485,7 +507,7 @@
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）</span>
-<span class="sd">        :return: 消息分级检查器</span>
+<span class="sd">        :return: 消息事件分级权限检查器</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MsgLvlChecker</span><span class="p">(</span>
             <span class="n">level</span><span class="p">,</span>
@@ -498,9 +520,9 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MsgCheckerGen.gen_group">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen.gen_group">[文档]</a>
-    <span class="k">def</span> <span class="nf">gen_group</span><span class="p">(</span>
+<div class="viewcode-block" id="MsgCheckerFactory.get_group">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerFactory.get_group">[文档]</a>
+    <span class="k">def</span> <span class="nf">get_group</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
         <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -511,7 +533,7 @@
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）</span>
-<span class="sd">        :return: 群聊消息分级检查器</span>
+<span class="sd">        :return: 群聊消息事件分级权限检查器</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">GroupMsgLvlChecker</span><span class="p">(</span>
             <span class="n">level</span><span class="p">,</span>
@@ -525,9 +547,9 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MsgCheckerGen.gen_private">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerGen.gen_private">[文档]</a>
-    <span class="k">def</span> <span class="nf">gen_private</span><span class="p">(</span>
+<div class="viewcode-block" id="MsgCheckerFactory.get_private">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.MsgCheckerFactory.get_private">[文档]</a>
+    <span class="k">def</span> <span class="nf">get_private</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
         <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -538,7 +560,7 @@
 <span class="sd">        :param level: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param ok_cb: 检查通过的回调（比实例化本类传入的参数优先级更高）</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调（比实例化本类传入的参数优先级更高）</span>
-<span class="sd">        :return: 私聊消息分级检查器</span>
+<span class="sd">        :return: 私聊消息事件分级权限检查器</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PrivateMsgLvlChecker</span><span class="p">(</span>
             <span class="n">level</span><span class="p">,</span>
@@ -553,160 +575,79 @@
 
 
 
-<div class="viewcode-block" id="AtChecker">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.AtChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">AtChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;艾特消息检查器&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AtMsgChecker">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.AtMsgChecker">[文档]</a>
+<span class="k">class</span> <span class="nc">AtMsgChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;艾特消息事件检查器&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AtChecker.__init__">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.AtChecker.__init__">[文档]</a>
+<div class="viewcode-block" id="AtMsgChecker.__init__">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.AtMsgChecker.__init__">[文档]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个艾特消息检查器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个艾特消息事件检查器</span>
 
-<span class="sd">        :param qid: 被艾特的 qq 号。为空则接受所有艾特消息；不为空则只接受指定 qid 被艾特的艾特消息</span>
+<span class="sd">        :param qid: 被艾特的 qq 号。为空则接受所有艾特消息事件；不为空则只接受指定 qid 被艾特的艾特消息事件</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="o">=</span> <span class="n">qid</span> <span class="k">if</span> <span class="n">qid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="o">=</span> <span class="n">qid</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BotEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="n">id_list</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_datas</span><span class="p">(</span><span class="s2">&quot;at&quot;</span><span class="p">,</span> <span class="s2">&quot;qq&quot;</span><span class="p">)</span>
+        <span class="n">qids</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_datas</span><span class="p">(</span><span class="s2">&quot;at&quot;</span><span class="p">,</span> <span class="s2">&quot;qq&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">id_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">qids</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span><span class="p">:</span>
                     <span class="n">status</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">break</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">status</span></div>
 
 
 
-<div class="viewcode-block" id="FriendReqChecker">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.FriendReqChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">FriendReqChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;好友请求检查器&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ReqChecker">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.ReqChecker">[文档]</a>
+<span class="k">class</span> <span class="nc">ReqChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;请求事件通用检查器&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FriendReqChecker.__init__">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.FriendReqChecker.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个好友请求检查器</span>
+<div class="viewcode-block" id="ReqChecker.__init__">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.ReqChecker.__init__">[文档]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;RequestEvent&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个请求事件通用检查器</span>
 
-<span class="sd">        只有是请求类型中的好友请求才会通过检查</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
-
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_req_event</span><span class="p">():</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">is_friend_req</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">status</span></div>
-
-
-
-<div class="viewcode-block" id="GroupReqChecker">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.GroupReqChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupReqChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;加群请求检查器&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="GroupReqChecker.__init__">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.GroupReqChecker.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个加群请求检查器</span>
-
-<span class="sd">        只有是请求类型中的加群请求才会通过检查</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
-
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_req_event</span><span class="p">():</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">is_group_req</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">status</span></div>
-
-
-
-<div class="viewcode-block" id="NoticeTypeChecker">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.NoticeTypeChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">NoticeTypeChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;通知检查器&quot;&quot;&quot;</span>
-
-    <span class="n">SUB_TYPES</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;group_upload&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;group_admin&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;group_decrease&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;group_increase&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;group_ban&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;friend_add&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;group_recall&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;friend_recall&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;group_card&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;offline_file&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;client_status&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;essence&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;notify&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;honor&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;poke&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lucky_king&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;title&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ALL&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
-
-<div class="viewcode-block" id="NoticeTypeChecker.__init__">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.NoticeTypeChecker.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
-            <span class="s2">&quot;group_upload&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;group_admin&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;group_decrease&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;group_increase&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;group_ban&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;friend_add&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;group_recall&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;friend_recall&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;group_card&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;offline_file&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;client_status&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;essence&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;notify&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;honor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;poke&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lucky_king&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ALL&quot;</span><span class="p">,</span>
-        <span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个通知检查器</span>
-
-<span class="sd">        只有是给定类型的通知事件才会通过检查</span>
-
-<span class="sd">        :param sub_type: 通知的类型</span>
+<span class="sd">        :param check_func: 检查方法</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">sub_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NoticeTypeChecker</span><span class="o">.</span><span class="n">SUB_TYPES</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BotUtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;通知事件类型校验器的子类型 </span><span class="si">{</span><span class="n">sub_type</span><span class="si">}</span><span class="s2"> 不合法&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">=</span> <span class="n">sub_type</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span> <span class="o">=</span> <span class="n">check_func</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;BotEvent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;NoticeEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_notice_event</span><span class="p">():</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;ALL&quot;</span><span class="p">:</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">check_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">check_method</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">status</span></div>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BotEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="NoticeChecker">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.NoticeChecker">[文档]</a>
+<span class="k">class</span> <span class="nc">NoticeChecker</span><span class="p">(</span><span class="n">BotChecker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通知事件通用检查器&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NoticeChecker.__init__">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.NoticeChecker.__init__">[文档]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;NoticeEvent&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个通知事件通用检查器</span>
+
+<span class="sd">        :param check_func: 检查方法</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span> <span class="o">=</span> <span class="n">check_func</span></div>
+
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BotEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;NoticeEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span></div>
 
 </pre></div>
         </article>
@@ -747,7 +688,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

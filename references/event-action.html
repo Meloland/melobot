@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>事件和行为 - MeloBot 2.5.14</title>
+        <title>事件和行为 - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -43,7 +43,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -132,7 +133,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +159,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -186,7 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">相关参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">相关知识</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="connector.html">连接器类型</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">事件和行为</a></li>
@@ -246,30 +247,35 @@
 <h1>事件和行为<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p>事件和行为是 melobot 和 <a class="reference external" href="https://github.com/botuniverse/onebot-11/tree/master">OneBot 标准</a>中最重要的概念。melobot 内部的工作，总结下来也就四步：</p>
 <ol class="arabic simple">
-<li><p>接收来自 OneBot 实现程序的“事件”，并格式化</p></li>
-<li><p>处理“事件”</p></li>
-<li><p>产生“行为”</p></li>
-<li><p>“行为”格式化，并交由 OneBot 实现程序完成</p></li>
+<li><p>接收来自 OneBot 实现程序的“事件”，封装为 melobot 事件</p></li>
+<li><p>处理“事件”，产生“行为”</p></li>
+<li><p>序列化 melobot 行为，交由 OneBot 实现程序执行</p></li>
 </ol>
-<p>“事件”：<strong>OneBot 实现项目上报给 melobot 的事件</strong>；</p>
-<p>“行为”或“行为操作”：<strong>发送给 OneBot 实现程序的，交由 OneBot 实现程序完成的操作</strong>。</p>
-<p>若无特别说明，本文档直接提及“事件”、“行为”、“行为操作”等词汇均是以上含义。</p>
+<p>“事件”：<strong>OneBot 实现项目向 melobot 的数据上报</strong>；</p>
+<p>“行为”：<strong>发送给 OneBot 实现程序的，交由 OneBot 实现程序执行的操作</strong>。</p>
+<p>若无特别说明，本文档直接提及“事件”、“行为”等词汇均是以上含义。</p>
 <section id="id2">
 <h2>事件类型<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>在 OneBot 标准中，事件有<a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/event/README.md">四种类型</a>。而在 melobot 中，为方便使用，额外了添加一种事件类型。melobot 所有事件类型如下：</p>
+<p>在 OneBot 标准中，事件有<a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/event/README.md">四种类型</a>。对应标准，melobot 所有事件类型如下：</p>
 <ul class="simple">
 <li><p>消息事件：<a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent" title="melobot.models.MessageEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageEvent</span></code></a>（事件处理方法中使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_event" title="melobot.context.msg_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_event()</span></code></a> 获得）</p></li>
 <li><p>请求事件：<a class="reference internal" href="../api/melobot.models.html#melobot.models.RequestEvent" title="melobot.models.RequestEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestEvent</span></code></a>（事件处理方法中使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.req_event" title="melobot.context.req_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">req_event()</span></code></a> 获得）</p></li>
 <li><p>通知事件：<a class="reference internal" href="../api/melobot.models.html#melobot.models.NoticeEvent" title="melobot.models.NoticeEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoticeEvent</span></code></a>（事件处理方法中使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.notice_event" title="melobot.context.notice_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">notice_event()</span></code></a> 获得）</p></li>
 <li><p>元事件：<a class="reference internal" href="../api/melobot.models.html#melobot.models.MetaEvent" title="melobot.models.MetaEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetaEvent</span></code></a>（事件处理方法中使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.meta_event" title="melobot.context.meta_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">meta_event()</span></code></a> 获得）</p></li>
-<li><p>响应事件：<a class="reference internal" href="../api/melobot.models.html#melobot.models.ResponseEvent" title="melobot.models.ResponseEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResponseEvent</span></code></a>（行为操作函数执行时，指定 <code class="docutils literal notranslate"><span class="pre">wait=True</span></code> 获得）</p></li>
 </ul>
-<p>前四种事件类型都是 OneBot 标准中的类型，它们都是 OneBot 实现程序上报事件给 melobot 后，经过格式化后产生的。但是最后一种事件，响应事件，情况有所不同。它是 melobot 内部产生行为后，发送给 OneBot 实现程序，等待 OneBot 完成这个行为后的“响应”。</p>
-<p>通过响应事件，可以检查行为有没有被正确完成，或者获得某些行为的返回数据。例如：某个行为是“获取 bot 加入的所有群的群号”，这个行为的返回数据就会通过响应事件来传输。</p>
 </section>
 <section id="id3">
-<h2>行为类型<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>在 OneBot 标准中，行为通过不同的“类型标识”，产生了多种类型。在 melobot 中，各种各样行为的产生，主要由不同的“行为操作函数”完成，具体可以参阅：<a class="reference internal" href="../api/melobot.context.html#action-operations"><span class="std std-ref">行为操作函数</span></a>。</p>
+<h2>行为与行为操作<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>在 OneBot 标准中，行为通过不同的“类型标识”，产生了多种类型。在 melobot 中，各种各样行为的产生，主要由不同的“行为操作函数”完成，各种“行为操作函数”具体可以参阅：<a class="reference internal" href="../api/melobot.context.html#action-operations"><span class="std std-ref">行为操作函数</span></a>。</p>
+<p>行为操作函数会产生一个行为操作，这个操作会通过它的返回值 <a class="reference internal" href="../api/melobot.context.html#melobot.context.ActionHandle" title="melobot.context.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a>（行为操作对象）描述。通过行为操作对象，我们可以对行为操作的流程（<code class="docutils literal notranslate"><span class="pre">行为生成、行为执行、行为响应等待</span></code>）进行更精细的处理。</p>
+</section>
+<section id="id4">
+<h2>行为响应<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>行为响应是 melobot 将行为操作提交给 OneBot 实现程序后，等待执行完成后返回的结果。响应<strong>被用来检查行为是否被正确处理，或被用来获取返回数据</strong>。响应在 melobot 中的数据类型是：<a class="reference internal" href="../api/melobot.context.html#melobot.context.ActionResponse" title="melobot.context.ActionResponse"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionResponse</span></code></a>。例如：“获取 bot 加入的所有群的群号”这个行为操作，它的返回数据就包含在行为响应中。</p>
+</section>
+<section id="id5">
+<h2>总结<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p>此部分只负责对事件和行为的概念进行解释。具体用法和其他细节，将会在教程部分详细说明。</p>
 </section>
 </section>
 
@@ -337,7 +343,9 @@
             <ul>
 <li><a class="reference internal" href="#">事件和行为</a><ul>
 <li><a class="reference internal" href="#id2">事件类型</a></li>
-<li><a class="reference internal" href="#id3">行为类型</a></li>
+<li><a class="reference internal" href="#id3">行为与行为操作</a></li>
+<li><a class="reference internal" href="#id4">行为响应</a></li>
+<li><a class="reference internal" href="#id5">总结</a></li>
 </ul>
 </li>
 </ul>
@@ -349,7 +357,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

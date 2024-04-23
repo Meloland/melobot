@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.models.event - MeloBot 2.5.14</title>
+        <title>melobot.models.event - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -42,7 +42,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -131,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +158,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -185,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/event-action.html">事件和行为</a></li>
@@ -235,7 +236,6 @@
           <h1>melobot.models.event 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotEvent</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
@@ -244,7 +244,7 @@
 
 <span class="k">class</span> <span class="nc">BotEventBuilder</span><span class="p">:</span>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotEvent</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">try_build</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotEvent</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -260,7 +260,7 @@
         <span class="k">elif</span> <span class="n">etype</span> <span class="o">==</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">MetaEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ResponseEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="MessageEvent">
@@ -599,9 +599,9 @@
         <span class="c1">#: 收到事件的机器人 qq 号</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
         <span class="c1">#: 事件的来源 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">from_id</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 事件的来源群号，请求来源于私聊时此属性为 :obj:`None`</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">from_group_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
         <span class="c1">#: 加群或加好友的验证消息</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">req_comment</span><span class="p">:</span> <span class="nb">str</span>
         <span class="c1">#: 加群或加好友请求的 flag，调用相关 API 时，需要使用</span>
@@ -624,16 +624,16 @@
     <span class="k">def</span> <span class="nf">_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">rawEvent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group_req_type</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">from_group_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_friend_req</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">from_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">req_comment</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">req_flag</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_req</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_req_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">from_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">from_group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">req_comment</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">req_flag</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
 
@@ -1020,73 +1020,6 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;meta_event_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;heartbeat&quot;</span></div>
 </div>
 
-
-
-<div class="viewcode-block" id="ResponseEvent">
-<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.ResponseEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">ResponseEvent</span><span class="p">(</span><span class="n">BotEvent</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;响应事件类型</span>
-
-<span class="sd">    .. admonition:: 提示</span>
-<span class="sd">       :class: tip</span>
-
-<span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
-
-<span class="sd">    .. admonition:: 提示</span>
-<span class="sd">       :class: tip</span>
-
-<span class="sd">       onebot 标准中未定义“响应”为一种事件类型。但在 melobot 中，“响应”仍然被封装为一种事件类型。</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="c1">#: 响应的状态码</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span> <span class="nb">int</span>
-        <span class="c1">#: 响应的数据</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_init</span><span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;响应被 melobot 接收时的时间戳&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;事件的类型（返回指定字面量）&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;response&quot;</span>
-
-    <span class="k">def</span> <span class="nf">_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">rawEvent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;retcode&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s2">&quot;echo&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
-
-<div class="viewcode-block" id="ResponseEvent.is_ok">
-<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.ResponseEvent.is_ok">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为成功响应&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ok&quot;</span></div>
-
-
-<div class="viewcode-block" id="ResponseEvent.is_processing">
-<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.ResponseEvent.is_processing">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为被异步处理的响应，即未完成但在处理中&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">202</span></div>
-
-
-<div class="viewcode-block" id="ResponseEvent.is_failed">
-<a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.ResponseEvent.is_failed">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为失败响应&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;ok&quot;</span></div>
-</div>
-
 </pre></div>
         </article>
       </div>
@@ -1126,7 +1059,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

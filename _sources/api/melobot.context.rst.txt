@@ -33,14 +33,13 @@ melobot.context
 
 .. autofunction:: melobot.context.dispose
 
+.. _action-operations:
+
 高级行为操作
 -------------
-在 melobot 中，所有行为都是 :class:`.BotAction` 类的实例对象。
-调用行为操作函数，即可生成 :class:`.BotAction` 对象并自动发送一个行为。
 
-所有行为操作分为两大类：高级行为操作与基本行为操作。
+所有行为操作分为两大类：高级行为操作与基本行为操作。高级行为操作是 melobot 在 onebot 标准的基础上，利用会话信息进一步封装的行为操作。
 
-高级行为操作是 melobot 在 onebot 标准的基础上，利用会话信息进一步封装的行为操作。
 以下函数均为高级行为操作函数：
 
 .. autofunction:: melobot.context.send
@@ -54,8 +53,6 @@ melobot.context
 .. autofunction:: melobot.context.finish
 
 .. autofunction:: melobot.context.reply_finish
-
-.. _action-operations:
 
 基本行为操作
 ------------------
@@ -79,7 +76,7 @@ melobot.context
 
 另外为提升 API 接口可读性，部分接口名称与 onebot 标准不同，请注意辨别。还有部分接口被合并（如发送私聊消息与发送群聊消息） 
 
-.. autofunction:: melobot.context.send_custom_msg
+.. autofunction:: melobot.context.send_custom
 
 .. autofunction:: melobot.context.send_custom_forward
 
@@ -140,13 +137,22 @@ melobot.context
 手动行为操作
 -----------------
 
-如果需要手动处理行为对象，而不是创建后立即执行，令以上函数的 `auto` 参数为 :obj:`False`，函数即可返回行为对象。
-处理完毕后可通过以下函数触发发送操作：
+如果因为兼容性问题，你需要创建 melobot 预置行为操作函数无法创建的 onebot 标准行为，可以使用以下函数生成自定义的行为操作：
 
-.. autofunction:: melobot.context.take_custom_action
+.. autofunction:: melobot.context.custom_action
 
-如果因为兼容性问题，你需要创建 melobot 预置行为操作函数无法创建的 onebot 标准行为，可以使用以下函数生成自定义的行为对象：
+行为操作对象
+-----------------
 
-随后这个行为可以通过 :func:`.take_custom_action` 处理。
+行为操作函数被用来产生特定的行为操作。为了更精准的控制行为操作的全流程（行为生成、行为执行与行为响应等待），在 melobot 中，多数行为操作函数会返回“行为操作对象”，用于描述和控制整个流程：
 
-.. autofunction:: melobot.context.make_action
+.. autoclass:: melobot.context.ActionHandle
+    :exclude-members: __init__
+
+行为响应对象
+-----------------
+
+行为操作的响应通过行为响应对象描述：
+
+.. autoclass:: melobot.context.ActionResponse
+    :exclude-members: __init__

@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.io.reverse_ws - MeloBot 2.5.14</title>
+        <title>melobot.io.reverse_ws - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -42,7 +42,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -131,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +158,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -185,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/event-action.html">事件和行为</a></li>
@@ -242,17 +243,20 @@
 <span class="kn">import</span> <span class="nn">websockets.server</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span><span class="p">,</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotLife</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ModuleType</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">ModuleType</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..context.session</span> <span class="kn">import</span> <span class="n">ActionResponse</span>
 <span class="kn">from</span> <span class="nn">..utils.logger</span> <span class="kn">import</span> <span class="n">log_exc</span><span class="p">,</span> <span class="n">log_obj</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="p">(</span>
-        <span class="n">MessageEvent</span><span class="p">,</span>
-        <span class="n">MetaEvent</span><span class="p">,</span>
-        <span class="n">NoticeEvent</span><span class="p">,</span>
-        <span class="n">RequestEvent</span><span class="p">,</span>
-        <span class="n">ResponseEvent</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
 
 
 <div class="viewcode-block" id="ReverseWsConn">
@@ -264,8 +268,6 @@
 <span class="sd">       :class: caution</span>
 
 <span class="sd">       注意：在 melobot 中，反向 websocket 连接器会开启一个 ws 服务端。但是这个服务端只接受一个客户端连接，后续其他连接将被拒绝。</span>
-
-<span class="sd">       本连接器目前暂不支持鉴权。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ReverseWsConn.__init__">
@@ -275,13 +277,17 @@
         <span class="n">listen_host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">listen_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">cd_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">access_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">allow_reconnect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个反向 websocket连接器</span>
 
+<span class="sd">        注意：服务提供路径为：&quot;/&quot;</span>
+
 <span class="sd">        :param listen_host: 监听的 host</span>
 <span class="sd">        :param listen_port: 监听的 port</span>
 <span class="sd">        :param cd_time: 行为操作冷却时间（用于防止风控）</span>
+<span class="sd">        :param access_token: 本连接器用于鉴权的 access_token（建议从环境变量或配置中读取）</span>
 <span class="sd">        :param allow_reconnect: 是否允许客户端重新连接。默认为 `False`，即客户端连接后如果断连，将直接停止 bot；若为 `True`，则会等待客户端重连，等待时所有行为操作将阻塞</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cd_time</span><span class="p">)</span>
@@ -291,6 +297,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">listen_port</span>
         <span class="c1">#: 服务端对象</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">:</span> <span class="s2">&quot;websockets.server.WebSocketServer&quot;</span>
+        <span class="c1">#: 连接器操作鉴权的 token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="n">access_token</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
@@ -303,18 +311,33 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_reconn_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_req_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_req_check</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="n">websockets</span><span class="o">.</span><span class="n">HeadersLike</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">http</span><span class="o">.</span><span class="n">HTTPStatus</span><span class="p">,</span> <span class="n">websockets</span><span class="o">.</span><span class="n">HeadersLike</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;拦截握手请求，只允许一个客户端连接&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn_requested</span><span class="p">:</span>
-            <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request_lock</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn_requested</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_conn_requested</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="p">(</span>
+        <span class="n">resp_403</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">http</span><span class="o">.</span><span class="n">HTTPStatus</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
             <span class="n">http</span><span class="o">.</span><span class="n">HTTPStatus</span><span class="o">.</span><span class="n">FORBIDDEN</span><span class="p">,</span>
             <span class="p">[],</span>
-            <span class="sa">b</span><span class="s2">&quot;Melobot already accepted the unique connection.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
         <span class="p">)</span>
+        <span class="n">reconn_refused</span> <span class="o">=</span> <span class="s2">&quot;Already accepted the unique connection</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">auth_failed</span> <span class="o">=</span> <span class="s2">&quot;Authorization failed</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn_requested</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resp_403</span><span class="p">(</span><span class="n">reconn_refused</span><span class="p">)</span>
+
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn_requested</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">resp_403</span><span class="p">(</span><span class="n">reconn_refused</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Authorization&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;OneBot 实现程序的 access_token 不匹配，拒绝连接&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">resp_403</span><span class="p">(</span><span class="n">auth_failed</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conn_requested</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;运行服务&quot;&quot;&quot;</span>
@@ -417,20 +440,20 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">raw_event</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;收到事件，未格式化的字符串：</span><span class="se">\n</span><span class="si">{</span><span class="n">raw_event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">raw_event</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">raw</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;收到上报，未格式化的字符串：</span><span class="se">\n</span><span class="si">{</span><span class="n">raw</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">raw</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
                         <span class="k">continue</span>
-                    <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">raw_event</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
+                    <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">try_build</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">log_obj</span><span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
                             <span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span>
                             <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="n">event</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 构建完成&quot;</span><span class="p">,</span>
                         <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_resp_event</span><span class="p">():</span>
-                        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;ResponseEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-                        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">resp</span> <span class="o">=</span> <span class="n">ActionResponse</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+                        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">resp</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
                             <span class="n">Union</span><span class="p">[</span>
@@ -446,7 +469,7 @@
                     <span class="k">raise</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;bot 连接器监听任务抛出异常&quot;</span><span class="p">)</span>
-                    <span class="n">log_obj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">raw_event</span><span class="p">,</span> <span class="s2">&quot;异常点 raw_event&quot;</span><span class="p">)</span>
+                    <span class="n">log_obj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="s2">&quot;异常点的上报数据&quot;</span><span class="p">)</span>
                     <span class="n">log_exc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;连接器监听任务已停止&quot;</span><span class="p">)</span>
@@ -500,7 +523,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

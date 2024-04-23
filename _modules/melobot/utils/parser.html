@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.utils.parser - MeloBot 2.5.14</title>
+        <title>melobot.utils.parser - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -42,7 +42,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -131,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +158,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -185,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关参考</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../references/event-action.html">事件和行为</a></li>
@@ -513,7 +514,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cmd_start</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">cmd_sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">targets</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">formatters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">CmdArgFormatter</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个命令解析器</span>
@@ -526,10 +527,10 @@
 
 <span class="sd">        :param cmd_start: 命令起始符（可以是字符串或字符串列表）</span>
 <span class="sd">        :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）</span>
-<span class="sd">        :param target: 匹配的命令名</span>
+<span class="sd">        :param targets: 匹配的命令名</span>
 <span class="sd">        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">target</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">target</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">targets</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formatters</span> <span class="o">=</span> <span class="n">formatters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">need_format</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span>
 
@@ -588,18 +589,18 @@
 
 
 
-<div class="viewcode-block" id="CmdParserGen">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdParserGen">[文档]</a>
-<span class="k">class</span> <span class="nc">CmdParserGen</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;命令解析器的生成器</span>
+<div class="viewcode-block" id="CmdParserFactory">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdParserFactory">[文档]</a>
+<span class="k">class</span> <span class="nc">CmdParserFactory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;命令解析器的工厂</span>
 
 <span class="sd">    预先存储命令起始符和命令间隔符，指定匹配的命令名后返回一个命令解析器。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CmdParserGen.__init__">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdParserGen.__init__">[文档]</a>
+<div class="viewcode-block" id="CmdParserFactory.__init__">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdParserFactory.__init__">[文档]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_start</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">cmd_sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个命令解析器的生成器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个命令解析器的工厂</span>
 
 <span class="sd">        .. admonition:: 注意</span>
 <span class="sd">           :class: caution</span>
@@ -614,16 +615,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cmd_sep</span> <span class="o">=</span> <span class="n">cmd_sep</span></div>
 
 
-<div class="viewcode-block" id="CmdParserGen.gen">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdParserGen.gen">[文档]</a>
-    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span>
+<div class="viewcode-block" id="CmdParserFactory.get">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.CmdParserFactory.get">[文档]</a>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">targets</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">formatters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">CmdArgFormatter</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CmdParser</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;生成匹配指定命令名的命令解析器</span>
 
-<span class="sd">        :param target: 匹配的命令名</span>
+<span class="sd">        :param targets: 匹配的命令名</span>
 <span class="sd">        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">CmdParser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_sep</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">formatters</span><span class="p">)</span></div>
@@ -668,7 +669,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>

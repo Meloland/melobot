@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>转发消息与消息结点 - MeloBot 2.5.14</title>
+        <title>转发消息与消息结点 - melobot 2.6.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -43,7 +43,8 @@
       }
     }
   }
-</style></head>
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
   <body>
     
     <script>
@@ -132,7 +133,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">MeloBot 2.5.14</div></a>
+      <a href="../index.html"><div class="brand">melobot 2.6.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +159,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">MeloBot 2.5.14</span>
+  <span class="sidebar-brand-text">melobot 2.6.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -186,7 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.base.html">melobot.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">相关参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">相关知识</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
 <li class="toctree-l2"><a class="reference internal" href="connector.html">连接器类型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="event-action.html">事件和行为</a></li>
@@ -244,7 +245,7 @@
         <article role="main">
           <section id="id1">
 <h1>转发消息与消息结点<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
-<p>在前一篇文章 <a class="reference internal" href="msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a> 中我们说明了 OneBot 标准是如何表示<strong>单条 qq 消息中</strong>可能存在的多种类型的内容的（如文本、语音或图片），主要是通过 <strong>CQ 字符串</strong>或<strong>消息段数组</strong>的形式。</p>
+<p>在前一部分 <a class="reference internal" href="msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a> 中我们说明了 OneBot 标准是如何表示<strong>单条 qq 消息中</strong>可能存在的多种类型的内容的（如文本、语音或图片），主要是通过 <strong>CQ 字符串</strong>或<strong>消息段数组</strong>的形式。</p>
 <p>但是如果是转发消息这种包含<strong>多条消息</strong>的消息，要如何表示呢？这个时候就需要<strong>转发消息段或消息结点</strong>了。</p>
 <p>在 melobot 中，你不需要手动处理“转发消息段”、“消息结点”的数据结构。<strong>虽然无需手动处理，但是了解这些数据结构，有助于你使用 melobot 提供的相关方法</strong>。</p>
 <section id="id2">
@@ -403,9 +404,9 @@
 <h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h2>
 <p>在 melobot 中：</p>
 <ul class="simple">
-<li><p>转发消息段，作为消息段对象（类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code></a> 的字典）的一种表示</p></li>
-<li><p>消息结点，由类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgNode" title="melobot.base.typing.MsgNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgNode</span></code></a> 的字典表示</p></li>
-<li><p>转发消息，由消息结点的列表（<code class="xref py py-obj docutils literal notranslate"><span class="pre">list[MsgNode]</span></code>）表示</p></li>
+<li><p>转发消息段，属于消息段对象（类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code></a> 的字典）</p></li>
+<li><p>消息结点，使用类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgNode" title="melobot.base.typing.MsgNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgNode</span></code></a> 的字典表示</p></li>
+<li><p>转发消息，使用消息结点的列表（<code class="xref py py-obj docutils literal notranslate"><span class="pre">list[MsgNode]</span></code>）表示</p></li>
 </ul>
 </section>
 </section>
@@ -491,7 +492,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9a3dc4c6"></script>
+</div><script src="../_static/documentation_options.js?v=61bc7532"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
