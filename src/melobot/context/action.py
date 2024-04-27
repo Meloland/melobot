@@ -221,7 +221,7 @@ def send(
             action = _to_cq_str_action(action)
         return action
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
 
 class ForwardMsgActionArgs(ActionArgs):
@@ -369,7 +369,7 @@ def send_forward(
             action = _to_cq_str_action(action)
         return action
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
 
 class MsgDelActionArgs(ActionArgs):
@@ -1268,9 +1268,7 @@ class GetGroupHonorActionArgs(ActionArgs):
 @SessionManager._handle
 def get_group_honor(
     groupId: int,
-    type: Literal[
-        "talkative", "performer", "legend", "strong_newbie", "emotion", "all"
-    ],
+    type: Literal["talkative", "performer", "legend", "strong_newbie", "emotion", "all"],
     wait: bool = True,
     auto: bool = True,
 ) -> BotAction:
@@ -1492,7 +1490,7 @@ async def send_wait(
     try:
         await SessionManager._hup(SESSION_LOCAL._get_var(), overtime)
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
 
 async def send_reply(
@@ -1524,7 +1522,7 @@ async def send_reply(
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
     content_arr.extend(_process_msg(content))
     await send(content_arr, cq_str, wait=False, auto=auto)
 
@@ -1559,7 +1557,7 @@ async def finish(
     try:
         SessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
     raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")
 
 
@@ -1592,12 +1590,12 @@ async def reply_finish(
     try:
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
     content_arr.extend(_process_msg(content))
     await send(content_arr, cq_str)
     try:
         SessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
     raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")

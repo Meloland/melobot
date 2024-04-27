@@ -168,9 +168,7 @@ class MessageEvent(BotEvent):
 
     def is_friend(self) -> bool:
         """是否为好友消息"""
-        return (
-            self.raw["message_type"] == "private" and self.raw["sub_type"] == "friend"
-        )
+        return self.raw["message_type"] == "private" and self.raw["sub_type"] == "friend"
 
     def is_group(self) -> bool:
         """是否为群消息（正常群消息、群匿名消息、群自身消息、群系统消息属于该类型）"""
@@ -182,9 +180,7 @@ class MessageEvent(BotEvent):
 
     def is_group_anonym(self) -> bool:
         """是否为匿名群消息"""
-        return (
-            self.raw["message_type"] == "group" and self.raw["sub_type"] == "anonymous"
-        )
+        return self.raw["message_type"] == "group" and self.raw["sub_type"] == "anonymous"
 
     def is_group_self(self) -> bool:
         """是否为群自身消息（即 bot 自己群中发的消息）"""

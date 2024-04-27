@@ -1,10 +1,13 @@
+import inspect
 from enum import Enum
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Coroutine,
+    Generic,
     Iterator,
     Literal,
     Optional,
@@ -18,6 +21,8 @@ from typing import (
 )
 
 from typing_extensions import NotRequired
+
+from .exceptions import BotValidateError
 
 
 class MsgSegment(TypedDict):
@@ -165,3 +170,22 @@ class Void:
 
 #: “无值”对象类型
 VoidType: TypeAlias = Type[Void]
+
+
+#: 参数为 P，返回 Awaitable[T] 的可调用对象
+AsyncCallable: TypeAlias = Callable[P, Awaitable[T]]
+
+
+async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) -> T:
+    """在使用异步可调用对象时，提供用户友好的验证"""
+    if not callable(func):
+        raise BotValidateError(
+            f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）"
+        )
+
+    awaitable = func(*args, **kwargs)
+    if inspect.isawaitable(awaitable):
+        return await awaitable
+    raise BotValidateError(
+        f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象），因为它的返回结果 {awaitable} 不可异步等待"
+    )

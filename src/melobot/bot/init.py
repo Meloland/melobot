@@ -4,15 +4,7 @@ from contextvars import ContextVar, Token
 
 from ..base.abc import AbstractConnector, BaseLogger
 from ..base.exceptions import BotRuntimeError, BotValueError
-from ..base.typing import (
-    TYPE_CHECKING,
-    Any,
-    BotLife,
-    Coroutine,
-    Literal,
-    Optional,
-    Void,
-)
+from ..base.typing import TYPE_CHECKING, Any, BotLife, Coroutine, Literal, Optional, Void
 from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..controller.dispatcher import BotDispatcher
 from ..controller.responder import BotResponder
@@ -163,9 +155,7 @@ class MeloBot:
             )
             return self
         if not plugin.MULTI_USE and plugin._loaded_once:
-            raise BotRuntimeError(
-                f"插件 {plugin.ID} 不支持多 bot，但它已被其他 bot 加载"
-            )
+            raise BotRuntimeError(f"插件 {plugin.ID} 不支持多 bot，但它已被其他 bot 加载")
         plugin._loaded_once = True
 
         handlers = []
@@ -318,7 +308,7 @@ class MeloBot:
         if self.logger.check_level_flag("DEBUG"):
             self.logger.debug(
                 f"bot 信号触发：{namespace}.{signal} | wait: {wait}"
-                f"（当前 session 上下文：{SESSION_LOCAL:hexid}），传递参数：args={args}, kwargs={kwargs}"
+                f"（当前会话上下文：{SESSION_LOCAL:hexid}），传递参数：args={args}, kwargs={kwargs}"
             )
         return self._plugin_bus.emit(namespace, signal, *args, wait=wait, **kwargs)
 
@@ -333,7 +323,7 @@ class MeloBot:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         self.logger.debug(
-            f"获取共享对象行为：{namespace}.{id}（当前 session 上下文：{SESSION_LOCAL:hexid}）"
+            f"获取共享对象行为：{namespace}.{id}（当前会话上下文：{SESSION_LOCAL:hexid}）"
         )
         return self._plugin_store.get(namespace, id)
 
@@ -385,7 +375,7 @@ class MeloBot:
         except AttributeError as e:
             if "Void" in e.__str__():
                 raise BotRuntimeError(
-                    "多播或单播时，bot 和 session 的上下文传递将会被阻隔。如需使用，请将它们作为参数显式传递"
+                    "多播或单播时，bot 和会话的上下文传递将会被阻隔。如需使用，请将它们作为参数显式传递"
                 )
             else:
                 raise e

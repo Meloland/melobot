@@ -93,9 +93,7 @@ class BotLogger(BaseLogger):
         return fmt
 
     @staticmethod
-    def _file_handler(
-        fmt: logging.Formatter, log_dir: str, name: str
-    ) -> logging.Handler:
+    def _file_handler(fmt: logging.Formatter, log_dir: str, name: str) -> logging.Handler:
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
         handler = logging.handlers.RotatingFileHandler(
@@ -207,7 +205,7 @@ def log_exc(
     logger.error(f"异常抛出点局部变量：\n{get_rich_str(locals)}")
 
 
-def log_obj(log_method: Callable[..., None], obj: Any, prefix: str) -> None:
+def log_obj(log_method: Callable[[str], None], obj: Any, prefix: str) -> None:
     obj_str = f"{prefix}：\n{get_rich_str(obj)}"
     log_method(obj_str)
 

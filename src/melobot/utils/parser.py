@@ -4,11 +4,10 @@ from functools import lru_cache
 
 from ..base.abc import BotParser
 from ..base.exceptions import BotException, BotValueError
-from ..base.tools import is_retcoro
 from ..base.typing import (
     Any,
+    AsyncCallable,
     Callable,
-    Coroutine,
     Iterator,
     ModuleType,
     Optional,
@@ -81,11 +80,9 @@ class CmdArgFormatter:
         src_expect: Optional[str] = None,
         default: Any = Void,
         default_replace_flag: Optional[str] = None,
-        convert_fail: Optional[
-            Callable[[FormatInfo], Coroutine[Any, Any, None]]
-        ] = None,
-        verify_fail: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
-        arg_lack: Optional[Callable[[FormatInfo], Coroutine[Any, Any, None]]] = None,
+        convert_fail: Optional[AsyncCallable[[FormatInfo], None]] = None,
+        verify_fail: Optional[AsyncCallable[[FormatInfo], None]] = None,
+        arg_lack: Optional[AsyncCallable[[FormatInfo], None]] = None,
     ) -> None:
         """初始化一个命令参数格式化器
 
@@ -108,18 +105,6 @@ class CmdArgFormatter:
         if self.default is Void and self.default_replace_flag is not None:
             raise BotValueError(
                 "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
-            )
-        if convert_fail is not None and not is_retcoro(convert_fail):
-            raise BotValueError(
-                f"格式化器的类型转换失败回调 {convert_fail.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        if verify_fail is not None and not is_retcoro(verify_fail):
-            raise BotValueError(
-                f"格式化器的值验证失败回调 {verify_fail.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        if arg_lack is not None and not is_retcoro(arg_lack):
-            raise BotValueError(
-                f"格式化器的参数缺失回调 {arg_lack.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
             )
 
         self.convert_fail = convert_fail
@@ -145,10 +130,7 @@ class CmdArgFormatter:
         # 格式化参数为对应类型的变量
         try:
             src = self._get_val(args, idx)
-            if (
-                self.default_replace_flag is not None
-                and src == self.default_replace_flag
-            ):
+            if self.default_replace_flag is not None and src == self.default_replace_flag:
                 src = self.default
             res = self.convert(src) if self.convert is not None else src
 
@@ -303,8 +285,7 @@ class CmdParser(BotParser):
                 temp_regex.sub(r"\\\1", sep_token) for sep_token in self.sep_tokens
             ]
             self.cmd_start = [
-                temp_regex.sub(r"\\\1", start_token)
-                for start_token in self.start_tokens
+                temp_regex.sub(r"\\\1", start_token) for start_token in self.start_tokens
             ]
             self.sep_parse_regex = re.compile(rf"{'|'.join(self.cmd_sep)}")
             self.start_parse_regex = re.compile(rf"{'|'.join(self.cmd_start)}")

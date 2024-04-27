@@ -2,17 +2,15 @@ import asyncio
 
 from ..base.abc import BaseLogger, BotLife
 from ..base.exceptions import BotValueError
-from ..base.typing import Any, Callable, Coroutine
+from ..base.typing import Any, AsyncCallable
 from ..utils.logger import log_exc
 
 
 class HookRunner:
     """bot hook 运行器"""
 
-    def __init__(
-        self, type: BotLife, func: Callable[..., Coroutine[Any, Any, None]]
-    ) -> None:
-        self.cb: Callable[..., Coroutine[Any, Any, None]] = func
+    def __init__(self, type: BotLife, func: AsyncCallable[..., None]) -> None:
+        self.cb: AsyncCallable[..., None] = func
         self.type: BotLife = type
 
 
@@ -28,9 +26,7 @@ class BotHookBus:
     def _bind(self, logger: BaseLogger) -> None:
         self.logger = logger
 
-    def register(
-        self, hook_type: BotLife, hook_func: Callable[..., Coroutine[Any, Any, None]]
-    ) -> None:
+    def register(self, hook_type: BotLife, hook_func: AsyncCallable[..., None]) -> None:
         if hook_type not in self.store.keys():
             raise BotValueError(
                 f"尝试添加一个 bot 生命周期 hook 方法，但是其指定的类型 {hook_type} 不存在"

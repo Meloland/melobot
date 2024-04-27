@@ -21,6 +21,5 @@ from .tools import (
     timelimit,
     to_async,
     to_coro,
-    to_task,
 )
 from .typing import LogicMode, ParseArgs, PriorLevel, User

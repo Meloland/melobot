@@ -12,21 +12,22 @@ from ..base.abc import (
     ShareObjCbArgs,
 )
 from ..base.exceptions import BotPluginError
+from ..base.ioc import DependManager
 from ..base.tools import to_async
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
+    AsyncCallable,
     Callable,
-    Coroutine,
-    Literal,
     LogicMode,
     Optional,
     P,
     PriorLevel,
+    T,
     Union,
 )
 from ..meta import ReadOnly
-from ..utils.checker import AtMsgChecker, NoticeChecker, ReqChecker
+from ..utils.checker import AtMsgChecker
 from ..utils.matcher import (
     ContainMatcher,
     EndMatcher,
@@ -34,8 +35,10 @@ from ..utils.matcher import (
     RegexMatcher,
     StartMatcher,
 )
+from ..utils.parser import CmdArgFormatter, CmdParser
 from .handler import (
     AllEventHandler,
+    EventHandler,
     MetaEventHandler,
     MsgEventHandler,
     NoticeEventHandler,
@@ -43,7 +46,7 @@ from .handler import (
 )
 
 if TYPE_CHECKING:
-    from ..base.abc import SessionRule, WrappedChecker
+    from ..base.abc import SessionRule
     from ..utils.checker import BotChecker
     from ..utils.matcher import BotMatcher
     from ..utils.parser import BotParser
@@ -202,6 +205,22 @@ class BotPlugin:
         if not check_pass:
             raise BotPluginError(f"插件 {self.ID} 不能为不属于自己的共享对象绑定回调")
 
+    def _on_event(
+        self, handler_type: type[EventHandler], params: list[Any]
+    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+
+        def save_args(executor: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
+            self.__handler_args__.append(
+                EventHandlerArgs(
+                    executor=DependManager.inject(executor),
+                    type=handler_type,
+                    params=params,
+                )
+            )
+            return executor
+
+        return save_args
+
     def on_event(
         self,
         checker: Optional["BotChecker"] = None,
@@ -211,8 +230,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个任意事件处理方法
 
@@ -226,30 +245,21 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=AllEventHandler,
-                    params=[
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self._on_event(
+            AllEventHandler,
+            params=[
+                checker,
+                priority,
+                block,
+                temp,
+                session_rule,
+                session_hold,
+                direct_rouse,
+                conflict_wait,
+                conflict_cb,
+                conflict_cb,
+            ],
+        )
 
     def on_message(
         self,
@@ -262,8 +272,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个消息事件处理方法
 
@@ -279,32 +289,22 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        matcher,
-                        parser,
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self._on_event(
+            MsgEventHandler,
+            params=[
+                matcher,
+                parser,
+                checker,
+                priority,
+                block,
+                temp,
+                session_rule,
+                session_hold,
+                direct_rouse,
+                conflict_wait,
+                conflict_cb,
+            ],
+        )
 
     def on_at_qq(
         self,
@@ -318,8 +318,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个艾特消息事件处理方法
 
@@ -338,38 +338,71 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        at_checker = AtMsgChecker(qid)
-        wrapped_checker: AtMsgChecker | "WrappedChecker"
-        if checker is not None:
-            wrapped_checker = at_checker & checker
-        else:
-            wrapped_checker = at_checker
+        return self.on_message(
+            matcher,
+            parser,
+            AtMsgChecker(qid) if checker is None else AtMsgChecker(qid) & checker,
+            priority,
+            block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb,
+        )
 
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        matcher,
-                        parser,
-                        wrapped_checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
+    def on_command(
+        self,
+        cmd_start: str | list[str],
+        cmd_sep: str | list[str],
+        targets: str | list[str],
+        formatters: Optional[list[CmdArgFormatter | None]] = None,
+        checker: Optional["BotChecker"] = None,
+        priority: PriorLevel = PriorLevel.MEAN,
+        block: bool = False,
+        temp: bool = False,
+        session_rule: Optional["SessionRule"] = None,
+        session_hold: bool = False,
+        direct_rouse: bool = True,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+    ):
+        """绑定一个消息事件处理方法
 
-        return make_args
+        .. admonition:: 注意
+           :class: caution
+
+           - 命令起始符和命令间隔符不允许包含：引号，各种括号，反斜杠，数字，英文，控制字符及各类空白字符。
+           - 命令起始符不能是命令间隔符的子序列，反之亦然。
+
+        :param cmd_start: 命令起始符（可以是字符串或字符串列表）
+        :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
+        :param targets: 匹配的命令名
+        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）
+        :param checker: 使用的检查器，为空则默认通过检查
+        :param priority: 优先级
+        :param block: 是否进行优先级阻断
+        :param temp: 是否是一次性的
+        :param session_rule: 会话规则，为空则不使用会话规则
+        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
+        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
+        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
+        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        """
+        return self.on_message(
+            None,
+            CmdParser(cmd_start, cmd_sep, targets, formatters),
+            checker,
+            priority,
+            block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb,
+        )
 
     def on_start_match(
         self,
@@ -382,8 +415,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个字符串起始匹配的消息事件处理方法
 
@@ -405,33 +438,19 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        start_matcher = StartMatcher(target, logic_mode)
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        start_matcher,
-                        None,
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self.on_message(
+            StartMatcher(target, logic_mode),
+            None,
+            checker,
+            priority,
+            block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb,
+        )
 
     def on_contain_match(
         self,
@@ -444,8 +463,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个字符串包含匹配的消息事件处理方法
 
@@ -467,33 +486,19 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        contain_matcher = ContainMatcher(target, logic_mode)
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        contain_matcher,
-                        None,
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self.on_message(
+            ContainMatcher(target, logic_mode),
+            None,
+            checker,
+            priority,
+            block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb,
+        )
 
     def on_full_match(
         self,
@@ -506,8 +511,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个字符串全匹配的消息事件处理方法
 
@@ -529,33 +534,19 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        full_matcher = FullMatcher(target, logic_mode)
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        full_matcher,
-                        None,
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self.on_message(
+            FullMatcher(target, logic_mode),
+            None,
+            checker,
+            priority,
+            block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb,
+        )
 
     def on_end_match(
         self,
@@ -568,8 +559,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个字符串结尾匹配的消息事件处理方法
 
@@ -591,33 +582,19 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        end_matcher = EndMatcher(target, logic_mode)
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        end_matcher,
-                        None,
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self.on_message(
+            EndMatcher(target, logic_mode),
+            None,
+            checker,
+            priority,
+            block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb,
+        )
 
     def on_regex_match(
         self,
@@ -629,8 +606,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个字符串正则匹配的消息事件处理方法
 
@@ -647,33 +624,19 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-        regex_matcher = RegexMatcher(target)
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MsgEventHandler,
-                    params=[
-                        regex_matcher,
-                        None,
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self.on_message(
+            RegexMatcher(target),
+            None,
+            checker,
+            priority,
+            block,
+            temp,
+            session_rule,
+            session_hold,
+            direct_rouse,
+            conflict_wait,
+            conflict_cb,
+        )
 
     def on_request(
         self,
@@ -684,8 +647,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个请求事件处理方法
 
@@ -699,30 +662,20 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=ReqEventHandler,
-                    params=[
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self._on_event(
+            ReqEventHandler,
+            params=[
+                checker,
+                priority,
+                block,
+                temp,
+                session_rule,
+                session_hold,
+                direct_rouse,
+                conflict_wait,
+                conflict_cb,
+            ],
+        )
 
     def on_notice(
         self,
@@ -733,8 +686,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个通知事件处理方法
 
@@ -749,30 +702,20 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=NoticeEventHandler,
-                    params=[
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self._on_event(
+            NoticeEventHandler,
+            params=[
+                checker,
+                priority,
+                block,
+                temp,
+                session_rule,
+                session_hold,
+                direct_rouse,
+                conflict_wait,
+                conflict_cb,
+            ],
+        )
 
     def on_meta_event(
         self,
@@ -783,8 +726,8 @@ class BotPlugin:
         session_rule: Optional["SessionRule"] = None,
         session_hold: bool = False,
         direct_rouse: bool = True,
-        conflict_wait: bool = False,
-        conflict_cb: Optional[Callable[[], Coroutine]] = None,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
     ):
         """绑定一个元事件处理方法
 
@@ -798,30 +741,20 @@ class BotPlugin:
         :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
         :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
         """
-
-        def make_args(
-            executor: Callable[[], Coroutine[Any, Any, None]]
-        ) -> Callable[[], Coroutine[Any, Any, None]]:
-            self.__handler_args__.append(
-                EventHandlerArgs(
-                    executor=executor,
-                    type=MetaEventHandler,
-                    params=[
-                        checker,
-                        priority,
-                        block,
-                        temp,
-                        session_rule,
-                        session_hold,
-                        direct_rouse,
-                        conflict_wait,
-                        conflict_cb,
-                    ],
-                )
-            )
-            return executor
-
-        return make_args
+        return self._on_event(
+            MetaEventHandler,
+            params=[
+                checker,
+                priority,
+                block,
+                temp,
+                session_rule,
+                session_hold,
+                direct_rouse,
+                conflict_wait,
+                conflict_cb,
+            ],
+        )
 
     def on_signal(self, signal: str, namespace: Optional[str] = None):
         """绑定一个信号处理方法
@@ -850,12 +783,12 @@ class BotPlugin:
         :param signal: 信号的名称
         """
 
-        def make_args(
-            func: Callable[P, Coroutine[Any, Any, Any]]
-        ) -> Callable[P, Coroutine[Any, Any, Any]]:
+        def make_args(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
             self.__signal_args__.append(
                 PluginSignalHandlerArgs(
-                    func, namespace if namespace is not None else self.ID, signal
+                    DependManager.inject(func),
+                    namespace if namespace is not None else self.ID,
+                    signal,
                 )
             )
             return func
@@ -866,7 +799,7 @@ class BotPlugin:
         self,
         id: str,
         namespace: Optional[str] = None,
-        reflector: Optional[Callable[[], Any]] = None,
+        reflector: Optional[Callable[P, Any]] = None,
     ):
         """注册一个共享对象，同时绑定它的值获取方法
 
@@ -903,14 +836,14 @@ class BotPlugin:
         _namespace = namespace if namespace is not None else self.ID
         if reflector is not None:
             self.__share_args__.append(
-                ShareObjArgs(_namespace, id, to_async(reflector))
+                ShareObjArgs(DependManager.inject(to_async(reflector)), _namespace, id)
             )
             return
 
-        def make_args(
-            func: Callable[[], Coroutine[Any, Any, Any]]
-        ) -> Callable[[], Coroutine[Any, Any, Any]]:
-            self.__share_args__.append(ShareObjArgs(_namespace, id, func))
+        def make_args(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
+            self.__share_args__.append(
+                ShareObjArgs(DependManager.inject(func), _namespace, id)
+            )
             return func
 
         return make_args
@@ -944,12 +877,12 @@ class BotPlugin:
         :param id: 共享对象的 id 标识
         """
 
-        def make_args(
-            func: Callable[P, Coroutine[Any, Any, Any]]
-        ) -> Callable[P, Coroutine[Any, Any, Any]]:
+        def make_args(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
             self.__share_cb_args__.append(
                 ShareObjCbArgs(
-                    namespace if namespace is not None else self.ID, id, func
+                    namespace if namespace is not None else self.ID,
+                    id,
+                    DependManager.inject(func),
                 )
             )
             return func
@@ -974,11 +907,11 @@ class BotPlugin:
         :param types: bot 生命周期类型枚举值，可传入多个
         """
 
-        def make_args(
-            func: Callable[P, Coroutine[Any, Any, None]]
-        ) -> Callable[P, Coroutine[Any, Any, None]]:
+        def make_args(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
             for type in types:
-                self.__hook_args__.append(BotHookRunnerArgs(func, type))
+                self.__hook_args__.append(
+                    BotHookRunnerArgs(DependManager.inject(func), type)
+                )
             return func
 
         return make_args

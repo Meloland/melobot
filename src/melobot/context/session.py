@@ -11,12 +11,13 @@ from ..base.exceptions import (
     BotSessionTimeout,
     BotValueError,
 )
+from ..base.ioc import PendingDepend
 from ..base.tools import get_twin_event
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
+    AsyncCallable,
     Callable,
-    Coroutine,
     Literal,
     Optional,
     P,
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
 
 
 class BotSession:
-    """Bot Session 类。不需要直接实例化，必须通过 BotSessionBuilder 构造。"""
+    """Bot会话类。不需要直接实例化，必须通过 BotSessionBuilder 构造。"""
 
     def __init__(
         self,
@@ -50,15 +51,15 @@ class BotSession:
         self.args: Union["ParseArgs", None] = None
 
         self._manager = manager
-        # session 是否空闲的标志，由 BotSessionManager 修改和管理
+        # 会话是否空闲的标志，由 BotSessionManager 修改和管理
         self._free_signal = asyncio.Event()
         self._free_signal.set()
-        # session 是否挂起的标志。二者互为孪生反状态。由 BotSessionManager 修改和管理
-        # 注意 session 挂起时一定是非空闲和非过期的
+        # 会话是否挂起的标志。二者互为孪生反状态。由 BotSessionManager 修改和管理
+        # 注意会话挂起时一定是非空闲和非过期的
         self._hup_signal, self._awake_signal = get_twin_event()
-        # session 是否过期的标志，由 BotSessionManager 修改和管理
+        # 会话是否过期的标志，由 BotSessionManager 修改和管理
         self._expired = False
-        # 用于标记该 session 属于哪个 session 空间，如果为 None 则表明是一次性 session
+        # 用于标记该会话属于哪个会话空间，如果为 None 则表明是一次性 会话
         self._space_tag: Optional["EventHandler"] = space_tag
 
     def __format__(self, format_spec: str) -> str:
@@ -66,16 +67,16 @@ class BotSession:
             case "hexid":
                 return f"{id(self):#x}"
             case _:
-                raise BotSessionError(f"未知的 session 格式化标识符：{format_spec}")
+                raise BotSessionError(f"未知的会话格式化标识符：{format_spec}")
 
     def __lshift__(self, another: "BotSession") -> None:
-        """合并 session 的存储内容"""
+        """合并会话的存储内容"""
         self.store.update(another.store)
         self.args = another.args
 
 
 class SessionLocal:
-    """Session 自动上下文"""
+    """会话 自动上下文"""
 
     __slots__ = tuple(
         list(filter(lambda x: not (len(x) >= 2 and x[:2] == "__"), dir(BotSession)))
@@ -94,9 +95,7 @@ class SessionLocal:
                 except LookupError:
                     return "None"
             case _:
-                raise BotSessionError(
-                    f"未知的 SessionLocal 格式化标识符：{format_spec}"
-                )
+                raise BotSessionError(f"未知的 SessionLocal 格式化标识符：{format_spec}")
 
     def _get_var(self) -> BotSession:
         var = self.__storage__.get()
@@ -154,7 +153,7 @@ class AttrSessionRule(SessionRule):
             for attr in attrs:
                 val = getattr(val, attr)
         except AttributeError:
-            raise BotSessionError(f"session 规则指定的属性 {attr} 不存在")
+            raise BotSessionError(f"会话 规则指定的属性 {attr} 不存在")
         return val
 
     def compare(self, e1: "BotEvent", e2: "BotEvent") -> bool:
@@ -166,7 +165,7 @@ class BotSessionManager:
     HUP_STORAGE: dict["EventHandler", set[BotSession]] = {}
     # 各个 handler 对饮的操作锁
     WORK_LOCKS: dict["EventHandler", asyncio.Lock] = {}
-    # 用来标记 cls.get 等待一个挂起的 session 时的死锁
+    # 用来标记 cls.get 等待一个挂起的会话时的死锁
     DEADLOCK_FLAGS: dict["EventHandler", asyncio.Event] = {}
     # 对应每个 handler 的 try_attach 过程的操作锁
     ATTACH_LOCKS: dict["EventHandler", asyncio.Lock] = {}
@@ -178,7 +177,7 @@ class BotSessionManager:
 
     @classmethod
     def register(cls, handler: "EventHandler") -> None:
-        """以 handler 为键，注册 handler 对应的 session 空间、操作锁和挂起 session 空间"""
+        """以 handler 为键，注册 handler 对应的会话空间、操作锁和挂起会话空间"""
         cls.STORAGE[handler] = set()
         cls.WORK_LOCKS[handler] = asyncio.Lock()
         cls.HUP_STORAGE[handler] = set()
@@ -195,15 +194,15 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: "EventHandler",
     ) -> bool:
-        """Session 附着操作，临界区操作。只能在 cls.try_attach 中进行"""
+        """会话 附着操作，临界区操作。只能在 cls.try_attach 中进行"""
         session = None
         for s in cls.HUP_STORAGE[handler]:
-            # session 的挂起方法，保证 session 一定未过期，因此不进行过期检查
+            # 会话的挂起方法，保证会话一定未过期，因此不进行过期检查
             handler._rule = cast(AttrSessionRule, handler._rule)
             if handler._rule.compare(s.event, event):
                 session = s
                 break
-        # 如果获得一个挂起的 session，它一定是可附着的，附着后需要唤醒
+        # 如果获得一个挂起的 会话，它一定是可附着的，附着后需要唤醒
         if session:
             session.event = event
             cls._rouse(session)
@@ -216,7 +215,7 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: "EventHandler",
     ) -> bool:
-        """检查是否有挂起的 session 可供 event 附着。 如果有则附着并唤醒，并返回 True。否则返回 False。"""
+        """检查是否有挂起的会话可供 event 附着。 如果有则附着并唤醒，并返回 True。否则返回 False。"""
         if handler._rule is None:
             return False
 
@@ -238,13 +237,13 @@ class BotSessionManager:
 
     @classmethod
     async def _hup(cls, session: BotSession, overtime: Optional[float] = None) -> None:
-        """挂起 session"""
+        """挂起 会话"""
         if session._space_tag is None:
             raise BotSessionError(
-                "当前 session 上下文因为缺乏 session_rule 作为唤醒标志，无法挂起"
+                "当前会话上下文因为缺乏 session_rule 作为唤醒标志，无法挂起"
             )
         elif session._expired:
-            raise BotSessionError("过期的 session 不能被挂起")
+            raise BotSessionError("过期的会话不能被挂起")
         cls.fill_args(session, None)
         cls.STORAGE[session._space_tag].remove(session)
         cls.HUP_STORAGE[session._space_tag].add(session)
@@ -253,7 +252,7 @@ class BotSessionManager:
         if overtime is None:
             await session._awake_signal.wait()
         elif overtime <= 0:
-            raise BotSessionError("session 挂起超时时间（秒数）必须 > 0")
+            raise BotSessionError("会话 挂起超时时间（秒数）必须 > 0")
         else:
             await asyncio.wait(
                 [
@@ -264,14 +263,14 @@ class BotSessionManager:
             )
             if not session._awake_signal.is_set():
                 cls._rouse(session)
-                raise BotSessionTimeout("session 挂起超时")
+                raise BotSessionTimeout("会话 挂起超时")
 
     @classmethod
     def _rouse(cls, session: BotSession) -> None:
-        """唤醒 session"""
+        """唤醒 会话"""
         if session._space_tag is None:
             raise BotSessionError(
-                "当前 session 上下文因为缺乏 session_rule 作为唤醒标志，无法唤醒"
+                "当前会话上下文因为缺乏 session_rule 作为唤醒标志，无法唤醒"
             )
         cls.HUP_STORAGE[session._space_tag].remove(session)
         cls.STORAGE[session._space_tag].add(session)
@@ -279,7 +278,7 @@ class BotSessionManager:
 
     @classmethod
     def _expire(cls, session: BotSession) -> None:
-        """标记该 session 为过期状态，并进行销毁操作（如果存在于某个 session_space，则从中移除）"""
+        """标记该会话为过期状态，并进行销毁操作（如果存在于某个 session_space，则从中移除）"""
         if session._expired:
             return
         session.store.clear()
@@ -289,7 +288,7 @@ class BotSessionManager:
 
     @classmethod
     def recycle(cls, session: BotSession, alive: bool = False) -> None:
-        """Session 所在方法运行结束后，回收 session。 默认将 session 销毁。若 alive 为 True，则保留"""
+        """会话 所在方法运行结束后，回收 会话。 默认将会话销毁。若 alive 为 True，则保留"""
         session._free_signal.set()
         if not alive:
             cls._expire(session)
@@ -300,8 +299,8 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: "EventHandler",
     ) -> Optional[BotSession]:
-        """Handler 内获取 session 方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
-        然后根据具体情况，获取已有 session 或新建 session。当尝试获取非空闲 session 时，如果 handler 指定不等待则返回
+        """Handler 内获取会话方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
+        然后根据具体情况，获取已有会话或新建 会话。当尝试获取非空闲会话时，如果 handler 指定不等待则返回
         None."""
         if handler._rule:
             # session_space, session._free_signal 竞争，需要加锁
@@ -322,8 +321,8 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: Optional["EventHandler"] = None,
     ) -> BotSession:
-        """内部使用的创建 session 方法。如果 handler 为空，即缺乏 space_tag，则为一次性 session。 或 handler._rule
-        为空，则也为一次性 session."""
+        """内部使用的创建会话方法。如果 handler 为空，即缺乏 space_tag，则为一次性 会话。 或 handler._rule
+        为空，则也为一次性 会话."""
         if handler:
             if handler._rule:
                 session = BotSession(event, cls, handler)
@@ -336,7 +335,7 @@ class BotSessionManager:
     def make_temp(
         cls, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
     ) -> BotSession:
-        """创建一次性 session。确定无需 session 管理机制时可以使用。 否则一定使用 cls.get 方法"""
+        """创建临时 会话。确定无需会话管理机制时可以使用。 否则一定使用 cls.get 方法"""
         return cls._make(event)
 
     @classmethod
@@ -345,7 +344,7 @@ class BotSessionManager:
         event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
         handler: "EventHandler",
     ) -> Optional[BotSession]:
-        """根据 handler 具体情况，从对应 session_space 中获取 session 或新建 session，或返回 None"""
+        """根据 handler 具体情况，从对应 session_space 中获取会话或新建 会话，或返回 None"""
         session = None
         check_rule, session_space, conflict_wait = (
             handler._rule,
@@ -359,10 +358,10 @@ class BotSessionManager:
             if check_rule.compare(s.event, event) and not s._expired:
                 session = s
                 break
-        # 如果会话不存在，生成一个新 session 变量
+        # 如果会话不存在，生成一个新会话变量
         if session is None:
             return cls._make(event, handler)
-        # 如果会话存在，且未过期，且空闲，则附着到这个 session 上
+        # 如果会话存在，且未过期，且空闲，则附着到这个会话上
         if session._free_signal.is_set():
             session.event = event
             return session
@@ -381,15 +380,15 @@ class BotSessionManager:
             cls.DEADLOCK_FLAGS[handler].set()
             await session._free_signal.wait()
         """
-        重新切换回本协程后，session 有可能变为过期，但此时一定是空闲的。
+        重新切换回本协程后，会话 有可能变为过期，但此时一定是空闲的。
         同时一定是非挂起状态。因为上面解决了可能存在的挂起死锁问题。
-        即使该 session 因过期被所在的 session_space 清除也无妨，因为此处有引用，
-        该 session 并不会消失。且此处不操作 session_space，无需担心 session_space 变动
+        即使该会话因过期被所在的 session_space 清除也无妨，因为此处有引用，
+        该会话并不会消失。且此处不操作 session_space，无需担心 session_space 变动
         """
-        # 如果过期，生成一个新的 session 变量
+        # 如果过期，生成一个新的会话变量
         if session._expired:
             return cls._make(event, handler)
-        # 如果未过期，则附着到这个 session 上
+        # 如果未过期，则附着到这个会话上
         else:
             session.event = event
             return session
@@ -404,7 +403,7 @@ class BotSessionManager:
             try:
                 if SESSION_LOCAL._expired:
                     raise BotSessionError(
-                        "当前  session 上下文已有过期标记，无法再执行 action 操作"
+                        "当前 会话上下文已有过期标记，无法再执行 action 操作"
                     )
             except LookupError:
                 pass
@@ -412,7 +411,7 @@ class BotSessionManager:
             action: "BotAction" = action_getter(*args, **kwargs)
             if cls.BOT_CTX.logger.check_level_flag("DEBUG"):
                 cls.BOT_CTX.logger.debug(
-                    f"action {action:hexid} 构建完成（当前 session 上下文：{SESSION_LOCAL:hexid}）"
+                    f"action {action:hexid} 构建完成（当前会话上下文：{SESSION_LOCAL:hexid}）"
                 )
             try:
                 action._fill_trigger(SESSION_LOCAL.event)
@@ -502,9 +501,7 @@ class ActionHandle:
     def __init__(
         self,
         action: "BotAction",
-        exec_meth: Callable[
-            ["BotAction"], Coroutine[Any, Any, asyncio.Future[ActionResponse] | None]
-        ],
+        exec_meth: AsyncCallable[["BotAction"], asyncio.Future[ActionResponse] | None],
         wait: bool,
     ) -> None:
         #: 本操作包含的行为对象
@@ -561,7 +558,7 @@ def any_event() -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEve
     try:
         return SESSION_LOCAL.event
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        return PendingDepend(lambda: SESSION_LOCAL.event)  # type: ignore[return-value]
 
 
 def msg_event() -> "MessageEvent":
@@ -612,7 +609,10 @@ def msg_text() -> str:
 
     :return: 纯文本内容的合并字符串
     """
-    return msg_event().text
+    try:
+        return SESSION_LOCAL.event.text
+    except LookupError:
+        return PendingDepend(lambda: SESSION_LOCAL.event.text)  # type: ignore[return-value]
 
 
 def msg_args() -> list[Any] | None:
@@ -622,13 +622,17 @@ def msg_args() -> list[Any] | None:
 
     :return: 解析参数值列表或 :obj:`None`
     """
-    try:
+
+    def _getter() -> list[Any] | None:
         if SESSION_LOCAL.args is not None:
             return SESSION_LOCAL.args.vals
         else:
             return None
+
+    try:
+        return _getter()
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        return PendingDepend(_getter)  # type: ignore[return-value]
 
 
 def session_store() -> dict:
@@ -641,7 +645,7 @@ def session_store() -> dict:
     try:
         return SESSION_LOCAL.store
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        return PendingDepend(lambda: SESSION_LOCAL.store)  # type: ignore[return-value]
 
 
 async def pause(overtime: Optional[float] = None) -> None:
@@ -659,7 +663,7 @@ async def pause(overtime: Optional[float] = None) -> None:
     try:
         await BotSessionManager._hup(SESSION_LOCAL._get_var(), overtime)
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
 
 def dispose() -> None:
@@ -675,4 +679,4 @@ def dispose() -> None:
     try:
         BotSessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
-        raise BotSessionError("当前 session 上下文不存在，因此无法使用本方法")
+        raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")

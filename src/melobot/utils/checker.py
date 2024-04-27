@@ -1,16 +1,5 @@
 from ..base.abc import BotChecker, BotEvent
-from ..base.exceptions import BotValueError
-from ..base.tools import is_retcoro
-from ..base.typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Coroutine,
-    Literal,
-    Optional,
-    User,
-    cast,
-)
+from ..base.typing import TYPE_CHECKING, AsyncCallable, Callable, Optional, User, cast
 
 if TYPE_CHECKING:
     from ..models.event import MessageEvent, NoticeEvent, RequestEvent
@@ -44,8 +33,8 @@ class MsgLvlChecker(BotChecker):
         super_users: Optional[list[int]] = None,
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        ok_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器
 
@@ -61,15 +50,6 @@ class MsgLvlChecker(BotChecker):
         self.ok_cb = ok_cb
         self.fail_cb = fail_cb
         self.check_lvl = level
-
-        if ok_cb is not None and not is_retcoro(ok_cb):
-            raise BotValueError(
-                f"检查器成功回调 {ok_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        if fail_cb is not None and not is_retcoro(fail_cb):
-            raise BotValueError(
-                f"检查器失败回调 {fail_cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
 
         self.owner = owner
         self.su_list = super_users if super_users is not None else []
@@ -121,8 +101,8 @@ class GroupMsgLvlChecker(MsgLvlChecker):
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
         white_groups: Optional[list[int]] = None,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        ok_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个群聊消息事件分级权限检查器
 
@@ -168,8 +148,8 @@ class PrivateMsgLvlChecker(MsgLvlChecker):
         super_users: Optional[list[int]] = None,
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        ok_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个私聊消息事件分级权限检查器
 
@@ -207,8 +187,8 @@ class MsgCheckerFactory:
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
         white_groups: Optional[list[int]] = None,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        ok_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器的工厂
 
@@ -232,8 +212,8 @@ class MsgCheckerFactory:
     def get_base(
         self,
         level: User = User.USER,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        ok_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> MsgLvlChecker:
         """根据内部依据和给定等级，生成一个 :class:`MsgLvlChecker` 对象
 
@@ -255,8 +235,8 @@ class MsgCheckerFactory:
     def get_group(
         self,
         level: User = User.USER,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        ok_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> GroupMsgLvlChecker:
         """根据内部依据和给定等级，生成一个 :class:`GroupMsgLvlChecker` 对象
 
@@ -279,8 +259,8 @@ class MsgCheckerFactory:
     def get_private(
         self,
         level: User = User.USER,
-        ok_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
-        fail_cb: Optional[Callable[[], Coroutine[Any, Any, None]]] = None,
+        ok_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> PrivateMsgLvlChecker:
         """根据内部依据和给定等级，生成一个 :class:`PrivateMsgLvlChecker` 对象
 

@@ -7,15 +7,7 @@ import websockets.exceptions as wse
 import websockets.server
 
 from ..base.abc import AbstractConnector, BotAction, BotLife
-from ..base.typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ModuleType,
-    Optional,
-    Union,
-    cast,
-)
+from ..base.typing import TYPE_CHECKING, Any, Callable, ModuleType, Optional, Union, cast
 from ..context.session import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
@@ -168,9 +160,7 @@ class ReverseWsConn(AbstractConnector):
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
                 action_str = action.flatten()
-                wait_time = self.cd_time - (
-                    (time.time_ns() - self._pre_send_time) / 1e9
-                )
+                wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
                 await self._conn.send(action_str)

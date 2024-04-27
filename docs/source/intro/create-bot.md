@@ -85,4 +85,11 @@ bot.load_plugin(plugin)
 bot.run()
 ```
 
+```{admonition} 提示
+:class: tip
+melobot 默认在 linux/mac 平台使用 uvloop 事件循环策略，在 win 平台使用 winloop 事件循环策略。
+
+如果你遇到兼容性问题，可以通过 {meth}`.MeloBot.use_default_loop_policy` 回退到 asyncio 的默认配置。
+```
+
 到这里，你已经学会了如何创建一个 melobot 机器人。接下来，让我们试试其他有趣的东西！

@@ -23,6 +23,11 @@ class BotException(Exception):
         return self.err
 
 
+class BotValidateError(BotException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
+
+
 class BotValueError(BotException):
     def __init__(self, msg: str):
         super().__init__(msg)
@@ -57,11 +62,6 @@ class BotSessionTimeout(BotException):
     """会话暂停的超时异常"""
 
     def __init__(self, msg: str = ""):
-        super().__init__(msg)
-
-
-class BotToolsError(BotException):
-    def __init__(self, msg: str):
         super().__init__(msg)
 
 

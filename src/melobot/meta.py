@@ -15,9 +15,7 @@ class ReadOnly(type):
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name in self.__cvars__:  # type: ignore[attr-defined]
-            raise AttributeError(
-                f"{self.__name__} 类的类属性 {name} 是只读的，无法修改"
-            )
+            raise AttributeError(f"{self.__name__} 类的类属性 {name} 是只读的，无法修改")
         return super().__setattr__(name, value)
 
     def __instance_setattr(self, name: str, value: Any) -> None:

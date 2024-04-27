@@ -82,9 +82,7 @@ class ForwardWsConn(AbstractConnector):
 
             for _ in retry_iter:
                 try:
-                    self.conn = await websockets.connect(
-                        self.url, extra_headers=headers
-                    )
+                    self.conn = await websockets.connect(self.url, extra_headers=headers)
                     created_flag = True
                     break
                 except Exception as e:
@@ -165,9 +163,7 @@ class ForwardWsConn(AbstractConnector):
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
                 action_str = action.flatten()
-                wait_time = self.cd_time - (
-                    (time.time_ns() - self._pre_send_time) / 1e9
-                )
+                wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
                 await self.conn.send(action_str)

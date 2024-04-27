@@ -446,9 +446,7 @@ def to_segments(s: str) -> list[MsgSegment]:
         lambda x: f"[CQ:text,text={x}]" if x != "" else x,
         no_cq_str.split("\u0000"),
     )
-    _: str = "".join(
-        chain.from_iterable(zip_longest(pure_texts, cq_texts, fillvalue=""))
-    )
+    _: str = "".join(chain.from_iterable(zip_longest(pure_texts, cq_texts, fillvalue="")))
 
     cq_entity: list[str] = _.split("]")[:-1]
     content: list = []

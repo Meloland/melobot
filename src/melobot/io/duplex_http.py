@@ -14,7 +14,7 @@ from ..context.session import ActionResponse
 from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
-    from ..base.abc import BotAction, BotEvent
+    from ..base.abc import BotAction
     from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 
@@ -103,9 +103,7 @@ class HttpConn(AbstractConnector):
         self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
         await self.serve_site.start()
 
-        self.logger.info(
-            "HTTP 通信就绪，等待 OneBot 实现程序上线中（即上报第一个事件）"
-        )
+        self.logger.info("HTTP 通信就绪，等待 OneBot 实现程序上线中（即上报第一个事件）")
         await self._onebot_onlined.wait()
         self.logger.info("HTTP 双向通信已建立")
         self._connected_flag = True
@@ -261,9 +259,7 @@ class HttpConn(AbstractConnector):
                     )
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
-                wait_time = self.cd_time - (
-                    (time.time_ns() - self._pre_send_time) / 1e9
-                )
+                wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
                 asyncio.create_task(take_action(action))

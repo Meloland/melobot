@@ -71,8 +71,6 @@ tools 模块
 
 .. autofunction:: melobot.base.tools.to_coro
 
-.. autofunction:: melobot.base.tools.to_task
-
 .. autofunction:: melobot.base.tools.lock
 
 .. autofunction:: melobot.base.tools.cooldown
@@ -141,17 +139,6 @@ typing 模块
    :members:
    :undoc-members:
 
-.. autoclass:: melobot.base.typing.Void
-   :members:
-
-.. data:: melobot.base.typing.VoidType
-
-    “无值”对象的类型标注，定义如下：
-
-    .. code:: python
-
-       VoidType: TypeAlias = Type[Void]
-
 .. data:: melobot.base.typing.T
 
    泛型 T，无约束
@@ -172,3 +159,19 @@ typing 模块
 
    :obj:`~typing.ParamSpec` 泛型 P，无约束
 
+.. data:: melobot.base.typing.AsyncCallable
+
+   用法：AsyncCallable[P, T]
+   
+   是该类型的别名：Callable[P, Awaitable[T]]
+
+.. autoclass:: melobot.base.typing.Void
+   :members:
+
+.. data:: melobot.base.typing.VoidType
+
+    “无值”对象的类型标注，定义如下：
+
+    .. code:: python
+
+       VoidType: TypeAlias = Type[Void]

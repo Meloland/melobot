@@ -3,7 +3,7 @@ import asyncio
 from ..base.abc import BaseLogger
 from ..base.exceptions import BotIpcError
 from ..base.tools import RWController
-from ..base.typing import Any, Callable, Coroutine
+from ..base.typing import Any, AsyncCallable
 from ..utils.logger import log_exc
 
 
@@ -14,15 +14,15 @@ class ShareObject:
         self.namespace = namespace
         self.id = id
         self.__rwc = RWController()
-        self.__reflect: Callable[[], Coroutine[Any, Any, Any]]
-        self.__callback: Callable[..., Coroutine[Any, Any, Any]]
+        self.__reflect: AsyncCallable[..., Any]
+        self.__callback: AsyncCallable[..., Any]
 
         self.__cb_set = asyncio.Event()
 
-    def _fill_ref(self, reflector: Callable[[], Coroutine[Any, Any, Any]]) -> None:
+    def _fill_ref(self, reflector: AsyncCallable[..., Any]) -> None:
         self.__reflect = reflector
 
-    def _fill_cb(self, callback: Callable[..., Coroutine[Any, Any, Any]]) -> None:
+    def _fill_cb(self, callback: AsyncCallable[..., Any]) -> None:
         self.__callback = callback
         self.__cb_set.set()
 
@@ -46,7 +46,7 @@ class PluginStore:
         self.store: dict[str, dict[str, ShareObject]] = {}
 
     def create_so(
-        self, reflector: Callable[[], Coroutine[Any, Any, Any]], namespace: str, id: str
+        self, reflector: AsyncCallable[..., Any], namespace: str, id: str
     ) -> None:
         """创建共享对象"""
         if namespace not in self.store.keys():
@@ -60,9 +60,7 @@ class PluginStore:
         self.store[namespace][id] = obj
         obj._fill_ref(reflector)
 
-    def bind_cb(
-        self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
-    ) -> None:
+    def bind_cb(self, namespace: str, id: str, cb: AsyncCallable[..., Any]) -> None:
         """为共享对象绑定回调"""
         if namespace not in self.store.keys():
             raise BotIpcError(f"共享对象回调指定的命名空间 {namespace} 不存在")
@@ -89,7 +87,7 @@ class PluginSignalHandler:
     """插件信号处理器"""
 
     def __init__(
-        self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
+        self, namespace: str, signal: str, func: AsyncCallable[..., Any]
     ) -> None:
         self.cb = func
         self.namespace = namespace
@@ -107,7 +105,7 @@ class PluginBus:
         self.logger = logger
 
     def register(
-        self, namespace: str, signal: str, func: Callable[..., Coroutine[Any, Any, Any]]
+        self, namespace: str, signal: str, func: AsyncCallable[..., Any]
     ) -> None:
         """绑定一个插件信号处理方法。由 plugin build 过程调用"""
         if namespace not in self.store.keys():
@@ -131,7 +129,7 @@ class PluginBus:
     async def emit(
         self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any
     ) -> Any:
-        """触发一个插件信号。如果指定 wait 为 True，则会等待所有插件信号处理方法完成。 若启用 forward，则会将 session
+        """触发一个插件信号。如果指定 wait 为 True，则会等待所有插件信号处理方法完成。 若启用 forward，则会将 会话
         从信号触发处转发到信号处理处。 但启用 forward，必须同时启用 wait。
 
         注意：如果你要等待返回结果，则需要指定 wait=True，否则不会等待且始终返回 None

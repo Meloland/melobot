@@ -2,16 +2,15 @@ import asyncio
 import json
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from dataclasses import dataclass
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 
 from .exceptions import BotRuntimeError, BotUtilsError, BotValueError
-from .tools import is_retcoro
 from .typing import (
     TYPE_CHECKING,
     Any,
+    AsyncCallable,
     BotLife,
-    Callable,
-    Coroutine,
     Literal,
     LogicMode,
     ModuleType,
@@ -168,7 +167,7 @@ class BotEvent(ABC, Flagable):
 
     def __init__(self, rawEvent: dict) -> None:
         super().__init__()
-        #: 从 onebot 实现项目获得的未格式化的事件原始值
+        #: 从 onebot 实现获得的事件原始值
         self.raw: dict = rawEvent
 
     def __format__(self, format_spec: str) -> str:
@@ -210,8 +209,6 @@ class BotEvent(ABC, Flagable):
 
 
 class ActionArgs(ABC):
-    # 行为信息构造基类
-
     def __init__(self) -> None:
         super().__init__()
         self.type: str
@@ -289,7 +286,7 @@ class BotAction(Flagable, Cloneable):
 class SessionRule(ABC):
     """会话规则基类
 
-    会话规则用于两事件是否在同一会话的判断。
+    会话规则用于判断两事件是否在同一会话中。
     """
 
     def __init__(self) -> None:
@@ -308,81 +305,48 @@ class SessionRule(ABC):
         raise NotImplementedError
 
 
+@dataclass
 class EventHandlerArgs:
     """事件方法（事件执行器）构造参数"""
 
-    def __init__(
-        self,
-        executor: Callable[[], Coroutine[Any, Any, None]],
-        type: Type["EventHandler"],
-        params: list[Any],
-    ) -> None:
-        self.executor = executor
-        if not is_retcoro(executor):
-            raise BotValueError(
-                f"事件处理函数 {executor.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        self.type = type
-        self.params = params
+    executor: AsyncCallable[..., None]
+    type: Type["EventHandler"]
+    params: list[Any]
 
 
+@dataclass
 class ShareObjArgs:
     """插件共享对象构造参数"""
 
-    def __init__(
-        self, namespace: str, id: str, reflector: Callable[[], Coroutine[Any, Any, Any]]
-    ) -> None:
-        if not is_retcoro(reflector):
-            raise BotValueError(
-                f"共享对象值获取函数 {reflector.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        self.reflector = reflector
-        self.namespace = namespace
-        self.id = id
+    reflector: AsyncCallable[..., Any]
+    namespace: str
+    id: str
 
 
+@dataclass
 class ShareObjCbArgs:
     """插件共享对象回调的构造参数"""
 
-    def __init__(
-        self, namespace: str, id: str, cb: Callable[..., Coroutine[Any, Any, Any]]
-    ) -> None:
-        if not is_retcoro(cb):
-            raise BotValueError(
-                f"共享对象的回调 {cb.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        self.namespace = namespace
-        self.id = id
-        self.cb = cb
+    namespace: str
+    id: str
+    cb: AsyncCallable[..., Any]
 
 
+@dataclass
 class PluginSignalHandlerArgs:
     """插件信号方法构造参数"""
 
-    def __init__(
-        self, func: Callable[..., Coroutine[Any, Any, Any]], namespace: str, signal: str
-    ) -> None:
-        if not is_retcoro(func):
-            raise BotValueError(
-                f"插件信号处理函数 {func.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        self.func = func
-        self.namespace = namespace
-        self.signal = signal
+    func: AsyncCallable[..., Any]
+    namespace: str
+    signal: str
 
 
+@dataclass
 class BotHookRunnerArgs:
     """钩子方法（生命周期回调）构造参数"""
 
-    def __init__(
-        self, func: Callable[..., Coroutine[Any, Any, None]], type: BotLife
-    ) -> None:
-        if not is_retcoro(func):
-            raise BotValueError(
-                f"bot 生命周期 hook {func.__qualname__} 必须为异步函数，或其他返回协程的可调用对象"
-            )
-        self.func = func
-        self.type = type
+    func: AsyncCallable[..., None]
+    type: BotLife
 
 
 class BotChecker(ABC, Cloneable):

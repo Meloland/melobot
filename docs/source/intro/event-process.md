@@ -17,14 +17,18 @@
 - 绑定一个通知事件的处理方法：{meth}`~.BotPlugin.on_notice`
 - 绑定一个元事件的处理方法：{meth}`~.BotPlugin.on_meta_event`
 
-这些绑定方法的参数很多，你可以先简单浏览。一些还没提到的方法参数，后续会进行讲解。
+这些绑定方法的参数很多，你可以先简单浏览。关于这些方法的使用，后续会详细讲解。现在让我们先学习一些基础知识。
 
 绑定方法的使用都一样，直接用作装饰器即可：
 
 ```python
-@plugin.on_full_match(...)
+from melobot import BotPlugin
+plugin = BotPlugin("test", "1.0.0")
+
+@plugin.on_start_match(...)
 async def func() -> None:
-    # func 就是事件处理方法。这里是事件处理的逻辑
+    # func 就是事件处理方法，必须为异步函数，且无返回值
+    # func 的内容就是事件处理的逻辑
     ...
 ```
 
@@ -38,15 +42,15 @@ async def func() -> None:
 
 ```python
 @plugin.on_event(...)
-async def func1() -> None:
+async def func1():
     # on_event 绑定的处理方法，可能被各种类型的事件触发
     # 使用 any_event 可以获得所有事件类型的补全提示
     e = any_event()
     ...
 
-@plugin.on_full_match(...)
-async def func1() -> None:
-    # on_full_match 绑定的处理方法，只可能被消息事件触发
+@plugin.on_start_match(...)
+async def func2():
+    # on_start_match 绑定的处理方法，只可能被消息事件触发
     # 使用 msg_event 可以获得消息事件类型的补全提示
     e = msg_event()
     ...
@@ -99,16 +103,25 @@ if __name__ == "__main__":
 
 ## 消息事件相关
 
-对于消息事件，有一些额外的方法可以使用。在确定当前事件处理函数的触发事件为消息事件时，有以下方法可用：{func}`.msg_text`、{func}`.msg_args`。
-
-```python
-# 获取消息中的文本内容
-text = msg_text()  # 等价于：msg_event().text
-# 获取消息的解析参数（需要在绑定方法中指定解析器，这个以后会细说）
-args = msg_args()
+```{admonition} 提示
+:class: tip
+以下代码示例中的 `on_xxx` 代指各种事件绑定方法，实际并不存在名为 `on_xxx` 的方法。
 ```
 
-一个消息事件就象征一条消息，它最重要的信息就是**消息内容**。获取文本内容可以使用刚才提到的 {func}`.msg_text`。如果要获取多媒体内容，例如图片、表情等，可以使用 {meth}`~.MessageEvent.get_segments` 方法获得多媒体内容对应的**消息段对象列表**。
+对于消息事件，有一些额外的方法可以使用，这里先说最常用的 {func}`.msg_text`。
+
+一个消息事件就象征一条消息，它最重要的信息就是**消息内容**。消息中的文本内容使用 {func}`.msg_text` 获取：
+
+```python
+from melobot.context import msg_text
+
+@plugin.on_xxx(...)
+async def _():
+    # 获取消息中的文本内容
+    text = msg_text()  # 等价于：msg_event().text
+```
+
+如果要获取多媒体内容，例如图片、表情等，可以使用 {meth}`~.MessageEvent.get_segments` 方法获得多媒体内容对应的**消息段对象列表**。
 
 ```{admonition} 相关知识
 :class: note
@@ -118,11 +131,15 @@ args = msg_args()
 需要哪种类型的消息段，就传递哪种消息段的 type 作为参数：
 
 ```python
-e = msg_event()
-# 获取当前这条消息所有的图片（image 是图片消息段的类型名）
-images = e.get_segments("image")
-# 获取当前这条消息所有的 qq 表情（face 是 qq 表情消息段的类型名）
-faces = e.get_segments("face")
+from melobot.context import msg_event
+
+@plugin.on_xxx(...)
+async def _():
+    e = msg_event()
+    # 获取当前这条消息所有的图片（image 是图片消息段的类型名）
+    images = e.get_segments("image")
+    # 获取当前这条消息所有的 qq 表情（face 是 qq 表情消息段的类型名）
+    faces = e.get_segments("face")
 ```
 
 随后，读取列表中消息段对象的 data 字段可获得相关数据：
@@ -144,8 +161,10 @@ for img in msg_event().get_segments("image"):
 如果只需要 data 字段的某一参数，使用 {meth}`~.MessageEvent.get_datas` 即可：
 
 ```python
-# 获取当前这条消息，所有图片的 url
-img_urls = msg_event().get_datas("image", "url")
+@plugin.on_xxx(...)
+async def _():
+    # 获取当前这条消息，所有图片的 url
+    img_urls = msg_event().get_datas("image", "url")
 ```
 
 ## 上下文的自动传播
@@ -155,59 +174,53 @@ img_urls = msg_event().get_datas("image", "url")
 只要这些函数的调用都是事件处理方法发起的，它们就能获得对应的上下文信息：
 
 ```python
-@plugin.on_full_match(...)
-async def func1() -> None:
-    e = msg_event()    # ok
-    func_a()
+@plugin.on_xxx(...)
+async def f1():
+    e = msg_event()      # ok
+    # 上下文自动传播给同步函数 a
+    a()
 
-def func_a():
-    e = msg_event()    # ok
-    await func_b()
+def a():
+    text = msg_text()    # ok
+    # 上下文自动传播给异步函数 b
+    await b()
 
-async def func_b():
-    text = msg_text()  # ok
-    func_c()
-
-def func_c():
-    args = msg_args()  # ok
+async def b():
+    e = msg_event()      # ok
 ```
 
-当然，你自然也可以显式传参：
+当然，你也可以显式传参：
 
 ```python
-@plugin.on_full_match(...)
-async def func1() -> None:
-    e = msg_event()    # ok
+@plugin.on_xxx(...)
+async def func1():
+    e = msg_event()
     func_a(e)
 
 def func_a(event):
     ...
 ```
 
-各种相关方法太多，记不住？没问题，那我们直接导入模块吧！
+使用的相关方法太多，不想一个个导入？没问题，我们可以直接导入模块！
 
 ```python
 from melobot import context as ctx
 
-@plugin.on_full_match(...)
-async def func() -> None:
-    e1 = ctx.msg_event()
-    e2 = ctx.any_event()
+@plugin.on_xxx(...)
+async def _():
+    e1 = ctx.any_event()
+    e2 = ctx.msg_event()
     text = ctx.msg_text()
-    args = ctx.msg_args()
 ```
 
-习惯事件处理方法接受参数？那直接把模块作为默认参数吧！（笑）
+习惯事件处理方法接受参数？喜欢像 nonebot2 那样的依赖注入？没问题，我们也支持！
 
 ```python
-from melobot import context
+from melobot.context import msg_event, any_event, msg_text
 
-@plugin.on_full_match(...)
-async def func(ctx=context) -> None:
-    e1 = ctx.msg_event()
-    e2 = ctx.any_event()
-    text = ctx.msg_text()
-    args = ctx.msg_args()
+@plugin.on_xxx(...)
+async def _(e1 = any_event(), e2 = msg_event(), text = msg_text()):
+    ...
 ```
 
 ## 总结
