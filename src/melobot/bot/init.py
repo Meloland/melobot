@@ -19,7 +19,7 @@ from ..controller.dispatcher import BotDispatcher
 from ..controller.responder import BotResponder
 from ..meta import MetaInfo
 from ..models.event import BotEventBuilder
-from ..plugin.handler import EVENT_HANDLER_MAP
+from ..plugin.handler import EVENT_CHANNELS
 from ..plugin.init import BotPlugin, PluginLoader, PluginProxy
 from ..plugin.ipc import PluginBus, PluginStore
 from ..utils.logger import BotLogger, NullLogger
@@ -125,7 +125,7 @@ class MeloBot:
         self.logger.debug(f"连接器已初始化，类型：{connector.__class__.__name__}")
 
         self._dispatcher._bind(
-            EVENT_HANDLER_MAP, self._bot_bus, self._ctx_manager, self.logger
+            EVENT_CHANNELS, self._bot_bus, self._ctx_manager, self.logger
         )
         self._plugin_bus._bind(self.logger)
         self._bot_bus._bind(self.logger)

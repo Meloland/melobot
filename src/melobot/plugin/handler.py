@@ -16,11 +16,11 @@ from ..base.typing import (
     cast,
 )
 from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
+from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 if TYPE_CHECKING:
     from ..base.abc import BotChecker, BotMatcher, SessionRule
     from ..context.session import BotSession
-    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..utils.logger import BotLogger
     from .init import BotPlugin
 
@@ -93,7 +93,7 @@ class EventHandler:
 
     async def _run(
         self,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent],
         pre_session: "BotSession",
     ) -> None:
         """获取会话然后准备运行 executor"""
@@ -138,14 +138,14 @@ class EventHandler:
             BotSessionManager.recycle(session, alive=self._hold)
 
     async def _pre_process(
-        self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
+        self, event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent]
     ) -> tuple[bool, "BotSession"]:
         session = BotSessionManager.make_temp(event)
         status = await self._run_on_ctx(self._verify(), session)
         return status, session
 
     async def evoke(
-        self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
+        self, event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent]
     ) -> bool:
         """接收总线分发的事件的方法。返回是否决定处理的判断。 便于 disptacher 进行优先级阻断。校验通过会自动处理事件。"""
         if not self.is_valid:
@@ -246,9 +246,9 @@ class MsgEventHandler(EventHandler):
             raise BotValueError("参数 matcher 和 parser 不能同时存在")
 
     async def _pre_process(
-        self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
+        self, event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent]
     ) -> tuple[bool, "BotSession"]:
-        event = cast("MessageEvent", event)
+        event = cast(MessageEvent, event)
         session = BotSessionManager.make_temp(event)
 
         if self.matcher is not None:
@@ -366,9 +366,9 @@ class MetaEventHandler(EventHandler):
         )
 
 
-EVENT_HANDLER_MAP: dict[str, tuple[Type[EventHandler], ...]] = {
-    "message": (MsgEventHandler, AllEventHandler),
-    "request": (ReqEventHandler, AllEventHandler),
-    "notice": (NoticeEventHandler, AllEventHandler),
-    "meta": (MetaEventHandler, AllEventHandler),
+EVENT_CHANNELS: dict[type, tuple[Type[EventHandler], ...]] = {
+    MessageEvent: (MsgEventHandler, AllEventHandler),
+    RequestEvent: (ReqEventHandler, AllEventHandler),
+    NoticeEvent: (NoticeEventHandler, AllEventHandler),
+    MetaEvent: (MetaEventHandler, AllEventHandler),
 }

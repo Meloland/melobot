@@ -20,7 +20,7 @@ class BotDispatcher:
 
     def _bind(
         self,
-        channel_map: dict[str, tuple[Type["EventHandler"], ...]],
+        channel_map: dict[type, tuple[Type["EventHandler"], ...]],
         bot_bus: "BotHookBus",
         ctx_manager: Type["BotSessionManager"],
         logger: "BotLogger",
@@ -28,7 +28,7 @@ class BotDispatcher:
         self.logger = logger
         self._channel_map = channel_map
         self._bot_bus = bot_bus
-        self._ctx_managger = ctx_manager
+        self._ctx_manager = ctx_manager
 
         for tuple in self._channel_map.values():
             for channel in tuple:
@@ -64,7 +64,7 @@ class BotDispatcher:
                     continue
 
                 if handler._direct_rouse and (
-                    await self._ctx_managger.try_attach(event, handler)
+                    await self._ctx_manager.try_attach(event, handler)
                 ):
                     if handler.set_block and handler.priority > permit_priority:
                         permit_priority = handler.priority
@@ -91,6 +91,6 @@ class BotDispatcher:
         await self._bot_bus.emit(BotLife.EVENT_BUILT, event, wait=True)
         self.logger.debug(f"event {event:hexid} built hook 已完成")
 
-        for channel in self._channel_map[event.type]:
+        for channel in self._channel_map[type(event)]:
             self.logger.debug(f"向 {channel.__name__} 通道广播 event {event:hexid}")
             asyncio.create_task(self.broadcast(event, channel))
