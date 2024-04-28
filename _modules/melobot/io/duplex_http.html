@@ -13,8 +13,8 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
-        <title>melobot.io.duplex_http - melobot 2.6.3</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+        <title>melobot.io.duplex_http - melobot 2.6.4</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -30,14 +30,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
       }
     }
@@ -134,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -160,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.3</span>
+  <span class="sidebar-brand-text">melobot 2.6.4</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -282,7 +282,7 @@
         <span class="n">secret</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">access_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cd_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-        <span class="n">allow_reconnect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">reconnect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_interval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个 HTTP 全双工连接器</span>
@@ -302,10 +302,10 @@
 <span class="sd">        :param secret: onebot 实现程序上报鉴权的 secret（建议从环境变量或配置中读取）</span>
 <span class="sd">        :param access_token: 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）</span>
 <span class="sd">        :param cd_time: 行为操作冷却时间（用于防止风控）</span>
-<span class="sd">        :param allow_reconnect: 是否等待 OneBot 实现程序重新上线。默认为 `False`，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 `True`，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞</span>
+<span class="sd">        :param reconnect: 是否等待 OneBot 实现程序重新上线。默认为 `False`，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 `True`，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞</span>
 <span class="sd">        :param max_interval: 等待 OneBot 实现程序上报的超时时间。超过此时间无任何上报，则认为已经掉线（默认值为 `None`，此时不启用此功能）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cd_time</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cd_time</span><span class="p">,</span> <span class="n">reconnect</span><span class="p">)</span>
         <span class="c1">#: onebot 实现程序提供服务的 base_url（形如：http://xxx:xxx）</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">onebot_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">onebot_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">onebot_port</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="c1">#: 本连接器服务端的 host</span>
@@ -327,11 +327,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_pre_recv_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_close_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span> <span class="o">=</span> <span class="n">allow_reconnect</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connected_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
@@ -377,6 +374,10 @@
                 <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_recv_time</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1e9</span> <span class="o">&gt;</span> <span class="n">interval</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;OneBot 实现程序已掉线，等待它重新上线中&quot;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_reconn</span><span class="p">:</span>
+                        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+                        <span class="k">return</span>
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onebot_onlined</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
                 <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
@@ -429,9 +430,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">obj</span><span class="p">(</span><span class="n">raw_event</span><span class="p">,</span> <span class="s2">&quot;收到上报，未格式化的字典&quot;</span><span class="p">)</span>
 
             <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">try_build</span><span class="p">(</span><span class="n">raw_event</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">_check_level</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">obj</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="n">event</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 构建完成&quot;</span><span class="p">)</span>
-
             <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
                 <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;RequestEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;MetaEvent&quot;</span><span class="p">,</span> <span class="s2">&quot;NoticeEvent&quot;</span><span class="p">],</span>
                 <span class="n">event</span><span class="p">,</span>
@@ -478,7 +476,7 @@
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">resp</span><span class="p">))</span>
 
         <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">ClientConnectorError</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_reconn</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;OneBot 实现程序已掉线，无法再执行行为操作&quot;</span><span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
@@ -508,9 +506,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> presend hook 已完成&quot;</span><span class="p">)</span>
 
                 <span class="n">wait_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cd_time</span> <span class="o">-</span> <span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 冷却等待：</span><span class="si">{</span><span class="n">wait_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
-
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_take_action</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 已发送&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
@@ -557,7 +553,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
+</div><script src="../../../_static/documentation_options.js?v=0f28fd6e"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>

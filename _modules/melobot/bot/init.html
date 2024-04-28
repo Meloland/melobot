@@ -13,8 +13,8 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
-        <title>melobot.bot.init - melobot 2.6.3</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+        <title>melobot.bot.init - melobot 2.6.4</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -30,14 +30,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
       }
     }
@@ -134,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -160,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.3</span>
+  <span class="sidebar-brand-text">melobot 2.6.4</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -484,7 +484,11 @@
                 <span class="n">conn_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;使用的连接器类型：</span><span class="si">{</span><span class="n">conn_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_ended</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                <span class="n">life_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_life_ended</span><span class="o">.</span><span class="n">wait</span><span class="p">())]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">allow_reconn</span><span class="p">:</span>
+                    <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">wait</span><span class="p">())</span>
+                    <span class="n">life_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">life_tasks</span><span class="p">,</span> <span class="n">return_when</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;bot 核心无法继续运行&quot;</span><span class="p">)</span>
@@ -597,10 +601,11 @@
             <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;bot 尚未初始化，不能执行此方法&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">_check_level</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;bot 信号触发：</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">signal</span><span class="si">}</span><span class="s2"> | wait: </span><span class="si">{</span><span class="n">wait</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;（当前会话上下文：</span><span class="si">{</span><span class="n">SESSION_LOCAL</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2">），传递参数：args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, kwargs=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;（当前会话上下文：</span><span class="si">{</span><span class="n">SESSION_LOCAL</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2">），传递参数&quot;</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">obj</span><span class="p">({</span><span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">},</span> <span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -804,7 +809,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
+</div><script src="../../../_static/documentation_options.js?v=0f28fd6e"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>

@@ -14,8 +14,8 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
-        <title>其他行为操作 - melobot 2.6.3</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+        <title>其他行为操作 - melobot 2.6.4</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -31,14 +31,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
       }
     }
@@ -135,7 +135,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 2.6.3</div></a>
+      <a href="../index.html"><div class="brand">melobot 2.6.4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -161,7 +161,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.3</span>
+  <span class="sidebar-brand-text">melobot 2.6.4</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -321,8 +321,14 @@
 </div>
 <div class="caution admonition">
 <p class="admonition-title">注意</p>
-<p>某些时候，你可能会想要行为操作以任务方式执行，而不直接 await：<code class="docutils literal notranslate"><span class="pre">asyncio.create_task(send(...))</span></code></p>
-<p><strong>但是行为操作函数并不能转化为任务</strong>。需要创建为任务执行，只需要以同步方式调用：<code class="docutils literal notranslate"><span class="pre">send(...)</span></code></p>
+<p>某些时候，你可能会想要行为操作以任务方式执行，而不直接 await：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>但是行为操作函数并不能转化为任务</strong>。需要创建为任务执行，只需要以同步方式调用：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </section>
 <section id="id3">
@@ -377,19 +383,21 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">custom_action</span>
 
 <span class="c1"># 因为有参数 wait 和 auto，因此可以等待</span>
-<span class="n">action</span> <span class="o">=</span> <span class="n">custom_action</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;custom_type&quot;</span><span class="p">,</span> 
-                       <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="s2">&quot;12345&quot;</span><span class="p">},</span> 
-                       <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">action</span> <span class="o">=</span> <span class="n">custom_action</span><span class="p">(</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;custom_type&quot;</span><span class="p">,</span> 
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="s2">&quot;12345&quot;</span><span class="p">},</span> 
+    <span class="n">wait</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
 <span class="c1"># 作为行为操作函数的一种，之后的用法类似</span>
 </pre></div>
 </div>
 <p>当然，你也可以再自行封装一下 :)</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-
-<span class="k">def</span> <span class="nf">my_action</span><span class="p">(</span><span class="n">param1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">param2</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">custom_action</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;custom_type&quot;</span><span class="p">,</span> 
-                         <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="n">param1</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="n">param2</span><span class="p">},</span> 
-                         <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">my_action</span><span class="p">(</span><span class="n">param1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">param2</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">custom_action</span><span class="p">(</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;custom_type&quot;</span><span class="p">,</span> 
+        <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="n">param1</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="n">param2</span><span class="p">},</span> 
+        <span class="n">wait</span><span class="o">=</span><span class="n">wait</span>
+    <span class="p">)</span>
 
 <span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
@@ -484,7 +492,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=737a4928"></script>
+</div><script src="../_static/documentation_options.js?v=0f28fd6e"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

@@ -13,8 +13,8 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
-        <title>melobot.io.forward_ws - melobot 2.6.3</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+        <title>melobot.io.forward_ws - melobot 2.6.4</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -30,14 +30,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
   
       }
     }
@@ -134,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -160,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.3</span>
+  <span class="sidebar-brand-text">melobot 2.6.4</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -276,7 +276,7 @@
         <span class="n">retry_delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.0</span><span class="p">,</span>
         <span class="n">cd_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">access_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">allow_reconnect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">reconnect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个正向 websocket 连接器</span>
 
@@ -288,9 +288,9 @@
 <span class="sd">        :param retry_delay: 连接重试间隔时间</span>
 <span class="sd">        :param cd_time: 行为操作冷却时间（用于防止风控）</span>
 <span class="sd">        :param access_token: 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）</span>
-<span class="sd">        :param allow_reconnect: 建立连接失败是否重连。默认为 `False`，即服务端断线直接停止 bot；若为 `True`，则会按照 `max_retry`, `retry_delay` 不断尝试重连，重连成功前时所有行为操作将阻塞。</span>
+<span class="sd">        :param reconnect: 建立连接失败是否重连。默认为 `False`，即服务端断线直接停止 bot；若为 `True`，则会按照 `max_retry`, `retry_delay` 不断尝试重连，重连成功前时所有行为操作将阻塞。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cd_time</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cd_time</span><span class="p">,</span> <span class="n">reconnect</span><span class="p">)</span>
         <span class="c1">#: 连接失败最大重试次数</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retry</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">max_retry</span>
         <span class="c1">#: 连接失败重试间隔</span>
@@ -305,12 +305,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">[</span><span class="s2">&quot;BotAction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_close</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn_ready</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span> <span class="o">=</span> <span class="n">allow_reconnect</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reconn_flag</span> <span class="o">=</span> <span class="kc">False</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span></div>
 
 
@@ -321,7 +317,7 @@
             <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
 
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_lock</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_close</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
             <span class="n">ok_flag</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">retry_iter</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retry</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retry</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
@@ -346,25 +342,25 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;连接器与 OneBot 实现程序建立了 ws 连接&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_conn_ready</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listen</span><span class="p">())</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_close</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">wait_closed</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ws 客户端连接已关闭&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;与 OneBot 实现程序的连接已关闭&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;关闭连接&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_close</span><span class="o">.</span><span class="n">done</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
             <span class="k">return</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_close</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allow_reconn</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_reconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;关闭已经无效的连接，随后开始尝试建立新连接&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn_ready</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_close</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reconn_flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">())</span>
 
@@ -413,7 +409,6 @@
 
                 <span class="n">action_str</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
                 <span class="n">wait_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cd_time</span> <span class="o">-</span> <span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_send_time</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;action </span><span class="si">{</span><span class="n">action</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 冷却等待：</span><span class="si">{</span><span class="n">wait_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;websockets.client.WebSocketClientProtocol&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">)</span>
@@ -452,9 +447,6 @@
                         <span class="k">continue</span>
 
                     <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">try_build</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">_check_level</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">obj</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;event </span><span class="si">{</span><span class="n">event</span><span class="si">:</span><span class="s2">hexid</span><span class="si">}</span><span class="s2"> 构建完成&quot;</span><span class="p">)</span>
-
                     <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">resp</span> <span class="o">=</span> <span class="n">ActionResponse</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
                         <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resp_dispatcher</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">resp</span><span class="p">))</span>
@@ -485,10 +477,10 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;websockets.client.WebSocketClientProtocol&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close_timeout</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_close</span><span class="o">.</span><span class="n">done</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
                 <span class="k">return</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reconn</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_reconn</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconnect</span><span class="p">()</span></div>
@@ -532,7 +524,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
+</div><script src="../../../_static/documentation_options.js?v=0f28fd6e"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
