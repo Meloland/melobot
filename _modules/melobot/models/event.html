@@ -12,10 +12,10 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.models.event - melobot 2.6.2</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
+        <title>melobot.models.event - melobot 2.6.3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -121,6 +121,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -132,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.2</span>
+  <span class="sidebar-brand-text">melobot 2.6.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -232,14 +234,14 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>melobot.models.event 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotEvent</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
-<span class="kn">from</span> <span class="nn">.msg</span> <span class="kn">import</span> <span class="n">_get_seg_datas</span><span class="p">,</span> <span class="n">_get_segs</span><span class="p">,</span> <span class="n">to_cq_str</span><span class="p">,</span> <span class="n">to_segments</span>
+<span class="kn">from</span> <span class="nn">.msg</span> <span class="kn">import</span> <span class="n">get_seg_datas</span><span class="p">,</span> <span class="n">get_segs</span><span class="p">,</span> <span class="n">to_cq_str</span><span class="p">,</span> <span class="n">to_segments</span>
 
 
 <span class="k">class</span> <span class="nc">BotEventBuilder</span><span class="p">:</span>
@@ -250,17 +252,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">raw</span> <span class="o">=</span> <span class="n">rawEvent</span>
 
-        <span class="n">etype</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;post_type&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">etype</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;message_sent&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">MessageEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">etype</span> <span class="o">==</span> <span class="s2">&quot;request&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">RequestEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">etype</span> <span class="o">==</span> <span class="s2">&quot;notice&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">NoticeEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">etype</span> <span class="o">==</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">MetaEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">match</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;post_type&quot;</span><span class="p">):</span>
+            <span class="k">case</span> <span class="s2">&quot;message_sent&quot;</span> <span class="o">|</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">MessageEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;request&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">RequestEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;notice&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">NoticeEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">MetaEvent</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="MessageEvent">
@@ -274,10 +276,10 @@
 <span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
         <span class="c1">#: 消息事件的消息 id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 消息事件的发送者数据结构</span>
@@ -295,7 +297,24 @@
         <span class="c1">#: 临时消息的来源标记，不是临时消息时为 :obj:`None`</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_init</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cq_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[CQ:.*?\]&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_str</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;raw_message&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_array</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sender</span> <span class="o">=</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">Sender</span><span class="p">(</span>
+            <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span>
+            <span class="n">isGroup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_group</span><span class="p">(),</span>
+            <span class="n">isGroupAnonym</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_group_anonym</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;group_id&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;font&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">src</span> <span class="o">:=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temp_source&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span> <span class="o">=</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">_TEMP_SRC_MAP</span><span class="p">[</span><span class="n">src</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -307,30 +326,17 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;事件的类型（返回指定字面量）&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;message&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">rawEvent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cq_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[CQ:.*?\]&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">raw_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_str</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;raw_message&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_array</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">font</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;font&quot;</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">temp_src</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temp_source&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">temp_src</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">temp_src</span> <span class="o">=</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">_TEMP_SRC_MAP</span><span class="p">[</span><span class="n">temp_src</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">sender</span> <span class="o">=</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">Sender</span><span class="p">(</span>
-            <span class="n">rawEvent</span><span class="o">=</span><span class="n">rawEvent</span><span class="p">,</span>
-            <span class="n">isGroup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_group</span><span class="p">(),</span>
-            <span class="n">isGroupAnonym</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_group_anonym</span><span class="p">(),</span>
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+    <span class="n">_TEMP_SRC_MAP</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;群聊&quot;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;QQ咨询&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;查找&quot;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;QQ电影&quot;</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;热聊&quot;</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;验证消息&quot;</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;多人聊天&quot;</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;约会&quot;</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">:</span> <span class="s2">&quot;通讯录&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">_format_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;对外部零信任，强制转换为 cq 字符串格式&quot;&quot;&quot;</span>
@@ -341,30 +347,31 @@
 
     <span class="k">def</span> <span class="nf">_format_to_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;对外部零信任，强制转换为消息段格式&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                        <span class="k">continue</span>
-                    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()):</span>
-                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-                        <span class="k">continue</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                        <span class="k">pass</span>
-            <span class="k">return</span> <span class="n">content</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">to_segments</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()):</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">content</span>
 
     <span class="k">def</span> <span class="nf">_get_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取消息中所有文本消息，返回合并字符串&quot;&quot;&quot;</span>
-        <span class="n">text_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
-                <span class="n">text_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]))</span>
+        <span class="n">text_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span>
+        <span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text_list</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MessageEvent.get_segments">
@@ -375,7 +382,7 @@
 <span class="sd">        :param type: 消息段类型（对应 OneBot 标准中每种消息段对象的 type）</span>
 <span class="sd">        :return: 消息段对象列表</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_get_segs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">get_segs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.get_datas">
@@ -403,7 +410,7 @@
 <span class="sd">        :param convert: 类型转换使用的函数</span>
 <span class="sd">        :return: 值列表</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_get_seg_datas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">convert</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">get_seg_datas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">convert</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_private">
@@ -417,9 +424,7 @@
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.is_friend">[文档]</a>
     <span class="k">def</span> <span class="nf">is_friend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为好友消息&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;message_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;private&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;friend&quot;</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;message_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;private&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;friend&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group">
@@ -440,9 +445,7 @@
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.is_group_anonym">[文档]</a>
     <span class="k">def</span> <span class="nf">is_group_anonym</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为匿名群消息&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;message_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;anonymous&quot;</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;message_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;anonymous&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group_self">
@@ -475,18 +478,6 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;message_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;notice&quot;</span></div>
 
 
-    <span class="n">_TEMP_SRC_MAP</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;群聊&quot;</span><span class="p">,</span>
-        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;QQ咨询&quot;</span><span class="p">,</span>
-        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;查找&quot;</span><span class="p">,</span>
-        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;QQ电影&quot;</span><span class="p">,</span>
-        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;热聊&quot;</span><span class="p">,</span>
-        <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;验证消息&quot;</span><span class="p">,</span>
-        <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;多人聊天&quot;</span><span class="p">,</span>
-        <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;约会&quot;</span><span class="p">,</span>
-        <span class="mi">9</span><span class="p">:</span> <span class="s2">&quot;通讯录&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-
 <div class="viewcode-block" id="MessageEvent.Sender">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.Sender">[文档]</a>
     <span class="k">class</span> <span class="nc">Sender</span><span class="p">:</span>
@@ -498,8 +489,8 @@
 <span class="sd">           一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">isGroup</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">isGroupAnonym</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rawEvent</span> <span class="o">=</span> <span class="n">rawEvent</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">isGroup</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">isGroupAnonym</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rawEvent</span> <span class="o">=</span> <span class="n">raw</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_isGroup</span> <span class="o">=</span> <span class="n">isGroup</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_isGroupAnonym</span> <span class="o">=</span> <span class="n">isGroupAnonym</span>
 
@@ -529,21 +520,21 @@
             <span class="c1">#: 匿名发送者的匿名 flag（此属性只在事件为群匿名消息事件时存在）</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">anonym_flag</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nickname&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nickname&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_card</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;card&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_area</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_level</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;level&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_card</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;card&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_title</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_area</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_level</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;level&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">isGroup</span> <span class="ow">and</span> <span class="n">isGroupAnonym</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_name</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_flag</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;flag&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_id</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_name</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anonym_flag</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;flag&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MessageEvent.Sender.is_group_owner">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.MessageEvent.Sender.is_group_owner">[文档]</a>
@@ -551,7 +542,8 @@
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;判断是否为群主，若不是或不是群类型消息，返回 False&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isGroup</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;owner&quot;</span></div>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;owner&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.Sender.is_group_admin">
@@ -560,7 +552,8 @@
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;判断是否为群管理（包含群主），若不是或不是群类型消息，返回 False&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isGroup</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;admin&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;owner&quot;</span></div>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;admin&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;owner&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.Sender.only_group_member">
@@ -569,7 +562,8 @@
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;判断是否只是群员（注意只是群员，不包括群主、管理和匿名），若不是或不是群类型消息，返回 False&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isGroup</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;member&quot;</span></div>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_role</span> <span class="o">==</span> <span class="s2">&quot;member&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.Sender.is_bot">
@@ -593,11 +587,11 @@
 <span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
 
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
         <span class="c1">#: 事件的来源 qq 号</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="c1">#: 事件的来源群号，请求来源于私聊时此属性为 :obj:`None`</span>
@@ -609,7 +603,16 @@
         <span class="c1">#: 加群请求类型：直接加入和邀请，请求来源于私聊时此属性为 :obj:`None`</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group_req_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;invite&quot;</span><span class="p">]]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_init</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_friend_req</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">req_comment</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">req_flag</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_req</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_req_type</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sub_type&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;group_id&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">req_comment</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">req_flag</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -620,22 +623,6 @@
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;事件的类型（返回指定字面量）&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;request&quot;</span>
-
-    <span class="k">def</span> <span class="nf">_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">rawEvent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">group_req_type</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_friend_req</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">req_comment</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">req_flag</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_req</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_req_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">req_comment</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">req_flag</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="RequestEvent.is_friend_req">
 <a class="viewcode-back" href="../../../api/melobot.models.html#melobot.models.RequestEvent.is_friend_req">[文档]</a>
@@ -673,13 +660,10 @@
 <span class="sd">       `print(event.__dict__)` 或调试器查看。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
-        <span class="c1"># 修复某些 onebot 协议实现，user_id 缺失的问题</span>
-        <span class="k">if</span> <span class="s2">&quot;target_id&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;user_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="p">:</span>
-            <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
 
         <span class="c1">#: 通知作用者或主体方的 id，如被禁言的一方</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
@@ -731,64 +715,79 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_friend_recall</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_recall</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">msg_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;message_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_increase</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">join_group_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_decrease</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">leave_group_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_admin</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">admin_change_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_upload</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">,</span> <span class="n">isGroup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_ban</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;operator_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_ban_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ban_time</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_friend_add</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_poke</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="k">if</span> <span class="s2">&quot;group_id&quot;</span> <span class="ow">in</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_lucky_king</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;target_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operator_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_honor</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">honor_change_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;honor_type&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_title</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">new_title</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group_card</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">old_card</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;card_old&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">new_card</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;card_new&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_offline_file</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">,</span> <span class="n">isGroup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_client_status</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_essence</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">essence_change_type</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sub_type&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;sender_id&quot;</span><span class="p">]</span>
@@ -935,7 +934,7 @@
 <span class="sd">           一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">isGroup</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1">#: 文件 id，私聊文件上传时为 :obj:`None`</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="c1">#: 文件名</span>
@@ -947,13 +946,11 @@
             <span class="c1">#: 文件 url 地址，群聊文件上传时为 :obj:`None`</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">isGroup</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">busid</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;busid&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;url&quot;</span><span class="p">]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">busid</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busid&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.Client">
@@ -967,15 +964,15 @@
 <span class="sd">           一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1">#: 当前客户端是否在线</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">online</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;online&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">online</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;online&quot;</span><span class="p">]</span>
             <span class="c1">#: 当前客户端 id</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;client&quot;</span><span class="p">][</span><span class="s2">&quot;app_id&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;client&quot;</span><span class="p">][</span><span class="s2">&quot;app_id&quot;</span><span class="p">]</span>
             <span class="c1">#: 客户端设备名称</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;client&quot;</span><span class="p">][</span><span class="s2">&quot;device_name&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;client&quot;</span><span class="p">][</span><span class="s2">&quot;device_name&quot;</span><span class="p">]</span>
             <span class="c1">#: 客户端设备类型</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">rawEvent</span><span class="p">[</span><span class="s2">&quot;client&quot;</span><span class="p">][</span><span class="s2">&quot;device_kind&quot;</span><span class="p">]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;client&quot;</span><span class="p">][</span><span class="s2">&quot;device_kind&quot;</span><span class="p">]</span></div>
 </div>
 
 
@@ -991,10 +988,10 @@
 <span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawEvent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rawEvent</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
         <span class="c1">#: 收到事件的机器人 qq 号</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">rawEvent</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -1059,10 +1056,10 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
+</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/translations.js?v=beaddf03"></script>

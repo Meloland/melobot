@@ -12,10 +12,10 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.plugin.init - melobot 2.6.2</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
+        <title>melobot.plugin.init - melobot 2.6.3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -121,6 +121,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -132,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.2</span>
+  <span class="sidebar-brand-text">melobot 2.6.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -232,7 +234,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>melobot.plugin.init 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">importlib.util</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -248,21 +250,22 @@
     <span class="n">ShareObjCbArgs</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotPluginError</span>
+<span class="kn">from</span> <span class="nn">..base.ioc</span> <span class="kn">import</span> <span class="n">DependManager</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">to_async</span>
 <span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
+    <span class="n">AsyncCallable</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">Coroutine</span><span class="p">,</span>
-    <span class="n">Literal</span><span class="p">,</span>
     <span class="n">LogicMode</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
     <span class="n">P</span><span class="p">,</span>
     <span class="n">PriorLevel</span><span class="p">,</span>
+    <span class="n">T</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..meta</span> <span class="kn">import</span> <span class="n">ReadOnly</span>
-<span class="kn">from</span> <span class="nn">..utils.checker</span> <span class="kn">import</span> <span class="n">AtMsgChecker</span><span class="p">,</span> <span class="n">NoticeChecker</span><span class="p">,</span> <span class="n">ReqChecker</span>
+<span class="kn">from</span> <span class="nn">..utils.checker</span> <span class="kn">import</span> <span class="n">AtMsgChecker</span>
 <span class="kn">from</span> <span class="nn">..utils.matcher</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ContainMatcher</span><span class="p">,</span>
     <span class="n">EndMatcher</span><span class="p">,</span>
@@ -270,8 +273,10 @@
     <span class="n">RegexMatcher</span><span class="p">,</span>
     <span class="n">StartMatcher</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..utils.parser</span> <span class="kn">import</span> <span class="n">CmdArgFormatter</span><span class="p">,</span> <span class="n">CmdParser</span>
 <span class="kn">from</span> <span class="nn">.handler</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AllEventHandler</span><span class="p">,</span>
+    <span class="n">EventHandler</span><span class="p">,</span>
     <span class="n">MetaEventHandler</span><span class="p">,</span>
     <span class="n">MsgEventHandler</span><span class="p">,</span>
     <span class="n">NoticeEventHandler</span><span class="p">,</span>
@@ -279,7 +284,7 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">SessionRule</span><span class="p">,</span> <span class="n">WrappedChecker</span>
+    <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">SessionRule</span>
     <span class="kn">from</span> <span class="nn">..utils.checker</span> <span class="kn">import</span> <span class="n">BotChecker</span>
     <span class="kn">from</span> <span class="nn">..utils.matcher</span> <span class="kn">import</span> <span class="n">BotMatcher</span>
     <span class="kn">from</span> <span class="nn">..utils.parser</span> <span class="kn">import</span> <span class="n">BotParser</span>
@@ -344,16 +349,16 @@
             <span class="k">raise</span> <span class="n">BotPluginError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">plugin_path</span><span class="si">}</span><span class="s2"> 缺乏入口主文件 __init__.py，插件无法加载&quot;</span>
             <span class="p">)</span>
-        <span class="n">plugin_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">plugin_path</span><span class="p">)</span>
-        <span class="n">plugins_folder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">plugin_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-        <span class="n">plugins_folder_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">plugins_folder</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">plugins_folder</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-            <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">plugins_folder_name</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">plugins_folder</span><span class="p">)</span>
-        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">plugins_folder_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">plugin_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">plugins_folder_name</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        <span class="n">p_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">plugin_path</span><span class="p">)</span>
+        <span class="n">p_folder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">plugin_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">p_folder_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">p_folder</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">p_folder</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">p_folder_name</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p_folder</span><span class="p">)</span>
+
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p_folder_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">p_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p_folder_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">BotPlugin</span><span class="p">):</span>
@@ -361,6 +366,7 @@
                 <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotPluginError</span><span class="p">(</span><span class="s2">&quot;指定的入口主文件中，未发现 Plugin 实例，无效导入&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">plugin</span>
 
     <span class="nd">@staticmethod</span>
@@ -370,6 +376,7 @@
             <span class="n">plugin</span> <span class="o">=</span> <span class="n">PluginLoader</span><span class="o">.</span><span class="n">load_from_dir</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plugin</span> <span class="o">=</span> <span class="n">target</span>
+
         <span class="n">plugin</span><span class="o">.</span><span class="n">_self_build</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">plugin</span>
 
@@ -438,6 +445,7 @@
             <span class="p">[(</span><span class="n">args</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__share_cb_args__</span><span class="p">],</span>
             <span class="p">[(</span><span class="n">args</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">signal</span><span class="p">)</span> <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signal_args__</span><span class="p">],</span>
         <span class="p">)</span>
+
         <span class="n">check_pass</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
             <span class="kc">False</span>
             <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__proxy__</span><span class="o">.</span><span class="n">share_cbs</span>
@@ -445,6 +453,22 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">check_pass</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotPluginError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;插件 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="si">}</span><span class="s2"> 不能为不属于自己的共享对象绑定回调&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_event</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">handler_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">EventHandler</span><span class="p">],</span> <span class="n">params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+
+        <span class="k">def</span> <span class="nf">save_args</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">EventHandlerArgs</span><span class="p">(</span>
+                    <span class="n">executor</span><span class="o">=</span><span class="n">DependManager</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">executor</span><span class="p">),</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="n">handler_type</span><span class="p">,</span>
+                    <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">executor</span>
+
+        <span class="k">return</span> <span class="n">save_args</span>
 
 <div class="viewcode-block" id="BotPlugin.on_event">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_event">[文档]</a>
@@ -457,8 +481,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个任意事件处理方法</span>
 
@@ -472,30 +496,21 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">AllEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
+            <span class="n">AllEventHandler</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">checker</span><span class="p">,</span>
+                <span class="n">priority</span><span class="p">,</span>
+                <span class="n">block</span><span class="p">,</span>
+                <span class="n">temp</span><span class="p">,</span>
+                <span class="n">session_rule</span><span class="p">,</span>
+                <span class="n">session_hold</span><span class="p">,</span>
+                <span class="n">direct_rouse</span><span class="p">,</span>
+                <span class="n">conflict_wait</span><span class="p">,</span>
+                <span class="n">conflict_cb</span><span class="p">,</span>
+                <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_message">
@@ -511,8 +526,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个消息事件处理方法</span>
 
@@ -528,32 +543,22 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">matcher</span><span class="p">,</span>
-                        <span class="n">parser</span><span class="p">,</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
+            <span class="n">MsgEventHandler</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">matcher</span><span class="p">,</span>
+                <span class="n">parser</span><span class="p">,</span>
+                <span class="n">checker</span><span class="p">,</span>
+                <span class="n">priority</span><span class="p">,</span>
+                <span class="n">block</span><span class="p">,</span>
+                <span class="n">temp</span><span class="p">,</span>
+                <span class="n">session_rule</span><span class="p">,</span>
+                <span class="n">session_hold</span><span class="p">,</span>
+                <span class="n">direct_rouse</span><span class="p">,</span>
+                <span class="n">conflict_wait</span><span class="p">,</span>
+                <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_at_qq">
@@ -570,8 +575,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个艾特消息事件处理方法</span>
 
@@ -590,38 +595,74 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">at_checker</span> <span class="o">=</span> <span class="n">AtMsgChecker</span><span class="p">(</span><span class="n">qid</span><span class="p">)</span>
-        <span class="n">wrapped_checker</span><span class="p">:</span> <span class="n">AtMsgChecker</span> <span class="o">|</span> <span class="s2">&quot;WrappedChecker&quot;</span>
-        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">wrapped_checker</span> <span class="o">=</span> <span class="n">at_checker</span> <span class="o">&amp;</span> <span class="n">checker</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">wrapped_checker</span> <span class="o">=</span> <span class="n">at_checker</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
+            <span class="n">matcher</span><span class="p">,</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">AtMsgChecker</span><span class="p">(</span><span class="n">qid</span><span class="p">)</span> <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">AtMsgChecker</span><span class="p">(</span><span class="n">qid</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">checker</span><span class="p">,</span>
+            <span class="n">priority</span><span class="p">,</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="n">temp</span><span class="p">,</span>
+            <span class="n">session_rule</span><span class="p">,</span>
+            <span class="n">session_hold</span><span class="p">,</span>
+            <span class="n">direct_rouse</span><span class="p">,</span>
+            <span class="n">conflict_wait</span><span class="p">,</span>
+            <span class="n">conflict_cb</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">matcher</span><span class="p">,</span>
-                        <span class="n">parser</span><span class="p">,</span>
-                        <span class="n">wrapped_checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
 
-        <span class="k">return</span> <span class="n">make_args</span></div>
+<div class="viewcode-block" id="BotPlugin.on_command">
+<a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_command">[文档]</a>
+    <span class="k">def</span> <span class="nf">on_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cmd_start</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">cmd_sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">targets</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">formatters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">CmdArgFormatter</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
+        <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个消息事件处理方法</span>
+
+<span class="sd">        .. admonition:: 注意</span>
+<span class="sd">           :class: caution</span>
+
+<span class="sd">           - 命令起始符和命令间隔符不允许包含：引号，各种括号，反斜杠，数字，英文，控制字符及各类空白字符。</span>
+<span class="sd">           - 命令起始符不能是命令间隔符的子序列，反之亦然。</span>
+
+<span class="sd">        :param cmd_start: 命令起始符（可以是字符串或字符串列表）</span>
+<span class="sd">        :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）</span>
+<span class="sd">        :param targets: 匹配的命令名</span>
+<span class="sd">        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）</span>
+<span class="sd">        :param checker: 使用的检查器，为空则默认通过检查</span>
+<span class="sd">        :param priority: 优先级</span>
+<span class="sd">        :param block: 是否进行优先级阻断</span>
+<span class="sd">        :param temp: 是否是一次性的</span>
+<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
+<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
+<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
+<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
+<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">CmdParser</span><span class="p">(</span><span class="n">cmd_start</span><span class="p">,</span> <span class="n">cmd_sep</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">formatters</span><span class="p">),</span>
+            <span class="n">checker</span><span class="p">,</span>
+            <span class="n">priority</span><span class="p">,</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="n">temp</span><span class="p">,</span>
+            <span class="n">session_rule</span><span class="p">,</span>
+            <span class="n">session_hold</span><span class="p">,</span>
+            <span class="n">direct_rouse</span><span class="p">,</span>
+            <span class="n">conflict_wait</span><span class="p">,</span>
+            <span class="n">conflict_cb</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_start_match">
@@ -637,8 +678,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串起始匹配的消息事件处理方法</span>
 
@@ -660,33 +701,19 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">start_matcher</span> <span class="o">=</span> <span class="n">StartMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">start_matcher</span><span class="p">,</span>
-                        <span class="kc">None</span><span class="p">,</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
+            <span class="n">StartMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">checker</span><span class="p">,</span>
+            <span class="n">priority</span><span class="p">,</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="n">temp</span><span class="p">,</span>
+            <span class="n">session_rule</span><span class="p">,</span>
+            <span class="n">session_hold</span><span class="p">,</span>
+            <span class="n">direct_rouse</span><span class="p">,</span>
+            <span class="n">conflict_wait</span><span class="p">,</span>
+            <span class="n">conflict_cb</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_contain_match">
@@ -702,8 +729,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串包含匹配的消息事件处理方法</span>
 
@@ -725,33 +752,19 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">contain_matcher</span> <span class="o">=</span> <span class="n">ContainMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">contain_matcher</span><span class="p">,</span>
-                        <span class="kc">None</span><span class="p">,</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
+            <span class="n">ContainMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">checker</span><span class="p">,</span>
+            <span class="n">priority</span><span class="p">,</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="n">temp</span><span class="p">,</span>
+            <span class="n">session_rule</span><span class="p">,</span>
+            <span class="n">session_hold</span><span class="p">,</span>
+            <span class="n">direct_rouse</span><span class="p">,</span>
+            <span class="n">conflict_wait</span><span class="p">,</span>
+            <span class="n">conflict_cb</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_full_match">
@@ -767,8 +780,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串全匹配的消息事件处理方法</span>
 
@@ -790,33 +803,19 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">full_matcher</span> <span class="o">=</span> <span class="n">FullMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">full_matcher</span><span class="p">,</span>
-                        <span class="kc">None</span><span class="p">,</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
+            <span class="n">FullMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">checker</span><span class="p">,</span>
+            <span class="n">priority</span><span class="p">,</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="n">temp</span><span class="p">,</span>
+            <span class="n">session_rule</span><span class="p">,</span>
+            <span class="n">session_hold</span><span class="p">,</span>
+            <span class="n">direct_rouse</span><span class="p">,</span>
+            <span class="n">conflict_wait</span><span class="p">,</span>
+            <span class="n">conflict_cb</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_end_match">
@@ -832,8 +831,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串结尾匹配的消息事件处理方法</span>
 
@@ -855,33 +854,19 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">end_matcher</span> <span class="o">=</span> <span class="n">EndMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">end_matcher</span><span class="p">,</span>
-                        <span class="kc">None</span><span class="p">,</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
+            <span class="n">EndMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">checker</span><span class="p">,</span>
+            <span class="n">priority</span><span class="p">,</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="n">temp</span><span class="p">,</span>
+            <span class="n">session_rule</span><span class="p">,</span>
+            <span class="n">session_hold</span><span class="p">,</span>
+            <span class="n">direct_rouse</span><span class="p">,</span>
+            <span class="n">conflict_wait</span><span class="p">,</span>
+            <span class="n">conflict_cb</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_regex_match">
@@ -896,8 +881,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串正则匹配的消息事件处理方法</span>
 
@@ -914,33 +899,19 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">regex_matcher</span> <span class="o">=</span> <span class="n">RegexMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MsgEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">regex_matcher</span><span class="p">,</span>
-                        <span class="kc">None</span><span class="p">,</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
+            <span class="n">RegexMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">checker</span><span class="p">,</span>
+            <span class="n">priority</span><span class="p">,</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="n">temp</span><span class="p">,</span>
+            <span class="n">session_rule</span><span class="p">,</span>
+            <span class="n">session_hold</span><span class="p">,</span>
+            <span class="n">direct_rouse</span><span class="p">,</span>
+            <span class="n">conflict_wait</span><span class="p">,</span>
+            <span class="n">conflict_cb</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_request">
@@ -954,8 +925,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个请求事件处理方法</span>
 
@@ -969,30 +940,20 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">ReqEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
+            <span class="n">ReqEventHandler</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">checker</span><span class="p">,</span>
+                <span class="n">priority</span><span class="p">,</span>
+                <span class="n">block</span><span class="p">,</span>
+                <span class="n">temp</span><span class="p">,</span>
+                <span class="n">session_rule</span><span class="p">,</span>
+                <span class="n">session_hold</span><span class="p">,</span>
+                <span class="n">direct_rouse</span><span class="p">,</span>
+                <span class="n">conflict_wait</span><span class="p">,</span>
+                <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_notice">
@@ -1006,8 +967,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个通知事件处理方法</span>
 
@@ -1022,30 +983,20 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">NoticeEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
+            <span class="n">NoticeEventHandler</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">checker</span><span class="p">,</span>
+                <span class="n">priority</span><span class="p">,</span>
+                <span class="n">block</span><span class="p">,</span>
+                <span class="n">temp</span><span class="p">,</span>
+                <span class="n">session_rule</span><span class="p">,</span>
+                <span class="n">session_hold</span><span class="p">,</span>
+                <span class="n">direct_rouse</span><span class="p">,</span>
+                <span class="n">conflict_wait</span><span class="p">,</span>
+                <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_meta_event">
@@ -1059,8 +1010,8 @@
         <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个元事件处理方法</span>
 
@@ -1074,30 +1025,20 @@
 <span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
 <span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">executor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__handler_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">EventHandlerArgs</span><span class="p">(</span>
-                    <span class="n">executor</span><span class="o">=</span><span class="n">executor</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">MetaEventHandler</span><span class="p">,</span>
-                    <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">checker</span><span class="p">,</span>
-                        <span class="n">priority</span><span class="p">,</span>
-                        <span class="n">block</span><span class="p">,</span>
-                        <span class="n">temp</span><span class="p">,</span>
-                        <span class="n">session_rule</span><span class="p">,</span>
-                        <span class="n">session_hold</span><span class="p">,</span>
-                        <span class="n">direct_rouse</span><span class="p">,</span>
-                        <span class="n">conflict_wait</span><span class="p">,</span>
-                        <span class="n">conflict_cb</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">executor</span>
-
-        <span class="k">return</span> <span class="n">make_args</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
+            <span class="n">MetaEventHandler</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">checker</span><span class="p">,</span>
+                <span class="n">priority</span><span class="p">,</span>
+                <span class="n">block</span><span class="p">,</span>
+                <span class="n">temp</span><span class="p">,</span>
+                <span class="n">session_rule</span><span class="p">,</span>
+                <span class="n">session_hold</span><span class="p">,</span>
+                <span class="n">direct_rouse</span><span class="p">,</span>
+                <span class="n">conflict_wait</span><span class="p">,</span>
+                <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_signal">
@@ -1129,12 +1070,12 @@
 <span class="sd">        :param signal: 信号的名称</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__signal_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">PluginSignalHandlerArgs</span><span class="p">(</span>
-                    <span class="n">func</span><span class="p">,</span> <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="n">signal</span>
+                    <span class="n">DependManager</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">func</span><span class="p">),</span>
+                    <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
+                    <span class="n">signal</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
@@ -1148,7 +1089,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">reflector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reflector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个共享对象，同时绑定它的值获取方法</span>
 
@@ -1185,14 +1126,14 @@
         <span class="n">_namespace</span> <span class="o">=</span> <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span>
         <span class="k">if</span> <span class="n">reflector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">_namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">to_async</span><span class="p">(</span><span class="n">reflector</span><span class="p">))</span>
+                <span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">DependManager</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">to_async</span><span class="p">(</span><span class="n">reflector</span><span class="p">)),</span> <span class="n">_namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">_namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
+        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__share_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ShareObjArgs</span><span class="p">(</span><span class="n">DependManager</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">func</span><span class="p">),</span> <span class="n">_namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
 
         <span class="k">return</span> <span class="n">make_args</span></div>
@@ -1229,12 +1170,12 @@
 <span class="sd">        :param id: 共享对象的 id 标识</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__share_cb_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">ShareObjCbArgs</span><span class="p">(</span>
-                    <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">func</span>
+                    <span class="n">namespace</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="p">,</span>
+                    <span class="n">DependManager</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">func</span><span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
@@ -1262,11 +1203,11 @@
 <span class="sd">        :param types: bot 生命周期类型枚举值，可传入多个</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span>
-            <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+        <span class="k">def</span> <span class="nf">make_args</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
             <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__hook_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BotHookRunnerArgs</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">type</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__hook_args__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">BotHookRunnerArgs</span><span class="p">(</span><span class="n">DependManager</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">func</span><span class="p">),</span> <span class="nb">type</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
 
         <span class="k">return</span> <span class="n">make_args</span></div>
@@ -1375,10 +1316,10 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
+</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/translations.js?v=beaddf03"></script>

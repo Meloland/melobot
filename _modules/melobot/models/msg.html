@@ -12,10 +12,10 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.models.msg - melobot 2.6.2</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
+        <title>melobot.models.msg - melobot 2.6.3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -121,6 +121,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -132,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.2</span>
+  <span class="sidebar-brand-text">melobot 2.6.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -232,7 +234,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>melobot.models.msg 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
@@ -609,20 +611,7 @@
 <span class="sd">    :param useStd: 消息段对象构造时是否遵循 onebot 标准，默认为否（使用 go-cq 风格）</span>
 <span class="sd">    :return: onebot 标准中的消息段对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="n">text_msg</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">msgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">msgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">content</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="n">temp</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">)</span>
-        <span class="n">msgs</span> <span class="o">=</span> <span class="n">temp</span>
+    <span class="n">msgs</span> <span class="o">=</span> <span class="n">to_msg_segment</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">useStd</span><span class="p">:</span>
         <span class="n">ret</span><span class="p">:</span> <span class="n">MsgNode</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;node&quot;</span><span class="p">,</span>
@@ -729,40 +718,48 @@
 <span class="sd">    :return: 消息段对象列表</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">cq_texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="k">def</span> <span class="nf">replace_func</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">regs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">cq_texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">string</span><span class="p">[</span><span class="n">s</span><span class="p">:</span><span class="n">e</span><span class="p">])</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\u0000</span><span class="s2">&quot;</span>
 
     <span class="n">cq_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[CQ:.*?\]&quot;</span><span class="p">)</span>
-    <span class="n">cq_texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="n">no_cq_str</span> <span class="o">=</span> <span class="n">cq_regex</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">replace_func</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
     <span class="n">pure_texts</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;[CQ:text,text=</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
         <span class="n">no_cq_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u0000</span><span class="s2">&quot;</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">cq_entity_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">zip_longest</span><span class="p">(</span><span class="n">pure_texts</span><span class="p">,</span> <span class="n">cq_texts</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
     <span class="p">)</span>
 
-    <span class="n">cq_entity</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">_</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cq_entity</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">cq_entity_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">content</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">cq_entity</span><span class="p">:</span>
-        <span class="n">__</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="n">cq_type</span> <span class="o">=</span> <span class="n">__</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">4</span><span class="p">:]</span>
+        <span class="n">cq_parts</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">cq_type</span> <span class="o">=</span> <span class="n">cq_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">4</span><span class="p">:]</span>
         <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">param_pair</span> <span class="ow">in</span> <span class="n">__</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+
+        <span class="k">for</span> <span class="n">param_pair</span> <span class="ow">in</span> <span class="n">cq_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">param_pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">cq_type</span> <span class="o">!=</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="n">cq_anti_escape</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="ow">and</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()):</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-                <span class="k">continue</span>
+
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">tmp</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
         <span class="n">content</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">cq_type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">})</span>
+
     <span class="k">return</span> <span class="n">content</span></div>
 
 
@@ -777,21 +774,53 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">content</span>
+
     <span class="n">msgs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
             <span class="n">msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]))</span>
             <span class="k">continue</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[CQ:</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;,</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">cq_escape</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;]&quot;</span>
+
+        <span class="nb">type</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">cq_escape</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[CQ:</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">params</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="n">msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">to_msg_segment</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;将多种可能的消息格式，统一转换为 cq 消息列表&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">verify_segment</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">text_msg</span><span class="p">(</span><span class="n">content</span><span class="p">)]</span>
+
+    <span class="k">elif</span> <span class="n">verify_segment</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">cast</span><span class="p">(</span><span class="n">MsgSegment</span><span class="p">,</span> <span class="n">content</span><span class="p">)]</span>
+
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">verify_segment</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">content</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="n">content</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;发送的消息内容有误，当前值是：</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">，但需要以下格式之一：字符串、消息段对象、消息段对象的列表（不可为空）&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">:</span>
+
     <span class="k">def</span> <span class="nf">_format_msg_action</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="s2">&quot;BotAction&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">action</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_cq_str</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">])</span>
 
@@ -802,35 +831,31 @@
             <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_cq_str</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">])</span>
 
     <span class="n">_action</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">_action</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;send_msg&quot;</span><span class="p">:</span>
         <span class="n">_format_msg_action</span><span class="p">(</span><span class="n">_action</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">_action</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;send_private_forward_msg&quot;</span><span class="p">,</span> <span class="s2">&quot;send_group_forward_msg&quot;</span><span class="p">):</span>
         <span class="n">_format_forward_action</span><span class="p">(</span><span class="n">_action</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
-            <span class="s2">&quot;传入的 action 类型不是发送消息、发送转发消息，因此不可被 cq 序列化&quot;</span>
-        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="s2">&quot;传入的 action 不可被 cq 序列化&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_action</span>
 
 
-<span class="k">def</span> <span class="nf">_get_segs</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span> <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">get_segs</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span> <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cq_type</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_get_seg_datas</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">get_seg_datas</span><span class="p">(</span>
     <span class="n">content</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">],</span>
     <span class="n">cq_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
-    <span class="n">res</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cq_type</span><span class="p">:</span>
-            <span class="n">val</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
-            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">content</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cq_type</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">res</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">res</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">res</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>
@@ -870,10 +895,10 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
+</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/translations.js?v=beaddf03"></script>

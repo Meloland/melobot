@@ -17,7 +17,11 @@
 一般来说，发送纯文本内容是最普遍的，方法也十分简单：
 
 ```python
-await send("你好啊")
+from melobot.context import send
+
+@plugin.on_xxx(...)
+async def _():
+    await send("你好啊")
 ```
 
 如果要发送多媒体内容，首先要通过各自的消息段构造函数构造**消息段对象**，然后直接传入 {func}`.send` 作为参数。
@@ -25,9 +29,13 @@ await send("你好啊")
 例如使用 {func}`.image_msg` 构造图片内容：
 
 ```python
-# 构造一个“图片”消息段，然后发送
-img = image_msg("https://www.glowmem.com/static/avatar.jpg")
-await send(img)
+from melobot.models import image_msg
+
+@plugin.on_xxx(...)
+async def _():
+    # 构造一个“图片”消息段，然后发送
+    img = image_msg("https://www.glowmem.com/static/avatar.jpg")
+    await send(img)
 ```
 
 其他消息段构造函数，及这些函数的参数，参考：[消息段构造函数](#msg-build)
@@ -35,12 +43,15 @@ await send(img)
 单条消息中，自然可能有多种类型的消息段同时存在。此时这样处理：
 
 ```python
-# 例如文本和图片同时存在：
-await send([
-    # text_msg 可从 melobot.models 导入，也是消息段构造函数之一
-    text_msg("给你分享一张图片哦，这是 melobot 项目作者的头像"),
-    image_msg("https://www.glowmem.com/static/avatar.jpg")
-])
+from melobot.models import text_msg, image_msg
+
+@plugin.on_xxx(...)
+async def _():
+    # 例如文本和图片同时存在：
+    await send([
+        text_msg("给你分享一张图片哦，这是 melobot 项目作者的头像"),
+        image_msg("https://www.glowmem.com/static/avatar.jpg")
+    ])
 ```
 
 ## 自定义消息段的构造
@@ -63,8 +74,12 @@ await send([
 如何让 melobot 发送这种自定义的消息段？非常简单：
 
 ```python
-touch = custom_type_msg("touch", {"id": "1574260633"})
-await send(touch)
+from melobot.models import custom_type_msg
+
+@plugin.on_xxx(...)
+async def _():
+    touch = custom_type_msg("touch", {"id": "1574260633"})
+    await send(touch)
 
 # 或者再自行封装一下 :)
 from functools import partial
@@ -72,7 +87,9 @@ from functools import partial
 def touch_msg(uid: int):
     return custom_type_msg("touch", {"id": str(uid)})
 
-await send(touch_msg(1574260633))
+@plugin.on_xxx(...)
+async def _():
+    await send(touch_msg(1574260633))
 ```
 
 ## 单条消息的其他发送方法
@@ -80,19 +97,24 @@ await send(touch_msg(1574260633))
 {func}`.send` 可根据当前触发事件，自动定位向何处发送消息。如果想要自定义发送目标，也很容易。只需要将{func}`.send` 换成 {func}`.send_custom` 即可，它的第一参数与 {func}`.send` 完全相同。
 
 ```python
-# 发送一个自定义目标的私聊消息，userId 为 qq 号
-await send_custom(..., isPrivate=True, userId=1574260633)
-# 发送一个自定义目标的群聊消息，groupId 为群号
-await send_custom(..., isPrivate=False, groupId=535705163)
+from melobot.context import send_custom
+
+@plugin.on_xxx(...)
+async def _():
+    # 发送一个自定义目标的私聊消息，userId 为 qq 号
+    await send_custom(..., isPrivate=True, userId=1574260633)
+    # 发送一个自定义目标的群聊消息，groupId 为群号
+    await send_custom(..., isPrivate=False, groupId=535705163)
 ```
 
-如果要回复触发消息事件处理方法的那条消息，按照之前学到的，应该这样做：
+如果要回复消息事件对应的那条消息，按照之前学到的，应该这样做：
 
 ```python
-@plugin.on_start_match(".hello")
-async def say_hi() -> None:
-    e = msg_event()
-    # reply_msg 可从 melobot.models 导入，也是消息段构造函数之一
+from melobot.models import reply_msg, text_msg
+
+@plugin.on_xxx(...)
+async def _(e = msg_event()):
+    # reply_msg 是消息段构造函数之一，用于构造回复消息段
     # 消息事件的 id 属性值存储消息的 id
     await send([reply_msg(e.id), text_msg("你好哇")])
 ```
@@ -100,8 +122,10 @@ async def say_hi() -> None:
 这是十分繁琐的，但是“发送回复消息”这一行为也很普遍。使用 {func}`.send_reply` 简化：
 
 ```python
-@plugin.on_start_match(".hello")
-async def say_hi() -> None:
+from melobot.context import send_reply
+
+@plugin.on_xxx(...)
+async def _():
     # send_reply 第一参数与 send 完全相同
     await send_reply("你好哇")
 ```
@@ -109,54 +133,55 @@ async def say_hi() -> None:
 想要提前结束事件处理方法，一般会用 `return`：
 
 ```python
-@plugin.on_start_match(".hello")
-async def say_hi() -> None:
-    if msg_event().sender.id != 1574260633:
+@plugin.on_xxx(...)
+async def _(e = msg_event()):
+    if e.sender.id != 1574260633:
         await send("你好~ 你不是我的主人哦")
         return
     # 接下来是机器人主人的处理逻辑
-    await send(">w<")
     await send("主人好")
 ```
 
 用 {func}`.finish` 可以把 `return` 简化掉：
 
 ```python
+from melobot.context import finish
+
 # 刚才的代码，使用 finish 优化后
-@plugin.on_start_match(".hello")
-async def say_hi() -> None:
-    if msg_event().sender.id != 1574260633:
+@plugin.on_xxx(...)
+async def _(e = msg_event()):
+    if e.sender.id != 1574260633:
         # finish 运行完就返回啦，不需要显式 return
         await finish("你好~ 你不是我的主人哦")
-    await send(">w<")
     await send("主人好")
 ```
 
 在嵌套函数调用中，{func}`.finish` 实际上可以退出任意深度的嵌套函数调用：
 
 ```python
-@plugin.on_start_match(".hello")
-async def say_hi() -> None:
+@plugin.on_xxx(...)
+async def _():
     await a()
-    b()
+    await b()
     ...
 
 async def a() -> None:
-    if ...:
-        ...
-    else:
-        # 退出 a 函数后，直接从 say_hi 的 a 函数调用点直接退出
-        finish(...)
+    ...
+    # 退出 a 函数后，直接从 say_hi 的 a 函数调用点直接退出
+    await finish(...)
 
-def b() -> None:
-    if ...:
-        ...
-    else:
-        # 退出 b 函数后，直接从 say_hi 的 b 函数调用点直接退出
-        finish(...)
+async def b() -> None:
+    ...
+    # 退出 b 函数后，直接从 say_hi 的 b 函数调用点直接退出
+    await finish(...)
 ```
 
 同理，{func}`.send_reply` 对应的提前结束版本是：{func}`.reply_finish`。使用方法与 {func}`.finish` 基本一致。但是它发送的是回复消息。
+
+```{admonition} 提示
+:class: tip
+{func}`.finish` 和 {func}`.reply_finish`，只能在事件处理过程中使用。
+```
 
 ## 使用 CQ 字符串
 
@@ -165,11 +190,13 @@ def b() -> None:
 只要是有 `cq_str` 参数的行为操作函数，设置 `cq_str=True` 后，此行为操作函数将不再认为字符串是纯文本内容。而认为字符串是可解释的 CQ 字符串。
 
 ```python
-# 第一参数是字符串，无论内容是什么，都是纯文本消息内容
-await send("[CQ:face,id=178]你好啊")
-# 启用了 cq_str 后，第一参数如果是字符串，将会被解释为 CQ 字符串
-# 如果存在有效的 CQ 字符串，将会被直接应用
-await send("[CQ:face,id=178]你好啊", cq_str=True)
+@plugin.on_xxx(...)
+async def _():
+    # 第一参数是字符串，无论内容是什么，都是纯文本消息内容
+    await send("[CQ:face,id=178]你好啊")
+    # 启用了 cq_str 后，第一参数如果是字符串，将会被解释为 CQ 字符串
+    # 如果存在有效的 CQ 字符串，将会被直接应用
+    await send("[CQ:face,id=178]你好啊", cq_str=True)
 ```
 
 ```{admonition} 提示
@@ -198,6 +225,8 @@ await send("[CQ:face,id=178]你好啊", cq_str=True)
 构造“转发消息段”，使用 {func}`.forward_msg` 函数：
 
 ```python
+from melobot.models import forward_msg
+
 # forward_id 是转发 id，可通过 msg_event().get_datas("forward", "id") 获得
 msg = forward_msg(forward_id)
 ```
@@ -205,8 +234,10 @@ msg = forward_msg(forward_id)
 此时，`msg` 变量已经是一条转发消息的等价表达了，直接使用 `send` 发送：
 
 ```python
-# 这里也可以使用其他能发送消息段的方法：send_reply, finish...
-await send(msg)
+@plugin.on_xxx(...)
+async def _():
+    # 这里也可以使用其他能发送消息段的方法：send_reply, finish...
+    await send(msg)
 ```
 
 ### 消息结点构造
@@ -214,6 +245,8 @@ await send(msg)
 构造“合并转发结点”，使用 {func}`.refer_msg_node` 函数：
 
 ```python
+from melobot.models import refer_msg_node
+
 # 这里的 msg_id 是已存在的消息的 id，可通过 msg_event().id 获得
 refer_node = refer_msg_node(msg_id)
 ```
@@ -221,23 +254,33 @@ refer_node = refer_msg_node(msg_id)
 构造“合并转发自定义结点”，使用 {func}`.custom_msg_node` 函数：
 
 ```python
+from melobot.models import custom_msg_node
+
 # 第一参数是消息内容，与上述消息段发送方法的第一参数相同
 # 后续参数是在转发消息中显示的，发送人昵称 和 发送人的qq号（int 类型）
 node1 = custom_msg_node("你好", sendName="机器人", sendId=xxxxxx)
 
-node2 = custom_msg_node(image_msg(...),
-                        sendName="机器人",
-                        sendId=xxxxxx)
+node2 = custom_msg_node(
+    image_msg(...),
+    sendName="机器人",
+    sendId=xxxxxx
+)
 
-node3 = custom_msg_node([text_msg(...), image_msg(...)],
-                        sendName="机器人",
-                        sendId=xxxxxx)
+node3 = custom_msg_node(
+    [text_msg(...), image_msg(...)],
+    sendName="机器人",
+    sendId=xxxxxx
+)
 ```
 
 将消息结点组成列表，就是一条转发消息的等价表达了，使用 {func}`.send_forward` 来发送它：
 
 ```python
-await send_forward([refer_node, node1, node2, node3])
+from melobot.context import send_forward
+
+@plugin.on_xxx(...)
+async def _():
+    await send_forward([refer_node, node1, node2, node3])
 ```
 
 ## 转发消息的其他发送方法
@@ -245,10 +288,14 @@ await send_forward([refer_node, node1, node2, node3])
 {func}`.send_forward` 可根据当前触发事件，自动定位要向何处发送消息。同理，要自定义发送目标，将{func}`.send_forward` 换成 {func}`.send_custom_forward` 即可，它的第一参数与 {func}`.send_forward` 完全相同。
 
 ```python
-# 发送一个自定义目标的私聊转发消息，userId 为 qq 号
-await send_custom_forward(..., isPrivate=True, userId=1574260633)
-# 发送一个自定义目标的群聊转发消息，groupId 为群号
-await send_custom_forward(..., isPrivate=False, groupId=535705163)
+from melobot.context import send_custom_forward
+
+@plugin.on_xxx(...)
+async def _():
+    # 发送一个自定义目标的私聊转发消息，userId 为 qq 号
+    await send_custom_forward(..., isPrivate=True, userId=1574260633)
+    # 发送一个自定义目标的群聊转发消息，groupId 为群号
+    await send_custom_forward(..., isPrivate=False, groupId=535705163)
 ```
 
 ## 总结

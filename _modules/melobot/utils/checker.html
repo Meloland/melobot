@@ -12,10 +12,10 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.utils.checker - melobot 2.6.2</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
+        <title>melobot.utils.checker - melobot 2.6.3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -121,6 +121,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -132,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.2</span>
+  <span class="sidebar-brand-text">melobot 2.6.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -232,21 +234,10 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>melobot.utils.checker 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BotChecker</span><span class="p">,</span> <span class="n">BotEvent</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotValueError</span>
-<span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">is_retcoro</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
-    <span class="n">Any</span><span class="p">,</span>
-    <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">Coroutine</span><span class="p">,</span>
-    <span class="n">Literal</span><span class="p">,</span>
-    <span class="n">Optional</span><span class="p">,</span>
-    <span class="n">User</span><span class="p">,</span>
-    <span class="n">cast</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">User</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..models.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
@@ -290,8 +281,8 @@
         <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件分级权限检查器</span>
 
@@ -307,15 +298,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span> <span class="o">=</span> <span class="n">ok_cb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_lvl</span> <span class="o">=</span> <span class="n">level</span>
-
-        <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_retcoro</span><span class="p">(</span><span class="n">ok_cb</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;检查器成功回调 </span><span class="si">{</span><span class="n">ok_cb</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 必须为异步函数，或其他返回协程的可调用对象&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_retcoro</span><span class="p">(</span><span class="n">fail_cb</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;检查器失败回调 </span><span class="si">{</span><span class="n">fail_cb</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 必须为异步函数，或其他返回协程的可调用对象&quot;</span>
-            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">owner</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span> <span class="o">=</span> <span class="n">super_users</span> <span class="k">if</span> <span class="n">super_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
@@ -342,8 +324,10 @@
         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
+
         <span class="n">e_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_level</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">e_level</span><span class="o">.</span><span class="n">value</span> <span class="ow">and</span> <span class="n">e_level</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_lvl</span><span class="o">.</span><span class="n">value</span>
+
         <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -373,8 +357,8 @@
         <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">white_groups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个群聊消息事件分级权限检查器</span>
 
@@ -397,12 +381,14 @@
         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
+
         <span class="k">if</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_group</span><span class="p">()</span>
             <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
             <span class="ow">or</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">group_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
+
         <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
 
@@ -426,8 +412,8 @@
         <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个私聊消息事件分级权限检查器</span>
 
@@ -450,6 +436,7 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_private</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
+
         <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
 
@@ -471,8 +458,8 @@
         <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">white_groups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件分级权限检查器的工厂</span>
 
@@ -490,8 +477,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span> <span class="o">=</span> <span class="n">black_users</span> <span class="k">if</span> <span class="n">black_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span> <span class="o">=</span> <span class="n">white_groups</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span> <span class="o">=</span> <span class="n">ok_cb</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span> <span class="o">=</span> <span class="n">ok_cb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span></div>
 
 
 <div class="viewcode-block" id="MsgCheckerFactory.get_base">
@@ -499,8 +486,8 @@
     <span class="k">def</span> <span class="nf">get_base</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
-        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MsgLvlChecker</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;根据内部依据和给定等级，生成一个 :class:`MsgLvlChecker` 对象</span>
 
@@ -515,8 +502,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -525,8 +512,8 @@
     <span class="k">def</span> <span class="nf">get_group</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
-        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GroupMsgLvlChecker</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;根据内部依据和给定等级，生成一个 :class:`GroupMsgLvlChecker` 对象</span>
 
@@ -542,8 +529,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -552,8 +539,8 @@
     <span class="k">def</span> <span class="nf">get_private</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">level</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
-        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ok_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrivateMsgLvlChecker</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;根据内部依据和给定等级，生成一个 :class:`PrivateMsgLvlChecker` 对象</span>
 
@@ -568,8 +555,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">united_fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ok_cb</span> <span class="k">if</span> <span class="n">ok_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ok_cb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -595,17 +582,12 @@
         <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;MessageEvent&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_msg_event</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
+
         <span class="n">qids</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_datas</span><span class="p">(</span><span class="s2">&quot;at&quot;</span><span class="p">,</span> <span class="s2">&quot;qq&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">qids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">qids</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span><span class="p">:</span>
-                    <span class="n">status</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="n">status</span></div>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="nb">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">qids</span><span class="p">)</span></div>
 
 
 
@@ -688,10 +670,10 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
+</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/translations.js?v=beaddf03"></script>

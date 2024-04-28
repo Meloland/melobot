@@ -12,10 +12,10 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.utils.logger - melobot 2.6.2</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
+        <title>melobot.utils.logger - melobot 2.6.3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -121,6 +121,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -132,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.2</span>
+  <span class="sidebar-brand-text">melobot 2.6.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -232,7 +234,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>melobot.utils.logger 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -241,32 +243,89 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">types</span>
-<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">CRITICAL</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">CRITICAL</span><span class="p">,</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">WARNING</span><span class="p">,</span> <span class="n">Logger</span>
 
 <span class="kn">import</span> <span class="nn">colorlog</span>
 <span class="kn">import</span> <span class="nn">rich.console</span>
 <span class="kn">import</span> <span class="nn">rich.pretty</span>
 <span class="kn">from</span> <span class="nn">better_exceptions</span> <span class="kn">import</span> <span class="n">ExceptionFormatter</span>
 
-<span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">BaseLogger</span>
 <span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotValueError</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="n">_CONSOLE_IO</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="n">_CONSOLE</span> <span class="o">=</span> <span class="n">rich</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">Console</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">_CONSOLE_IO</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color_system</span><span class="o">=</span><span class="s2">&quot;windows&quot;</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">NullLogger</span><span class="p">(</span><span class="n">BaseLogger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得一个空日志器，支持所有日志操作， 但是丢弃所有日志&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">max_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回使用 rich 格式化的 object&quot;&quot;&quot;</span>
+    <span class="n">_CONSOLE</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+        <span class="n">rich</span><span class="o">.</span><span class="n">pretty</span><span class="o">.</span><span class="n">Pretty</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span>
+            <span class="n">indent_guides</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">max_string</span><span class="o">=</span><span class="n">max_len</span><span class="p">,</span>
+            <span class="n">overflow</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="n">expand_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">crop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">colored_str</span> <span class="o">=</span> <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">colored_str</span><span class="p">,</span> <span class="n">_CONSOLE</span><span class="o">.</span><span class="n">export_text</span><span class="p">()</span>
 
+
+<span class="n">_EXC_FORMATTER</span> <span class="o">=</span> <span class="n">ExceptionFormatter</span><span class="p">(</span><span class="n">colored</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">_NO_COLOR_EXC_FORMATTER</span> <span class="o">=</span> <span class="n">ExceptionFormatter</span><span class="p">(</span><span class="n">colored</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_fmtted_exc</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回生成更好的异常字符串&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">_NO_COLOR_EXC_FORMATTER</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">__traceback__</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ObjectFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colored_obj</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colored_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colored_obj</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colored_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">colored_obj</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colored_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">class</span> <span class="nc">NullLogger</span><span class="p">(</span><span class="n">Logger</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">CRITICAL</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+        <span class="n">logger_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BotLogger">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.BotLogger">[文档]</a>
-<span class="k">class</span> <span class="nc">BotLogger</span><span class="p">(</span><span class="n">BaseLogger</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">BotLogger</span><span class="p">(</span><span class="n">Logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 内置日志器类&quot;&quot;&quot;</span>
 
     <span class="n">LOGGERS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;BotLogger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">LEVEL_MAP</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="n">DEBUG</span><span class="p">,</span>
+        <span class="s2">&quot;INFO&quot;</span><span class="p">:</span> <span class="n">INFO</span><span class="p">,</span>
+        <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span> <span class="n">WARNING</span><span class="p">,</span>
+        <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span> <span class="n">ERROR</span><span class="p">,</span>
+        <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span> <span class="n">CRITICAL</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="n">LOG_COLORS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="s2">&quot;cyan,bold&quot;</span><span class="p">,</span>
@@ -286,16 +345,27 @@
     <span class="p">}</span>
 
     <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">make_fmt_nocache</span><span class="p">(</span><span class="n">fmt</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_origin_format</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span>
+
+        <span class="k">def</span> <span class="nf">nocache_format</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">LogRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">exc_text</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">_origin_format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+        <span class="n">fmt</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">nocache_format</span>  <span class="c1"># type: ignore[method-assign]</span>
+
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_console_fmt</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">no_tag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">:</span>
         <span class="n">fmt_arr</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;</span><span class="si">%(green)s%(asctime)s</span><span class="s2">.</span><span class="si">%(msecs)03d%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(log_color)s%(levelname)-8s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(blue)s%(module)-10s%(reset)s</span><span class="s2"> : </span><span class="si">%(green)s%(lineno)-4d%(reset)s</span><span class="s2"> -&gt; </span><span class="si">%(blue)s%(funcName)-12s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;</span><span class="si">%(message_log_color)s%(message)s%(reset)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(message_log_color)s%(message)s%(reset)s%(colored_obj)s</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span><span class="p">:</span>
             <span class="n">fmt_arr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;%(purple)s</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">%(reset)s&quot;</span><span class="p">)</span>
         <span class="n">fmt_s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="s1">&#39; │ &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmt_arr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
         <span class="n">fmt</span> <span class="o">=</span> <span class="n">colorlog</span><span class="o">.</span><span class="n">ColoredFormatter</span><span class="p">(</span>
             <span class="n">fmt_s</span><span class="p">,</span>
             <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span>
@@ -304,6 +374,11 @@
             <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">fmt</span><span class="o">.</span><span class="n">default_msec_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%03d</span><span class="s2">&quot;</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">formatException</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">exc_info</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">_EXC_FORMATTER</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">BotLogger</span><span class="o">.</span><span class="n">make_fmt_nocache</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">fmt</span>
 
     <span class="nd">@staticmethod</span>
@@ -318,24 +393,29 @@
             <span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">.</span><span class="si">%(msecs)03d</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(levelname)-8s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;</span><span class="si">%(module)-10s</span><span class="s2"> : </span><span class="si">%(lineno)-4d</span><span class="s2"> -&gt; </span><span class="si">%(funcName)-12s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%(message)s%(obj)s</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_tag</span><span class="p">:</span>
             <span class="n">fmt_arr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="n">fmt_s</span> <span class="o">=</span> <span class="s2">&quot; │ &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmt_arr</span><span class="p">)</span>
+
         <span class="n">fmt</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
             <span class="n">fmt</span><span class="o">=</span><span class="n">fmt_s</span><span class="p">,</span>
             <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">fmt</span><span class="o">.</span><span class="n">default_msec_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%03d</span><span class="s2">&quot;</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">formatException</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">exc_info</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_NO_COLOR_EXC_FORMATTER</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">BotLogger</span><span class="o">.</span><span class="n">make_fmt_nocache</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">fmt</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_file_handler</span><span class="p">(</span>
-        <span class="n">fmt</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_file_handler</span><span class="p">(</span><span class="n">fmt</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">log_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">log_dir</span><span class="p">)</span>
+
         <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">RotatingFileHandler</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">),</span>
             <span class="n">maxBytes</span><span class="o">=</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
@@ -366,11 +446,16 @@
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LOGGERS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;名为 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 的日志器已存在，请修改 name&quot;</span><span class="p">)</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">level</span><span class="p">])</span>
         <span class="n">BotLogger</span><span class="o">.</span><span class="n">LOGGERS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_handler_arr</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_no_tag</span> <span class="o">=</span> <span class="n">no_tag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj_filter</span> <span class="o">=</span> <span class="n">ObjectFilter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__LEVEL_FLAG__</span> <span class="o">=</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">to_console</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_console_handler</span><span class="p">()</span>
@@ -380,16 +465,18 @@
 
     <span class="k">def</span> <span class="nf">_add_console_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_console_handler</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_console_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_no_tag</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_console_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_no_tag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_console_handler</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj_filter</span><span class="p">)</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_handler_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_con_handler</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_add_file_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_handler</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_file_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_no_tag</span><span class="p">),</span> <span class="n">log_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-        <span class="p">)</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_no_tag</span><span class="p">)</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_handler</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj_filter</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_handler_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
 
@@ -407,54 +494,69 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler_arr</span><span class="p">:</span>
             <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">__LOG_LEVEL_FLAG__</span> <span class="o">=</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">level</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_check_level</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;检查日志器是否可以输出指定日志等级的日志&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__LEVEL_FLAG__</span>
+
+<div class="viewcode-block" id="BotLogger.exc">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.BotLogger.exc">[文档]</a>
+    <span class="k">def</span> <span class="nf">exc</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;出现异常：&quot;</span><span class="p">,</span>
+        <span class="n">e</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">locals</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;更好的用于记录异常的方法</span>
+
+<span class="sd">        :param prefix: 记录时的前缀信息</span>
+<span class="sd">        :param e: 异常对象</span>
+<span class="sd">        :param locals: 需要记录的局部变量，为空则不记录</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_exc</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">e</span>
+        <span class="n">exc_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">_exc</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">_exc</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;exception&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">exc_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fmt_exc</span> <span class="o">=</span> <span class="n">_get_fmtted_exc</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">_exc</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">exc_str</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">fmt_exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">locals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obj</span><span class="p">(</span><span class="nb">locals</span><span class="p">,</span> <span class="s2">&quot;异常抛出点局部变量&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BotLogger.obj">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.BotLogger.obj">[文档]</a>
+    <span class="k">def</span> <span class="nf">obj</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">prefix_fmt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">：</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;在日志时记录指定的对象</span>
+
+<span class="sd">        :param obj: 对象</span>
+<span class="sd">        :param prefix: 记录时的前缀信息</span>
+<span class="sd">        :param prefix_fmt: 前缀信息的格式化字符串</span>
+<span class="sd">        :param level: 记录的日志等级，默认为 DEBUG</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log_meth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">BotLogger</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj_filter</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="n">log_meth</span><span class="p">(</span><span class="n">prefix_fmt</span> <span class="o">%</span> <span class="n">prefix</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj_filter</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log_meth</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix_fmt</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">prefix</span><span class="si">}{</span><span class="n">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 </div>
 
-
-
-<span class="n">_EXC_FORMATTER</span> <span class="o">=</span> <span class="n">ExceptionFormatter</span><span class="p">(</span><span class="n">colored</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">get_exc_stack</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回生成更好的异常字符串&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">_EXC_FORMATTER</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-
-
-<span class="n">_CONSOLE_IO</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-<span class="n">_CONSOLE</span> <span class="o">=</span> <span class="n">rich</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">Console</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">_CONSOLE_IO</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">max_string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回使用 rich 格式化的 object&quot;&quot;&quot;</span>
-    <span class="n">_CONSOLE</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-        <span class="n">rich</span><span class="o">.</span><span class="n">pretty</span><span class="o">.</span><span class="n">Pretty</span><span class="p">(</span>
-            <span class="n">obj</span><span class="p">,</span>
-            <span class="n">indent_guides</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">max_string</span><span class="o">=</span><span class="n">max_string</span><span class="p">,</span>
-            <span class="n">overflow</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="n">crop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">string</span> <span class="o">=</span> <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">_CONSOLE_IO</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">string</span>
-
-
-<span class="k">def</span> <span class="nf">log_exc</span><span class="p">(</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">BaseLogger</span><span class="p">,</span>
-    <span class="nb">locals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-    <span class="n">e</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;异常回溯栈：</span><span class="se">\n</span><span class="si">{</span><span class="n">get_exc_stack</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;异常抛出点局部变量：</span><span class="se">\n</span><span class="si">{</span><span class="n">get_rich_str</span><span class="p">(</span><span class="nb">locals</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">log_obj</span><span class="p">(</span><span class="n">log_method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">obj_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">：</span><span class="se">\n</span><span class="si">{</span><span class="n">get_rich_str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">log_method</span><span class="p">(</span><span class="n">obj_str</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="logger_patch">
@@ -475,12 +577,10 @@
 <span class="sd">    :param logger: 任意日志器对象（支持 debug, info, warning, error, critical 方法即可）</span>
 <span class="sd">    :param log_level: 日志器此时可以输出的最小日志等级（&quot;DEBUG&quot; 一端为小，&quot;CRITICAL&quot; 一端为大）</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">BaseLogger</span><span class="o">.</span><span class="n">LEVEL_FLAG_NAME</span><span class="p">,</span> <span class="n">BaseLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">log_level</span><span class="p">])</span>
-    <span class="nb">setattr</span><span class="p">(</span>
-        <span class="n">logger</span><span class="p">,</span>
-        <span class="n">BaseLogger</span><span class="o">.</span><span class="n">LEVEL_CHECK_METH_NAME</span><span class="p">,</span>
-        <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">BaseLogger</span><span class="o">.</span><span class="n">check_level_flag</span><span class="p">,</span> <span class="n">logger</span><span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s2">&quot;__LEVEL_FLAG__&quot;</span><span class="p">,</span> <span class="n">BotLogger</span><span class="o">.</span><span class="n">LEVEL_MAP</span><span class="p">[</span><span class="n">log_level</span><span class="p">])</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s2">&quot;_check_level&quot;</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">BotLogger</span><span class="o">.</span><span class="n">_check_level</span><span class="p">,</span> <span class="n">logger</span><span class="p">))</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s2">&quot;exc&quot;</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">BotLogger</span><span class="o">.</span><span class="n">exc</span><span class="p">,</span> <span class="n">logger</span><span class="p">))</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s2">&quot;obj&quot;</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">BotLogger</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">logger</span><span class="p">))</span></div>
 
 </pre></div>
         </article>
@@ -521,10 +621,10 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
+</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/translations.js?v=beaddf03"></script>

@@ -12,10 +12,10 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>melobot.context.action - melobot 2.6.2</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
+        <title>melobot.context.action - melobot 2.6.3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -121,6 +121,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -132,7 +134,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 2.6.2</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 2.6.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -158,7 +160,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.2</span>
+  <span class="sidebar-brand-text">melobot 2.6.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -232,13 +234,13 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>melobot.context.action 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">ActionArgs</span><span class="p">,</span> <span class="n">BotAction</span><span class="p">,</span> <span class="n">BotEvent</span>
 <span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotSessionError</span><span class="p">,</span> <span class="n">BotValueError</span><span class="p">,</span> <span class="n">FuncSafeExited</span>
 <span class="kn">from</span> <span class="nn">..base.tools</span> <span class="kn">import</span> <span class="n">get_id</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgNode</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
-<span class="kn">from</span> <span class="nn">..models.msg</span> <span class="kn">import</span> <span class="n">_to_cq_str_action</span><span class="p">,</span> <span class="n">reply_msg</span><span class="p">,</span> <span class="n">text_msg</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">MsgNode</span><span class="p">,</span> <span class="n">MsgSegment</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">..models.msg</span> <span class="kn">import</span> <span class="n">reply_msg</span><span class="p">,</span> <span class="n">to_cq_str_action</span><span class="p">,</span> <span class="n">to_msg_segment</span>
 <span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">SESSION_LOCAL</span>
 <span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">BotSessionManager</span> <span class="k">as</span> <span class="n">SessionManager</span>
 
@@ -308,35 +310,6 @@
             <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MsgSegment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MsgSegment</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;将多种可能的消息格式，统一转换为 cq 消息列表&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">verify_segment</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="nb">dict</span><span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">text_msg</span><span class="p">(</span><span class="n">content</span><span class="p">)]</span>
-
-    <span class="k">elif</span> <span class="n">verify_segment</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">cast</span><span class="p">(</span><span class="n">MsgSegment</span><span class="p">,</span> <span class="n">content</span><span class="p">)]</span>
-
-    <span class="k">elif</span> <span class="p">(</span>
-        <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">verify_segment</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">content</span><span class="p">)</span>
-    <span class="p">):</span>
-        <span class="k">return</span> <span class="n">content</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;发送的消息内容有误，当前值是：</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">，但需要以下格式之一：字符串、消息段对象、消息段对象的列表（不可为空）&quot;</span>
-        <span class="p">)</span>
-
-
 <div class="viewcode-block" id="send_custom">
 <a class="viewcode-back" href="../../../api/melobot.context.html#melobot.context.send_custom">[文档]</a>
 <span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_handle</span>
@@ -390,15 +363,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">isPrivate</span> <span class="ow">and</span> <span class="n">userId</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="s2">&quot;为私聊时，构建发送消息 action 必须提供 userId 参数&quot;</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">isPrivate</span> <span class="ow">and</span> <span class="n">groupId</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BotValueError</span><span class="p">(</span><span class="s2">&quot;为群聊时，构建发送消息 action 必须提供 groupId 参数&quot;</span><span class="p">)</span>
+
     <span class="n">action</span> <span class="o">=</span> <span class="n">BotAction</span><span class="p">(</span>
-        <span class="n">MsgActionArgs</span><span class="p">(</span><span class="n">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">isPrivate</span><span class="p">,</span> <span class="n">userId</span><span class="p">,</span> <span class="n">groupId</span><span class="p">),</span>
+        <span class="n">MsgActionArgs</span><span class="p">(</span><span class="n">to_msg_segment</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">isPrivate</span><span class="p">,</span> <span class="n">userId</span><span class="p">,</span> <span class="n">groupId</span><span class="p">),</span>
         <span class="n">resp_id</span><span class="o">=</span><span class="n">get_id</span><span class="p">()</span> <span class="k">if</span> <span class="n">wait</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ready</span><span class="o">=</span><span class="n">auto</span><span class="p">,</span>
     <span class="p">)</span>
+
     <span class="k">if</span> <span class="n">cq_str</span><span class="p">:</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">_to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">action</span></div>
 
 
@@ -450,7 +426,7 @@
         <span class="n">session</span> <span class="o">=</span> <span class="n">SESSION_LOCAL</span>
         <span class="n">action</span> <span class="o">=</span> <span class="n">BotAction</span><span class="p">(</span>
             <span class="n">MsgActionArgs</span><span class="p">(</span>
-                <span class="n">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">),</span>
+                <span class="n">to_msg_segment</span><span class="p">(</span><span class="n">content</span><span class="p">),</span>
                 <span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">is_private</span><span class="p">(),</span>
                 <span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                 <span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">group_id</span><span class="p">,</span>
@@ -458,11 +434,13 @@
             <span class="n">resp_id</span><span class="o">=</span><span class="n">get_id</span><span class="p">()</span> <span class="k">if</span> <span class="n">wait</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">ready</span><span class="o">=</span><span class="n">auto</span><span class="p">,</span>
         <span class="p">)</span>
+
         <span class="k">if</span> <span class="n">cq_str</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">_to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">action</span>
+
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前会话上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
 
 
 
@@ -546,7 +524,7 @@
         <span class="n">ready</span><span class="o">=</span><span class="n">auto</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">cq_str</span><span class="p">:</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">_to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">action</span></div>
 
 
@@ -612,11 +590,13 @@
             <span class="n">resp_id</span><span class="o">=</span><span class="n">get_id</span><span class="p">()</span> <span class="k">if</span> <span class="n">wait</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">ready</span><span class="o">=</span><span class="n">auto</span><span class="p">,</span>
         <span class="p">)</span>
+
         <span class="k">if</span> <span class="n">cq_str</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">_to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">to_cq_str_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">action</span>
+
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前会话上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
 
 
 
@@ -1584,9 +1564,7 @@
 <span class="nd">@SessionManager</span><span class="o">.</span><span class="n">_handle</span>
 <span class="k">def</span> <span class="nf">get_group_honor</span><span class="p">(</span>
     <span class="n">groupId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
-        <span class="s2">&quot;talkative&quot;</span><span class="p">,</span> <span class="s2">&quot;performer&quot;</span><span class="p">,</span> <span class="s2">&quot;legend&quot;</span><span class="p">,</span> <span class="s2">&quot;strong_newbie&quot;</span><span class="p">,</span> <span class="s2">&quot;emotion&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span>
-    <span class="p">],</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;talkative&quot;</span><span class="p">,</span> <span class="s2">&quot;performer&quot;</span><span class="p">,</span> <span class="s2">&quot;legend&quot;</span><span class="p">,</span> <span class="s2">&quot;strong_newbie&quot;</span><span class="p">,</span> <span class="s2">&quot;emotion&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">],</span>
     <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">auto</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BotAction</span><span class="p">:</span>
@@ -1826,7 +1804,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">_hup</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">(),</span> <span class="n">overtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前会话上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span></div>
 
 
 
@@ -1861,8 +1839,9 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">content_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">reply_msg</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
-    <span class="n">content_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前会话上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
+
+    <span class="n">content_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">to_msg_segment</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content_arr</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="o">=</span><span class="n">auto</span><span class="p">)</span></div>
 
 
@@ -1899,7 +1878,8 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">SessionManager</span><span class="o">.</span><span class="n">_expire</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">())</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前会话上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
+
     <span class="k">raise</span> <span class="n">FuncSafeExited</span><span class="p">(</span><span class="s2">&quot;改函数或方法被安全地直接结束，请无视这个异常&quot;</span><span class="p">)</span></div>
 
 
@@ -1935,14 +1915,16 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">content_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">reply_msg</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前会话上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
 
-    <span class="n">content_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_process_msg</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
+    <span class="n">content_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">to_msg_segment</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">content_arr</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">)</span>
+
     <span class="k">try</span><span class="p">:</span>
         <span class="n">SessionManager</span><span class="o">.</span><span class="n">_expire</span><span class="p">(</span><span class="n">SESSION_LOCAL</span><span class="o">.</span><span class="n">_get_var</span><span class="p">())</span>
     <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前 session 上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BotSessionError</span><span class="p">(</span><span class="s2">&quot;当前会话上下文不存在，因此无法使用本方法&quot;</span><span class="p">)</span>
+
     <span class="k">raise</span> <span class="n">FuncSafeExited</span><span class="p">(</span><span class="s2">&quot;改函数或方法被安全地直接结束，请无视这个异常&quot;</span><span class="p">)</span></div>
 
 </pre></div>
@@ -1984,10 +1966,10 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=61bc7532"></script>
+</div><script src="../../../_static/documentation_options.js?v=737a4928"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/translations.js?v=beaddf03"></script>
