@@ -3,7 +3,6 @@ import json
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass
-from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 
 from .exceptions import BotRuntimeError, BotUtilsError, BotValueError
 from .typing import (
@@ -26,38 +25,7 @@ if TYPE_CHECKING:
     from ..controller.responder import BotResponder
     from ..models.event import BotEventBuilder
     from ..plugin.handler import EventHandler
-
-
-class BaseLogger(Logger):
-    """日志器基类
-
-    .. admonition:: 提示
-       :class: tip
-
-       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
-    """
-
-    LEVEL_MAP = {
-        "DEBUG": DEBUG,
-        "INFO": INFO,
-        "WARNING": WARNING,
-        "ERROR": ERROR,
-        "CRITICAL": CRITICAL,
-    }
-
-    LEVEL_FLAG_NAME = "__LOG_LEVEL_FLAG__"
-
-    def __init__(self, name: str, level: int) -> None:
-        super().__init__(name, level)
-        setattr(self, BaseLogger.LEVEL_FLAG_NAME, level)
-
-    def check_level_flag(
-        self, level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
-    ) -> bool:
-        """检查日志器是否可以输出指定日志等级的日志"""
-        return BaseLogger.LEVEL_MAP[level] >= getattr(self, BaseLogger.LEVEL_FLAG_NAME)
-
-    LEVEL_CHECK_METH_NAME = check_level_flag.__name__
+    from ..utils.logger import BotLogger
 
 
 class AbstractConnector(ABC):
@@ -72,7 +40,7 @@ class AbstractConnector(ABC):
     def __init__(self, cd_time: float) -> None:
         super().__init__()
         #: 连接器的日志器
-        self.logger: BaseLogger
+        self.logger: "BotLogger"
         #: 是否在 slack 状态
         self.slack: bool = False
         #: 连接器发送行为操作的冷却时间
@@ -109,7 +77,7 @@ class AbstractConnector(ABC):
         responder: "BotResponder",
         event_builder: Type["BotEventBuilder"],
         bot_bus: "BotHookBus",
-        logger: BaseLogger,
+        logger: "BotLogger",
     ) -> None:
         self._event_builder = event_builder
         self._bot_bus = bot_bus

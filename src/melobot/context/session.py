@@ -409,7 +409,7 @@ class BotSessionManager:
                 pass
 
             action: "BotAction" = action_getter(*args, **kwargs)
-            if cls.BOT_CTX.logger.check_level_flag("DEBUG"):
+            if cls.BOT_CTX.logger._check_level("DEBUG"):
                 cls.BOT_CTX.logger.debug(
                     f"action {action:hexid} 构建完成（当前会话上下文：{SESSION_LOCAL:hexid}）"
                 )

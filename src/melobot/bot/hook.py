@@ -1,9 +1,11 @@
 import asyncio
 
-from ..base.abc import BaseLogger, BotLife
+from ..base.abc import BotLife
 from ..base.exceptions import BotValueError
-from ..base.typing import Any, AsyncCallable
-from ..utils.logger import log_exc
+from ..base.typing import TYPE_CHECKING, Any, AsyncCallable
+
+if TYPE_CHECKING:
+    from ..utils.logger import BotLogger
 
 
 class HookRunner:
@@ -21,9 +23,9 @@ class BotHookBus:
         self.store: dict[BotLife, list[HookRunner]] = {
             v: [] for k, v in BotLife.__members__.items()
         }
-        self.logger: BaseLogger
+        self.logger: "BotLogger"
 
-    def _bind(self, logger: BaseLogger) -> None:
+    def _bind(self, logger: "BotLogger") -> None:
         self.logger = logger
 
     def register(self, hook_type: BotLife, hook_func: AsyncCallable[..., None]) -> None:
@@ -40,7 +42,7 @@ class BotHookBus:
         except Exception as e:
             func_name = runner.cb.__qualname__
             self.logger.error(f"bot 生命周期 hook 方法 {func_name} 发生异常")
-            log_exc(self.logger, locals(), e)
+            self.logger.exc(locals=locals())
 
     async def emit(
         self, hook_type: BotLife, *args: Any, wait: bool = False, **kwargs: Any

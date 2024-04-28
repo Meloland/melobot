@@ -16,7 +16,6 @@ from ..base.typing import (
     cast,
 )
 from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
-from ..utils.logger import log_exc
 
 if TYPE_CHECKING:
     from ..base.abc import BotChecker, BotMatcher, SessionRule
@@ -123,8 +122,8 @@ class EventHandler:
             self.logger.error(
                 f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常"
             )
-            self.logger.error(f"异常点 event：{event:hexid}\n{event:raw}")
-            log_exc(self.logger, locals(), e)
+            self.logger.obj(event.raw, f"异常点 event {event:hexid}", level="ERROR")
+            self.logger.exc(locals=locals())
         finally:
             if session is None:
                 return

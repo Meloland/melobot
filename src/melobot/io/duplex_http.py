@@ -11,7 +11,6 @@ from aiohttp.client_exceptions import ClientConnectorError
 from ..base.abc import AbstractConnector, BotLife
 from ..base.typing import TYPE_CHECKING, ModuleType, Optional, Union, cast
 from ..context.session import ActionResponse
-from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
     from ..base.abc import BotAction
@@ -153,7 +152,7 @@ class HttpConn(AbstractConnector):
         if await super().__aexit__(exc_type, exc_val, exc_tb):
             return True
         self.logger.error("连接器出现预期外的异常")
-        log_exc(self.logger, locals(), exc_val)
+        self.logger.exc(e=exc_val, locals=locals())
         return False
 
     async def _listen(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
@@ -165,7 +164,7 @@ class HttpConn(AbstractConnector):
             recv_sign = request.headers["X-Signature"][len("sha1=") :]
             if sign != recv_sign:
                 self.logger.error("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
-                log_obj(self.logger.error, data, "试图上报的数据：")
+                self.logger.obj(data, "试图上报的数据：", level="ERROR")
                 return
 
         self._pre_recv_time = time.time_ns()
@@ -181,11 +180,11 @@ class HttpConn(AbstractConnector):
 
         try:
             raw_event = json.loads(data.decode())
-            if self.logger.check_level_flag("DEBUG"):
-                self.logger.debug(f"收到上报，未格式化的字典：\n{raw_event}")
+            if self.logger._check_level("DEBUG"):
+                self.logger.obj(raw_event, "收到上报，未格式化的字典")
             event = self._event_builder.try_build(raw_event)
-            if self.logger.check_level_flag("DEBUG") and event is not None:
-                log_obj(self.logger.debug, event.raw, f"event {event:hexid} 构建完成")
+            if self.logger._check_level("DEBUG") and event is not None:
+                self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
             event = cast(
                 Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
                 event,
@@ -193,8 +192,8 @@ class HttpConn(AbstractConnector):
             asyncio.create_task(self._common_dispatcher.dispatch(event))
         except Exception as e:
             self.logger.error("bot 连接器监听任务抛出异常")
-            log_obj(self.logger.error, raw_event, "异常点的上报数据")
-            log_exc(self.logger, locals(), e)
+            self.logger.obj(raw_event, "异常点的上报数据", level="ERROR")
+            self.logger.exc(locals=locals())
         finally:
             return aiohttp.web.Response(status=204)
 
@@ -244,19 +243,15 @@ class HttpConn(AbstractConnector):
                 )
             except Exception as e:
                 self.logger.error("bot 连接器发送任务抛出预期外的异常：")
-                log_exc(self.logger, locals(), e)
+                self.logger.exc(locals=locals())
 
         await self._ready_signal.wait()
         try:
             while True:
                 action = await self._send_queue.get()
                 await self._onebot_onlined.wait()
-                if self.logger.check_level_flag("DEBUG"):
-                    log_obj(
-                        self.logger.debug,
-                        action.__dict__,
-                        f"action {action:hexid} 准备发送",
-                    )
+                if self.logger._check_level("DEBUG"):
+                    self.logger.obj(action.__dict__, f"action {action:hexid} 准备发送")
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)

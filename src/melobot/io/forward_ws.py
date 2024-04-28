@@ -9,7 +9,6 @@ from ..base.abc import AbstractConnector, BotLife
 from ..base.exceptions import BotRuntimeError
 from ..base.typing import TYPE_CHECKING, Any, ModuleType, Optional, Type, Union, cast
 from ..context.session import ActionResponse
-from ..utils.logger import log_exc, log_obj
 
 if TYPE_CHECKING:
     import websockets.client
@@ -132,7 +131,7 @@ class ForwardWsConn(AbstractConnector):
         if await super().__aexit__(exc_type, exc_val, exc_tb):
             return True
         self.logger.error("连接器出现预期外的异常")
-        log_exc(self.logger, locals(), exc_val)
+        self.logger.exc(locals=locals())
         return False
 
     async def _send(self, action: "BotAction") -> None:
@@ -154,12 +153,8 @@ class ForwardWsConn(AbstractConnector):
             while True:
                 action = await self._send_queue.get()
                 await self._conn_ready.wait()
-                if self.logger.check_level_flag("DEBUG"):
-                    log_obj(
-                        self.logger.debug,
-                        action.__dict__,
-                        f"action {action:hexid} 准备发送",
-                    )
+                if self.logger._check_level("DEBUG"):
+                    self.logger.obj(action.__dict__, f"action {action:hexid} 准备发送")
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
                 action_str = action.flatten()
@@ -191,16 +186,13 @@ class ForwardWsConn(AbstractConnector):
             while True:
                 try:
                     raw = await self.conn.recv()
-                    self.logger.debug(f"收到上报，未格式化的字符串：\n{raw}")
+                    if self.logger._check_level("DEBUG"):
+                        self.logger.obj(raw, "收到上报，未格式化的字符串")
                     if raw == "":
                         continue
                     event = self._event_builder.try_build(raw)
-                    if self.logger.check_level_flag("DEBUG") and event is not None:
-                        log_obj(
-                            self.logger.debug,
-                            event.raw,
-                            f"event {event:hexid} 构建完成",
-                        )
+                    if self.logger._check_level("DEBUG") and event is not None:
+                        self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
                     if event is None:
                         resp = ActionResponse(raw)
                         asyncio.create_task(self._resp_dispatcher.respond(resp))
@@ -219,8 +211,8 @@ class ForwardWsConn(AbstractConnector):
                     raise
                 except Exception as e:
                     self.logger.error("bot 连接器监听任务抛出异常")
-                    log_obj(self.logger.error, raw, "异常点的上报数据")
-                    log_exc(self.logger, locals(), e)
+                    self.logger.obj(raw, "异常点的上报数据", level="ERROR")
+                    self.logger.exc(locals=locals())
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")
         except ConnectionClosed:

@@ -12,7 +12,6 @@ melobot.utils
 
 .. autoclass:: melobot.utils.BotLogger
    :members:
-   :show-inheritance:
 
 .. autofunction:: melobot.utils.logger_patch
 

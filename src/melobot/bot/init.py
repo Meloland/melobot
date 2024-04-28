@@ -2,9 +2,18 @@ import asyncio
 import os
 from contextvars import ContextVar, Token
 
-from ..base.abc import AbstractConnector, BaseLogger
+from ..base.abc import AbstractConnector
 from ..base.exceptions import BotRuntimeError, BotValueError
-from ..base.typing import TYPE_CHECKING, Any, BotLife, Coroutine, Literal, Optional, Void
+from ..base.typing import (
+    TYPE_CHECKING,
+    Any,
+    BotLife,
+    Coroutine,
+    Literal,
+    Optional,
+    Void,
+    cast,
+)
 from ..context.session import SESSION_LOCAL, BotSessionManager
 from ..controller.dispatcher import BotDispatcher
 from ..controller.responder import BotResponder
@@ -13,7 +22,7 @@ from ..models.event import BotEventBuilder
 from ..plugin.handler import EVENT_HANDLER_MAP
 from ..plugin.init import BotPlugin, PluginLoader, PluginProxy
 from ..plugin.ipc import PluginBus, PluginStore
-from ..utils.logger import BotLogger, NullLogger, log_exc
+from ..utils.logger import BotLogger, NullLogger
 from .hook import BotHookBus
 
 if TYPE_CHECKING:
@@ -56,7 +65,7 @@ class MeloBot:
         #: 元信息
         self.info: type[MetaInfo] = MetaInfo
         #: bot 的日志器
-        self.logger: BaseLogger
+        self.logger: BotLogger
         #: bot 的连接器
         self.connector: AbstractConnector
 
@@ -83,7 +92,7 @@ class MeloBot:
         log_to_console: bool = True,
         log_to_dir: Optional[str] = None,
         log_tag: bool = False,
-        custom_logger: Optional[BaseLogger] = None,
+        custom_logger: Optional[Any] = None,
     ) -> "MeloBot":
         """初始化 bot 实例
 
@@ -105,7 +114,7 @@ class MeloBot:
         if custom_logger is not None:
             self.logger = custom_logger
         elif not enable_log:
-            self.logger = NullLogger(f"__MELOBOT_NULL_{self.name}__")
+            self.logger = cast(BotLogger, NullLogger(f"__MELOBOT_NULL_{self.name}__"))
         else:
             self.logger = BotLogger(
                 self.name if logger_name is None else logger_name,
@@ -218,8 +227,8 @@ class MeloBot:
                 )
                 await self._life_ended.wait()
         except Exception as e:
-            self.logger.error(f"bot 核心无法继续运行。异常：{e}")
-            log_exc(self.logger, locals(), e)
+            self.logger.error("bot 核心无法继续运行")
+            self.logger.exc(locals=locals())
         finally:
             await self._bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.debug("BEFORE_STOP hook 已完成")
@@ -305,7 +314,7 @@ class MeloBot:
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
-        if self.logger.check_level_flag("DEBUG"):
+        if self.logger._check_level("DEBUG"):
             self.logger.debug(
                 f"bot 信号触发：{namespace}.{signal} | wait: {wait}"
                 f"（当前会话上下文：{SESSION_LOCAL:hexid}），传递参数：args={args}, kwargs={kwargs}"

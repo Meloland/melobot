@@ -1,10 +1,11 @@
 import asyncio
 
-from ..base.abc import BaseLogger
 from ..base.exceptions import BotIpcError
 from ..base.tools import RWController
-from ..base.typing import Any, AsyncCallable
-from ..utils.logger import log_exc
+from ..base.typing import TYPE_CHECKING, Any, AsyncCallable
+
+if TYPE_CHECKING:
+    from ..utils.logger import BotLogger
 
 
 class ShareObject:
@@ -99,9 +100,9 @@ class PluginBus:
 
     def __init__(self) -> None:
         self.store: dict[str, dict[str, PluginSignalHandler]] = {}
-        self.logger: BaseLogger
+        self.logger: "BotLogger"
 
-    def _bind(self, logger: BaseLogger) -> None:
+    def _bind(self, logger: "BotLogger") -> None:
         self.logger = logger
 
     def register(
@@ -124,7 +125,7 @@ class PluginBus:
         except Exception as e:
             func_name = handler.cb.__qualname__
             self.logger.error(f"插件信号处理方法 {func_name} 发生异常")
-            log_exc(self.logger, locals(), e)
+            self.logger.exc(locals=locals())
 
     async def emit(
         self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any
