@@ -98,9 +98,8 @@ class HttpConn(AbstractConnector):
         app = aiohttp.web.Application()
         app.add_routes([aiohttp.web.post("/", self._listen)])
         runner = aiohttp.web.AppRunner(app)
-        self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
-
         await runner.setup()
+        self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
         await self.serve_site.start()
 
         self.logger.info("HTTP 通信就绪，等待 OneBot 实现程序上线中（即上报第一个事件）")

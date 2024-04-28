@@ -282,10 +282,10 @@ class CmdParser(BotParser):
         self.start_regex: re.Pattern[str]
         self.sep_regex: re.Pattern[str]
 
-        self._build_parse_regex()
-
         if self.ban_regex.findall(f"{''.join(cmd_start)}{''.join(cmd_sep)}"):
             raise BotValueError("存在命令解析器不支持的命令起始符，或命令间隔符")
+
+        self._build_parse_regex()
 
     def _build_parse_regex(self):
         """建立用于命令解析的正则 Pattern 对象，包含命令起始符正则 pattern 和 命令间隔符正则 pattern"""
