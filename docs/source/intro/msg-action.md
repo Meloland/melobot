@@ -82,8 +82,6 @@ async def _():
     await send(touch)
 
 # 或者再自行封装一下 :)
-from functools import partial
-
 def touch_msg(uid: int):
     return custom_type_msg("touch", {"id": str(uid)})
 

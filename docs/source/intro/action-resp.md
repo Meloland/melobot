@@ -88,12 +88,20 @@ async def _():
 建议只在**必须等待此操作完成才能继续执行**，或**需要返回数据**时才去等待。
 ```
 
-```{admonition} 注意
+````{admonition} 注意
 :class: caution
-某些时候，你可能会想要行为操作以任务方式执行，而不直接 await：`asyncio.create_task(send(...))`
+某些时候，你可能会想要行为操作以任务方式执行，而不直接 await：
 
-**但是行为操作函数并不能转化为任务**。需要创建为任务执行，只需要以同步方式调用：`send(...)`
+```python
+asyncio.create_task(send(...))
 ```
+
+**但是行为操作函数并不能转化为任务**。需要创建为任务执行，只需要以同步方式调用：
+
+```python
+send(...)
+```
+````
 
 ## 魔改行为对象
 
@@ -154,21 +162,23 @@ async def _():
 from melobot.context import custom_action
 
 # 因为有参数 wait 和 auto，因此可以等待
-action = custom_action(type="custom_type", 
-                       params={"param1": 123, "param2": "12345"}, 
-                       wait=True)
+action = custom_action(
+    type="custom_type", 
+    params={"param1": 123, "param2": "12345"}, 
+    wait=True
+)
 # 作为行为操作函数的一种，之后的用法类似
 ```
 
 当然，你也可以再自行封装一下 :)
 
 ```python
-from functools import partial
-
 def my_action(param1: int, param2: str, wait: bool=False):
-    return custom_action(type="custom_type", 
-                         params={"param1": param1, "param2": param2}, 
-                         wait=wait)
+    return custom_action(
+        type="custom_type", 
+        params={"param1": param1, "param2": param2}, 
+        wait=wait
+    )
 
 @plugin.on_xxx(...)
 async def _():

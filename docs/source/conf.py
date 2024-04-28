@@ -49,6 +49,8 @@ autodoc_default_options = {
 
 templates_path = ["_templates"]
 exclude_patterns = []
+pygments_style = "default"
+pygments_dark_style = "monokai"
 
 language = "zh_CN"
 
