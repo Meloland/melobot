@@ -43,7 +43,6 @@ class EventHandler:
     ) -> None:
         super().__init__()
         self.is_valid = True
-
         self.executor = executor
         self.logger = logger
         self.checker = checker
@@ -51,10 +50,11 @@ class EventHandler:
         self.set_block = set_block
         self.temp = temp
 
+        self._plugin = plugin
         self._run_lock = asyncio.Lock()
+
         self._rule = session_rule
         self._hold = session_hold
-        self._plugin = plugin
         self._direct_rouse = direct_rouse
         self._conflict_cb = conflict_cb
         self._wait_flag = conflict_wait
@@ -99,31 +99,38 @@ class EventHandler:
         """获取会话然后准备运行 executor"""
         try:
             session = None
+
             if not self._direct_rouse:
                 res = await BotSessionManager.try_attach(event, self)
                 if res:
                     return
+
             session = await BotSessionManager.get(event, self)
+
             # 如果因为冲突没有获得 会话，且指定了冲突回调
             if session is None and self._conflict_cb:
                 await self._run_on_ctx(self._conflict_cb(), pre_session)
+
             # 如果因为冲突没有获得 会话，但没有冲突回调
             if session is None:
                 return
+
             # 如果没有冲突，正常获得到了 会话
             exec_coro = self.executor()
             self.logger.debug(f"event {event:hexid} 准备在会话{session:hexid} 中处理")
             session << pre_session
             await self._run_on_ctx(exec_coro, session)
+
         except FuncSafeExited:
             pass
+
         except Exception as e:
-            executor_name = self.executor.__qualname__
-            self.logger.error(
-                f"插件 {self._plugin.ID} 事件处理方法 {executor_name} 发生异常"
-            )
+            exec_name = self.executor.__qualname__
+            pid = self._plugin.ID
+            self.logger.error(f"插件 {pid} 事件处理方法 {exec_name} 发生异常")
             self.logger.obj(event.raw, f"异常点 event {event:hexid}", level="ERROR")
             self.logger.exc(locals=locals())
+
         finally:
             if session is None:
                 return
@@ -145,9 +152,11 @@ class EventHandler:
             return False
 
         status, tmp_session = await self._pre_process(event)
+
         if status:
             self.logger.debug(
-                f"event {event:hexid} 在 handler {self:hexid} pre_process 通过，处理方法为：{self.executor.__qualname__}"
+                f"event {event:hexid} 在 handler {self:hexid} 完成预处理，"
+                "即将运行处理函数：{self.executor.__qualname__}"
             )
         if not status:
             return False
@@ -243,13 +252,13 @@ class MsgEventHandler(EventHandler):
         session = BotSessionManager.make_temp(event)
 
         if self.matcher is not None:
-            return (
-                await self._run_on_ctx(self.matcher.match(event.text), session),
-                session,
-            )
+            _match = self.matcher.match(event.text)
+            status = await self._run_on_ctx(_match, session)
+            return status, session
 
         if self.parser is not None:
-            args = await self._run_on_ctx(self.parser.parse(event.text), session)
+            _parse = self.parser.parse(event.text)
+            args = await self._run_on_ctx(_parse, session)
             if args is None:
                 return False, session
             else:

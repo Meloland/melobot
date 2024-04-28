@@ -21,7 +21,7 @@ class BotHookBus:
 
     def __init__(self) -> None:
         self.store: dict[BotLife, list[HookRunner]] = {
-            v: [] for k, v in BotLife.__members__.items()
+            v: [] for v in BotLife.__members__.values()
         }
         self.logger: "BotLogger"
 
@@ -33,6 +33,7 @@ class BotHookBus:
             raise BotValueError(
                 f"尝试添加一个 bot 生命周期 hook 方法，但是其指定的类型 {hook_type} 不存在"
             )
+
         runner = HookRunner(hook_type, hook_func)
         self.store[hook_type].append(runner)
 
@@ -47,14 +48,10 @@ class BotHookBus:
     async def emit(
         self, hook_type: BotLife, *args: Any, wait: bool = False, **kwargs: Any
     ) -> None:
-        if not wait:
-            for runner in self.store[hook_type]:
-                asyncio.create_task(self._run_on_ctx(runner, *args, **kwargs))
-        else:
-            tasks = []
-            for runner in self.store[hook_type]:
-                tasks.append(
-                    asyncio.create_task(self._run_on_ctx(runner, *args, **kwargs))
-                )
-            if len(tasks):
-                await asyncio.wait(tasks)
+        tasks = []
+        for runner in self.store[hook_type]:
+            task = asyncio.create_task(self._run_on_ctx(runner, *args, **kwargs))
+            tasks.append(task)
+
+        if wait and len(tasks):
+            await asyncio.wait(tasks)

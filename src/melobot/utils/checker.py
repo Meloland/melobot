@@ -75,8 +75,10 @@ class MsgLvlChecker(BotChecker):
         event = cast("MessageEvent", event)
         if not event.is_msg_event():
             return False
+
         e_level = self._get_level(event)
         status = 0 < e_level.value and e_level.value >= self.check_lvl.value
+
         if status and self.ok_cb is not None:
             await self.ok_cb()
         if not status and self.fail_cb is not None:
@@ -124,12 +126,14 @@ class GroupMsgLvlChecker(MsgLvlChecker):
         event = cast("MessageEvent", event)
         if not event.is_msg_event():
             return False
+
         if (
             not event.is_group()
             or len(self.white_group_list) == 0
             or (event.group_id not in self.white_group_list)
         ):
             return False
+
         return await super().check(event)
 
 
@@ -171,6 +175,7 @@ class PrivateMsgLvlChecker(MsgLvlChecker):
             return False
         if not event.is_private():
             return False
+
         return await super().check(event)
 
 
@@ -206,8 +211,8 @@ class MsgCheckerFactory:
         self.black_list = black_users if black_users is not None else []
         self.white_group_list = white_groups if white_groups is not None else []
 
-        self.united_ok_cb = ok_cb
-        self.united_fail_cb = fail_cb
+        self.ok_cb = ok_cb
+        self.fail_cb = fail_cb
 
     def get_base(
         self,
@@ -228,8 +233,8 @@ class MsgCheckerFactory:
             self.su_list,
             self.white_list,
             self.black_list,
-            self.united_ok_cb if ok_cb is None else ok_cb,
-            self.united_fail_cb if fail_cb is None else fail_cb,
+            self.ok_cb if ok_cb is None else ok_cb,
+            self.fail_cb if fail_cb is None else fail_cb,
         )
 
     def get_group(
@@ -252,8 +257,8 @@ class MsgCheckerFactory:
             self.white_list,
             self.black_list,
             self.white_group_list,
-            self.united_ok_cb if ok_cb is None else ok_cb,
-            self.united_fail_cb if fail_cb is None else fail_cb,
+            self.ok_cb if ok_cb is None else ok_cb,
+            self.fail_cb if fail_cb is None else fail_cb,
         )
 
     def get_private(
@@ -275,8 +280,8 @@ class MsgCheckerFactory:
             self.su_list,
             self.white_list,
             self.black_list,
-            self.united_ok_cb if ok_cb is None else ok_cb,
-            self.united_fail_cb if fail_cb is None else fail_cb,
+            self.ok_cb if ok_cb is None else ok_cb,
+            self.fail_cb if fail_cb is None else fail_cb,
         )
 
 
@@ -295,17 +300,12 @@ class AtMsgChecker(BotChecker):
         event = cast("MessageEvent", event)
         if not event.is_msg_event():
             return False
+
         qids = event.get_datas("at", "qq")
         if self.qid is None:
-            status = len(qids) > 0
+            return len(qids) > 0
         else:
-            for id in qids:
-                if id == self.qid:
-                    status = True
-                    break
-            else:
-                status = False
-        return status
+            return any(id == self.qid for id in qids)
 
 
 class ReqChecker(BotChecker):

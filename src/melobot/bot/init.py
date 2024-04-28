@@ -113,15 +113,14 @@ class MeloBot:
 
         if custom_logger is not None:
             self.logger = custom_logger
+
         elif not enable_log:
             self.logger = cast(BotLogger, NullLogger(f"__MELOBOT_NULL_{self.name}__"))
+
         else:
+            logger_name = self.name if logger_name is None else logger_name
             self.logger = BotLogger(
-                self.name if logger_name is None else logger_name,
-                log_level,
-                log_to_console,
-                log_to_dir,
-                not log_tag,
+                logger_name, log_level, log_to_console, log_to_dir, not log_tag
             )
         self.logger.debug(f"连接器已初始化，类型：{connector.__class__.__name__}")
 
@@ -138,31 +137,34 @@ class MeloBot:
             self._bot_bus,
             self.logger,
         )
+
         self.logger.debug("bot 初始化完成，各核心组件已初始化")
         self.__init_flag__ = True
         return self
 
-    def load_plugin(self, plugin_target: str | BotPlugin) -> "MeloBot":
+    def load_plugin(self, target: str | BotPlugin) -> "MeloBot":
         """为 bot 实例加载插件
 
-        :param plugin_target: 插件目标，可传入插件对象或插件包（一个插件即是一个 python package）的路径
+        :param target: 插件目标，可传入插件对象或插件包（一个插件即是一个 python package）的路径
         :return: bot 实例（因此支持链式调用）
         """
         if not self.__init_flag__:
             raise BotRuntimeError("bot 尚未初始化，不能加载插件")
 
-        plugin_dir = None if not isinstance(plugin_target, str) else plugin_target
-        if plugin_dir is None:
-            self.logger.debug(f"尝试加载插件 {plugin_target}")
+        dir = None if not isinstance(target, str) else target
+        if dir is None:
+            self.logger.debug(f"尝试加载插件 {target}")
         else:
-            self.logger.debug(f"尝试加载来自 {plugin_dir} 的插件")
-        plugin = self._loader.load(plugin_target)
+            self.logger.debug(f"尝试加载来自 {dir} 的插件")
+
+        plugin = self._loader.load(target)
         exist_plugin = self._plugins.get(plugin.ID)
         if exist_plugin is not None:
             self.logger.error(
                 f"加载插件出错：插件 id 重复, 重复的 id 为：{plugin.ID}，已取消该插件加载"
             )
             return self
+
         if not plugin.MULTI_USE and plugin._loaded_once:
             raise BotRuntimeError(f"插件 {plugin.ID} 不支持多 bot，但它已被其他 bot 加载")
         plugin._loaded_once = True
@@ -183,6 +185,7 @@ class MeloBot:
 
         self._plugins[plugin.ID] = plugin
         self._dispatcher.add_handlers(handlers)
+
         self.logger.info(f"成功加载插件：{plugin.ID}")
         return self
 
@@ -197,10 +200,12 @@ class MeloBot:
 
         self.logger.debug(f"尝试从目录 {plugins_dir} 批量加载插件")
         items = os.listdir(plugins_dir)
+
         for item in items:
             path = os.path.join(plugins_dir, item)
             if os.path.isdir(path) and os.path.basename(path) != "__pycache__":
                 self.load_plugin(path)
+
         return self
 
     async def _run(self) -> None:
@@ -215,24 +220,29 @@ class MeloBot:
         bot_token = BOT_LOCAL._add_ctx(self)
         await self._bot_bus.emit(BotLife.LOADED)
         self.logger.debug("LOADED hook 已完成")
+
         try:
             async with self.connector:
                 self._dispatcher._set_ready()
                 self._responder._set_ready()
                 self.connector._set_ready()
+
                 self.__run_flag__ = True
                 self.logger.info("bot 开始正常运行")
-                self.logger.debug(
-                    f"使用的连接器类型：{self.connector.__class__.__name__}"
-                )
+                conn_name = self.connector.__class__.__name__
+                self.logger.debug(f"使用的连接器类型：{conn_name}")
+
                 await self._life_ended.wait()
+
         except Exception as e:
             self.logger.error("bot 核心无法继续运行")
             self.logger.exc(locals=locals())
+
         finally:
             await self._bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.debug("BEFORE_STOP hook 已完成")
             self.logger.info("bot 已清理运行时资源")
+
             BOT_LOCAL._del_ctx(bot_token)
             self.__run_flag__ = False
 
@@ -379,15 +389,17 @@ class MeloBot:
 
         b_token = BOT_LOCAL._add_ctx(bot)
         s_token = SESSION_LOCAL._add_ctx(Void)
+
         try:
             await bot.emit_signal(namespace, signal, *args, **kwargs, wait=wait)
+
         except AttributeError as e:
-            if "Void" in e.__str__():
-                raise BotRuntimeError(
-                    "多播或单播时，bot 和会话的上下文传递将会被阻隔。如需使用，请将它们作为参数显式传递"
-                )
-            else:
+            if "Void" not in e.__str__():
                 raise e
+            raise BotRuntimeError(
+                "多播或单播时，bot 和会话的上下文传递将会被阻隔。如需使用，请将它们作为参数显式传递"
+            )
+
         finally:
             BOT_LOCAL._del_ctx(b_token)
             SESSION_LOCAL._del_ctx(s_token)
@@ -415,17 +427,16 @@ class MeloBot:
         """
         if isinstance(targets, list):
             _targets = targets
-        else:
-            _targets = list(cls.BOTS.keys())
-            if self_exclude:
-                _targets.remove(BOT_LOCAL.name)
+
+        _targets = list(cls.BOTS.keys())
+        if self_exclude:
+            _targets.remove(BOT_LOCAL.name)
+
         tasks = []
         for name in _targets:
-            tasks.append(
-                asyncio.create_task(
-                    cls.unicast(name, namespace, signal, *args, **kwargs, wait=wait)
-                )
-            )
+            task = cls.unicast(name, namespace, signal, *args, **kwargs, wait=wait)
+            tasks.append(asyncio.create_task(task))
+
         if len(tasks):
             await asyncio.wait(tasks)
 
@@ -443,10 +454,8 @@ class MeloBot:
 class BotLocal:
     """bot 实例自动上下文"""
 
-    __slots__ = tuple(
-        list(filter(lambda x: not (len(x) >= 2 and x[:2] == "__"), dir(MeloBot)))
-        + ["__storage__"]
-    )
+    _ = lambda x: not x.startswith("__")
+    __slots__ = tuple(filter(_, dir(MeloBot))) + ("__storage__",)
 
     def __init__(self) -> None:
         object.__setattr__(self, "__storage__", ContextVar("melobot_ctx"))

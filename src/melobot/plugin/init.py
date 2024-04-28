@@ -108,16 +108,16 @@ class PluginLoader:
             raise BotPluginError(
                 f"{plugin_path} 缺乏入口主文件 __init__.py，插件无法加载"
             )
-        plugin_name = os.path.basename(plugin_path)
-        plugins_folder = str(pathlib.Path(plugin_path).parent.resolve(strict=True))
-        plugins_folder_name = os.path.basename(plugins_folder)
 
-        if plugins_folder not in sys.path:
-            importlib.import_module(plugins_folder_name)
-            sys.path.insert(0, plugins_folder)
-        module = importlib.import_module(
-            f"{plugins_folder_name}.{plugin_name}", f"{plugins_folder_name}"
-        )
+        p_name = os.path.basename(plugin_path)
+        p_folder = str(pathlib.Path(plugin_path).parent.resolve(strict=True))
+        p_folder_name = os.path.basename(p_folder)
+
+        if p_folder not in sys.path:
+            importlib.import_module(p_folder_name)
+            sys.path.insert(0, p_folder)
+
+        module = importlib.import_module(f"{p_folder_name}.{p_name}", f"{p_folder_name}")
 
         for obj in module.__dict__.values():
             if isinstance(obj, BotPlugin):
@@ -125,6 +125,7 @@ class PluginLoader:
                 break
         else:
             raise BotPluginError("指定的入口主文件中，未发现 Plugin 实例，无效导入")
+
         return plugin
 
     @staticmethod
@@ -134,6 +135,7 @@ class PluginLoader:
             plugin = PluginLoader.load_from_dir(target)
         else:
             plugin = target
+
         plugin._self_build()
         return plugin
 
@@ -197,6 +199,7 @@ class BotPlugin:
             [(args.namespace, args.id) for args in self.__share_cb_args__],
             [(args.namespace, args.signal) for args in self.__signal_args__],
         )
+
         check_pass = all(
             False
             for pair in self.__proxy__.share_cbs

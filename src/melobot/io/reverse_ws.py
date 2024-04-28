@@ -7,7 +7,15 @@ import websockets.exceptions as wse
 import websockets.server
 
 from ..base.abc import AbstractConnector, BotAction, BotLife
-from ..base.typing import TYPE_CHECKING, Any, Callable, ModuleType, Optional, Union, cast
+from ..base.typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Optional,
+    TracebackType,
+    Union,
+    cast,
+)
 from ..context.session import ActionResponse
 
 if TYPE_CHECKING:
@@ -51,13 +59,16 @@ class ReverseWsConn(AbstractConnector):
         #: 连接器操作鉴权的 token
         self.access_token = access_token
 
+        self._conn: "websockets.server.WebSocketServerProtocol"
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_send_time = time.time_ns()
+
         self._server_close: asyncio.Future[Any]
-        self._conn: "websockets.server.WebSocketServerProtocol"
+
         self._conn_requested = False
         self._request_lock = asyncio.Lock()
         self._conn_ready = asyncio.Event()
+
         self._allow_reconn = allow_reconnect
         self._reconn_flag = False
 
@@ -79,7 +90,8 @@ class ReverseWsConn(AbstractConnector):
         async with self._request_lock:
             if self._conn_requested:
                 return resp_403(reconn_refused)
-            elif (
+
+            if (
                 self.access_token is not None
                 and headers.get("Authorization") != f"Bearer {self.access_token}"
             ):
@@ -96,6 +108,7 @@ class ReverseWsConn(AbstractConnector):
             self._listen, self.host, self.port, process_request=self._req_check
         )
         self.logger.info("连接器启动了 ws 服务，等待 ws 连接中")
+
         await self._server_close
         self.server.close()
         await self.server.wait_closed()
@@ -122,11 +135,12 @@ class ReverseWsConn(AbstractConnector):
         return self
 
     async def __aexit__(
-        self, exc_type: type[Exception], exc_val: Exception, exc_tb: ModuleType
+        self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType
     ) -> bool:
         self._close()
         if await super().__aexit__(exc_type, exc_val, exc_tb):
             return True
+
         self.logger.error("连接器出现预期外的异常")
         self.logger.exc(locals=locals())
         return False
@@ -139,6 +153,7 @@ class ReverseWsConn(AbstractConnector):
         if self.slack:
             self.logger.debug(f"action {action:hexid} 因 slack 状态被丢弃")
             return
+
         await self._send_queue.put(action)
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
@@ -150,32 +165,34 @@ class ReverseWsConn(AbstractConnector):
             while True:
                 action = await self._send_queue.get()
                 await self._conn_ready.wait()
+
                 if self.logger._check_level("DEBUG"):
                     self.logger.obj(action.__dict__, f"action {action:hexid} 准备发送")
 
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
+
                 action_str = action.flatten()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
-
                 await asyncio.sleep(wait_time)
+
                 await self._conn.send(action_str)
                 self.logger.debug(f"action {action:hexid} 已发送")
                 self._pre_send_time = time.time_ns()
+
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")
         except wse.ConnectionClosed:
-            self.logger.error(
-                "连接器与 OneBot 实现程序的通信已经停止，无法再执行行为操作"
-            )
+            self.logger.error("与 OneBot 实现程序的通信已经停止，无法再执行行为操作")
 
     async def _listen(self, ws: "websockets.server.WebSocketServerProtocol") -> None:
         """从 OneBot 实现程序接收一个事件，并处理"""
-        self._conn = ws
-        self.logger.info("连接器与 OneBot 实现程序建立了 ws 连接")
         await self._ready_signal.wait()
+        self._conn = ws
         self._conn_ready.set()
+        self.logger.info("连接器与 OneBot 实现程序建立了 ws 连接")
+
         if not self._reconn_flag:
             await self._bot_bus.emit(BotLife.FIRST_CONNECTED)
             self.logger.debug("FIRST_CONNECTED hook 已完成")
@@ -187,13 +204,17 @@ class ReverseWsConn(AbstractConnector):
             while True:
                 try:
                     raw = await self._conn.recv()
+
                     if self.logger._check_level("DEBUG"):
                         self.logger.obj(raw, "收到上报，未格式化的字符串")
+
                     if raw == "":
                         continue
+
                     event = self._event_builder.try_build(raw)
                     if self.logger._check_level("DEBUG") and event is not None:
                         self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
+
                     if event is None:
                         resp = ActionResponse(raw)
                         asyncio.create_task(self._resp_dispatcher.respond(resp))
@@ -208,21 +229,25 @@ class ReverseWsConn(AbstractConnector):
                             event,
                         )
                         asyncio.create_task(self._common_dispatcher.dispatch(event))
+
                 except wse.ConnectionClosed:
                     raise
                 except Exception as e:
                     self.logger.error("bot 连接器监听任务抛出异常")
                     self.logger.obj(raw, "异常点的上报数据", level="ERROR")
                     self.logger.exc(locals=locals())
+
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")
         except wse.ConnectionClosed:
             self.logger.debug("连接器与 OneBot 实现程序的通信已经停止")
+
         finally:
             self._conn.close_timeout = 2
             if self._server_close.done():
                 return
+
             if not self._allow_reconn:
                 self._close()
-                return
-            self._restore_wait()
+            else:
+                self._restore_wait()

@@ -7,7 +7,7 @@ from websockets.exceptions import ConnectionClosed
 
 from ..base.abc import AbstractConnector, BotLife
 from ..base.exceptions import BotRuntimeError
-from ..base.typing import TYPE_CHECKING, Any, ModuleType, Optional, Type, Union, cast
+from ..base.typing import TYPE_CHECKING, Any, Optional, TracebackType, Type, Union, cast
 from ..context.session import ActionResponse
 
 if TYPE_CHECKING:
@@ -55,17 +55,20 @@ class ForwardWsConn(AbstractConnector):
         self.retry_delay: float = retry_delay if retry_delay > 0 else 0
         #: ws 连接的 url（形如：ws://xxx:xxx）
         self.url = f"ws://{connect_host}:{connect_port}"
-        #: 连接对象
-        self.conn: "websockets.client.WebSocketClientProtocol"
+        #: 连接对象（未建立连接时为空，连接建立后可认为一定不为空）
+        self.conn: Optional["websockets.client.WebSocketClientProtocol"] = None
         #: 连接器操作鉴权的 token
         self.access_token = access_token
 
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_send_time = time.time_ns()
+
         self._client_close: asyncio.Future[Any]
         self._conn_ready = asyncio.Event()
+
         self._allow_reconn = allow_reconnect
         self._reconn_flag = False
+
         self._run_lock = asyncio.Lock()
 
     async def _run(self) -> None:
@@ -76,14 +79,15 @@ class ForwardWsConn(AbstractConnector):
 
         async with self._run_lock:
             self._client_close = asyncio.Future()
-            created_flag = False
+            ok_flag = False
             retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
 
             for _ in retry_iter:
                 try:
                     self.conn = await websockets.connect(self.url, extra_headers=headers)
-                    created_flag = True
+                    ok_flag = True
                     break
+
                 except Exception as e:
                     self.logger.warning(
                         f"ws 连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}"
@@ -91,7 +95,8 @@ class ForwardWsConn(AbstractConnector):
                     if "403" in str(e):
                         self.logger.warning("403 错误可能是 access_token 未配置或无效")
                     await asyncio.sleep(self.retry_delay)
-            if not created_flag:
+
+            if not ok_flag:
                 raise BotRuntimeError("连接重试已达最大重试次数，已放弃建立连接")
 
             try:
@@ -100,9 +105,10 @@ class ForwardWsConn(AbstractConnector):
                 asyncio.create_task(self._listen())
                 await self._client_close
             finally:
-                await self.conn.close()
-                await self.conn.wait_closed()
-                self.logger.info("ws 客户端连接已关闭")
+                if self.conn is not None:
+                    await self.conn.close()
+                    await self.conn.wait_closed()
+                    self.logger.info("ws 客户端连接已关闭")
 
     def _close(self) -> None:
         """关闭连接"""
@@ -125,11 +131,12 @@ class ForwardWsConn(AbstractConnector):
         return self
 
     async def __aexit__(
-        self, exc_type: Type[Exception], exc_val: Exception, exc_tb: ModuleType
+        self, exc_type: Type[Exception], exc_val: Exception, exc_tb: TracebackType
     ) -> bool:
         self._close()
         if await super().__aexit__(exc_type, exc_val, exc_tb):
             return True
+
         self.logger.error("连接器出现预期外的异常")
         self.logger.exc(locals=locals())
         return False
@@ -142,6 +149,7 @@ class ForwardWsConn(AbstractConnector):
         if self.slack:
             self.logger.debug(f"action {action:hexid} 因 slack 状态被丢弃")
             return
+
         await self._send_queue.put(action)
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
@@ -153,28 +161,33 @@ class ForwardWsConn(AbstractConnector):
             while True:
                 action = await self._send_queue.get()
                 await self._conn_ready.wait()
+
                 if self.logger._check_level("DEBUG"):
                     self.logger.obj(action.__dict__, f"action {action:hexid} 准备发送")
+
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
+
                 action_str = action.flatten()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
+
+                self.conn = cast("websockets.client.WebSocketClientProtocol", self.conn)
                 await self.conn.send(action_str)
                 self.logger.debug(f"action {action:hexid} 已发送")
                 self._pre_send_time = time.time_ns()
+
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")
         except ConnectionClosed:
-            self.logger.error(
-                "连接器与 OneBot 实现程序的通信已经停止，无法再执行行为操作"
-            )
+            self.logger.error("与 OneBot 实现程序的通信已经停止，无法再执行操作")
 
     async def _listen(self) -> None:
         """从 OneBot 实现程序接收一个事件，并处理"""
         await self._ready_signal.wait()
         await self._conn_ready.wait()
+
         if not self._reconn_flag:
             await self._bot_bus.emit(BotLife.FIRST_CONNECTED)
             self.logger.debug("FIRST_CONNECTED hook 已完成")
@@ -185,14 +198,20 @@ class ForwardWsConn(AbstractConnector):
         try:
             while True:
                 try:
+                    self.conn = cast(
+                        "websockets.client.WebSocketClientProtocol", self.conn
+                    )
                     raw = await self.conn.recv()
                     if self.logger._check_level("DEBUG"):
                         self.logger.obj(raw, "收到上报，未格式化的字符串")
+
                     if raw == "":
                         continue
+
                     event = self._event_builder.try_build(raw)
                     if self.logger._check_level("DEBUG") and event is not None:
                         self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
+
                     if event is None:
                         resp = ActionResponse(raw)
                         asyncio.create_task(self._resp_dispatcher.respond(resp))
@@ -207,21 +226,26 @@ class ForwardWsConn(AbstractConnector):
                             event,
                         )
                         asyncio.create_task(self._common_dispatcher.dispatch(event))
+
                 except ConnectionClosed:
                     raise
                 except Exception as e:
                     self.logger.error("bot 连接器监听任务抛出异常")
                     self.logger.obj(raw, "异常点的上报数据", level="ERROR")
                     self.logger.exc(locals=locals())
+
         except asyncio.CancelledError:
             self.logger.debug("连接器监听任务已停止")
         except ConnectionClosed:
             self.logger.debug("连接器与 OneBot 实现程序的通信已经停止")
+
         finally:
+            self.conn = cast("websockets.client.WebSocketClientProtocol", self.conn)
             self.conn.close_timeout = 2
             if self._client_close.done():
                 return
+
             if not self._allow_reconn:
                 self._close()
-                return
-            await self._reconnect()
+            else:
+                await self._reconnect()

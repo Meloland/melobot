@@ -36,6 +36,7 @@ class ShareObject:
     async def affect(self, *args: Any, **kwargs: Any) -> Any:
         """触发共享对象的回调，回调未设置时会等待。 如果本来就没有回调，则会陷入无休止等待"""
         await self.__cb_set.wait()
+
         async with self.__rwc.safe_write():
             return await self.__callback(*args, **kwargs)
 
@@ -50,13 +51,13 @@ class PluginStore:
         self, reflector: AsyncCallable[..., Any], namespace: str, id: str
     ) -> None:
         """创建共享对象"""
-        if namespace not in self.store.keys():
-            self.store[namespace] = {}
+        self.store.setdefault(namespace, {})
         obj = self.store[namespace].get(id)
         if obj is not None:
             raise BotIpcError(
                 f"已在 {namespace} 命名空间中注册标记为 {id} 的共享对象，拒绝再次注册"
             )
+
         obj = ShareObject(namespace, id)
         self.store[namespace][id] = obj
         obj._fill_ref(reflector)
@@ -65,14 +66,17 @@ class PluginStore:
         """为共享对象绑定回调"""
         if namespace not in self.store.keys():
             raise BotIpcError(f"共享对象回调指定的命名空间 {namespace} 不存在")
+
         if id not in self.store[namespace].keys():
             raise BotIpcError(
                 f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象"
             )
+
         if self.store[namespace][id].__cb_set.is_set():
             raise BotIpcError(
                 f"{namespace} 中标记为 {id} 的共享对象已被绑定过回调，拒绝再次绑定"
             )
+
         self.store[namespace][id]._fill_cb(cb)
 
     def get(self, namespace: str, id: str) -> ShareObject:
@@ -81,6 +85,7 @@ class PluginStore:
             raise BotIpcError(f"无法获取不存在的共享对象：命名空间 {namespace} 不存在")
         if id not in self.store[namespace].keys():
             raise BotIpcError(f"无法获取不存在的共享对象：标识 {id} 不存在")
+
         return self.store[namespace][id]
 
 
@@ -109,10 +114,10 @@ class PluginBus:
         self, namespace: str, signal: str, func: AsyncCallable[..., Any]
     ) -> None:
         """绑定一个插件信号处理方法。由 plugin build 过程调用"""
-        if namespace not in self.store.keys():
-            self.store[namespace] = {}
+        self.store.setdefault(namespace, {})
         if signal in self.store[namespace].keys():
             raise BotIpcError("同一命名空间的同一信号只能绑定一个处理函数")
+
         self.store[namespace][signal] = PluginSignalHandler(namespace, signal, func)
 
     async def _run_on_ctx(
@@ -138,14 +143,12 @@ class PluginBus:
         if namespace not in self.store.keys():
             raise BotIpcError(f"插件信号命名空间 {namespace} 不存在，无法触发信号")
         if signal not in self.store[namespace].keys():
-            self.logger.warning(
-                f"命名空间 {namespace} 内，没有处理信号 {signal} 的处理函数"
-            )
-            return
+            raise BotIpcError(f"命名空间 {namespace} 内没有信号 {signal} 的处理函数")
 
         handler = self.store[namespace][signal]
+        task = self._run_on_ctx(handler, *args, **kwargs)
         if not wait:
-            asyncio.create_task(self._run_on_ctx(handler, *args, **kwargs))
+            asyncio.create_task(task)
             return None
         else:
-            return await self._run_on_ctx(handler, *args, **kwargs)
+            return await task

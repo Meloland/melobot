@@ -12,9 +12,9 @@ from .typing import (
     BotLife,
     Literal,
     LogicMode,
-    ModuleType,
     Optional,
     ParseArgs,
+    TracebackType,
     Type,
     Void,
 )
@@ -59,7 +59,7 @@ class AbstractConnector(ABC):
 
     @abstractmethod
     async def __aexit__(
-        self, exc_type: Type[Exception], exc_val: Exception, exc_tb: ModuleType
+        self, exc_type: Type[Exception], exc_val: Exception, exc_tb: TracebackType
     ) -> bool:
         if exc_type is None:
             return True
@@ -92,29 +92,26 @@ class AbstractConnector(ABC):
 
 class Flagable:
     def __init__(self) -> None:
-        self._flags_store: Optional[dict[str, dict[str, Any]]] = None
+        self._flags_store: dict[str, dict[str, Any]] = {}
 
     def mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
         """为对象添加在指定命名空间下，名为 flag_name 的标记。 此后此对象会一直携带此标记，无法撤销。"""
-        if self._flags_store is None:
-            self._flags_store = {}
-        if self._flags_store.get(namespace) is None:
-            self._flags_store[namespace] = {}
-        if flag_name in self._flags_store[namespace].keys():
+        self._flags_store.setdefault(namespace, {})
+
+        if self._flags_store[namespace].get(flag_name) is not None:
             raise BotUtilsError(
-                f"对象不可被重复标记。在命名空间 {namespace} 中名为 {flag_name} 的标记已存在"
+                f"标记失败。对象的命名空间 {namespace} 中已存在名为 {flag_name} 的标记"
             )
+
         self._flags_store[namespace][flag_name] = val
 
     def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
         """检查此对象是否携带有指定的标记"""
-        self._flags_store = self._flags_store
-        if self._flags_store is None:
-            return False
         if (flags := self._flags_store.get(namespace)) is None:
             return False
         if (flag := flags.get(flag_name, Void)) is Void:
             return False
+
         return flag is val if val is None else flag == val
 
 
@@ -216,6 +213,7 @@ class BotAction(Flagable, Cloneable):
         match format_spec:
             case "hexid":
                 return f"{id(self):#x}"
+
             case "raw":
                 trigger = (
                     f"{self.trigger.__class__.__name__}[{self.trigger:hexid}]"
@@ -226,6 +224,7 @@ class BotAction(Flagable, Cloneable):
                     f"BotAction(type={self.type}, trigger={trigger}, "
                     f"resp_id={self.resp_id}, params={self.params})"
                 )
+
             case _:
                 raise BotValueError(f"未知的 action 格式标识符：{format_spec}")
 

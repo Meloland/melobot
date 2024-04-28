@@ -125,6 +125,7 @@ class BotLogger(Logger):
         if not no_tag:
             fmt_arr.insert(0, f"%(purple)s{name}%(reset)s")
         fmt_s = f" {' │ '.join(fmt_arr)}"
+
         fmt = colorlog.ColoredFormatter(
             fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
@@ -137,6 +138,7 @@ class BotLogger(Logger):
             _EXC_FORMATTER.format_exception(*exc_info)
         )
         BotLogger.make_fmt_nocache(fmt)
+
         return fmt
 
     @staticmethod
@@ -156,6 +158,7 @@ class BotLogger(Logger):
         if not no_tag:
             fmt_arr.insert(0, name)
         fmt_s = " │ ".join(fmt_arr)
+
         fmt = logging.Formatter(
             fmt=fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
@@ -165,12 +168,14 @@ class BotLogger(Logger):
             _NO_COLOR_EXC_FORMATTER.format_exception(*exc_info)
         )
         BotLogger.make_fmt_nocache(fmt)
+
         return fmt
 
     @staticmethod
     def _file_handler(fmt: logging.Formatter, log_dir: str, name: str) -> logging.Handler:
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
+
         handler = logging.handlers.RotatingFileHandler(
             filename=os.path.join(log_dir, f"{name}.log"),
             maxBytes=1024 * 1024,
@@ -199,6 +204,7 @@ class BotLogger(Logger):
 
         if name in BotLogger.LOGGERS.keys():
             raise BotValueError(f"名为 {name} 的日志器已存在，请修改 name")
+
         super().__init__(name, BotLogger.LEVEL_MAP[level])
         BotLogger.LOGGERS[name] = self
 
@@ -216,18 +222,18 @@ class BotLogger(Logger):
 
     def _add_console_handler(self) -> None:
         if self._con_handler is None:
-            self._con_handler = self._console_handler(
-                self._console_fmt(self.name, self._no_tag)
-            )
+            fmt = self._console_fmt(self.name, self._no_tag)
+            self._con_handler = self._console_handler(fmt)
             self._con_handler.addFilter(self._obj_filter)
+
             self.addHandler(self._con_handler)
             self._handler_arr.append(self._con_handler)
 
     def _add_file_handler(self, log_dir: str) -> None:
-        handler = self._file_handler(
-            self._file_fmt(self.name, self._no_tag), log_dir, self.name
-        )
+        fmt = self._file_fmt(self.name, self._no_tag)
+        handler = self._file_handler(fmt, log_dir, self.name)
         handler.addFilter(self._obj_filter)
+
         self.addHandler(handler)
         self._handler_arr.append(handler)
 
@@ -243,6 +249,7 @@ class BotLogger(Logger):
         super().setLevel(level)
         for handler in self._handler_arr:
             handler.setLevel(level)
+
         self.__LOG_LEVEL_FLAG__ = BotLogger.LEVEL_MAP[level]
 
     def _check_level(
@@ -271,6 +278,7 @@ class BotLogger(Logger):
         else:
             fmt_exc = _get_fmtted_exc(cast(Exception, _exc))
             self.error(f"{prefix}{exc_str}\n{fmt_exc}")
+
         if locals is not None:
             self.obj(locals, "异常抛出点局部变量", level="ERROR")
 
@@ -288,12 +296,14 @@ class BotLogger(Logger):
         :param prefix_fmt: 前缀信息的格式化字符串
         :param level: 记录的日志等级，默认为 DEBUG
         """
+        log_meth = getattr(self, level.lower())
+
         if isinstance(self, BotLogger):
             self._obj_filter.set(obj)
-            getattr(self, level.lower())(prefix_fmt % prefix)
+            log_meth(prefix_fmt % prefix)
             self._obj_filter.clear()
         else:
-            getattr(self, level.lower())(f"{prefix_fmt % prefix}{get_rich_str(obj)[1]}")
+            log_meth(f"{prefix_fmt % prefix}{get_rich_str(obj)[1]}")
 
 
 def logger_patch(

@@ -332,20 +332,7 @@ def custom_msg_node(
     :param useStd: 消息段对象构造时是否遵循 onebot 标准，默认为否（使用 go-cq 风格）
     :return: onebot 标准中的消息段对象
     """
-    if isinstance(content, str):
-        _ = text_msg(content)
-        if not isinstance(_, list):
-            msgs = [_]
-    elif isinstance(content, dict):
-        msgs = [content]
-    elif isinstance(content, list):
-        temp = []
-        for _ in content:
-            if isinstance(_, list):
-                temp.extend(_)
-            else:
-                temp.append(_)
-        msgs = temp
+    msgs = to_msg_segment(content)
     if not useStd:
         ret: MsgNode = {
             "type": "node",
@@ -434,38 +421,48 @@ def to_segments(s: str) -> list[MsgSegment]:
     :return: 消息段对象列表
     """
 
+    cq_texts: list[str] = []
+
     def replace_func(m) -> str:
         s, e = m.regs[0]
         cq_texts.append(m.string[s:e])
         return "\u0000"
 
     cq_regex = re.compile(r"\[CQ:.*?\]")
-    cq_texts: list[str] = []
+
     no_cq_str = cq_regex.sub(replace_func, s)
     pure_texts = map(
         lambda x: f"[CQ:text,text={x}]" if x != "" else x,
         no_cq_str.split("\u0000"),
     )
-    _: str = "".join(chain.from_iterable(zip_longest(pure_texts, cq_texts, fillvalue="")))
+    cq_entity_str: str = "".join(
+        chain.from_iterable(zip_longest(pure_texts, cq_texts, fillvalue=""))
+    )
 
-    cq_entity: list[str] = _.split("]")[:-1]
+    cq_entity: list[str] = cq_entity_str.split("]")[:-1]
     content: list = []
+
     for e in cq_entity:
-        __ = e.split(",")
-        cq_type = __[0][4:]
+        cq_parts = e.split(",")
+        cq_type = cq_parts[0][4:]
         data: dict[str, float | int | str] = {}
-        for param_pair in __[1:]:
+
+        for param_pair in cq_parts[1:]:
             name, val = param_pair.split("=")
+
             if cq_type != "text":
                 val = cq_anti_escape(val)
-            if val.isdigit() or (len(val) >= 2 and val[0] == "-" and val[1:].isdigit()):
-                data[name] = int(val)
-                continue
+
             try:
                 data[name] = float(val)
+                tmp = int(val)
+                if tmp == data[name]:
+                    data[name] = tmp
             except Exception:
                 data[name] = val
+
         content.append({"type": cq_type, "data": data})
+
     return content
 
 
@@ -477,20 +474,52 @@ def to_cq_str(content: list[MsgSegment]) -> str:
     """
     if isinstance(content, str):
         return content
+
     msgs: list[str] = []
     for item in content:
         if item["type"] == "text":
             msgs.append(cast(str, item["data"]["text"]))
             continue
-        s = f"[CQ:{item['type']}"
-        for k, v in item["data"].items():
-            s += f",{k}={cq_escape(str(v))}"
-        s += "]"
+
+        type = item["type"]
+        params = ",".join(f"{k}={cq_escape(str(v))}" for k, v in item["data"].items())
+        s = f"[CQ:{type},{params}]"
         msgs.append(s)
+
     return "".join(msgs)
 
 
-def _to_cq_str_action(action: "BotAction") -> "BotAction":
+def to_msg_segment(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegment]:
+    """将多种可能的消息格式，统一转换为 cq 消息列表"""
+
+    def verify_segment(obj: Any) -> bool:
+        return (
+            isinstance(obj, dict)
+            and obj.get("type") is not None
+            and isinstance(obj.get("data"), dict)
+        )
+
+    if isinstance(content, str):
+        return [text_msg(content)]
+
+    elif verify_segment(content):
+        return [cast(MsgSegment, content)]
+
+    elif (
+        isinstance(content, list)
+        and len(content) > 0
+        and all(verify_segment(obj) for obj in content)
+    ):
+        return content
+
+    else:
+        raise BotValueError(
+            f"发送的消息内容有误，当前值是：{content}，但需要以下格式之一：字符串、消息段对象、消息段对象的列表（不可为空）"
+        )
+
+
+def to_cq_str_action(action: "BotAction") -> "BotAction":
+
     def _format_msg_action(action: "BotAction") -> None:
         action.params["message"] = to_cq_str(action.params["message"])
 
@@ -501,32 +530,28 @@ def _to_cq_str_action(action: "BotAction") -> "BotAction":
             item["data"]["content"] = to_cq_str(item["data"]["content"])
 
     _action = deepcopy(action)
+
     if _action.type == "send_msg":
         _format_msg_action(_action)
     elif _action.type in ("send_private_forward_msg", "send_group_forward_msg"):
         _format_forward_action(_action)
     else:
-        raise BotValueError(
-            "传入的 action 类型不是发送消息、发送转发消息，因此不可被 cq 序列化"
-        )
+        raise BotValueError("传入的 action 不可被 cq 序列化")
     return _action
 
 
-def _get_segs(content: list[MsgSegment], cq_type: str) -> list[MsgSegment]:
+def get_segs(content: list[MsgSegment], cq_type: str) -> list[MsgSegment]:
     return [item for item in content if item["type"] == cq_type]
 
 
-def _get_seg_datas(
+def get_seg_datas(
     content: list[MsgSegment],
     cq_type: str,
     param: str,
     type: Optional[Callable[[Any], Any]] = None,
 ) -> list[Any]:
-    res: list[Any] = []
-    for item in content:
-        if item["type"] == cq_type:
-            val = item["data"].get(param)
-            res.append(val)
+    res = (item["data"].get(param) for item in content if item["type"] == cq_type)
     if type is not None:
-        res = list(map(lambda x: type(x), res))
-    return res
+        return list(map(lambda x: type(x), res))
+    else:
+        return list(res)

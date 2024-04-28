@@ -1,6 +1,6 @@
 import inspect
 from enum import Enum
-from types import ModuleType
+from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -183,9 +183,9 @@ async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) ->
             f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）"
         )
 
-    awaitable = func(*args, **kwargs)
-    if inspect.isawaitable(awaitable):
-        return await awaitable
+    await_obj = func(*args, **kwargs)
+    if inspect.isawaitable(await_obj):
+        return await await_obj
     raise BotValidateError(
-        f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象），因为它的返回结果 {awaitable} 不可异步等待"
+        f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象），因为它的返回结果 {await_obj} 不可异步等待"
     )

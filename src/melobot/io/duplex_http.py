@@ -9,7 +9,7 @@ import aiohttp.web
 from aiohttp.client_exceptions import ClientConnectorError
 
 from ..base.abc import AbstractConnector, BotLife
-from ..base.typing import TYPE_CHECKING, ModuleType, Optional, Union, cast
+from ..base.typing import TYPE_CHECKING, Optional, TracebackType, Union, cast
 from ..context.session import ActionResponse
 
 if TYPE_CHECKING:
@@ -84,22 +84,23 @@ class HttpConn(AbstractConnector):
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_recv_time = time.time_ns()
         self._pre_send_time = time.time_ns()
+
         self._closed = asyncio.Event()
         self._close_lock = asyncio.Lock()
         self._onebot_onlined = asyncio.Event()
+
         self._allow_reconn = allow_reconnect
         self._connected_flag = False
 
     async def _start(self) -> None:
         """启动连接器"""
-        # 打开一个会话用于与 onebot 实现程序建立连接
         self.client_session = aiohttp.ClientSession()
-        # 开启 HTTP 服务端
         app = aiohttp.web.Application()
         app.add_routes([aiohttp.web.post("/", self._listen)])
         runner = aiohttp.web.AppRunner(app)
-        await runner.setup()
         self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
+
+        await runner.setup()
         await self.serve_site.start()
 
         self.logger.info("HTTP 通信就绪，等待 OneBot 实现程序上线中（即上报第一个事件）")
@@ -108,7 +109,9 @@ class HttpConn(AbstractConnector):
         self._connected_flag = True
 
         if self.max_interval is not None and self.max_interval > 0:
-            asyncio.create_task(self._overtime_monitor(self.max_interval))
+            _monitor = self._overtime_monitor(self.max_interval)
+            asyncio.create_task(_monitor)
+
         await self._bot_bus.emit(BotLife.FIRST_CONNECTED)
         self.logger.debug("FIRST_CONNECTED hook 已完成")
 
@@ -116,12 +119,11 @@ class HttpConn(AbstractConnector):
         """关闭连接器"""
         if self._closed.is_set():
             return
+
         async with self._close_lock:
             if self._closed.is_set():
                 return
-            # 关闭 HTTP 服务端
             await self.serve_site.stop()
-            # 关闭与 onebot 实现程序的连接会话
             await self.client_session.close()
             self._closed.set()
             self.logger.info("HTTP 双向通信已停止")
@@ -131,12 +133,12 @@ class HttpConn(AbstractConnector):
         try:
             while True:
                 if (abs(time.time_ns() - self._pre_recv_time)) / 1e9 > interval:
-                    self.logger.warning(
-                        "OneBot 实现程序已掉线，正在等待 OneBot 实现程序重新上线"
-                    )
+                    self.logger.warning("OneBot 实现程序已掉线，等待它重新上线中")
                     self._onebot_onlined.clear()
                     await self._onebot_onlined.wait()
+
                 await asyncio.sleep(interval)
+
         except asyncio.CancelledError:
             pass
 
@@ -146,11 +148,12 @@ class HttpConn(AbstractConnector):
         return self
 
     async def __aexit__(
-        self, exc_type: type[Exception], exc_val: Exception, exc_tb: ModuleType
+        self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType
     ) -> bool:
         await self._close()
         if await super().__aexit__(exc_type, exc_val, exc_tb):
             return True
+
         self.logger.error("连接器出现预期外的异常")
         self.logger.exc(e=exc_val, locals=locals())
         return False
@@ -162,17 +165,17 @@ class HttpConn(AbstractConnector):
         if self.secret is not None:
             sign = hmac.new(self.secret.encode(), data, "sha1").hexdigest()
             recv_sign = request.headers["X-Signature"][len("sha1=") :]
+
             if sign != recv_sign:
                 self.logger.error("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
                 self.logger.obj(data, "试图上报的数据：", level="ERROR")
                 return
 
         self._pre_recv_time = time.time_ns()
-
         await self._ready_signal.wait()
+
         if not self._onebot_onlined.is_set():
             self._onebot_onlined.set()
-
             if self._connected_flag:
                 self.logger.info("OneBot 实现程序已经重新上线")
                 await self._bot_bus.emit(BotLife.RECONNECTED)
@@ -182,83 +185,93 @@ class HttpConn(AbstractConnector):
             raw_event = json.loads(data.decode())
             if self.logger._check_level("DEBUG"):
                 self.logger.obj(raw_event, "收到上报，未格式化的字典")
+
             event = self._event_builder.try_build(raw_event)
             if self.logger._check_level("DEBUG") and event is not None:
                 self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
+
             event = cast(
                 Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
                 event,
             )
             asyncio.create_task(self._common_dispatcher.dispatch(event))
+
         except Exception as e:
             self.logger.error("bot 连接器监听任务抛出异常")
             self.logger.obj(raw_event, "异常点的上报数据", level="ERROR")
             self.logger.exc(locals=locals())
+
         finally:
             return aiohttp.web.Response(status=204)
 
     async def _send(self, action: "BotAction") -> None:
         """发送一个 action 给连接器，实际上是先提交到 send_queue"""
         await self._ready_signal.wait()
-        await self._onebot_onlined.wait()
 
+        await self._onebot_onlined.wait()
         if self.slack:
             self.logger.debug(f"action {action:hexid} 因 slack 状态被丢弃")
             return
+
         await self._send_queue.put(action)
         self.logger.debug(f"action {action:hexid} 已成功加入发送队列")
 
+    async def _take_action(self, action: "BotAction") -> None:
+        try:
+            headers: dict | None = None
+            if self.access_token is not None:
+                headers = {"Authorization": f"Bearer {self.access_token}"}
+
+            http_resp = await self.client_session.post(
+                f"{self.onebot_url}/{action.type}",
+                json=action.params,
+                headers=headers,
+            )
+            if action.resp_id is None:
+                return
+
+            resp_dict: dict = await http_resp.json()
+            resp = ActionResponse(resp_dict)
+            resp.id = action.resp_id
+            asyncio.create_task(self._resp_dispatcher.respond(resp))
+
+        except (RuntimeError, ClientConnectorError):
+            if not self._allow_reconn:
+                self.logger.error("OneBot 实现程序已掉线，无法再执行行为操作")
+                await self._close()
+            else:
+                self.logger.warning("OneBot 实现程序已掉线，正在等待它重新上线")
+                self._onebot_onlined.clear()
+
+        except aiohttp.ContentTypeError:
+            self.logger.error("连接器无法解析上报数据。可能是 access_token 未配置或错误")
+
+        except Exception as e:
+            self.logger.error("bot 连接器发送任务抛出预期外的异常：")
+            self.logger.exc(locals=locals())
+
     async def _watch_queue(self) -> None:
         """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作"""
-
-        async def take_action(action: "BotAction") -> None:
-            try:
-                headers: dict | None = None
-                if self.access_token is not None:
-                    headers = {"Authorization": f"Bearer {self.access_token}"}
-
-                http_resp = await self.client_session.post(
-                    f"{self.onebot_url}/{action.type}",
-                    json=action.params,
-                    headers=headers,
-                )
-                if action.resp_id is None:
-                    return
-                resp_dict: dict = await http_resp.json()
-                resp = ActionResponse(resp_dict)
-                resp.id = action.resp_id
-                asyncio.create_task(self._resp_dispatcher.respond(resp))
-            except (RuntimeError, ClientConnectorError):
-                if not self._allow_reconn:
-                    self.logger.error("OneBot 实现程序已掉线，无法再执行行为操作")
-                    await self._close()
-                else:
-                    self.logger.warning(
-                        "OneBot 实现程序已掉线，正在等待 OneBot 实现程序重新上线"
-                    )
-                    self._onebot_onlined.clear()
-            except aiohttp.ContentTypeError:
-                self.logger.error(
-                    "bot 连接器无法解析上报数据。可能是 access_token 未配置或错误"
-                )
-            except Exception as e:
-                self.logger.error("bot 连接器发送任务抛出预期外的异常：")
-                self.logger.exc(locals=locals())
-
         await self._ready_signal.wait()
+
         try:
             while True:
                 action = await self._send_queue.get()
                 await self._onebot_onlined.wait()
+
                 if self.logger._check_level("DEBUG"):
                     self.logger.obj(action.__dict__, f"action {action:hexid} 准备发送")
+
                 await self._bot_bus.emit(BotLife.ACTION_PRESEND, action, wait=True)
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
+
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
-                asyncio.create_task(take_action(action))
+
+                asyncio.create_task(self._take_action(action))
                 self.logger.debug(f"action {action:hexid} 已发送")
                 self._pre_send_time = time.time_ns()
+
         except asyncio.CancelledError:
             self.logger.debug("连接器发送队列监视任务已被结束")

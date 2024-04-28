@@ -3,6 +3,7 @@ import inspect
 import os
 import pathlib
 import time
+import uuid
 from contextlib import asynccontextmanager
 from functools import wraps
 
@@ -87,22 +88,22 @@ class RWController:
         :param read_limit: 读取的数量限制，为空则不限制
         """
         write_semaphore = asyncio.Semaphore(1)
-        if read_limit:
-            read_semaphore = asyncio.Semaphore(read_limit)
-        else:
-            read_semaphore = None
+        read_semaphore = asyncio.Semaphore(read_limit) if read_limit else None
         read_num = 0
         read_num_lock = asyncio.Lock()
 
         @asynccontextmanager
         async def safe_read():
             nonlocal read_num, read_semaphore, write_semaphore, read_num_lock
+
             if read_semaphore:
                 await read_semaphore.acquire()
+
             async with read_num_lock:
                 if read_num == 0:
                     await write_semaphore.acquire()
                 read_num += 1
+
             try:
                 yield
             finally:
@@ -116,6 +117,7 @@ class RWController:
         @asynccontextmanager
         async def safe_write():
             nonlocal write_semaphore
+
             await write_semaphore.acquire()
             try:
                 yield
@@ -126,70 +128,12 @@ class RWController:
         self.safe_write = safe_write
 
 
-class IdWorker:
-    """雪花算法生成 ID"""
-
-    def __init__(self, datacenter_id, worker_id, sequence=0) -> None:
-        self.MAX_WORKER_ID = -1 ^ (-1 << 3)
-        self.MAX_DATACENTER_ID = -1 ^ (-1 << 5)
-        self.WOKER_ID_SHIFT = 12
-        self.DATACENTER_ID_SHIFT = 12 + 3
-        self.TIMESTAMP_LEFT_SHIFT = 12 + 3 + 5
-        self.SEQUENCE_MASK = -1 ^ (-1 << 12)
-        self.STARTEPOCH = 1064980800000
-        # sanity check
-        if worker_id > self.MAX_WORKER_ID or worker_id < 0:
-            raise ValueError("worker_id 值越界")
-        if datacenter_id > self.MAX_DATACENTER_ID or datacenter_id < 0:
-            raise ValueError("datacenter_id 值越界")
-        self.worker_id = worker_id
-        self.datacenter_id = datacenter_id
-        self.sequence = sequence
-        self.last_timestamp = -1
-
-    def __gen_timestamp(self) -> int:
-        """生成整数时间戳"""
-        return int(time.time_ns() / 1e6)
-
-    def get_id(self) -> int:
-        """获取新 ID"""
-        timestamp = self.__gen_timestamp()
-
-        # 时钟回拨
-        if timestamp < self.last_timestamp:
-            raise ValueError(f"时钟回拨，{self.last_timestamp} 前拒绝 id 生成请求")
-        if timestamp == self.last_timestamp:
-            self.sequence = (self.sequence + 1) & self.SEQUENCE_MASK
-            if self.sequence == 0:
-                timestamp = self.__til_next_millis(self.last_timestamp)
-        else:
-            self.sequence = 0
-        self.last_timestamp = timestamp
-        new_id = (
-            ((timestamp - self.STARTEPOCH) << self.TIMESTAMP_LEFT_SHIFT)
-            | (self.datacenter_id << self.DATACENTER_ID_SHIFT)
-            | (self.worker_id << self.WOKER_ID_SHIFT)
-            | self.sequence
-        )
-        return new_id
-
-    def __til_next_millis(self, last_timestamp) -> int:
-        """等到下一毫秒"""
-        timestamp = self.__gen_timestamp()
-        while timestamp <= last_timestamp:
-            timestamp = self.__gen_timestamp()
-        return timestamp
-
-
-_ID_WORKER = IdWorker(1, 1, 0)
-
-
 def get_id() -> str:
     """从 melobot 内部 id 获取器获得一个 id 值，不保证线程安全。
 
     :return: id 值
     """
-    return str(_ID_WORKER.get_id())
+    return uuid.uuid4().hex
 
 
 def this_dir(*relative_path: str) -> str:
@@ -245,17 +189,21 @@ def this_dir(*relative_path: str) -> str:
     for idx, finfo in enumerate(stacks):
         if finfo.function == "this_dir" and os.path.samefile(finfo.filename, __file__):
             cur_finfo, cur_idx = finfo, idx
+
     if cur_finfo is None:
         raise BotRuntimeError("this_dir 定位失败，请检查本函数使用方式是否正确")
 
     for idx, finfo in enumerate(stacks[cur_idx + 1 :]):
+
         if finfo.function == "<module>":
             for val in finfo.frame.f_locals.values():
                 if val is __dir_inspector__:
                     caller_path = finfo.filename
                     break
+
             if caller_path is not None:
                 break
+
     if caller_path is None:
         raise BotRuntimeError("this_dir 定位失败，请检查本函数使用方式是否正确")
 
@@ -321,6 +269,7 @@ def lock(callback: Optional[AsyncCallable[[], T1]] = None):
     alock = asyncio.Lock()
 
     def deco_func(func: AsyncCallable[P, T2]) -> AsyncCallable[P, T1 | T2]:
+
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
             if callback is not None and alock.locked():
@@ -361,6 +310,7 @@ def cooldown(
     pre_finish_t = time.perf_counter() - interval - 1
 
     def deco_func(func: AsyncCallable[P, T3]) -> AsyncCallable[P, T1 | T2 | T3]:
+
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2 | T3:
             nonlocal pre_finish_t
@@ -405,6 +355,7 @@ def semaphore(callback: Optional[AsyncCallable[[], T1]] = None, value: int = -1)
     a_semaphore = asyncio.Semaphore(value)
 
     def deco_func(func: AsyncCallable[P, T2]) -> AsyncCallable[P, T1 | T2]:
+
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
             if callback is not None and a_semaphore.locked():
@@ -433,6 +384,7 @@ def timelimit(callback: Optional[AsyncCallable[[], T1]] = None, timeout: float =
     """
 
     def deco_func(func: AsyncCallable[P, T2]) -> AsyncCallable[P, T1 | T2]:
+
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
             try:
@@ -474,6 +426,7 @@ def speedlimit(
         raise BotValidateError("speedlimit 装饰器的 duration 参数必须 > 0")
 
     def deco_func(func: AsyncCallable[P, T2]) -> AsyncCallable[P, T1 | T2]:
+
         @wraps(func)
         async def wrapped_func(*args: Any, **kwargs: Any) -> T1 | T2:
             res_fut = _wrapped_func(func, *args, **kwargs)
@@ -496,8 +449,10 @@ def speedlimit(
             if called_num < limit:
                 called_num += 1
                 asyncio.create_task(result_set(func, res_fut, -1, *args, **kwargs))
+
             elif callback is not None:
                 asyncio.create_task(result_set(callback, res_fut, -1))
+
             else:
                 asyncio.create_task(
                     result_set(func, res_fut, duration - passed_time, *args, **kwargs)
@@ -506,6 +461,7 @@ def speedlimit(
             called_num, min_start = 0, time.perf_counter()
             called_num += 1
             asyncio.create_task(result_set(func, res_fut, -1, *args, **kwargs))
+
         return res_fut
 
     async def result_set(
@@ -527,8 +483,10 @@ def speedlimit(
                 res = cast(T | Exception, res)
                 fut.set_result(res)
                 return
+
             res = await async_guard(func, *args, **kwargs)
             fut.set_result(res)
+
         except Exception as e:
             fut.set_result(e)
 
@@ -556,12 +514,11 @@ def call_at(callback: Callable[[], None], timestamp: float):
     :param timestamp: 在什么时刻调度
     :return: :class:`asyncio.TimerHandle` 对象
     """
+    loop = asyncio.get_running_loop()
     if timestamp <= time.time_ns() / 1e9:
-        return asyncio.get_running_loop().call_soon(callback)
+        return loop.call_soon(callback)
     else:
-        return asyncio.get_running_loop().call_later(
-            timestamp - time.time_ns() / 1e9, callback
-        )
+        return loop.call_later(timestamp - time.time_ns() / 1e9, callback)
 
 
 def async_later(callback: Coroutine[Any, Any, Any], delay: float) -> asyncio.Future[T]:

@@ -46,7 +46,6 @@ class BotSession:
     ) -> None:
         super().__init__()
         self.store: dict[str, Any] = {}
-        # 永远指向当前上下文的 event
         self.event = event
         self.args: Union["ParseArgs", None] = None
 
@@ -78,10 +77,8 @@ class BotSession:
 class SessionLocal:
     """会话 自动上下文"""
 
-    __slots__ = tuple(
-        list(filter(lambda x: not (len(x) >= 2 and x[:2] == "__"), dir(BotSession)))
-        + ["__storage__"]
-    )
+    _ = lambda x: not x.startswith("__")
+    __slots__ = tuple(filter(_, dir(BotSession))) + ("__storage__",)
 
     def __init__(self) -> None:
         object.__setattr__(self, "__storage__", ContextVar("session_ctx"))
@@ -94,6 +91,7 @@ class SessionLocal:
                     return f"{self._get_var():hexid}"
                 except LookupError:
                     return "None"
+
             case _:
                 raise BotSessionError(f"未知的 SessionLocal 格式化标识符：{format_spec}")
 
@@ -101,8 +99,8 @@ class SessionLocal:
         var = self.__storage__.get()
         if var is Void:
             raise LookupError("上下文当前为 Void，识别为跨 bot 通信")
-        var = cast(BotSession, var)
-        return var
+
+        return cast(BotSession, var)
 
     def __setattr__(self, __name: str, __value: Any) -> None:
         setattr(self._get_var(), __name, __value)
@@ -153,7 +151,7 @@ class AttrSessionRule(SessionRule):
             for attr in attrs:
                 val = getattr(val, attr)
         except AttributeError:
-            raise BotSessionError(f"会话 规则指定的属性 {attr} 不存在")
+            raise BotSessionError(f"会话规则指定的属性 {attr} 不存在")
         return val
 
     def compare(self, e1: "BotEvent", e2: "BotEvent") -> bool:
@@ -196,12 +194,14 @@ class BotSessionManager:
     ) -> bool:
         """会话 附着操作，临界区操作。只能在 cls.try_attach 中进行"""
         session = None
+
         for s in cls.HUP_STORAGE[handler]:
             # 会话的挂起方法，保证会话一定未过期，因此不进行过期检查
             handler._rule = cast(AttrSessionRule, handler._rule)
             if handler._rule.compare(s.event, event):
                 session = s
                 break
+
         # 如果获得一个挂起的 会话，它一定是可附着的，附着后需要唤醒
         if session:
             session.event = event
@@ -223,12 +223,14 @@ class BotSessionManager:
             t1 = asyncio.create_task(cls.DEADLOCK_FLAGS[handler].wait(), name="flag")
             t2 = asyncio.create_task(cls.WORK_LOCKS[handler].acquire(), name="lock")
             done, _ = await asyncio.wait([t1, t2], return_when=asyncio.FIRST_COMPLETED)
+
             # 等待完成后，一定要记得取消另一个任务！否则可能异常加锁
             if done.pop().get_name() == "flag":
                 res = cls._attach(event, handler)
                 cls.DEADLOCK_FLAGS[handler].clear()
                 t2.cancel()
                 return res
+
             else:
                 res = cls._attach(event, handler)
                 cls.WORK_LOCKS[handler].release()
@@ -239,11 +241,10 @@ class BotSessionManager:
     async def _hup(cls, session: BotSession, overtime: Optional[float] = None) -> None:
         """挂起 会话"""
         if session._space_tag is None:
-            raise BotSessionError(
-                "当前会话上下文因为缺乏 session_rule 作为唤醒标志，无法挂起"
-            )
+            raise BotSessionError("当前会话上下文因为缺乏会话规则作为唤醒标志，无法挂起")
         elif session._expired:
             raise BotSessionError("过期的会话不能被挂起")
+
         cls.fill_args(session, None)
         cls.STORAGE[session._space_tag].remove(session)
         cls.HUP_STORAGE[session._space_tag].add(session)
@@ -253,14 +254,12 @@ class BotSessionManager:
             await session._awake_signal.wait()
         elif overtime <= 0:
             raise BotSessionError("会话 挂起超时时间（秒数）必须 > 0")
+
         else:
-            await asyncio.wait(
-                [
-                    asyncio.create_task(session._awake_signal.wait()),
-                    asyncio.create_task(asyncio.sleep(overtime)),
-                ],
-                return_when=asyncio.FIRST_COMPLETED,
-            )
+            _awake = asyncio.create_task(session._awake_signal.wait())
+            _timeout = asyncio.create_task(asyncio.sleep(overtime))
+            await asyncio.wait([_awake, _timeout], return_when=asyncio.FIRST_COMPLETED)
+
             if not session._awake_signal.is_set():
                 cls._rouse(session)
                 raise BotSessionTimeout("会话 挂起超时")
@@ -272,6 +271,7 @@ class BotSessionManager:
             raise BotSessionError(
                 "当前会话上下文因为缺乏 session_rule 作为唤醒标志，无法唤醒"
             )
+
         cls.HUP_STORAGE[session._space_tag].remove(session)
         cls.STORAGE[session._space_tag].add(session)
         session._awake_signal.set()
@@ -281,6 +281,7 @@ class BotSessionManager:
         """标记该会话为过期状态，并进行销毁操作（如果存在于某个 session_space，则从中移除）"""
         if session._expired:
             return
+
         session.store.clear()
         session._expired = True
         if session._space_tag:
@@ -309,6 +310,7 @@ class BotSessionManager:
                 # 必须在锁的保护下修改 session._free_signal
                 if session:
                     session._free_signal.clear()
+
         else:
             session = cls._make(event, handler)
             session._free_signal.clear()
@@ -323,11 +325,11 @@ class BotSessionManager:
     ) -> BotSession:
         """内部使用的创建会话方法。如果 handler 为空，即缺乏 space_tag，则为一次性 会话。 或 handler._rule
         为空，则也为一次性 会话."""
-        if handler:
-            if handler._rule:
-                session = BotSession(event, cls, handler)
-                cls.STORAGE[handler].add(session)
-                return session
+        if handler and handler._rule:
+            session = BotSession(event, cls, handler)
+            cls.STORAGE[handler].add(session)
+            return session
+
         session = BotSession(event, cls)
         return session
 
@@ -358,27 +360,29 @@ class BotSessionManager:
             if check_rule.compare(s.event, event) and not s._expired:
                 session = s
                 break
+
         # 如果会话不存在，生成一个新会话变量
         if session is None:
             return cls._make(event, handler)
+
         # 如果会话存在，且未过期，且空闲，则附着到这个会话上
         if session._free_signal.is_set():
             session.event = event
             return session
+
         # 如果会话存在，且未过期，但是不空闲，选择不等待
         if not conflict_wait:
             return None
+
         # 如果会话存在，且未过期，但是不空闲，选择等待，此时就不得不陷入等待（即将发生协程切换）
-        await asyncio.wait(
-            [
-                asyncio.create_task(session._free_signal.wait()),
-                asyncio.create_task(session._hup_signal.wait()),
-            ],
-            return_when=asyncio.FIRST_COMPLETED,
-        )
+        _free = asyncio.create_task(session._free_signal.wait())
+        _hup = asyncio.create_task(session._hup_signal.wait())
+        await asyncio.wait([_free, _hup], return_when=asyncio.FIRST_COMPLETED)
+
         if session._hup_signal.is_set():
             cls.DEADLOCK_FLAGS[handler].set()
             await session._free_signal.wait()
+
         """
         重新切换回本协程后，会话 有可能变为过期，但此时一定是空闲的。
         同时一定是非挂起状态。因为上面解决了可能存在的挂起死锁问题。
@@ -403,31 +407,30 @@ class BotSessionManager:
             try:
                 if SESSION_LOCAL._expired:
                     raise BotSessionError(
-                        "当前 会话上下文已有过期标记，无法再执行 action 操作"
+                        "当前会话上下文已有过期标记，无法再执行 action 操作"
                     )
             except LookupError:
                 pass
 
             action: "BotAction" = action_getter(*args, **kwargs)
+
             if cls.BOT_CTX.logger._check_level("DEBUG"):
                 cls.BOT_CTX.logger.debug(
                     f"action {action:hexid} 构建完成（当前会话上下文：{SESSION_LOCAL:hexid}）"
                 )
+
             try:
                 action._fill_trigger(SESSION_LOCAL.event)
             except LookupError:
                 pass
 
-            handle = ActionHandle(
-                action,
-                (
-                    cls.BOT_CTX._responder.take_action
-                    if action.resp_id is None
-                    else cls.BOT_CTX._responder.take_action_wait
-                ),
-                action.resp_id is not None,
-            )
+            exec_meth: AsyncCallable[["BotAction"], asyncio.Future[ActionResponse] | None]
+            if action.resp_id is None:
+                exec_meth = cls.BOT_CTX._responder.take_action
+            else:
+                exec_meth = cls.BOT_CTX._responder.take_action_wait
 
+            handle = ActionHandle(action, exec_meth, action.resp_id is not None)
             if not action._ready:
                 return handle
             else:
@@ -456,14 +459,9 @@ class ActionResponse:
         #: 响应创建的时间
         self.time: int = int(time.time())
 
-        rawEvent = self.raw
-        self.status = rawEvent["retcode"]
-        if "echo" in rawEvent.keys():
-            self.id = rawEvent["echo"]
-        if "data" in rawEvent.keys():
-            self.data = rawEvent["data"]
-        else:
-            self.data = {}
+        self.status = self.raw["retcode"]
+        self.id = self.raw.get("echo")
+        self.data = self.raw.get("data", {})
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
@@ -519,6 +517,7 @@ class ActionHandle:
         """当前行为操作的响应数据，需要异步获取（行为操作函数 `wait` 参数为 :obj:`True` 时使用）"""
         if not self._wait:
             raise BotRuntimeError("行为操作未指定等待，无法获取响应")
+
         await self._resp_done.wait()
         return self._resp
 
@@ -534,8 +533,10 @@ class ActionHandle:
     async def _execute(self) -> None:
         ret = await self._exec_meth(self.action)
         if self._wait:
-            self._resp = await cast(asyncio.Future[ActionResponse], ret)
+            ret = cast(asyncio.Future[ActionResponse], ret)
+            self._resp = await ret
             self._resp_done.set()
+
         self.status = "FINISHED"
 
     def execute(self) -> "ActionHandle":
@@ -545,6 +546,7 @@ class ActionHandle:
         """
         if self.status != "PENDING":
             raise BotRuntimeError("行为操作正在执行或执行完毕，不应该再执行")
+
         self.status = "EXECUTING"
         asyncio.create_task(self._execute())
         return self

@@ -1,8 +1,8 @@
 from ..base.abc import ActionArgs, BotAction, BotEvent
 from ..base.exceptions import BotSessionError, BotValueError, FuncSafeExited
 from ..base.tools import get_id
-from ..base.typing import Any, Literal, MsgNode, MsgSegment, Optional, cast
-from ..models.msg import _to_cq_str_action, reply_msg, text_msg
+from ..base.typing import Literal, MsgNode, MsgSegment, Optional
+from ..models.msg import reply_msg, to_cq_str_action, to_msg_segment
 from .session import SESSION_LOCAL
 from .session import BotSessionManager as SessionManager
 
@@ -72,35 +72,6 @@ class MsgActionArgs(ActionArgs):
             }
 
 
-def _process_msg(content: str | MsgSegment | list[MsgSegment]) -> list[MsgSegment]:
-    """将多种可能的消息格式，统一转换为 cq 消息列表"""
-
-    def verify_segment(obj: Any) -> bool:
-        return (
-            isinstance(obj, dict)
-            and obj.get("type") is not None
-            and isinstance(obj.get("data"), dict)
-        )
-
-    if isinstance(content, str):
-        return [text_msg(content)]
-
-    elif verify_segment(content):
-        return [cast(MsgSegment, content)]
-
-    elif (
-        isinstance(content, list)
-        and len(content) > 0
-        and all(verify_segment(obj) for obj in content)
-    ):
-        return content
-
-    else:
-        raise BotValueError(
-            f"发送的消息内容有误，当前值是：{content}，但需要以下格式之一：字符串、消息段对象、消息段对象的列表（不可为空）"
-        )
-
-
 @SessionManager._handle
 def send_custom(
     content: str | MsgSegment | list[MsgSegment],
@@ -152,15 +123,18 @@ def send_custom(
     """
     if isPrivate and userId is None:
         raise BotValueError("为私聊时，构建发送消息 action 必须提供 userId 参数")
+
     if not isPrivate and groupId is None:
         raise BotValueError("为群聊时，构建发送消息 action 必须提供 groupId 参数")
+
     action = BotAction(
-        MsgActionArgs(_process_msg(content), isPrivate, userId, groupId),
+        MsgActionArgs(to_msg_segment(content), isPrivate, userId, groupId),
         resp_id=get_id() if wait else None,
         ready=auto,
     )
+
     if cq_str:
-        action = _to_cq_str_action(action)
+        action = to_cq_str_action(action)
     return action
 
 
@@ -209,7 +183,7 @@ def send(
         session = SESSION_LOCAL
         action = BotAction(
             MsgActionArgs(
-                _process_msg(content),
+                to_msg_segment(content),
                 session.event.is_private(),
                 session.event.sender.id,
                 session.event.group_id,
@@ -217,9 +191,11 @@ def send(
             resp_id=get_id() if wait else None,
             ready=auto,
         )
+
         if cq_str:
-            action = _to_cq_str_action(action)
+            action = to_cq_str_action(action)
         return action
+
     except LookupError:
         raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
@@ -302,7 +278,7 @@ def send_custom_forward(
         ready=auto,
     )
     if cq_str:
-        action = _to_cq_str_action(action)
+        action = to_cq_str_action(action)
     return action
 
 
@@ -365,9 +341,11 @@ def send_forward(
             resp_id=get_id() if wait else None,
             ready=auto,
         )
+
         if cq_str:
-            action = _to_cq_str_action(action)
+            action = to_cq_str_action(action)
         return action
+
     except LookupError:
         raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
@@ -1523,7 +1501,8 @@ async def send_reply(
         content_arr = [reply_msg(SESSION_LOCAL.event.id)]
     except LookupError:
         raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
-    content_arr.extend(_process_msg(content))
+
+    content_arr.extend(to_msg_segment(content))
     await send(content_arr, cq_str, wait=False, auto=auto)
 
 
@@ -1558,6 +1537,7 @@ async def finish(
         SessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
         raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
+
     raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")
 
 
@@ -1592,10 +1572,12 @@ async def reply_finish(
     except LookupError:
         raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
 
-    content_arr.extend(_process_msg(content))
+    content_arr.extend(to_msg_segment(content))
     await send(content_arr, cq_str)
+
     try:
         SessionManager._expire(SESSION_LOCAL._get_var())
     except LookupError:
         raise BotSessionError("当前会话上下文不存在，因此无法使用本方法")
+
     raise FuncSafeExited("改函数或方法被安全地直接结束，请无视这个异常")

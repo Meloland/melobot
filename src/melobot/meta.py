@@ -4,7 +4,7 @@ from typing import Any
 
 
 class ReadOnly(type):
-    def __new__(cls, name, bases, dic):
+    def __new__(cls, name: str, bases: tuple[type, ...], dic: dict[str, Any]):
         _class = super().__new__(cls, name, bases, dic)
         super().__setattr__(
             _class,
@@ -14,23 +14,22 @@ class ReadOnly(type):
         return _class
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name in self.__cvars__:  # type: ignore[attr-defined]
+        if name in getattr(self, "__cvars__"):
             raise AttributeError(f"{self.__name__} 类的类属性 {name} 是只读的，无法修改")
         return super().__setattr__(name, value)
 
     def __instance_setattr(self, name: str, value: Any) -> None:
         if hasattr(self, name):
-            raise AttributeError(
-                f"{self.__class__.__name__} 类的实例属性 {name} 是只读的，无法修改"
-            )
+            _class = self.__class__.__name__
+            raise AttributeError(f"{_class} 类的实例属性 {name} 是只读的，无法修改")
         super(self.__class__, self).__setattr__(name, value)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.__setattr__ = ReadOnly.__instance_setattr  # type: ignore[assignment]
+        setattr(self, "__setattr__", ReadOnly.__instance_setattr)
         return super().__call__(*args, **kwargs)
 
 
-__version__ = "2.6.2"
+__version__ = "2.6.3"
 
 
 class MetaInfo(metaclass=ReadOnly):
