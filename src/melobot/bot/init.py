@@ -232,7 +232,11 @@ class MeloBot:
                 conn_name = self.connector.__class__.__name__
                 self.logger.debug(f"使用的连接器类型：{conn_name}")
 
-                await self._life_ended.wait()
+                life_tasks = [asyncio.create_task(self._life_ended.wait())]
+                if not self.connector.allow_reconn:
+                    task = asyncio.create_task(self.connector._closed.wait())
+                    life_tasks.append(task)
+                await asyncio.wait(life_tasks, return_when=asyncio.FIRST_COMPLETED)
 
         except Exception as e:
             self.logger.error("bot 核心无法继续运行")
@@ -325,10 +329,11 @@ class MeloBot:
             raise BotRuntimeError("bot 尚未初始化，不能执行此方法")
 
         if self.logger._check_level("DEBUG"):
-            self.logger.debug(
+            msg = (
                 f"bot 信号触发：{namespace}.{signal} | wait: {wait}"
-                f"（当前会话上下文：{SESSION_LOCAL:hexid}），传递参数：args={args}, kwargs={kwargs}"
+                f"（当前会话上下文：{SESSION_LOCAL:hexid}），传递参数"
             )
+            self.logger.obj({"args": args, "kwargs": kwargs}, msg, level="DEBUG")
         return self._plugin_bus.emit(namespace, signal, *args, wait=wait, **kwargs)
 
     def get_share(self, namespace: str, id: str) -> "ShareObject":

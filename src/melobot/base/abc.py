@@ -37,7 +37,7 @@ class AbstractConnector(ABC):
        一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
     """
 
-    def __init__(self, cd_time: float) -> None:
+    def __init__(self, cd_time: float, allow_reconnect: bool = False) -> None:
         super().__init__()
         #: 连接器的日志器
         self.logger: "BotLogger"
@@ -45,9 +45,13 @@ class AbstractConnector(ABC):
         self.slack: bool = False
         #: 连接器发送行为操作的冷却时间
         self.cd_time = cd_time
+        #: 是否允许重新连接
+        self.allow_reconn = allow_reconnect
 
         self._used: bool = False
         self._ready_signal = asyncio.Event()
+        self._closed = asyncio.Event()
+
         self._event_builder: Type["BotEventBuilder"]
         self._bot_bus: "BotHookBus"
         self._common_dispatcher: "BotDispatcher"

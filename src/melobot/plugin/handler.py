@@ -156,7 +156,7 @@ class EventHandler:
         if status:
             self.logger.debug(
                 f"event {event:hexid} 在 handler {self:hexid} 完成预处理，"
-                "即将运行处理函数：{self.executor.__qualname__}"
+                f"即将运行处理函数：{self.executor.__qualname__}"
             )
         if not status:
             return False

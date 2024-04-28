@@ -37,7 +37,7 @@ class ReverseWsConn(AbstractConnector):
         listen_port: int,
         cd_time: float = 0.2,
         access_token: Optional[str] = None,
-        allow_reconnect: bool = False,
+        reconnect: bool = False,
     ) -> None:
         """初始化一个反向 websocket连接器
 
@@ -47,9 +47,9 @@ class ReverseWsConn(AbstractConnector):
         :param listen_port: 监听的 port
         :param cd_time: 行为操作冷却时间（用于防止风控）
         :param access_token: 本连接器用于鉴权的 access_token（建议从环境变量或配置中读取）
-        :param allow_reconnect: 是否允许客户端重新连接。默认为 `False`，即客户端连接后如果断连，将直接停止 bot；若为 `True`，则会等待客户端重连，等待时所有行为操作将阻塞
+        :param reconnect: 是否允许客户端重新连接。默认为 `False`，即客户端连接后如果断连，将直接停止 bot；若为 `True`，则会等待客户端重连，等待时所有行为操作将阻塞
         """
-        super().__init__(cd_time)
+        super().__init__(cd_time, reconnect)
         #: 监听的 host
         self.host: str = listen_host
         #: 监听的 port
@@ -63,13 +63,9 @@ class ReverseWsConn(AbstractConnector):
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_send_time = time.time_ns()
 
-        self._server_close: asyncio.Future[Any]
-
         self._conn_requested = False
         self._request_lock = asyncio.Lock()
         self._conn_ready = asyncio.Event()
-
-        self._allow_reconn = allow_reconnect
         self._reconn_flag = False
 
     async def _req_check(
@@ -103,23 +99,23 @@ class ReverseWsConn(AbstractConnector):
 
     async def _run(self) -> None:
         """运行服务"""
-        self._server_close = asyncio.Future()
+        self._closed.clear()
         self.server = await websockets.serve(
             self._listen, self.host, self.port, process_request=self._req_check
         )
         self.logger.info("连接器启动了 ws 服务，等待 ws 连接中")
 
-        await self._server_close
+        await self._closed.wait()
         self.server.close()
         await self.server.wait_closed()
         self.logger.info("ws 服务已关闭")
 
     def _close(self) -> None:
         """关闭服务"""
-        if self._server_close.done():
+        if self._closed.is_set():
             return
         else:
-            self._server_close.set_result(True)
+            self._closed.set()
 
     def _restore_wait(self) -> None:
         """在客户端主动断开连接后，重置到可以接受新连接的状态"""
@@ -174,7 +170,6 @@ class ReverseWsConn(AbstractConnector):
 
                 action_str = action.flatten()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
-                self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
 
                 await self._conn.send(action_str)
@@ -212,9 +207,6 @@ class ReverseWsConn(AbstractConnector):
                         continue
 
                     event = self._event_builder.try_build(raw)
-                    if self.logger._check_level("DEBUG") and event is not None:
-                        self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
-
                     if event is None:
                         resp = ActionResponse(raw)
                         asyncio.create_task(self._resp_dispatcher.respond(resp))
@@ -244,10 +236,10 @@ class ReverseWsConn(AbstractConnector):
 
         finally:
             self._conn.close_timeout = 2
-            if self._server_close.done():
+            if self._closed.is_set():
                 return
 
-            if not self._allow_reconn:
+            if not self.allow_reconn:
                 self._close()
             else:
                 self._restore_wait()

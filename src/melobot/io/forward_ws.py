@@ -34,7 +34,7 @@ class ForwardWsConn(AbstractConnector):
         retry_delay: float = 4.0,
         cd_time: float = 0.2,
         access_token: Optional[str] = None,
-        allow_reconnect: bool = False,
+        reconnect: bool = False,
     ) -> None:
         """初始化一个正向 websocket 连接器
 
@@ -46,9 +46,9 @@ class ForwardWsConn(AbstractConnector):
         :param retry_delay: 连接重试间隔时间
         :param cd_time: 行为操作冷却时间（用于防止风控）
         :param access_token: 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）
-        :param allow_reconnect: 建立连接失败是否重连。默认为 `False`，即服务端断线直接停止 bot；若为 `True`，则会按照 `max_retry`, `retry_delay` 不断尝试重连，重连成功前时所有行为操作将阻塞。
+        :param reconnect: 建立连接失败是否重连。默认为 `False`，即服务端断线直接停止 bot；若为 `True`，则会按照 `max_retry`, `retry_delay` 不断尝试重连，重连成功前时所有行为操作将阻塞。
         """
-        super().__init__(cd_time)
+        super().__init__(cd_time, reconnect)
         #: 连接失败最大重试次数
         self.max_retry: int = max_retry
         #: 连接失败重试间隔
@@ -63,12 +63,8 @@ class ForwardWsConn(AbstractConnector):
         self._send_queue: asyncio.Queue["BotAction"] = asyncio.Queue()
         self._pre_send_time = time.time_ns()
 
-        self._client_close: asyncio.Future[Any]
         self._conn_ready = asyncio.Event()
-
-        self._allow_reconn = allow_reconnect
         self._reconn_flag = False
-
         self._run_lock = asyncio.Lock()
 
     async def _run(self) -> None:
@@ -78,7 +74,7 @@ class ForwardWsConn(AbstractConnector):
             headers = {"Authorization": f"Bearer {self.access_token}"}
 
         async with self._run_lock:
-            self._client_close = asyncio.Future()
+            self._closed.clear()
             ok_flag = False
             retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
 
@@ -103,25 +99,25 @@ class ForwardWsConn(AbstractConnector):
                 self.logger.info("连接器与 OneBot 实现程序建立了 ws 连接")
                 self._conn_ready.set()
                 asyncio.create_task(self._listen())
-                await self._client_close
+                await self._closed.wait()
             finally:
                 if self.conn is not None:
                     await self.conn.close()
                     await self.conn.wait_closed()
-                    self.logger.info("ws 客户端连接已关闭")
+                    self.logger.info("与 OneBot 实现程序的连接已关闭")
 
     def _close(self) -> None:
         """关闭连接"""
-        if self._client_close.done():
+        if self._closed.is_set():
             return
         else:
-            self._allow_reconn = False
-            self._client_close.set_result(True)
+            self.allow_reconn = False
+            self._closed.set()
 
     async def _reconnect(self) -> None:
         """关闭已经无效的连接，随后开始尝试建立新连接"""
         self._conn_ready.clear()
-        self._client_close.set_result(True)
+        self._closed.set()
         self._reconn_flag = True
         asyncio.create_task(self._run())
 
@@ -170,7 +166,6 @@ class ForwardWsConn(AbstractConnector):
 
                 action_str = action.flatten()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
-                self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
 
                 self.conn = cast("websockets.client.WebSocketClientProtocol", self.conn)
@@ -209,9 +204,6 @@ class ForwardWsConn(AbstractConnector):
                         continue
 
                     event = self._event_builder.try_build(raw)
-                    if self.logger._check_level("DEBUG") and event is not None:
-                        self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
-
                     if event is None:
                         resp = ActionResponse(raw)
                         asyncio.create_task(self._resp_dispatcher.respond(resp))
@@ -242,10 +234,10 @@ class ForwardWsConn(AbstractConnector):
         finally:
             self.conn = cast("websockets.client.WebSocketClientProtocol", self.conn)
             self.conn.close_timeout = 2
-            if self._client_close.done():
+            if self._closed.is_set():
                 return
 
-            if not self._allow_reconn:
+            if not self.allow_reconn:
                 self._close()
             else:
                 await self._reconnect()

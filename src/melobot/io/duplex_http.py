@@ -40,7 +40,7 @@ class HttpConn(AbstractConnector):
         secret: Optional[str] = None,
         access_token: Optional[str] = None,
         cd_time: float = 0.2,
-        allow_reconnect: bool = False,
+        reconnect: bool = False,
         max_interval: Optional[float] = None,
     ) -> None:
         """初始化一个 HTTP 全双工连接器
@@ -60,10 +60,10 @@ class HttpConn(AbstractConnector):
         :param secret: onebot 实现程序上报鉴权的 secret（建议从环境变量或配置中读取）
         :param access_token: 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）
         :param cd_time: 行为操作冷却时间（用于防止风控）
-        :param allow_reconnect: 是否等待 OneBot 实现程序重新上线。默认为 `False`，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 `True`，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞
+        :param reconnect: 是否等待 OneBot 实现程序重新上线。默认为 `False`，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 `True`，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞
         :param max_interval: 等待 OneBot 实现程序上报的超时时间。超过此时间无任何上报，则认为已经掉线（默认值为 `None`，此时不启用此功能）
         """
-        super().__init__(cd_time)
+        super().__init__(cd_time, reconnect)
         #: onebot 实现程序提供服务的 base_url（形如：http://xxx:xxx）
         self.onebot_url = f"http://{onebot_host}:{onebot_port}"
         #: 本连接器服务端的 host
@@ -85,11 +85,8 @@ class HttpConn(AbstractConnector):
         self._pre_recv_time = time.time_ns()
         self._pre_send_time = time.time_ns()
 
-        self._closed = asyncio.Event()
         self._close_lock = asyncio.Lock()
         self._onebot_onlined = asyncio.Event()
-
-        self._allow_reconn = allow_reconnect
         self._connected_flag = False
 
     async def _start(self) -> None:
@@ -134,6 +131,10 @@ class HttpConn(AbstractConnector):
                 if (abs(time.time_ns() - self._pre_recv_time)) / 1e9 > interval:
                     self.logger.warning("OneBot 实现程序已掉线，等待它重新上线中")
                     self._onebot_onlined.clear()
+
+                    if not self.allow_reconn:
+                        await self._close()
+                        return
                     await self._onebot_onlined.wait()
 
                 await asyncio.sleep(interval)
@@ -186,9 +187,6 @@ class HttpConn(AbstractConnector):
                 self.logger.obj(raw_event, "收到上报，未格式化的字典")
 
             event = self._event_builder.try_build(raw_event)
-            if self.logger._check_level("DEBUG") and event is not None:
-                self.logger.obj(event.raw, f"event {event:hexid} 构建完成")
-
             event = cast(
                 Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
                 event,
@@ -235,7 +233,7 @@ class HttpConn(AbstractConnector):
             asyncio.create_task(self._resp_dispatcher.respond(resp))
 
         except (RuntimeError, ClientConnectorError):
-            if not self._allow_reconn:
+            if not self.allow_reconn:
                 self.logger.error("OneBot 实现程序已掉线，无法再执行行为操作")
                 await self._close()
             else:
@@ -265,9 +263,7 @@ class HttpConn(AbstractConnector):
                 self.logger.debug(f"action {action:hexid} presend hook 已完成")
 
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
-                self.logger.debug(f"action {action:hexid} 冷却等待：{wait_time}")
                 await asyncio.sleep(wait_time)
-
                 asyncio.create_task(self._take_action(action))
                 self.logger.debug(f"action {action:hexid} 已发送")
                 self._pre_send_time = time.time_ns()
