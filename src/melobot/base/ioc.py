@@ -20,15 +20,6 @@ class PendingDepend(Generic[T]):
             return cast(T, res)
 
 
-def get_default_args(func) -> dict[str, Any]:
-    signature = inspect.signature(func)
-    return {
-        k: v.default
-        for k, v in signature.parameters.items()
-        if v.default is not inspect.Parameter.empty
-    }
-
-
 class DependManager:
     """依赖注入器"""
 
@@ -37,12 +28,28 @@ class DependManager:
 
         @wraps(func)
         async def depend_wrapped(*args: Any, **kwargs: Any) -> T:
-            defaults = get_default_args(func)
-            for k, v in defaults.items():
-                if isinstance(v, PendingDepend) and kwargs.get(k) is None:
-                    defaults[k] = await v.get()
+            signature = inspect.signature(func)
+            all_params = {k: v for k, v in signature.parameters.items()}
+            _args = list(args)
+            defaults = {}
 
-            _kwargs = defaults | kwargs
-            return await async_guard(func, *args, **_kwargs)
+            for idx, _ in enumerate(_args):
+                v = _args[idx]
+                if isinstance(v, PendingDepend):
+                    _args[idx] = await v.get()
+
+            for idx, k in enumerate(kwargs.keys()):
+                v = kwargs[k]
+                if isinstance(v, PendingDepend):
+                    kwargs[k] = await v.get()
+
+            for idx, (k, v) in enumerate(all_params.items()):
+                if idx < len(_args) or k in kwargs:
+                    continue
+                if isinstance(v.default, PendingDepend):
+                    defaults[k] = await v.default.get()
+
+            _kwargs = kwargs | defaults
+            return await async_guard(func, *_args, **_kwargs)
 
         return depend_wrapped
