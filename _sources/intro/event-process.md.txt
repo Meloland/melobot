@@ -12,8 +12,8 @@
 本文档将这些方法称为“绑定方法”，同时将绑定方法绑定的函数称为：“处理方法”或“处理函数”。
 
 - 绑定一个任意事件的处理方法：{meth}`~.BotPlugin.on_event`
-- 绑定一个消息事件的处理方法：{meth}`~.BotPlugin.on_message`、{meth}`~.BotPlugin.on_at_qq`、{meth}`~.BotPlugin.on_start_match`、{meth}`~.BotPlugin.on_contain_match`、{meth}`~.BotPlugin.on_full_match`、{meth}`~.BotPlugin.on_end_match`、{meth}`~.BotPlugin.on_regex_match`
-- 绑定一个请求事件的处理方法：{meth}`~.BotPlugin.on_request`、{meth}`~.BotPlugin.on_friend_request`、{meth}`~.BotPlugin.on_group_request`
+- 绑定一个消息事件的处理方法：{meth}`~.BotPlugin.on_message`、{meth}`~.BotPlugin.on_at_qq`、{meth}`~.BotPlugin.on_command`、{meth}`~.BotPlugin.on_start_match`、{meth}`~.BotPlugin.on_contain_match`、{meth}`~.BotPlugin.on_full_match`、{meth}`~.BotPlugin.on_end_match`、{meth}`~.BotPlugin.on_regex_match`
+- 绑定一个请求事件的处理方法：{meth}`~.BotPlugin.on_request`
 - 绑定一个通知事件的处理方法：{meth}`~.BotPlugin.on_notice`
 - 绑定一个元事件的处理方法：{meth}`~.BotPlugin.on_meta_event`
 
