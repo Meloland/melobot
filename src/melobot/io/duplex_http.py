@@ -168,7 +168,7 @@ class HttpConn(AbstractConnector):
 
             if sign != recv_sign:
                 self.logger.error("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
-                self.logger.obj(data, "试图上报的数据：", level="ERROR")
+                self.logger.obj(data, "试图上报的数据", level="ERROR")
                 return
 
         self._pre_recv_time = time.time_ns()
@@ -244,8 +244,7 @@ class HttpConn(AbstractConnector):
             self.logger.error("连接器无法解析上报数据。可能是 access_token 未配置或错误")
 
         except Exception as e:
-            self.logger.error("bot 连接器发送任务抛出预期外的异常：")
-            self.logger.exc(locals=locals())
+            self.logger.exc("bot 连接器发送任务抛出预期外的异常", locals=locals())
 
     async def _watch_queue(self) -> None:
         """真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作"""

@@ -238,11 +238,12 @@ class MeloBot:
                     life_tasks.append(task)
                 await asyncio.wait(life_tasks, return_when=asyncio.FIRST_COMPLETED)
 
-        except Exception as e:
-            self.logger.error("bot 核心无法继续运行")
-            self.logger.exc(locals=locals())
+        except BaseException as e:
+            self.logger.exc("bot 核心无法继续运行，原因：", e, locals=locals())
 
         finally:
+            if not self._life_ended.is_set():
+                self._life_ended.set()
             await self._bot_bus.emit(BotLife.BEFORE_STOP, wait=True)
             self.logger.debug("BEFORE_STOP hook 已完成")
             self.logger.info("bot 已清理运行时资源")

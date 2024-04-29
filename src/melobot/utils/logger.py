@@ -41,7 +41,7 @@ _EXC_FORMATTER = ExceptionFormatter(colored=True)
 _NO_COLOR_EXC_FORMATTER = ExceptionFormatter(colored=False)
 
 
-def _get_fmtted_exc(e: Exception) -> str:
+def _get_fmtted_exc(e: BaseException) -> str:
     """返回生成更好的异常字符串"""
     return "".join(
         _NO_COLOR_EXC_FORMATTER.format_exception(e.__class__, e, e.__traceback__)
@@ -261,7 +261,7 @@ class BotLogger(Logger):
     def exc(
         self,
         prefix: str = "出现异常：",
-        e: Optional[Exception] = None,
+        e: Optional[BaseException] = None,
         locals: Optional[dict[str, Any]] = None,
     ) -> None:
         """更好的用于记录异常的方法
@@ -276,7 +276,7 @@ class BotLogger(Logger):
         if hasattr(self, "exception"):
             self.exception(f"{prefix}{exc_str}")
         else:
-            fmt_exc = _get_fmtted_exc(cast(Exception, _exc))
+            fmt_exc = _get_fmtted_exc(cast(BaseException, _exc))
             self.error(f"{prefix}{exc_str}\n{fmt_exc}")
 
         if locals is not None:

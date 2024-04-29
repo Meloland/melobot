@@ -6,8 +6,7 @@ import websockets
 from websockets.exceptions import ConnectionClosed
 
 from ..base.abc import AbstractConnector, BotLife
-from ..base.exceptions import BotRuntimeError
-from ..base.typing import TYPE_CHECKING, Any, Optional, TracebackType, Type, Union, cast
+from ..base.typing import TYPE_CHECKING, Optional, TracebackType, Type, Union, cast
 from ..context.session import ActionResponse
 
 if TYPE_CHECKING:
@@ -77,8 +76,14 @@ class ForwardWsConn(AbstractConnector):
             self._closed.clear()
             ok_flag = False
             retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
+            first_try = True
 
             for _ in retry_iter:
+                if first_try:
+                    first_try = False
+                else:
+                    await asyncio.sleep(self.retry_delay)
+
                 try:
                     self.conn = await websockets.connect(self.url, extra_headers=headers)
                     ok_flag = True
@@ -90,10 +95,13 @@ class ForwardWsConn(AbstractConnector):
                     )
                     if "403" in str(e):
                         self.logger.warning("403 错误可能是 access_token 未配置或无效")
-                    await asyncio.sleep(self.retry_delay)
 
             if not ok_flag:
-                raise BotRuntimeError("连接重试已达最大重试次数，已放弃建立连接")
+                self.logger.error("重试已达最大次数，已放弃建立连接")
+                self._close()
+                for task in asyncio.all_tasks():
+                    task.cancel()
+                return
 
             try:
                 self.logger.info("连接器与 OneBot 实现程序建立了 ws 连接")
