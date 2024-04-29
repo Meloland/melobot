@@ -162,7 +162,7 @@ async def _():
 from melobot.context import custom_action
 
 # 因为有参数 wait 和 auto，因此可以等待
-action = custom_action(
+handle = custom_action(
     type="custom_type", 
     params={"param1": 123, "param2": "12345"}, 
     wait=True
