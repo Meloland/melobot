@@ -3,8 +3,8 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="开始使用" href="intro/index.html" />
-        <link rel="canonical" href="/melobot/index.html" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="下一代 melobot" href="melobot-next.html" /><link rel="prev" title="事件预处理" href="references/preprocess.html" />
+        <link rel="canonical" href="/melobot/melobot-prev.html" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
-        <title>melobot 2.6.4</title>
+        <title>上一代 melobot - melobot 2.6.4</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -135,7 +135,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">melobot 2.6.4</div></a>
+      <a href="index.html"><div class="brand">melobot 2.6.4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -155,7 +155,7 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   <div class="sidebar-logo-container">
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
@@ -200,8 +200,8 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="melobot-prev.html">上一代 melobot</a></li>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">上一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="melobot-next.html">下一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prompt.html">melobot 形象</a></li>
 </ul>
@@ -224,7 +224,7 @@
         </a>
         <div class="content-icon-container">
           <div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/index.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/melobot-prev.md" title="Edit this page">
     <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
       <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
@@ -240,70 +240,19 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="melobot">
-<h1>melobot 文档<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
-<section id="id1">
-<h2>🎉 简介<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>melobot 是基于 Python 的机器人开发框架。目前开发版本号为 v2，只适用于搭建 qq 机器人，v3 仍在开发中。</p>
-<p>melobot v2 以<strong>Onebot 标准的实现程序</strong>作为前端，通过对来自“前端”的各种“事件”的处理，产生“行为”提交给“前端”，让“前端”与 qq 服务器交互，从而实现各种复杂的功能。</p>
-</section>
-<section id="id2">
-<h2>✨ 特色<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>为什么选择 melobot？因为 melobot 更<strong>自由、优雅和强大</strong>：</p>
-<ul class="simple">
-<li><p>异步性能：基于 asyncio，但使用性能更优秀的事件循环策略：<a class="reference external" href="https://github.com/MagicStack/uvloop">uvloop</a>/<a class="reference external" href="https://github.com/Vizonex/Winloop">winloop</a></p></li>
-<li><p>插件管理：更低耦合度的插件加载与通信</p></li>
-<li><p>会话控制：自动传递的、可自定义的会话</p></li>
-<li><p>预处理流程：可传播会话信息的、灵活的、可自定义的事件预处理</p></li>
-<li><p>生命周期控制：支持 bot 生命周期 hook</p></li>
-<li><p>多实例协同：多 bot 实例运行，跨实例通信</p></li>
-<li><p>异步接口：常用异步逻辑的封装，使各种业务逻辑更简洁</p></li>
-<li><p>日志支持：日志记录兼容标准库和绝大多数日志框架</p></li>
-</ul>
-<p>使用本框架的机器人项目如下：</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/aicorein/meloinf">MeloInf</a></p></li>
-</ul>
-<p>你可以将这些项目作为 melobot 使用的实例参考。欢迎你基于 melobot 实现完整的机器人项目后，向本文档提出 PR，在此处展示。</p>
-</section>
-<section id="id3">
-<h2>💬 文档<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>项目文档：<a class="reference external" href="https://docs.melobot.org">melobot 文档</a></p>
-<p>对于文档可能出现的纰漏，恳请各位包涵。欢迎提出修正和优化文档的 PR：<a class="reference external" href="https://github.com/Meloland/melobot/tree/main/docs/source">文档源文件</a></p>
-</section>
-<section id="id4">
-<h2>📦️ 安装使用<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p>通过 <code class="docutils literal notranslate"><span class="pre">pip</span></code> 命令安装：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>melobot
-</pre></div>
-</div>
-<p>或从源码构建：</p>
-<p>本项目通过 pdm 管理，你首先需要安装 <a class="reference external" href="https://pdm-project.org/latest/#installation">pdm</a>。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 随后在本项目根目录：</span>
-pdm<span class="w"> </span>install
-pdm<span class="w"> </span>build
-</pre></div>
-</div>
-<p>之后可在 <code class="docutils literal notranslate"><span class="pre">.pdm-build</span></code> 目录获取本地构建，pip 本地安装即可。提示：首次运行 pdm 需要初始化虚拟环境，请参照 pdm 文档操作。</p>
-</section>
-<section id="id5">
-<h2>🪄 版本特性<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>python 版本需要 <code class="docutils literal notranslate"><span class="pre">&gt;=3.10</span></code></p></li>
-<li><p>可跨平台使用</p></li>
-<li><p>通信标准：<a class="reference external" href="https://github.com/botuniverse/onebot-11">OneBot v11</a></p></li>
-</ul>
-</section>
+<h1>上一代 melobot<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h1>
+<p>melobot 上一代版本（即 melobot v1），本质上只是一个 qq 机器人程序。它以异步支持和模板扩展为主要特色，实现了对 qq 消息事件的监听和简单处理。</p>
+<p><strong>v1 版本现已完全停止维护</strong>，不建议继续使用。如果您对 v1 感兴趣，可以看看这些：</p>
+<p>v1 源代码：<a class="reference external" href="https://github.com/Meloland/melobot/tree/386b531904829ed5603d491656567f5a22fa32bf">commit/386b531</a></p>
+<p>v1 文档仓库：<a class="reference external" href="https://github.com/aicorein/Qbot-MeloBot-docs">aicorein/Qbot-MeloBot-docs</a></p>
+<p>v1 文档地址：<a class="reference external" href="https://aicorein.github.io/Qbot-MeloBot-docs/">Qbot-MeloBot-docs</a></p>
 </section>
 
         </article>
@@ -311,16 +260,26 @@ pdm<span class="w"> </span>build
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="intro/index.html">
+          <a class="next-page" href="melobot-next.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">开始使用</div>
+                <div class="title">下一代 melobot</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          
+          <a class="prev-page" href="references/preprocess.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">事件预处理</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -346,31 +305,8 @@ pdm<span class="w"> </span>build
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">melobot 文档</a><ul>
-<li><a class="reference internal" href="#id1">🎉 简介</a></li>
-<li><a class="reference internal" href="#id2">✨ 特色</a></li>
-<li><a class="reference internal" href="#id3">💬 文档</a></li>
-<li><a class="reference internal" href="#id4">📦️ 安装使用</a></li>
-<li><a class="reference internal" href="#id5">🪄 版本特性</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

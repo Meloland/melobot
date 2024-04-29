@@ -200,6 +200,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../melobot-prev.html">上一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../melobot-next.html">下一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../prompt.html">melobot 形象</a></li>
 </ul>
@@ -411,7 +412,7 @@
 
             <span class="k">if</span> <span class="n">sign</span> <span class="o">!=</span> <span class="n">recv_sign</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;OneBot 实现程序鉴权不通过，本次上报数据将不会被处理&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">obj</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;试图上报的数据：&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">obj</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;试图上报的数据&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pre_recv_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span>
@@ -487,8 +488,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;连接器无法解析上报数据。可能是 access_token 未配置或错误&quot;</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;bot 连接器发送任务抛出预期外的异常：&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exc</span><span class="p">(</span><span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exc</span><span class="p">(</span><span class="s2">&quot;bot 连接器发送任务抛出预期外的异常&quot;</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span><span class="p">())</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_watch_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;真正的发送方法。从 send_queue 提取 action 并按照一些处理步骤操作&quot;&quot;&quot;</span>

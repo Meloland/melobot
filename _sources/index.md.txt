@@ -14,6 +14,7 @@ references/index
 :caption: 更多
 :hidden:
 
+melobot-prev
 melobot-next
 prompt
 ```

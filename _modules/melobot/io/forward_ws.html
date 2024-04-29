@@ -200,6 +200,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../melobot-prev.html">上一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../melobot-next.html">下一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../prompt.html">melobot 形象</a></li>
 </ul>
@@ -244,8 +245,7 @@
 <span class="kn">from</span> <span class="nn">websockets.exceptions</span> <span class="kn">import</span> <span class="n">ConnectionClosed</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">AbstractConnector</span><span class="p">,</span> <span class="n">BotLife</span>
-<span class="kn">from</span> <span class="nn">..base.exceptions</span> <span class="kn">import</span> <span class="n">BotRuntimeError</span>
-<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TracebackType</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">..base.typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TracebackType</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 <span class="kn">from</span> <span class="nn">..context.session</span> <span class="kn">import</span> <span class="n">ActionResponse</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -320,8 +320,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
             <span class="n">ok_flag</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">retry_iter</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retry</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retry</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">first_try</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">retry_iter</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">first_try</span><span class="p">:</span>
+                    <span class="n">first_try</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">retry_delay</span><span class="p">)</span>
+
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="k">await</span> <span class="n">websockets</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">extra_headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
                     <span class="n">ok_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -333,10 +339,13 @@
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="s2">&quot;403&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;403 错误可能是 access_token 未配置或无效&quot;</span><span class="p">)</span>
-                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">retry_delay</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ok_flag</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">BotRuntimeError</span><span class="p">(</span><span class="s2">&quot;连接重试已达最大重试次数，已放弃建立连接&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;重试已达最大次数，已放弃建立连接&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">all_tasks</span><span class="p">():</span>
+                    <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+                <span class="k">return</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;连接器与 OneBot 实现程序建立了 ws 连接&quot;</span><span class="p">)</span>

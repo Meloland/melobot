@@ -201,6 +201,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">上一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../melobot-next.html">下一代 melobot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../prompt.html">melobot 形象</a></li>
 </ul>
@@ -383,7 +384,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">custom_action</span>
 
 <span class="c1"># 因为有参数 wait 和 auto，因此可以等待</span>
-<span class="n">action</span> <span class="o">=</span> <span class="n">custom_action</span><span class="p">(</span>
+<span class="n">handle</span> <span class="o">=</span> <span class="n">custom_action</span><span class="p">(</span>
     <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;custom_type&quot;</span><span class="p">,</span> 
     <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="s2">&quot;12345&quot;</span><span class="p">},</span> 
     <span class="n">wait</span><span class="o">=</span><span class="kc">True</span>
