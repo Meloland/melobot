@@ -447,9 +447,6 @@
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">_check_level</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">obj</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="s2">&quot;收到上报，未格式化的字符串&quot;</span><span class="p">)</span>
 
-                    <span class="k">if</span> <span class="n">raw</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-                        <span class="k">continue</span>
-
                     <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_builder</span><span class="o">.</span><span class="n">try_build</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">resp</span> <span class="o">=</span> <span class="n">ActionResponse</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
