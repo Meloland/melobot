@@ -208,9 +208,6 @@ class ForwardWsConn(AbstractConnector):
                     if self.logger._check_level("DEBUG"):
                         self.logger.obj(raw, "收到上报，未格式化的字符串")
 
-                    if raw == "":
-                        continue
-
                     event = self._event_builder.try_build(raw)
                     if event is None:
                         resp = ActionResponse(raw)
