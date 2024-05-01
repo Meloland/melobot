@@ -254,7 +254,8 @@ class MsgEventHandler(EventHandler):
         if self.matcher is not None:
             _match = self.matcher.match(event.text)
             status = await self._run_on_ctx(_match, session)
-            return status, session
+            if not status:
+                return False, session
 
         if self.parser is not None:
             _parse = self.parser.parse(event.text)

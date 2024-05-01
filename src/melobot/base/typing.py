@@ -187,5 +187,5 @@ async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) ->
     if inspect.isawaitable(await_obj):
         return await await_obj
     raise BotValidateError(
-        f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象），因为它的返回结果 {await_obj} 不可异步等待"
+        f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}"
     )
