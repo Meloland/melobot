@@ -26,6 +26,7 @@ from ..base.typing import (
     T,
     Union,
 )
+from ..context.session import SessionOption
 from ..meta import ReadOnly
 from ..utils.checker import AtMsgChecker
 from ..utils.matcher import (
@@ -230,11 +231,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个任意事件处理方法
 
@@ -242,26 +239,11 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self._on_event(
             AllEventHandler,
-            params=[
-                checker,
-                priority,
-                block,
-                temp,
-                session_rule,
-                session_hold,
-                direct_rouse,
-                conflict_wait,
-                conflict_cb,
-                conflict_cb,
-            ],
+            params=[checker, priority, block, temp, option],
         )
 
     def on_message(
@@ -272,11 +254,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个消息事件处理方法
 
@@ -286,27 +264,11 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self._on_event(
             MsgEventHandler,
-            params=[
-                matcher,
-                parser,
-                checker,
-                priority,
-                block,
-                temp,
-                session_rule,
-                session_hold,
-                direct_rouse,
-                conflict_wait,
-                conflict_cb,
-            ],
+            params=[matcher, parser, checker, priority, block, temp, option],
         )
 
     def on_at_qq(
@@ -318,11 +280,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个艾特消息事件处理方法
 
@@ -335,25 +293,10 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
-        return self.on_message(
-            matcher,
-            parser,
-            AtMsgChecker(qid) if checker is None else AtMsgChecker(qid) & checker,
-            priority,
-            block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
-        )
+        checker = AtMsgChecker(qid) if checker is None else AtMsgChecker(qid) & checker
+        return self.on_message(matcher, parser, checker, priority, block, temp, option)
 
     def on_command(
         self,
@@ -365,11 +308,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个消息事件处理方法
 
@@ -387,25 +326,10 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
-        return self.on_message(
-            None,
-            CmdParser(cmd_start, cmd_sep, targets, formatters),
-            checker,
-            priority,
-            block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
-        )
+        parser = CmdParser(cmd_start, cmd_sep, targets, formatters)
+        return self.on_message(None, parser, checker, priority, block, temp, option)
 
     def on_start_match(
         self,
@@ -415,11 +339,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个字符串起始匹配的消息事件处理方法
 
@@ -435,24 +355,10 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self.on_message(
-            StartMatcher(target, logic_mode),
-            None,
-            checker,
-            priority,
-            block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            StartMatcher(target, logic_mode), None, checker, priority, block, temp, option
         )
 
     def on_contain_match(
@@ -463,11 +369,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个字符串包含匹配的消息事件处理方法
 
@@ -483,25 +385,10 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
-        return self.on_message(
-            ContainMatcher(target, logic_mode),
-            None,
-            checker,
-            priority,
-            block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
-        )
+        matcher = ContainMatcher(target, logic_mode)
+        return self.on_message(matcher, None, checker, priority, block, temp, option)
 
     def on_full_match(
         self,
@@ -511,11 +398,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个字符串全匹配的消息事件处理方法
 
@@ -531,24 +414,10 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self.on_message(
-            FullMatcher(target, logic_mode),
-            None,
-            checker,
-            priority,
-            block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            FullMatcher(target, logic_mode), None, checker, priority, block, temp, option
         )
 
     def on_end_match(
@@ -559,11 +428,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个字符串结尾匹配的消息事件处理方法
 
@@ -579,24 +444,10 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self.on_message(
-            EndMatcher(target, logic_mode),
-            None,
-            checker,
-            priority,
-            block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            EndMatcher(target, logic_mode), None, checker, priority, block, temp, option
         )
 
     def on_regex_match(
@@ -606,11 +457,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个字符串正则匹配的消息事件处理方法
 
@@ -621,24 +468,10 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self.on_message(
-            RegexMatcher(target),
-            None,
-            checker,
-            priority,
-            block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            RegexMatcher(target), None, checker, priority, block, temp, option
         )
 
     def on_request(
@@ -647,11 +480,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个请求事件处理方法
 
@@ -659,25 +488,11 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self._on_event(
             ReqEventHandler,
-            params=[
-                checker,
-                priority,
-                block,
-                temp,
-                session_rule,
-                session_hold,
-                direct_rouse,
-                conflict_wait,
-                conflict_cb,
-            ],
+            params=[checker, priority, block, temp, option],
         )
 
     def on_notice(
@@ -686,11 +501,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个通知事件处理方法
 
@@ -699,25 +510,11 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self._on_event(
             NoticeEventHandler,
-            params=[
-                checker,
-                priority,
-                block,
-                temp,
-                session_rule,
-                session_hold,
-                direct_rouse,
-                conflict_wait,
-                conflict_cb,
-            ],
+            params=[checker, priority, block, temp, option],
         )
 
     def on_meta_event(
@@ -726,11 +523,7 @@ class BotPlugin:
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ):
         """绑定一个元事件处理方法
 
@@ -738,25 +531,11 @@ class BotPlugin:
         :param priority: 优先级
         :param block: 是否进行优先级阻断
         :param temp: 是否是一次性的
-        :param session_rule: 会话规则，为空则不使用会话规则
-        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）
-        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）
-        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）
-        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）
+        :param option: 会话选项（用于指定会话的工作方式）
         """
         return self._on_event(
             MetaEventHandler,
-            params=[
-                checker,
-                priority,
-                block,
-                temp,
-                session_rule,
-                session_hold,
-                direct_rouse,
-                conflict_wait,
-                conflict_cb,
-            ],
+            params=[checker, priority, block, temp, option],
         )
 
     def on_signal(self, signal: str, namespace: Optional[str] = None):

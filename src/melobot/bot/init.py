@@ -14,7 +14,8 @@ from ..base.typing import (
     Void,
     cast,
 )
-from ..context.session import SESSION_LOCAL, BotSessionManager
+from ..context.manage import BotSessionManager
+from ..context.session import SESSION_LOCAL
 from ..controller.dispatcher import BotDispatcher
 from ..controller.responder import BotResponder
 from ..meta import MetaInfo
@@ -174,12 +175,15 @@ class MeloBot:
             handler = _.type(_.executor, plugin, self.logger, *_.params)
             self._ctx_manager.register(handler)
             handlers.append(handler)
+
         for _ in plugin.__share_args__:
             self._plugin_store.create_so(_.reflector, _.namespace, _.id)
         for _ in plugin.__share_cb_args__:
             self._plugin_store.bind_cb(_.namespace, _.id, _.cb)
+
         for _ in plugin.__signal_args__:
             self._plugin_bus.register(_.namespace, _.signal, _.func)
+
         for _ in plugin.__hook_args__:
             self._bot_bus.register(_.type, _.func)
 

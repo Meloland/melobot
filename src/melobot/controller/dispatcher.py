@@ -63,8 +63,10 @@ class BotDispatcher:
                 if handler.priority < permit_priority:
                     continue
 
-                if handler._direct_rouse and (
-                    await self._ctx_manager.try_attach(event, handler)
+                if (
+                    handler._rule is not None
+                    and handler._direct_rouse
+                    and (await self._ctx_manager.try_attach(event, handler))
                 ):
                     if handler.set_block and handler.priority > permit_priority:
                         permit_priority = handler.priority

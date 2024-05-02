@@ -1,8 +1,5 @@
 from .action import *
-from .session import (
-    ActionHandle,
-    ActionResponse,
-    AttrSessionRule,
+from .manage import (
     any_event,
     dispose,
     meta_event,
@@ -14,6 +11,7 @@ from .session import (
     req_event,
     session_store,
 )
+from .session import ActionHandle, ActionResponse, SessionOption
 
 __all__ = (
     "ActionResponse",
@@ -55,7 +53,7 @@ __all__ = (
     "send_reply",
     "finish",
     "reply_finish",
-    "AttrSessionRule",
+    "SessionOption",
     "any_event",
     "session_store",
     "meta_event",

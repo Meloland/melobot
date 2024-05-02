@@ -15,11 +15,12 @@ from ..base.typing import (
     Union,
     cast,
 )
-from ..context.session import SESSION_LOCAL, BotSessionManager, any_event
+from ..context.manage import BotSessionManager, any_event
+from ..context.session import SESSION_LOCAL, SessionOption, SessionRule
 from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 if TYPE_CHECKING:
-    from ..base.abc import BotChecker, BotMatcher, SessionRule
+    from ..base.abc import BotChecker, BotMatcher
     from ..context.session import BotSession
     from ..utils.logger import BotLogger
     from .init import BotPlugin
@@ -35,11 +36,7 @@ class EventHandler:
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ) -> None:
         super().__init__()
         self.is_valid = True
@@ -53,14 +50,26 @@ class EventHandler:
         self._plugin = plugin
         self._run_lock = asyncio.Lock()
 
-        self._rule = session_rule
-        self._hold = session_hold
-        self._direct_rouse = direct_rouse
-        self._conflict_cb = conflict_cb
-        self._wait_flag = conflict_wait
+        if option is None:
+            self._rule = None
+            self._hold = False
+            self._direct_rouse = True
+            self._conflict_cb = None
+            self._wait_flag = True
+        else:
+            if isinstance(option.rule, SessionRule):
+                self._rule = option.rule
+            else:
+                self._rule = SessionRule.get_new_rule(option.rule)
+            self._hold = option.hold
+            self._direct_rouse = option.second_pass
+            self._conflict_cb = option.conflict_cb
+            self._wait_flag = option.conflict_wait
 
-        if conflict_wait and conflict_cb:
-            raise BotValueError("参数 conflict_wait 为 True 时，冲突回调永远不会被调用")
+        if self._wait_flag and self._conflict_cb:
+            self.logger.warning(
+                f"{executor}：会话选项“冲突等待”为 True 时，“冲突回调”永远不会被调用"
+            )
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
@@ -100,7 +109,7 @@ class EventHandler:
         try:
             session = None
 
-            if not self._direct_rouse:
+            if self._rule is not None and not self._direct_rouse:
                 res = await BotSessionManager.try_attach(event, self)
                 if res:
                     return
@@ -108,7 +117,7 @@ class EventHandler:
             session = await BotSessionManager.get(event, self)
 
             # 如果因为冲突没有获得 会话，且指定了冲突回调
-            if session is None and self._conflict_cb:
+            if session is None and self._conflict_cb is not None:
                 await self._run_on_ctx(self._conflict_cb(), pre_session)
 
             # 如果因为冲突没有获得 会话，但没有冲突回调
@@ -184,25 +193,10 @@ class AllEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ) -> None:
         super().__init__(
-            executor,
-            plugin,
-            logger,
-            checker,
-            priority,
-            set_block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            executor, plugin, logger, checker, priority, set_block, temp, option
         )
 
 
@@ -218,25 +212,10 @@ class MsgEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ) -> None:
         super().__init__(
-            executor,
-            plugin,
-            logger,
-            checker,
-            priority,
-            set_block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            executor, plugin, logger, checker, priority, set_block, temp, option
         )
         self.matcher = matcher
         self.parser = parser
@@ -281,25 +260,10 @@ class ReqEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ) -> None:
         super().__init__(
-            executor,
-            plugin,
-            logger,
-            checker,
-            priority,
-            set_block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            executor, plugin, logger, checker, priority, set_block, temp, option
         )
 
 
@@ -313,25 +277,10 @@ class NoticeEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ) -> None:
         super().__init__(
-            executor,
-            plugin,
-            logger,
-            checker,
-            priority,
-            set_block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            executor, plugin, logger, checker, priority, set_block, temp, option
         )
 
 
@@ -345,25 +294,10 @@ class MetaEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        session_rule: Optional["SessionRule"] = None,
-        session_hold: bool = False,
-        direct_rouse: bool = True,
-        conflict_wait: bool = True,
-        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        option: Optional[SessionOption] = None,
     ) -> None:
         super().__init__(
-            executor,
-            plugin,
-            logger,
-            checker,
-            priority,
-            set_block,
-            temp,
-            session_rule,
-            session_hold,
-            direct_rouse,
-            conflict_wait,
-            conflict_cb,
+            executor, plugin, logger, checker, priority, set_block, temp, option
         )
 
 

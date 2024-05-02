@@ -17,7 +17,7 @@ from .base import (
 )
 from .bot import MeloBot, thisbot
 from .context import (
-    AttrSessionRule,
+    SessionOption,
     finish,
     msg_args,
     msg_event,

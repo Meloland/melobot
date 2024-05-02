@@ -8,10 +8,8 @@ melobot.context
 
 会话是 melobot 的重要机制之一。以下是涉及会话控制和会话信息获取的相关类和函数：
 
-.. autoclass:: melobot.context.AttrSessionRule
+.. autoclass:: melobot.context.SessionOption
    :members:
-   :show-inheritance:
-   :exclude-members: compare
 
 .. autofunction:: melobot.context.any_event
 

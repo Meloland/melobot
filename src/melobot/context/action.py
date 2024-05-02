@@ -3,8 +3,8 @@ from ..base.exceptions import BotSessionError, BotValueError, FuncSafeExited
 from ..base.tools import get_id
 from ..base.typing import Literal, MsgNode, MsgSegment, Optional
 from ..models.msg import reply_msg, to_cq_str_action, to_msg_segment
+from .manage import BotSessionManager as SessionManager
 from .session import SESSION_LOCAL
-from .session import BotSessionManager as SessionManager
 
 __all__ = (
     "send_custom",

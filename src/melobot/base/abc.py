@@ -3,6 +3,7 @@ import json
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import TypeVar
 
 from .exceptions import BotRuntimeError, BotUtilsError, BotValueError
 from .typing import (
@@ -10,6 +11,7 @@ from .typing import (
     Any,
     AsyncCallable,
     BotLife,
+    Callable,
     Literal,
     LogicMode,
     Optional,
@@ -177,6 +179,9 @@ class BotEvent(ABC, Flagable):
         return self.type == "meta"
 
 
+Event_T = TypeVar("Event_T", bound=BotEvent)
+
+
 class ActionArgs(ABC):
     def __init__(self) -> None:
         super().__init__()
@@ -263,6 +268,10 @@ class SessionRule(ABC):
     def __init__(self) -> None:
         super().__init__()
 
+    @staticmethod
+    def get_new_rule(meth: Callable[[BotEvent, BotEvent], bool]) -> "SessionRule":
+        return DynamicRule(meth)
+
     @abstractmethod
     def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
         """判断两事件是否在同一会话中的判断方法
@@ -274,6 +283,15 @@ class SessionRule(ABC):
         :return: 判断结果
         """
         raise NotImplementedError
+
+
+class DynamicRule(SessionRule):
+    def __init__(self, meth: Callable[[BotEvent, BotEvent], bool]) -> None:
+        super().__init__()
+        self.meth = meth
+
+    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
+        return self.meth(e1, e2)
 
 
 @dataclass
