@@ -12,10 +12,10 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>melobot.plugin.init - melobot 2.6.5</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=437aa6ec" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -77,7 +77,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -92,7 +92,7 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
@@ -100,7 +100,7 @@
   <symbol id="svg-sun-half" viewBox="0 0 24 24">
     <title>Auto light/dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
       <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
       <circle cx="12" cy="12" r="9" />
       <path d="M13 12h5" />
@@ -108,6 +108,60 @@
       <path d="M13 18h1" />
       <path d="M13 9h4" />
       <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
@@ -140,7 +194,8 @@
       <div class="theme-toggle-container theme-toggle-header">
         <button class="theme-toggle">
           <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
@@ -225,7 +280,8 @@
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
@@ -243,8 +299,10 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BotEvent</span><span class="p">,</span>
     <span class="n">BotHookRunnerArgs</span><span class="p">,</span>
     <span class="n">BotLife</span><span class="p">,</span>
+    <span class="n">CustomChecker</span><span class="p">,</span>
     <span class="n">EventHandlerArgs</span><span class="p">,</span>
     <span class="n">PluginSignalHandlerArgs</span><span class="p">,</span>
     <span class="n">ShareObjArgs</span><span class="p">,</span>
@@ -265,8 +323,10 @@
     <span class="n">T</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..context.session</span> <span class="kn">import</span> <span class="n">SessionOption</span>
 <span class="kn">from</span> <span class="nn">..meta</span> <span class="kn">import</span> <span class="n">ReadOnly</span>
-<span class="kn">from</span> <span class="nn">..utils.checker</span> <span class="kn">import</span> <span class="n">AtMsgChecker</span>
+<span class="kn">from</span> <span class="nn">..models</span> <span class="kn">import</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
+<span class="kn">from</span> <span class="nn">..utils.checker</span> <span class="kn">import</span> <span class="n">AtMsgChecker</span><span class="p">,</span> <span class="n">BotChecker</span>
 <span class="kn">from</span> <span class="nn">..utils.matcher</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ContainMatcher</span><span class="p">,</span>
     <span class="n">EndMatcher</span><span class="p">,</span>
@@ -285,8 +345,6 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..base.abc</span> <span class="kn">import</span> <span class="n">SessionRule</span>
-    <span class="kn">from</span> <span class="nn">..utils.checker</span> <span class="kn">import</span> <span class="n">BotChecker</span>
     <span class="kn">from</span> <span class="nn">..utils.matcher</span> <span class="kn">import</span> <span class="n">BotMatcher</span>
     <span class="kn">from</span> <span class="nn">..utils.parser</span> <span class="kn">import</span> <span class="n">BotParser</span>
 
@@ -475,15 +533,11 @@
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_event">[文档]</a>
     <span class="k">def</span> <span class="nf">on_event</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BotChecker</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">BotEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个任意事件处理方法</span>
 
@@ -491,26 +545,13 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
             <span class="n">AllEventHandler</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">checker</span><span class="p">,</span>
-                <span class="n">priority</span><span class="p">,</span>
-                <span class="n">block</span><span class="p">,</span>
-                <span class="n">temp</span><span class="p">,</span>
-                <span class="n">session_rule</span><span class="p">,</span>
-                <span class="n">session_hold</span><span class="p">,</span>
-                <span class="n">direct_rouse</span><span class="p">,</span>
-                <span class="n">conflict_wait</span><span class="p">,</span>
-                <span class="n">conflict_cb</span><span class="p">,</span>
-                <span class="n">conflict_cb</span><span class="p">,</span>
-            <span class="p">],</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
@@ -520,15 +561,11 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotMatcher&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotParser&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个消息事件处理方法</span>
 
@@ -538,27 +575,13 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
             <span class="n">MsgEventHandler</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">matcher</span><span class="p">,</span>
-                <span class="n">parser</span><span class="p">,</span>
-                <span class="n">checker</span><span class="p">,</span>
-                <span class="n">priority</span><span class="p">,</span>
-                <span class="n">block</span><span class="p">,</span>
-                <span class="n">temp</span><span class="p">,</span>
-                <span class="n">session_rule</span><span class="p">,</span>
-                <span class="n">session_hold</span><span class="p">,</span>
-                <span class="n">direct_rouse</span><span class="p">,</span>
-                <span class="n">conflict_wait</span><span class="p">,</span>
-                <span class="n">conflict_cb</span><span class="p">,</span>
-            <span class="p">],</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">matcher</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
@@ -569,15 +592,11 @@
         <span class="n">qid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotMatcher&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotParser&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个艾特消息事件处理方法</span>
 
@@ -590,25 +609,12 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
-            <span class="n">matcher</span><span class="p">,</span>
-            <span class="n">parser</span><span class="p">,</span>
-            <span class="n">AtMsgChecker</span><span class="p">(</span><span class="n">qid</span><span class="p">)</span> <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">AtMsgChecker</span><span class="p">(</span><span class="n">qid</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">checker</span><span class="p">,</span>
-            <span class="n">priority</span><span class="p">,</span>
-            <span class="n">block</span><span class="p">,</span>
-            <span class="n">temp</span><span class="p">,</span>
-            <span class="n">session_rule</span><span class="p">,</span>
-            <span class="n">session_hold</span><span class="p">,</span>
-            <span class="n">direct_rouse</span><span class="p">,</span>
-            <span class="n">conflict_wait</span><span class="p">,</span>
-            <span class="n">conflict_cb</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
+        <span class="n">checker</span> <span class="o">=</span> <span class="n">AtMsgChecker</span><span class="p">(</span><span class="n">qid</span><span class="p">)</span> <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">AtMsgChecker</span><span class="p">(</span><span class="n">qid</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">checker</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">matcher</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_command">
@@ -619,15 +625,11 @@
         <span class="n">cmd_sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">targets</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">formatters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">CmdArgFormatter</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个消息事件处理方法</span>
 
@@ -645,25 +647,12 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="n">CmdParser</span><span class="p">(</span><span class="n">cmd_start</span><span class="p">,</span> <span class="n">cmd_sep</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">formatters</span><span class="p">),</span>
-            <span class="n">checker</span><span class="p">,</span>
-            <span class="n">priority</span><span class="p">,</span>
-            <span class="n">block</span><span class="p">,</span>
-            <span class="n">temp</span><span class="p">,</span>
-            <span class="n">session_rule</span><span class="p">,</span>
-            <span class="n">session_hold</span><span class="p">,</span>
-            <span class="n">direct_rouse</span><span class="p">,</span>
-            <span class="n">conflict_wait</span><span class="p">,</span>
-            <span class="n">conflict_cb</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">CmdParser</span><span class="p">(</span><span class="n">cmd_start</span><span class="p">,</span> <span class="n">cmd_sep</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">formatters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_start_match">
@@ -672,15 +661,11 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串起始匹配的消息事件处理方法</span>
 
@@ -696,24 +681,12 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
-            <span class="n">StartMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="n">checker</span><span class="p">,</span>
-            <span class="n">priority</span><span class="p">,</span>
-            <span class="n">block</span><span class="p">,</span>
-            <span class="n">temp</span><span class="p">,</span>
-            <span class="n">session_rule</span><span class="p">,</span>
-            <span class="n">session_hold</span><span class="p">,</span>
-            <span class="n">direct_rouse</span><span class="p">,</span>
-            <span class="n">conflict_wait</span><span class="p">,</span>
-            <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="n">StartMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span>
         <span class="p">)</span></div>
 
 
@@ -723,15 +696,11 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串包含匹配的消息事件处理方法</span>
 
@@ -747,25 +716,12 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
-            <span class="n">ContainMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="n">checker</span><span class="p">,</span>
-            <span class="n">priority</span><span class="p">,</span>
-            <span class="n">block</span><span class="p">,</span>
-            <span class="n">temp</span><span class="p">,</span>
-            <span class="n">session_rule</span><span class="p">,</span>
-            <span class="n">session_hold</span><span class="p">,</span>
-            <span class="n">direct_rouse</span><span class="p">,</span>
-            <span class="n">conflict_wait</span><span class="p">,</span>
-            <span class="n">conflict_cb</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
+        <span class="n">matcher</span> <span class="o">=</span> <span class="n">ContainMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">matcher</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BotPlugin.on_full_match">
@@ -774,15 +730,11 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串全匹配的消息事件处理方法</span>
 
@@ -798,24 +750,12 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
-            <span class="n">FullMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="n">checker</span><span class="p">,</span>
-            <span class="n">priority</span><span class="p">,</span>
-            <span class="n">block</span><span class="p">,</span>
-            <span class="n">temp</span><span class="p">,</span>
-            <span class="n">session_rule</span><span class="p">,</span>
-            <span class="n">session_hold</span><span class="p">,</span>
-            <span class="n">direct_rouse</span><span class="p">,</span>
-            <span class="n">conflict_wait</span><span class="p">,</span>
-            <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="n">FullMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span>
         <span class="p">)</span></div>
 
 
@@ -825,15 +765,11 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串结尾匹配的消息事件处理方法</span>
 
@@ -849,24 +785,12 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
-            <span class="n">EndMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="n">checker</span><span class="p">,</span>
-            <span class="n">priority</span><span class="p">,</span>
-            <span class="n">block</span><span class="p">,</span>
-            <span class="n">temp</span><span class="p">,</span>
-            <span class="n">session_rule</span><span class="p">,</span>
-            <span class="n">session_hold</span><span class="p">,</span>
-            <span class="n">direct_rouse</span><span class="p">,</span>
-            <span class="n">conflict_wait</span><span class="p">,</span>
-            <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="n">EndMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span>
         <span class="p">)</span></div>
 
 
@@ -875,15 +799,11 @@
     <span class="k">def</span> <span class="nf">on_regex_match</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个字符串正则匹配的消息事件处理方法</span>
 
@@ -894,24 +814,12 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span>
-            <span class="n">RegexMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="n">checker</span><span class="p">,</span>
-            <span class="n">priority</span><span class="p">,</span>
-            <span class="n">block</span><span class="p">,</span>
-            <span class="n">temp</span><span class="p">,</span>
-            <span class="n">session_rule</span><span class="p">,</span>
-            <span class="n">session_hold</span><span class="p">,</span>
-            <span class="n">direct_rouse</span><span class="p">,</span>
-            <span class="n">conflict_wait</span><span class="p">,</span>
-            <span class="n">conflict_cb</span><span class="p">,</span>
+            <span class="n">RegexMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span>
         <span class="p">)</span></div>
 
 
@@ -919,15 +827,11 @@
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_request">[文档]</a>
     <span class="k">def</span> <span class="nf">on_request</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">RequestEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">RequestEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">RequestEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个请求事件处理方法</span>
 
@@ -935,25 +839,13 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
             <span class="n">ReqEventHandler</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">checker</span><span class="p">,</span>
-                <span class="n">priority</span><span class="p">,</span>
-                <span class="n">block</span><span class="p">,</span>
-                <span class="n">temp</span><span class="p">,</span>
-                <span class="n">session_rule</span><span class="p">,</span>
-                <span class="n">session_hold</span><span class="p">,</span>
-                <span class="n">direct_rouse</span><span class="p">,</span>
-                <span class="n">conflict_wait</span><span class="p">,</span>
-                <span class="n">conflict_cb</span><span class="p">,</span>
-            <span class="p">],</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
@@ -961,15 +853,11 @@
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_notice">[文档]</a>
     <span class="k">def</span> <span class="nf">on_notice</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">NoticeEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NoticeEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">NoticeEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个通知事件处理方法</span>
 
@@ -978,25 +866,13 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
             <span class="n">NoticeEventHandler</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">checker</span><span class="p">,</span>
-                <span class="n">priority</span><span class="p">,</span>
-                <span class="n">block</span><span class="p">,</span>
-                <span class="n">temp</span><span class="p">,</span>
-                <span class="n">session_rule</span><span class="p">,</span>
-                <span class="n">session_hold</span><span class="p">,</span>
-                <span class="n">direct_rouse</span><span class="p">,</span>
-                <span class="n">conflict_wait</span><span class="p">,</span>
-                <span class="n">conflict_cb</span><span class="p">,</span>
-            <span class="p">],</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
@@ -1004,15 +880,11 @@
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_meta_event">[文档]</a>
     <span class="k">def</span> <span class="nf">on_meta_event</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">checker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BotChecker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">checker</span><span class="p">:</span> <span class="n">BotChecker</span><span class="p">[</span><span class="n">MetaEvent</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">priority</span><span class="p">:</span> <span class="n">PriorLevel</span> <span class="o">=</span> <span class="n">PriorLevel</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">session_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SessionRule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">session_hold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">direct_rouse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">conflict_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SessionOption</span><span class="p">[</span><span class="n">MetaEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定一个元事件处理方法</span>
 
@@ -1020,25 +892,13 @@
 <span class="sd">        :param priority: 优先级</span>
 <span class="sd">        :param block: 是否进行优先级阻断</span>
 <span class="sd">        :param temp: 是否是一次性的</span>
-<span class="sd">        :param session_rule: 会话规则，为空则不使用会话规则</span>
-<span class="sd">        :param session_hold: 处理方法结束后是否保留会话（有会话规则才可启用）</span>
-<span class="sd">        :param direct_rouse: 会话暂停时，是否允许不检查就唤醒会话（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_wait: 会话冲突时，是否需要事件等待处理（有会话规则才可启用）</span>
-<span class="sd">        :param conflict_cb: 会话冲突时，运行的回调（有会话规则才可启用，`conflict_wait=True`，此参数无效）</span>
+<span class="sd">        :param option: 会话选项（用于指定会话的工作方式）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">BotChecker</span><span class="p">)</span> <span class="k">else</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_event</span><span class="p">(</span>
             <span class="n">MetaEventHandler</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">checker</span><span class="p">,</span>
-                <span class="n">priority</span><span class="p">,</span>
-                <span class="n">block</span><span class="p">,</span>
-                <span class="n">temp</span><span class="p">,</span>
-                <span class="n">session_rule</span><span class="p">,</span>
-                <span class="n">session_hold</span><span class="p">,</span>
-                <span class="n">direct_rouse</span><span class="p">,</span>
-                <span class="n">conflict_wait</span><span class="p">,</span>
-                <span class="n">conflict_cb</span><span class="p">,</span>
-            <span class="p">],</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">checker</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">option</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
@@ -1215,7 +1075,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">on_plugins_loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_bot_loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定 bot 在 :attr:`.BotLife.LOADED` 生命周期的 hook 方法</span>
 
 <span class="sd">        本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。</span>

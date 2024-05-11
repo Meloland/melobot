@@ -64,11 +64,6 @@ melobot.utils
    
    但对于其他事件来说，预处理过程只有一步：检查。
 
-.. autoclass:: melobot.utils.MsgChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
 .. autoclass:: melobot.utils.MsgLvlChecker
    :members:
    :show-inheritance:
@@ -91,17 +86,6 @@ melobot.utils
    :members:
    :show-inheritance:
    :exclude-members: check
-
-.. autoclass:: melobot.utils.ReqChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
-.. autoclass:: melobot.utils.NoticeChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
 
 解析器
 ---------------
