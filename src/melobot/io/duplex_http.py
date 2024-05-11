@@ -8,13 +8,12 @@ import aiohttp.log
 import aiohttp.web
 from aiohttp.client_exceptions import ClientConnectorError
 
-from ..base.abc import AbstractConnector, BotLife
+from ..base.abc import AbstractConnector, BotEvent, BotLife
 from ..base.typing import TYPE_CHECKING, Optional, TracebackType, Union, cast
 from ..context.session import ActionResponse
 
 if TYPE_CHECKING:
     from ..base.abc import BotAction
-    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 
 class HttpConn(AbstractConnector):
@@ -187,10 +186,7 @@ class HttpConn(AbstractConnector):
                 self.logger.obj(raw_event, "收到上报，未格式化的字典")
 
             event = self._event_builder.try_build(raw_event)
-            event = cast(
-                Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
-                event,
-            )
+            event = cast(BotEvent, event)
             asyncio.create_task(self._common_dispatcher.dispatch(event))
 
         except Exception as e:

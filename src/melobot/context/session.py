@@ -2,9 +2,15 @@ import asyncio
 import json
 import time
 from contextvars import ContextVar, Token
-from dataclasses import dataclass
 
-from ..base.abc import Event_T, SessionRule
+from ..base.abc import (
+    BotAction,
+    BotEvent,
+    CustomSessionRule,
+    Event_T,
+    ParseArgs,
+    SessionRule,
+)
 from ..base.exceptions import BotRuntimeError, BotSessionError, BotValueError
 from ..base.tools import get_twin_event
 from ..base.typing import (
@@ -23,8 +29,7 @@ from ..base.typing import (
 )
 
 if TYPE_CHECKING:
-    from ..base.abc import BotAction, BotEvent, ParseArgs
-    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
+    from ..models.event import MessageEvent
     from ..plugin.handler import EventHandler
     from .manage import BotSessionManager
 
@@ -34,7 +39,7 @@ class BotSession:
 
     def __init__(
         self,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
+        event: Event_T,
         manager: Type["BotSessionManager"],
         space_tag: Optional["EventHandler"] = None,
     ) -> None:
@@ -112,13 +117,13 @@ class SessionLocal:
 SESSION_LOCAL = SessionLocal()
 
 
-class LegacyRule(SessionRule):
+class LegacyRule(SessionRule[Event_T]):
     """传统会话规则类，等价于其他 bot 框架中的 session"""
 
     def __init__(self) -> None:
         super().__init__()
 
-    def compare(self, e1: "BotEvent", e2: "BotEvent") -> bool:
+    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
         if not e2.is_msg_event():
             return False
         else:
@@ -127,20 +132,35 @@ class LegacyRule(SessionRule):
             return e1.sender.id == e2.sender.id and e1.group_id == e2.group_id
 
 
-@dataclass
 class SessionOption(Generic[Event_T]):
     """会话配置类"""
 
-    #: 会话规则
-    rule: SessionRule | Callable[[Event_T, Event_T], bool] = LegacyRule()
-    #: 会话暂停后，是否不进行预处理就唤醒会话
-    second_pass: bool = True
-    #: 会话冲突时，同会话事件是否等待处理
-    conflict_wait: bool = True
-    #: 会话冲突时，同会话事件不等待处理，转而运行的回调（`conflict_wait=False` 时生效）
-    conflict_cb: Optional[AsyncCallable[[], None]] = None
-    #: 事件处理方法结束后是否保留会话
-    hold: bool = False
+    def __init__(
+        self,
+        rule: SessionRule[Event_T] | Callable[[Event_T, Event_T], bool] = LegacyRule[
+            Event_T
+        ](),
+        second_pass: bool = True,
+        conflict_wait: bool = True,
+        conflict_cb: Optional[AsyncCallable[[], None]] = None,
+        hold: bool = False,
+    ) -> None:
+        """创建一个会话配置
+
+        :param rule: 会话规则，为空则使用默认会话规则
+        :param second_pass: 会话暂停后，是否不进行预处理就唤醒会话
+        :param conflict_wait: 会话冲突时，同会话事件是否等待处理
+        :param conflict_cb: 会话冲突时，同会话事件不等待处理，转而运行的回调（`conflict_wait=False` 时生效）
+        :param hold: 事件处理方法结束后是否保留会话
+        """
+        super().__init__()
+        self.rule: SessionRule = (
+            rule if isinstance(rule, SessionRule) else CustomSessionRule(rule)
+        )
+        self.second_pass = second_pass
+        self.conflict_wait = conflict_wait
+        self.conflict_cb = conflict_cb
+        self.hold = hold
 
 
 class ActionResponse:

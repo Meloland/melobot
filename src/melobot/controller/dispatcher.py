@@ -1,11 +1,11 @@
 import asyncio
 
+from ..base.abc import Event_T
 from ..base.typing import TYPE_CHECKING, BotLife, PriorLevel, Type, Union
 
 if TYPE_CHECKING:
     from ..bot.hook import BotHookBus
     from ..context.session import BotSessionManager
-    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
     from ..plugin.handler import EventHandler
     from ..utils.logger import BotLogger
 
@@ -48,11 +48,7 @@ class BotDispatcher:
     def _set_ready(self) -> None:
         self._ready_signal.set()
 
-    async def broadcast(
-        self,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
-        channel: Type["EventHandler"],
-    ) -> None:
+    async def broadcast(self, event: Event_T, channel: Type["EventHandler"]) -> None:
         """向指定的通道推送事件"""
         try:
             permit_priority = PriorLevel.MIN.value
@@ -85,9 +81,7 @@ class BotDispatcher:
             self.logger.obj(event.raw, f"异常点 event {event:hexid}", level="ERROR")
             self.logger.exc(locals=locals())
 
-    async def dispatch(
-        self, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
-    ) -> None:
+    async def dispatch(self, event: Event_T) -> None:
         """把事件分发到对应的事件通道"""
         await self._ready_signal.wait()
         await self._bot_bus.emit(BotLife.EVENT_BUILT, event, wait=True)

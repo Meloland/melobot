@@ -1,18 +1,18 @@
 import asyncio
 
-from ..base.abc import BotParser
+from ..base.abc import BotEvent, BotParser, Event_T
 from ..base.exceptions import BotValueError, FuncSafeExited
 from ..base.typing import (
     TYPE_CHECKING,
     Any,
     AsyncCallable,
     Awaitable,
+    Generic,
     Optional,
     P,
     PriorLevel,
     T,
     Type,
-    Union,
     cast,
 )
 from ..context.manage import BotSessionManager, any_event
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .init import BotPlugin
 
 
-class EventHandler:
+class EventHandler(Generic[Event_T]):
     def __init__(
         self,
         executor: AsyncCallable[P, None],
@@ -36,7 +36,7 @@ class EventHandler:
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[Event_T]] = None,
     ) -> None:
         super().__init__()
         self.is_valid = True
@@ -50,6 +50,7 @@ class EventHandler:
         self._plugin = plugin
         self._run_lock = asyncio.Lock()
 
+        self._rule: SessionRule[Event_T] | None
         if option is None:
             self._rule = None
             self._hold = False
@@ -57,10 +58,7 @@ class EventHandler:
             self._conflict_cb = None
             self._wait_flag = True
         else:
-            if isinstance(option.rule, SessionRule):
-                self._rule = option.rule
-            else:
-                self._rule = SessionRule.get_new_rule(option.rule)
+            self._rule = option.rule
             self._hold = option.hold
             self._direct_rouse = option.second_pass
             self._conflict_cb = option.conflict_cb
@@ -100,11 +98,7 @@ class EventHandler:
             if session._hup_signal.is_set():
                 BotSessionManager._rouse(session)
 
-    async def _run(
-        self,
-        event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent],
-        pre_session: "BotSession",
-    ) -> None:
+    async def _run(self, event: Event_T, pre_session: "BotSession") -> None:
         """获取会话然后准备运行 executor"""
         try:
             session = None
@@ -146,16 +140,12 @@ class EventHandler:
             self.logger.debug(f"event {event:hexid} 在会话{session:hexid} 中运行完毕")
             BotSessionManager.recycle(session, alive=self._hold)
 
-    async def _pre_process(
-        self, event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent]
-    ) -> tuple[bool, "BotSession"]:
+    async def _pre_process(self, event: Event_T) -> tuple[bool, "BotSession"]:
         session = BotSessionManager.make_temp(event)
         status = await self._run_on_ctx(self._verify(), session)
         return status, session
 
-    async def evoke(
-        self, event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent]
-    ) -> bool:
+    async def evoke(self, event: Event_T) -> bool:
         """接收总线分发的事件的方法。返回是否决定处理的判断。 便于 disptacher 进行优先级阻断。校验通过会自动处理事件。"""
         if not self.is_valid:
             return False
@@ -183,7 +173,7 @@ class EventHandler:
                 return False
 
 
-class AllEventHandler(EventHandler):
+class AllEventHandler(EventHandler[BotEvent]):
     def __init__(
         self,
         executor: AsyncCallable[P, None],
@@ -193,14 +183,14 @@ class AllEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[BotEvent]] = None,
     ) -> None:
         super().__init__(
             executor, plugin, logger, checker, priority, set_block, temp, option
         )
 
 
-class MsgEventHandler(EventHandler):
+class MsgEventHandler(EventHandler[MessageEvent]):
     def __init__(
         self,
         executor: AsyncCallable[P, None],
@@ -224,10 +214,7 @@ class MsgEventHandler(EventHandler):
         if self.matcher and self.parser:
             raise BotValueError("参数 matcher 和 parser 不能同时存在")
 
-    async def _pre_process(
-        self, event: Union[MessageEvent, RequestEvent, MetaEvent, NoticeEvent]
-    ) -> tuple[bool, "BotSession"]:
-        event = cast(MessageEvent, event)
+    async def _pre_process(self, event: MessageEvent) -> tuple[bool, "BotSession"]:
         session = BotSessionManager.make_temp(event)
 
         if self.matcher is not None:
@@ -250,7 +237,7 @@ class MsgEventHandler(EventHandler):
         return True, session
 
 
-class ReqEventHandler(EventHandler):
+class ReqEventHandler(EventHandler[RequestEvent]):
     def __init__(
         self,
         executor: AsyncCallable[P, None],
@@ -260,14 +247,14 @@ class ReqEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[RequestEvent]] = None,
     ) -> None:
         super().__init__(
             executor, plugin, logger, checker, priority, set_block, temp, option
         )
 
 
-class NoticeEventHandler(EventHandler):
+class NoticeEventHandler(EventHandler[NoticeEvent]):
     def __init__(
         self,
         executor: AsyncCallable[P, None],
@@ -277,14 +264,14 @@ class NoticeEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[NoticeEvent]] = None,
     ) -> None:
         super().__init__(
             executor, plugin, logger, checker, priority, set_block, temp, option
         )
 
 
-class MetaEventHandler(EventHandler):
+class MetaEventHandler(EventHandler[MetaEvent]):
     def __init__(
         self,
         executor: AsyncCallable[P, None],
@@ -294,7 +281,7 @@ class MetaEventHandler(EventHandler):
         priority: PriorLevel = PriorLevel.MEAN,
         set_block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MetaEvent]] = None,
     ) -> None:
         super().__init__(
             executor, plugin, logger, checker, priority, set_block, temp, option

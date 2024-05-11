@@ -1,6 +1,7 @@
 import asyncio
 from functools import wraps
 
+from ..base.abc import BotEvent, Event_T
 from ..base.exceptions import BotSessionError, BotSessionTimeout
 from ..base.ioc import PendingDepend
 from ..base.typing import (
@@ -51,11 +52,7 @@ class BotSessionManager:
         session.args = args
 
     @classmethod
-    def _attach(
-        cls,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
-        handler: "EventHandler",
-    ) -> bool:
+    def _attach(cls, event: Event_T, handler: "EventHandler") -> bool:
         """会话 附着操作，临界区操作。只能在 cls.try_attach 中进行"""
         session = None
 
@@ -74,11 +71,7 @@ class BotSessionManager:
         return False
 
     @classmethod
-    async def try_attach(
-        cls,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
-        handler: "EventHandler",
-    ) -> bool:
+    async def try_attach(cls, event: Event_T, handler: "EventHandler") -> bool:
         """检查是否有挂起的会话可供 event 附着。 如果有则附着并唤醒，并返回 True。否则返回 False。"""
         if handler._rule is None:
             return False
@@ -157,11 +150,7 @@ class BotSessionManager:
             cls._expire(session)
 
     @classmethod
-    async def get(
-        cls,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
-        handler: "EventHandler",
-    ) -> Optional[BotSession]:
+    async def get(cls, event: Event_T, handler: "EventHandler") -> Optional[BotSession]:
         """Handler 内获取会话方法。自动根据 handler._rule 判断是否需要映射到 session_space 进行存储。
         然后根据具体情况，获取已有会话或新建 会话。当尝试获取非空闲会话时，如果 handler 指定不等待则返回
         None."""
@@ -181,9 +170,7 @@ class BotSessionManager:
 
     @classmethod
     def _make(
-        cls,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
-        handler: Optional["EventHandler"] = None,
+        cls, event: Event_T, handler: Optional["EventHandler"] = None
     ) -> BotSession:
         """内部使用的创建会话方法。如果 handler 为空，即缺乏 space_tag，则为一次性 会话。 或 handler._rule
         为空，则也为一次性 会话."""
@@ -196,17 +183,13 @@ class BotSessionManager:
         return session
 
     @classmethod
-    def make_temp(
-        cls, event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]
-    ) -> BotSession:
+    def make_temp(cls, event: Event_T) -> BotSession:
         """创建临时 会话。确定无需会话管理机制时可以使用。 否则一定使用 cls.get 方法"""
         return cls._make(event)
 
     @classmethod
     async def _get_on_rule(
-        cls,
-        event: Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"],
-        handler: "EventHandler",
+        cls, event: Event_T, handler: "EventHandler"
     ) -> Optional[BotSession]:
         """根据 handler 具体情况，从对应 session_space 中获取会话或新建 会话，或返回 None"""
         session = None
@@ -302,7 +285,7 @@ class BotSessionManager:
         return wrapped_func
 
 
-def any_event() -> Union["MessageEvent", "RequestEvent", "MetaEvent", "NoticeEvent"]:
+def any_event() -> BotEvent:
     """获取当前会话下的事件
 
     :return: 具体的事件

@@ -5,7 +5,7 @@ from itertools import count
 import websockets
 from websockets.exceptions import ConnectionClosed
 
-from ..base.abc import AbstractConnector, BotLife
+from ..base.abc import AbstractConnector, BotEvent, BotLife
 from ..base.typing import TYPE_CHECKING, Optional, TracebackType, Type, Union, cast
 from ..context.session import ActionResponse
 
@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     import websockets.client
 
     from ..base.abc import BotAction
-    from ..models.event import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 
 
 class ForwardWsConn(AbstractConnector):
@@ -213,15 +212,7 @@ class ForwardWsConn(AbstractConnector):
                         resp = ActionResponse(raw)
                         asyncio.create_task(self._resp_dispatcher.respond(resp))
                     else:
-                        event = cast(
-                            Union[
-                                "MessageEvent",
-                                "RequestEvent",
-                                "MetaEvent",
-                                "NoticeEvent",
-                            ],
-                            event,
-                        )
+                        event = cast(BotEvent, event)
                         asyncio.create_task(self._common_dispatcher.dispatch(event))
 
                 except ConnectionClosed:

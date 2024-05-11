@@ -4,8 +4,10 @@ import pathlib
 import sys
 
 from ..base.abc import (
+    BotEvent,
     BotHookRunnerArgs,
     BotLife,
+    CustomChecker,
     EventHandlerArgs,
     PluginSignalHandlerArgs,
     ShareObjArgs,
@@ -28,7 +30,8 @@ from ..base.typing import (
 )
 from ..context.session import SessionOption
 from ..meta import ReadOnly
-from ..utils.checker import AtMsgChecker
+from ..models import MessageEvent, MetaEvent, NoticeEvent, RequestEvent
+from ..utils.checker import AtMsgChecker, BotChecker
 from ..utils.matcher import (
     ContainMatcher,
     EndMatcher,
@@ -47,8 +50,6 @@ from .handler import (
 )
 
 if TYPE_CHECKING:
-    from ..base.abc import SessionRule
-    from ..utils.checker import BotChecker
     from ..utils.matcher import BotMatcher
     from ..utils.parser import BotParser
 
@@ -227,7 +228,7 @@ class BotPlugin:
 
     def on_event(
         self,
-        checker: Optional["BotChecker"] = None,
+        checker: Optional[BotChecker] | Callable[[BotEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
@@ -241,6 +242,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self._on_event(
             AllEventHandler,
             params=[checker, priority, block, temp, option],
@@ -250,11 +253,11 @@ class BotPlugin:
         self,
         matcher: Optional["BotMatcher"] = None,
         parser: Optional["BotParser"] = None,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个消息事件处理方法
 
@@ -266,6 +269,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self._on_event(
             MsgEventHandler,
             params=[matcher, parser, checker, priority, block, temp, option],
@@ -276,11 +281,11 @@ class BotPlugin:
         qid: Optional[int] = None,
         matcher: Optional["BotMatcher"] = None,
         parser: Optional["BotParser"] = None,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个艾特消息事件处理方法
 
@@ -295,6 +300,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         checker = AtMsgChecker(qid) if checker is None else AtMsgChecker(qid) & checker
         return self.on_message(matcher, parser, checker, priority, block, temp, option)
 
@@ -304,11 +311,11 @@ class BotPlugin:
         cmd_sep: str | list[str],
         targets: str | list[str],
         formatters: Optional[list[CmdArgFormatter | None]] = None,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个消息事件处理方法
 
@@ -328,6 +335,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         parser = CmdParser(cmd_start, cmd_sep, targets, formatters)
         return self.on_message(None, parser, checker, priority, block, temp, option)
 
@@ -335,11 +344,11 @@ class BotPlugin:
         self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个字符串起始匹配的消息事件处理方法
 
@@ -357,6 +366,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self.on_message(
             StartMatcher(target, logic_mode), None, checker, priority, block, temp, option
         )
@@ -365,11 +376,11 @@ class BotPlugin:
         self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个字符串包含匹配的消息事件处理方法
 
@@ -387,6 +398,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         matcher = ContainMatcher(target, logic_mode)
         return self.on_message(matcher, None, checker, priority, block, temp, option)
 
@@ -394,11 +407,11 @@ class BotPlugin:
         self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个字符串全匹配的消息事件处理方法
 
@@ -416,6 +429,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self.on_message(
             FullMatcher(target, logic_mode), None, checker, priority, block, temp, option
         )
@@ -424,11 +439,11 @@ class BotPlugin:
         self,
         target: str | list[str],
         logic_mode: LogicMode = LogicMode.OR,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个字符串结尾匹配的消息事件处理方法
 
@@ -446,6 +461,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self.on_message(
             EndMatcher(target, logic_mode), None, checker, priority, block, temp, option
         )
@@ -453,11 +470,11 @@ class BotPlugin:
     def on_regex_match(
         self,
         target: str,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MessageEvent] | Callable[[MessageEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MessageEvent]] = None,
     ):
         """绑定一个字符串正则匹配的消息事件处理方法
 
@@ -470,17 +487,19 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self.on_message(
             RegexMatcher(target), None, checker, priority, block, temp, option
         )
 
     def on_request(
         self,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[RequestEvent] | Callable[[RequestEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[RequestEvent]] = None,
     ):
         """绑定一个请求事件处理方法
 
@@ -490,6 +509,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self._on_event(
             ReqEventHandler,
             params=[checker, priority, block, temp, option],
@@ -497,11 +518,11 @@ class BotPlugin:
 
     def on_notice(
         self,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[NoticeEvent] | Callable[[NoticeEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[NoticeEvent]] = None,
     ):
         """绑定一个通知事件处理方法
 
@@ -512,6 +533,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self._on_event(
             NoticeEventHandler,
             params=[checker, priority, block, temp, option],
@@ -519,11 +542,11 @@ class BotPlugin:
 
     def on_meta_event(
         self,
-        checker: Optional["BotChecker"] = None,
+        checker: BotChecker[MetaEvent] | Callable[[MetaEvent], bool] | None = None,
         priority: PriorLevel = PriorLevel.MEAN,
         block: bool = False,
         temp: bool = False,
-        option: Optional[SessionOption] = None,
+        option: Optional[SessionOption[MetaEvent]] = None,
     ):
         """绑定一个元事件处理方法
 
@@ -533,6 +556,8 @@ class BotPlugin:
         :param temp: 是否是一次性的
         :param option: 会话选项（用于指定会话的工作方式）
         """
+        if checker is not None:
+            checker = checker if isinstance(checker, BotChecker) else CustomChecker(checker)
         return self._on_event(
             MetaEventHandler,
             params=[checker, priority, block, temp, option],
@@ -699,7 +724,7 @@ class BotPlugin:
         return make_args
 
     @property
-    def on_plugins_loaded(self):
+    def on_bot_loaded(self):
         """绑定 bot 在 :attr:`.BotLife.LOADED` 生命周期的 hook 方法
 
         本方法作为异步函数的装饰器使用。用法与 :class:`on_bot_life` 类似。

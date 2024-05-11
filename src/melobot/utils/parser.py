@@ -13,7 +13,6 @@ from ..base.typing import (
     TracebackType,
     Void,
     VoidType,
-    cast,
 )
 from ..context.action import send
 

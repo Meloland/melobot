@@ -1,9 +1,9 @@
 import asyncio
 import json
+import types
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import TypeVar
 
 from .exceptions import BotRuntimeError, BotUtilsError, BotValueError
 from .typing import (
@@ -12,12 +12,14 @@ from .typing import (
     AsyncCallable,
     BotLife,
     Callable,
+    Generic,
     Literal,
     LogicMode,
     Optional,
     ParseArgs,
     TracebackType,
     Type,
+    TypeVar,
     Void,
 )
 
@@ -259,7 +261,7 @@ class BotAction(Flagable, Cloneable):
         raise BotRuntimeError("action 已记录触发它的 event，拒绝再次记录")
 
 
-class SessionRule(ABC):
+class SessionRule(ABC, Generic[Event_T]):
     """会话规则基类
 
     会话规则用于判断两事件是否在同一会话中。
@@ -269,11 +271,11 @@ class SessionRule(ABC):
         super().__init__()
 
     @staticmethod
-    def get_new_rule(meth: Callable[[BotEvent, BotEvent], bool]) -> "SessionRule":
-        return DynamicRule(meth)
+    def new(meth: Callable[[Event_T, Event_T], bool]) -> "SessionRule[Event_T]":
+        return CustomSessionRule[Event_T](meth)
 
     @abstractmethod
-    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
+    def compare(self, e1: Event_T, e2: Event_T) -> bool:
         """判断两事件是否在同一会话中的判断方法
 
         任何会话规则应该实现此抽象方法。
@@ -285,12 +287,12 @@ class SessionRule(ABC):
         raise NotImplementedError
 
 
-class DynamicRule(SessionRule):
-    def __init__(self, meth: Callable[[BotEvent, BotEvent], bool]) -> None:
+class CustomSessionRule(SessionRule[Event_T]):
+    def __init__(self, meth: Callable[[Event_T, Event_T], bool]) -> None:
         super().__init__()
         self.meth = meth
 
-    def compare(self, e1: BotEvent, e2: BotEvent) -> bool:
+    def compare(self, e1: Event_T, e2: Event_T) -> bool:
         return self.meth(e1, e2)
 
 
@@ -338,33 +340,32 @@ class BotHookRunnerArgs:
     type: BotLife
 
 
-class BotChecker(ABC, Cloneable):
+class BotChecker(ABC, Cloneable, Generic[Event_T]):
     """检查器基类"""
 
     def __init__(self) -> None:
-        """初始化一个检查器基类对象"""
         super().__init__()
 
-    def __and__(self, other: "BotChecker") -> "WrappedChecker":
+    def __and__(self, other: "BotChecker[Event_T]") -> "BotChecker[Event_T]":
         if not isinstance(other, BotChecker):
             raise BotUtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.AND, self, other)
 
-    def __or__(self, other: "BotChecker") -> "WrappedChecker":
+    def __or__(self, other: "BotChecker[Event_T]") -> "BotChecker[Event_T]":
         if not isinstance(other, BotChecker):
             raise BotUtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.OR, self, other)
 
-    def __invert__(self) -> "WrappedChecker":
+    def __invert__(self) -> "BotChecker[Event_T]":
         return WrappedChecker(LogicMode.NOT, self)
 
-    def __xor__(self, other: "BotChecker") -> "WrappedChecker":
+    def __xor__(self, other: "BotChecker[Event_T]") -> "BotChecker[Event_T]":
         if not isinstance(other, BotChecker):
             raise BotUtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.XOR, self, other)
 
     @abstractmethod
-    async def check(self, event: BotEvent) -> bool:
+    async def check(self, event: Event_T) -> bool:
         """检查器检查方法
 
         任何检查器应该实现此抽象方法。
@@ -374,8 +375,21 @@ class BotChecker(ABC, Cloneable):
         """
         raise NotImplementedError
 
+    @staticmethod
+    def new(func: Callable[[Event_T], bool]) -> "BotChecker[Event_T]":
+        return CustomChecker[Event_T](func)
 
-class WrappedChecker(BotChecker):
+
+class CustomChecker(BotChecker[Event_T]):
+    def __init__(self, func: Callable[[Event_T], bool]) -> None:
+        super().__init__()
+        self.func = func
+
+    async def check(self, event: Event_T):
+        return self.func(event)
+
+
+class WrappedChecker(BotChecker[Event_T]):
     """合并检查器
 
     在两个 :class:`BotChecker` 对象间使用 | & ^ ~ 运算符即可返回合并检查器。
@@ -389,8 +403,8 @@ class WrappedChecker(BotChecker):
     def __init__(
         self,
         mode: LogicMode,
-        checker1: BotChecker,
-        checker2: Optional[BotChecker] = None,
+        checker1: BotChecker[Event_T],
+        checker2: Optional[BotChecker[Event_T]] = None,
     ) -> None:
         """初始化一个合并检查器
 
@@ -402,7 +416,7 @@ class WrappedChecker(BotChecker):
         self.mode = mode
         self.c1, self.c2 = checker1, checker2
 
-    async def check(self, event: BotEvent) -> bool:
+    async def check(self, event: Event_T) -> bool:
         return LogicMode.calc(
             self.mode,
             await self.c1.check(event),
@@ -414,7 +428,6 @@ class BotMatcher(ABC, Cloneable):
     """匹配器基类"""
 
     def __init__(self) -> None:
-        """初始化一个检查器基类对象"""
         super().__init__()
 
     def __and__(self, other: "BotMatcher") -> "WrappedMatcher":
@@ -487,6 +500,9 @@ class BotParser(ABC):
 
     解析器一般用作从消息文本中按规则批量提取参数
     """
+
+    def __init__(self) -> None:
+        super().__init__()
 
     @abstractmethod
     async def parse(self, text: str) -> Optional[ParseArgs]:
