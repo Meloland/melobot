@@ -5,6 +5,7 @@ private
 dev
 */build
 dist
+*/dist
 .venv
 .vscode
 .mypy_cache
