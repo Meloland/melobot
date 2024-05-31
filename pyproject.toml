@@ -3,10 +3,10 @@ name = "melobot"
 dynamic = ["version"]
 description = "A bot framework with session control and plugin-supported."
 authors = [
-    {name = "aicorein", email = "melodyecho@glowmem.com"},
+    {name = "aicorein", email = "aicorein@meloland.org"},
 ]
 maintainers = [
-    {name = "aicorein", email = "melodyecho@glowmem.com"}
+    {name = "aicorein", email = "aicorein@meloland.org"}
 ]
 dependencies = [
     "uvloop>=0.17.0; os_name != 'nt'",

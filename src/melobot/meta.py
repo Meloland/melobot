@@ -21,7 +21,7 @@ class ReadOnly(type):
     def __instance_setattr(self, name: str, value: Any) -> None:
         if hasattr(self, name):
             _class = self.__class__.__name__
-            raise AttributeError(f"{_class} 类的实例属性 {name} 是只读的，无法修改")
+            raise AttributeError(f"{_class} 类的实例属性 {name} 已有初始值，无法修改")
         super(self.__class__, self).__setattr__(name, value)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
@@ -29,7 +29,7 @@ class ReadOnly(type):
         return super().__call__(*args, **kwargs)
 
 
-__version__ = "2.6.5"
+__version__ = "3.0.0a1.dev0"
 
 
 class MetaInfo(metaclass=ReadOnly):
@@ -47,13 +47,13 @@ class MetaInfo(metaclass=ReadOnly):
        :meta hide-value:
     """
 
-    PROJ_NAME: str = "melobot"
+    CORE_NAME: str = "melobot"
     """melobot 项目名称
 
        :meta hide-value:
     """
 
-    PROJ_DESC: str = (
+    CORE_DESC: str = (
         "A bot development framework with friendly APIs, session control and plugin-supported."
     )
     """melobot 项目描述
@@ -61,8 +61,22 @@ class MetaInfo(metaclass=ReadOnly):
        :meta hide-value:
     """
 
-    PROJ_SRC: str = "https://github.com/Meloland/melobot"
+    CORE_SRC: str = "https://github.com/Meloland/melobot"
     """melobot 项目地址
+
+       :meta hide-value:
+    """
+
+    CORE_LOGO: str = "\n".join(
+        (
+            r" __  __      _       ____        _   ",
+            r"|  \/  | ___| | ___ | __ )  ___ | |_ ",
+            r"| |\/| |/ _ \ |/ _ \|  _ \ / _ \| __|",
+            r"| |  | |  __/ | (_) | |_) | (_) | |_ ",
+            r"|_|  |_|\___|_|\___/|____/ \___/ \__|",
+        )
+    )
+    """melobot ascii art 图标
 
        :meta hide-value:
     """
@@ -99,7 +113,7 @@ class MetaInfo(metaclass=ReadOnly):
 
     OS_SEP: str = os.sep
 
-    """当前系统路径分隔符号，如 win 平台下的 "\\"
+    """当前系统路径分隔符号，如 win 平台下的 "\"
 
        :meta hide-value:
     """
@@ -113,7 +127,7 @@ class MetaInfo(metaclass=ReadOnly):
 
     LINE_SEP: str = os.linesep
 
-    """当前系统行尾序列，如 win 平台下的 "\\r\\n"
+    """当前系统行尾序列，如 win 平台下的 "\r\n"
 
        :meta hide-value:
     """
@@ -131,12 +145,3 @@ class MetaInfo(metaclass=ReadOnly):
         :return: 包含所有元信息的，属性名为键的字典
         """
         return {k: v for k, v in cls.__dict__.items() if not k.startswith("__")}
-
-
-MELOBOT_LOGO = r"""  __  __      _       ____        _
- |  \/  | ___| | ___ | __ )  ___ | |_
- | |\/| |/ _ \ |/ _ \|  _ \ / _ \| __|
- | |  | |  __/ | (_) | |_) | (_) | |_
- |_|  |_|\___|_|\___/|____/ \___/ \__|
-"""
-MELOBOT_LOGO_LEN = max(len(_) for _ in MELOBOT_LOGO.split("\n"))
