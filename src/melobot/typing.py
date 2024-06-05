@@ -1,23 +1,8 @@
+import inspect
+from abc import ABCMeta, abstractmethod
 from enum import Enum
 from types import TracebackType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    Coroutine,
-    Generic,
-    Iterator,
-    Literal,
-    Optional,
-    ParamSpec,
-    Type,
-    TypeAlias,
-    TypedDict,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import *
 
 # class ParseArgs:
 #     """解析参数类"""
@@ -110,3 +95,36 @@ T = TypeVar("T")
 P = ParamSpec("P")
 #: 参数为 P，返回 Awaitable[T] 的可调用对象
 AsyncCallable: TypeAlias = Callable[P, Awaitable[T]]
+
+
+def abstractattr(obj: Callable[[Any], T] | None = None) -> T:
+    _obj = cast(Any, obj)
+    if obj is None:
+        _obj = BetterABCMeta.DummyAttribute()
+    _obj.__is_abstract_attribute__ = True
+    return cast(T, _obj)
+
+
+class BetterABCMeta(ABCMeta):
+
+    class DummyAttribute: ...
+
+    def __call__(cls, *args, **kwargs):
+        instance = ABCMeta.__call__(cls, *args, **kwargs)
+        lack_attrs = set()
+        for name in dir(instance):
+            attr = getattr(instance, name)
+            if getattr(attr, "__is_abstract_attribute__", False):
+                lack_attrs.add(name)
+            if inspect.iscoroutine(attr):
+                attr.close()
+        if lack_attrs:
+            raise NotImplementedError(
+                "Can't instantiate abstract class {} with"
+                " abstract attributes: {}".format(cls.__name__, ", ".join(lack_attrs))
+            )
+        return instance
+
+
+class BetterABC(metaclass=BetterABCMeta):
+    __slots__ = ()
