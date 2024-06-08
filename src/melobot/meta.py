@@ -1,13 +1,13 @@
 import os
 import sys
 
-from .abc import ReadOnly
+from .abc import ReadOnlyMeta
 from .typing import Any
 
 __version__ = "3.0.0a1.dev0"
 
 
-class MetaInfo(metaclass=ReadOnly):
+class MetaInfo(metaclass=ReadOnlyMeta):
     """元信息类
 
     .. admonition:: 提示

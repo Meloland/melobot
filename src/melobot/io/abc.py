@@ -4,7 +4,15 @@ from dataclasses import dataclass
 
 from typing_extensions import Self
 
-from ..typing import Any, BetterABC, Generic, TracebackType, TypeVar, abstractmethod
+from ..typing import (
+    Any,
+    BetterABC,
+    Generic,
+    LiteralString,
+    TracebackType,
+    TypeVar,
+    abstractmethod,
+)
 from ..utils import get_id
 
 
@@ -12,7 +20,7 @@ from ..utils import get_id
 class GenericPacket:
     time: int = time.time_ns()
     id: str = get_id()
-    protocol: str | None = None
+    protocol: LiteralString | None = None
     data: Any = None
 
 
