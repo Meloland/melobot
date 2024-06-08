@@ -11,11 +11,15 @@ from .exceptions import BotRuntimeError, BotValidateError
 from .typing import Any, AsyncCallable, Callable, Coroutine, Optional, P, T, TypeVar, cast
 
 
-class Singleton:
-    def __new__(cls, *args: Any, **kwargs: Any):
-        if not hasattr(cls, "__instance__"):
-            cls.__instance__ = super(Singleton, cls).__new__(cls)
-        return cls.__instance__
+def singleton(cls):
+    instances = {}
+
+    def wrapped():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+
+    return wrapped
 
 
 class AsyncTwinEvent(asyncio.Event):

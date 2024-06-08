@@ -22,56 +22,56 @@ class BotException(Exception):
     表明这是你设计的异常情况，而不是完全预期之外的异常。
     """
 
-    def __init__(self, msg: str):
-        super().__init__(self, msg)
-        self.err = msg
+    def __init__(self, text: str):
+        super().__init__(self, text)
+        self.err = text
 
     def __str__(self):
         return self.err
 
 
 class BotValidateError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+    def __init__(self, text: str):
+        super().__init__(text)
 
 
 class BotValueError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+    def __init__(self, text: str):
+        super().__init__(text)
 
 
 class BotRuntimeError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+    def __init__(self, text: str):
+        super().__init__(text)
 
 
 class BotPluginError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+    def __init__(self, text: str):
+        super().__init__(text)
 
 
 class BotUtilsError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+    def __init__(self, text: str):
+        super().__init__(text)
 
 
 class BotIpcError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+    def __init__(self, text: str):
+        super().__init__(text)
 
 
 class BotSessionError(BotException):
-    def __init__(self, msg: str):
-        super().__init__(msg)
+    def __init__(self, text: str):
+        super().__init__(text)
 
 
 class BotSessionTimeout(BotException):
     """会话暂停的超时异常"""
 
-    def __init__(self, msg: str = ""):
-        super().__init__(msg)
+    def __init__(self, text: str = ""):
+        super().__init__(text)
 
 
 class FuncSafeExited(BotException):
-    def __init__(self, msg: str = ""):
-        super().__init__(msg)
+    def __init__(self, text: str = ""):
+        super().__init__(text)
