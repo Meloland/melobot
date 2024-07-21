@@ -1,0 +1,36 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "melobot 项目调试",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/dev",
+            "program": "${workspaceFolder}/dev/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "melobot 模块调试",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/dev",
+            "program": "${workspaceFolder}/melobot/__main__.py",
+            "args": ["main.py"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "melobot private tests",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/private",
+            "program": "${workspaceFolder}/private/test.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

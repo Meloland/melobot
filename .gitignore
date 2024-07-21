@@ -7,7 +7,6 @@ dev
 dist
 */dist
 .venv
-.vscode
 .mypy_cache
 
 .pypirc
