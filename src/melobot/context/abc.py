@@ -1,4 +1,4 @@
-from ..adapter.entity import Event_T
+from ..adapter.abc import Event_T
 from ..typing import AsyncCallable, BetterABC, Callable, Generic, abstractmethod
 
 

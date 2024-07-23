@@ -1,9 +1,11 @@
 import asyncio
-import time
+from time import time_ns
 
 from typing_extensions import Self
 
+from ..abc import AttrsReprMixin
 from ..exceptions import BotRuntimeError
+from ..io.abc import EchoPacket_T, InPacket_T, OutPacket_T
 from ..typing import (
     Any,
     AsyncCallable,
@@ -16,33 +18,26 @@ from ..typing import (
     Sequence,
     TypeVar,
     abstractattr,
+    abstractmethod,
     cast,
 )
 from ..utils import get_id
 from .content import AbstractContent
 
 
-class AbstractEntity(BetterABC):
-    type: str | None = abstractattr()
-    time: int = abstractattr()
-    id: str = abstractattr()
-    protocol: LiteralString | None = abstractattr()
-    scope: Optional[NamedTuple] = abstractattr()
-
-
-class BaseEvent(AbstractEntity):
+class BaseEvent(AttrsReprMixin):
     def __init__(
         self,
         type: str | None = None,
-        time: int = time.time_ns(),
-        id: str = get_id(),
+        time: int = -1,
+        id: str = "",
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
         contents: Sequence[AbstractContent] = (),
     ) -> None:
         self.type = type
-        self.time = time
-        self.id = id
+        self.time = time_ns() if time == -1 else time
+        self.id = get_id() if id == "" else id
         self.protocol = protocol
         self.contents = contents
         self.scope = scope
@@ -51,32 +46,32 @@ class BaseEvent(AbstractEntity):
 Event_T = TypeVar("Event_T", bound=BaseEvent)
 
 
-class BaseAction(AbstractEntity):
+class BaseAction(AttrsReprMixin):
     def __init__(
         self,
         type: str | None = None,
-        time: int = time.time_ns(),
-        id: str = get_id(),
+        time: int = -1,
+        id: str = "",
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
         contents: Sequence[AbstractContent] = (),
-        trigger: Event_T | None = None,
+        trigger: BaseEvent | None = None,
     ) -> None:
         self.type = type
-        self.time = time
-        self.id = id
+        self.time = time_ns() if time == -1 else time
+        self.id = get_id() if id == "" else id
         self.protocol = protocol
         self.contents = contents
         self.scope = scope
         self.trigger = trigger
 
 
-class BaseEcho(AbstractEntity):
+class BaseEcho(AttrsReprMixin):
     def __init__(
         self,
         type: str | None = None,
-        time: int = time.time_ns(),
-        id: str = get_id(),
+        time: int = -1,
+        id: str = "",
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
         ok: bool = True,
@@ -85,8 +80,8 @@ class BaseEcho(AbstractEntity):
         data: Any = None,
     ) -> None:
         self.type = type
-        self.time = time
-        self.id = id
+        self.time = time_ns() if time == -1 else time
+        self.id = get_id() if id == "" else id
         self.protocol = protocol
         self.scope = scope
         self.ok = ok
@@ -97,6 +92,34 @@ class BaseEcho(AbstractEntity):
 
 Action_T = TypeVar("Action_T", bound=BaseAction)
 Echo_T = TypeVar("Echo_T", bound=BaseEcho)
+
+
+class AbstractEventFactory(BetterABC, Generic[InPacket_T, Event_T]):
+    @abstractmethod
+    def create(self, packet: InPacket_T) -> Event_T:
+        raise NotImplementedError
+
+
+class AbstractOutputFactory(BetterABC, Generic[OutPacket_T, Action_T]):
+    @abstractmethod
+    def create(self, action: Action_T) -> OutPacket_T:
+        raise NotImplementedError
+
+
+class AbstractEchoFactory(BetterABC, Generic[EchoPacket_T, Echo_T]):
+    @abstractmethod
+    def create(self, packet: EchoPacket_T) -> Echo_T:
+        raise NotImplementedError
+
+
+class AbstractAdapter(
+    BetterABC,
+    Generic[Event_T, Action_T, Echo_T, InPacket_T, OutPacket_T, EchoPacket_T],
+):
+    protocol: LiteralString = abstractattr()
+    event_factory: AbstractEventFactory[InPacket_T, Event_T] = abstractattr()
+    action_factory: AbstractOutputFactory[OutPacket_T, Action_T] = abstractattr()
+    echo_factory: AbstractEchoFactory[EchoPacket_T, Echo_T] = abstractattr()
 
 
 class ActionHandle(Generic[Action_T, Echo_T]):

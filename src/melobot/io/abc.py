@@ -1,6 +1,6 @@
 import asyncio
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from typing_extensions import Self
 
@@ -16,31 +16,35 @@ from ..typing import (
 from ..utils import get_id
 
 
-@dataclass(kw_only=True)
-class GenericPacket:
-    time: int = time.time_ns()
-    id: str = get_id()
+@dataclass(kw_only=True, frozen=True)
+class _BasePacket:
+    time: int = field(default_factory=time.time_ns)
+    id: str = field(default_factory=get_id)
     protocol: LiteralString | None = None
     data: Any = None
 
 
-@dataclass(kw_only=True)
-class GenericOutputPacket(GenericPacket):
+@dataclass(kw_only=True, frozen=True)
+class BaseInPacket(_BasePacket):
+    pass
+
+
+@dataclass(kw_only=True, frozen=True)
+class BaseOutPacket(_BasePacket):
     echo: bool = True
 
 
-@dataclass(kw_only=True)
-class GenericEchoPacket(GenericPacket):
+@dataclass(kw_only=True, frozen=True)
+class BaseEchoPacket(_BasePacket):
     ok: bool = True
     status: int = 0
     prompt: str = ""
     notset: bool = False
 
 
-GenericInputPacket = GenericPacket
-InputPacket_T = TypeVar("InputPacket_T", bound=GenericInputPacket)
-OutputPacket_T = TypeVar("OutputPacket_T", bound=GenericOutputPacket)
-EchoPacket_T = TypeVar("EchoPacket_T", bound=GenericEchoPacket)
+InPacket_T = TypeVar("InPacket_T", bound=BaseInPacket)
+OutPacket_T = TypeVar("OutPacket_T", bound=BaseOutPacket)
+EchoPacket_T = TypeVar("EchoPacket_T", bound=BaseEchoPacket)
 
 
 class AbstractSource(BetterABC):
@@ -70,23 +74,21 @@ class AbstractSource(BetterABC):
             return False
 
 
-class AbstractInSource(AbstractSource, Generic[InputPacket_T]):
+class AbstractInSource(AbstractSource, Generic[InPacket_T]):
     @abstractmethod
-    async def input(self) -> InputPacket_T:
+    async def input(self) -> InPacket_T:
         raise NotImplementedError
 
 
-class AbstractOutSource(AbstractSource, Generic[OutputPacket_T, EchoPacket_T]):
+class AbstractOutSource(AbstractSource, Generic[OutPacket_T, EchoPacket_T]):
     @abstractmethod
-    async def output(self, packet: OutputPacket_T) -> EchoPacket_T:
+    async def output(self, packet: OutPacket_T) -> EchoPacket_T:
         raise NotImplementedError
 
 
 class AbstractIOSource(
-    AbstractInSource[InputPacket_T], AbstractOutSource[OutputPacket_T, EchoPacket_T]
+    AbstractInSource[InPacket_T], AbstractOutSource[OutPacket_T, EchoPacket_T]
 ): ...
 
 
-class GenericIOSource(
-    AbstractIOSource[GenericPacket, GenericOutputPacket, GenericEchoPacket]
-): ...
+class BaseIOSource(AbstractIOSource[BaseInPacket, BaseOutPacket, BaseEchoPacket]): ...

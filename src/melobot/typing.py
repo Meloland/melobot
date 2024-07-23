@@ -65,18 +65,6 @@ class LogicMode(Enum):
 #     BLACK = -1
 
 
-# TODO: 若无额外依赖，则移动到具体模块中
-class HandlePriority(int, Enum):
-    """事件处理优先级枚举
-
-    为方便进行优先级设置，有 MIN, MAX, MEAN 三个枚举值
-    """
-
-    MIN = 0
-    MAX = 1000
-    MEAN = (MAX + MIN) // 2
-
-
 class BotLife(Enum):
     """bot 实例的生命周期枚举"""
 

@@ -72,6 +72,6 @@ class BotSessionTimeout(BotException):
         super().__init__(text)
 
 
-class FuncSafeExited(BotException):
+class HandlerSafeExited(BotException):
     def __init__(self, text: str = ""):
         super().__init__(text)

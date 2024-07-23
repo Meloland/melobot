@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import asyncio
 from asyncio import Condition, Lock
 from contextlib import asynccontextmanager
 from contextvars import ContextVar, Token
 
-from ..adapter.entity import Event_T
+from ..adapter.abc import Event_T
 from ..exceptions import BotException, BotSessionError
-from ..typing import Any, AsyncCallable, AsyncGenerator, Optional
+from ..typing import Any, AsyncCallable, AsyncGenerator, Generic, Optional
 from ..utils import singleton
 from .abc import AbstractRule
 
@@ -100,7 +102,7 @@ class ExpireSessionState(SessionState):
         super().__init__(session)
 
 
-class BotSession:
+class BotSession(Generic[Event_T]):
     _sets: dict[AbstractRule, set["BotSession"]] = {}
     _locks: dict[AbstractRule, Lock] = {}
 
@@ -172,7 +174,7 @@ class BotSession:
         wait: bool = True,
         nowait_cb: AsyncCallable[[], None] | None = None,
         keep: bool = False,
-    ) -> Optional["BotSession"]:
+    ) -> BotSession[Event_T] | None:
         if rule is None:
             return BotSession(event, rule=None, keep=keep)
 
@@ -224,6 +226,9 @@ class BotSession:
         try:
             token = local._add_ctx(self)
             yield self
+        except asyncio.CancelledError:
+            if self._on_state(SuspendSessionState):
+                await self._wakeup(self.event)
         finally:
             local._del_ctx(token)
             await self.rest() if self._keep else await self.expire()

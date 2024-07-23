@@ -2,8 +2,8 @@ from .abc import (
     AbstractInSource,
     AbstractIOSource,
     AbstractOutSource,
-    GenericEchoPacket,
-    GenericIOSource,
-    GenericOutputPacket,
+    BaseEchoPacket,
+    BaseInPacket,
+    BaseIOSource,
+    BaseOutPacket,
 )
-from .abc import GenericPacket as GenericInputPacket

@@ -30,11 +30,11 @@ class ReadOnlyMeta(type):
         return super().__call__(*args, **kwargs)
 
 
-class FlagMixin:
+class MarkableMixin:
     def __init__(self) -> None:
         self._flags: dict[str, dict[str, Any]] = {}
 
-    def mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
+    def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
         self._flags.setdefault(namespace, {})
 
         if flag_name in self._flags[namespace].keys():
@@ -45,7 +45,7 @@ class FlagMixin:
         self._flags[namespace][flag_name] = val
 
     def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
-        if (flags := self._flags.get(namespace)) is None:
+        if self._flags.get(namespace) is None:
             return False
         if flag_name not in self._flags[namespace].keys():
             return False
@@ -53,6 +53,12 @@ class FlagMixin:
         return flag is val if val is None else flag == val
 
 
-class CloneMixin:
+class ClonableMixin:
     def copy(self):
         return deepcopy(self)
+
+
+class AttrsReprMixin:
+    def __repr__(self) -> str:
+        attrs = ", ".join(f"{k}={repr(v)}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"

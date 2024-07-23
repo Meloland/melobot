@@ -1,13 +1,11 @@
 import asyncio
 import inspect
-import os
-import pathlib
 import time
 import uuid
 from contextlib import asynccontextmanager
 from functools import wraps
 
-from .exceptions import BotRuntimeError, BotValidateError
+from .exceptions import BotValidateError
 from .typing import Any, AsyncCallable, Callable, Coroutine, Optional, P, T, TypeVar, cast
 
 
@@ -55,8 +53,8 @@ def get_twin_event() -> tuple[asyncio.Event, asyncio.Event]:
     return a, b
 
 
-class RWController:
-    """异步读写控制器
+class RWContext:
+    """异步读写上下文
 
     提供异步安全的读写上下文。在读取时可以多读，同时读写互斥。
 
@@ -64,59 +62,52 @@ class RWController:
 
     .. code:: python
 
-       rwc = RWController()
+       rwc = RWContext()
        # 读时使用此控制器的安全读上下文：
-       async with rwc.safe_read():
+       async with rwc.read():
            ...
        # 写时使用此控制器的安全写上下文：
-       async with rwc.safe_write():
+       async with rwc.write():
            ...
     """
 
     def __init__(self, read_limit: Optional[int] = None) -> None:
-        """初始化一个异步读写控制器
+        """初始化一个异步读写上下文
 
         :param read_limit: 读取的数量限制，为空则不限制
         """
-        write_semaphore = asyncio.Semaphore(1)
-        read_semaphore = asyncio.Semaphore(read_limit) if read_limit else None
-        read_num = 0
-        read_num_lock = asyncio.Lock()
+        self.write_semaphore = asyncio.Semaphore(1)
+        self.read_semaphore = asyncio.Semaphore(read_limit) if read_limit else None
+        self.read_num = 0
+        self.read_num_lock = asyncio.Lock()
 
-        @asynccontextmanager
-        async def safe_read():
-            nonlocal read_num, read_semaphore, write_semaphore, read_num_lock
+    @asynccontextmanager
+    async def read(self):
+        if self.read_semaphore:
+            await self.read_semaphore.acquire()
 
-            if read_semaphore:
-                await read_semaphore.acquire()
+        async with self.read_num_lock:
+            if self.read_num == 0:
+                await self.write_semaphore.acquire()
+            self.read_num += 1
 
-            async with read_num_lock:
-                if read_num == 0:
-                    await write_semaphore.acquire()
-                read_num += 1
+        try:
+            yield
+        finally:
+            async with self.read_num_lock:
+                self.read_num -= 1
+                if self.read_num == 0:
+                    self.write_semaphore.release()
+                if self.read_semaphore:
+                    self.read_semaphore.release()
 
-            try:
-                yield
-            finally:
-                async with read_num_lock:
-                    read_num -= 1
-                    if read_num == 0:
-                        write_semaphore.release()
-                    if read_semaphore:
-                        read_semaphore.release()
-
-        @asynccontextmanager
-        async def safe_write():
-            nonlocal write_semaphore
-
-            await write_semaphore.acquire()
-            try:
-                yield
-            finally:
-                write_semaphore.release()
-
-        self.safe_read = safe_read
-        self.safe_write = safe_write
+    @asynccontextmanager
+    async def write(self):
+        await self.write_semaphore.acquire()
+        try:
+            yield
+        finally:
+            self.write_semaphore.release()
 
 
 def get_id() -> str:
@@ -125,82 +116,6 @@ def get_id() -> str:
     :return: id 值
     """
     return uuid.uuid4().hex
-
-
-def this_dir(*relative_path: str) -> str:
-    """包内 py 脚本通过该方法可获得所在目录的绝对路径。提供参数，还可拼接路径。
-
-    使用方法：
-
-    .. code:: python
-
-       this_dir() # 获取 ./ 的绝对路径
-       this_dir('abc', 'env.toml') # 获取 ./abc/env.toml 的绝对路径
-
-    一些注意事项如下：
-
-    使用 `this_dir()`，只能这样导入：（导入语句后可以使用 as 子句）
-
-    .. code:: python
-
-       from melobot import this_dir
-       # 或
-       from melobot.base.tools import this_dir
-
-    若 `B.py` 从 `A.py` 导入包含 :func:`this_dir` 调用的结构，
-    导入前 :func:`this_dir` 必须已运行，而不能延迟求值
-
-    `A.py` 中：
-
-    .. code:: python
-
-       class Foo:
-           DIR = this_dir()
-           LAMBDA_DIR = lambda: this_dir()
-           GET_DIR = lambda: this_dir()
-       OUTER_DIR = Foo.LAMBDA_DIR()  # Ok
-
-    `B.py` 中：
-
-    .. code:: python
-
-       from .A import Foo, OUTER_DIR
-       OUTER_DIR      # Ok
-       Foo.DIR        # Ok
-       Foo.GET_DIR()  # Error
-
-    :param relative_path: 可用于拼接的路径部分
-    :return: 拼接后的绝对路径
-    """
-    cur_finfo: inspect.FrameInfo | None = None
-    cur_idx: int
-    caller_path: str | None = None
-    stacks = inspect.stack()
-
-    for idx, finfo in enumerate(stacks):
-        if finfo.function == "this_dir" and os.path.samefile(finfo.filename, __file__):
-            cur_finfo, cur_idx = finfo, idx
-
-    if cur_finfo is None:
-        raise BotRuntimeError("this_dir 定位失败，请检查本函数使用方式是否正确")
-
-    for idx, finfo in enumerate(stacks[cur_idx + 1 :]):
-
-        if finfo.function == "<module>":
-            for val in finfo.frame.f_locals.values():
-                if val is this_dir:
-                    caller_path = finfo.filename
-                    break
-
-            if caller_path is not None:
-                break
-
-    if caller_path is None:
-        raise BotRuntimeError("this_dir 定位失败，请检查本函数使用方式是否正确")
-
-    return str(
-        pathlib.Path(caller_path).parent.joinpath(*relative_path).resolve(strict=True)
-    )
 
 
 def to_async(func: Callable[[], T]) -> Callable[[], Coroutine[Any, Any, T]]:
