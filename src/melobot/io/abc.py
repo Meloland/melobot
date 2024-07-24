@@ -17,7 +17,7 @@ from ..utils import get_id
 
 
 @dataclass(kw_only=True, frozen=True)
-class _BasePacket:
+class _Packet:
     time: int = field(default_factory=time.time_ns)
     id: str = field(default_factory=get_id)
     protocol: LiteralString | None = None
@@ -25,26 +25,26 @@ class _BasePacket:
 
 
 @dataclass(kw_only=True, frozen=True)
-class BaseInPacket(_BasePacket):
+class InPacket(_Packet):
     pass
 
 
 @dataclass(kw_only=True, frozen=True)
-class BaseOutPacket(_BasePacket):
+class OutPacket(_Packet):
     echo: bool = True
 
 
 @dataclass(kw_only=True, frozen=True)
-class BaseEchoPacket(_BasePacket):
+class EchoPacket(_Packet):
     ok: bool = True
     status: int = 0
     prompt: str = ""
     notset: bool = False
 
 
-InPacket_T = TypeVar("InPacket_T", bound=BaseInPacket)
-OutPacket_T = TypeVar("OutPacket_T", bound=BaseOutPacket)
-EchoPacket_T = TypeVar("EchoPacket_T", bound=BaseEchoPacket)
+InPacket_T = TypeVar("InPacket_T", bound=InPacket)
+OutPacket_T = TypeVar("OutPacket_T", bound=OutPacket)
+EchoPacket_T = TypeVar("EchoPacket_T", bound=EchoPacket)
 
 
 class AbstractSource(BetterABC):
@@ -91,4 +91,4 @@ class AbstractIOSource(
 ): ...
 
 
-class BaseIOSource(AbstractIOSource[BaseInPacket, BaseOutPacket, BaseEchoPacket]): ...
+class BaseIOSource(AbstractIOSource[InPacket, OutPacket, EchoPacket]): ...

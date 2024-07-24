@@ -2,8 +2,8 @@ from .abc import (
     AbstractInSource,
     AbstractIOSource,
     AbstractOutSource,
-    BaseEchoPacket,
-    BaseInPacket,
     BaseIOSource,
-    BaseOutPacket,
+    EchoPacket,
+    InPacket,
+    OutPacket,
 )

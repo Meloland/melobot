@@ -25,7 +25,7 @@ from ..utils import get_id
 from .content import AbstractContent
 
 
-class BaseEvent(AttrsReprMixin):
+class Event(AttrsReprMixin):
     def __init__(
         self,
         type: str | None = None,
@@ -43,10 +43,10 @@ class BaseEvent(AttrsReprMixin):
         self.scope = scope
 
 
-Event_T = TypeVar("Event_T", bound=BaseEvent)
+Event_T = TypeVar("Event_T", bound=Event)
 
 
-class BaseAction(AttrsReprMixin):
+class Action(AttrsReprMixin):
     def __init__(
         self,
         type: str | None = None,
@@ -55,7 +55,7 @@ class BaseAction(AttrsReprMixin):
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
         contents: Sequence[AbstractContent] = (),
-        trigger: BaseEvent | None = None,
+        trigger: Event | None = None,
     ) -> None:
         self.type = type
         self.time = time_ns() if time == -1 else time
@@ -66,7 +66,7 @@ class BaseAction(AttrsReprMixin):
         self.trigger = trigger
 
 
-class BaseEcho(AttrsReprMixin):
+class Echo(AttrsReprMixin):
     def __init__(
         self,
         type: str | None = None,
@@ -90,8 +90,8 @@ class BaseEcho(AttrsReprMixin):
         self.data = data
 
 
-Action_T = TypeVar("Action_T", bound=BaseAction)
-Echo_T = TypeVar("Echo_T", bound=BaseEcho)
+Action_T = TypeVar("Action_T", bound=Action)
+Echo_T = TypeVar("Echo_T", bound=Echo)
 
 
 class AbstractEventFactory(BetterABC, Generic[InPacket_T, Event_T]):

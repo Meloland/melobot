@@ -1,4 +1,4 @@
-from .abc import Action_T, BaseAction, BaseEcho, BaseEvent, Echo_T, Event_T
+from .abc import Action, Action_T, Echo, Echo_T, Event, Event_T
 from .content import AbstractContent
 
 __all__ = (
@@ -6,9 +6,9 @@ __all__ = (
     "AbstractEventCaster",
     "AbstractActionCaster",
     "AbstractEchoCaster",
-    "BaseEvent",
-    "BaseAction",
-    "BaseEcho",
+    "Event",
+    "Action",
+    "Echo",
     "Event_T",
     "Action_T",
     "Echo_T",

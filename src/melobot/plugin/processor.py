@@ -8,7 +8,10 @@ if TYPE_CHECKING:
 class ProcessFlow:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.blocked: bool = False
+        self.bubble = True
+
+    def set_bubble(self, status: bool) -> None:
+        self.bubble = status
 
     async def run(self) -> None:
         pass

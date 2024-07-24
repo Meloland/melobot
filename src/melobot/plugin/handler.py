@@ -1,20 +1,24 @@
-import asyncio
 from enum import Enum
+from functools import total_ordering
 
 from ..adapter import Event_T
 from ..context.abc import AbstractRule, SessionOption
 from ..context.session import BotSession
 from ..exceptions import BotValueError, HandlerSafeExited
 from ..log import BotLogger, LogLevel
-from ..typing import Generic
+from ..typing import Any, Generic
 from ..utils import RWContext
 from .processor import ProcessFlow
 
 
-class HandleLevel(int, Enum):
-    MIN = 0
-    MAX = 1000
-    MEAN = (MAX + MIN) // 2
+class HandleLevel(float, Enum):
+    MAX = 1 << 6
+    ULTRA_HIGH = 1 << 5
+    HIGH = 1 << 4
+    NORMAL = 1 << 3
+    LOW = 1 << 2
+    ULTRA_LOW = 1 << 1
+    MIN = 1
 
 
 class EventHandler(Generic[Event_T]):
@@ -22,7 +26,7 @@ class EventHandler(Generic[Event_T]):
         self,
         flow: ProcessFlow,
         logger: BotLogger,
-        priority: HandleLevel = HandleLevel.MEAN,
+        priority: HandleLevel = HandleLevel.NORMAL,
         block: bool = False,
         temp: bool = False,
         option: SessionOption[Event_T] | None = None,
@@ -32,7 +36,7 @@ class EventHandler(Generic[Event_T]):
         self.logger = logger
         self.priority = priority
         self.handle_ctrl = RWContext()
-        self.flow.blocked = block
+        self.flow.set_bubble(not block)
 
         self.temp = temp
         self._invalid = False
@@ -61,7 +65,7 @@ class EventHandler(Generic[Event_T]):
             case _:
                 raise BotValueError(f"未知的 EventHandler 格式化标识符：{format_spec}")
 
-    async def _run_in_session(self, event: Event_T) -> None:
+    async def _handle_in_session(self, event: Event_T) -> None:
         try:
             session = await BotSession[Event_T].get(
                 event,
@@ -85,26 +89,25 @@ class EventHandler(Generic[Event_T]):
             )
             self.logger.exc(locals=locals())
 
-    async def run(self, event: Event_T) -> None:
+    async def handle(self, event: Event_T) -> bool:
+        """返回是否可以继续向低优先级 handler 冒泡"""
         if self._invalid:
-            return
+            return True
 
         if not self.temp:
             async with self.handle_ctrl.read():
                 if self._invalid:
-                    return
-                await self._run_in_session(event)
+                    return True
+                await self._handle_in_session(event)
+                return self.flow.bubble
 
         async with self.handle_ctrl.write():
             if self._invalid:
-                return
-            await self._run_in_session(event)
+                return True
+            await self._handle_in_session(event)
             self._invalid = True
+            return self.flow.bubble
 
     async def expire(self) -> None:
         async with self.handle_ctrl.write():
             self._invalid = True
-
-
-class EventDispatcher:
-    pass
