@@ -35,7 +35,7 @@ async def exit() -> None:
 
 
 async def bypass() -> None:
-    FLOW_RECORD.get().append(f"{_NODE_LOCAL.get().name} -> [BYPASS] Outo")
+    FLOW_RECORD.get().append(f"{_NODE_LOCAL.get().name} -> [BYPASS] Out")
     raise FlowContinued("事件处理流安全地跳过结点执行，请无视这个内部工作信号")
 
 
@@ -78,7 +78,7 @@ class ProcessNode:
             node_token = _NODE_LOCAL.set(self)
             FLOW_RECORD.get().append(f"Checked and Into -> {self.name}")
             await self.processor()
-            FLOW_RECORD.get().append(f"{self.name} -> Normal Outo")
+            FLOW_RECORD.get().append(f"{self.name} -> Normal Out")
         except FlowContinued:
             await next()
         finally:

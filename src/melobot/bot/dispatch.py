@@ -48,20 +48,24 @@ class EventBus:
     def __init__(self) -> None:
         self.handlers: _KeyOrderDict[HandleLevel, set[EventHandler]] = _KeyOrderDict()
         self.broadcast_ctrl = RWContext()
+        self.gc_interval = 5
 
     async def add(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
             for h in handlers:
                 self.handlers.setdefault(h.priority, set()).add(h)
 
-    async def remove(self, *handlers: EventHandler) -> None:
+    async def __remove(self, *handlers: EventHandler) -> None:
+        for h in handlers:
+            await h._expire()
+            h_set = self.handlers[h.priority]
+            h_set.remove(h)
+            if len(h_set) == 0:
+                self.handlers.pop(h.priority)
+
+    async def expire(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
-            for h in handlers:
-                await h.expire()
-                h_set = self.handlers[h.priority]
-                h_set.remove(h)
-                if len(h_set) == 0:
-                    self.handlers.pop(h.priority)
+            await self.__remove(*handlers)
 
     async def reset(self, handler: EventHandler, new_prior: HandleLevel) -> None:
         async with self.broadcast_ctrl.write():
@@ -71,13 +75,22 @@ class EventBus:
             if len(h_set) == 0:
                 self.handlers.pop(old_prior)
             self.handlers.setdefault(new_prior, set()).add(handler)
-            await handler.set_prior(new_prior)
+            await handler._reset_prior(new_prior)
 
     async def broadcast(self, event: Event) -> None:
         async with self.broadcast_ctrl.read():
             for h_set in self.handlers.values():
-                tasks = tuple(asyncio.create_task(h.handle(event)) for h in h_set)
+                tasks = tuple(asyncio.create_task(h._handle(event)) for h in h_set)
                 await asyncio.wait(tasks)
 
                 if not event._spread:
                     break
+
+    async def timed_gc(self) -> None:
+        while True:
+            await asyncio.sleep(self.gc_interval)
+            async with self.broadcast_ctrl.write():
+                hs = tuple(
+                    h for h_set in self.handlers.values() for h in h_set if h._invalid
+                )
+                await self.__remove(*hs)

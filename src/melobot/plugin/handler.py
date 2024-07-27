@@ -25,9 +25,9 @@ class EventHandler(Generic[Event_T]):
         self.flow = flow
         self.logger = logger
         self.priority = priority
-        self.handle_ctrl = RWContext()
 
-        self.temp = temp
+        self._handle_ctrl = RWContext()
+        self._temp = temp
         self._invalid = False
 
         self._rule: AbstractRule[Event_T] | None
@@ -76,30 +76,30 @@ class EventHandler(Generic[Event_T]):
             )
             self.logger.exc(locals=locals())
 
-    async def handle(self, event: Event_T) -> None:
+    async def _handle(self, event: Event_T) -> None:
         if self._invalid:
             return
 
         if not isinstance(event, self.etype):
             return
 
-        if not self.temp:
-            async with self.handle_ctrl.read():
+        if not self._temp:
+            async with self._handle_ctrl.read():
                 if self._invalid:
                     return
                 return await self._handle_in_session(event)
 
-        async with self.handle_ctrl.write():
+        async with self._handle_ctrl.write():
             if self._invalid:
                 return
             await self._handle_in_session(event)
             self._invalid = True
             return
 
-    async def set_prior(self, new_prior: HandleLevel) -> None:
-        async with self.handle_ctrl.write():
+    async def _reset_prior(self, new_prior: HandleLevel) -> None:
+        async with self._handle_ctrl.write():
             self.priority = new_prior
 
-    async def expire(self) -> None:
-        async with self.handle_ctrl.write():
+    async def _expire(self) -> None:
+        async with self._handle_ctrl.write():
             self._invalid = True
