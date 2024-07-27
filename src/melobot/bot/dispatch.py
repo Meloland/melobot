@@ -58,17 +58,26 @@ class EventBus:
         async with self.broadcast_ctrl.write():
             for h in handlers:
                 await h.expire()
-                self.handlers[h.priority].remove(h)
+                h_set = self.handlers[h.priority]
+                h_set.remove(h)
+                if len(h_set) == 0:
+                    self.handlers.pop(h.priority)
+
+    async def reset(self, handler: EventHandler, new_prior: HandleLevel) -> None:
+        async with self.broadcast_ctrl.write():
+            old_prior = handler.priority
+            h_set = self.handlers[old_prior]
+            h_set.remove(handler)
+            if len(h_set) == 0:
+                self.handlers.pop(old_prior)
+            self.handlers.setdefault(new_prior, set()).add(handler)
+            await handler.set_prior(new_prior)
 
     async def broadcast(self, event: Event) -> None:
         async with self.broadcast_ctrl.read():
             for h_set in self.handlers.values():
                 tasks = tuple(asyncio.create_task(h.handle(event)) for h in h_set)
+                await asyncio.wait(tasks)
 
-                can_spread = True
-                for fut in asyncio.as_completed(tasks):
-                    if not (await fut):
-                        can_spread = False
-
-                if not can_spread:
+                if not event._spread:
                     break

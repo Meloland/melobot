@@ -42,6 +42,8 @@ class Event(AttrsReprMixin):
         self.contents = contents
         self.scope = scope
 
+        self._spread: bool = True
+
 
 Event_T = TypeVar("Event_T", bound=Event)
 

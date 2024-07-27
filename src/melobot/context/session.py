@@ -5,7 +5,7 @@ from asyncio import Condition, Lock
 from contextlib import asynccontextmanager
 from contextvars import ContextVar, Token
 
-from ..adapter.abc import Event_T
+from ..adapter.abc import Event, Event_T
 from ..exceptions import BotException, BotSessionError
 from ..typing import Any, AsyncCallable, AsyncGenerator, Generic, Optional
 from ..utils import singleton
@@ -221,7 +221,7 @@ class BotSession(Generic[Event_T]):
         return BotSession(event, rule=rule, keep=keep)
 
     @asynccontextmanager
-    async def ctx(self) -> AsyncGenerator["BotSession", None]:
+    async def ctx(self) -> AsyncGenerator[BotSession[Event_T], None]:
         local = SessionLocal()
         try:
             token = local._add_ctx(self)
@@ -232,6 +232,14 @@ class BotSession(Generic[Event_T]):
         finally:
             local._del_ctx(token)
             await self.rest() if self._keep else await self.expire()
+
+    @staticmethod
+    def current() -> BotSession[Event]:
+        return SessionLocal()._get_ctx()
+
+    @staticmethod
+    def current_event() -> Event:
+        return BotSession.current().event
 
 
 @singleton
@@ -254,7 +262,10 @@ class SessionLocal:
                 raise BotSessionError(f"未知的 SessionLocal 格式化标识符：{format_spec}")
 
     def _get_ctx(self) -> BotSession:
-        return self.__storage__.get()
+        try:
+            return self.__storage__.get()
+        except LookupError:
+            raise BotSessionError("当前未在会话中运行，无法获取上下文信息")
 
     def __setattr__(self, __name: str, __value: Any) -> None:
         setattr(self._get_ctx(), __name, __value)

@@ -16,6 +16,16 @@ from typing import *
 #         self.vals: list[Any] = values
 
 
+class HandleLevel(float, Enum):
+    MAX = 1 << 6
+    ULTRA_HIGH = 1 << 5
+    HIGH = 1 << 4
+    NORMAL = 1 << 3
+    LOW = 1 << 2
+    ULTRA_LOW = 1 << 1
+    MIN = 1
+
+
 class LogicMode(Enum):
     """逻辑模式枚举类型"""
 
