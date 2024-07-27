@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextvars import ContextVar
 
-from ..adapter.abc import Event
+from ..adapter.base import Event
 from ..context.session import BotSession
 from ..exceptions import FlowBroke, FlowContinued, FlowRewound, ProcessFlowError
 from ..typing import AsyncCallable

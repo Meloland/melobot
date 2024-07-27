@@ -1,4 +1,4 @@
-from .abc import (
+from .base import (
     AbstractInSource,
     AbstractIOSource,
     AbstractOutSource,

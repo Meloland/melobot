@@ -5,11 +5,11 @@ from asyncio import Condition, Lock
 from contextlib import asynccontextmanager
 from contextvars import ContextVar, Token
 
-from ..adapter.abc import Event, Event_T
+from ..adapter.base import Event, Event_T
 from ..exceptions import BotException, BotSessionError
 from ..typing import Any, AsyncCallable, AsyncGenerator, Generic, Optional
 from ..utils import singleton
-from .abc import AbstractRule
+from .base import AbstractRule
 
 
 class SessionStateError(BotException):
