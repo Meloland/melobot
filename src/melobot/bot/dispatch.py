@@ -1,7 +1,7 @@
 import asyncio
 
 from ..adapter.base import Event
-from ..plugin.handler import EventHandler, HandleLevel
+from ..process.handle import EventHandler, HandleLevel
 from ..typing import TypeVar
 from ..utils import RWContext
 

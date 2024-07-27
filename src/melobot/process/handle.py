@@ -1,11 +1,11 @@
 from ..adapter import Event_T
-from ..context.base import AbstractRule, SessionOption
-from ..context.session import BotSession
+from ..session.option import AbstractRule, SessionOption
+from ..session.base import BotSession
 from ..exceptions import BotValueError
 from ..log import BotLogger, LogLevel
 from ..typing import Generic, HandleLevel
 from ..utils import RWContext
-from .process import ProcessFlow
+from .base import ProcessFlow
 
 
 class EventHandler(Generic[Event_T]):
@@ -54,7 +54,7 @@ class EventHandler(Generic[Event_T]):
             case _:
                 raise BotValueError(f"未知的 EventHandler 格式化标识符：{format_spec}")
 
-    async def _handle_in_session(self, event: Event_T) -> None:
+    async def _handle_event(self, event: Event_T) -> None:
         try:
             session = await BotSession[Event_T].get(
                 event,
@@ -87,12 +87,12 @@ class EventHandler(Generic[Event_T]):
             async with self._handle_ctrl.read():
                 if self._invalid:
                     return
-                return await self._handle_in_session(event)
+                return await self._handle_event(event)
 
         async with self._handle_ctrl.write():
             if self._invalid:
                 return
-            await self._handle_in_session(event)
+            await self._handle_event(event)
             self._invalid = True
             return
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextvars import ContextVar
 
 from ..adapter.base import Event
-from ..context.session import BotSession
+from ..session.base import BotSession
 from ..exceptions import FlowBroke, FlowContinued, FlowRewound, ProcessFlowError
 from ..typing import AsyncCallable
 
@@ -92,7 +92,7 @@ class ProcessFlow:
         self._sets: set[ProcessNode] = set(starts)
 
         if len(starts) > 1 and len(self._sets) != len(starts):
-            raise ProcessFlowError("DAG 初始化时存在重复节点")
+            raise ProcessFlowError("处理流初始化时存在重复节点")
 
     def __repr__(self) -> str:
         output = f"{self.__class__.__name__}(nums={len(self._sets)}"

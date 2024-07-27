@@ -4,19 +4,10 @@ from enum import Enum
 from types import TracebackType
 from typing import *
 
-# class ParseArgs:
-#     """解析参数类"""
-
-#     def __init__(self, values: list[Any]) -> None:
-#         """实例化一组解析参数，对应一次解析的结果
-
-#         :param values: 参数值的列表（表示无可用参数用空列表，而不是 None 值）
-#         """
-#         #: 保存的一组解析参数值
-#         self.vals: list[Any] = values
-
 
 class HandleLevel(float, Enum):
+    """事件处理器优先级枚举类型"""
+
     MAX = 1 << 6
     ULTRA_HIGH = 1 << 5
     HIGH = 1 << 4
@@ -62,17 +53,6 @@ class LogicMode(Enum):
                 res = cls.calc(logic, res, values[idx])
             idx += 1
         return res
-
-
-# # TODO: 若无额外依赖，则移动到具体模块中
-# class User(int, Enum):
-#     """用户权限等级枚举"""
-
-#     OWNER = 10000
-#     SU = 1000
-#     WHITE = 100
-#     USER = 10
-#     BLACK = -1
 
 
 class BotLife(Enum):
@@ -126,3 +106,7 @@ class BetterABCMeta(ABCMeta):
 
 class BetterABC(metaclass=BetterABCMeta):
     __slots__ = ()
+
+
+class VoidType(Enum):
+    VOID = type("Void", (), {})

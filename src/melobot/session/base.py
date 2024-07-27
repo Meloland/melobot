@@ -9,7 +9,7 @@ from ..adapter.base import Event, Event_T
 from ..exceptions import BotException, BotSessionError
 from ..typing import Any, AsyncCallable, AsyncGenerator, Generic, Optional
 from ..utils import singleton
-from .base import AbstractRule
+from .option import AbstractRule
 
 
 class SessionStateError(BotException):
