@@ -1,18 +1,18 @@
 from ..adapter import Event_T
-from ..session.option import AbstractRule, SessionOption
-from ..session.base import BotSession
 from ..exceptions import BotValueError
 from ..log import BotLogger, LogLevel
+from ..session.base import BotSession
+from ..session.option import AbstractRule, SessionOption
 from ..typing import Generic, HandleLevel
 from ..utils import RWContext
-from .base import ProcessFlow
+from .process import ProcessFlow
 
 
 class EventHandler(Generic[Event_T]):
     def __init__(
         self,
         name: str,
-        etype: type[Event_T],
+        type: type[Event_T],
         flow: ProcessFlow,
         logger: BotLogger,
         priority: HandleLevel = HandleLevel.NORMAL,
@@ -21,7 +21,7 @@ class EventHandler(Generic[Event_T]):
     ) -> None:
         super().__init__()
         self.name = name
-        self.etype = etype
+        self.type = type
         self.flow = flow
         self.logger = logger
         self.priority = priority
@@ -67,7 +67,7 @@ class EventHandler(Generic[Event_T]):
                 return
 
             async with session.ctx():
-                return await self.flow.run()
+                return await self.flow._run()
 
         except Exception:
             self.logger.error(f"事件处理 {self.name} 发生异常")
@@ -80,7 +80,7 @@ class EventHandler(Generic[Event_T]):
         if self._invalid:
             return
 
-        if not isinstance(event, self.etype):
+        if not isinstance(event, self.type):
             return
 
         if not self._temp:

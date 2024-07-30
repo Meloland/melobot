@@ -72,21 +72,6 @@ class BotSessionTimeout(BotException):
         super().__init__(text)
 
 
-class FlowBroke(BotException):
-    def __init__(self, text: str = ""):
-        super().__init__(text)
-
-
-class FlowContinued(BotException):
-    def __init__(self, text: str = ""):
-        super().__init__(text)
-
-
-class FlowRewound(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
-
-
 class ProcessFlowError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
