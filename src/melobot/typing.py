@@ -1,7 +1,8 @@
 import inspect
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from types import TracebackType
+from os import PathLike
+from types import ModuleType, TracebackType
 from typing import *
 
 

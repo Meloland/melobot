@@ -1,7 +1,7 @@
 import os
 import sys
 
-from .abc import ReadOnlyMeta
+from .base import ReadOnlyMeta
 from .typing import Any
 
 __version__ = "3.0.0a1.dev0"

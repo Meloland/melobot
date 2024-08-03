@@ -224,18 +224,18 @@ class BotSession(Generic[Event_T]):
     async def ctx(self) -> AsyncGenerator[BotSession[Event_T], None]:
         local = SessionLocal()
         try:
-            token = local._add_ctx(self)
+            token = local.add(self)
             yield self
         except asyncio.CancelledError:
             if self._on_state(SuspendSessionState):
                 await self._wakeup(self.event)
         finally:
-            local._del_ctx(token)
+            local.remove(token)
             await self.rest() if self._keep else await self.expire()
 
     @staticmethod
     def current() -> BotSession[Event]:
-        return SessionLocal()._get_ctx()
+        return SessionLocal().get()
 
     @staticmethod
     def current_event() -> Event:
@@ -244,9 +244,6 @@ class BotSession(Generic[Event_T]):
 
 @singleton
 class SessionLocal:
-    _filter_f = lambda x: not x.startswith("_")
-    __slots__ = tuple(filter(_filter_f, dir(BotSession))) + ("__storage__",)
-
     def __init__(self) -> None:
         object.__setattr__(self, "__storage__", ContextVar("session_ctx"))
         self.__storage__: ContextVar[BotSession]
@@ -255,26 +252,20 @@ class SessionLocal:
         match format_spec:
             case "hexid":
                 try:
-                    return f"{self._get_ctx():hexid}"
+                    return f"{self.get():hexid}"
                 except LookupError:
                     return "None"
             case _:
                 raise BotSessionError(f"未知的 SessionLocal 格式化标识符：{format_spec}")
 
-    def _get_ctx(self) -> BotSession:
+    def get(self) -> BotSession:
         try:
             return self.__storage__.get()
         except LookupError:
             raise BotSessionError("当前未在会话中运行，无法获取上下文信息")
 
-    def __setattr__(self, __name: str, __value: Any) -> None:
-        setattr(self._get_ctx(), __name, __value)
-
-    def __getattr__(self, __name: str) -> Any:
-        return getattr(self._get_ctx(), __name)
-
-    def _add_ctx(self, ctx: BotSession) -> Token:
+    def add(self, ctx: BotSession) -> Token:
         return self.__storage__.set(ctx)
 
-    def _del_ctx(self, token: Token) -> None:
+    def remove(self, token: Token) -> None:
         self.__storage__.reset(token)

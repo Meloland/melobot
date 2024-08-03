@@ -3,7 +3,7 @@ from time import time_ns
 
 from typing_extensions import Self
 
-from ..abc import AttrsReprMixin
+from ..base import AttrsReprMixin
 from ..exceptions import BotRuntimeError
 from ..io.base import EchoPacket_T, InPacket_T, OutPacket_T
 from ..typing import (

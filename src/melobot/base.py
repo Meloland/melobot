@@ -1,3 +1,4 @@
+import inspect
 from copy import deepcopy
 
 from .exceptions import BotValueError
@@ -60,5 +61,38 @@ class ClonableMixin:
 
 class AttrsReprMixin:
     def __repr__(self) -> str:
-        attrs = ", ".join(f"{k}={repr(v)}" for k, v in self.__dict__.items())
+        attrs = ", ".join(
+            f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
+        )
         return f"{self.__class__.__name__}({attrs})"
+
+
+class LocatableMixin:
+    def __new__(cls, *_args, **_kwargs):
+        obj = super().__new__(cls)
+        setattr(obj, "__obj_location__", obj._init_location())
+        return obj
+
+    @staticmethod
+    def _init_location():
+        frame = inspect.currentframe()
+        while frame:
+            if frame.f_code.co_name == "<module>":
+                return {
+                    "module": frame.f_globals["__name__"],
+                    "file": frame.f_globals["__file__"],
+                    "line": frame.f_lineno,
+                }
+            frame = frame.f_back
+
+    @property
+    def __obj_module__(self) -> str:
+        return getattr(self, "__obj_location__")["module"]
+
+    @property
+    def __obj_file__(self) -> str:
+        return getattr(self, "__obj_location__")["file"]
+
+    @property
+    def __obj_line__(self) -> int:
+        return getattr(self, "__obj_location__")["line"]
