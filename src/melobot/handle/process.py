@@ -11,7 +11,7 @@ from ..typing import AsyncCallable, Iterable
 
 
 class ProcessNode:
-    def __init__(self, type: type[Event], name: str = "") -> None:
+    def __init__(self, type: type[Event] = Event, name: str = "") -> None:
         self.name = name
         self.type = type
         self.processor: AsyncCallable[..., bool | None]
@@ -61,7 +61,7 @@ class _NodeInfo:
 
 class ProcessFlow:
     def __init__(
-        self, *edge_maps: Iterable[Iterable[ProcessNode] | ProcessNode], name: str = ""
+        self, name: str, *edge_maps: Iterable[Iterable[ProcessNode] | ProcessNode]
     ) -> None:
         self.name = name
         edges: list[tuple[ProcessNode, ProcessNode]] = []
@@ -137,8 +137,8 @@ class ProcessFlow:
         except LookupError:
             stack = []
 
+        token = _FLOW_CTX.set(_FlowCtx(self, self.starts[0], True, stack))
         try:
-            token = _FLOW_CTX.set(_FlowCtx(self, self.starts[0], True, stack))
             stack.append(f"[{self.name}] | Start >>> [{self.name}]")
             idx = 0
             while idx < len(self.starts):
@@ -238,5 +238,5 @@ async def flow_to(flow: ProcessFlow) -> None:
     await flow._run()
 
 
-def runtime_stack() -> tuple[str, ...]:
+def get_flow_stack() -> tuple[str, ...]:
     return tuple(_FLOW_CTX.get().stack)
