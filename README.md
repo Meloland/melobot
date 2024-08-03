@@ -120,3 +120,10 @@ pdm build
 
 > **melobot 项目代码的所有贡献者**
 
+## ❤️ 鸣谢
+
+> [PyCharm](https://zh.wikipedia.org/wiki/PyCharm) 是一款流行的、强大的、适用于数据科学与 Web 开发的 Python IDE。
+
+特别感谢由 [JetBrains](https://www.jetbrains.com/?from=melobot) 提供的 [PyCharm](https://www.jetbrains.com/pycharm/?from=melobot) 等相关软件/程序的免费授权许可证。这些软件/程序用于本项目的开发与 IDE 兼容性测试。
+
+<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/PyCharm.png" alt="PyCharm logo." style="width: 310px">
