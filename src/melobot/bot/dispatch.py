@@ -1,8 +1,8 @@
 import asyncio
 
 from ..adapter.base import Event
-from ..process.handle import EventHandler, HandleLevel
-from ..typing import TypeVar
+from ..handle.base import EventHandler
+from ..typing import HandleLevel, TypeVar
 from ..utils import RWContext
 
 key_T = TypeVar("key_T", bound=float)
@@ -57,7 +57,7 @@ class EventBus:
 
     async def __remove(self, *handlers: EventHandler) -> None:
         for h in handlers:
-            await h._expire()
+            await h.expire()
             h_set = self.handlers[h.priority]
             h_set.remove(h)
             if len(h_set) == 0:
@@ -75,12 +75,12 @@ class EventBus:
             if len(h_set) == 0:
                 self.handlers.pop(old_prior)
             self.handlers.setdefault(new_prior, set()).add(handler)
-            await handler._reset_prior(new_prior)
+            await handler.reset_prior(new_prior)
 
     async def broadcast(self, event: Event) -> None:
         async with self.broadcast_ctrl.read():
             for h_set in self.handlers.values():
-                tasks = tuple(asyncio.create_task(h._handle(event)) for h in h_set)
+                tasks = tuple(asyncio.create_task(h.handle(event)) for h in h_set)
                 await asyncio.wait(tasks)
 
                 if not event._spread:

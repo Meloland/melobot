@@ -4,10 +4,11 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 from itertools import tee
 
-from ..adapter.base import Event
+from ..adapter.base import Event, Event_T
 from ..exceptions import ProcessFlowError
 from ..session.base import BotSession
-from ..typing import AsyncCallable, Iterable
+from ..session.option import SessionOption
+from ..typing import AsyncCallable, Generic, HandleLevel, Iterable
 
 
 class ProcessNode:
@@ -59,11 +60,22 @@ class _NodeInfo:
         return _NodeInfo(self.nexts, self.in_deg, self.out_deg)
 
 
-class ProcessFlow:
+class ProcessFlow(Generic[Event_T]):
     def __init__(
-        self, name: str, *edge_maps: Iterable[Iterable[ProcessNode] | ProcessNode]
+        self,
+        name: str,
+        *edge_maps: Iterable[Iterable[ProcessNode] | ProcessNode],
+        event_type: type[Event] = Event,
+        priority: HandleLevel = HandleLevel.NORMAL,
+        temp: bool = False,
+        option: SessionOption[Event_T] | None = None,
     ) -> None:
         self.name = name
+        self.event_type = event_type
+        self.priority = priority
+        self.temp = temp
+        self.option = option
+
         edges: list[tuple[ProcessNode, ProcessNode]] = []
         self.graph: dict[ProcessNode, _NodeInfo] = {}
 

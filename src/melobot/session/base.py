@@ -262,7 +262,7 @@ class SessionLocal:
         try:
             return self.__storage__.get()
         except LookupError:
-            raise BotSessionError("当前未在会话中运行，无法获取上下文信息")
+            raise BotSessionError("当前未在会话中运行，无法获取")
 
     def add(self, ctx: BotSession) -> Token:
         return self.__storage__.set(ctx)

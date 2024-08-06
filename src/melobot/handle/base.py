@@ -1,46 +1,39 @@
-from ..adapter import Event_T
+from ..adapter.base import Event
 from ..exceptions import BotValueError
-from ..log import BotLogger, LogLevel
+from ..log import LogLevel, get_logger
 from ..session.base import BotSession
-from ..session.option import AbstractRule, SessionOption
-from ..typing import Generic, HandleLevel
+from ..session.option import AbstractRule
+from ..typing import TYPE_CHECKING, HandleLevel
 from ..utils import RWContext
 from .process import ProcessFlow
 
+if TYPE_CHECKING:
+    from ..plugin.base import Plugin
 
-class EventHandler(Generic[Event_T]):
-    def __init__(
-        self,
-        name: str,
-        type: type[Event_T],
-        flow: ProcessFlow,
-        logger: BotLogger,
-        priority: HandleLevel = HandleLevel.NORMAL,
-        temp: bool = False,
-        option: SessionOption[Event_T] | None = None,
-    ) -> None:
-        super().__init__()
-        self.name = name
-        self.type = type
+
+class EventHandler:
+    def __init__(self, plugin: "Plugin", flow: ProcessFlow) -> None:
         self.flow = flow
-        self.logger = logger
-        self.priority = priority
+        self.logger = get_logger()
+        self.name = flow.name
+        self.event_type = flow.event_type
 
+        self._plugin = plugin
         self._handle_ctrl = RWContext()
-        self._temp = temp
+        self._temp = flow.temp
         self._invalid = False
 
-        self._rule: AbstractRule[Event_T] | None
-        if option is None:
+        self._rule: AbstractRule | None
+        if flow.option is None:
             self._rule = None
             self._keep = False
             self._nowait_cb = None
             self._wait = True
         else:
-            self._rule = option.rule
-            self._keep = option.keep
-            self._nowait_cb = option.nowait_cb
-            self._wait = option.wait
+            self._rule = flow.option.rule
+            self._keep = flow.option.keep
+            self._nowait_cb = flow.option.nowait_cb
+            self._wait = flow.option.wait
 
         if self._wait and self._nowait_cb:
             self.logger.warning(
@@ -54,9 +47,13 @@ class EventHandler(Generic[Event_T]):
             case _:
                 raise BotValueError(f"未知的 EventHandler 格式化标识符：{format_spec}")
 
-    async def _handle_event(self, event: Event_T) -> None:
+    @property
+    def priority(self) -> HandleLevel:
+        return self.flow.priority
+
+    async def _handle_event(self, event: Event) -> None:
         try:
-            session = await BotSession[Event_T].get(
+            session = await BotSession.get(
                 event,
                 rule=self._rule,
                 wait=self._wait,
@@ -76,11 +73,11 @@ class EventHandler(Generic[Event_T]):
             )
             self.logger.exc(locals=locals())
 
-    async def _handle(self, event: Event_T) -> None:
+    async def handle(self, event: Event) -> None:
         if self._invalid:
             return
 
-        if not isinstance(event, self.type):
+        if not isinstance(event, self.event_type):
             return
 
         if not self._temp:
@@ -96,10 +93,10 @@ class EventHandler(Generic[Event_T]):
             self._invalid = True
             return
 
-    async def _reset_prior(self, new_prior: HandleLevel) -> None:
+    async def reset_prior(self, new_prior: HandleLevel) -> None:
         async with self._handle_ctrl.write():
-            self.priority = new_prior
+            self.flow.priority = new_prior
 
-    async def _expire(self) -> None:
+    async def expire(self) -> None:
         async with self._handle_ctrl.write():
             self._invalid = True
