@@ -5,6 +5,7 @@ import logging.handlers
 import os
 import sys
 import types
+from contextvars import ContextVar, Token
 from enum import Enum
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 
@@ -13,8 +14,9 @@ import rich.console
 import rich.pretty
 from better_exceptions import ExceptionFormatter
 
-from .exceptions import BotValueError
+from .exceptions import BotLoggerError
 from .typing import Any, Optional, cast
+from .utils import singleton
 
 _CONSOLE_IO = io.StringIO()
 _CONSOLE = rich.console.Console(file=_CONSOLE_IO, record=True, color_system="windows")
@@ -83,10 +85,10 @@ class NullLogger(Logger):
         logger_patch(self, LogLevel.CRITICAL)
 
 
-class BotLogger(Logger):
+class MeloLogger(Logger):
     """melobot 内置日志器类"""
 
-    LOGGERS: dict[str, "BotLogger"] = {}
+    LOGGERS: dict[str, "MeloLogger"] = {}
 
     LOG_COLORS = {
         "DEBUG": "cyan,bold",
@@ -130,15 +132,15 @@ class BotLogger(Logger):
         fmt = colorlog.ColoredFormatter(
             fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
-            log_colors=BotLogger.LOG_COLORS,
-            secondary_log_colors=BotLogger.SECOND_LOG_COLORS,
+            log_colors=MeloLogger.LOG_COLORS,
+            secondary_log_colors=MeloLogger.SECOND_LOG_COLORS,
             reset=True,
         )
         fmt.default_msec_format = "%s.%03d"
         fmt.formatException = lambda exc_info: "".join(
             _EXC_FORMATTER.format_exception(*exc_info)
         )
-        BotLogger.make_fmt_nocache(fmt)
+        MeloLogger.make_fmt_nocache(fmt)
 
         return fmt
 
@@ -168,7 +170,7 @@ class BotLogger(Logger):
         fmt.formatException = lambda exc_info: "".join(  # type: ignore
             _NO_COLOR_EXC_FORMATTER.format_exception(*exc_info)
         )
-        BotLogger.make_fmt_nocache(fmt)
+        MeloLogger.make_fmt_nocache(fmt)
 
         return fmt
 
@@ -203,11 +205,11 @@ class BotLogger(Logger):
         :param no_tag: 记录日志时是否不标识日志器名称
         """
 
-        if name in BotLogger.LOGGERS.keys():
-            raise BotValueError(f"名为 {name} 的日志器已存在，请修改 name")
+        if name in MeloLogger.LOGGERS.keys():
+            raise BotLoggerError(f"名为 {name} 的日志器已存在，请修改 name")
 
         super().__init__(name, level)
-        BotLogger.LOGGERS[name] = self
+        MeloLogger.LOGGERS[name] = self
 
         self._con_handler: Optional[logging.Handler] = None
         self._handler_arr: list[logging.Handler] = []
@@ -294,7 +296,7 @@ class BotLogger(Logger):
         """
         log_meth = getattr(self, level._name_.lower())
 
-        if isinstance(self, BotLogger):
+        if isinstance(self, MeloLogger):
             self._obj_filter.set(obj)
             log_meth(prefix_fmt % prefix)
             self._obj_filter.clear()
@@ -318,8 +320,33 @@ def logger_patch(logger: Any, log_level: LogLevel = LogLevel.INFO) -> None:
     setattr(logger, "__LEVEL_FLAG__", log_level)
     setattr(
         logger,
-        BotLogger._check_level.__name__,
-        types.MethodType(BotLogger._check_level, logger),
+        MeloLogger._check_level.__name__,
+        types.MethodType(MeloLogger._check_level, logger),
     )
-    setattr(logger, BotLogger.exc.__name__, types.MethodType(BotLogger.exc, logger))
-    setattr(logger, BotLogger.obj.__name__, types.MethodType(BotLogger.obj, logger))
+    setattr(logger, MeloLogger.exc.__name__, types.MethodType(MeloLogger.exc, logger))
+    setattr(logger, MeloLogger.obj.__name__, types.MethodType(MeloLogger.obj, logger))
+
+
+@singleton
+class LoggerLocal:
+    """Logger 实例自动上下文"""
+
+    def __init__(self) -> None:
+        object.__setattr__(self, "__storage__", ContextVar("logger_ctx"))
+        self.__storage__: ContextVar[MeloLogger]
+
+    def get(self) -> MeloLogger:
+        try:
+            return self.__storage__.get()
+        except LookupError:
+            raise BotLoggerError("当前上下文中不存在 logger 实例，无法获取")
+
+    def add(self, ctx: MeloLogger) -> Token:
+        return self.__storage__.set(ctx)
+
+    def remove(self, token: Token) -> None:
+        self.__storage__.reset(token)
+
+
+def get_logger() -> MeloLogger:
+    return LoggerLocal().get()

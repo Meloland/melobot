@@ -75,3 +75,8 @@ class BotSessionTimeout(BotException):
 class ProcessFlowError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
+
+
+class BotLoggerError(BotException):
+    def __init__(self, text: str):
+        super().__init__(text)
