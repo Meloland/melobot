@@ -20,6 +20,11 @@ class AsyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
         self.__callback = callabck
         self._static = static
 
+        if self.name.startswith("_"):
+            raise BotIpcError(f"共享对象 {self} 的名称不能以 _ 开头")
+        if self._static and self.__callback is not None:
+            raise BotIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
+
     def __call__(self, func: AsyncCallable[[], T]) -> AsyncCallable[[], T]:
         if self.__reflect is not None:
             raise BotIpcError("共享对象已经有获取值的反射方法，不能再次绑定")
@@ -27,6 +32,8 @@ class AsyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
         return func
 
     def setter(self, func: AsyncCallable[[T], None]) -> AsyncCallable[[T], None]:
+        if self._static:
+            raise BotIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
         if self.__callback is not None:
             raise BotIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
         self.__callback = func
@@ -60,6 +67,11 @@ class SyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
         self.__callback = callabck
         self._static = static
 
+        if self.name.startswith("_"):
+            raise BotIpcError(f"共享对象 {self} 的名称不能以 _ 开头")
+        if self._static and self.__callback is not None:
+            raise BotIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
+
     def __call__(self, func: Callable[[], T]) -> Callable[[], T]:
         if self.__reflect is not None:
             raise BotIpcError("共享对象已经有获取值的反射方法，不能再次绑定")
@@ -67,6 +79,8 @@ class SyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
         return func
 
     def setter(self, func: Callable[[T], None]) -> Callable[[T], None]:
+        if self._static:
+            raise BotIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
         if self.__callback is not None:
             raise BotIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
         self.__callback = func
@@ -95,7 +109,7 @@ class IPCManager:
 
     def get(self, plugin: str, id: str) -> AsyncShare | SyncShare:
         if (objs := self._shares.get(plugin)) is None:
-            raise BotIpcError(f"插件 {plugin} 中不存在名为 {id} 的共享对象")
+            raise BotIpcError(f"插件 {plugin} 不提供共享功能")
         if (obj := objs.get(id)) is None:
             raise BotIpcError(f"无法获取不存在的共享对象：标识 {id} 不存在")
         return obj
