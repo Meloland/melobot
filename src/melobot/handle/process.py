@@ -6,7 +6,7 @@ from itertools import tee
 
 from ..adapter.base import Event, Event_T
 from ..exceptions import ProcessFlowError
-from ..session.base import BotSession
+from ..session.base import Session
 from ..session.option import SessionOption
 from ..typing import AsyncCallable, Generic, HandleLevel, Iterable
 
@@ -28,7 +28,7 @@ class ProcessNode:
 
     async def process(self, flow: ProcessFlow) -> None:
         # TODO: 完成依赖注入操作
-        if not isinstance(BotSession.current_event(), self.type):
+        if not isinstance(Session.current_event(), self.type):
             return
 
         try:
@@ -221,7 +221,7 @@ async def nextp() -> None:
 async def block() -> None:
     ctx = _FLOW_CTX.get()
     ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> ~ [BLOCK]")
-    BotSession.current_event()._spread = False
+    Session.current_event()._spread = False
 
 
 async def quit() -> None:

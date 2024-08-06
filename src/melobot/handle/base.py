@@ -1,7 +1,7 @@
 from ..adapter.base import Event
 from ..exceptions import BotValueError
 from ..log import LogLevel, get_logger
-from ..session.base import BotSession
+from ..session.base import Session
 from ..session.option import AbstractRule
 from ..typing import TYPE_CHECKING, HandleLevel
 from ..utils import RWContext
@@ -53,7 +53,7 @@ class EventHandler:
 
     async def _handle_event(self, event: Event) -> None:
         try:
-            session = await BotSession.get(
+            session = await Session.get(
                 event,
                 rule=self._rule,
                 wait=self._wait,

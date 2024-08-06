@@ -25,7 +25,7 @@ class SessionStateError(BotException):
 
 
 class SessionState:
-    def __init__(self, session: "BotSession") -> None:
+    def __init__(self, session: "Session") -> None:
         self.session = session
 
     async def work(self, event: Event_T) -> None:
@@ -45,7 +45,7 @@ class SessionState:
 
 
 class SpareSessionState(SessionState):
-    def __init__(self, session: "BotSession") -> None:
+    def __init__(self, session: "Session") -> None:
         super().__init__(session)
 
     async def work(self, event: Event_T) -> None:
@@ -54,7 +54,7 @@ class SpareSessionState(SessionState):
 
 
 class WorkingSessionState(SessionState):
-    def __init__(self, session: "BotSession") -> None:
+    def __init__(self, session: "Session") -> None:
         super().__init__(session)
 
     async def rest(self) -> None:
@@ -86,7 +86,7 @@ class WorkingSessionState(SessionState):
 
 
 class SuspendSessionState(SessionState):
-    def __init__(self, session: "BotSession") -> None:
+    def __init__(self, session: "Session") -> None:
         super().__init__(session)
 
     async def wakeup(self, event: Event_T) -> None:
@@ -98,12 +98,12 @@ class SuspendSessionState(SessionState):
 
 
 class ExpireSessionState(SessionState):
-    def __init__(self, session: "BotSession") -> None:
+    def __init__(self, session: "Session") -> None:
         super().__init__(session)
 
 
-class BotSession(Generic[Event_T]):
-    _sets: dict[AbstractRule, set["BotSession"]] = {}
+class Session(Generic[Event_T]):
+    _sets: dict[AbstractRule, set["Session"]] = {}
     _locks: dict[AbstractRule, Lock] = {}
 
     def __init__(
@@ -119,7 +119,7 @@ class BotSession(Generic[Event_T]):
         self._keep = keep
 
         if rule is not None:
-            BotSession._sets.setdefault(rule, set()).add(self)
+            Session._sets.setdefault(rule, set()).add(self)
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
@@ -128,13 +128,13 @@ class BotSession(Generic[Event_T]):
             case _:
                 raise BotSessionError(f"未知的会话格式化标识符：{format_spec}")
 
-    def __lshift__(self, another: "BotSession") -> None:
+    def __lshift__(self, another: "Session") -> None:
         self.store.update(another.store)
 
     def _expire(self) -> None:
         self.store.clear()
         if self._rule is not None:
-            BotSession._sets[self._rule].remove(self)
+            Session._sets[self._rule].remove(self)
 
     def _to_state(self, state_class: type[SessionState]) -> None:
         self._state = state_class(self)
@@ -174,9 +174,9 @@ class BotSession(Generic[Event_T]):
         wait: bool = True,
         nowait_cb: AsyncCallable[[], None] | None = None,
         keep: bool = False,
-    ) -> BotSession[Event_T] | None:
+    ) -> Session[Event_T] | None:
         if rule is None:
-            return BotSession(event, rule=None, keep=keep)
+            return Session(event, rule=None, keep=keep)
 
         cls._locks.setdefault(rule, Lock())
         async with cls._locks[rule]:
@@ -218,10 +218,10 @@ class BotSession(Generic[Event_T]):
                         session._keep = keep
                         return session
 
-        return BotSession(event, rule=rule, keep=keep)
+        return Session(event, rule=rule, keep=keep)
 
     @asynccontextmanager
-    async def ctx(self) -> AsyncGenerator[BotSession[Event_T], None]:
+    async def ctx(self) -> AsyncGenerator[Session[Event_T], None]:
         local = SessionLocal()
         try:
             token = local.add(self)
@@ -234,19 +234,19 @@ class BotSession(Generic[Event_T]):
             await self.rest() if self._keep else await self.expire()
 
     @staticmethod
-    def current() -> BotSession[Event]:
+    def current() -> Session[Event]:
         return SessionLocal().get()
 
     @staticmethod
     def current_event() -> Event:
-        return BotSession.current().event
+        return Session.current().event
 
 
 @singleton
 class SessionLocal:
     def __init__(self) -> None:
         object.__setattr__(self, "__storage__", ContextVar("session_ctx"))
-        self.__storage__: ContextVar[BotSession]
+        self.__storage__: ContextVar[Session]
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
@@ -258,13 +258,13 @@ class SessionLocal:
             case _:
                 raise BotSessionError(f"未知的 SessionLocal 格式化标识符：{format_spec}")
 
-    def get(self) -> BotSession:
+    def get(self) -> Session:
         try:
             return self.__storage__.get()
         except LookupError:
             raise BotSessionError("当前未在会话中运行，无法获取")
 
-    def add(self, ctx: BotSession) -> Token:
+    def add(self, ctx: Session) -> Token:
         return self.__storage__.set(ctx)
 
     def remove(self, token: Token) -> None:
