@@ -12,6 +12,7 @@ from .typing import Any, AsyncCallable, Callable, Coroutine, Optional, P, T, Typ
 def singleton(cls):
     instances = {}
 
+    @wraps(cls)
     def wrapped():
         if cls not in instances:
             instances[cls] = cls()
