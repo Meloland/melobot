@@ -7,7 +7,7 @@ from ..exceptions import BotPluginError
 from ..typing import TYPE_CHECKING, Any, Callable, Iterable, ModuleType
 from ..utils import singleton
 from .base import Plugin, PluginMeta
-from .imp import MeloImpManager as ImpManager
+from .imp import Importer
 from .ipc import AsyncShare, SyncShare
 
 if TYPE_CHECKING:
@@ -52,7 +52,7 @@ class PluginInitHelper:
             imp_parts = list(parts1[len(parts2) :])
             imp_parts[-1] = imp_parts[-1].rstrip(".py")
 
-            mod = ImpManager.import_mod(
+            mod = Importer.import_mod(
                 share.__obj_module__, share_located.parent, sys_cache=False
             )
             for k in dir(mod):
@@ -116,7 +116,7 @@ class PluginInitHelper:
             if pinit_typ_path.exists():
                 remove(pinit_typ_path)
 
-            p_load_mod = ImpManager.import_mod(
+            p_load_mod = Importer.import_mod(
                 f"{p_name}.__plugin__", p_dir, sys_cache=False
             )
             for k in dir(p_load_mod):
@@ -155,7 +155,7 @@ class PluginInitHelper:
                     remove(pinit_typ_path)
                 raise
 
-        ImpManager.clear_cache()
+        Importer.clear_cache()
 
 
 @singleton
@@ -197,7 +197,7 @@ class PluginLoader:
         if not p_dir.joinpath("__plugin__.py").exists():
             raise BotPluginError("插件目录下不存在 __plugin__.py，无法加载")
 
-        p_load_mod = ImpManager.import_mod(f"{p_name}.__plugin__", p_dir, sys_cache=False)
+        p_load_mod = Importer.import_mod(f"{p_name}.__plugin__", p_dir, sys_cache=False)
         # p_mod = ImpManager.get_cache(Path(p_dir))
         # assert p_mod is not None
         # for k, v in p_mod.__dict__.items():

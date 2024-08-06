@@ -10,7 +10,7 @@ from ..utils import singleton
 
 
 @singleton
-class MeloSpecFinder(MetaPathFinder):
+class SpecFinder(MetaPathFinder):
     def __init__(self) -> None:
         super().__init__()
 
@@ -48,7 +48,7 @@ class MeloSpecFinder(MetaPathFinder):
             return spec_from_file_location(
                 fullname,
                 file,
-                loader=MeloModLoader(
+                loader=ModuleLoader(
                     fullname, file, sys_cache, load_cache, pre_sys_len, pre_cache_len
                 ),
                 submodule_search_locations=submodule_locations,
@@ -57,11 +57,11 @@ class MeloSpecFinder(MetaPathFinder):
         return None
 
 
-sys.meta_path.insert(0, MeloSpecFinder())
+sys.meta_path.insert(0, SpecFinder())
 
 
 @singleton
-class MeloModCacher:
+class ModuleCacher:
     def __init__(self) -> None:
         self._caches: dict[Path, ModuleType] = {}
         self.clear_cache()
@@ -110,7 +110,7 @@ class MeloModCacher:
             self.set_cache(name, mod)
 
 
-class MeloModLoader(Loader):
+class ModuleLoader(Loader):
     def __init__(
         self,
         fullname: str,
@@ -121,7 +121,7 @@ class MeloModLoader(Loader):
         pre_cache_len: int = -1,
     ) -> None:
         super().__init__()
-        self.cacher = MeloModCacher()
+        self.cacher = ModuleCacher()
         self.fullname = fullname
         self.fp = fp
         self.use_sys_cache = sys_cache
@@ -170,7 +170,7 @@ class MeloModLoader(Loader):
                     sys.modules.pop(name)
 
 
-class MeloImpManager:
+class Importer:
     @staticmethod
     def import_mod(
         name: str,
@@ -179,18 +179,18 @@ class MeloImpManager:
         load_cache: bool = True,
     ) -> ModuleType:
         pre_sys_len = len(sys.modules)
-        pre_cache_len = MeloModCacher().get_len()
+        pre_cache_len = ModuleCacher().get_len()
 
         if path is not None:
             try:
                 sep = name.rindex(".")
-                MeloImpManager.import_mod(name[:sep], Path(path).parent, True, True)
+                Importer.import_mod(name[:sep], Path(path).parent, True, True)
             except ValueError:
                 pass
 
         if sys_cache and name in sys.modules:
             return sys.modules[name]
-        spec = MeloSpecFinder().find_spec(
+        spec = SpecFinder().find_spec(
             name,
             (str(path),) if path is not None else None,
             sys_cache=sys_cache,
@@ -208,8 +208,8 @@ class MeloImpManager:
 
     @staticmethod
     def clear_cache() -> None:
-        MeloModCacher().clear_cache()
+        ModuleCacher().clear_cache()
 
     @staticmethod
     def get_cache(path: Path) -> ModuleType | None:
-        return MeloModCacher().get_cache(path)
+        return ModuleCacher().get_cache(path)
