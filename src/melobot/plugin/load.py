@@ -6,7 +6,7 @@ from pathlib import Path
 from ..exceptions import BotPluginError
 from ..typing import TYPE_CHECKING, Any, Callable, Iterable, ModuleType
 from ..utils import singleton
-from .base import Plugin, PluginMeta
+from .base import Plugin
 from .imp import Importer
 from .ipc import AsyncShare, SyncShare
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def plugin_get_attr(get_bot: Callable[[], "Bot"], p_name: str, name: str) -> Any:
-    obj = get_bot().ipc_manager.get(p_name, name)
+    obj = get_bot()._ipc_manager.get(p_name, name)
     if obj._static:
         return obj.get()
     else:
@@ -121,9 +121,10 @@ class PluginInitHelper:
             )
             for k in dir(p_load_mod):
                 v = getattr(p_load_mod, k)
-                if isinstance(v, PluginMeta):
-                    p_shares = v.shares
-                    p_funcs = v.funcs
+                if isinstance(v, type) and issubclass(v, Plugin):
+                    p = v()
+                    p_shares = p.shares
+                    p_funcs = p.funcs
                     break
             else:
                 raise BotPluginError(
@@ -166,13 +167,14 @@ class PluginLoader:
     def _build_plugin(self, p_name: str, p_load_mod: ModuleType) -> Plugin:
         for k in dir(p_load_mod):
             v = getattr(p_load_mod, k)
-            if isinstance(v, PluginMeta):
-                p_meta = v
+            if isinstance(v, type) and issubclass(v, Plugin):
+                p = v()
                 break
         else:
             raise BotPluginError("插件的 __plugin__.py 未实例化元数据类，无法加载")
 
-        return Plugin(p_name, p_meta)
+        p._build(p_name)
+        return p
 
     def load(self, plugin: ModuleType | str | PathLike[str]) -> Plugin:
         if isinstance(plugin, ModuleType):
@@ -198,12 +200,6 @@ class PluginLoader:
             raise BotPluginError("插件目录下不存在 __plugin__.py，无法加载")
 
         p_load_mod = Importer.import_mod(f"{p_name}.__plugin__", p_dir, sys_cache=False)
-        # p_mod = ImpManager.get_cache(Path(p_dir))
-        # assert p_mod is not None
-        # for k, v in p_mod.__dict__.items():
-        #     if isinstance(v, ModuleType):
-        #         p_mod.__dict__[k] = NotImplemented
-
         _plugin = self._build_plugin(p_name, p_load_mod)
         self._plugin_caches[p_name] = _plugin
         return _plugin

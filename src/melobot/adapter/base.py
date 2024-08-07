@@ -114,7 +114,7 @@ class AbstractEchoFactory(BetterABC, Generic[EchoPacket_T, Echo_T]):
         raise NotImplementedError
 
 
-class AbstractAdapter(
+class Adapter(
     BetterABC,
     Generic[Event_T, Action_T, Echo_T, InPacket_T, OutPacket_T, EchoPacket_T],
 ):

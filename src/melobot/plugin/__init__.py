@@ -1,2 +1,2 @@
-from .base import PluginMeta
+from .base import Plugin
 from .ipc import AsyncShare, IPCManager, SyncShare
