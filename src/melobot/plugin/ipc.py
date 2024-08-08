@@ -107,6 +107,9 @@ class IPCManager:
             raise BotIpcError(f"插件 {plugin} 中已存在名为 {obj.name} 的共享对象")
         objs[obj.name] = obj
 
+    def add_func(self, plugin: str, func: Callable) -> None:
+        self.add(plugin, SyncShare(func.__name__, lambda: func, None, True))
+
     def get(self, plugin: str, id: str) -> AsyncShare | SyncShare:
         if (objs := self._shares.get(plugin)) is None:
             raise BotIpcError(f"插件 {plugin} 不提供共享功能")

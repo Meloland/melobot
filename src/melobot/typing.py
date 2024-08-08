@@ -109,5 +109,5 @@ class BetterABC(metaclass=BetterABCMeta):
     __slots__ = ()
 
 
-class VoidType(Enum):
-    VOID = type("Void", (), {})
+class Placeholder(Enum):
+    EMPTY = type("_Empty", (), {})

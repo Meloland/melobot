@@ -2,10 +2,24 @@ import mimetypes
 import pathlib
 import urllib.parse
 
-import aiohttp
+from ..exceptions import BotException, BotValidateError, BotValueError
+from ..typing import (
+    Any,
+    AsyncCallable,
+    BetterABC,
+    TypeVar,
+    abstractattr,
+    abstractmethod,
+    cast,
+)
 
-from ..exceptions import BotException, BotValidateError
-from ..typing import Any, BetterABC, Literal, TypeVar, abstractattr, abstractmethod, cast
+_URI_PROCESSOR_MAP: dict[str, AsyncCallable[[str], str | bytes]] = {}
+
+
+def set_uri_processor(uri_type: str, processor: AsyncCallable[[str], Any]) -> None:
+    if uri_type == "file":
+        raise BotValueError("file 类型已存在内置处理器，不支持外部设定处理器")
+    _URI_PROCESSOR_MAP[uri_type] = processor
 
 
 class BotContentError(BotException):
@@ -64,20 +78,16 @@ async def _load_from_uri(
     uri: str, fmode: str = "r", encoding: str | None = None
 ) -> str | bytes:
     try:
-        if uri.startswith("http"):
-            async with aiohttp.ClientSession() as session:
-                async with session.get(uri) as resp:
-                    if resp.status == 200:
-                        content = await resp.read()
-                        return content if encoding is None else content.decode(encoding)
-                    else:
-                        raise BotContentError(f"异步 http 请求失败: {resp.status}")
-        elif uri.startswith("file"):
+        if uri.startswith("file"):
             path = _file_uri_to_path(uri)
             with open(path, mode=fmode, encoding=encoding) as fp:
                 return fp.read()
         else:
-            raise BotValidateError(f"无法处理的 uri: {uri}")
+            processor = _URI_PROCESSOR_MAP.get(uri.split(":", 1)[0])
+            if processor is None:
+                return f"[Content: {uri}]"
+            else:
+                return await processor(uri)
     except Exception as e:
         raise BotContentError(f"值加载失败，uri 为：{uri}, 错误为：{e}")
 

@@ -44,16 +44,19 @@ class _KeyOrderDict(dict[key_T, val_T]):
         return self[key]
 
 
-class EventBus:
+class Dispatcher:
     def __init__(self) -> None:
         self.handlers: _KeyOrderDict[HandleLevel, set[EventHandler]] = _KeyOrderDict()
         self.broadcast_ctrl = RWContext()
         self.gc_interval = 5
 
+    def no_ctrl_add(self, *handlers: EventHandler) -> None:
+        for h in handlers:
+            self.handlers.setdefault(h.priority, set()).add(h)
+
     async def add(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
-            for h in handlers:
-                self.handlers.setdefault(h.priority, set()).add(h)
+            self.no_ctrl_add(*handlers)
 
     async def __remove(self, *handlers: EventHandler) -> None:
         for h in handlers:

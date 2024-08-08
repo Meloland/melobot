@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io
 import logging
 import logging.config
@@ -5,6 +7,7 @@ import logging.handlers
 import os
 import sys
 import types
+from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from enum import Enum
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
@@ -16,7 +19,7 @@ import rich.pretty
 from better_exceptions import ExceptionFormatter
 
 from .exceptions import BotLoggerError
-from .typing import Any, Optional, cast
+from .typing import Any, Generator, Optional, cast
 from .utils import singleton
 
 _CONSOLE_IO = io.StringIO()
@@ -79,9 +82,10 @@ class LogLevel(int, Enum):
     WARNING = WARNING
 
 
-class NullLogger(_Logger):
-    def __init__(self, name: str) -> None:
-        super().__init__(name, CRITICAL)
+@singleton
+class EmptyLogger(_Logger):
+    def __init__(self) -> None:
+        super().__init__("__MELO_EMPTYLOGGER__", CRITICAL)
         self.addHandler(logging.NullHandler())
         logger_patch(self, LogLevel.CRITICAL)
 
@@ -189,9 +193,14 @@ class Logger(_Logger):
         handler.setFormatter(fmt)
         return handler
 
+    def __new__(cls, name: str = "melobot", *args, **kwargs) -> Logger:
+        if name in Logger.LOGGERS:
+            return Logger.LOGGERS[name]
+        return super().__new__(cls)
+
     def __init__(
         self,
-        name: str,
+        name: str = "melobot",
         level: LogLevel = LogLevel.INFO,
         to_console: bool = True,
         to_dir: Optional[str] = None,
@@ -205,9 +214,6 @@ class Logger(_Logger):
         :param to_dir: 保存日志文件的目录，为空则不保存文件
         :param no_tag: 记录日志时是否不标识日志器名称
         """
-
-        if name in Logger.LOGGERS.keys():
-            raise BotLoggerError(f"名为 {name} 的日志器已存在，请修改 name")
 
         super().__init__(name, level)
         Logger.LOGGERS[name] = self
@@ -348,6 +354,14 @@ class LoggerLocal:
     def remove(self, token: Token) -> None:
         self.__storage__.reset(token)
 
+    @contextmanager
+    def on_ctx(self, obj: Logger) -> Generator[None, None, None]:
+        token = self.add(obj)
+        try:
+            yield
+        finally:
+            self.remove(token)
 
-def get_logger() -> Logger:
+
+def get_ctx_logger() -> Logger:
     return LoggerLocal().get()
