@@ -80,3 +80,8 @@ class ProcessFlowError(BotException):
 class BotLoggerError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
+
+
+class BotHookError(BotException):
+    def __init__(self, text: str):
+        super().__init__(text)
