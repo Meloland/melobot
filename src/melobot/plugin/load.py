@@ -4,7 +4,8 @@ from os import PathLike, listdir, remove
 from pathlib import Path
 
 from ..exceptions import BotPluginError
-from ..typing import TYPE_CHECKING, Any, Callable, Iterable, ModuleType
+from ..log import get_ctx_logger
+from ..typing import TYPE_CHECKING, Any, Callable, Iterable, ModuleType, Sequence
 from ..utils import singleton
 from .base import Plugin
 from .imp import Importer
@@ -62,7 +63,7 @@ class PluginInitHelper:
                     break
             else:
                 raise BotPluginError(
-                    f"{share} 在所属模块的全局作用域不存在引用，生成 .pyi 失败"
+                    f"共享对象 {share} 在所属模块的全局作用域不存在引用，生成 .pyi 失败"
                 )
             refs.setdefault(f".{'.'.join(imp_parts)}", []).append(
                 share.name if not share._static else f"{share_varname} as _{share.name}"
@@ -76,6 +77,17 @@ class PluginInitHelper:
             imp_parts = list(parts1[len(parts2) :])
             imp_parts[-1] = imp_parts[-1].rstrip(".py")
 
+            mod = Importer.import_mod(
+                func.__module__, func_located.parent, sys_cache=False
+            )
+            for k in dir(mod):
+                v = getattr(mod, k)
+                if v is func:
+                    break
+            else:
+                raise BotPluginError(
+                    f"导出函数 {func} 在所属模块的全局作用域不存在引用，生成 .pyi 失败"
+                )
             refs.setdefault(f".{'.'.join(imp_parts)}", []).append(func.__name__)
             varnames.append(func.__name__)
 
@@ -161,9 +173,6 @@ class PluginInitHelper:
 
 @singleton
 class PluginLoader:
-    def __init__(self) -> None:
-        self._plugin_caches: dict[str, Plugin] = {}
-
     def _build_plugin(self, p_name: str, p_load_mod: ModuleType) -> Plugin:
         for k in dir(p_load_mod):
             v = getattr(p_load_mod, k)
@@ -177,6 +186,8 @@ class PluginLoader:
         return p
 
     def load(self, plugin: ModuleType | str | PathLike[str]) -> Plugin:
+        logger = get_ctx_logger()
+
         if isinstance(plugin, ModuleType):
             if plugin.__file__ is None:
                 p_dir = Path(plugin.__path__[0])
@@ -186,22 +197,18 @@ class PluginLoader:
             p_dir = Path(plugin)
             if not p_dir.is_absolute():
                 p_dir = Path.cwd().joinpath(p_dir).resolve(strict=True)
+        logger.debug(f"尝试加载来自 {p_dir} 的插件")
 
         p_name = p_dir.parts[-1]
         if p_name in sys.stdlib_module_names:
             raise BotPluginError(
                 f"尝试加载的插件 {p_name} 与 Python 内置模块重名，请修改名称（修改插件目录名）"
             )
-        if p_name in self._plugin_caches:
-            raise BotPluginError(
-                f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
-            )
         if not p_dir.joinpath("__plugin__.py").exists():
             raise BotPluginError("插件目录下不存在 __plugin__.py，无法加载")
 
         p_load_mod = Importer.import_mod(f"{p_name}.__plugin__", p_dir, sys_cache=False)
         _plugin = self._build_plugin(p_name, p_load_mod)
-        self._plugin_caches[p_name] = _plugin
         return _plugin
 
     def loads(self, *plugins: ModuleType | str | PathLike[str]) -> tuple[Plugin, ...]:
