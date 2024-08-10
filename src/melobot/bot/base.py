@@ -15,7 +15,7 @@ from ..meta import MetaInfo
 from ..plugin.base import Plugin
 from ..plugin.ipc import IPCManager
 from ..plugin.load import PluginLoader
-from ..protocol import ProtocolStack
+from ..protocol import Protocol
 from ..typing import (
     Any,
     AsyncCallable,
@@ -25,7 +25,6 @@ from ..typing import (
     ModuleType,
     P,
     PathLike,
-    T,
 )
 from ..utils import singleton
 from .dispatch import Dispatcher
@@ -38,24 +37,29 @@ class BotLifeSpan(Enum):
 
 
 class Bot:
-    BOTS: dict[str, Bot] = {}
+    __instances__: dict[str, Bot] = {}
+
+    def __new__(cls, name: str = "melobot", *args, **kwargs) -> Bot:
+        if name in Bot.__instances__:
+            raise BotRuntimeError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
+        obj = super().__new__(cls)
+        Bot.__instances__[name] = obj
+        return obj
 
     def __init__(self, name: str = "melobot", logger: Any = Logger("melobot")) -> None:
-        if name in Bot.BOTS:
-            raise BotRuntimeError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
-
         self.name = name
         self.logger = logger if logger is not None else EmptyLogger()
         self.info = MetaInfo
-        self.adapters: list[Adapter] = []
+        self.adapters: dict[str, Adapter] = {}
 
-        self._inputs: list[AbstractInSource] = []
-        self._outputs: list[AbstractOutSource] = []
+        self._in_srcs: dict[str, list[AbstractInSource]] = {}
+        self._out_srcs: dict[str, list[AbstractOutSource]] = {}
         self._ipc_manager = IPCManager()
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
         self._life_bus = HookBus[BotLifeSpan](BotLifeSpan)
         self._dispatcher = Dispatcher()
+
         self._inited = False
         self._running = False
         self._rip = asyncio.Event()
@@ -64,11 +68,17 @@ class Bot:
         return f'Bot(name="{self.name}")'
 
     def add_input(self, src: AbstractInSource) -> Bot:
-        self._inputs.append(src)
+        if self._inited:
+            raise BotRuntimeError(f"{self} 已不在初始化期，无法再添加输入源")
+
+        self._in_srcs.setdefault(src.protocol, []).append(src)
         return self
 
     def add_output(self, src: AbstractOutSource) -> Bot:
-        self._outputs.append(src)
+        if self._inited:
+            raise BotRuntimeError(f"{self} 已不在初始化期，无法再添加输出源")
+
+        self._out_srcs.setdefault(src.protocol, []).append(src)
         return self
 
     def add_io(self, src: AbstractIOSource) -> Bot:
@@ -77,20 +87,53 @@ class Bot:
         return self
 
     def add_adapter(self, adapter: Adapter) -> Bot:
-        self.adapters.append(adapter)
+        if self._inited:
+            raise BotRuntimeError(f"{self} 已不在初始化期，无法再添加适配器")
+        if adapter.protocol in self.adapters:
+            raise BotRuntimeError(
+                f"已存在协议 {adapter.protocol} 的适配器，同协议的适配器不能再添加"
+            )
+
+        self.adapters[adapter.protocol] = adapter
         return self
 
-    def add_protocol(self, protocol: ProtocolStack) -> Bot:
-        inputs, outputs, adapter = protocol.inputs, protocol.outputs, protocol.adapters
+    def add_protocol(self, protocol: Protocol) -> Bot:
+        insrcs, outsrcs, adapter = protocol.inputs, protocol.outputs, protocol.adapter
         self.add_adapter(adapter)
-        for input in inputs:
-            self.add_input(input)
-        for output in outputs:
-            self.add_output(output)
+        for isrc in insrcs:
+            self.add_input(isrc)
+        for osrc in outsrcs:
+            self.add_output(osrc)
         return self
 
     def _run_init(self) -> None:
-        # TODO: 匹配 io 源与 adapter
+        for protocol, srcs in self._in_srcs.items():
+            for isrc in srcs:
+                adapter = self.adapters.get(protocol)
+                if adapter is not None:
+                    adapter.in_srcs.append(isrc)
+                else:
+                    self.logger.warning(
+                        f"输入源 {isrc.__class__.__name__} 没有对应的适配器"
+                    )
+
+        for protocol, outsrcs in self._out_srcs.items():
+            for osrc in outsrcs:
+                adapter = self.adapters.get(protocol)
+                if adapter is not None:
+                    adapter.out_srcs.append(osrc)
+                else:
+                    self.logger.warning(
+                        f"输出源 {osrc.__class__.__name__} 没有对应的适配器"
+                    )
+
+        for adapter in self.adapters.values():
+            if not len(adapter.in_srcs) and not len(adapter.out_srcs):
+                self.logger.warning(
+                    f"适配器 {adapter.__class__.__name__} 没有对应的输入源或输出源"
+                )
+            adapter.dispatcher = self._dispatcher
+
         self._inited = True
         self.logger.debug("bot 初始化完成，各核心组件已初始化")
 
@@ -125,16 +168,25 @@ class Bot:
             self.load_plugin(p)
 
     async def _run(self) -> None:
-        with BotLocal().on_ctx(self):
-            with LoggerLocal().on_ctx(self.logger):
-                if self._running:
-                    raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
-                self._running = True
+        try:
+            with BotLocal().on_ctx(self):
+                with LoggerLocal().on_ctx(self.logger):
+                    if self._running:
+                        raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
+                    self._running = True
 
-                await self._life_bus.emit(BotLifeSpan.LOADED)
-                await self._rip.wait()
+                    await self._life_bus.emit(BotLifeSpan.LOADED)
+                    for adapter in self.adapters.values():
+                        asyncio.create_task(adapter._run())
+                    await self._rip.wait()
+        finally:
+            for task in asyncio.all_tasks():
+                task.cancel()
+            await self._life_bus.emit(BotLifeSpan.STOP, wait=True)
+            self.logger.info(f"{self} 已停止运行")
+            self._running = False
 
-    async def run(self) -> None:
+    def run(self) -> None:
         _safe_blocked_run(self._run())
 
     @classmethod
@@ -186,6 +238,8 @@ def _safe_blocked_run(main: Coroutine[Any, Any, None]) -> None:
         asyncio.run(main)
     except KeyboardInterrupt:
         pass
+    except asyncio.CancelledError:
+        pass
 
 
 @singleton
@@ -200,7 +254,7 @@ class BotLocal:
         try:
             return self.__storage__.get()
         except LookupError:
-            raise BotRuntimeError("bot 实例尚未建立，此时无法获取 bot 实例")
+            raise BotRuntimeError("此时未初始化 bot 实例，无法获取")
 
     def add(self, ctx: Bot) -> Token:
         return self.__storage__.set(ctx)

@@ -1,6 +1,6 @@
 import asyncio
 
-from ..adapter.base import Event
+from ..adapter.model import Event
 from ..handle.base import EventHandler
 from ..typing import HandleLevel, TypeVar
 from ..utils import RWContext

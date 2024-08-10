@@ -1,5 +1,5 @@
-from .base import Action, Action_T, Echo, Echo_T, Event, Event_T
 from .content import AbstractContent
+from .model import Action, Action_T, Echo, Echo_T, Event, Event_T
 
 __all__ = (
     "AbstractAdapter",

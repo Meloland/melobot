@@ -1,175 +1,193 @@
+from __future__ import annotations
+
 import asyncio
-from time import time_ns
+from asyncio import create_task
+from contextlib import contextmanager
+from contextvars import ContextVar, Token
 
-from typing_extensions import Self
-
-from ..base import AttrsReprMixin
-from ..exceptions import BotRuntimeError
-from ..io.base import EchoPacket_T, InPacket_T, OutPacket_T
+from ..exceptions import BotAdapterError
+from ..io.base import (
+    AbstractInSource,
+    AbstractOutSource,
+    EchoPacket_T,
+    InPacket_T,
+    OutPacket_T,
+)
+from ..log import get_logger
 from ..typing import (
-    Any,
-    AsyncCallable,
+    TYPE_CHECKING,
     BetterABC,
+    Callable,
+    Generator,
     Generic,
-    Literal,
+    Iterable,
     LiteralString,
     NamedTuple,
-    Optional,
-    Sequence,
-    TypeVar,
+    PathLike,
     abstractattr,
     abstractmethod,
-    cast,
 )
-from ..utils import get_id
-from .content import AbstractContent
+from ..utils import singleton
+from .model import Action_T, ActionHandle, Echo_T, Event_T
 
-
-class Event(AttrsReprMixin):
-    def __init__(
-        self,
-        type: str | None = None,
-        time: int = -1,
-        id: str = "",
-        protocol: LiteralString | None = None,
-        scope: Optional[NamedTuple] = None,
-        contents: Sequence[AbstractContent] = (),
-    ) -> None:
-        self.type = type
-        self.time = time_ns() if time == -1 else time
-        self.id = get_id() if id == "" else id
-        self.protocol = protocol
-        self.contents = contents
-        self.scope = scope
-
-        self._spread: bool = True
-
-
-Event_T = TypeVar("Event_T", bound=Event)
-
-
-class Action(AttrsReprMixin):
-    def __init__(
-        self,
-        type: str | None = None,
-        time: int = -1,
-        id: str = "",
-        protocol: LiteralString | None = None,
-        scope: Optional[NamedTuple] = None,
-        contents: Sequence[AbstractContent] = (),
-        trigger: Event | None = None,
-    ) -> None:
-        self.type = type
-        self.time = time_ns() if time == -1 else time
-        self.id = get_id() if id == "" else id
-        self.protocol = protocol
-        self.contents = contents
-        self.scope = scope
-        self.trigger = trigger
-
-
-class Echo(AttrsReprMixin):
-    def __init__(
-        self,
-        type: str | None = None,
-        time: int = -1,
-        id: str = "",
-        protocol: LiteralString | None = None,
-        scope: Optional[NamedTuple] = None,
-        ok: bool = True,
-        status: int = 0,
-        prompt: str = "",
-        data: Any = None,
-    ) -> None:
-        self.type = type
-        self.time = time_ns() if time == -1 else time
-        self.id = get_id() if id == "" else id
-        self.protocol = protocol
-        self.scope = scope
-        self.ok = ok
-        self.status = status
-        self.prompt = prompt
-        self.data = data
-
-
-Action_T = TypeVar("Action_T", bound=Action)
-Echo_T = TypeVar("Echo_T", bound=Echo)
+if TYPE_CHECKING:
+    from ..bot.dispatch import Dispatcher
 
 
 class AbstractEventFactory(BetterABC, Generic[InPacket_T, Event_T]):
     @abstractmethod
-    def create(self, packet: InPacket_T) -> Event_T:
+    async def create(self, packet: InPacket_T) -> Event_T:
         raise NotImplementedError
 
 
 class AbstractOutputFactory(BetterABC, Generic[OutPacket_T, Action_T]):
     @abstractmethod
-    def create(self, action: Action_T) -> OutPacket_T:
+    async def create(self, action: Action_T) -> OutPacket_T:
         raise NotImplementedError
 
 
 class AbstractEchoFactory(BetterABC, Generic[EchoPacket_T, Echo_T]):
     @abstractmethod
-    def create(self, packet: EchoPacket_T) -> Echo_T:
+    async def create(self, packet: EchoPacket_T) -> Echo_T | None:
         raise NotImplementedError
 
 
 class Adapter(
     BetterABC,
-    Generic[Event_T, Action_T, Echo_T, InPacket_T, OutPacket_T, EchoPacket_T],
+    Generic[InPacket_T, OutPacket_T, EchoPacket_T, Event_T, Action_T, Echo_T],
 ):
     protocol: LiteralString = abstractattr()
     event_factory: AbstractEventFactory[InPacket_T, Event_T] = abstractattr()
-    action_factory: AbstractOutputFactory[OutPacket_T, Action_T] = abstractattr()
+    output_factory: AbstractOutputFactory[OutPacket_T, Action_T] = abstractattr()
     echo_factory: AbstractEchoFactory[EchoPacket_T, Echo_T] = abstractattr()
 
+    def __init__(self) -> None:
+        super().__init__()
+        self.in_srcs: list[AbstractInSource[InPacket_T]] = []
+        self.out_srcs: list[AbstractOutSource[OutPacket_T, EchoPacket_T]] = []
+        self.dispatcher: "Dispatcher"
 
-class ActionHandle(Generic[Action_T, Echo_T]):
-    def __init__(
+    async def _run(self) -> None:
+        async def _input_loop(src: AbstractInSource) -> None:
+            logger = get_logger()
+            build_local = SrcInfoLocal()
+            while True:
+                try:
+                    packet = await src.input()
+                    event = await self.event_factory.create(packet)
+                    with build_local.on_ctx(self, src):
+                        await self.dispatcher.broadcast(event)
+                except Exception:
+                    logger.error(f"适配器 {self} 处理输入与分发事件时发生异常")
+                    logger.exc(locals=locals())
+
+        if len(ts := tuple(create_task(src.open()) for src in self.in_srcs)):
+            await asyncio.wait(ts)
+        if len(
+            ts := tuple(
+                create_task(src.open()) for src in self.out_srcs if not src.opened()
+            )
+        ):
+            await asyncio.wait(ts)
+        if len(ts := tuple(create_task(_input_loop(src)) for src in self.in_srcs)):
+            await asyncio.wait(ts)
+
+    def call_output(self, action: Action_T) -> tuple[ActionHandle, ...]:
+        osrcs: Iterable[AbstractOutSource[OutPacket_T, EchoPacket_T]]
+        filter = _OUT_SRC_FILTER.get()
+        cur_isrc = SrcInfoLocal().get().in_src
+
+        if filter is not None:
+            osrcs = (osrc for osrc in osrcs if filter(osrc))
+        elif isinstance(cur_isrc, AbstractOutSource):
+            osrcs = (cur_isrc,)
+        else:
+            osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
+
+        return tuple(
+            ActionHandle(action, osrc, self.output_factory, self.echo_factory)
+            for osrc in osrcs
+        )
+
+    @abstractmethod
+    def send_text(self, text: str) -> tuple[ActionHandle, ...]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def send_bytes(self, data: bytes) -> tuple[ActionHandle, ...]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def send_file(self, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def send_video(
         self,
-        action: Action_T,
-        exec_meth: AsyncCallable[[Action_T], asyncio.Future[Echo_T] | None],
-        wait: bool,
-    ) -> None:
-        #: 本操作包含的行为对象
-        self.action: Action_T = action
-        #: 本操作当前状态。分别对应：未执行、执行中、执行完成
-        self.status: Literal["PENDING", "EXECUTING", "FINISHED"] = "PENDING"
+        name: str,
+        uri: str | None = None,
+        raw: bytes | None = None,
+        mimetype: str | None = None,
+    ) -> tuple[ActionHandle, ...]:
+        raise NotImplementedError
 
-        self._echo: Echo_T
-        self._wait = wait
-        self._exec_meth = exec_meth
-        self._echo_done = asyncio.Event()
+    @abstractmethod
+    def send_audio(
+        self,
+        name: str,
+        uri: str | None = None,
+        raw: bytes | None = None,
+        mimetype: str | None = None,
+    ) -> tuple[ActionHandle, ...]:
+        raise NotImplementedError
 
-    @property
-    async def echo(self) -> Echo_T:
-        if not self._wait:
-            raise BotRuntimeError("行为操作未指定等待，无法获取回应")
 
-        await self._echo_done.wait()
-        return self._echo
+_OUT_SRC_FILTER: ContextVar[Callable[[AbstractOutSource], bool] | None] = ContextVar(
+    "_OUT_SRC_FILTER", default=None
+)
 
-    def __await__(self):
+
+@contextmanager
+def output_filter(
+    filter: Callable[[AbstractOutSource], bool]
+) -> Generator[None, None, None]:
+    token = _OUT_SRC_FILTER.set(filter)
+    try:
         yield
+    finally:
+        _OUT_SRC_FILTER.reset(token)
 
-    async def wait(self) -> None:
-        if not self._wait:
-            raise BotRuntimeError("行为操作未指定等待，无法等待")
-        await self._echo_done.wait()
 
-    async def _execute(self) -> None:
-        ret = await self._exec_meth(self.action)
-        if self._wait:
-            ret = cast(asyncio.Future[Echo_T], ret)
-            self._echo = await ret
-            self._echo_done.set()
+@singleton
+class SrcInfoLocal:
+    class BuildInfo(NamedTuple):
+        adapter: Adapter
+        in_src: AbstractInSource
 
-        self.status = "FINISHED"
+    def __init__(self) -> None:
+        object.__setattr__(self, "__storage__", ContextVar("_EVENT_BUILD_INFO"))
+        self.__storage__: ContextVar[SrcInfoLocal.BuildInfo]
 
-    def execute(self) -> Self:
-        if self.status != "PENDING":
-            raise BotRuntimeError("行为操作正在执行或执行完毕，不应该再执行")
+    def get(self) -> BuildInfo:
+        try:
+            return self.__storage__.get()
+        except LookupError:
+            raise BotAdapterError(
+                "此时不在活动的事件处理流中，无法获取适配器与输入源的上下文信息"
+            )
 
-        self.status = "EXECUTING"
-        asyncio.create_task(self._execute())
-        return self
+    def add(self, ctx: BuildInfo) -> Token:
+        return self.__storage__.set(ctx)
+
+    def remove(self, token: Token) -> None:
+        self.__storage__.reset(token)
+
+    @contextmanager
+    def on_ctx(
+        self, adapter: Adapter, in_src: AbstractInSource
+    ) -> Generator[None, None, None]:
+        token = self.add(SrcInfoLocal.BuildInfo(adapter, in_src))
+        try:
+            yield
+        finally:
+            self.remove(token)

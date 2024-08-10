@@ -3,7 +3,7 @@ from .io.base import AbstractInSource, AbstractOutSource
 from .typing import BetterABC, Sequence, abstractattr
 
 
-class ProtocolStack(BetterABC):
+class Protocol(BetterABC):
     inputs: Sequence[AbstractInSource] = abstractattr()
     outputs: Sequence[AbstractOutSource] = abstractattr()
-    adapters: Adapter = abstractattr()
+    adapter: Adapter = abstractattr()
