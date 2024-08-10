@@ -1,5 +1,5 @@
 <div align="center">
-  <img width=200 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
+  <img width=256 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
   <h1>melobot</h1>
   <p>
     <strong>插件化管理、基于异步会话机制的机器人开发框架</strong>
