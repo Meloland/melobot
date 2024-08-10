@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import os
+import sys
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from enum import Enum
@@ -11,12 +13,11 @@ from ..exceptions import BotRuntimeError
 from ..hook import HookBus
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log import EmptyLogger, Logger, LoggerLocal
-from ..meta import MetaInfo
 from ..plugin.base import Plugin
 from ..plugin.ipc import IPCManager
 from ..plugin.load import PluginLoader
 from ..protocol import Protocol
-from ..typing import (
+from ..types import (
     Any,
     AsyncCallable,
     Callable,
@@ -32,8 +33,19 @@ from .dispatch import Dispatcher
 
 class BotLifeSpan(Enum):
     LOADED = "l"
+    RELOADED = "r"
     CLOSE = "c"
     STOP = "s"
+
+
+class BotExitSignal(Enum):
+    NORMAL_STOP = 0
+    ERROR = 1
+    RESTART = 2
+
+
+MELO_PKG_RUNTIME = "MELOBOT_PKG_RUNTIME"
+MELO_LAST_EXIT_SIGNAL = "MELO_LAST_EXIT_SIGNAL"
 
 
 class Bot:
@@ -49,7 +61,6 @@ class Bot:
     def __init__(self, name: str = "melobot", logger: Any = Logger("melobot")) -> None:
         self.name = name
         self.logger = logger if logger is not None else EmptyLogger()
-        self.info = MetaInfo
         self.adapters: dict[str, Adapter] = {}
 
         self._in_srcs: dict[str, list[AbstractInSource]] = {}
@@ -175,7 +186,14 @@ class Bot:
                         raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
                     self._running = True
 
-                    await self._life_bus.emit(BotLifeSpan.LOADED)
+                    if (
+                        MELO_LAST_EXIT_SIGNAL in os.environ
+                        and int(os.environ[MELO_LAST_EXIT_SIGNAL])
+                        == BotExitSignal.RESTART.value
+                    ):
+                        await self._life_bus.emit(BotLifeSpan.RELOADED)
+                    else:
+                        await self._life_bus.emit(BotLifeSpan.LOADED)
                     for adapter in self.adapters.values():
                         asyncio.create_task(adapter._run())
                     await self._rip.wait()
@@ -208,6 +226,15 @@ class Bot:
 
         await self._life_bus.emit(BotLifeSpan.CLOSE, wait=True)
         self._rip.set()
+
+    async def restart(self) -> None:
+        if MELO_PKG_RUNTIME not in os.environ:
+            raise BotRuntimeError(
+                "启用重启功能，需要用以下命令运行 bot：python -m melobot run [*.py]"
+            )
+
+        await self.close()
+        sys.exit(BotExitSignal.RESTART.value)
 
     def on(
         self, *types: BotLifeSpan

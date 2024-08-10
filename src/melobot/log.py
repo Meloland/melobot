@@ -18,8 +18,8 @@ import rich.console
 import rich.pretty
 from better_exceptions import ExceptionFormatter
 
-from .exceptions import BotLoggerError
-from .typing import Any, Generator, Optional, cast
+from .exceptions import BotLogError
+from .types import Any, Generator, Optional, cast
 from .utils import singleton
 
 _CONSOLE_IO = io.StringIO()
@@ -353,7 +353,7 @@ class LoggerLocal:
         try:
             return self.__storage__.get()
         except LookupError:
-            raise BotLoggerError("此时未初始化 logger 实例，无法获取")
+            raise BotLogError("此时未初始化 logger 实例，无法获取")
 
     def add(self, ctx: Logger) -> Token:
         return self.__storage__.set(ctx)

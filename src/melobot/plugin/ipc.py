@@ -1,6 +1,5 @@
-from ..base import AttrsReprMixin, LocatableMixin
 from ..exceptions import BotIpcError
-from ..typing import AsyncCallable, Callable, Generic, T
+from ..types import AsyncCallable, AttrsReprMixin, Callable, Generic, LocatableMixin, T
 from ..utils import RWContext
 
 

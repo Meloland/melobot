@@ -1,11 +1,79 @@
 import inspect
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 from enum import Enum
 from os import PathLike
 from types import ModuleType, TracebackType
 from typing import *
 
 from typing_extensions import Self
+
+
+class MarkableMixin:
+    def __init__(self) -> None:
+        self._flags: dict[str, dict[str, Any]] = {}
+
+    def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
+        self._flags.setdefault(namespace, {})
+
+        if flag_name in self._flags[namespace].keys():
+            raise ValueError(
+                f"标记失败。对象的命名空间 {namespace} 中已存在名为 {flag_name} 的标记"
+            )
+
+        self._flags[namespace][flag_name] = val
+
+    def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
+        if self._flags.get(namespace) is None:
+            return False
+        if flag_name not in self._flags[namespace].keys():
+            return False
+        flag = self._flags[namespace][flag_name]
+        return flag is val if val is None else flag == val
+
+
+class ClonableMixin:
+    def copy(self):
+        return deepcopy(self)
+
+
+class AttrsReprMixin:
+    def __repr__(self) -> str:
+        attrs = ", ".join(
+            f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
+        )
+        return f"{self.__class__.__name__}({attrs})"
+
+
+class LocatableMixin:
+    def __new__(cls, *_args, **_kwargs):
+        obj = super().__new__(cls)
+        setattr(obj, "__obj_location__", obj._init_location())
+        return obj
+
+    @staticmethod
+    def _init_location():
+        frame = inspect.currentframe()
+        while frame:
+            if frame.f_code.co_name == "<module>":
+                return {
+                    "module": frame.f_globals["__name__"],
+                    "file": frame.f_globals["__file__"],
+                    "line": frame.f_lineno,
+                }
+            frame = frame.f_back
+
+    @property
+    def __obj_module__(self) -> str:
+        return getattr(self, "__obj_location__")["module"]
+
+    @property
+    def __obj_file__(self) -> str:
+        return getattr(self, "__obj_location__")["file"]
+
+    @property
+    def __obj_line__(self) -> int:
+        return getattr(self, "__obj_location__")["line"]
 
 
 class HandleLevel(float, Enum):
@@ -56,18 +124,6 @@ class LogicMode(Enum):
                 res = cls.calc(logic, res, values[idx])
             idx += 1
         return res
-
-
-class BotLife(Enum):
-    """bot 实例的生命周期枚举"""
-
-    LOADED = 1
-    FIRST_CONNECTED = 2
-    RECONNECTED = 3
-    BEFORE_CLOSE = 4
-    BEFORE_STOP = 5
-    EVENT_BUILT = 6
-    ACTION_PRESEND = 7
 
 
 #: 泛型 T，无约束

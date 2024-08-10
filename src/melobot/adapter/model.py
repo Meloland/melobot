@@ -2,11 +2,11 @@ import asyncio
 from asyncio import create_task
 from time import time_ns
 
-from ..base import AttrsReprMixin
 from ..exceptions import BotRuntimeError
-from ..typing import (
+from ..types import (
     TYPE_CHECKING,
     Any,
+    AttrsReprMixin,
     Generator,
     Generic,
     Literal,
@@ -54,7 +54,7 @@ class Action(AttrsReprMixin):
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
         contents: Sequence[AbstractContent] = (),
-        trigger: Event | None = None
+        trigger: Event | None = None,
     ) -> None:
         self.time = time_ns() if time == -1 else time
         self.id = get_id() if id == "" else id

@@ -8,7 +8,7 @@ from ..adapter.model import Event, Event_T
 from ..exceptions import ProcessFlowError
 from ..session.base import SessionLocal
 from ..session.option import SessionOption
-from ..typing import AsyncCallable, Generic, HandleLevel, Iterable
+from ..types import AsyncCallable, Generic, HandleLevel, Iterable
 
 
 class ProcessNode:

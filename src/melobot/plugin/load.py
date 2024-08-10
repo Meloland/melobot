@@ -1,11 +1,13 @@
+import re
 import sys
 from inspect import getabsfile
 from os import PathLike, listdir, remove
 from pathlib import Path
+from time import time
 
 from ..exceptions import BotPluginError
 from ..log import get_logger
-from ..typing import TYPE_CHECKING, Any, Callable, Iterable, ModuleType, Sequence
+from ..types import TYPE_CHECKING, Any, Callable, Iterable, ModuleType
 from ..utils import singleton
 from .base import Plugin
 from .imp import Importer
@@ -31,7 +33,11 @@ class PluginInitHelper:
 
     @staticmethod
     def _get_init_py_str() -> str:
-        return PluginInitHelper._BASE_INIT_PY_STR
+        return re.sub(
+            r"_VAR(\d+)",
+            lambda match: f"_{int(time()):#x}{match.group(1)}",
+            PluginInitHelper._BASE_INIT_PY_STR,
+        )
 
     @staticmethod
     def _get_init_pyi_str(
@@ -110,6 +116,9 @@ class PluginInitHelper:
     def run_init(*plugin_dirs: str | PathLike[str]) -> None:
         for p_dir in plugin_dirs:
             p_dir = Path(p_dir)
+            if not p_dir.is_absolute():
+                p_dir = Path.cwd().joinpath(p_dir)
+
             p_name = p_dir.parts[-1]
             p_conflicts = set(fname.split(".")[0] for fname in listdir(p_dir))
             pinit_path = p_dir.joinpath("__init__.py")
@@ -119,8 +128,6 @@ class PluginInitHelper:
                 raise BotPluginError(
                     f"尝试初始化的插件 {p_name} 与 python 内置模块或已加载模块重名，请修改名称（修改插件目录名）"
                 )
-            if not p_dir.is_absolute():
-                p_dir = Path.cwd().joinpath(p_dir)
             if not p_dir.joinpath("__plugin__.py").exists():
                 raise BotPluginError("插件目录下不存在 __plugin__.py，无法运行初始化")
             if pinit_path.exists():
@@ -168,7 +175,7 @@ class PluginInitHelper:
                     remove(pinit_typ_path)
                 raise
 
-        Importer.clear_cache()
+            Importer.clear_cache()
 
 
 @singleton

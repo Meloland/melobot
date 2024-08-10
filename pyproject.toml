@@ -1,7 +1,7 @@
 [project]
 name = "melobot"
 dynamic = ["version"]
-description = "A bot framework with session control and plugin-supported."
+description = "A bot framework with much high level features and plugin-supported."
 authors = [
     {name = "aicorein", email = "aicorein@meloland.org"},
 ]
@@ -17,7 +17,7 @@ dependencies = [
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "BSD"}
-keywords = ["qq", "qq bot", "onebot", "bot framework", "asyncio", "coroutine", "concurrency"]
+keywords = ["bot framework", "asyncio", "coroutine", "concurrency"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",

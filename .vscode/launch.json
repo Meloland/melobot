@@ -17,9 +17,9 @@
             "name": "melobot 模块调试",
             "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}/dev",
-            "program": "${workspaceFolder}/melobot/__main__.py",
-            "args": ["main.py"],
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/src/melobot/__main__.py",
+            "args": ["run", "private/test"],
             "console": "integratedTerminal",
             "justMyCode": true
         },

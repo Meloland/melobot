@@ -2,8 +2,8 @@ import mimetypes
 import pathlib
 import urllib.parse
 
-from ..exceptions import BotException, BotValueError
-from ..typing import (
+from ..exceptions import BotException, BotAdapterError
+from ..types import (
     Any,
     AsyncCallable,
     BetterABC,
@@ -18,7 +18,7 @@ _URI_PROCESSOR_MAP: dict[str, AsyncCallable[[str], str | bytes]] = {}
 
 def set_uri_processor(uri_type: str, processor: AsyncCallable[[str], Any]) -> None:
     if uri_type == "file":
-        raise BotValueError("file 类型已存在内置处理器，不支持外部设定处理器")
+        raise BotAdapterError("file 类型已存在内置处理器，不支持外部设定处理器")
     _URI_PROCESSOR_MAP[uri_type] = processor
 
 

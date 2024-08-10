@@ -1,5 +1,5 @@
 from ..adapter.base import Event_T
-from ..typing import AsyncCallable, BetterABC, Callable, Generic, abstractmethod
+from ..types import AsyncCallable, BetterABC, Callable, Generic, abstractmethod
 
 
 class AbstractRule(BetterABC, Generic[Event_T]):

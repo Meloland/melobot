@@ -5,7 +5,7 @@ from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
-from ..typing import ModuleType, PathLike, Sequence
+from ..types import Any, ModuleType, PathLike, Sequence
 from ..utils import singleton
 
 
@@ -168,6 +168,12 @@ class ModuleLoader(Loader):
                     rm_names.append(next(iter))
                 for name in rm_names:
                     sys.modules.pop(name)
+
+    def get_code(self, fullname: str) -> Any:
+        if self.inner_loader is not None and hasattr(self.inner_loader, "get_code"):
+            return self.inner_loader.get_code(fullname)
+        else:
+            return None
 
 
 class Importer:

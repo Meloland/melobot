@@ -1,2 +1,2 @@
 from .base import Plugin
-from .ipc import AsyncShare, IPCManager, SyncShare
+from .ipc import AsyncShare, SyncShare

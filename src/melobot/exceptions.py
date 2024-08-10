@@ -16,12 +16,6 @@ logging._loggerClass = logging.Logger  # type:ignore[attr-defined]
 
 
 class BotException(Exception):
-    """Bot 异常基类
-
-    在使用 melobot 编写代码时，若需要抛出异常，可以有意抛出该类。
-    表明这是你设计的异常情况，而不是完全预期之外的异常。
-    """
-
     def __init__(self, text: str):
         super().__init__(self, text)
         self.err = text
@@ -31,11 +25,6 @@ class BotException(Exception):
 
 
 class BotValidateError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
-
-
-class BotValueError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
 
@@ -50,11 +39,6 @@ class BotPluginError(BotException):
         super().__init__(text)
 
 
-class BotUtilsError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
-
-
 class BotIpcError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
@@ -65,19 +49,12 @@ class BotSessionError(BotException):
         super().__init__(text)
 
 
-class BotSessionTimeout(BotException):
-    """会话暂停的超时异常"""
-
-    def __init__(self, text: str = ""):
-        super().__init__(text)
-
-
 class ProcessFlowError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
 
 
-class BotLoggerError(BotException):
+class BotLogError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
 

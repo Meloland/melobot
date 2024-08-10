@@ -1,9 +1,8 @@
 import asyncio
 from enum import Enum
 
-from .exceptions import BotHookError
 from .log import get_logger
-from .typing import Any, AsyncCallable, Generic, Iterable, TypeVar
+from .types import Any, AsyncCallable, Generic, TypeVar
 
 HookEnum_T = TypeVar("HookEnum_T", bound=Enum)
 
@@ -51,3 +50,4 @@ class HookBus(Generic[HookEnum_T]):
         ]
         if wait and len(tasks):
             await asyncio.wait(tasks)
+        get_logger().debug(f"运行了 hook: {hook_type}")

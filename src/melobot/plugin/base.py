@@ -1,6 +1,6 @@
 from ..handle.base import EventHandler
 from ..handle.process import ProcessFlow
-from ..typing import BetterABC, Callable, Iterable, abstractattr
+from ..types import BetterABC, Callable, Iterable, abstractattr
 from .ipc import AsyncShare, SyncShare
 
 
