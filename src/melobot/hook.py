@@ -25,11 +25,8 @@ class HookRunner(Generic[HookEnum_T]):
 
 
 class HookBus(Generic[HookEnum_T]):
-    def __init__(
-        self, type: type[HookEnum_T], required: Iterable[HookEnum_T] | None = None
-    ) -> None:
+    def __init__(self, type: type[HookEnum_T]) -> None:
         self._store: dict[HookEnum_T, list[HookRunner]] = {t: [] for t in list(type)}
-        self._required: set[HookEnum_T] = set(required) if required is not None else set()
 
     def register(
         self, hook_type: HookEnum_T, hook_func: AsyncCallable[..., None]
@@ -52,8 +49,5 @@ class HookBus(Generic[HookEnum_T]):
             asyncio.create_task(runner.run(*args, **kwargs))
             for runner in self._store[hook_type]
         ]
-        if hook_type in self._required and not len(tasks):
-            raise BotHookError(f"对于 {hook_type} 类型的钩子，必须至少指定一个钩子方法")
-
         if wait and len(tasks):
             await asyncio.wait(tasks)

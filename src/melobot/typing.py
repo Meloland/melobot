@@ -5,6 +5,8 @@ from os import PathLike
 from types import ModuleType, TracebackType
 from typing import *
 
+from typing_extensions import Self
+
 
 class HandleLevel(float, Enum):
     """事件处理器优先级枚举类型"""

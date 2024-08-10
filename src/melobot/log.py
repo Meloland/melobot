@@ -90,27 +90,29 @@ class EmptyLogger(_Logger):
         logger_patch(self, LogLevel.CRITICAL)
 
 
+_LOG_COLORS = {
+    "DEBUG": "cyan,bold",
+    "INFO": "bold",
+    "WARNING": "yellow,bold",
+    "ERROR": "red,bold",
+    "CRITIAL": "red,bold,bg_white",
+}
+
+
+_SECOND_LOG_COLORS = {
+    "message": {
+        "DEBUG": "cyan",
+        "WARNING": "yellow",
+        "ERROR": "red",
+        "CRITIAL": "red,bg_white",
+    }
+}
+
+
 class Logger(_Logger):
     """melobot 内置日志器类"""
 
-    LOGGERS: dict[str, "Logger"] = {}
-
-    LOG_COLORS = {
-        "DEBUG": "cyan,bold",
-        "INFO": "bold",
-        "WARNING": "yellow,bold",
-        "ERROR": "red,bold",
-        "CRITIAL": "red,bold,bg_white",
-    }
-
-    SECOND_LOG_COLORS = {
-        "message": {
-            "DEBUG": "cyan",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITIAL": "red,bg_white",
-        }
-    }
+    __instances__: dict[str, "Logger"] = {}
 
     @staticmethod
     def make_fmt_nocache(fmt: logging.Formatter) -> None:
@@ -137,8 +139,8 @@ class Logger(_Logger):
         fmt = colorlog.ColoredFormatter(
             fmt_s,
             datefmt="%Y-%m-%d %H:%M:%S",
-            log_colors=Logger.LOG_COLORS,
-            secondary_log_colors=Logger.SECOND_LOG_COLORS,
+            log_colors=_LOG_COLORS,
+            secondary_log_colors=_SECOND_LOG_COLORS,
             reset=True,
         )
         fmt.default_msec_format = "%s.%03d"
@@ -194,9 +196,11 @@ class Logger(_Logger):
         return handler
 
     def __new__(cls, name: str = "melobot", *args, **kwargs) -> Logger:
-        if name in Logger.LOGGERS:
-            return Logger.LOGGERS[name]
-        return super().__new__(cls)
+        if name in Logger.__instances__:
+            return Logger.__instances__[name]
+        obj = super().__new__(cls)
+        Logger.__instances__[name] = obj
+        return obj
 
     def __init__(
         self,
@@ -214,10 +218,10 @@ class Logger(_Logger):
         :param to_dir: 保存日志文件的目录，为空则不保存文件
         :param no_tag: 记录日志时是否不标识日志器名称
         """
+        if name in Logger.__instances__:
+            return
 
         super().__init__(name, level)
-        Logger.LOGGERS[name] = self
-
         self._con_handler: Optional[logging.Handler] = None
         self._handler_arr: list[logging.Handler] = []
         self._no_tag = no_tag
@@ -346,7 +350,7 @@ class LoggerLocal:
         try:
             return self.__storage__.get()
         except LookupError:
-            raise BotLoggerError("当前上下文中不存在 logger 实例，无法获取")
+            raise BotLoggerError("此时未初始化 logger 实例，无法获取")
 
     def add(self, ctx: Logger) -> Token:
         return self.__storage__.set(ctx)

@@ -1,5 +1,4 @@
-from ..adapter.base import Event
-from ..exceptions import BotValueError
+from ..adapter.model import Event
 from ..log import LogLevel, get_ctx_logger
 from ..session.base import Session
 from ..session.option import AbstractRule
@@ -39,13 +38,6 @@ class EventHandler:
             self.logger.warning(
                 f"{self.name} 会话选项“冲突等待”为 True 时，“冲突回调”永远不会被调用"
             )
-
-    def __format__(self, format_spec: str) -> str:
-        match format_spec:
-            case "hexid":
-                return f"{id(self):#x}"
-            case _:
-                raise BotValueError(f"未知的 EventHandler 格式化标识符：{format_spec}")
 
     @property
     def priority(self) -> HandleLevel:

@@ -5,7 +5,7 @@ from asyncio import Condition, Lock
 from contextlib import asynccontextmanager
 from contextvars import ContextVar, Token
 
-from ..adapter.base import Event, Event_T
+from ..adapter.model import Event, Event_T
 from ..exceptions import BotException, BotSessionError
 from ..typing import Any, AsyncCallable, AsyncGenerator, Generic, Optional
 from ..utils import singleton
@@ -120,13 +120,6 @@ class Session(Generic[Event_T]):
 
         if rule is not None:
             Session._sets.setdefault(rule, set()).add(self)
-
-    def __format__(self, format_spec: str) -> str:
-        match format_spec:
-            case "hexid":
-                return f"{id(self):#x}"
-            case _:
-                raise BotSessionError(f"未知的会话格式化标识符：{format_spec}")
 
     def __lshift__(self, another: "Session") -> None:
         self.store.update(another.store)
@@ -248,21 +241,11 @@ class SessionLocal:
         object.__setattr__(self, "__storage__", ContextVar("session_ctx"))
         self.__storage__: ContextVar[Session]
 
-    def __format__(self, format_spec: str) -> str:
-        match format_spec:
-            case "hexid":
-                try:
-                    return f"{self.get():hexid}"
-                except LookupError:
-                    return "None"
-            case _:
-                raise BotSessionError(f"未知的 SessionLocal 格式化标识符：{format_spec}")
-
     def get(self) -> Session:
         try:
             return self.__storage__.get()
         except LookupError:
-            raise BotSessionError("当前未在会话中运行，无法获取")
+            raise BotSessionError("此时不在活动的事件处理流中，无法获取会话信息")
 
     def add(self, ctx: Session) -> Token:
         return self.__storage__.set(ctx)

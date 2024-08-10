@@ -1,12 +1,9 @@
-from dataclasses import dataclass
-
 from .adapter.base import Adapter
 from .io.base import AbstractInSource, AbstractOutSource
-from .typing import Sequence
+from .typing import BetterABC, Sequence, abstractattr
 
 
-@dataclass(kw_only=True, frozen=True)
-class ProtocolStack:
-    inputs: Sequence[AbstractInSource]
-    outputs: Sequence[AbstractOutSource]
-    adapters: Adapter
+class ProtocolStack(BetterABC):
+    inputs: Sequence[AbstractInSource] = abstractattr()
+    outputs: Sequence[AbstractOutSource] = abstractattr()
+    adapters: Adapter = abstractattr()

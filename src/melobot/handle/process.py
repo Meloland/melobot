@@ -4,7 +4,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 from itertools import tee
 
-from ..adapter.base import Event, Event_T
+from ..adapter.model import Event, Event_T
 from ..exceptions import ProcessFlowError
 from ..session.base import Session
 from ..session.option import SessionOption
@@ -213,7 +213,7 @@ async def nextp() -> None:
                 pass
 
     except LookupError:
-        raise ProcessFlowError("此刻不在活动的处理流中，无法调用下一处理结点")
+        raise ProcessFlowError("此时不在活动的事件处理流中，无法调用下一处理结点")
     finally:
         ctx.next_valid = False
 

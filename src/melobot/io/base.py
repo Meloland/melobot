@@ -2,15 +2,15 @@ import asyncio
 import time
 from dataclasses import dataclass, field
 
-from typing_extensions import Self
-
 from ..typing import (
     Any,
     BetterABC,
     Generic,
     LiteralString,
+    Self,
     TracebackType,
     TypeVar,
+    abstractattr,
     abstractmethod,
 )
 from ..utils import get_id
@@ -48,6 +48,8 @@ EchoPacket_T = TypeVar("EchoPacket_T", bound=EchoPacket)
 
 
 class AbstractSource(BetterABC):
+    protocol: LiteralString = abstractattr()
+
     @abstractmethod
     async def open(self) -> None:
         raise NotImplementedError
