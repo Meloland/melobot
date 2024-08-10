@@ -179,13 +179,13 @@ class Bot:
             self.load_plugin(p)
 
     async def _run(self) -> None:
-        try:
-            with BotLocal().on_ctx(self):
-                with LoggerLocal().on_ctx(self.logger):
-                    if self._running:
-                        raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
-                    self._running = True
+        if self._running:
+            raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
+        self._running = True
 
+        with BotLocal().on_ctx(self):
+            with LoggerLocal().on_ctx(self.logger):
+                try:
                     if (
                         MELO_LAST_EXIT_SIGNAL in os.environ
                         and int(os.environ[MELO_LAST_EXIT_SIGNAL])
@@ -194,15 +194,17 @@ class Bot:
                         await self._life_bus.emit(BotLifeSpan.RELOADED)
                     else:
                         await self._life_bus.emit(BotLifeSpan.LOADED)
+
                     for adapter in self.adapters.values():
                         asyncio.create_task(adapter._run())
                     await self._rip.wait()
-        finally:
-            for task in asyncio.all_tasks():
-                task.cancel()
-            await self._life_bus.emit(BotLifeSpan.STOP, wait=True)
-            self.logger.info(f"{self} 已停止运行")
-            self._running = False
+
+                finally:
+                    for task in asyncio.all_tasks():
+                        task.cancel()
+                    await self._life_bus.emit(BotLifeSpan.STOP, wait=True)
+                    self.logger.info(f"{self} 已停止运行")
+                    self._running = False
 
     def run(self) -> None:
         _safe_blocked_run(self._run())
