@@ -2,7 +2,7 @@
   <img width=256 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
   <h1>melobot</h1>
   <p>
-    <strong>插件化管理、基于异步会话机制的机器人开发框架</strong>
+    <strong>支持多协议、多路 IO，功能丰富的机器人开发框架</strong>
   </p>
   <p align="center">
     <a href="https://github.com/Meloland/melobot/tree/main/LICENSE-BSD"><img src="https://img.shields.io/badge/license-BSD--3--Clause-2ea44f" alt="license - BSD-3-Clause"></a>
@@ -41,6 +41,8 @@ melobot 是由热爱技术的开发者共同维护的开源项目。我们致力
 melobot 是基于 Python 的机器人开发框架。目前已完成版本为 v2，只适用于搭建 qq 机器人，v3 正在开发中。
 
 melobot v2 以**Onebot 标准的实现程序**作为前端，通过对来自“前端”的各种“事件”的处理，产生“行为”提交给“前端”，让“前端”与 qq 服务器交互，从而实现各种复杂的功能。
+
+melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 bot 开发框架，预计将于 9 月发布第一个正式版本。
 
 ## ✨ 特色
 
@@ -104,7 +106,7 @@ pdm build
 
 本项目使用双许可证。
 
-[docs](https://github.com/Meloland/melobot/tree/main/docs) 目录内所有内容在 CC-BY-SA-4.0 许可下发行。
+[docs](https://github.com/Meloland/melobot/tree/main/docs) 目录内除 melobot 项目 logo，所有内容在 CC-BY-SA-4.0 许可下发行。
 
 <a href="http://creativecommons.org/licenses/by-sa/4.0/" rel="nofollow"><img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-sa.svg" style="width: 150px"></a>
 
@@ -127,3 +129,11 @@ pdm build
 特别感谢由 [JetBrains](https://www.jetbrains.com/?from=melobot) 提供的 [PyCharm](https://www.jetbrains.com/pycharm/?from=melobot) 等相关软件/程序的免费授权许可证。这些软件/程序用于本项目的开发与 IDE 兼容性测试。
 
 <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/PyCharm.png" alt="PyCharm logo." style="width: 310px">
+
+<hr>
+
+> 此外特别感谢 [@mldkouo](https://github.com/mldkouo) 为 melobot 项目绘制 logo 图标。
+
+<img width=192 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
+
+此图标版权归属于 [@meloland](https://github.com/meloland) 组织，在非商业盈利情景下可自由使用，但请标注版权所属。其他使用情景请致电邮件：[contact@meloland.org](mailto:contact@meloland.org)
