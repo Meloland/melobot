@@ -197,6 +197,7 @@ class Bot:
 
                     for adapter in self.adapters.values():
                         asyncio.create_task(adapter._run())
+                    asyncio.create_task(self._dispatcher.timed_gc())
                     await self._rip.wait()
 
                 finally:
