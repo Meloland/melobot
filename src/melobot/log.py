@@ -218,7 +218,7 @@ class Logger(_Logger):
         :param to_dir: 保存日志文件的目录，为空则不保存文件
         :param no_tag: 记录日志时是否不标识日志器名称
         """
-        if name in Logger.__instances__:
+        if hasattr(self, "_built") and self._built:
             return
 
         super().__init__(name, level)
@@ -226,12 +226,15 @@ class Logger(_Logger):
         self._handler_arr: list[logging.Handler] = []
         self._no_tag = no_tag
         self._obj_filter = ObjectFilter(name)
+
         self.__LEVEL_FLAG__ = level
 
         if to_console:
             self._add_console_handler()
         if to_dir is not None:
             self._add_file_handler(to_dir)
+
+        self._built: bool = True
 
     def _add_console_handler(self) -> None:
         if self._con_handler is None:
@@ -367,5 +370,8 @@ class LoggerLocal:
             self.remove(token)
 
 
-def get_ctx_logger() -> Logger:
-    return LoggerLocal().get()
+def get_logger(name: str | None = None) -> Logger:
+    if name is None:
+        return LoggerLocal().get()
+    else:
+        return Logger(name)

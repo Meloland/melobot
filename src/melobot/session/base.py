@@ -226,14 +226,6 @@ class Session(Generic[Event_T]):
             local.remove(token)
             await self.rest() if self._keep else await self.expire()
 
-    @staticmethod
-    def current() -> Session[Event]:
-        return SessionLocal().get()
-
-    @staticmethod
-    def current_event() -> Event:
-        return Session.current().event
-
 
 @singleton
 class SessionLocal:
@@ -246,6 +238,13 @@ class SessionLocal:
             return self.__storage__.get()
         except LookupError:
             raise BotSessionError("此时不在活动的事件处理流中，无法获取会话信息")
+
+    def try_get(self) -> Session | None:
+        return self.__storage__.get(None)
+
+    def try_get_event(self) -> Event | None:
+        session = self.try_get()
+        return session.event if session is not None else None
 
     def add(self, ctx: Session) -> Token:
         return self.__storage__.set(ctx)

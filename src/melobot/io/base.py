@@ -31,7 +31,7 @@ class InPacket(_Packet):
 
 @dataclass(kw_only=True, frozen=True)
 class OutPacket(_Packet):
-    echo: bool = True
+    pass
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -39,7 +39,7 @@ class EchoPacket(_Packet):
     ok: bool = True
     status: int = 0
     prompt: str = ""
-    notset: bool = False
+    noecho: bool = False
 
 
 InPacket_T = TypeVar("InPacket_T", bound=InPacket)
@@ -91,6 +91,3 @@ class AbstractOutSource(AbstractSource, Generic[OutPacket_T, EchoPacket_T]):
 class AbstractIOSource(
     AbstractInSource[InPacket_T], AbstractOutSource[OutPacket_T, EchoPacket_T]
 ): ...
-
-
-class BaseIOSource(AbstractIOSource[InPacket, OutPacket, EchoPacket]): ...

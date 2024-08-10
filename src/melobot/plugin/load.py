@@ -4,7 +4,7 @@ from os import PathLike, listdir, remove
 from pathlib import Path
 
 from ..exceptions import BotPluginError
-from ..log import get_ctx_logger
+from ..log import get_logger
 from ..typing import TYPE_CHECKING, Any, Callable, Iterable, ModuleType, Sequence
 from ..utils import singleton
 from .base import Plugin
@@ -133,7 +133,7 @@ class PluginInitHelper:
             )
             for k in dir(p_load_mod):
                 v = getattr(p_load_mod, k)
-                if isinstance(v, type) and issubclass(v, Plugin):
+                if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
                     p = v()
                     p_shares = p.shares
                     p_funcs = p.funcs
@@ -176,7 +176,7 @@ class PluginLoader:
     def _build_plugin(self, p_name: str, p_load_mod: ModuleType) -> Plugin:
         for k in dir(p_load_mod):
             v = getattr(p_load_mod, k)
-            if isinstance(v, type) and issubclass(v, Plugin):
+            if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
                 p = v()
                 break
         else:
@@ -186,7 +186,7 @@ class PluginLoader:
         return p
 
     def load(self, plugin: ModuleType | str | PathLike[str]) -> Plugin:
-        logger = get_ctx_logger()
+        logger = get_logger()
 
         if isinstance(plugin, ModuleType):
             if plugin.__file__ is None:

@@ -6,13 +6,13 @@ from itertools import tee
 
 from ..adapter.model import Event, Event_T
 from ..exceptions import ProcessFlowError
-from ..session.base import Session
+from ..session.base import SessionLocal
 from ..session.option import SessionOption
 from ..typing import AsyncCallable, Generic, HandleLevel, Iterable
 
 
 class ProcessNode:
-    def __init__(self, type: type[Event] = Event, name: str = "") -> None:
+    def __init__(self, name: str = "", type: type[Event] = Event) -> None:
         self.name = name
         self.type = type
         self.processor: AsyncCallable[..., bool | None]
@@ -28,7 +28,7 @@ class ProcessNode:
 
     async def process(self, flow: ProcessFlow) -> None:
         # TODO: 完成依赖注入操作
-        if not isinstance(Session.current_event(), self.type):
+        if not isinstance(SessionLocal().get().event, self.type):
             return
 
         try:
@@ -221,7 +221,7 @@ async def nextp() -> None:
 async def block() -> None:
     ctx = _FLOW_CTX.get()
     ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> ~ [BLOCK]")
-    Session.current_event()._spread = False
+    SessionLocal().get().event._spread = False
 
 
 async def quit() -> None:

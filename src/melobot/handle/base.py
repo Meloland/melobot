@@ -1,5 +1,5 @@
 from ..adapter.model import Event
-from ..log import LogLevel, get_ctx_logger
+from ..log import LogLevel, get_logger
 from ..session.base import Session
 from ..session.option import AbstractRule
 from ..typing import TYPE_CHECKING, HandleLevel
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class EventHandler:
     def __init__(self, plugin: "Plugin", flow: ProcessFlow) -> None:
         self.flow = flow
-        self.logger = get_ctx_logger()
+        self.logger = get_logger()
         self.name = flow.name
         self.event_type = flow.event_type
 

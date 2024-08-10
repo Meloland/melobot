@@ -2,7 +2,7 @@ import asyncio
 from enum import Enum
 
 from .exceptions import BotHookError
-from .log import get_ctx_logger
+from .log import get_logger
 from .typing import Any, AsyncCallable, Generic, Iterable, TypeVar
 
 HookEnum_T = TypeVar("HookEnum_T", bound=Enum)
@@ -19,7 +19,7 @@ class HookRunner(Generic[HookEnum_T]):
         try:
             await self.callback(*args, **kwargs)
         except Exception:
-            logger = get_ctx_logger()
+            logger = get_logger()
             logger.error(f"bot 生命周期 hook 方法 {self.callback} 发生异常")
             logger.exc(locals=locals())
 
