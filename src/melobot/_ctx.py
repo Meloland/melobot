@@ -37,7 +37,7 @@ class Context(Generic[T]):
         try:
             return self.__storage__.get()
         except LookupError:
-            raise self._lookup_exc_cls(self._lookup_exc_tip)
+            raise self._lookup_exc_cls(self._lookup_exc_tip) from None
 
     def try_get(self) -> T | None:
         return self.__storage__.get(None)

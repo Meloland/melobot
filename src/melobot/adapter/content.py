@@ -89,7 +89,9 @@ async def _load_from_uri(
             else:
                 return await processor(uri)
     except Exception as e:
-        raise BotContentError(f"值加载失败，uri 为：{uri}, 错误为：{e}")
+        raise BotContentError(
+            f"值加载失败，uri 为：{uri}, 错误为：[{e.__class__.__name__}] {e}"
+        ) from None
 
 
 class FileContent(AbstractContent):

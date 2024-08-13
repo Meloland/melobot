@@ -199,7 +199,9 @@ async def nextp() -> None:
                 pass
 
     except _FLOW_CTX._lookup_exc_cls:
-        raise ProcessFlowError("此时不在活动的事件处理流中，无法调用下一处理结点")
+        raise ProcessFlowError(
+            "此时不在活动的事件处理流中，无法调用下一处理结点"
+        ) from None
     finally:
         info.next_valid = False
 
