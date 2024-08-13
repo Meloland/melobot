@@ -6,8 +6,8 @@ from os import PathLike
 from types import FunctionType, LambdaType, ModuleType, TracebackType
 from typing import *
 
-from typeguard import CollectionCheckStrategy as _CheckStrategy
-from typeguard import TypeCheckError, check_type
+from beartype.door import is_bearable as is_type
+from beartype.door import is_subhint
 from typing_extensions import Self, TypeGuard
 
 
@@ -174,11 +174,3 @@ class VoidType(Enum):
 
 
 _type_T = TypeVar("_type_T")
-
-
-def is_type(obj: object, typ: _type_T) -> TypeGuard[_type_T]:
-    try:
-        check_type(obj, typ, collection_check_strategy=_CheckStrategy.ALL_ITEMS)
-        return True
-    except TypeCheckError:
-        return False

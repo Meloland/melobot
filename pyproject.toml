@@ -13,7 +13,7 @@ dependencies = [
     "rich>=13.7.1,<14",
     "typing-extensions>=4.10.0",
     "colorlog>=6.8.2,<7",
-    "typeguard>=4.3.0",
+    "beartype>=0.18.5",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -60,7 +60,7 @@ line_length = 90
 
 [tool.pdm]
 distribution = true
-version = { source = "file", path = "src/melobot/meta.py" }
+version = { source = "file", path = "src/melobot/_meta.py" }
 
 [tool.pdm.scripts]
 isort = {shell = "isort src/melobot"}

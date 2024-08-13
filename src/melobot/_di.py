@@ -19,6 +19,7 @@ from .typ import (
     TypeVar,
     VoidType,
     cast,
+    is_subhint,
     is_type,
 )
 
@@ -84,8 +85,8 @@ class Depends(Generic[Main_T, Sub_T]):
         return val
 
 
-def _find_explict_dep(typ: Any) -> Depends | None:
-    if is_type(typ, type[Logger | _Logger]):
+def _find_explict_dep(hint: Any) -> Depends | None:
+    if is_subhint(hint, Logger | _Logger):
         return Depends(get_logger)
     else:
         return None
@@ -135,8 +136,8 @@ def _get_bound_args(
         bind = sign.bind(*args, **kwargs)
     except TypeError as e:
         raise BotDependError(
-            f"依赖注入失败。匹配函数 {func.__qualname__} 参数时发生错误：{e}。这可能是因为传参有误，或提供了错误的类型注解"
-        )
+            f"依赖注入失败。匹配函数 {func.__qualname__} 的参数时发生错误：{e}。这可能是因为传参有误，或提供了错误的类型注解"
+        ) from None
 
     bind.apply_defaults()
     return list(bind.args), bind.kwargs
