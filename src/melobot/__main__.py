@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from melobot.cli import pinit, run
+from melobot._cli import pinit, run
 
 parser = argparse.ArgumentParser(prog="mb-cli", description="melobot 命令行工具")
 sub_parsers = parser.add_subparsers()

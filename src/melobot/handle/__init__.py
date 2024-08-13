@@ -1,3 +1,4 @@
+from .._di import Depends
 from .process import (
     ProcessFlow,
     ProcessNode,

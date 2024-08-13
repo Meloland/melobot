@@ -2,7 +2,7 @@ import mimetypes
 import pathlib
 import urllib.parse
 
-from ..exceptions import BotException, BotAdapterError
+from ..exceptions import BotAdapterError, BotException
 from ..typ import (
     Any,
     AsyncCallable,

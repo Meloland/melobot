@@ -1,9 +1,9 @@
+from ._meta import MetaInfo
+from ._meta import __version__ as core_version
 from .adapter import send_bytes, send_text
 from .bot import Bot, BotLifeSpan, get_bot
 from .handle import ProcessFlow, ProcessNode
 from .log import Logger, get_logger
-from .meta import MetaInfo
-from .meta import __version__ as core_version
 from .plugin import AsyncShare, Plugin, SyncShare
 from .session import AbstractRule, SessionOption
 from .typ import HandleLevel

@@ -134,7 +134,9 @@ def _get_bound_args(
     try:
         bind = sign.bind(*args, **kwargs)
     except TypeError as e:
-        raise BotDependError(f"{func.__qualname__} 传参错误：{e}")
+        raise BotDependError(
+            f"依赖注入失败。匹配函数 {func.__qualname__} 参数时发生错误：{e}。这可能是因为传参有误，或提供了错误的类型注解"
+        )
 
     bind.apply_defaults()
     return list(bind.args), bind.kwargs
