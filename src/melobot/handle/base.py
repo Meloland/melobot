@@ -2,7 +2,7 @@ from ..adapter.model import Event
 from ..log import LogLevel, get_logger
 from ..session.base import Session
 from ..session.option import AbstractRule
-from ..types import TYPE_CHECKING, HandleLevel
+from ..typ import TYPE_CHECKING, HandleLevel
 from ..utils import RWContext
 from .process import ProcessFlow
 

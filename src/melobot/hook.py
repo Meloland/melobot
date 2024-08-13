@@ -2,7 +2,7 @@ import asyncio
 from enum import Enum
 
 from .log import get_logger
-from .types import Any, AsyncCallable, Generic, TypeVar
+from .typ import Any, AsyncCallable, Generic, TypeVar
 
 HookEnum_T = TypeVar("HookEnum_T", bound=Enum)
 

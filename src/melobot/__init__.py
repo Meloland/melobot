@@ -6,6 +6,6 @@ from .meta import MetaInfo
 from .meta import __version__ as core_version
 from .plugin import AsyncShare, Plugin, SyncShare
 from .session import AbstractRule, SessionOption
-from .types import HandleLevel
+from .typ import HandleLevel
 
 __version__ = core_version

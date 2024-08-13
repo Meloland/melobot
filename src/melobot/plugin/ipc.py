@@ -1,5 +1,5 @@
 from ..exceptions import BotIpcError
-from ..types import AsyncCallable, AttrsReprMixin, Callable, Generic, LocatableMixin, T
+from ..typ import AsyncCallable, AttrsReprMixin, Callable, Generic, LocatableMixin, T
 from ..utils import RWContext
 
 

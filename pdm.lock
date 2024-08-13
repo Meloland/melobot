@@ -5,7 +5,7 @@
 groups = ["default", "analyse", "docs", "lint", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:2419a73c5c445793af58fe6f2fc35001bf0576211d9564b9bcaa765321b34d7f"
+content_hash = "sha256:12b8cbe7ed7e499d9b1b1b34e9eca452fa6223c4123577a8b2692b8bb606462d"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -820,6 +820,21 @@ marker = "python_version < \"3.11\""
 files = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+
+[[package]]
+name = "typeguard"
+version = "4.3.0"
+requires_python = ">=3.8"
+summary = "Run-time type checker for Python"
+groups = ["default"]
+dependencies = [
+    "importlib-metadata>=3.6; python_version < \"3.10\"",
+    "typing-extensions>=4.10.0",
+]
+files = [
+    {file = "typeguard-4.3.0-py3-none-any.whl", hash = "sha256:4d24c5b39a117f8a895b9da7a9b3114f04eb63bade45a4492de49b175b6f7dfa"},
+    {file = "typeguard-4.3.0.tar.gz", hash = "sha256:92ee6a0aec9135181eae6067ebd617fd9de8d75d714fb548728a4933b1dea651"},
 ]
 
 [[package]]

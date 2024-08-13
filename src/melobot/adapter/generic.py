@@ -1,4 +1,4 @@
-from ..types import PathLike
+from ..typ import PathLike
 from .base import SrcInfoLocal
 from .model import ActionHandle
 

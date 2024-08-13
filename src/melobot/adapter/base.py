@@ -14,7 +14,7 @@ from ..io.base import (
     OutPacket_T,
 )
 from ..log import get_logger
-from ..types import (
+from ..typ import (
     TYPE_CHECKING,
     BetterABC,
     Callable,

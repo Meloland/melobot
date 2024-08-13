@@ -67,3 +67,8 @@ class BotHookError(BotException):
 class BotAdapterError(BotException):
     def __init__(self, text: str):
         super().__init__(text)
+
+
+class BotDependError(BotException):
+    def __init__(self, text: str):
+        super().__init__(text)

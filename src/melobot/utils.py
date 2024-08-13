@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from functools import wraps
 
 from .exceptions import BotValidateError
-from .types import Any, AsyncCallable, Callable, Coroutine, Optional, P, T, TypeVar, cast
+from .typ import Any, AsyncCallable, Callable, Coroutine, Optional, P, T, TypeVar, cast
 
 
 def singleton(cls):

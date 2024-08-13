@@ -19,7 +19,7 @@ import rich.pretty
 from better_exceptions import ExceptionFormatter
 
 from .exceptions import BotLogError
-from .types import Any, Generator, Optional, cast
+from .typ import Any, Generator, Optional, cast
 from .utils import singleton
 
 _CONSOLE_IO = io.StringIO()

@@ -5,7 +5,7 @@ from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
-from ..types import Any, ModuleType, PathLike, Sequence
+from ..typ import Any, ModuleType, PathLike, Sequence
 from ..utils import singleton
 
 

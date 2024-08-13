@@ -3,7 +3,7 @@ from asyncio import create_task
 from time import time_ns
 
 from ..exceptions import BotRuntimeError
-from ..types import (
+from ..typ import (
     TYPE_CHECKING,
     Any,
     AttrsReprMixin,

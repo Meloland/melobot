@@ -1,7 +1,7 @@
 import os
 import sys
 
-from .types import Any
+from .typ import Any
 
 __version__ = "3.0.0rc1"
 

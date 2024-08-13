@@ -7,7 +7,7 @@ from contextvars import ContextVar, Token
 
 from ..adapter.model import Event, Event_T
 from ..exceptions import BotException, BotSessionError
-from ..types import Any, AsyncCallable, AsyncGenerator, Generic, Optional
+from ..typ import Any, AsyncCallable, AsyncGenerator, Generic, Optional
 from ..utils import singleton
 from .option import AbstractRule
 

@@ -7,7 +7,7 @@ from time import time
 
 from ..exceptions import BotPluginError
 from ..log import get_logger
-from ..types import TYPE_CHECKING, Any, Callable, Iterable, ModuleType
+from ..typ import TYPE_CHECKING, Any, Callable, Iterable, ModuleType
 from ..utils import singleton
 from .base import Plugin
 from .imp import Importer

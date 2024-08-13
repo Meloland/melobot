@@ -2,7 +2,7 @@ import asyncio
 import time
 from dataclasses import dataclass, field
 
-from ..types import (
+from ..typ import (
     Any,
     BetterABC,
     Generic,

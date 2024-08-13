@@ -2,7 +2,7 @@ import asyncio
 
 from ..adapter.model import Event
 from ..handle.base import EventHandler
-from ..types import HandleLevel, TypeVar
+from ..typ import HandleLevel, TypeVar
 from ..utils import RWContext
 
 key_T = TypeVar("key_T", bound=float)

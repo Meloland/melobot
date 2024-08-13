@@ -3,7 +3,7 @@ import pathlib
 import urllib.parse
 
 from ..exceptions import BotException, BotAdapterError
-from ..types import (
+from ..typ import (
     Any,
     AsyncCallable,
     BetterABC,

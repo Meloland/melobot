@@ -17,7 +17,7 @@ from ..plugin.base import Plugin
 from ..plugin.ipc import IPCManager
 from ..plugin.load import PluginLoader
 from ..protocol import Protocol
-from ..types import (
+from ..typ import (
     Any,
     AsyncCallable,
     Callable,

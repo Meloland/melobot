@@ -3,10 +3,12 @@ from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from enum import Enum
 from os import PathLike
-from types import ModuleType, TracebackType
+from types import FunctionType, LambdaType, ModuleType, TracebackType
 from typing import *
 
-from typing_extensions import Self
+from typeguard import CollectionCheckStrategy as _CheckStrategy
+from typeguard import TypeCheckError, check_type
+from typing_extensions import Self, TypeGuard
 
 
 class MarkableMixin:
@@ -167,5 +169,16 @@ class BetterABC(metaclass=BetterABCMeta):
     __slots__ = ()
 
 
-class Placeholder(Enum):
-    EMPTY = type("_Empty", (), {})
+class VoidType(Enum):
+    VOID = type("_VOID", (), {})
+
+
+_type_T = TypeVar("_type_T")
+
+
+def is_type(obj: object, typ: _type_T) -> TypeGuard[_type_T]:
+    try:
+        check_type(obj, typ, collection_check_strategy=_CheckStrategy.ALL_ITEMS)
+        return True
+    except TypeCheckError:
+        return False
