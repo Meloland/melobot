@@ -82,10 +82,16 @@ class AbstractInSource(AbstractSource, Generic[InPacket_T]):
         raise NotImplementedError
 
 
+InSource_T = TypeVar("InSource_T", bound=AbstractInSource)
+
+
 class AbstractOutSource(AbstractSource, Generic[OutPacket_T, EchoPacket_T]):
     @abstractmethod
     async def output(self, packet: OutPacket_T) -> EchoPacket_T:
         raise NotImplementedError
+
+
+OutSource_T = TypeVar("OutSource_T", bound=AbstractOutSource)
 
 
 class AbstractIOSource(

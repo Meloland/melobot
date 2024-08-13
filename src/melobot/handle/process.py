@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from contextvars import ContextVar
 from dataclasses import dataclass
 from itertools import tee
 
 from ..adapter.model import Event, Event_T
+from ..ctx import FlowCtx, FlowInfo, SessionCtx
 from ..exceptions import ProcessFlowError
-from ..session.base import SessionLocal
 from ..session.option import SessionOption
 from ..typ import AsyncCallable, Generic, HandleLevel, Iterable
+
+_FLOW_CTX = FlowCtx()
+_SESSION_CTX = SessionCtx()
 
 
 class ProcessNode:
@@ -28,26 +30,23 @@ class ProcessNode:
 
     async def process(self, flow: ProcessFlow) -> None:
         # TODO: 完成依赖注入操作
-        if not isinstance(SessionLocal().get().event, self.type):
+        if not isinstance(_SESSION_CTX.get().event, self.type):
             return
 
         try:
             stack = _FLOW_CTX.get().stack
-        except LookupError:
+        except _FLOW_CTX._lookup_exc_cls:
             stack = []
 
-        try:
-            token = _FLOW_CTX.set(_FlowCtx(flow, self, True, stack))
-            stack.append(f"[{flow.name}] | Start -> <{self.name}>")
-            ret = await self.processor()
-            stack.append(f"[{flow.name}] | <{self.name}> -> Finished")
-            if ret in (None, True) and _FLOW_CTX.get().next_valid:
+        with _FLOW_CTX.on_ctx(FlowInfo(flow, self, True, stack)):
+            try:
+                stack.append(f"[{flow.name}] | Start -> <{self.name}>")
+                ret = await self.processor()
+                stack.append(f"[{flow.name}] | <{self.name}> -> Finished")
+                if ret in (None, True) and _FLOW_CTX.get().next_valid:
+                    await nextp()
+            except FlowContinued:
                 await nextp()
-
-        except FlowContinued:
-            await nextp()
-        finally:
-            _FLOW_CTX.reset(token)
 
 
 @dataclass
@@ -146,35 +145,22 @@ class ProcessFlow(Generic[Event_T]):
     async def _run(self) -> None:
         try:
             stack = _FLOW_CTX.get().stack
-        except LookupError:
+        except _FLOW_CTX._lookup_exc_cls:
             stack = []
 
-        token = _FLOW_CTX.set(_FlowCtx(self, self.starts[0], True, stack))
-        try:
-            stack.append(f"[{self.name}] | Start >>> [{self.name}]")
-            idx = 0
-            while idx < len(self.starts):
-                try:
-                    await self.starts[idx].process(self)
-                    idx += 1
-                except FlowRewound:
-                    pass
-            stack.append(f"[{self.name}] | [{self.name}] >>> Finished")
-        except FlowBroke:
-            pass
-        finally:
-            _FLOW_CTX.reset(token)
-
-
-@dataclass
-class _FlowCtx:
-    flow: ProcessFlow
-    node: ProcessNode
-    next_valid: bool
-    stack: list[str]
-
-
-_FLOW_CTX: ContextVar[_FlowCtx] = ContextVar("_FLOW_CTX")
+        with _FLOW_CTX.on_ctx(FlowInfo(self, self.starts[0], True, stack)):
+            try:
+                stack.append(f"[{self.name}] | Start >>> [{self.name}]")
+                idx = 0
+                while idx < len(self.starts):
+                    try:
+                        await self.starts[idx].process(self)
+                        idx += 1
+                    except FlowRewound:
+                        pass
+                stack.append(f"[{self.name}] | [{self.name}] >>> Finished")
+            except FlowBroke:
+                pass
 
 
 class _FlowSignal(BaseException):
@@ -199,50 +185,50 @@ class FlowRewound(_FlowSignal):
 
 async def nextp() -> None:
     try:
-        ctx = _FLOW_CTX.get()
-        nexts = ctx.flow.graph[ctx.node].nexts
-        if not ctx.next_valid:
+        info = _FLOW_CTX.get()
+        nexts = info.flow.graph[info.node].nexts
+        if not info.next_valid:
             return
 
         idx = 0
         while idx < len(nexts):
             try:
-                await nexts[idx].process(ctx.flow)
+                await nexts[idx].process(info.flow)
                 idx += 1
             except FlowRewound:
                 pass
 
-    except LookupError:
+    except _FLOW_CTX._lookup_exc_cls:
         raise ProcessFlowError("此时不在活动的事件处理流中，无法调用下一处理结点")
     finally:
-        ctx.next_valid = False
+        info.next_valid = False
 
 
 async def block() -> None:
-    ctx = _FLOW_CTX.get()
-    ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> ~ [BLOCK]")
-    SessionLocal().get().event._spread = False
+    info = _FLOW_CTX.get()
+    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [BLOCK]")
+    _SESSION_CTX.get().event._spread = False
 
 
 async def quit() -> None:
-    ctx = _FLOW_CTX.get()
-    ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> ~ [QUIT]")
-    ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> -> Early Finished")
-    ctx.stack.append(f"[{ctx.flow.name}] | [{ctx.flow.name}] >>> Early Finished")
+    info = _FLOW_CTX.get()
+    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [QUIT]")
+    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> -> Early Finished")
+    info.stack.append(f"[{info.flow.name}] | [{info.flow.name}] >>> Early Finished")
     raise FlowBroke("事件处理流被安全地提早结束，请无视这个内部工作信号")
 
 
 async def bypass() -> None:
-    ctx = _FLOW_CTX.get()
-    ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> ~ [BYPASS]")
-    ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> -> Early Finished")
+    info = _FLOW_CTX.get()
+    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [BYPASS]")
+    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> -> Early Finished")
     raise FlowContinued("事件处理流安全地跳过结点执行，请无视这个内部工作信号")
 
 
 async def rewind() -> None:
-    ctx = _FLOW_CTX.get()
-    ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> ~ [REWIND]")
-    ctx.stack.append(f"[{ctx.flow.name}] | <{ctx.node.name}> -> Early Finished")
+    info = _FLOW_CTX.get()
+    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [REWIND]")
+    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> -> Early Finished")
     raise FlowRewound("事件处理流安全地重复执行处理结点，请无视这个内部工作信号")
 
 

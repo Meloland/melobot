@@ -3,13 +3,14 @@ from __future__ import annotations
 import asyncio
 from asyncio import Condition, Lock
 from contextlib import asynccontextmanager
-from contextvars import ContextVar, Token
 
-from ..adapter.model import Event, Event_T
-from ..exceptions import BotException, BotSessionError
-from ..typ import Any, AsyncCallable, AsyncGenerator, Generic, Optional
-from ..utils import singleton
+from ..adapter.model import Event_T
+from ..ctx import SessionCtx
+from ..exceptions import BotException
+from ..typ import Any, AsyncCallable, AsyncGenerator, Generic
 from .option import AbstractRule
+
+_SESSION_CTX = SessionCtx()
 
 
 class SessionStateError(BotException):
@@ -215,39 +216,11 @@ class Session(Generic[Event_T]):
 
     @asynccontextmanager
     async def ctx(self) -> AsyncGenerator[Session[Event_T], None]:
-        local = SessionLocal()
-        try:
-            token = local.add(self)
-            yield self
-        except asyncio.CancelledError:
-            if self._on_state(SuspendSessionState):
-                await self._wakeup(self.event)
-        finally:
-            local.remove(token)
-            await self.rest() if self._keep else await self.expire()
-
-
-@singleton
-class SessionLocal:
-    def __init__(self) -> None:
-        object.__setattr__(self, "__storage__", ContextVar("session_ctx"))
-        self.__storage__: ContextVar[Session]
-
-    def get(self) -> Session:
-        try:
-            return self.__storage__.get()
-        except LookupError:
-            raise BotSessionError("此时不在活动的事件处理流中，无法获取会话信息")
-
-    def try_get(self) -> Session | None:
-        return self.__storage__.get(None)
-
-    def try_get_event(self) -> Event | None:
-        session = self.try_get()
-        return session.event if session is not None else None
-
-    def add(self, ctx: Session) -> Token:
-        return self.__storage__.set(ctx)
-
-    def remove(self, token: Token) -> None:
-        self.__storage__.reset(token)
+        with _SESSION_CTX.on_ctx(self):
+            try:
+                yield self
+            except asyncio.CancelledError:
+                if self._on_state(SuspendSessionState):
+                    await self._wakeup(self.event)
+            finally:
+                await self.rest() if self._keep else await self.expire()

@@ -16,59 +16,59 @@ logging._loggerClass = logging.Logger  # type:ignore[attr-defined]
 
 
 class BotException(Exception):
-    def __init__(self, text: str):
-        super().__init__(self, text)
-        self.err = text
+    def __init__(self, obj: object):
+        super().__init__(self, obj)
+        self.err = str(obj)
 
     def __str__(self):
         return self.err
 
 
 class BotValidateError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotRuntimeError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotPluginError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotIpcError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotSessionError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class ProcessFlowError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotLogError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotHookError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotAdapterError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)
 
 
 class BotDependError(BotException):
-    def __init__(self, text: str):
-        super().__init__(text)
+    def __init__(self, obj: object):
+        super().__init__(obj)

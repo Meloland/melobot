@@ -7,8 +7,6 @@ import logging.handlers
 import os
 import sys
 import types
-from contextlib import contextmanager
-from contextvars import ContextVar, Token
 from enum import Enum
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from logging import Logger as _Logger
@@ -18,10 +16,11 @@ import rich.console
 import rich.pretty
 from better_exceptions import ExceptionFormatter
 
-from .exceptions import BotLogError
-from .typ import Any, Generator, Optional, cast
+from .ctx import LoggerCtx
+from .typ import Any, Optional, cast
 from .utils import singleton
 
+_LOGGER_CTX = LoggerCtx()
 _CONSOLE_IO = io.StringIO()
 _CONSOLE = rich.console.Console(file=_CONSOLE_IO, record=True, color_system="windows")
 
@@ -341,37 +340,8 @@ def logger_patch(logger: Any, log_level: LogLevel = LogLevel.INFO) -> None:
     setattr(logger, Logger.obj.__name__, types.MethodType(Logger.obj, logger))
 
 
-@singleton
-class LoggerLocal:
-    """Logger 实例自动上下文"""
-
-    def __init__(self) -> None:
-        object.__setattr__(self, "__storage__", ContextVar("logger_ctx"))
-        self.__storage__: ContextVar[Logger]
-
-    def get(self) -> Logger:
-        try:
-            return self.__storage__.get()
-        except LookupError:
-            raise BotLogError("此时未初始化 logger 实例，无法获取")
-
-    def add(self, ctx: Logger) -> Token:
-        return self.__storage__.set(ctx)
-
-    def remove(self, token: Token) -> None:
-        self.__storage__.reset(token)
-
-    @contextmanager
-    def on_ctx(self, obj: Logger) -> Generator[None, None, None]:
-        token = self.add(obj)
-        try:
-            yield
-        finally:
-            self.remove(token)
-
-
 def get_logger(name: str | None = None) -> Logger:
     if name is None:
-        return LoggerLocal().get()
+        return _LOGGER_CTX.get()
     else:
         return Logger(name)

@@ -3,7 +3,6 @@ from .base import (
     AbstractEventFactory,
     AbstractOutputFactory,
     Adapter,
-    output_filter,
 )
 from .content import AbstractContent, set_uri_processor
 from .generic import send_audio, send_bytes, send_file, send_text, send_video

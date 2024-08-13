@@ -3,31 +3,20 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
-from contextlib import contextmanager
-from contextvars import ContextVar, Token
 from enum import Enum
 from pathlib import Path
 
 from ..adapter.base import Adapter
+from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotRuntimeError
 from ..hook import HookBus
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
-from ..log import EmptyLogger, Logger, LoggerLocal
+from ..log import EmptyLogger, Logger
 from ..plugin.base import Plugin
 from ..plugin.ipc import IPCManager
 from ..plugin.load import PluginLoader
 from ..protocol import Protocol
-from ..typ import (
-    Any,
-    AsyncCallable,
-    Callable,
-    Coroutine,
-    Generator,
-    ModuleType,
-    P,
-    PathLike,
-)
-from ..utils import singleton
+from ..typ import Any, AsyncCallable, Callable, Coroutine, ModuleType, P, PathLike
 from .dispatch import Dispatcher
 
 
@@ -46,6 +35,8 @@ class BotExitSignal(Enum):
 
 MELO_PKG_RUNTIME = "MELOBOT_PKG_RUNTIME"
 MELO_LAST_EXIT_SIGNAL = "MELO_LAST_EXIT_SIGNAL"
+_BOT_CTX = BotCtx()
+_LOGGER_CTX = LoggerCtx()
 
 
 class Bot:
@@ -152,8 +143,8 @@ class Bot:
         if not self._inited:
             self._run_init()
 
-        with BotLocal().on_ctx(self):
-            with LoggerLocal().on_ctx(self.logger):
+        with _BOT_CTX.on_ctx(self):
+            with _LOGGER_CTX.on_ctx(self.logger):
                 if isinstance(plugin, ModuleType):
                     p_name = plugin.__name__
                 else:
@@ -183,8 +174,8 @@ class Bot:
             raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
 
-        with BotLocal().on_ctx(self):
-            with LoggerLocal().on_ctx(self.logger):
+        with _BOT_CTX.on_ctx(self):
+            with _LOGGER_CTX.on_ctx(self.logger):
                 try:
                     if (
                         MELO_LAST_EXIT_SIGNAL in os.environ
@@ -272,34 +263,5 @@ def _safe_blocked_run(main: Coroutine[Any, Any, None]) -> None:
         pass
 
 
-@singleton
-class BotLocal:
-    """bot 实例自动上下文"""
-
-    def __init__(self) -> None:
-        object.__setattr__(self, "__storage__", ContextVar("bot_ctx"))
-        self.__storage__: ContextVar["Bot"]
-
-    def get(self) -> Bot:
-        try:
-            return self.__storage__.get()
-        except LookupError:
-            raise BotRuntimeError("此时未初始化 bot 实例，无法获取")
-
-    def add(self, ctx: Bot) -> Token:
-        return self.__storage__.set(ctx)
-
-    def remove(self, token: Token) -> None:
-        self.__storage__.reset(token)
-
-    @contextmanager
-    def on_ctx(self, obj: Bot) -> Generator[None, None, None]:
-        token = self.add(obj)
-        try:
-            yield
-        finally:
-            self.remove(token)
-
-
 def get_bot() -> Bot:
-    return BotLocal().get()
+    return _BOT_CTX.get()

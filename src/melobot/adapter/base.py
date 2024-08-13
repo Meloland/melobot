@@ -2,36 +2,39 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import create_task
-from contextlib import contextmanager
-from contextvars import ContextVar, Token
+from contextlib import _GeneratorContextManager
 
-from ..exceptions import BotAdapterError
+from ..ctx import EventBuildInfo, EventBuildInfoCtx, OutSrcFilterCtx
 from ..io.base import (
-    AbstractInSource,
     AbstractOutSource,
     EchoPacket_T,
     InPacket_T,
+    InSource_T,
     OutPacket_T,
+    OutSource_T,
 )
 from ..log import get_logger
 from ..typ import (
     TYPE_CHECKING,
     BetterABC,
     Callable,
-    Generator,
     Generic,
     Iterable,
     LiteralString,
-    NamedTuple,
     PathLike,
+    TypeVar,
     abstractattr,
     abstractmethod,
+    cast,
 )
-from ..utils import singleton
 from .model import Action_T, ActionHandle, Echo_T, Event_T
 
 if TYPE_CHECKING:
     from ..bot.dispatch import Dispatcher
+
+
+_EVENT_BUILD_INFO_CTX = EventBuildInfoCtx()
+_OUT_SRC_FILTER_CTX = OutSrcFilterCtx()
 
 
 class AbstractEventFactory(BetterABC, Generic[InPacket_T, Event_T]):
@@ -40,10 +43,16 @@ class AbstractEventFactory(BetterABC, Generic[InPacket_T, Event_T]):
         raise NotImplementedError
 
 
+EventFactory_T = TypeVar("EventFactory_T", bound=AbstractEventFactory)
+
+
 class AbstractOutputFactory(BetterABC, Generic[OutPacket_T, Action_T]):
     @abstractmethod
     async def create(self, action: Action_T) -> OutPacket_T:
         raise NotImplementedError
+
+
+OutputFactory_T = TypeVar("OutputFactory_T", bound=AbstractOutputFactory)
 
 
 class AbstractEchoFactory(BetterABC, Generic[EchoPacket_T, Echo_T]):
@@ -52,30 +61,32 @@ class AbstractEchoFactory(BetterABC, Generic[EchoPacket_T, Echo_T]):
         raise NotImplementedError
 
 
+EchoFactory_T = TypeVar("EchoFactory_T", bound=AbstractEchoFactory)
+
+
 class Adapter(
     BetterABC,
-    Generic[InPacket_T, OutPacket_T, EchoPacket_T, Event_T, Action_T, Echo_T],
+    Generic[EventFactory_T, OutputFactory_T, EchoFactory_T, InSource_T, OutSource_T],
 ):
     protocol: LiteralString = abstractattr()
-    event_factory: AbstractEventFactory[InPacket_T, Event_T] = abstractattr()
-    output_factory: AbstractOutputFactory[OutPacket_T, Action_T] = abstractattr()
-    echo_factory: AbstractEchoFactory[EchoPacket_T, Echo_T] = abstractattr()
+    event_factory: EventFactory_T = abstractattr()
+    output_factory: OutputFactory_T = abstractattr()
+    echo_factory: EchoFactory_T = abstractattr()
 
     def __init__(self) -> None:
         super().__init__()
-        self.in_srcs: list[AbstractInSource[InPacket_T]] = []
-        self.out_srcs: list[AbstractOutSource[OutPacket_T, EchoPacket_T]] = []
+        self.in_srcs: list[InSource_T] = []
+        self.out_srcs: list[OutSource_T] = []
         self.dispatcher: "Dispatcher"
 
     async def _run(self) -> None:
-        async def _input_loop(src: AbstractInSource) -> None:
+        async def _input_loop(src: InSource_T) -> None:
             logger = get_logger()
-            build_local = SrcInfoLocal()
             while True:
                 try:
                     packet = await src.input()
                     event = await self.event_factory.create(packet)
-                    with build_local.on_ctx(self, src):
+                    with _EVENT_BUILD_INFO_CTX.on_ctx(EventBuildInfo(self, src)):
                         await self.dispatcher.broadcast(event)
                 except Exception:
                     logger.error(f"适配器 {self} 处理输入与分发事件时发生异常")
@@ -92,15 +103,20 @@ class Adapter(
         if len(ts := tuple(create_task(_input_loop(src)) for src in self.in_srcs)):
             await asyncio.wait(ts)
 
+    def out_filter(
+        self, filter: Callable[[OutSource_T], bool]
+    ) -> _GeneratorContextManager[None]:
+        return _OUT_SRC_FILTER_CTX.on_ctx(filter)
+
     def call_output(self, action: Action_T) -> tuple[ActionHandle, ...]:
-        osrcs: Iterable[AbstractOutSource[OutPacket_T, EchoPacket_T]]
-        filter = _OUT_SRC_FILTER.get()
-        cur_isrc = SrcInfoLocal().get().in_src
+        osrcs: Iterable[OutSource_T]
+        filter = _OUT_SRC_FILTER_CTX.try_get()
+        cur_isrc = _EVENT_BUILD_INFO_CTX.get().in_src
 
         if filter is not None:
-            osrcs = (osrc for osrc in osrcs if filter(osrc))
+            osrcs = (osrc for osrc in self.out_srcs if filter(osrc))
         elif isinstance(cur_isrc, AbstractOutSource):
-            osrcs = (cur_isrc,)
+            osrcs = (cast(OutSource_T, cur_isrc),)
         else:
             osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
 
@@ -140,54 +156,3 @@ class Adapter(
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
         raise NotImplementedError
-
-
-_OUT_SRC_FILTER: ContextVar[Callable[[AbstractOutSource], bool] | None] = ContextVar(
-    "_OUT_SRC_FILTER", default=None
-)
-
-
-@contextmanager
-def output_filter(
-    filter: Callable[[AbstractOutSource], bool]
-) -> Generator[None, None, None]:
-    token = _OUT_SRC_FILTER.set(filter)
-    try:
-        yield
-    finally:
-        _OUT_SRC_FILTER.reset(token)
-
-
-@singleton
-class SrcInfoLocal:
-    class BuildInfo(NamedTuple):
-        adapter: Adapter
-        in_src: AbstractInSource
-
-    def __init__(self) -> None:
-        object.__setattr__(self, "__storage__", ContextVar("_EVENT_BUILD_INFO"))
-        self.__storage__: ContextVar[SrcInfoLocal.BuildInfo]
-
-    def get(self) -> BuildInfo:
-        try:
-            return self.__storage__.get()
-        except LookupError:
-            raise BotAdapterError(
-                "此时不在活动的事件处理流中，无法获取适配器与输入源的上下文信息"
-            )
-
-    def add(self, ctx: BuildInfo) -> Token:
-        return self.__storage__.set(ctx)
-
-    def remove(self, token: Token) -> None:
-        self.__storage__.reset(token)
-
-    @contextmanager
-    def on_ctx(
-        self, adapter: Adapter, in_src: AbstractInSource
-    ) -> Generator[None, None, None]:
-        token = self.add(SrcInfoLocal.BuildInfo(adapter, in_src))
-        try:
-            yield
-        finally:
-            self.remove(token)
