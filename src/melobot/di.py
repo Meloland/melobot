@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from asyncio import Lock
 from collections import deque
 from functools import wraps
-from inspect import Parameter, Signature, isawaitable, signature
+from inspect import Parameter, isawaitable, signature
 
 from .exceptions import BotDependError
 from .log import Logger, _Logger, get_logger
@@ -12,37 +14,77 @@ from .typ import (
     FunctionType,
     Generic,
     LambdaType,
-    Literal,
     P,
     T,
+    TypeVar,
     VoidType,
     cast,
     is_type,
 )
 
+Main_T = TypeVar("Main_T")
+Sub_T = TypeVar("Sub_T")
 
-class Depends(Generic[T]):
+
+class Depends(Generic[Main_T, Sub_T]):
     def __init__(
-        self, callback: AsyncCallable[[], T] | Callable[[], T], cache: bool = False
+        self,
+        dep: Callable[[], Main_T] | AsyncCallable[[], Main_T] | Depends[Any, Main_T],
+        sub_getter: (
+            Callable[[Main_T], Sub_T] | AsyncCallable[[Main_T], Sub_T] | None
+        ) = None,
+        cache: bool = False,
     ) -> None:
         super().__init__()
-        self.getter = inject_deps(callback)
+        self.ref: Depends | None
+        self.getter: AsyncCallable[[], Any] | None
+        if isinstance(dep, Depends):
+            self.ref = dep
+            self.getter = None
+        else:
+            self.ref = None
+            self.getter = inject_deps(dep)
+        self.sub_getter = None if sub_getter is None else inject_deps(sub_getter)
+
         self._lock = Lock() if cache else None
-        self._cached: T | Literal[VoidType.VOID] = VoidType.VOID
+        self._cached: Any = VoidType.VOID
 
-    async def fulfill(self) -> T:
+    def __repr__(self) -> str:
+        getter_str = f"getter={self.getter}" if self.getter is not None else ""
+        ref_str = f"ref={self.ref}" if self.ref is not None else ""
+        return f"Depends({ref_str if ref_str != '' else getter_str})"
+
+    async def _get(self, dep_scope: dict[Depends, Any]) -> Any:
+        if self.getter is not None:
+            val = await self.getter()
+        else:
+            ref = cast(Depends, self.ref)
+            val = dep_scope.get(ref, VoidType.VOID)
+            if val is VoidType.VOID:
+                val = await ref.fulfill(dep_scope)
+
+        if self.sub_getter is not None:
+            val = self.sub_getter(val)
+            if isawaitable(val):
+                val = await val
+        return val
+
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
         if self._lock is None:
-            return await self.getter()
+            val = await self._get(dep_scope)
+        elif self._cached is not VoidType.VOID:
+            val = self._cached
+        else:
+            async with self._lock:
+                if self._cached is VoidType.VOID:
+                    self._cached = await self._get(dep_scope)
+                val = self._cached
 
-        if self._cached is not VoidType.VOID:
-            return self._cached
-        async with self._lock:
-            if self._cached is VoidType.VOID:
-                self._cached = await self.getter()
-            return self._cached
+        dep_scope[self] = val
+        return val
 
 
-def _find_explict_dep(typ: Any) -> Depends[Any] | None:
+def _find_explict_dep(typ: Any) -> Depends | None:
     if is_type(typ, type[Logger | _Logger]):
         return Depends(get_logger)
     else:
@@ -88,35 +130,31 @@ def _get_bound_args(
     func: Callable, /, *args, **kwargs
 ) -> tuple[list[Any], dict[str, Any]]:
     sign = signature(func)
+
     try:
         bind = sign.bind(*args, **kwargs)
     except TypeError as e:
         raise BotDependError(f"{func.__qualname__} 传参错误：{e}")
+
     bind.apply_defaults()
     return list(bind.args), bind.kwargs
 
 
 def inject_deps(callee: Callable[P, T] | AsyncCallable[P, T]) -> AsyncCallable[P, T]:
-    if isinstance(callee, FunctionType):
-        _init_explict_deps(callee)
-    elif isinstance(callee, LambdaType):
-        pass
-    else:
-        raise BotDependError(f"只有可调用对象能被注入依赖，但 {callee} 不是可调用对象")
-
     @wraps(callee)
-    async def async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         _args, _kwargs = _get_bound_args(callee, *args, **kwargs)
+        dep_scope: dict[Depends, Any] = {}
 
         for idx, _ in enumerate(_args):
             elem = _args[idx]
             if isinstance(elem, Depends):
-                _args[idx] = await elem.fulfill()
+                _args[idx] = await elem.fulfill(dep_scope)
 
         for idx, k in enumerate(_kwargs.keys()):
             elem = _kwargs[k]
             if isinstance(elem, Depends):
-                _kwargs[k] = await elem.fulfill()
+                _kwargs[k] = await elem.fulfill(dep_scope)
 
         ret = callee(*_args, **_kwargs)  # type: ignore[arg-type]
         if isawaitable(ret):
@@ -124,4 +162,19 @@ def inject_deps(callee: Callable[P, T] | AsyncCallable[P, T]) -> AsyncCallable[P
         else:
             return cast(T, ret)
 
-    return async_wrapped
+    @wraps(callee)
+    async def class_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        ret = cast(Callable, callee)(*args, **kwargs)
+        return ret
+
+    if isinstance(callee, FunctionType):
+        _init_explict_deps(callee)
+        return wrapped
+    elif isinstance(callee, LambdaType):
+        return wrapped
+    elif isinstance(callee, type):
+        return class_wrapped
+    else:
+        raise BotDependError(
+            f"{callee} 对象不属于以下类别中的任何一种：{{同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，类对象，实例方法、类方法、静态方法}}，因此不能被注入依赖"
+        )
