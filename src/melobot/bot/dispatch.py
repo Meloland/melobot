@@ -5,16 +5,16 @@ from ..handle.base import EventHandler
 from ..typ import HandleLevel, TypeVar
 from ..utils import RWContext
 
-key_T = TypeVar("key_T", bound=float)
-val_T = TypeVar("val_T")
+KeyT = TypeVar("KeyT", bound=float)
+ValT = TypeVar("ValT")
 
 
-class _KeyOrderDict(dict[key_T, val_T]):
+class _KeyOrderDict(dict[KeyT, ValT]):
     def __init__(self, *args, **kwargs) -> None:
         self.update(*args, **kwargs)
-        self.__buf: list[tuple[key_T, val_T]] = []
+        self.__buf: list[tuple[KeyT, ValT]] = []
 
-    def __setitem__(self, key: key_T, value: val_T) -> None:
+    def __setitem__(self, key: KeyT, value: ValT) -> None:
         if len(self) == 0:
             return super().__setitem__(key, value)
 
@@ -38,7 +38,7 @@ class _KeyOrderDict(dict[key_T, val_T]):
         for k, v in dict(*args, **kwargs).items():
             self[k] = v
 
-    def setdefault(self, key: key_T, default: val_T) -> val_T:
+    def setdefault(self, key: KeyT, default: ValT) -> ValT:
         if key not in self:
             self[key] = default
         return self[key]
@@ -50,15 +50,15 @@ class Dispatcher:
         self.broadcast_ctrl = RWContext()
         self.gc_interval = 5
 
-    def no_ctrl_add(self, *handlers: EventHandler) -> None:
+    def internal_add(self, *handlers: EventHandler) -> None:
         for h in handlers:
             self.handlers.setdefault(h.priority, set()).add(h)
 
     async def add(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
-            self.no_ctrl_add(*handlers)
+            self.internal_add(*handlers)
 
-    async def __remove(self, *handlers: EventHandler) -> None:
+    async def _remove(self, *handlers: EventHandler) -> None:
         for h in handlers:
             await h.expire()
             h_set = self.handlers[h.priority]
@@ -68,7 +68,7 @@ class Dispatcher:
 
     async def expire(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
-            await self.__remove(*handlers)
+            await self._remove(*handlers)
 
     async def reset(self, handler: EventHandler, new_prior: HandleLevel) -> None:
         async with self.broadcast_ctrl.write():
@@ -86,7 +86,7 @@ class Dispatcher:
                 tasks = tuple(asyncio.create_task(h.handle(event)) for h in h_set)
                 await asyncio.wait(tasks)
 
-                if not event._spread:
+                if not event.spread:
                     break
 
     async def timed_gc(self) -> None:
@@ -94,6 +94,6 @@ class Dispatcher:
             await asyncio.sleep(self.gc_interval)
             async with self.broadcast_ctrl.write():
                 hs = tuple(
-                    h for h_set in self.handlers.values() for h in h_set if h._invalid
+                    h for h_set in self.handlers.values() for h in h_set if h.invalid
                 )
-                await self.__remove(*hs)
+                await self._remove(*hs)

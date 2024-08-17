@@ -4,10 +4,11 @@ from inspect import getabsfile
 from os import PathLike, listdir, remove
 from pathlib import Path
 from time import time
+from types import ModuleType
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
-from ..exceptions import BotPluginError
-from ..log import get_logger
-from ..typ import TYPE_CHECKING, Any, Callable, Iterable, ModuleType
+from .._ctx import get_logger
+from ..exceptions import PluginError
 from ..utils import singleton
 from .base import Plugin
 from .imp import Importer
@@ -18,11 +19,10 @@ if TYPE_CHECKING:
 
 
 def plugin_get_attr(get_bot: Callable[[], "Bot"], p_name: str, name: str) -> Any:
-    obj = get_bot()._ipc_manager.get(p_name, name)
-    if obj._static:
+    obj = get_bot().ipc_manager.get(p_name, name)
+    if obj.static:
         return obj.get()
-    else:
-        return obj
+    return obj
 
 
 class PluginInitHelper:
@@ -50,7 +50,7 @@ class PluginInitHelper:
         autoget_varnames: list[str] = []
 
         for share in shares:
-            if share._static:
+            if share.static:
                 autoget_varnames.append(share.name)
 
             share_located = Path(share.__obj_file__)
@@ -68,12 +68,17 @@ class PluginInitHelper:
                     share_varname = k
                     break
             else:
-                raise BotPluginError(
+                raise PluginError(
                     f"共享对象 {share} 在所属模块的全局作用域不存在引用，生成 .pyi 失败"
                 )
-            refs.setdefault(f".{'.'.join(imp_parts)}", []).append(
-                share.name if not share._static else f"{share_varname} as _{share.name}"
-            )
+
+            li = refs.setdefault(f".{'.'.join(imp_parts)}", [])
+            if share.static:
+                li.append(f"{share_varname} as _{share.name}")
+            elif share_varname != share.name:
+                li.append(f"{share_varname} as {share.name}")
+            else:
+                li.append(share_varname)
             varnames.append(share.name)
 
         for func in funcs:
@@ -82,6 +87,8 @@ class PluginInitHelper:
             parts2 = plugin_dir.parts
             imp_parts = list(parts1[len(parts2) :])
             imp_parts[-1] = imp_parts[-1].rstrip(".py")
+            if func.__name__.startswith("_"):
+                raise PluginError(f"导出函数 {func} 的名称不能以 _ 开头")
 
             mod = Importer.import_mod(
                 func.__module__, func_located.parent, sys_cache=False
@@ -91,7 +98,7 @@ class PluginInitHelper:
                 if v is func:
                     break
             else:
-                raise BotPluginError(
+                raise PluginError(
                     f"导出函数 {func} 在所属模块的全局作用域不存在引用，生成 .pyi 失败"
                 )
             refs.setdefault(f".{'.'.join(imp_parts)}", []).append(func.__name__)
@@ -105,7 +112,7 @@ class PluginInitHelper:
         gets_str = "\n".join(
             f"{varname} = _{varname}.get()" for varname in autoget_varnames
         )
-        vars_str = "__all__ = (" + ", ".join(repr(name) for name in varnames) + ")"
+        vars_str = f"__all__ = {repr(tuple(varnames))}"
 
         if not len(varnames):
             return ""
@@ -113,7 +120,7 @@ class PluginInitHelper:
             return "\n\n".join((imp_lines, gets_str, vars_str)) + "\n"
 
     @staticmethod
-    def run_init(*plugin_dirs: str | PathLike[str]) -> None:
+    def run_init(*plugin_dirs: str | PathLike[str], load_depth: int = 1) -> None:
         for p_dir in plugin_dirs:
             p_dir = Path(p_dir)
             if not p_dir.is_absolute():
@@ -124,20 +131,20 @@ class PluginInitHelper:
             pinit_path = p_dir.joinpath("__init__.py")
             pinit_typ_path = p_dir.joinpath("__init__.pyi")
 
-            if p_name in sys.modules.keys() or p_name in sys.stdlib_module_names:
-                raise BotPluginError(
+            if p_name in sys.modules or p_name in sys.stdlib_module_names:
+                raise PluginError(
                     f"尝试初始化的插件 {p_name} 与 python 内置模块或已加载模块重名，请修改名称（修改插件目录名）"
                 )
             if not p_dir.joinpath("__plugin__.py").exists():
-                raise BotPluginError("插件目录下不存在 __plugin__.py，无法运行初始化")
+                raise PluginError("插件目录下不存在 __plugin__.py，无法运行初始化")
             if pinit_path.exists():
                 remove(pinit_path)
             if pinit_typ_path.exists():
                 remove(pinit_typ_path)
 
-            p_load_mod = Importer.import_mod(
-                f"{p_name}.__plugin__", p_dir, sys_cache=False
-            )
+            prefix = ".".join(p_dir.parts[-load_depth:])
+            p_load_mod_name = f"{prefix}.__plugin__"
+            p_load_mod = Importer.import_mod(p_load_mod_name, p_dir, sys_cache=False)
             for k in dir(p_load_mod):
                 v = getattr(p_load_mod, k)
                 if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
@@ -146,17 +153,15 @@ class PluginInitHelper:
                     p_funcs = p.funcs
                     break
             else:
-                raise BotPluginError(
-                    "插件的 __plugin__.py 未实例化元数据类，无法运行初始化"
-                )
+                raise PluginError("插件的 __plugin__.py 未实例化元数据类，无法运行初始化")
             for share in p_shares:
                 if share.name in p_conflicts:
-                    raise BotPluginError(
+                    raise PluginError(
                         f"插件的共享对象名 {share.name} 与插件根目录下的文件/目录名重复，这将导致导入混淆，请修改共享对象名"
                     )
             for func in p_funcs:
                 if func.__name__ in p_conflicts:
-                    raise BotPluginError(
+                    raise PluginError(
                         f"插件的导出函数名 {func.__name__} 与插件根目录下的文件/目录名重复，这将导致导入混淆，请修改导出函数名"
                     )
 
@@ -187,12 +192,12 @@ class PluginLoader:
                 p = v()
                 break
         else:
-            raise BotPluginError("插件的 __plugin__.py 未实例化元数据类，无法加载")
+            raise PluginError("插件的 __plugin__.py 未实例化元数据类，无法加载")
 
-        p._build(p_name)
+        p.build(p_name)
         return p
 
-    def load(self, plugin: ModuleType | str | PathLike[str]) -> Plugin:
+    def load(self, plugin: ModuleType | str | PathLike[str], load_depth: int) -> Plugin:
         logger = get_logger()
 
         if isinstance(plugin, ModuleType):
@@ -204,19 +209,23 @@ class PluginLoader:
             p_dir = Path(plugin)
             if not p_dir.is_absolute():
                 p_dir = Path.cwd().joinpath(p_dir).resolve(strict=True)
-        logger.debug(f"尝试加载来自 {p_dir} 的插件")
+        logger.debug(f"尝试加载来自 {repr(p_dir)} 的插件")
 
         p_name = p_dir.parts[-1]
         if p_name in sys.stdlib_module_names:
-            raise BotPluginError(
+            raise PluginError(
                 f"尝试加载的插件 {p_name} 与 Python 内置模块重名，请修改名称（修改插件目录名）"
             )
         if not p_dir.joinpath("__plugin__.py").exists():
-            raise BotPluginError("插件目录下不存在 __plugin__.py，无法加载")
+            raise PluginError("插件目录下不存在 __plugin__.py，无法加载")
 
-        p_load_mod = Importer.import_mod(f"{p_name}.__plugin__", p_dir, sys_cache=False)
+        p_mod_cache = Importer.get_cache(p_dir)
+        if p_mod_cache is not None:
+            p_load_mod_name = f"{p_mod_cache.__name__}.__plugin__"
+        else:
+            prefix = ".".join(p_dir.parts[-load_depth:])
+            p_load_mod_name = f"{prefix}.__plugin__"
+
+        p_load_mod = Importer.import_mod(p_load_mod_name, p_dir, sys_cache=False)
         _plugin = self._build_plugin(p_name, p_load_mod)
         return _plugin
-
-    def loads(self, *plugins: ModuleType | str | PathLike[str]) -> tuple[Plugin, ...]:
-        return tuple(self.load(plugin) for plugin in plugins)

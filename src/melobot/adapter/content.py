@@ -2,7 +2,7 @@ import mimetypes
 import pathlib
 import urllib.parse
 
-from ..exceptions import BotAdapterError, BotException
+from ..exceptions import AdapterError, BotException
 from ..typ import (
     Any,
     AsyncCallable,
@@ -18,7 +18,7 @@ _URI_PROCESSOR_MAP: dict[str, AsyncCallable[[str], str | bytes]] = {}
 
 def set_uri_processor(uri_type: str, processor: AsyncCallable[[str], Any]) -> None:
     if uri_type == "file":
-        raise BotAdapterError("file 类型已存在内置处理器，不支持外部设定处理器")
+        raise AdapterError("file 类型已存在内置处理器，不支持外部设定处理器")
     _URI_PROCESSOR_MAP[uri_type] = processor
 
 
@@ -32,11 +32,11 @@ class AbstractContent(BetterABC):
 
     @property
     @abstractmethod
-    def val(self) -> Any:
+    async def val(self) -> Any:
         raise NotImplementedError
 
 
-Content_T = TypeVar("Content_T", bound=AbstractContent)
+ContentT = TypeVar("ContentT", bound=AbstractContent)
 
 
 class TextContent(AbstractContent):
@@ -45,17 +45,17 @@ class TextContent(AbstractContent):
         self._val = text
 
     @property
-    def val(self) -> str:
+    async def val(self) -> str:
         return self._val
 
 
 class BytesContent(AbstractContent):
     def __init__(self, val: bytes | bytearray) -> None:
         self.type = "bytes"
-        self._val = val if isinstance(val, bytearray) else bytearray(val)
+        self._val = val if isinstance(val, bytes) else bytes(val)
 
     @property
-    def val(self) -> bytearray:
+    async def val(self) -> bytes:
         return self._val
 
 

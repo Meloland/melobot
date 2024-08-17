@@ -9,7 +9,6 @@ _VAR6 = set(fname.split(".")[0] for fname in _VAR1(_VAR5))
 
 
 def __getattr__(name):
-    if name in _VAR6:
+    if name in _VAR6 or name.startswith("_"):
         raise AttributeError
-    else:
-        return _VAR4(_VAR3, _VAR5.parts[-1], name)
+    return _VAR4(_VAR3, _VAR5.parts[-1], name)

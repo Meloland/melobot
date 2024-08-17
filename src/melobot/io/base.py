@@ -1,24 +1,18 @@
 import asyncio
 import time
 from dataclasses import dataclass, field
+from types import TracebackType
+from typing import Any, Generic, LiteralString, TypeVar
 
-from ..typ import (
-    Any,
-    BetterABC,
-    Generic,
-    LiteralString,
-    Self,
-    TracebackType,
-    TypeVar,
-    abstractattr,
-    abstractmethod,
-)
+from typing_extensions import Self
+
+from ..typ import BetterABC, abstractattr, abstractmethod
 from ..utils import get_id
 
 
 @dataclass(kw_only=True, frozen=True)
 class _Packet:
-    time: int = field(default_factory=time.time_ns)
+    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
     id: str = field(default_factory=get_id)
     protocol: LiteralString | None = None
     data: Any = None
@@ -42,9 +36,9 @@ class EchoPacket(_Packet):
     noecho: bool = False
 
 
-InPacket_T = TypeVar("InPacket_T", bound=InPacket)
-OutPacket_T = TypeVar("OutPacket_T", bound=OutPacket)
-EchoPacket_T = TypeVar("EchoPacket_T", bound=EchoPacket)
+InPacketT = TypeVar("InPacketT", bound=InPacket)
+OutPacketT = TypeVar("OutPacketT", bound=OutPacket)
+EchoPacketT = TypeVar("EchoPacketT", bound=EchoPacket)
 
 
 class AbstractSource(BetterABC):
@@ -72,28 +66,65 @@ class AbstractSource(BetterABC):
         await self.close()
         if exc_type in (None, asyncio.CancelledError):
             return True
-        else:
-            return False
+        return False
 
 
-class AbstractInSource(AbstractSource, Generic[InPacket_T]):
+class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
     @abstractmethod
-    async def input(self) -> InPacket_T:
+    async def open(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def opened(self) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def close(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def input(self) -> InPacketT:
         raise NotImplementedError
 
 
-InSource_T = TypeVar("InSource_T", bound=AbstractInSource)
+InSourceT = TypeVar("InSourceT", bound=AbstractInSource)
 
 
-class AbstractOutSource(AbstractSource, Generic[OutPacket_T, EchoPacket_T]):
+class AbstractOutSource(AbstractSource, BetterABC, Generic[OutPacketT, EchoPacketT]):
     @abstractmethod
-    async def output(self, packet: OutPacket_T) -> EchoPacket_T:
+    async def open(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def opened(self) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def close(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def output(self, packet: OutPacketT) -> EchoPacketT:
         raise NotImplementedError
 
 
-OutSource_T = TypeVar("OutSource_T", bound=AbstractOutSource)
+OutSourceT = TypeVar("OutSourceT", bound=AbstractOutSource)
 
 
 class AbstractIOSource(
-    AbstractInSource[InPacket_T], AbstractOutSource[OutPacket_T, EchoPacket_T]
-): ...
+    AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT], BetterABC
+):
+    async def open(self) -> None:
+        raise NotImplementedError
+
+    async def close(self) -> None:
+        raise NotImplementedError
+
+    def opened(self) -> bool:
+        raise NotImplementedError
+
+    async def input(self) -> InPacketT:
+        raise NotImplementedError
+
+    async def output(self, packet: OutPacketT) -> EchoPacketT:
+        raise NotImplementedError

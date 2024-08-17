@@ -86,7 +86,6 @@ lint = [
     "pydeps>=1.12.19",
     "isort>=5.13.2",
     "flake8>=7.0.0",
-]
-analyse = [
-    "mypy>=1.9.0",
+    "pylint>=3.2.6",
+    "mypy>=1.11.1",
 ]

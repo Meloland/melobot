@@ -1,5 +1,6 @@
+from os import PathLike
+
 from .._ctx import EventBuildInfoCtx
-from ..typ import PathLike
 from .model import ActionHandle
 
 _INFO_CTX = EventBuildInfoCtx()

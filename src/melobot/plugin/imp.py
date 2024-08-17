@@ -3,22 +3,22 @@ from importlib._bootstrap_external import _get_supported_file_loaders
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
+from os import PathLike
 from pathlib import Path
+from types import ModuleType
+from typing import Any, Sequence
 
-from ..typ import Any, ModuleType, PathLike, Sequence
 from ..utils import singleton
 
 
 @singleton
 class SpecFinder(MetaPathFinder):
-    def __init__(self) -> None:
-        super().__init__()
 
     def find_spec(
         self,
         fullname: str,
         paths: Sequence[str] | None,
-        target: ModuleType | None = None,
+        target: ModuleType | None = None,  # pylint: disable=unused-argument
         sys_cache: bool = True,
         load_cache: bool = True,
         pre_sys_len: int = -1,
@@ -132,7 +132,7 @@ class ModuleLoader(Loader):
         self.inner_loader: Loader | None = None
         for loader_class, suffixes in _get_supported_file_loaders():
             if str(fp).endswith(tuple(suffixes)):
-                loader = loader_class(fullname, str(fp))
+                loader = loader_class(fullname, str(fp))  # pylint: disable=not-callable
                 self.inner_loader = loader
                 break
 

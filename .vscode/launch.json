@@ -19,7 +19,7 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/src/melobot/__main__.py",
-            "args": ["run", "private/test"],
+            "args": ["pinit", "private/plugins/proto_test"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -30,7 +30,7 @@
             "cwd": "${workspaceFolder}/private",
             "program": "${workspaceFolder}/private/test.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         }
     ]
 }

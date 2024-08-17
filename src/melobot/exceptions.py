@@ -12,7 +12,9 @@ better_exceptions.formatter.ENCODING = sys.stdout.encoding
 # 直接 hook，而不是让它使用环境变量触发
 sys.excepthook = better_exceptions.excepthook
 # 取消它的猴子补丁
-logging._loggerClass = logging.Logger  # type:ignore[attr-defined]
+logging._loggerClass = (  # type:ignore[attr-defined] # pylint: disable=protected-access
+    logging.Logger
+)
 
 
 class BotException(Exception):
@@ -24,51 +26,34 @@ class BotException(Exception):
         return self.err
 
 
-class BotValidateError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class ValidateError(BotException): ...
 
 
-class BotRuntimeError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class BotRuntimeError(BotException): ...
 
 
-class BotPluginError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class PluginError(BotException): ...
 
 
-class BotIpcError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class PluginIpcError(BotException): ...
 
 
-class BotSessionError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class SessionError(BotException): ...
 
 
-class ProcessFlowError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class FlowError(BotException): ...
 
 
-class BotLogError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class LogError(BotException): ...
 
 
-class BotHookError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class HookError(BotException): ...
 
 
-class BotAdapterError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class AdapterError(BotException): ...
 
 
-class BotDependError(BotException):
-    def __init__(self, obj: object):
-        super().__init__(obj)
+class DependInitError(BotException): ...
+
+
+class DependBindError(BotException): ...

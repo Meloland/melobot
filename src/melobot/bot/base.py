@@ -4,19 +4,22 @@ import asyncio
 import os
 import sys
 from enum import Enum
+from os import PathLike
 from pathlib import Path
+from types import ModuleType
+from typing import Any, Callable, Coroutine
 
 from .._ctx import BotCtx, LoggerCtx
 from .._hook import HookBus
 from ..adapter.base import Adapter
 from ..exceptions import BotRuntimeError
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
-from ..log import EmptyLogger, Logger
+from ..log.base import GenericLogger, Logger, NullLogger
 from ..plugin.base import Plugin
 from ..plugin.ipc import IPCManager
 from ..plugin.load import PluginLoader
 from ..protocol import Protocol
-from ..typ import Any, AsyncCallable, Callable, Coroutine, ModuleType, P, PathLike
+from ..typ import AsyncCallable, P
 from .dispatch import Dispatcher
 
 
@@ -42,21 +45,35 @@ _LOGGER_CTX = LoggerCtx()
 class Bot:
     __instances__: dict[str, Bot] = {}
 
-    def __new__(cls, name: str = "melobot", *args, **kwargs) -> Bot:
+    def __new__(cls, name: str = "melobot", /, *args, **kwargs) -> Bot:
         if name in Bot.__instances__:
             raise BotRuntimeError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
         obj = super().__new__(cls)
         Bot.__instances__[name] = obj
         return obj
 
-    def __init__(self, name: str = "melobot", logger: Any = Logger("melobot")) -> None:
+    def __init__(
+        self,
+        name: str = "melobot",
+        /,
+        logger: GenericLogger | None = None,
+        enable_log: bool = True,
+    ) -> None:
         self.name = name
-        self.logger = logger if logger is not None else EmptyLogger()
+
+        self.logger: GenericLogger
+        if not enable_log:
+            self.logger = NullLogger()
+        elif logger is None:
+            self.logger = Logger()
+        else:
+            self.logger = logger
+
         self.adapters: dict[str, Adapter] = {}
 
         self._in_srcs: dict[str, list[AbstractInSource]] = {}
         self._out_srcs: dict[str, list[AbstractOutSource]] = {}
-        self._ipc_manager = IPCManager()
+        self.ipc_manager = IPCManager()
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
         self._life_bus = HookBus[BotLifeSpan](BotLifeSpan)
@@ -139,7 +156,9 @@ class Bot:
         self._inited = True
         self.logger.debug("bot 初始化完成，各核心组件已初始化")
 
-    def load_plugin(self, plugin: ModuleType | str | PathLike[str]) -> Bot:
+    def load_plugin(
+        self, plugin: ModuleType | str | PathLike[str], load_depth: int = 1
+    ) -> Bot:
         if not self._inited:
             self._run_init()
 
@@ -154,22 +173,24 @@ class Bot:
                         f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
                     )
 
-                p = self._loader.load(plugin)
+                p = self._loader.load(plugin, load_depth)
                 self._plugins[p.name] = p
-                self._dispatcher.no_ctrl_add(*p.handlers)
+                self._dispatcher.internal_add(*p.handlers)
                 for share in p.shares:
-                    self._ipc_manager.add(p.name, share)
+                    self.ipc_manager.add(p.name, share)
                 for func in p.funcs:
-                    self._ipc_manager.add_func(p.name, func)
+                    self.ipc_manager.add_func(p.name, func)
                 self.logger.info(f"成功加载插件：{p.name}")
 
                 return self
 
-    def load_plugins(self, *plugin: ModuleType | str | PathLike[str]) -> None:
+    def load_plugins(
+        self, *plugin: ModuleType | str | PathLike[str], load_depth: int = 1
+    ) -> None:
         for p in plugin:
-            self.load_plugin(p)
+            self.load_plugin(p, load_depth)
 
-    async def _run(self) -> None:
+    async def internal_run(self) -> None:
         if self._running:
             raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
@@ -187,7 +208,7 @@ class Bot:
                         await self._life_bus.emit(BotLifeSpan.LOADED)
 
                     for adapter in self.adapters.values():
-                        asyncio.create_task(adapter._run())
+                        asyncio.create_task(adapter.run())
                     asyncio.create_task(self._dispatcher.timed_gc())
                     await self._rip.wait()
 
@@ -199,14 +220,14 @@ class Bot:
                     self._running = False
 
     def run(self) -> None:
-        _safe_blocked_run(self._run())
+        _safe_blocked_run(self.internal_run())
 
     @classmethod
     def start(cls, *bots: Bot) -> None:
         async def bots_run():
             tasks = []
             for bot in bots:
-                tasks.append(asyncio.create_task(bot._run()))
+                tasks.append(asyncio.create_task(bot.internal_run()))
             try:
                 await asyncio.wait(tasks)
             except asyncio.CancelledError:
@@ -261,7 +282,3 @@ def _safe_blocked_run(main: Coroutine[Any, Any, None]) -> None:
         pass
     except asyncio.CancelledError:
         pass
-
-
-def get_bot() -> Bot:
-    return _BOT_CTX.get()

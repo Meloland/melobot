@@ -1,23 +1,24 @@
 import asyncio
 from asyncio import create_task
 from time import time_ns
-
-from ..exceptions import BotRuntimeError
-from ..typ import (
+from typing import (
     TYPE_CHECKING,
     Any,
-    AttrsReprMixin,
     Generator,
     Generic,
     Literal,
     LiteralString,
     NamedTuple,
     Optional,
-    Self,
     Sequence,
     TypeVar,
     cast,
 )
+
+from typing_extensions import Self
+
+from ..exceptions import BotRuntimeError
+from ..typ import AttrsReprMixin
 from ..utils import get_id
 from .content import AbstractContent
 
@@ -28,35 +29,35 @@ if TYPE_CHECKING:
 class Event(AttrsReprMixin):
     def __init__(
         self,
-        time: int = -1,
+        time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
         contents: Sequence[AbstractContent] = (),
     ) -> None:
-        self.time = time_ns() if time == -1 else time
+        self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
         self.contents = contents
         self.scope = scope
 
-        self._spread: bool = True
+        self.spread: bool = True
 
 
-Event_T = TypeVar("Event_T", bound=Event)
+EventT = TypeVar("EventT", bound=Event)
 
 
 class Action(AttrsReprMixin):
     def __init__(
         self,
-        time: int = -1,
+        time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
         contents: Sequence[AbstractContent] = (),
         trigger: Event | None = None,
     ) -> None:
-        self.time = time_ns() if time == -1 else time
+        self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
         self.contents = contents
@@ -67,7 +68,7 @@ class Action(AttrsReprMixin):
 class Echo(AttrsReprMixin):
     def __init__(
         self,
-        time: int = -1,
+        time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
         scope: Optional[NamedTuple] = None,
@@ -76,7 +77,7 @@ class Echo(AttrsReprMixin):
         prompt: str = "",
         data: Any = None,
     ) -> None:
-        self.time = time_ns() if time == -1 else time
+        self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
         self.scope = scope
@@ -86,14 +87,14 @@ class Echo(AttrsReprMixin):
         self.data = data
 
 
-Action_T = TypeVar("Action_T", bound=Action)
-Echo_T = TypeVar("Echo_T", bound=Echo)
+ActionT = TypeVar("ActionT", bound=Action)
+EchoT = TypeVar("EchoT", bound=Echo)
 
 
-HandleRet_T = TypeVar("HandleRet_T", bound=Echo | None)
+ActionRetT = TypeVar("ActionRetT", bound=Echo | None)
 
 
-class ActionHandle(Generic[HandleRet_T]):
+class ActionHandle(Generic[ActionRetT]):
     def __init__(
         self,
         action: Action,
@@ -106,7 +107,7 @@ class ActionHandle(Generic[HandleRet_T]):
         #: 本操作当前状态。分别对应：未执行、执行中、执行完成
         self.status: Literal["PENDING", "EXECUTING", "FINISHED"] = "PENDING"
 
-        self._echo: HandleRet_T
+        self._echo: ActionRetT
         self._out_src = out_src
         self._output_factory = output_factory
         self._echo_factory = echo_factory
@@ -114,17 +115,17 @@ class ActionHandle(Generic[HandleRet_T]):
 
         self.execute()
 
-    async def _wait(self) -> HandleRet_T:
+    async def _wait(self) -> ActionRetT:
         await self._echo_done.wait()
         return self._echo
 
-    def __await__(self) -> Generator[Any, Any, HandleRet_T]:
+    def __await__(self) -> Generator[Any, Any, ActionRetT]:
         return self._wait().__await__()
 
     async def _execute(self) -> None:
         output_packet = await self._output_factory.create(self.action)
         echo_packet = await self._out_src.output(output_packet)
-        self._echo = cast(HandleRet_T, await self._echo_factory.create(echo_packet))
+        self._echo = cast(ActionRetT, await self._echo_factory.create(echo_packet))
         self.status = "FINISHED"
         self._echo_done.set()
 

@@ -2,13 +2,41 @@ import inspect
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from enum import Enum
-from os import PathLike
-from types import FunctionType, LambdaType, ModuleType, TracebackType
-from typing import *
+from typing import Any, Awaitable, Callable, ParamSpec, TypeAlias, TypeVar, cast
 
-from beartype.door import is_bearable as is_type
+from beartype import BeartypeConf as _BeartypeConf
+from beartype.door import is_bearable as _is_type
 from beartype.door import is_subhint
-from typing_extensions import Self, TypeGuard
+from typing_extensions import TypeGuard
+
+__all__ = (
+    "T",
+    "P",
+    "AsyncCallable",
+    "is_type",
+    "is_subhint",
+    "MarkableMixin",
+    "ClonableMixin",
+    "AttrsReprMixin",
+    "LocatableMixin",
+    "HandleLevel",
+    "LogicMode",
+    "BetterABCMeta",
+    "BetterABC",
+    "abstractattr",
+    "abstractmethod",
+    "VoidType",
+)
+
+T = TypeVar("T")
+P = ParamSpec("P")
+AsyncCallable: TypeAlias = Callable[P, Awaitable[T]]
+
+_DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)
+
+
+def is_type(obj: T, hint: type[Any]) -> TypeGuard[T]:
+    return _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
 
 
 class MarkableMixin:
@@ -128,19 +156,11 @@ class LogicMode(Enum):
         return res
 
 
-#: 泛型 T，无约束
-T = TypeVar("T")
-#: :obj:`typing.ParamSpec` 泛型 P，无约束
-P = ParamSpec("P")
-#: 参数为 P，返回 Awaitable[T] 的可调用对象
-AsyncCallable: TypeAlias = Callable[P, Awaitable[T]]
-
-
 def abstractattr(obj: Callable[[Any], T] | None = None) -> T:
     _obj = cast(Any, obj)
     if obj is None:
         _obj = BetterABCMeta.DummyAttribute()
-    _obj.__is_abstract_attribute__ = True
+    setattr(_obj, "__is_abstract_attribute__", True)
     return cast(T, _obj)
 
 
@@ -171,6 +191,3 @@ class BetterABC(metaclass=BetterABCMeta):
 
 class VoidType(Enum):
     VOID = type("_VOID", (), {})
-
-
-_type_T = TypeVar("_type_T")

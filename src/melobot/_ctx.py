@@ -1,25 +1,21 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Callable, Generator, Generic, Union
 
-from .exceptions import (
-    BotAdapterError,
-    BotLogError,
-    BotRuntimeError,
-    BotSessionError,
-    ProcessFlowError,
-)
-from .typ import TYPE_CHECKING, Callable, Generator, Generic, T, Union
+from .exceptions import AdapterError, BotRuntimeError, FlowError, LogError, SessionError
+from .typ import T
 from .utils import singleton
 
 if TYPE_CHECKING:
     from .adapter.base import Adapter
     from .adapter.model import Event
     from .bot.base import Bot
-    from .handle.process import ProcessFlow, ProcessNode
-    from .io.base import AbstractInSource, OutSource_T
-    from .log import Logger
-    from .session.base import Session
+    from .handle.process import Flow, FlowNode
+    from .io.base import AbstractInSource, OutSourceT
+    from .log.base import GenericLogger
+    from .session.base import Session, StoreT
+    from .session.option import Rule
 
 
 class Context(Generic[T]):
@@ -30,14 +26,14 @@ class Context(Generic[T]):
         lookup_exc_tip: str | None = None,
     ) -> None:
         self.__storage__ = ContextVar[T](ctx_name)
-        self._lookup_exc_cls = lookup_exc_cls
+        self.lookup_exc_cls = lookup_exc_cls
         self._lookup_exc_tip = lookup_exc_tip
 
     def get(self) -> T:
         try:
             return self.__storage__.get()
         except LookupError:
-            raise self._lookup_exc_cls(self._lookup_exc_tip) from None
+            raise self.lookup_exc_cls(self._lookup_exc_tip) from None
 
     def try_get(self) -> T | None:
         return self.__storage__.get(None)
@@ -57,13 +53,13 @@ class Context(Generic[T]):
             self.remove(token)
 
 
-_OutSrcFilterType = Callable[["OutSource_T"], bool]
+_OutSrcFilterType = Callable[["OutSourceT"], bool]
 
 
 @singleton
 class OutSrcFilterCtx(Context[_OutSrcFilterType]):
     def __init__(self) -> None:
-        super().__init__("_OUT_SRC_FILTER_CTX", BotAdapterError)
+        super().__init__("_OUT_SRC_FILTER_CTX", AdapterError)
 
 
 @dataclass
@@ -77,17 +73,28 @@ class EventBuildInfoCtx(Context[EventBuildInfo]):
     def __init__(self) -> None:
         super().__init__(
             "_EVENT_BUILD_INFO_CTX",
-            BotAdapterError,
+            AdapterError,
             "此时不在活动的事件处理流中，无法获取适配器与输入源的上下文信息",
         )
+
+    def get_adapter_type(self) -> type["Adapter"]:
+        from .adapter.base import Adapter
+
+        return Adapter
+
+
+class _FlowStack(list[str]):
+    def append(self, object: str) -> None:
+        super().append(object)
+        LoggerCtx().get().debug(f"事件处理流记录：{object}")
 
 
 @dataclass
 class FlowInfo:
-    flow: "ProcessFlow"
-    node: "ProcessNode"
+    flow: "Flow"
+    node: "FlowNode"
     next_valid: bool
-    stack: list[str]
+    stack: _FlowStack = field(default_factory=_FlowStack)
 
 
 @singleton
@@ -95,9 +102,13 @@ class FlowCtx(Context[FlowInfo]):
     def __init__(self) -> None:
         super().__init__(
             "_FLOW_CTX",
-            ProcessFlowError,
+            FlowError,
             "此时不在活动的事件处理流中，无法获取处理流信息",
         )
+
+
+def get_flow_stack() -> tuple[str, ...]:
+    return tuple(FlowCtx().get().stack)
 
 
 @singleton
@@ -105,22 +116,58 @@ class BotCtx(Context["Bot"]):
     def __init__(self) -> None:
         super().__init__("_BOT_CTX", BotRuntimeError, "此时未初始化 bot 实例，无法获取")
 
+    def get_type(self) -> type["Bot"]:
+        from .bot.base import Bot
+
+        return Bot
+
+
+def get_bot() -> "Bot":
+    return BotCtx().get()
+
 
 @singleton
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
         super().__init__(
             "_SESSION_CTX",
-            BotSessionError,
+            SessionError,
             "此时不在活动的事件处理流中，无法获取会话信息",
         )
+
+    def get_event(self) -> "Event":
+        return self.get().event
 
     def try_get_event(self) -> Union["Event", None]:
         session = self.try_get()
         return session.event if session is not None else None
 
+    def get_event_type(self) -> type["Event"]:
+        from .adapter.model import Event
+
+        return Event
+
+    def get_store_type(self) -> type["StoreT"]:
+        from .session.base import StoreT
+
+        return StoreT
+
+    def get_rule_type(self) -> type["Rule"]:
+        from .session.option import Rule
+
+        return Rule
+
 
 @singleton
-class LoggerCtx(Context["Logger"]):
+class LoggerCtx(Context["GenericLogger"]):
     def __init__(self) -> None:
-        super().__init__("_LOGGER_CTX", BotLogError, "此时未初始化 logger 实例，无法获取")
+        super().__init__("_LOGGER_CTX", LogError, "此时未初始化 logger 实例，无法获取")
+
+    def get_type(self) -> type["GenericLogger"]:
+        from .log.base import GenericLogger
+
+        return GenericLogger
+
+
+def get_logger() -> "GenericLogger":
+    return LoggerCtx().get()

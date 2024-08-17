@@ -4,9 +4,10 @@ import time
 import uuid
 from contextlib import asynccontextmanager
 from functools import wraps
+from typing import Any, Callable, Coroutine, Optional, TypeVar, cast
 
-from .exceptions import BotValidateError
-from .typ import Any, AsyncCallable, Callable, Coroutine, Optional, P, T, TypeVar, cast
+from .exceptions import ValidateError
+from .typ import AsyncCallable, P, T
 
 
 def singleton(cls):
@@ -119,51 +120,56 @@ def get_id() -> str:
     return uuid.uuid4().hex
 
 
-def to_async(func: Callable[[], T]) -> Callable[[], Coroutine[Any, Any, T]]:
+def to_async(
+    obj: Callable[P, T] | AsyncCallable[P, T] | asyncio.Future[T]
+) -> Callable[P, Coroutine[Any, Any, T]]:
     """异步包装函数
 
-    将一个同步函数包装为异步函数，保留返回值。如果需要传参使用 partial 包裹。
+    将一个可调用对象或 Future 对象装饰为异步函数
 
-    :param func: 需要转换的函数
+    :param obj: 需要转换的可调用对象或 Future 对象
     :return: 异步函数
     """
 
-    async def wrapper():
-        return func()
+    async def async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        if not isinstance(obj, asyncio.Future):
+            ret = obj(*args, **kwargs)
+        else:
+            ret = obj
+        if inspect.isawaitable(ret):
+            return await ret
+        else:
+            return ret
 
-    if callable(func):
-        return wrapper
-    else:
-        raise BotValidateError("to_async 函数只支持同步函数作为参数")
+    if not isinstance(obj, asyncio.Future):
+        async_wrapped = wraps(obj)(async_wrapped)
+    return async_wrapped
 
 
-def to_coro(obj: Callable[[], T] | asyncio.Future[T]) -> Coroutine[Any, Any, T]:
+def to_coro(
+    obj: Callable[P, T] | AsyncCallable[P, T] | asyncio.Future[T],
+    *args: Any,
+    **kwargs: Any,
+) -> Coroutine[Any, Any, T]:
     """协程包装函数
 
-    将一个同步函数或 Future 对象包装为协程，保留返回值。如果需要传参使用 partial 包裹。
+    将一个可调用对象或 Future 对象装饰为异步函数，并返回对应的协程
 
-    :param obj: 需要包装的同步函数或 Future 对象
+    :param obj: 需要包装的可调用对象或 Future 对象
+    :param args: 需要使用的位置参数
+    :param kwargs: 需要使用的关键字参数
     :return: 协程
     """
-
-    async def as_coro(obj: asyncio.Future[T]) -> T:
-        return await obj
-
-    if isinstance(obj, asyncio.Future):
-        return as_coro(obj)
-    elif callable(obj):
-        return to_async(obj)()
-    else:
-        raise BotValidateError("to_coro 函数只支持同步函数或 Future 对象作为参数")
+    return to_async(obj)(*args, **kwargs)
 
 
-CbRet_T = TypeVar("CbRet_T")
-CbRet_T1 = TypeVar("CbRet_T1")
-CbRet_T2 = TypeVar("CbRet_T2")
-OriginRet_T = TypeVar("OriginRet_T")
+CbRetT = TypeVar("CbRetT")
+CbOneRetT = TypeVar("CbOneRetT")
+CbTwoRetT = TypeVar("CbTwoRetT")
+OriginRetT = TypeVar("OriginRetT")
 
 
-def lock(callback: Optional[AsyncCallable[[], CbRet_T]] = None):
+def lock(callback: Optional[AsyncCallable[[], CbRetT]] = None):
     """锁装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数加锁。
@@ -179,13 +185,11 @@ def lock(callback: Optional[AsyncCallable[[], CbRet_T]] = None):
     alock = asyncio.Lock()
 
     def deco_func(
-        func: AsyncCallable[P, OriginRet_T]
-    ) -> AsyncCallable[P, CbRet_T | OriginRet_T]:
+        func: AsyncCallable[P, OriginRetT]
+    ) -> AsyncCallable[P, CbRetT | OriginRetT]:
 
         @wraps(func)
-        async def wrapped_func(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> CbRet_T | OriginRet_T:
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> CbRetT | OriginRetT:
             if callback is not None and alock.locked():
                 return await async_guard(callback)
             async with alock:
@@ -197,8 +201,8 @@ def lock(callback: Optional[AsyncCallable[[], CbRet_T]] = None):
 
 
 def cooldown(
-    busy_callback: Optional[AsyncCallable[[], CbRet_T1]] = None,
-    cd_callback: Optional[AsyncCallable[[float], CbRet_T2]] = None,
+    busy_callback: Optional[AsyncCallable[[], CbOneRetT]] = None,
+    cd_callback: Optional[AsyncCallable[[float], CbTwoRetT]] = None,
     interval: float = 5,
 ):
     """冷却装饰器
@@ -224,13 +228,13 @@ def cooldown(
     pre_finish_t = time.perf_counter() - interval - 1
 
     def deco_func(
-        func: AsyncCallable[P, OriginRet_T]
-    ) -> AsyncCallable[P, OriginRet_T | CbRet_T1 | CbRet_T2]:
+        func: AsyncCallable[P, OriginRetT]
+    ) -> AsyncCallable[P, OriginRetT | CbOneRetT | CbTwoRetT]:
 
         @wraps(func)
         async def wrapped_func(
             *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRet_T | CbRet_T1 | CbRet_T2:
+        ) -> OriginRetT | CbOneRetT | CbTwoRetT:
             nonlocal pre_finish_t
             if busy_callback is not None and alock.locked():
                 return await async_guard(busy_callback)
@@ -256,7 +260,7 @@ def cooldown(
     return deco_func
 
 
-def semaphore(callback: Optional[AsyncCallable[[], CbRet_T]] = None, value: int = -1):
+def semaphore(callback: Optional[AsyncCallable[[], CbRetT]] = None, value: int = -1):
     """信号量装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加信号量控制。
@@ -273,13 +277,11 @@ def semaphore(callback: Optional[AsyncCallable[[], CbRet_T]] = None, value: int 
     a_semaphore = asyncio.Semaphore(value)
 
     def deco_func(
-        func: AsyncCallable[P, OriginRet_T]
-    ) -> AsyncCallable[P, OriginRet_T | CbRet_T]:
+        func: AsyncCallable[P, OriginRetT]
+    ) -> AsyncCallable[P, OriginRetT | CbRetT]:
 
         @wraps(func)
-        async def wrapped_func(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRet_T | CbRet_T:
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> OriginRetT | CbRetT:
             if callback is not None and a_semaphore.locked():
                 return await async_guard(callback)
             async with a_semaphore:
@@ -290,7 +292,7 @@ def semaphore(callback: Optional[AsyncCallable[[], CbRet_T]] = None, value: int 
     return deco_func
 
 
-def timelimit(callback: Optional[AsyncCallable[[], CbRet_T]] = None, timeout: float = 5):
+def timelimit(callback: Optional[AsyncCallable[[], CbRetT]] = None, timeout: float = 5):
     """时间限制装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加超时控制。
@@ -306,13 +308,11 @@ def timelimit(callback: Optional[AsyncCallable[[], CbRet_T]] = None, timeout: fl
     """
 
     def deco_func(
-        func: AsyncCallable[P, OriginRet_T]
-    ) -> AsyncCallable[P, OriginRet_T | CbRet_T]:
+        func: AsyncCallable[P, OriginRetT]
+    ) -> AsyncCallable[P, OriginRetT | CbRetT]:
 
         @wraps(func)
-        async def wrapped_func(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRet_T | CbRet_T:
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> OriginRetT | CbRetT:
             try:
                 return await asyncio.wait_for(async_guard(func, *args, **kwargs), timeout)
             except asyncio.TimeoutError:
@@ -326,7 +326,7 @@ def timelimit(callback: Optional[AsyncCallable[[], CbRet_T]] = None, timeout: fl
 
 
 def speedlimit(
-    callback: Optional[AsyncCallable[[], CbRet_T]] = None,
+    callback: Optional[AsyncCallable[[], CbRetT]] = None,
     limit: int = 60,
     duration: int = 60,
 ):
@@ -347,20 +347,18 @@ def speedlimit(
     called_num = 0
     min_start = time.perf_counter()
     if limit <= 0:
-        raise BotValidateError("speedlimit 装饰器的 limit 参数必须 > 0")
+        raise ValidateError("speedlimit 装饰器的 limit 参数必须 > 0")
     if duration <= 0:
-        raise BotValidateError("speedlimit 装饰器的 duration 参数必须 > 0")
+        raise ValidateError("speedlimit 装饰器的 duration 参数必须 > 0")
 
     def deco_func(
-        func: AsyncCallable[P, OriginRet_T]
-    ) -> AsyncCallable[P, OriginRet_T | CbRet_T]:
+        func: AsyncCallable[P, OriginRetT]
+    ) -> AsyncCallable[P, OriginRetT | CbRetT]:
 
         @wraps(func)
-        async def wrapped_func(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRet_T | CbRet_T:
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> OriginRetT | CbRetT:
             fut = _wrapped_func(func, *args, **kwargs)
-            fut = cast(asyncio.Future[CbRet_T | OriginRet_T | Exception], fut)
+            fut = cast(asyncio.Future[CbRetT | OriginRetT | Exception], fut)
             fut_ret = await fut
             if isinstance(fut_ret, Exception):
                 raise fut_ret
@@ -405,12 +403,12 @@ def speedlimit(
         *args: P.args,
         **kwargs: P.kwargs,
     ) -> None:
+        """
+        只有依然在当前 duration 区间内，但超出调用次数限制的，需要等待。
+        随后就是递归调用。delay > 0 为需要递归的分支。
+        """
         nonlocal called_num
         try:
-            """
-            只有依然在当前 duration 区间内，但超出调用次数限制的，需要等待。
-            随后就是递归调用。delay > 0 为需要递归的分支。
-            """
             if delay > 0:
                 await asyncio.sleep(delay)
                 res = await _wrapped_func(func, *args, **kwargs)
@@ -530,13 +528,11 @@ def async_interval(
 async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) -> T:
     """在使用异步可调用对象时，提供用户友好的验证"""
     if not callable(func):
-        raise BotValidateError(
-            f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）"
-        )
+        raise ValidateError(f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）")
 
     await_obj = func(*args, **kwargs)
     if inspect.isawaitable(await_obj):
         return await await_obj
-    raise BotValidateError(
+    raise ValidateError(
         f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}"
     )
