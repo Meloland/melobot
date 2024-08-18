@@ -158,6 +158,10 @@ class SessionCtx(Context["Session"]):
         return Rule
 
 
+def get_event() -> "Event":
+    return SessionCtx().get_event()
+
+
 @singleton
 class LoggerCtx(Context["GenericLogger"]):
     def __init__(self) -> None:

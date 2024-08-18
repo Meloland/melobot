@@ -1,3 +1,4 @@
+from .._ctx import get_event
 from .base import (
     AbstractEchoFactory,
     AbstractEventFactory,
