@@ -1,5 +1,5 @@
 from .._ctx import get_flow_stack
-from .._di import Depends
+from .._di import Depends, inject_deps
 from .process import (
     Flow,
     FlowNode,

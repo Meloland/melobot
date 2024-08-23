@@ -4,20 +4,20 @@ import time
 import uuid
 from contextlib import asynccontextmanager
 from functools import wraps
-from typing import Any, Callable, Coroutine, Optional, TypeVar, cast
+from typing import Any, Awaitable, Callable, Coroutine, Optional, TypeVar, cast
 
 from .exceptions import ValidateError
 from .typ import AsyncCallable, P, T
 
 
-def singleton(cls):
-    instances = {}
+def singleton(cls: Callable[P, T]) -> Callable[P, T]:
+    obj_map = {}
 
     @wraps(cls)
-    def wrapped():
-        if cls not in instances:
-            instances[cls] = cls()
-        return instances[cls]
+    def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        if cls not in obj_map:
+            obj_map[cls] = cls(*args, **kwargs)
+        return obj_map[cls]
 
     return wrapped
 
@@ -121,18 +121,18 @@ def get_id() -> str:
 
 
 def to_async(
-    obj: Callable[P, T] | AsyncCallable[P, T] | asyncio.Future[T]
+    obj: Callable[P, T] | AsyncCallable[P, T] | Awaitable[T]
 ) -> Callable[P, Coroutine[Any, Any, T]]:
     """异步包装函数
 
-    将一个可调用对象或 Future 对象装饰为异步函数
+    将一个可调用对象或可等待对象装饰为异步函数
 
-    :param obj: 需要转换的可调用对象或 Future 对象
+    :param obj: 需要转换的可调用对象或可等待对象
     :return: 异步函数
     """
 
     async def async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        if not isinstance(obj, asyncio.Future):
+        if not inspect.isawaitable(obj):
             ret = obj(*args, **kwargs)
         else:
             ret = obj
@@ -141,21 +141,21 @@ def to_async(
         else:
             return ret
 
-    if not isinstance(obj, asyncio.Future):
+    if not inspect.isawaitable(obj):
         async_wrapped = wraps(obj)(async_wrapped)
     return async_wrapped
 
 
 def to_coro(
-    obj: Callable[P, T] | AsyncCallable[P, T] | asyncio.Future[T],
+    obj: Callable[P, T] | AsyncCallable[P, T] | Awaitable[T],
     *args: Any,
     **kwargs: Any,
 ) -> Coroutine[Any, Any, T]:
     """协程包装函数
 
-    将一个可调用对象或 Future 对象装饰为异步函数，并返回对应的协程
+    将一个可调用对象或可等待对象装饰为异步函数，并返回对应的协程
 
-    :param obj: 需要包装的可调用对象或 Future 对象
+    :param obj: 需要包装的可调用对象或可等待对象
     :param args: 需要使用的位置参数
     :param kwargs: 需要使用的关键字参数
     :return: 协程
