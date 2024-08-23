@@ -5,32 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "melobot 项目调试",
-            "type": "debugpy",
-            "request": "launch",
-            "cwd": "${workspaceFolder}/dev",
-            "program": "${workspaceFolder}/dev/main.py",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
             "name": "melobot 模块调试",
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/src/melobot/__main__.py",
-            "args": ["pinit", "private/plugins/proto_test"],
+            "args": ["-h"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
-            "name": "melobot private tests",
+            "name": "melobot private test",
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}/private",
             "program": "${workspaceFolder}/private/test.py",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": true
         }
     ]
 }

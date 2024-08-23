@@ -21,5 +21,5 @@ async def test_loop2(current_loop, test_v):
     assert current_loop is aio.get_running_loop()
 
 
-def test3(current_loop):
+async def test3(current_loop):
     assert isinstance(current_loop, aio.BaseEventLoop)

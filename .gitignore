@@ -14,4 +14,3 @@ dist
 .pdm-python
 .pdm-build
 .pdm.toml
-pydeps.png
