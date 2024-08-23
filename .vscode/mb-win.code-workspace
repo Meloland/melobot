@@ -99,6 +99,11 @@
         ],
         "pylint.cwd": "${workspaceFolder}/src",
         "pylint.importStrategy": "fromEnvironment",
+        "pylint.ignorePatterns": [
+            "${workspaceFolder}/.venv/*.py", 
+            "${workspaceFolder}/private/*.py", 
+            "${workspaceFolder}/tests/*.py"
+        ],
         "autoDocstring.docstringFormat": "sphinx-notypes",
         "terminal.integrated.scrollback": 5000,
         "editor.wordWrap": "on",
