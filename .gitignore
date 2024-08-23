@@ -6,9 +6,10 @@ dev
 */build
 dist
 */dist
+
 .venv
 .mypy_cache
-
+.pytest_cache
 .idea
 .pypirc
 .pdm-python
