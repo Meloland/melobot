@@ -19,9 +19,7 @@ class ReadOnlyAttr(Generic[T]):
 class MetaInfoMeta(type):
     ver = ReadOnlyAttr[str](__version__)
     name = ReadOnlyAttr[str]("melobot")
-    desc = ReadOnlyAttr[str](
-        "A bot framework with much high level features and plugin-supported."
-    )
+    desc = ReadOnlyAttr[str]("A bot framework with much high level features.")
     src = ReadOnlyAttr[str]("https://github.com/Meloland/melobot")
     logo = ReadOnlyAttr[str](
         "\n".join(
