@@ -10,7 +10,7 @@ from ..typ import BetterABC, abstractattr, abstractmethod
 from ..utils import get_id
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(frozen=True)
 class _Packet:
     time: float = field(default_factory=lambda: time.time_ns() / 1e9)
     id: str = field(default_factory=get_id)
@@ -18,17 +18,17 @@ class _Packet:
     data: Any = None
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(frozen=True)
 class InPacket(_Packet):
     pass
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(frozen=True)
 class OutPacket(_Packet):
     pass
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(frozen=True)
 class EchoPacket(_Packet):
     ok: bool = True
     status: int = 0
