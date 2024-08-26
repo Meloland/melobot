@@ -1,3 +1,2 @@
-from .init import BotPlugin, PluginProxy
-
-__all__ = ("BotPlugin", "PluginProxy")
+from .base import Plugin
+from .ipc import AsyncShare, SyncShare

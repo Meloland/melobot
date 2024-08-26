@@ -5,12 +5,13 @@ private
 dev
 */build
 dist
-.venv
-.vscode
-.mypy_cache
+*/dist
 
+.venv
+.mypy_cache
+.pytest_cache
+.idea
 .pypirc
 .pdm-python
 .pdm-build
 .pdm.toml
-pydeps.png

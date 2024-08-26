@@ -1,0 +1,120 @@
+{
+	"folders": [
+        {
+            "path": ".."
+        }
+    ],
+    "settings": {
+        "[json]": {
+            "editor.tabSize": 2,
+            "editor.quickSuggestions": {
+                "strings": true
+            },
+            "editor.suggest.insertMode": "replace",
+            "editor.defaultFormatter": "vscode.json-language-features"
+        },
+        "editor.detectIndentation": false,
+        "workbench.editor.enablePreview": false,
+        "editor.suggestSelection": "first",
+        "editor.wordSeparators": "./\\\\()\\\"':,.;<>~!@#$%^&*|+=[]{}`~?",
+        "python.terminal.executeInFileDir": true,
+        "python.languageServer": "Pylance",
+        "editor.guides.bracketPairs": true,
+        "editor.renderControlCharacters": true,
+        "workbench.startupEditor": "none",
+        "editor.unicodeHighlight.allowedCharacters": {
+            "：": true,
+            "）": true,
+            "（": true
+        },
+        "editor.unicodeHighlight.allowedLocales": {
+            "zh-hans": true
+        },
+        "git.enableSmartCommit": true,
+        "terminal.integrated.enableMultiLinePasteWarning": "never",
+        "git.ignoreMissingGitWarning": true,
+        "editor.fontWeight": "normal",
+        "editor.fontFamily": "'Monaco Nerd Font Mono', Consolas, 'Courier New', monospace",
+        "workbench.editor.splitInGroupLayout": "vertical",
+        "debug.console.fontSize": 14,
+        "todo-tree.general.tags": [
+            "BUG",
+            "HACK",
+            "FIXME",
+            "TODO",
+            "XXX",
+            "[ ]",
+            "[x]",
+            "ENHANCE"
+        ],
+        "terminal.integrated.defaultProfile.windows": "Windows PowerShell",
+        "terminal.integrated.fontSize": 13,
+        "terminal.integrated.fontFamily": "\"Monaco Nerd Font Mono\", FiraCode NF",
+        "editor.codeLens": false,
+        "explorer.confirmDelete": false,
+        "glassit.alpha": 230,
+        "tabnine.experimentalAutoImports": true,
+        "editor.fontSize": 14,
+        "files.autoSave": "afterDelay",
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.cursorSmoothCaretAnimation": "on",
+        "mypy.extraArguments": [
+            "--follow-imports=skip",
+            "--ignore-missing-imports",
+            "--show-column-numbers",
+            "--check-untyped-defs"
+        ],
+        "[python]": {
+            "editor.defaultFormatter": "ms-python.black-formatter",
+            "editor.formatOnSave": true,
+            "editor.codeActionsOnSave": {
+                "source.organizeImports": "explicit"
+            },
+        },
+        "black-formatter.interpreter": [
+            "D:/ProgramData/miniconda3/python.exe"
+        ],
+        "black-formatter.args": [
+            "--line-length", "90"
+        ],
+        "flake8.interpreter": [
+            "D:/ProgramData/miniconda3/python.exe"
+        ],
+        "flake8.args": [
+            "--config=./.flake8",
+        ],
+        "isort.interpreter": [
+            "D:/ProgramData/miniconda3/python.exe"
+        ],
+        "isort.args": [
+            "--profile",
+            "black"
+        ],
+        "mypy.dmypyExecutable": "D:/ProgramData/miniconda3/Scripts/dmypy.exe",
+        "mypy.targets": [
+            "./src/"
+        ],
+        "pylint.args": [
+            "--rcfile=${workspaceFolder}/.pylintrc"
+        ],
+        "pylint.cwd": "${workspaceFolder}/src",
+        "pylint.importStrategy": "fromEnvironment",
+        "pylint.ignorePatterns": [
+            "${workspaceFolder}/.venv/*.py", 
+            "${workspaceFolder}/private/*.py", 
+            "${workspaceFolder}/tests/*.py"
+        ],
+        "autoDocstring.docstringFormat": "sphinx-notypes",
+        "terminal.integrated.scrollback": 5000,
+        "editor.wordWrap": "on",
+        "gitlens.graph.layout": "editor",
+        "gitlens.codeLens.enabled": false,
+        "workbench.activityBar.location": "bottom",
+        "workbench.layoutControl.enabled": false,
+        "window.commandCenter": false,
+        "editor.minimap.renderCharacters": true,
+        "gitlens.hovers.enabled": false,
+        "diffEditor.hideUnchangedRegions.enabled": true,
+        "workbench.colorTheme": "Dracula Clean"
+    }
+}

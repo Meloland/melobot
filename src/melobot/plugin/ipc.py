@@ -1,154 +1,132 @@
-import asyncio
+from typing import Callable, Generic
 
-from ..base.exceptions import BotIpcError
-from ..base.tools import RWController
-from ..base.typing import TYPE_CHECKING, Any, AsyncCallable
-
-if TYPE_CHECKING:
-    from ..utils.logger import BotLogger
+from .._di import inject_deps
+from ..exceptions import PluginIpcError
+from ..typ import AsyncCallable, AttrsReprMixin, LocatableMixin, T
+from ..utils import RWContext
 
 
-class ShareObject:
-    """共享对象"""
-
-    def __init__(self, namespace: str, id: str) -> None:
-        self.namespace = namespace
-        self.id = id
-        self.__rwc = RWController()
-        self.__reflect: AsyncCallable[..., Any]
-        self.__callback: AsyncCallable[..., Any]
-
-        self.__cb_set = asyncio.Event()
-
-    def _fill_ref(self, reflector: AsyncCallable[..., Any]) -> None:
-        self.__reflect = reflector
-
-    def _fill_cb(self, callback: AsyncCallable[..., Any]) -> None:
-        self.__callback = callback
-        self.__cb_set.set()
-
-    @property
-    async def val(self) -> Any:
-        """共享对象引用的值"""
-        async with self.__rwc.safe_read():
-            return await self.__reflect()
-
-    async def affect(self, *args: Any, **kwargs: Any) -> Any:
-        """触发共享对象的回调，回调未设置时会等待。 如果本来就没有回调，则会陷入无休止等待"""
-        await self.__cb_set.wait()
-
-        async with self.__rwc.safe_write():
-            return await self.__callback(*args, **kwargs)
-
-
-class PluginStore:
-    """插件共享存储"""
-
-    def __init__(self) -> None:
-        self.store: dict[str, dict[str, ShareObject]] = {}
-
-    def create_so(
-        self, reflector: AsyncCallable[..., Any], namespace: str, id: str
-    ) -> None:
-        """创建共享对象"""
-        self.store.setdefault(namespace, {})
-        obj = self.store[namespace].get(id)
-        if obj is not None:
-            raise BotIpcError(
-                f"已在 {namespace} 命名空间中注册标记为 {id} 的共享对象，拒绝再次注册"
-            )
-
-        obj = ShareObject(namespace, id)
-        self.store[namespace][id] = obj
-        obj._fill_ref(reflector)
-
-    def bind_cb(self, namespace: str, id: str, cb: AsyncCallable[..., Any]) -> None:
-        """为共享对象绑定回调"""
-        if namespace not in self.store.keys():
-            raise BotIpcError(f"共享对象回调指定的命名空间 {namespace} 不存在")
-
-        if id not in self.store[namespace].keys():
-            raise BotIpcError(
-                f"共享对象回调指定的命名空间中，不存在标记为 {id} 的共享对象"
-            )
-
-        if self.store[namespace][id].__cb_set.is_set():
-            raise BotIpcError(
-                f"{namespace} 中标记为 {id} 的共享对象已被绑定过回调，拒绝再次绑定"
-            )
-
-        self.store[namespace][id]._fill_cb(cb)
-
-    def get(self, namespace: str, id: str) -> ShareObject:
-        """获取共享对象"""
-        if namespace not in self.store.keys():
-            raise BotIpcError(f"无法获取不存在的共享对象：命名空间 {namespace} 不存在")
-        if id not in self.store[namespace].keys():
-            raise BotIpcError(f"无法获取不存在的共享对象：标识 {id} 不存在")
-
-        return self.store[namespace][id]
-
-
-class PluginSignalHandler:
-    """插件信号处理器"""
+class AsyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
+    """异步共享对象"""
 
     def __init__(
-        self, namespace: str, signal: str, func: AsyncCallable[..., Any]
+        self,
+        name: str,
+        reflector: AsyncCallable[[], T] | None = None,
+        callabck: AsyncCallable[[T], None] | None = None,
+        static: bool = False,
     ) -> None:
-        self.cb = func
-        self.namespace = namespace
-        self.signal = signal
+        self.name = name
+        self.__safe_ctx = RWContext()
+        self.__reflect: AsyncCallable[[], T] | None = (
+            inject_deps(reflector) if reflector is not None else None
+        )
+        self.__callback: AsyncCallable[[T], None] | None = (
+            inject_deps(callabck, pass_arg=True) if callabck is not None else None
+        )
+        self.static = static
+
+        if self.name.startswith("_"):
+            raise PluginIpcError(f"共享对象 {self} 的名称不能以 _ 开头")
+        if self.static and self.__callback is not None:
+            raise PluginIpcError(
+                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
+            )
+
+    def __call__(self, func: AsyncCallable[[], T]) -> AsyncCallable[[], T]:
+        if self.__reflect is not None:
+            raise PluginIpcError("共享对象已经有获取值的反射方法，不能再次绑定")
+        self.__reflect = inject_deps(func)
+        return func
+
+    def setter(self, func: AsyncCallable[[T], None]) -> AsyncCallable[[T], None]:
+        if self.static:
+            raise PluginIpcError(
+                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
+            )
+        if self.__callback is not None:
+            raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
+        self.__callback = inject_deps(func, pass_arg=True)
+        return func
+
+    async def get(self) -> T:
+        if self.__reflect is None:
+            raise PluginIpcError("共享对象获取值的反射方法未绑定")
+        async with self.__safe_ctx.read():
+            return await self.__reflect()
+
+    async def set(self, val: T) -> None:
+        if self.__callback is None:
+            raise PluginIpcError("共享对象更新值的回调方法未绑定")
+        async with self.__safe_ctx.write():
+            return await self.__callback(val)
 
 
-class PluginBus:
-    """插件信号总线"""
+class SyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
+    """同步共享对象"""
 
+    def __init__(
+        self,
+        name: str,
+        reflector: Callable[[], T] | None = None,
+        callabck: Callable[[T], None] | None = None,
+        static: bool = False,
+    ) -> None:
+        self.name = name
+        self.__reflect = reflector
+        self.__callback = callabck
+        self.static = static
+
+        if self.name.startswith("_"):
+            raise PluginIpcError(f"共享对象 {self} 的名称不能以 _ 开头")
+        if self.static and self.__callback is not None:
+            raise PluginIpcError(
+                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
+            )
+
+    def __call__(self, func: Callable[[], T]) -> Callable[[], T]:
+        if self.__reflect is not None:
+            raise PluginIpcError("共享对象已经有获取值的反射方法，不能再次绑定")
+        self.__reflect = func
+        return func
+
+    def setter(self, func: Callable[[T], None]) -> Callable[[T], None]:
+        if self.static:
+            raise PluginIpcError(
+                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
+            )
+        if self.__callback is not None:
+            raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
+        self.__callback = func
+        return func
+
+    def get(self) -> T:
+        if self.__reflect is None:
+            raise PluginIpcError("共享对象未绑定获取值的反射方法")
+        return self.__reflect()
+
+    def set(self, val: T) -> None:
+        if self.__callback is None:
+            raise PluginIpcError("共享对象未绑定更新值的回调方法")
+        self.__callback(val)
+
+
+class IPCManager:
     def __init__(self) -> None:
-        self.store: dict[str, dict[str, PluginSignalHandler]] = {}
-        self.logger: "BotLogger"
+        self._shares: dict[str, dict[str, AsyncShare | SyncShare]] = {}
 
-    def _bind(self, logger: "BotLogger") -> None:
-        self.logger = logger
+    def add(self, plugin: str, obj: AsyncShare | SyncShare) -> None:
+        objs = self._shares.setdefault(plugin, {})
+        if objs.get(obj.name) is not None:
+            raise PluginIpcError(f"插件 {plugin} 中已存在名为 {obj.name} 的共享对象")
+        objs[obj.name] = obj
 
-    def register(
-        self, namespace: str, signal: str, func: AsyncCallable[..., Any]
-    ) -> None:
-        """绑定一个插件信号处理方法。由 plugin build 过程调用"""
-        self.store.setdefault(namespace, {})
-        if signal in self.store[namespace].keys():
-            raise BotIpcError("同一命名空间的同一信号只能绑定一个处理函数")
+    def add_func(self, plugin: str, func: Callable) -> None:
+        self.add(plugin, SyncShare(func.__name__, lambda: func, None, True))
 
-        self.store[namespace][signal] = PluginSignalHandler(namespace, signal, func)
-
-    async def _run_on_ctx(
-        self, handler: PluginSignalHandler, *args: Any, **kwargs: Any
-    ) -> Any:
-        """在指定的上下文下运行插件信号处理方法"""
-        try:
-            ret = await handler.cb(*args, **kwargs)
-            return ret
-        except Exception as e:
-            func_name = handler.cb.__qualname__
-            self.logger.error(f"插件信号处理方法 {func_name} 发生异常")
-            self.logger.exc(locals=locals())
-
-    async def emit(
-        self, namespace: str, signal: str, *args: Any, wait: bool = False, **kwargs: Any
-    ) -> Any:
-        """触发一个插件信号。如果指定 wait 为 True，则会等待所有插件信号处理方法完成。 若启用 forward，则会将 会话
-        从信号触发处转发到信号处理处。 但启用 forward，必须同时启用 wait。
-
-        注意：如果你要等待返回结果，则需要指定 wait=True，否则不会等待且始终返回 None
-        """
-        if namespace not in self.store.keys():
-            raise BotIpcError(f"插件信号命名空间 {namespace} 不存在，无法触发信号")
-        if signal not in self.store[namespace].keys():
-            raise BotIpcError(f"命名空间 {namespace} 内没有信号 {signal} 的处理函数")
-
-        handler = self.store[namespace][signal]
-        task = self._run_on_ctx(handler, *args, **kwargs)
-        if not wait:
-            asyncio.create_task(task)
-            return None
-        else:
-            return await task
+    def get(self, plugin: str, id: str) -> AsyncShare | SyncShare:
+        if (objs := self._shares.get(plugin)) is None:
+            raise PluginIpcError(f"插件 {plugin} 不提供共享功能")
+        if (obj := objs.get(id)) is None:
+            raise PluginIpcError(f"无法获取不存在的共享对象：标识 {id} 不存在")
+        return obj
