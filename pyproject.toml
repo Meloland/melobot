@@ -63,11 +63,13 @@ distribution = true
 version = { source = "file", path = "src/melobot/_meta.py" }
 
 [tool.pdm.scripts]
-fresh = {shell = "pdm update && pdm export -o requirements.txt --without test,docs,lint"}
+fresh = {call = "fresh_proj_depends:main"}
 isort = {shell = "isort src/melobot"}
 format = {shell = "black src/melobot"}
 check = {shell = "flake8 src/melobot"}
 analyse = {shell = "mypy src/melobot"}
+pylint = {shell = "pylint src/melobot"}
+all_lint = {shell = "isort src/melobot && black src/melobot && flake8 src/melobot && mypy src/melobot && pylint src/melobot"}
 test = {shell = "pytest -c pytest.ini"}
 trace = {shell = "viztracer"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
@@ -92,4 +94,7 @@ lint = [
     "flake8>=7.0.0",
     "pylint>=3.2.6",
     "mypy>=1.11.1",
+]
+manage = [
+    "toml>=0.10.2",
 ]

@@ -12,3 +12,7 @@ def main():
         os.system("make html")
     else:
         os.system("make.bat html")
+
+
+if __name__ == "__main__":
+    main()
