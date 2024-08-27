@@ -7,7 +7,7 @@ from time import time
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, Callable, Iterable
 
-from .._ctx import get_logger
+from .._ctx import BotCtx, LoggerCtx, get_logger
 from ..exceptions import PluginError
 from ..utils import singleton
 from .base import Plugin
@@ -121,6 +121,11 @@ class PluginInitHelper:
 
     @staticmethod
     def run_init(*plugin_dirs: str | PathLike[str], load_depth: int = 1) -> None:
+        from melobot.bot import Bot
+
+        mock_bot = Bot(enable_log=False)
+        mock_logger = mock_bot.logger
+
         for p_dir in plugin_dirs:
             p_dir = Path(p_dir)
             if not p_dir.is_absolute():
@@ -142,28 +147,40 @@ class PluginInitHelper:
             if pinit_typ_path.exists():
                 remove(pinit_typ_path)
 
-            prefix = ".".join(p_dir.parts[-load_depth:])
-            p_load_mod_name = f"{prefix}.__plugin__"
-            p_load_mod = Importer.import_mod(p_load_mod_name, p_dir, sys_cache=False)
-            for k in dir(p_load_mod):
-                v = getattr(p_load_mod, k)
-                if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
-                    p = v()
-                    p_shares = p.shares
-                    p_funcs = p.funcs
-                    break
-            else:
-                raise PluginError("插件的 __plugin__.py 未实例化元数据类，无法运行初始化")
-            for share in p_shares:
-                if share.name in p_conflicts:
-                    raise PluginError(
-                        f"插件的共享对象名 {share.name} 与插件根目录下的文件/目录名重复，这将导致导入混淆，请修改共享对象名"
+            with BotCtx().on_ctx(mock_bot):
+                with LoggerCtx().on_ctx(mock_logger):
+                    prefix = ".".join(p_dir.parts[-load_depth:])
+                    p_load_mod_name = f"{prefix}.__plugin__"
+                    p_load_mod = Importer.import_mod(
+                        p_load_mod_name, p_dir, sys_cache=False
                     )
-            for func in p_funcs:
-                if func.__name__ in p_conflicts:
-                    raise PluginError(
-                        f"插件的导出函数名 {func.__name__} 与插件根目录下的文件/目录名重复，这将导致导入混淆，请修改导出函数名"
-                    )
+                    for k in dir(p_load_mod):
+                        v = getattr(p_load_mod, k)
+                        if (
+                            isinstance(v, type)
+                            and v is not Plugin
+                            and issubclass(v, Plugin)
+                        ):
+                            p = v()
+                            p_shares = p.shares
+                            p_funcs = p.funcs
+                            break
+                    else:
+                        raise PluginError(
+                            "插件的 __plugin__.py 未实例化元数据类，无法运行初始化"
+                        )
+                    for share in p_shares:
+                        if share.name in p_conflicts:
+                            raise PluginError(
+                                f"插件的共享对象名 {share.name} 与插件根目录下的文件/目录名重复，"
+                                "这将导致导入混淆，请修改共享对象名"
+                            )
+                    for func in p_funcs:
+                        if func.__name__ in p_conflicts:
+                            raise PluginError(
+                                f"插件的导出函数名 {func.__name__} 与插件根目录下的文件/目录名重复，"
+                                "这将导致导入混淆，请修改导出函数名"
+                            )
 
             try:
                 pyi_content = PluginInitHelper._get_init_pyi_str(p_dir, p_shares, p_funcs)

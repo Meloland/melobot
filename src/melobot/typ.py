@@ -1,8 +1,7 @@
 import inspect
 from abc import ABCMeta, abstractmethod
-from copy import deepcopy
 from enum import Enum
-from typing import Any, Awaitable, Callable, ParamSpec, TypeAlias, TypeVar, cast
+from typing import Any, Awaitable, Callable, Literal, ParamSpec, TypeAlias, TypeVar, cast
 
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
@@ -15,10 +14,6 @@ __all__ = (
     "AsyncCallable",
     "is_type",
     "is_subhint",
-    "MarkableMixin",
-    "ClonableMixin",
-    "AttrsReprMixin",
-    "LocatableMixin",
     "HandleLevel",
     "LogicMode",
     "BetterABCMeta",
@@ -26,6 +21,8 @@ __all__ = (
     "abstractattr",
     "abstractmethod",
     "VoidType",
+    "OpenMode",
+    "OpenModeReading",
 )
 
 T = TypeVar("T")
@@ -36,80 +33,8 @@ _DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)
 
 
 def is_type(obj: T, hint: type[Any]) -> TypeGuard[T]:
-    return _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
-
-
-class MarkableMixin:
-    def __init__(self) -> None:
-        self._flags: dict[str, dict[str, Any]] = {}
-
-    def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
-        self._flags.setdefault(namespace, {})
-
-        if flag_name in self._flags[namespace].keys():
-            raise ValueError(
-                f"标记失败。对象的命名空间 {namespace} 中已存在名为 {flag_name} 的标记"
-            )
-
-        self._flags[namespace][flag_name] = val
-
-    def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
-        if self._flags.get(namespace) is None:
-            return False
-        if flag_name not in self._flags[namespace].keys():
-            return False
-        flag = self._flags[namespace][flag_name]
-        return flag is val if val is None else flag == val
-
-
-class ClonableMixin:
-    def copy(self):
-        return deepcopy(self)
-
-
-class AttrsReprMixin:
-    def __repr__(self) -> str:
-        attrs = ", ".join(
-            f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
-        )
-        return f"{self.__class__.__name__}({attrs})"
-
-
-class LocatableMixin:
-    def __new__(cls, *_args, **_kwargs):
-        obj = super().__new__(cls)
-        setattr(obj, "__obj_location__", obj._init_location())
-        return obj
-
-    @staticmethod
-    def _init_location():
-        frame = inspect.currentframe()
-        while frame:
-            if frame.f_code.co_name == "<module>":
-                return {
-                    "module": frame.f_globals["__name__"],
-                    "file": frame.f_globals["__file__"],
-                    "line": frame.f_lineno,
-                }
-            frame = frame.f_back
-
-        return {
-            "module": "<unknown>",
-            "file": "<unknown>",
-            "line": -1,
-        }
-
-    @property
-    def __obj_module__(self) -> str:
-        return getattr(self, "__obj_location__")["module"]
-
-    @property
-    def __obj_file__(self) -> str:
-        return getattr(self, "__obj_location__")["file"]
-
-    @property
-    def __obj_line__(self) -> int:
-        return getattr(self, "__obj_location__")["line"]
+    ret = _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
+    return cast(TypeGuard[T], ret)
 
 
 class HandleLevel(float, Enum):
@@ -135,12 +60,12 @@ class LogicMode(Enum):
     @classmethod
     def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
         if logic == LogicMode.AND:
-            return (v1 and v2) if v2 is not None else bool(v1)
+            return (v1 and v2) if v2 is not None else bool(v1)  # type: ignore[no-any-return]
         if logic == LogicMode.OR:
-            return (v1 or v2) if v2 is not None else bool(v1)
+            return (v1 or v2) if v2 is not None else bool(v1)  # type: ignore[no-any-return]
         if logic == LogicMode.NOT:
             return not v1
-        return (v1 ^ v2) if v2 is not None else bool(v1)
+        return (v1 ^ v2) if v2 is not None else bool(v1)  # type: ignore[no-any-return]
 
     @classmethod
     def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
@@ -173,7 +98,7 @@ class BetterABCMeta(ABCMeta):
 
     class DummyAttribute: ...
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
         instance = ABCMeta.__call__(cls, *args, **kwargs)
         lack_attrs = set()
         for name in dir(instance):
@@ -196,3 +121,83 @@ class BetterABC(metaclass=BetterABCMeta):
 
 class VoidType(Enum):
     VOID = type("_VOID", (), {})
+
+
+_OpenTextModeUpdating: TypeAlias = Literal[
+    "r+",
+    "+r",
+    "rt+",
+    "r+t",
+    "+rt",
+    "tr+",
+    "t+r",
+    "+tr",
+    "w+",
+    "+w",
+    "wt+",
+    "w+t",
+    "+wt",
+    "tw+",
+    "t+w",
+    "+tw",
+    "a+",
+    "+a",
+    "at+",
+    "a+t",
+    "+at",
+    "ta+",
+    "t+a",
+    "+ta",
+    "x+",
+    "+x",
+    "xt+",
+    "x+t",
+    "+xt",
+    "tx+",
+    "t+x",
+    "+tx",
+]
+_OpenTextModeWriting: TypeAlias = Literal[
+    "w", "wt", "tw", "a", "at", "ta", "x", "xt", "tx"
+]
+_OpenTextModeReading: TypeAlias = Literal[
+    "r", "rt", "tr", "U", "rU", "Ur", "rtU", "rUt", "Urt", "trU", "tUr", "Utr"
+]
+_OpenTextMode: TypeAlias = (
+    _OpenTextModeUpdating | _OpenTextModeWriting | _OpenTextModeReading
+)
+_OpenBinaryModeUpdating: TypeAlias = Literal[
+    "rb+",
+    "r+b",
+    "+rb",
+    "br+",
+    "b+r",
+    "+br",
+    "wb+",
+    "w+b",
+    "+wb",
+    "bw+",
+    "b+w",
+    "+bw",
+    "ab+",
+    "a+b",
+    "+ab",
+    "ba+",
+    "b+a",
+    "+ba",
+    "xb+",
+    "x+b",
+    "+xb",
+    "bx+",
+    "b+x",
+    "+bx",
+]
+_OpenBinaryModeWriting: TypeAlias = Literal["wb", "bw", "ab", "ba", "xb", "bx"]
+_OpenBinaryModeReading: TypeAlias = Literal[
+    "rb", "br", "rbU", "rUb", "Urb", "brU", "bUr", "Ubr"
+]
+_OpenBinaryMode: TypeAlias = (
+    _OpenBinaryModeUpdating | _OpenBinaryModeReading | _OpenBinaryModeWriting
+)
+OpenMode: TypeAlias = _OpenTextMode | _OpenBinaryMode
+OpenModeReading: TypeAlias = _OpenTextModeReading | _OpenBinaryModeReading

@@ -1,7 +1,7 @@
 import re
 import sys
 import types
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Protocol, cast
 
 from .base import GenericLogger, Logger, LogLevel
 
@@ -22,11 +22,11 @@ def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
     setattr(
         logger, Logger.generic_obj.__name__, types.MethodType(Logger.generic_obj, logger)
     )
-    return logger
+    return cast(GenericLogger, logger)
 
 
 class StandardPatch(LazyLogMethod):
-    def __init__(self, logger) -> None:
+    def __init__(self, logger: Any) -> None:
         super().__init__()
         self.logger = logger
 
@@ -44,7 +44,7 @@ class StandardPatch(LazyLogMethod):
 
 
 class LoguruPatch(LazyLogMethod):
-    def __init__(self, logger) -> None:
+    def __init__(self, logger: Any) -> None:
         super().__init__()
         self.logger = logger
         self.pattern = re.compile(r"%(?:[-+# 0]*\d*(?:\.\d+)?[hlL]?[diouxXeEfFgGcrs%])")
@@ -79,7 +79,7 @@ class LoguruPatch(LazyLogMethod):
 
 
 class StructlogPatch(LazyLogMethod):
-    def __init__(self, logger) -> None:
+    def __init__(self, logger: Any) -> None:
         super().__init__()
         self.logger = logger
 

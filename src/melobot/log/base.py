@@ -14,7 +14,7 @@ from inspect import currentframe
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from logging import Logger as _Logger
 from logging import _srcfile as _LOGGING_SRC_FILE
-from typing import Any, Callable, Generator, Optional
+from typing import Any, Callable, Generator, Literal, Optional
 
 import colorlog
 import rich.console
@@ -94,7 +94,7 @@ class MeloFilter(logging.Filter):
         finally:
             self.clear_obj()
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> Literal[True]:
         msg = str(record.msg)
         if record.args:
             msg = msg % record.args
@@ -214,7 +214,7 @@ class Logger(_Logger, GenericLogger):
 
     __instances__: dict[str, "Logger"] = {}
 
-    def __new__(cls, name: str = "melobot", /, *args, **kwargs) -> Logger:
+    def __new__(cls, name: str = "melobot", /, *args: Any, **kwargs: Any) -> Logger:
         if name in Logger.__instances__:
             return Logger.__instances__[name]
         obj = super().__new__(cls)
@@ -304,7 +304,8 @@ class Logger(_Logger, GenericLogger):
         )
         Logger._make_fmt_nocache(fmt)
 
-        return fmt
+        # 未知的 mypy bug 推断 fmt 为 Any 类型...
+        return fmt  # type: ignore[no-any-return]
 
     @staticmethod
     def _console_handler(fmt: logging.Formatter) -> logging.Handler:
@@ -361,10 +362,13 @@ class Logger(_Logger, GenericLogger):
         for handler in self._handler_arr:
             handler.setLevel(level)
 
-    def findCaller(self, stack_info: bool = False, stacklevel: int = 1):
+    def findCaller(
+        self, stack_info: bool = False, stacklevel: int = 1
+    ) -> tuple[str, int, str, str | None]:
         f = currentframe()
         if f is None:
-            return "(unknown file)", 0, "(unknown function)", None
+            return "<unknown file>", 0, "<unknown function>", "<unknown stackinfo>"
+
         while stacklevel > 0:
             next_f = f.f_back
             if next_f is None:
@@ -374,6 +378,7 @@ class Logger(_Logger, GenericLogger):
                 stacklevel -= 1
         co = f.f_code
         sinfo = None
+
         if stack_info:
             with io.StringIO() as sio:
                 sio.write("Stack (most recent call last):\n")
@@ -381,6 +386,8 @@ class Logger(_Logger, GenericLogger):
                 sinfo = sio.getvalue()
                 if sinfo[-1] == "\n":
                     sinfo = sinfo[:-1]
+
+        assert isinstance(f.f_lineno, int)
         return co.co_filename, f.f_lineno, co.co_name, sinfo
 
     def generic_lazy(

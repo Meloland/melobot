@@ -7,6 +7,7 @@ from ..typ import (
     Any,
     AsyncCallable,
     BetterABC,
+    OpenModeReading,
     TypeVar,
     abstractattr,
     abstractmethod,
@@ -59,7 +60,9 @@ class BytesContent(AbstractContent):
         return self._val
 
 
-def _file_uri_to_path(uri: str, _class: type[pathlib.PurePath] = pathlib.Path):
+def _file_uri_to_path(
+    uri: str, _class: type[pathlib.PurePath] = pathlib.Path
+) -> pathlib.PurePath:
     win_path = isinstance(_class(), pathlib.PureWindowsPath)
     uri_parsed = urllib.parse.urlparse(uri)
     uri_path_unquoted = urllib.parse.unquote(uri_parsed.path)
@@ -75,13 +78,13 @@ def _file_uri_to_path(uri: str, _class: type[pathlib.PurePath] = pathlib.Path):
 
 
 async def _load_from_uri(
-    uri: str, fmode: str = "r", encoding: str | None = None
+    uri: str, fmode: OpenModeReading, encoding: str | None, **open_kwargs: Any
 ) -> str | bytes:
     try:
         if uri.startswith("file"):
-            path = _file_uri_to_path(uri)
-            with open(path, mode=fmode, encoding=encoding) as fp:
-                return fp.read()
+            path = str(_file_uri_to_path(uri))
+            with open(path, mode=fmode, encoding=encoding, **open_kwargs) as fp:
+                return cast(str | bytes, fp.read())
         else:
             processor = _URI_PROCESSOR_MAP.get(uri.split(":", 1)[0])
             if processor is None:
@@ -101,14 +104,14 @@ class FileContent(AbstractContent):
         name: str,
         uri: str,
         mimetype: str | None = None,
-        bmode: bool = False,
-        encoding: str | None = "utf-8",
+        fmode: OpenModeReading = "rt",
+        **open_kwargs: Any,
     ) -> None:
         self.type = "file"
         self.name = name
         self.uri = uri
-        self.fmode = "rb" if bmode else "r"
-        self.encoding = encoding
+        self.fmode: OpenModeReading = fmode
+        self.open_kwargs = open_kwargs
         self._val: str | bytes
 
         if mimetype is None:
@@ -118,7 +121,7 @@ class FileContent(AbstractContent):
         if hasattr(self, "_val"):
             return
 
-        self._val = await _load_from_uri(self.uri, self.fmode, self.encoding)
+        self._val = await _load_from_uri(self.uri, self.fmode, **self.open_kwargs)
 
     @property
     async def val(self) -> str | bytes:
@@ -148,7 +151,7 @@ class MediaContent(AbstractContent):
             return
 
         assert self.uri is not None
-        self._val = cast(bytes, await _load_from_uri(self.uri, "rb"))
+        self._val = cast(bytes, await _load_from_uri(self.uri, "rb", encoding=None))
 
     @property
     async def val(self) -> bytes:

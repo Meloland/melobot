@@ -18,15 +18,14 @@ from typing import (
 from typing_extensions import Self
 
 from ..exceptions import BotRuntimeError
-from ..typ import AttrsReprMixin
-from ..utils import get_id
+from ..utils import AttrsReprable, get_id
 from .content import AbstractContent
 
 if TYPE_CHECKING:
     from .base import AbstractEchoFactory, AbstractOutputFactory, AbstractOutSource
 
 
-class Event(AttrsReprMixin):
+class Event(AttrsReprable):
     def __init__(
         self,
         time: float = -1,
@@ -47,7 +46,7 @@ class Event(AttrsReprMixin):
 EventT = TypeVar("EventT", bound=Event)
 
 
-class Action(AttrsReprMixin):
+class Action(AttrsReprable):
     def __init__(
         self,
         time: float = -1,
@@ -65,7 +64,7 @@ class Action(AttrsReprMixin):
         self.trigger = trigger
 
 
-class Echo(AttrsReprMixin):
+class Echo(AttrsReprable):
     def __init__(
         self,
         time: float = -1,

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Generator, Generic, Union
+from typing import TYPE_CHECKING, Callable, Generator, Generic, Union, cast
 
 from .exceptions import AdapterError, BotRuntimeError, FlowError, LogError, SessionError
 from .typ import T
@@ -136,7 +136,7 @@ class SessionCtx(Context["Session"]):
         )
 
     def get_event(self) -> "Event":
-        return self.get().event
+        return cast("Event", self.get().event)
 
     def try_get_event(self) -> Union["Event", None]:
         session = self.try_get()

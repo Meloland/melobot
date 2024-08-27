@@ -232,7 +232,7 @@ def _init_auto_deps(func: Callable[P, T], allow_pass_arg: bool) -> None:
 
 
 def _get_bound_args(
-    func: Callable, /, *args, **kwargs
+    func: Callable, /, *args: Any, **kwargs: Any
 ) -> tuple[list[Any], dict[str, Any]]:
     sign = signature(func)
 
@@ -269,11 +269,11 @@ def inject_deps(
         ret = injected(*_args, **_kwargs)  # type: ignore[arg-type]
         if isawaitable(ret):
             return await ret
-        return cast(T, ret)
+        return ret
 
     @wraps(injected)
     async def class_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        ret = cast(Callable, injected)(*args, **kwargs)
+        ret = cast(Callable[P, T], injected)(*args, **kwargs)
         return ret
 
     if isinstance(injected, FunctionType):

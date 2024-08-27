@@ -2,7 +2,7 @@ import asyncio
 import time
 from dataclasses import dataclass, field
 from types import TracebackType
-from typing import Any, Generic, LiteralString, TypeVar
+from typing import Any, Generic, Literal, LiteralString, TypeVar
 
 from typing_extensions import Self
 
@@ -57,16 +57,25 @@ class AbstractSource(BetterABC):
         raise NotImplementedError
 
     async def __aenter__(self) -> Self:
+        if self.opened():
+            return self
+
         await self.open()
         return self
 
     async def __aexit__(
-        self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType
-    ) -> bool:
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> Literal[True, None]:
+        if not self.opened():
+            return None
+
         await self.close()
-        if exc_type in (None, asyncio.CancelledError):
+        if exc_type is asyncio.CancelledError:
             return True
-        return False
+        return None
 
 
 class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
@@ -109,6 +118,8 @@ class AbstractOutSource(AbstractSource, BetterABC, Generic[OutPacketT, EchoPacke
 
 
 OutSourceT = TypeVar("OutSourceT", bound=AbstractOutSource)
+
+InOrOutSourceT = TypeVar("InOrOutSourceT", bound=AbstractInSource | AbstractOutSource)
 
 
 class AbstractIOSource(

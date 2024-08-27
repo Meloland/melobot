@@ -58,12 +58,6 @@
         "files.autoSave": "afterDelay",
         "terminal.integrated.defaultProfile.linux": "zsh",
         "editor.cursorSmoothCaretAnimation": "on",
-        "mypy.extraArguments": [
-            "--follow-imports=skip",
-            "--ignore-missing-imports",
-            "--show-column-numbers",
-            "--check-untyped-defs"
-        ],
         "[python]": {
             "editor.defaultFormatter": "ms-python.black-formatter",
             "editor.formatOnSave": true,
@@ -93,6 +87,17 @@
         "mypy.dmypyExecutable": "/usr/bin/dmypy",
         "mypy.targets": [
             "./src/"
+        ],
+        "mypy.extraArguments": [
+            "--follow-imports=skip",
+            "--ignore-missing-imports",
+            "--show-column-numbers",
+            "--check-untyped-defs",
+            "--disallow-untyped-defs",
+            "--warn-return-any",
+            "--warn-redundant-casts",
+            "--disallow-untyped-calls",
+            "--strict-equality"
         ],
         "pylint.args": [
             "--rcfile=${workspaceFolder}/.pylintrc"

@@ -1,4 +1,4 @@
-from typing import Any, Generic
+from typing import Any, Generic, NoReturn
 
 from .typ import T
 
@@ -12,7 +12,7 @@ class ReadOnlyAttr(Generic[T]):
     def __get__(self, obj: Any, klass: Any = None) -> T:
         return self.val
 
-    def __set__(self, obj: Any, value: T):
+    def __set__(self, obj: Any, value: T) -> NoReturn:
         raise AttributeError("只读属性无法重新设定值")
 
 

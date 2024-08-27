@@ -4,7 +4,18 @@ import time
 import uuid
 from contextlib import asynccontextmanager
 from functools import wraps
-from typing import Any, Awaitable, Callable, Coroutine, Optional, TypeVar, cast
+from typing import (
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Optional,
+    TypeVar,
+    cast,
+)
+
+from typing_extensions import Self
 
 from .exceptions import ValidateError
 from .typ import AsyncCallable, P, T
@@ -22,37 +33,78 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
     return wrapped
 
 
-class AsyncTwinEvent(asyncio.Event):
-    """孪生 Event，会和绑定的一方时刻保持状态相反。"""
+class Markable:
+    def __init__(self) -> None:
+        self._flags: dict[str, dict[str, Any]] = {}
+
+    def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
+        self._flags.setdefault(namespace, {})
+
+        if flag_name in self._flags[namespace].keys():
+            raise ValueError(
+                f"标记失败。对象的命名空间 {namespace} 中已存在名为 {flag_name} 的标记"
+            )
+
+        self._flags[namespace][flag_name] = val
+
+    def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
+        if self._flags.get(namespace) is None:
+            return False
+        if flag_name not in self._flags[namespace].keys():
+            return False
+        flag = self._flags[namespace][flag_name]
+
+        if val is None:
+            return flag is None
+        return cast(bool, flag == val)
+
+
+class AttrsReprable:
+    def __repr__(self) -> str:
+        attrs = ", ".join(
+            f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
+        )
+        return f"{self.__class__.__name__}({attrs})"
+
+
+class Locatable:
+    def __new__(cls, *_args: Any, **_kwargs: Any) -> Self:
+        obj = super().__new__(cls)
+        obj.__obj_location__ = obj._init_location()  # type: ignore[attr-defined]
+        return obj
 
     def __init__(self) -> None:
-        super().__init__()
-        self._twin: Optional[AsyncTwinEvent] = None
+        self.__obj_location__: tuple[str, str, int]
 
-    def bind(self, twin: "AsyncTwinEvent") -> None:
-        self._twin = twin
-        if self.is_set():
-            super(AsyncTwinEvent, self._twin).clear()
-        else:
-            super(AsyncTwinEvent, self._twin).set()
+    @staticmethod
+    def _init_location() -> tuple[str, str, int]:
+        frame = inspect.currentframe()
+        while frame:
+            if frame.f_code.co_name == "<module>":
+                return (
+                    frame.f_globals["__name__"],
+                    frame.f_globals["__file__"],
+                    frame.f_lineno,
+                )
+            frame = frame.f_back
 
-    def set(self) -> None:
-        super().set()
-        if self._twin:
-            super(AsyncTwinEvent, self._twin).clear()
+        return (
+            "<unknown module>",
+            "<unknown file>",
+            -1,
+        )
 
-    def clear(self) -> None:
-        super().clear()
-        if self._twin:
-            super(AsyncTwinEvent, self._twin).set()
+    @property
+    def __obj_module__(self) -> str:
+        return self.__obj_location__[0]
 
+    @property
+    def __obj_file__(self) -> str:
+        return self.__obj_location__[1]
 
-def get_twin_event() -> tuple[asyncio.Event, asyncio.Event]:
-    """获得两个时刻保持状态相反的 asyncio.Event。 获得的第一个为 unset，另一个为 set"""
-    a, b = AsyncTwinEvent(), AsyncTwinEvent()
-    a.bind(b)
-    b.bind(a)
-    return a, b
+    @property
+    def __obj_line__(self) -> int:
+        return self.__obj_location__[2]
 
 
 class RWContext:
@@ -84,7 +136,7 @@ class RWContext:
         self.read_num_lock = asyncio.Lock()
 
     @asynccontextmanager
-    async def read(self):
+    async def read(self) -> AsyncGenerator[None, None]:
         if self.read_semaphore:
             await self.read_semaphore.acquire()
 
@@ -104,7 +156,7 @@ class RWContext:
                     self.read_semaphore.release()
 
     @asynccontextmanager
-    async def write(self):
+    async def write(self) -> AsyncGenerator[None, None]:
         await self.write_semaphore.acquire()
         try:
             yield
@@ -168,7 +220,9 @@ CbTwoRetT = TypeVar("CbTwoRetT")
 OriginRetT = TypeVar("OriginRetT")
 
 
-def lock(callback: Optional[AsyncCallable[[], CbRetT]] = None):
+def lock(
+    callback: Optional[AsyncCallable[[], CbRetT]] = None
+) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, CbRetT | OriginRetT]]:
     """锁装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数加锁。
@@ -203,7 +257,9 @@ def cooldown(
     busy_callback: Optional[AsyncCallable[[], CbOneRetT]] = None,
     cd_callback: Optional[AsyncCallable[[float], CbTwoRetT]] = None,
     interval: float = 5,
-):
+) -> Callable[
+    [AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbOneRetT | CbTwoRetT]
+]:
     """冷却装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加 cd 时间。
@@ -259,7 +315,9 @@ def cooldown(
     return deco_func
 
 
-def semaphore(callback: Optional[AsyncCallable[[], CbRetT]] = None, value: int = -1):
+def semaphore(
+    callback: Optional[AsyncCallable[[], CbRetT]] = None, value: int = -1
+) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
     """信号量装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加信号量控制。
@@ -291,7 +349,9 @@ def semaphore(callback: Optional[AsyncCallable[[], CbRetT]] = None, value: int =
     return deco_func
 
 
-def timelimit(callback: Optional[AsyncCallable[[], CbRetT]] = None, timeout: float = 5):
+def timelimit(
+    callback: Optional[AsyncCallable[[], CbRetT]] = None, timeout: float = 5
+) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
     """时间限制装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加超时控制。
@@ -328,7 +388,7 @@ def speedlimit(
     callback: Optional[AsyncCallable[[], CbRetT]] = None,
     limit: int = 60,
     duration: int = 60,
-):
+) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
     """流量/速率限制装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：`duration` 秒内只允许 `limit` 次调用。
@@ -392,7 +452,7 @@ def speedlimit(
             called_num += 1
             asyncio.create_task(result_set(func, res_fut, -1, *args, **kwargs))
 
-        return res_fut
+        return cast(asyncio.Future, res_fut)
 
     async def result_set(
         func: AsyncCallable[P, T],
@@ -422,7 +482,7 @@ def speedlimit(
     return deco_func
 
 
-def call_later(callback: Callable[[], None], delay: float):
+def call_later(callback: Callable[[], None], delay: float) -> asyncio.TimerHandle:
     """同步函数延迟调度
 
     在指定的 `delay` 后调度一个 `callback` 执行。`callback` 应该是同步方法。
@@ -434,7 +494,7 @@ def call_later(callback: Callable[[], None], delay: float):
     return asyncio.get_running_loop().call_later(delay, callback)
 
 
-def call_at(callback: Callable[[], None], timestamp: float):
+def call_at(callback: Callable[[], None], timestamp: float) -> asyncio.TimerHandle:
     """同步函数指定时间调度
 
     在指定的时间戳调度一个 `callback` 执行。`callback` 应该是同步方法。`timestamp` <= 当前时刻回调立即执行
@@ -445,7 +505,7 @@ def call_at(callback: Callable[[], None], timestamp: float):
     """
     loop = asyncio.get_running_loop()
     if timestamp <= time.time_ns() / 1e9:
-        return loop.call_soon(callback)
+        return loop.call_later(0, callback)
 
     return loop.call_later(timestamp - time.time_ns() / 1e9, callback)
 
@@ -510,7 +570,7 @@ def async_interval(
     :return: :class:`asyncio.Task` 对象
     """
 
-    async def interval_cb():
+    async def interval_cb() -> None:
         try:
             while True:
                 coro = callback()

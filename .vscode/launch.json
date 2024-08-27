@@ -10,7 +10,7 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/src/melobot/__main__.py",
-            "args": ["-h"],
+            "args": ["pinit", "private/plugins/proto_test"],
             "console": "integratedTerminal",
             "justMyCode": true
         },

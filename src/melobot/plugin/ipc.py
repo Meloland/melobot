@@ -2,11 +2,11 @@ from typing import Callable, Generic
 
 from .._di import inject_deps
 from ..exceptions import PluginIpcError
-from ..typ import AsyncCallable, AttrsReprMixin, LocatableMixin, T
-from ..utils import RWContext
+from ..typ import AsyncCallable, T
+from ..utils import AttrsReprable, Locatable, RWContext
 
 
-class AsyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
+class AsyncShare(Generic[T], Locatable, AttrsReprable):
     """异步共享对象"""
 
     def __init__(
@@ -16,6 +16,7 @@ class AsyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
         callabck: AsyncCallable[[T], None] | None = None,
         static: bool = False,
     ) -> None:
+        super().__init__()
         self.name = name
         self.__safe_ctx = RWContext()
         self.__reflect: AsyncCallable[[], T] | None = (
@@ -62,7 +63,7 @@ class AsyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
             return await self.__callback(val)
 
 
-class SyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
+class SyncShare(Generic[T], Locatable, AttrsReprable):
     """同步共享对象"""
 
     def __init__(
@@ -72,6 +73,7 @@ class SyncShare(Generic[T], LocatableMixin, AttrsReprMixin):
         callabck: Callable[[T], None] | None = None,
         static: bool = False,
     ) -> None:
+        super().__init__()
         self.name = name
         self.__reflect = reflector
         self.__callback = callabck

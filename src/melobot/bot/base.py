@@ -45,7 +45,7 @@ _LOGGER_CTX = LoggerCtx()
 class Bot:
     __instances__: dict[str, Bot] = {}
 
-    def __new__(cls, name: str = "melobot", /, *args, **kwargs) -> Bot:
+    def __new__(cls, name: str = "melobot", /, *args: Any, **kwargs: Any) -> Bot:
         if name in Bot.__instances__:
             raise BotRuntimeError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
         obj = super().__new__(cls)
@@ -70,10 +70,10 @@ class Bot:
             self.logger = logger
 
         self.adapters: dict[str, Adapter] = {}
+        self.ipc_manager = IPCManager()
 
         self._in_srcs: dict[str, list[AbstractInSource]] = {}
         self._out_srcs: dict[str, list[AbstractOutSource]] = {}
-        self.ipc_manager = IPCManager()
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
         self._life_bus = HookBus[BotLifeSpan](BotLifeSpan)
@@ -224,7 +224,7 @@ class Bot:
 
     @classmethod
     def start(cls, *bots: Bot) -> None:
-        async def bots_run():
+        async def bots_run() -> None:
             tasks = []
             for bot in bots:
                 tasks.append(asyncio.create_task(bot.internal_run()))

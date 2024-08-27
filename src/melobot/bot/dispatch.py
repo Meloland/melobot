@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 from ..adapter.model import Event
 from ..handle.base import EventHandler
@@ -10,7 +11,7 @@ ValT = TypeVar("ValT")
 
 
 class _KeyOrderDict(dict[KeyT, ValT]):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.update(*args, **kwargs)
         self.__buf: list[tuple[KeyT, ValT]] = []
 
@@ -36,7 +37,7 @@ class _KeyOrderDict(dict[KeyT, ValT]):
 
         return None
 
-    def update(self, *args, **kwargs):
+    def update(self, *args: Any, **kwargs: Any) -> None:
         for k, v in dict(*args, **kwargs).items():
             self[k] = v
 

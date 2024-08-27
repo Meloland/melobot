@@ -22,7 +22,7 @@ class BotException(Exception):
         super().__init__(self, obj)
         self.err = str(obj)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.err
 
 
