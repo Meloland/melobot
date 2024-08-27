@@ -170,16 +170,14 @@ class AutoDepends(Depends):
         elif isinstance(self.metadata, CustomLogger):
             if not is_type(val, self.hint):
                 return self.metadata.getter()
-            else:
-                return val
+            return val
 
         elif is_subhint(self.hint, LoggerCtx().get_type()):
             return val
 
         if is_type(val, self.hint):
             return val
-        else:
-            raise self._get_unmatch_exc(type(val))
+        raise self._get_unmatch_exc(type(val))
 
 
 @dataclass
@@ -219,8 +217,7 @@ def _init_auto_deps(func: Callable[P, T], allow_pass_arg: bool) -> None:
         except DependInitError:
             if allow_pass_arg:
                 continue
-            else:
-                raise
+            raise
 
         if dep is None:
             continue
@@ -272,8 +269,7 @@ def inject_deps(
         ret = injected(*_args, **_kwargs)  # type: ignore[arg-type]
         if isawaitable(ret):
             return await ret
-        else:
-            return cast(T, ret)
+        return cast(T, ret)
 
     @wraps(injected)
     async def class_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
@@ -283,13 +279,13 @@ def inject_deps(
     if isinstance(injected, FunctionType):
         _init_auto_deps(injected, pass_arg)
         return wrapped
-    elif isinstance(injected, LambdaType):
+    if isinstance(injected, LambdaType):
         return wrapped
-    elif isinstance(injected, type):
+    if isinstance(injected, type):
         return class_wrapped
-    else:
-        raise DependInitError(
-            f"{injected} 对象不属于以下类别中的任何一种："
-            "{同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，类对象，"
-            "实例方法、类方法、静态方法}，因此不能被注入依赖"
-        )
+
+    raise DependInitError(
+        f"{injected} 对象不属于以下类别中的任何一种："
+        "{同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，类对象，"
+        "实例方法、类方法、静态方法}，因此不能被注入依赖"
+    )

@@ -86,8 +86,8 @@ async def _load_from_uri(
             processor = _URI_PROCESSOR_MAP.get(uri.split(":", 1)[0])
             if processor is None:
                 return f"[Content: {uri}]"
-            else:
-                return await processor(uri)
+            return await processor(uri)
+
     except Exception as e:
         raise BotContentError(
             f"值加载失败，uri 为：{uri}, 错误为：[{e.__class__.__name__}] {e}"

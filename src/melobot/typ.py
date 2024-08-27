@@ -93,6 +93,12 @@ class LocatableMixin:
                 }
             frame = frame.f_back
 
+        return {
+            "module": "<unknown>",
+            "file": "<unknown>",
+            "line": -1,
+        }
+
     @property
     def __obj_module__(self) -> str:
         return getattr(self, "__obj_location__")["module"]
@@ -130,18 +136,17 @@ class LogicMode(Enum):
     def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
         if logic == LogicMode.AND:
             return (v1 and v2) if v2 is not None else bool(v1)
-        elif logic == LogicMode.OR:
+        if logic == LogicMode.OR:
             return (v1 or v2) if v2 is not None else bool(v1)
-        elif logic == LogicMode.NOT:
+        if logic == LogicMode.NOT:
             return not v1
-        elif logic == LogicMode.XOR:
-            return (v1 ^ v2) if v2 is not None else bool(v1)
+        return (v1 ^ v2) if v2 is not None else bool(v1)
 
     @classmethod
     def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
         if len(values) <= 0:
             return False
-        elif len(values) <= 1:
+        if len(values) <= 1:
             return bool(values[0])
 
         idx = 0

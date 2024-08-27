@@ -138,8 +138,7 @@ def to_async(
             ret = obj
         if inspect.isawaitable(ret):
             return await ret
-        else:
-            return ret
+        return ret
 
     if not inspect.isawaitable(obj):
         async_wrapped = wraps(obj)(async_wrapped)
@@ -249,11 +248,11 @@ def cooldown(
                 remain_t = interval - duration
                 if cd_callback is not None:
                     return await async_guard(cd_callback, remain_t)
-                else:
-                    await asyncio.sleep(remain_t)
-                    ret = await async_guard(func, *args, **kwargs)
-                    pre_finish_t = time.perf_counter()
-                    return ret
+
+                await asyncio.sleep(remain_t)
+                ret = await async_guard(func, *args, **kwargs)
+                pre_finish_t = time.perf_counter()
+                return ret
 
         return wrapped_func
 
@@ -362,8 +361,7 @@ def speedlimit(
             fut_ret = await fut
             if isinstance(fut_ret, Exception):
                 raise fut_ret
-            else:
-                return fut_ret
+            return fut_ret
 
         return wrapped_func
 
@@ -448,8 +446,8 @@ def call_at(callback: Callable[[], None], timestamp: float):
     loop = asyncio.get_running_loop()
     if timestamp <= time.time_ns() / 1e9:
         return loop.call_soon(callback)
-    else:
-        return loop.call_later(timestamp - time.time_ns() / 1e9, callback)
+
+    return loop.call_later(timestamp - time.time_ns() / 1e9, callback)
 
 
 def async_later(callback: Coroutine[Any, Any, T], delay: float) -> asyncio.Future[T]:
@@ -494,8 +492,8 @@ def async_at(callback: Coroutine[Any, Any, T], timestamp: float) -> asyncio.Futu
     """
     if timestamp <= time.time_ns() / 1e9:
         return async_later(callback, 0)
-    else:
-        return async_later(callback, timestamp - time.time_ns() / 1e9)
+
+    return async_later(callback, timestamp - time.time_ns() / 1e9)
 
 
 def async_interval(

@@ -66,6 +66,8 @@ class Adapter(
     BetterABC,
     Generic[EventFactoryT, OutputFactoryT, EchoFactoryT, InSourceT, OutSourceT],
 ):
+    # pylint: disable=duplicate-code
+
     protocol: LiteralString = abstractattr()
     event_factory: EventFactoryT = abstractattr()
     output_factory: OutputFactoryT = abstractattr()

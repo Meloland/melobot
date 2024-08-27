@@ -44,7 +44,7 @@ class PluginInitHelper:
         plugin_dir: Path,
         shares: Iterable[AsyncShare | SyncShare],
         funcs: Iterable[Callable],
-    ):
+    ) -> str:
         refs: dict[str, list[str]] = {}
         varnames: list[str] = []
         autoget_varnames: list[str] = []
@@ -116,8 +116,8 @@ class PluginInitHelper:
 
         if not len(varnames):
             return ""
-        else:
-            return "\n\n".join((imp_lines, gets_str, vars_str)) + "\n"
+
+        return "\n\n".join((imp_lines, gets_str, vars_str)) + "\n"
 
     @staticmethod
     def run_init(*plugin_dirs: str | PathLike[str], load_depth: int = 1) -> None:

@@ -114,6 +114,8 @@ OutSourceT = TypeVar("OutSourceT", bound=AbstractOutSource)
 class AbstractIOSource(
     AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT], BetterABC
 ):
+    # pylint: disable=duplicate-code
+
     async def open(self) -> None:
         raise NotImplementedError
 

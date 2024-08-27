@@ -137,6 +137,8 @@ def _current_finfo() -> tuple[str, str, int]:
 
 
 class GenericLogger(BetterABC):
+    # pylint: disable=duplicate-code
+
     @abstractmethod
     def debug(self, msg: object) -> None:
         raise NotImplementedError

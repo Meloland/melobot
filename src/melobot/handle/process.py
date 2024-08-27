@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import tee
-from typing import Generic, Iterable
+from typing import Generic, Iterable, Sequence
 
 from .._ctx import FlowCtx, FlowInfo, SessionCtx, _FlowStack
 from .._di import DependNotMatched, inject_deps
@@ -80,16 +80,25 @@ class Flow(Generic[EventT]):
         self.temp = temp
         self.option = option if option is not None else SessionOption()
         self.pre_flow = pre_flow
-
-        edges: list[tuple[FlowNode, FlowNode]] = []
         self.graph: dict[FlowNode, _NodeInfo] = {}
 
-        _edge_maps = (
+        _edge_maps = tuple(
             tuple((elem,) if isinstance(elem, FlowNode) else elem for elem in emap)
             for emap in edge_maps
         )
+        edges = self._get_edges(_edge_maps)
 
-        for emap in _edge_maps:
+        for n1, n2 in edges:
+            self._add(n1, n2)
+        if not self._valid_check():
+            raise FlowError(f"定义的处理流 {self.name} 中存在环路")
+
+    def _get_edges(
+        self, edge_maps: Sequence[Sequence[Iterable[FlowNode]]]
+    ) -> list[tuple[FlowNode, FlowNode]]:
+        edges: list[tuple[FlowNode, FlowNode]] = []
+
+        for emap in edge_maps:
             iter1, iter2 = tee(emap, 2)
             try:
                 next(iter2)
@@ -105,10 +114,7 @@ class Flow(Generic[EventT]):
                         if (n1, n2) not in edges:
                             edges.append((n1, n2))
 
-        for n1, n2 in edges:
-            self._add(n1, n2)
-        if not self._valid_check():
-            raise FlowError(f"定义的处理流 {self.name} 中存在环路")
+        return edges
 
     @property
     def starts(self) -> tuple[FlowNode, ...]:

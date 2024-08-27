@@ -73,7 +73,7 @@ ignored-modules=
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use, and will cap the count on Windows to
 # avoid hangs.
-jobs=8
+jobs=0
 
 # Control the amount of potential inferred values when inferring a single
 # object. This can help the performance when dealing with large functions or
@@ -431,7 +431,6 @@ disable=raw-checker-failed,
         locally-disabled,
         file-ignored,
         suppressed-message,
-        useless-suppression,
         deprecated-pragma,
         use-symbolic-message-instead,
         use-implicit-booleaness-not-comparison-to-string,
@@ -448,7 +447,12 @@ disable=raw-checker-failed,
         relative-beyond-top-level,
         logging-fstring-interpolation,
         wrong-import-position,
-        import-outside-toplevel
+        import-outside-toplevel,
+        too-many-instance-attributes,
+        too-many-arguments,
+        too-many-locals,
+        too-many-branches,
+        too-many-return-statements
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

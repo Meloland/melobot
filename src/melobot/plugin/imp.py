@@ -172,8 +172,7 @@ class ModuleLoader(Loader):
     def get_code(self, fullname: str) -> Any:
         if self.inner_loader is not None and hasattr(self.inner_loader, "get_code"):
             return self.inner_loader.get_code(fullname)
-        else:
-            return None
+        return None
 
 
 class Importer:

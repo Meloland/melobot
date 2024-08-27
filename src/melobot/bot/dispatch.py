@@ -34,6 +34,8 @@ class _KeyOrderDict(dict[KeyT, ValT]):
         while len(self.__buf):
             super().__setitem__(*self.__buf.pop())
 
+        return None
+
     def update(self, *args, **kwargs):
         for k, v in dict(*args, **kwargs).items():
             self[k] = v
