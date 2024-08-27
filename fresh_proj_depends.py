@@ -10,7 +10,7 @@ with open(r"pyproject.toml", "r", encoding="utf-8") as fp:
     pyproj_toml = toml.load(fp)
 
 
-def main():
+def main() -> None:
     if os.path.exists("pdm.lock"):
         os.remove("pdm.lock")
         print("已移除依赖锁文件，准备重新生成")
