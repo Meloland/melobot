@@ -2,19 +2,24 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import create_task
-from contextlib import _GeneratorContextManager
+from contextlib import AsyncExitStack, _GeneratorContextManager, asynccontextmanager
 from os import PathLike
 from typing import (
     TYPE_CHECKING,
+    AsyncGenerator,
     Callable,
     Generic,
     Iterable,
     LiteralString,
+    NoReturn,
     TypeVar,
     cast,
 )
 
+from typing_extensions import Self
+
 from .._ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
+from ..exceptions import AdapterError
 from ..io.base import (
     AbstractOutSource,
     EchoPacketT,
@@ -62,6 +67,21 @@ class AbstractEchoFactory(BetterABC, Generic[EchoPacketT, EchoT]):
 EchoFactoryT = TypeVar("EchoFactoryT", bound=AbstractEchoFactory)
 
 
+async def _input_loop(adapter: Adapter, src: InSourceT) -> NoReturn:
+    logger = LoggerCtx().get()
+    while True:
+        try:
+            packet = await src.input()
+            event = await adapter.event_factory.create(
+                packet
+            )  # pylint: disable=no-member
+            with _EVENT_BUILD_INFO_CTX.on_ctx(EventBuildInfo(adapter, src)):
+                asyncio.create_task(adapter.dispatcher.broadcast(event))
+        except Exception:
+            logger.exception(f"适配器 {adapter} 处理输入与分发事件时发生异常")
+            logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
+
+
 class Adapter(
     BetterABC,
     Generic[EventFactoryT, OutputFactoryT, EchoFactoryT, InSourceT, OutSourceT],
@@ -79,31 +99,33 @@ class Adapter(
         self.out_srcs: list[OutSourceT] = []
         self.dispatcher: "Dispatcher"
 
-    async def run(self) -> None:
-        async def _input_loop(src: InSourceT) -> None:
-            logger = LoggerCtx().get()
-            while True:
-                try:
-                    packet = await src.input()
-                    event = await self.event_factory.create(  # pylint: disable=no-member
-                        packet
-                    )
-                    with _EVENT_BUILD_INFO_CTX.on_ctx(EventBuildInfo(self, src)):
-                        asyncio.create_task(self.dispatcher.broadcast(event))
-                except Exception:
-                    logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
-                    logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
+        self._inited = False
 
-        if len(ts := tuple(create_task(src.open()) for src in self.in_srcs)):
-            await asyncio.wait(ts)
-        if len(
-            ts := tuple(
-                create_task(src.open()) for src in self.out_srcs if not src.opened()
+    @asynccontextmanager
+    async def launch(self) -> AsyncGenerator[Self, None]:
+        if self._inited:
+            raise AdapterError(f"适配器 {self} 已在运行，不能重复启动")
+
+        async with AsyncExitStack() as stack:
+            out_src_ts = tuple(
+                create_task(stack.enter_async_context(src)) for src in self.out_srcs
             )
-        ):
-            await asyncio.wait(ts)
-        if len(ts := tuple(create_task(_input_loop(src)) for src in self.in_srcs)):
-            await asyncio.wait(ts)
+            if len(out_src_ts):
+                await asyncio.wait(out_src_ts)
+
+            in_src_ts = tuple(
+                create_task(stack.enter_async_context(src))
+                for src in self.in_srcs
+                if not src.opened()
+            )
+            if len(in_src_ts):
+                await asyncio.wait(in_src_ts)
+
+            for src in self.in_srcs:
+                create_task(_input_loop(self, src))
+
+            self._inited = True
+            yield self
 
     def out_filter(
         self, filter: Callable[[OutSourceT], bool]

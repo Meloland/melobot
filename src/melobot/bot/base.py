@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
+from contextlib import AsyncExitStack, ExitStack
 from enum import Enum
 from os import PathLike
 from pathlib import Path
@@ -81,7 +82,7 @@ class Bot:
 
         self._inited = False
         self._running = False
-        self._rip = asyncio.Event()
+        self._rip_signal = asyncio.Event()
 
     def __repr__(self) -> str:
         return f'Bot(name="{self.name}")'
@@ -162,27 +163,29 @@ class Bot:
         if not self._inited:
             self._run_init()
 
-        with _BOT_CTX.on_ctx(self):
-            with _LOGGER_CTX.on_ctx(self.logger):
-                if isinstance(plugin, ModuleType):
-                    p_name = plugin.__name__
-                else:
-                    p_name = Path(plugin).resolve().parts[-1]
-                if p_name in self._plugins:
-                    raise BotRuntimeError(
-                        f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
-                    )
+        with ExitStack() as ctx_stack:
+            ctx_stack.enter_context(_BOT_CTX.on_ctx(self))
+            ctx_stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
 
-                p = self._loader.load(plugin, load_depth)
-                self._plugins[p.name] = p
-                self._dispatcher.internal_add(*p.handlers)
-                for share in p.shares:
-                    self.ipc_manager.add(p.name, share)
-                for func in p.funcs:
-                    self.ipc_manager.add_func(p.name, func)
-                self.logger.info(f"成功加载插件：{p.name}")
+            if isinstance(plugin, ModuleType):
+                p_name = plugin.__name__
+            else:
+                p_name = Path(plugin).resolve().parts[-1]
+            if p_name in self._plugins:
+                raise BotRuntimeError(
+                    f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
+                )
 
-                return self
+            p = self._loader.load(plugin, load_depth)
+            self._plugins[p.name] = p
+            self._dispatcher.internal_add(*p.handlers)
+            for share in p.shares:
+                self.ipc_manager.add(p.name, share)
+            for func in p.funcs:
+                self.ipc_manager.add_func(p.name, func)
+            self.logger.info(f"成功加载插件：{p.name}")
+
+            return self
 
     def load_plugins(
         self, *plugin: ModuleType | str | PathLike[str], load_depth: int = 1
@@ -195,29 +198,32 @@ class Bot:
             raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
 
-        with _BOT_CTX.on_ctx(self):
-            with _LOGGER_CTX.on_ctx(self.logger):
-                try:
-                    if (
-                        MELO_LAST_EXIT_SIGNAL in os.environ
-                        and int(os.environ[MELO_LAST_EXIT_SIGNAL])
-                        == BotExitSignal.RESTART.value
-                    ):
-                        await self._life_bus.emit(BotLifeSpan.RELOADED)
-                    else:
-                        await self._life_bus.emit(BotLifeSpan.LOADED)
+        async with AsyncExitStack() as stack:
+            stack.enter_context(_BOT_CTX.on_ctx(self))
+            stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
 
-                    for adapter in self.adapters.values():
-                        asyncio.create_task(adapter.run())
-                    asyncio.create_task(self._dispatcher.timed_gc())
-                    await self._rip.wait()
+            try:
+                if (
+                    MELO_LAST_EXIT_SIGNAL in os.environ
+                    and int(os.environ[MELO_LAST_EXIT_SIGNAL])
+                    == BotExitSignal.RESTART.value
+                ):
+                    await self._life_bus.emit(BotLifeSpan.RELOADED)
+                else:
+                    await self._life_bus.emit(BotLifeSpan.LOADED)
 
-                finally:
-                    for task in asyncio.all_tasks():
-                        task.cancel()
-                    await self._life_bus.emit(BotLifeSpan.STOP, wait=True)
-                    self.logger.info(f"{self} 已停止运行")
-                    self._running = False
+                asyncio.create_task(self._dispatcher.timed_gc())
+                for adapter in self.adapters.values():
+                    await stack.enter_async_context(adapter.launch())
+
+                await self._rip_signal.wait()
+
+            finally:
+                for task in asyncio.all_tasks():
+                    task.cancel()
+                await self._life_bus.emit(BotLifeSpan.STOP, wait=True)
+                self.logger.info(f"{self} 已停止运行")
+                self._running = False
 
     def run(self) -> None:
         _safe_blocked_run(self.internal_run())
@@ -240,7 +246,7 @@ class Bot:
             raise BotRuntimeError(f"{self} 未在运行中，不能停止运行")
 
         await self._life_bus.emit(BotLifeSpan.CLOSE, wait=True)
-        self._rip.set()
+        self._rip_signal.set()
 
     async def restart(self) -> None:
         if MELO_PKG_RUNTIME not in os.environ:

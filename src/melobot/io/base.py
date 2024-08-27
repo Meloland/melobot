@@ -2,7 +2,7 @@ import asyncio
 import time
 from dataclasses import dataclass, field
 from types import TracebackType
-from typing import Any, Generic, Literal, LiteralString, TypeVar
+from typing import Any, Generic, LiteralString, TypeVar
 
 from typing_extensions import Self
 
@@ -68,7 +68,7 @@ class AbstractSource(BetterABC):
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
-    ) -> Literal[True, None]:
+    ) -> bool | None:
         if not self.opened():
             return None
 
