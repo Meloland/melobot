@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from .._ctx import get_logger
+from .._ctx import LoggerCtx
 from ..adapter.model import Event
 from ..log.base import LogLevel
 from ..session.base import Session
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class EventHandler:
     def __init__(self, plugin: "Plugin", flow: Flow) -> None:
         self.flow = flow
-        self.logger = get_logger()
+        self.logger = LoggerCtx().get()
         self.name = flow.name
 
         self._plugin = plugin

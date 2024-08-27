@@ -14,7 +14,7 @@ from typing import (
     cast,
 )
 
-from .._ctx import EventBuildInfo, EventBuildInfoCtx, OutSrcFilterCtx, get_logger
+from .._ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
 from ..io.base import (
     AbstractOutSource,
     EchoPacketT,
@@ -81,7 +81,7 @@ class Adapter(
 
     async def run(self) -> None:
         async def _input_loop(src: InSourceT) -> None:
-            logger = get_logger()
+            logger = LoggerCtx().get()
             while True:
                 try:
                     packet = await src.input()

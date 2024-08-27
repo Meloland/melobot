@@ -107,10 +107,6 @@ class FlowCtx(Context[FlowInfo]):
         )
 
 
-def get_flow_stack() -> tuple[str, ...]:
-    return tuple(FlowCtx().get().stack)
-
-
 @singleton
 class BotCtx(Context["Bot"]):
     def __init__(self) -> None:
@@ -120,10 +116,6 @@ class BotCtx(Context["Bot"]):
         from .bot.base import Bot
 
         return Bot
-
-
-def get_bot() -> "Bot":
-    return BotCtx().get()
 
 
 @singleton
@@ -158,10 +150,6 @@ class SessionCtx(Context["Session"]):
         return Rule
 
 
-def get_event() -> "Event":
-    return SessionCtx().get_event()
-
-
 @singleton
 class LoggerCtx(Context["GenericLogger"]):
     def __init__(self) -> None:
@@ -171,7 +159,3 @@ class LoggerCtx(Context["GenericLogger"]):
         from .log.base import GenericLogger
 
         return GenericLogger
-
-
-def get_logger() -> "GenericLogger":
-    return LoggerCtx().get()

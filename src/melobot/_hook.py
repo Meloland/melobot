@@ -2,7 +2,7 @@ import asyncio
 from enum import Enum
 from typing import Any, Generic, TypeVar
 
-from ._ctx import get_logger
+from ._ctx import LoggerCtx
 from ._di import inject_deps
 from .log.base import LogLevel
 from .typ import AsyncCallable
@@ -21,7 +21,7 @@ class HookRunner(Generic[HookEnumT]):
         try:
             await self.callback(*args, **kwargs)
         except Exception:
-            logger = get_logger()
+            logger = LoggerCtx().get()
             logger.exception(
                 f"生命周期阶段 {self.type} 的 hook 方法 {self.callback} 发生异常"
             )
@@ -46,7 +46,7 @@ class HookBus(Generic[HookEnumT]):
     ) -> None:
         args = args if args is not None else ()
         kwargs = kwargs if kwargs is not None else {}
-        logger = get_logger()
+        logger = LoggerCtx().get()
         logger.debug(f"<{hook_type}> 阶段的 hook 即将开始（{wait = }）")
 
         tasks = [
