@@ -10,14 +10,13 @@ from typing import (
     Callable,
     Generic,
     Iterable,
-    LiteralString,
     NoReturn,
     TypeVar,
     cast,
     final,
 )
 
-from typing_extensions import Self
+from typing_extensions import LiteralString, Self
 
 from .._ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError

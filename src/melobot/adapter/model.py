@@ -6,16 +6,15 @@ from typing import (
     Any,
     Generator,
     Generic,
+    Hashable,
     Literal,
-    LiteralString,
-    NamedTuple,
     Optional,
     Sequence,
     TypeVar,
     cast,
 )
 
-from typing_extensions import Self
+from typing_extensions import LiteralString, Self
 
 from ..exceptions import BotRuntimeError
 from ..utils import AttrsReprable, get_id
@@ -31,7 +30,7 @@ class Event(AttrsReprable):
         time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
-        scope: Optional[NamedTuple] = None,
+        scope: Optional[Hashable] = None,
         contents: Sequence[AbstractContent] = (),
     ) -> None:
         self.time = time_ns() / 1e9 if time == -1 else time
@@ -52,7 +51,7 @@ class Action(AttrsReprable):
         time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
-        scope: Optional[NamedTuple] = None,
+        scope: Optional[Hashable] = None,
         contents: Sequence[AbstractContent] = (),
         trigger: Event | None = None,
     ) -> None:
@@ -70,7 +69,7 @@ class Echo(AttrsReprable):
         time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
-        scope: Optional[NamedTuple] = None,
+        scope: Optional[Hashable] = None,
         ok: bool = True,
         status: int = 0,
         prompt: str = "",

@@ -1,9 +1,9 @@
 import time
 from dataclasses import dataclass, field
 from types import TracebackType
-from typing import Any, Generic, LiteralString, TypeVar
+from typing import Any, Generic, TypeVar
 
-from typing_extensions import Self
+from typing_extensions import LiteralString, Self
 
 from ..typ import BetterABC, abstractattr, abstractmethod
 from ..utils import get_id
