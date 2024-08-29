@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, final
 
 from ..handle.base import EventHandler
 from ..handle.process import Flow
@@ -22,6 +22,7 @@ class Plugin(BetterABC):
         self.name: str
         self.handlers: tuple[EventHandler, ...]
 
-    def build(self, name: str) -> None:
+    @final
+    def __plugin_build__(self, name: str) -> None:
         self.name = name
         self.handlers = tuple(EventHandler(self, flow) for flow in self.flows)

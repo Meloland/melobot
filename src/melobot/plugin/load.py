@@ -203,12 +203,12 @@ class PluginLoader:
         for k in dir(p_load_mod):
             v = getattr(p_load_mod, k)
             if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
-                p = v()
+                p: Plugin = v()
                 break
         else:
             raise PluginError("插件的 __plugin__.py 未实例化元数据类，无法加载")
 
-        p.build(p_name)
+        p.__plugin_build__(p_name)
         return p
 
     def load(self, plugin: ModuleType | str | PathLike[str], load_depth: int) -> Plugin:

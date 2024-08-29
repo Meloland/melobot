@@ -19,7 +19,7 @@ from ..log.base import GenericLogger, Logger, NullLogger
 from ..plugin.base import Plugin
 from ..plugin.ipc import IPCManager
 from ..plugin.load import PluginLoader
-from ..protocol import Protocol
+from ..protocol import ProtocolStack
 from ..typ import AsyncCallable, P
 from .dispatch import Dispatcher
 
@@ -117,8 +117,8 @@ class Bot:
         self.adapters[adapter.protocol] = adapter
         return self
 
-    def add_protocol(self, protocol: Protocol) -> Bot:
-        insrcs, outsrcs, adapter = protocol.inputs, protocol.outputs, protocol.adapter
+    def add_protocol(self, pstack: ProtocolStack) -> Bot:
+        insrcs, outsrcs, adapter = pstack.inputs, pstack.outputs, pstack.adapter
         self.add_adapter(adapter)
         for isrc in insrcs:
             self.add_input(isrc)
@@ -214,7 +214,7 @@ class Bot:
 
                 asyncio.create_task(self._dispatcher.timed_gc())
                 for adapter in self.adapters.values():
-                    await stack.enter_async_context(adapter.launch())
+                    await stack.enter_async_context(adapter.__adapter_launch__())
 
                 await self._rip_signal.wait()
 

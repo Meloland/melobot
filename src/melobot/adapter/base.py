@@ -14,6 +14,7 @@ from typing import (
     NoReturn,
     TypeVar,
     cast,
+    final,
 )
 
 from typing_extensions import Self
@@ -102,7 +103,8 @@ class Adapter(
         self._inited = False
 
     @asynccontextmanager
-    async def launch(self) -> AsyncGenerator[Self, None]:
+    @final
+    async def __adapter_launch__(self) -> AsyncGenerator[Self, None]:
         if self._inited:
             raise AdapterError(f"适配器 {self} 已在运行，不能重复启动")
 
@@ -127,11 +129,13 @@ class Adapter(
             self._inited = True
             yield self
 
-    def out_filter(
+    @final
+    def filter_out(
         self, filter: Callable[[OutSourceT], bool]
     ) -> _GeneratorContextManager[None]:
         return _OUT_SRC_FILTER_CTX.on_ctx(filter)
 
+    @final
     def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
         osrcs: Iterable[OutSourceT]
         filter = _OUT_SRC_FILTER_CTX.try_get()

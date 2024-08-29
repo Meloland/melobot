@@ -1,4 +1,3 @@
-import asyncio
 import time
 from dataclasses import dataclass, field
 from types import TracebackType
@@ -68,13 +67,11 @@ class AbstractSource(BetterABC):
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
-    ) -> bool | None:
+    ) -> None:
         if not self.opened():
             return None
 
         await self.close()
-        if exc_type is asyncio.CancelledError:
-            return True
         return None
 
 
