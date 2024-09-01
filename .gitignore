@@ -8,6 +8,7 @@ dist
 */dist
 
 .venv
+.vscode
 .mypy_cache
 .pytest_cache
 .idea

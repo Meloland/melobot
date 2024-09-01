@@ -299,7 +299,7 @@ class Logger(_Logger, GenericLogger):
 
         fmt = colorlog.ColoredFormatter(fmt_s, datefmt="%Y-%m-%d %H:%M:%S", reset=True)
         fmt.default_msec_format = "%s.%03d"
-        fmt.formatException = lambda exc_info: "".join(
+        fmt.formatException = lambda exc_info: "".join(  # type: ignore[assignment]
             _EXC_FORMATTER.format_exception(*exc_info)
         )
         Logger._make_fmt_nocache(fmt)
