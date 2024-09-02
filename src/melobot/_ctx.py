@@ -1,7 +1,8 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Generator, Generic, Union, cast
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
 
 from .exceptions import AdapterError, BotRuntimeError, FlowError, LogError, SessionError
 from .typ import T
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
     from .handle.process import Flow, FlowNode
     from .io.base import AbstractInSource, OutSourceT
     from .log.base import GenericLogger
-    from .session.base import Session, StoreT
+    from .session.base import Session, SessionStore
     from .session.option import Rule
 
 
@@ -83,28 +84,74 @@ class EventBuildInfoCtx(Context[EventBuildInfo]):
         return Adapter
 
 
-class _FlowStack(list[str]):
-    def append(self, object: str) -> None:
-        super().append(object)
-        LoggerCtx().get().debug(f"事件处理流记录：{object}")
+class FlowRecordStage(Enum):
+    FLOW_START = "fs"
+    FLOW_EARLY_FINISH = "fef"
+    FLOW_FINISH = "ff"
+
+    NODE_START = "ns"
+    DEPENDS_NOT_MATCH = "dnm"
+    BLOCK = "bl"
+    STOP = "st"
+    BYPASS = "by"
+    REWIND = "re"
+    NODE_EARLY_FINISH = "nef"
+    NODE_FINISH = "nf"
 
 
 @dataclass
-class FlowInfo:
+class FlowRecord:
+    stage: FlowRecordStage
+    flow_name: str
+    node_name: str
+    event: "Event"
+    msg: str = ""
+
+
+class FlowRecords(list[FlowRecord]):
+    def append(self, snapshot: FlowRecord) -> None:
+        super().append(snapshot)
+
+
+class FlowStore(dict[str, Any]): ...
+
+
+@dataclass
+class FlowStatus:
+    event: "Event"
     flow: "Flow"
     node: "FlowNode"
     next_valid: bool
-    stack: _FlowStack = field(default_factory=_FlowStack)
+    records: FlowRecords = field(default_factory=FlowRecords)
+    store: FlowStore = field(default_factory=FlowStore)
 
 
 @singleton
-class FlowCtx(Context[FlowInfo]):
+class FlowCtx(Context[FlowStatus]):
     def __init__(self) -> None:
         super().__init__(
             "_FLOW_CTX",
             FlowError,
             "此时不在活动的事件处理流中，无法获取处理流信息",
         )
+
+    def get_event(self) -> "Event":
+        return self.get().event
+
+    def try_get_event(self) -> Union["Event", None]:
+        status = self.try_get()
+        return status.event if status is not None else None
+
+    def get_event_type(self) -> type["Event"]:
+        from .adapter.model import Event
+
+        return Event
+
+    def get_store(self) -> FlowStore:
+        return self.get().store
+
+    def get_store_type(self) -> type[FlowStore]:
+        return FlowStore
 
 
 @singleton
@@ -127,22 +174,13 @@ class SessionCtx(Context["Session"]):
             "此时不在活动的事件处理流中，无法获取会话信息",
         )
 
-    def get_event(self) -> "Event":
-        return cast("Event", self.get().event)
+    def get_store(self) -> "SessionStore":
+        return self.get().store
 
-    def try_get_event(self) -> Union["Event", None]:
-        session = self.try_get()
-        return session.event if session is not None else None
+    def get_store_type(self) -> type["SessionStore"]:
+        from .session.base import SessionStore
 
-    def get_event_type(self) -> type["Event"]:
-        from .adapter.model import Event
-
-        return Event
-
-    def get_store_type(self) -> type["StoreT"]:
-        from .session.base import StoreT
-
-        return StoreT
+        return SessionStore
 
     def get_rule_type(self) -> type["Rule"]:
         from .session.option import Rule

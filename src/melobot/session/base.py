@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import Condition, Lock
-from contextlib import asynccontextmanager
+from contextlib import _AsyncGeneratorContextManager, asynccontextmanager
 from typing import Any, AsyncGenerator, Generic, cast
 
-from .._ctx import SessionCtx
+from .._ctx import FlowCtx, SessionCtx
 from ..adapter.model import EventT
 from ..exceptions import BotException
+from ..handle.process import stop
 from ..typ import AsyncCallable
 from .option import Rule
 
@@ -99,7 +100,7 @@ class SuspendSessionState(SessionState):
 class ExpireSessionState(SessionState): ...
 
 
-class StoreT(dict[str, Any]): ...
+class SessionStore(dict[str, Any]): ...
 
 
 class Session(Generic[EventT]):
@@ -108,7 +109,7 @@ class Session(Generic[EventT]):
     __cls_lock__ = Lock()
 
     def __init__(self, event: EventT, rule: Rule | None, keep: bool = False) -> None:
-        self.store: StoreT = StoreT()
+        self.store: SessionStore = SessionStore()
         self.event = event
         self.rule = rule
         self.refresh_cond = Condition()
@@ -203,20 +204,46 @@ class Session(Generic[EventT]):
             Session.__instances__[rule].add(session)
             return session
 
+    @classmethod
     @asynccontextmanager
-    async def ctx(self) -> AsyncGenerator[Session[EventT], None]:
-        with _SESSION_CTX.on_ctx(self):
+    async def enter_ctx(
+        cls,
+        rule: Rule,
+        wait: bool = True,
+        nowait_cb: AsyncCallable[[], None] | None = None,
+        keep: bool = False,
+    ) -> AsyncGenerator[Session[EventT], None]:
+        session = await cls.get(
+            cast(EventT, FlowCtx().get().event),
+            rule=rule,
+            wait=wait,
+            nowait_cb=nowait_cb,
+            keep=keep,
+        )
+        if session is None:
+            await stop()
+
+        with _SESSION_CTX.on_ctx(session):
             try:
-                yield self
+                yield session
             except asyncio.CancelledError:
-                if self.on_state(SuspendSessionState):
-                    await self.wakeup(self.event)
+                if session.on_state(SuspendSessionState):
+                    await session.wakeup(session.event)
             finally:
-                if self.keep:
-                    await self.rest()
+                if session.keep:
+                    await session.rest()
                 else:
-                    await self.expire()
+                    await session.expire()
 
 
 async def suspend(timeout: float | None = None) -> bool:
     return await SessionCtx().get().suspend(timeout)
+
+
+def enter_session(
+    rule: Rule,
+    wait: bool = True,
+    nowait_cb: AsyncCallable[[], None] | None = None,
+    keep: bool = False,
+) -> _AsyncGeneratorContextManager[Session]:
+    return Session.enter_ctx(rule, wait, nowait_cb, keep)

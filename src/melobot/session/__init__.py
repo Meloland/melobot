@@ -1,14 +1,10 @@
 from .._ctx import SessionCtx as _SessionCtx
 from ..adapter.model import Event
-from .base import StoreT, suspend
-from .option import Rule, SessionOption
+from .base import SessionStore, enter_session, suspend
+from .option import Rule
 
 
-def get_event() -> Event:
-    return _SessionCtx().get_event()
-
-
-def get_store() -> StoreT:
+def get_session_store() -> SessionStore:
     return _SessionCtx().get().store
 
 

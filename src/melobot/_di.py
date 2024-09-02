@@ -18,7 +18,7 @@ from typing import (
     get_origin,
 )
 
-from ._ctx import BotCtx, EventBuildInfoCtx, LoggerCtx, SessionCtx
+from ._ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
 from .typ import AsyncCallable, P, T, VoidType, is_subhint, is_type
 from .utils import to_async
@@ -122,17 +122,9 @@ class AutoDepends(Depends):
             self.metadata = None
 
         self.orig_getter: Callable[[], Any] | AsyncCallable[[], Any]
-        if isinstance(self.metadata, CustomLogger):
-            self.orig_getter = LoggerCtx().get
 
-        elif is_subhint(hint, LoggerCtx().get_type()):
-            self.orig_getter = LoggerCtx().get
-
-        elif is_subhint(hint, SessionCtx().get_store_type()):
-            self.orig_getter = lambda: SessionCtx().get().store
-
-        elif is_subhint(hint, SessionCtx().get_rule_type() | None):
-            self.orig_getter = lambda: SessionCtx().get().rule
+        if is_subhint(hint, FlowCtx().get_event_type()):
+            self.orig_getter = FlowCtx().get_event
 
         elif is_subhint(hint, BotCtx().get_type()):
             self.orig_getter = BotCtx().get
@@ -140,8 +132,20 @@ class AutoDepends(Depends):
         elif is_subhint(hint, EventBuildInfoCtx().get_adapter_type()):
             self.orig_getter = lambda: EventBuildInfoCtx().get().adapter
 
-        elif is_subhint(hint, SessionCtx().get_event_type()):
-            self.orig_getter = lambda: SessionCtx().get_event()
+        elif is_subhint(hint, LoggerCtx().get_type()):
+            self.orig_getter = LoggerCtx().get
+
+        elif is_subhint(hint, FlowCtx().get_store_type()):
+            self.orig_getter = FlowCtx().get_store
+
+        elif is_subhint(hint, SessionCtx().get_store_type()):
+            self.orig_getter = SessionCtx().get_store
+
+        elif isinstance(self.metadata, CustomLogger):
+            self.orig_getter = LoggerCtx().get
+
+        elif is_subhint(hint, SessionCtx().get_rule_type() | None):
+            self.orig_getter = lambda: SessionCtx().get().rule
 
         else:
             raise DependInitError(
@@ -177,6 +181,7 @@ class AutoDepends(Depends):
 
         if is_type(val, self.hint):
             return val
+
         raise self._get_unmatch_exc(type(val))
 
 

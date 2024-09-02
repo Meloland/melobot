@@ -2,57 +2,71 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import tee
-from typing import Generic, Iterable, Sequence
+from typing import Generic, Iterable, NoReturn, Sequence
 
-from .._ctx import FlowCtx, FlowInfo, SessionCtx, _FlowStack
+from .._ctx import FlowCtx, FlowRecord, FlowRecords
+from .._ctx import FlowRecordStage as RecordStage
+from .._ctx import FlowStatus, FlowStore
 from .._di import DependNotMatched, inject_deps
-from ..adapter.model import EventT
+from ..adapter.model import Event, EventT
 from ..exceptions import FlowError
-from ..session.option import SessionOption
-from ..typ import AsyncCallable, HandleLevel, VoidType
+from ..typ import AsyncCallable, HandleLevel
 
 _FLOW_CTX = FlowCtx()
-_SESSION_CTX = SessionCtx()
+
+
+def node(func: AsyncCallable[..., bool | None]) -> FlowNode:
+    return FlowNode()(func)
 
 
 class FlowNode:
-    def __init__(self, name: str = "") -> None:
-        self.name = name
-        self.processor: AsyncCallable[..., bool | None | VoidType]
+    def __init__(self) -> None:
+        self.name: str
+        self.processor: AsyncCallable[..., bool | None]
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
     def __call__(self, func: AsyncCallable[..., bool | None]) -> FlowNode:
         self.processor = inject_deps(func)
-        if self.name == "":
-            self.name = func.__name__
+        self.name = func.__name__
         return self
 
-    async def process(self, flow: Flow) -> None:
+    async def process(self, event: Event, flow: Flow) -> None:
         try:
-            stack = _FLOW_CTX.get().stack
+            status = _FLOW_CTX.get()
+            records, store = status.records, status.store
         except _FLOW_CTX.lookup_exc_cls:
-            stack = _FlowStack()
+            records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.on_ctx(FlowInfo(flow, self, True, stack)):
+        with _FLOW_CTX.on_ctx(FlowStatus(event, flow, self, True, records, store)):
             try:
-                stack.append(f"[{flow.name}] | Try Start -> <{self.name}>")
+                records.append(
+                    FlowRecord(RecordStage.NODE_START, flow.name, self.name, event)
+                )
+
                 try:
                     ret = await self.processor()
-                    stack.append(f"[{flow.name}] | <{self.name}> -> Finished")
+                    records.append(
+                        FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, event)
+                    )
                 except DependNotMatched as e:
                     ret = False
-                    stack.append(
-                        f"[{flow.name}] | <{self.name}> -> Arg {e.arg_name!r} Not Matched："
-                        f"Real({e.real_type}) <=> Annotation({e.hint})"
+                    records.append(
+                        FlowRecord(
+                            RecordStage.DEPENDS_NOT_MATCH,
+                            flow.name,
+                            self.name,
+                            event,
+                            f"Real({e.real_type}) <=> Annotation({e.hint})",
+                        )
                     )
 
                 if ret in (None, True) and _FLOW_CTX.get().next_valid:
-                    await nextp()
+                    await nextn()
 
             except FlowContinued:
-                await nextp()
+                await nextn()
 
 
 @dataclass
@@ -72,14 +86,10 @@ class Flow(Generic[EventT]):
         *edge_maps: Iterable[Iterable[FlowNode] | FlowNode],
         priority: HandleLevel = HandleLevel.NORMAL,
         temp: bool = False,
-        option: SessionOption[EventT] | None = None,
-        pre_flow: PreFlow | None = None,
     ) -> None:
         self.name = name
         self.priority = priority
         self.temp = temp
-        self.option = option if option is not None else SessionOption()
-        self.pre_flow = pre_flow
         self.graph: dict[FlowNode, _NodeInfo] = {}
 
         _edge_maps = tuple(
@@ -90,6 +100,7 @@ class Flow(Generic[EventT]):
 
         for n1, n2 in edges:
             self._add(n1, n2)
+
         if not self._valid_check():
             raise FlowError(f"定义的处理流 {self.name} 中存在环路")
 
@@ -104,10 +115,12 @@ class Flow(Generic[EventT]):
                 next(iter2)
             except StopIteration:
                 continue
+
             if len(emap) == 1:
                 for n in emap[0]:
                     self._add(n, None)
                 continue
+
             for from_seq, to_seq in zip(iter1, iter2):
                 for n1 in from_seq:
                     for n2 in to_seq:
@@ -126,6 +139,7 @@ class Flow(Generic[EventT]):
 
     def __repr__(self) -> str:
         output = f"{self.__class__.__name__}(name={self.name}, nums={len(self.graph)}"
+
         if len(self.graph):
             output += f", starts=[{', '.join(repr(n) for n in self.starts)}])"
         else:
@@ -134,6 +148,7 @@ class Flow(Generic[EventT]):
 
     def _add(self, _from: FlowNode, to: FlowNode | None) -> None:
         from_info = self.graph.setdefault(_from, _NodeInfo([], 0, 0))
+
         if to is not None:
             to_info = self.graph.setdefault(to, _NodeInfo([], 0, 0))
             to_info.in_deg += 1
@@ -142,55 +157,57 @@ class Flow(Generic[EventT]):
 
     def _valid_check(self) -> bool:
         graph = {n: info.copy() for n, info in self.graph.items()}
+
         while len(graph):
             for n, info in graph.items():
                 nexts, in_deg = info.nexts, info.in_deg
+
                 if in_deg == 0:
                     graph.pop(n)
                     for next_n in nexts:
                         graph[next_n].in_deg -= 1
                     break
+
             else:
                 return False
+
         return True
 
-    async def run(self) -> bool:
-        try:
-            stack = _FLOW_CTX.get().stack
-        except _FLOW_CTX.lookup_exc_cls:
-            stack = _FlowStack()
+    async def run(self, event: EventT) -> None:
+        if not len(self.starts):
+            return
 
-        handle_broke = False
-        with _FLOW_CTX.on_ctx(FlowInfo(self, self.starts[0], True, stack)):
+        try:
+            status = _FLOW_CTX.get()
+            records, store = status.records, status.store
+        except _FLOW_CTX.lookup_exc_cls:
+            records, store = FlowRecords(), FlowStore()
+
+        with _FLOW_CTX.on_ctx(
+            FlowStatus(event, self, self.starts[0], True, records, store)
+        ):
             try:
-                stack.append(f"[{self.name}] | Start >>> [{self.name}]")
+                records.append(
+                    FlowRecord(
+                        RecordStage.FLOW_START, self.name, self.starts[0].name, event
+                    )
+                )
+
                 idx = 0
                 while idx < len(self.starts):
                     try:
-                        await self.starts[idx].process(self)
+                        await self.starts[idx].process(event, self)
                         idx += 1
                     except FlowRewound:
                         pass
-                stack.append(f"[{self.name}] | [{self.name}] >>> Finished")
-            except HandleBroke:
-                handle_broke = True
+
+                records.append(
+                    FlowRecord(
+                        RecordStage.FLOW_FINISH, self.name, self.starts[0].name, event
+                    )
+                )
             except FlowBroke:
                 pass
-
-        return not handle_broke
-
-
-class PreFlow(Flow):
-    def __init__(
-        self,
-        name: str,
-        *edge_maps: Iterable[Iterable[FlowNode] | FlowNode],
-        option: SessionOption | None = None,
-        pre_flow: PreFlow | None = None,
-    ) -> None:
-        super().__init__(name, *edge_maps, option=option, pre_flow=pre_flow)
-        delattr(self, "priority")
-        delattr(self, "temp")
 
 
 class _FlowSignal(BaseException): ...
@@ -199,26 +216,23 @@ class _FlowSignal(BaseException): ...
 class FlowBroke(_FlowSignal): ...
 
 
-class HandleBroke(FlowBroke): ...
-
-
 class FlowContinued(_FlowSignal): ...
 
 
 class FlowRewound(_FlowSignal): ...
 
 
-async def nextp() -> None:
+async def nextn() -> None:
     try:
-        info = _FLOW_CTX.get()
-        nexts = info.flow.graph[info.node].nexts
-        if not info.next_valid:
+        status = _FLOW_CTX.get()
+        nexts = status.flow.graph[status.node].nexts
+        if not status.next_valid:
             return
 
         idx = 0
         while idx < len(nexts):
             try:
-                await nexts[idx].process(info.flow)
+                await nexts[idx].process(status.event, status.flow)
                 idx += 1
             except FlowRewound:
                 pass
@@ -226,45 +240,73 @@ async def nextp() -> None:
     except _FLOW_CTX.lookup_exc_cls:
         raise FlowError("此时不在活动的事件处理流中，无法调用下一处理结点") from None
     finally:
-        info.next_valid = False
+        status.next_valid = False
 
 
 async def block() -> None:
-    info = _FLOW_CTX.get()
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [BLOCK]")
-    _SESSION_CTX.get_event().spread = False
+    status = _FLOW_CTX.get()
+    status.records.append(
+        FlowRecord(RecordStage.BLOCK, status.flow.name, status.node.name, status.event)
+    )
+    status.event.spread = False
 
 
-async def quit() -> None:
-    info = _FLOW_CTX.get()
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [QUIT]")
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> -> Early Finished")
-    info.stack.append(f"[{info.flow.name}] | [{info.flow.name}] >>> Early Finished")
+async def stop() -> NoReturn:
+    status = _FLOW_CTX.get()
+    status.records.append(
+        FlowRecord(RecordStage.STOP, status.flow.name, status.node.name, status.event)
+    )
+    status.records.append(
+        FlowRecord(
+            RecordStage.NODE_EARLY_FINISH,
+            status.flow.name,
+            status.node.name,
+            status.event,
+        )
+    )
+    status.records.append(
+        FlowRecord(
+            RecordStage.FLOW_EARLY_FINISH,
+            status.flow.name,
+            status.node.name,
+            status.event,
+        )
+    )
     raise FlowBroke("事件处理流被安全地提早结束，请无视这个内部工作信号")
 
 
-async def over() -> None:
-    info = _FLOW_CTX.get()
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [OVER]")
-    info.stack.append(f"[{info.flow.name}] | [{info.flow.name}] >>> Early Finished")
-    raise HandleBroke("事件处理全过程被安全地提早结束，请无视这个内部工作信号")
-
-
-async def bypass() -> None:
-    info = _FLOW_CTX.get()
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [BYPASS]")
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> -> Early Finished")
+async def bypass() -> NoReturn:
+    status = _FLOW_CTX.get()
+    status.records.append(
+        FlowRecord(RecordStage.BYPASS, status.flow.name, status.node.name, status.event)
+    )
+    status.records.append(
+        FlowRecord(
+            RecordStage.NODE_EARLY_FINISH,
+            status.flow.name,
+            status.node.name,
+            status.event,
+        )
+    )
     raise FlowContinued("事件处理流安全地跳过结点执行，请无视这个内部工作信号")
 
 
-async def rewind() -> None:
-    info = _FLOW_CTX.get()
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> ~ [REWIND]")
-    info.stack.append(f"[{info.flow.name}] | <{info.node.name}> -> Early Finished")
+async def rewind() -> NoReturn:
+    status = _FLOW_CTX.get()
+    status.records.append(
+        FlowRecord(RecordStage.REWIND, status.flow.name, status.node.name, status.event)
+    )
+    status.records.append(
+        FlowRecord(
+            RecordStage.NODE_EARLY_FINISH,
+            status.flow.name,
+            status.node.name,
+            status.event,
+        )
+    )
     raise FlowRewound("事件处理流安全地重复执行处理结点，请无视这个内部工作信号")
 
 
 async def flow_to(flow: Flow) -> None:
-    info = _FLOW_CTX.get()
-    info.stack.append(f"[{info.flow.name}] | [{info.flow.name}] >>> [{flow.name}]")
-    await flow.run()
+    status = _FLOW_CTX.get()
+    await flow.run(status.event)

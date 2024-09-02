@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Callable, Generic, final
 
-from ..adapter.base import EventT
-from ..typ import AsyncCallable, BetterABC, abstractmethod
+from ..adapter.model import EventT
+from ..typ import BetterABC, abstractmethod
 
 
 class Rule(BetterABC, Generic[EventT]):
@@ -24,21 +24,3 @@ class _CustomRule(Rule[EventT]):
 
     async def compare(self, e1: EventT, e2: EventT) -> bool:
         return self.meth(e1, e2)
-
-
-class SessionOption(Generic[EventT]):
-    def __init__(
-        self,
-        rule: Rule[EventT] | Callable[[EventT, EventT], bool] | None = None,
-        wait: bool = True,
-        nowait_cb: AsyncCallable[[], None] | None = None,
-        keep: bool = False,
-    ) -> None:
-        super().__init__()
-        if rule is None:
-            self.rule = None
-        else:
-            self.rule = rule if isinstance(rule, Rule) else Rule.new(rule)
-        self.wait = wait
-        self.nowait_cb = nowait_cb
-        self.keep = keep

@@ -2,7 +2,7 @@ from typing import Any, Generic, NoReturn
 
 from .typ import T
 
-__version__ = "3.0.0rc2"
+__version__ = "3.0.0rc3"
 
 
 class ReadOnlyAttr(Generic[T]):

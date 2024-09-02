@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING
 from .._ctx import LoggerCtx
 from ..adapter.model import Event
 from ..log.base import LogLevel
-from ..session.base import Session
-from ..typ import AsyncCallable, HandleLevel
+from ..typ import HandleLevel
 from ..utils import RWContext
 from .process import Flow
 
@@ -23,62 +22,13 @@ class EventHandler:
         self._temp = flow.temp
         self.invalid = False
 
-        if self.flow.option.wait and self.flow.option.nowait_cb:
-            self.logger.warning(
-                f"{self.name} 会话选项“冲突等待”为 True 时，“冲突回调”永远不会被调用"
-            )
-
     @property
     def priority(self) -> HandleLevel:
         return self.flow.priority
 
-    async def _run_flow(
-        self,
-        session_getter: AsyncCallable[[], Session | None],
-        event: Event,
-        flow: Flow,
-    ) -> tuple[bool, Session | None]:
-        status, pre_session = True, None
-
-        if flow.pre_flow is not None:
-            p_flow = flow.pre_flow
-            status, pre_session = await self._run_flow(
-                lambda: Session.get(
-                    event,
-                    rule=p_flow.option.rule,
-                    wait=p_flow.option.wait,
-                    nowait_cb=p_flow.option.nowait_cb,
-                    keep=p_flow.option.keep,
-                ),
-                event,
-                p_flow,
-            )
-        if not status:
-            return False, None
-
-        session = await session_getter()
-        if session is None:
-            return False, None
-        if pre_session is not None:
-            session << pre_session  # pylint: disable=pointless-statement
-
-        async with session.ctx():
-            status = await flow.run()
-            return status, session
-
     async def _handle_event(self, event: Event) -> None:
         try:
-            await self._run_flow(
-                lambda: Session.get(
-                    event,
-                    rule=self.flow.option.rule,
-                    wait=self.flow.option.wait,
-                    nowait_cb=self.flow.option.nowait_cb,
-                    keep=self.flow.option.keep,
-                ),
-                event,
-                self.flow,
-            )
+            await self.flow.run(event)
         except Exception:
             self.logger.error(f"事件处理 {self.name} 发生异常")
             self.logger.exception(f"事件处理 {self.name} 发生异常")
