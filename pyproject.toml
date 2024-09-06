@@ -75,11 +75,12 @@ format = {shell = "black src/melobot"}
 check = {shell = "flake8 src/melobot"}
 analyse = {shell = "mypy src/melobot"}
 pylint = {shell = "pylint src/melobot"}
-all_lint = {shell = "isort src/melobot && black src/melobot && flake8 src/melobot && mypy src/melobot && pylint src/melobot"}
+all_lint = {composite = ["isort", "format", "check", "analyse", "pylint"]}
 test = {shell = "pytest -c pytest.ini"}
 trace = {shell = "viztracer"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
+post_install = {call = "scripts.export_requires:main"}
 
 [tool.pdm.dev-dependencies]
 test = [
