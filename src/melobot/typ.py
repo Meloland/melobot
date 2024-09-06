@@ -98,7 +98,7 @@ class BetterABCMeta(ABCMeta):
 
     class DummyAttribute: ...
 
-    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
+    def __call__(cls: type[T], *args: Any, **kwargs: Any) -> T:
         instance = ABCMeta.__call__(cls, *args, **kwargs)
         lack_attrs = set()
         for name in dir(instance):
@@ -112,7 +112,7 @@ class BetterABCMeta(ABCMeta):
                 "Can't instantiate abstract class {} with"
                 " abstract attributes: {}".format(cls.__name__, ", ".join(lack_attrs))
             )
-        return instance
+        return cast(T, instance)
 
 
 class BetterABC(metaclass=BetterABCMeta):
