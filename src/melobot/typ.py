@@ -34,7 +34,7 @@ _DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)
 
 def is_type(obj: T, hint: type[Any]) -> TypeGuard[T]:
     ret = _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
-    return ret
+    return cast(bool, ret)
 
 
 class HandleLevel(float, Enum):
