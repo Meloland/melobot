@@ -8,7 +8,6 @@ from typing import (
     Generic,
     Hashable,
     Literal,
-    Optional,
     Sequence,
     TypeVar,
     cast,
@@ -18,7 +17,7 @@ from typing_extensions import LiteralString, Self
 
 from ..exceptions import BotRuntimeError
 from ..utils import AttrsReprable, get_id
-from .content import AbstractContent
+from .content import Content
 
 if TYPE_CHECKING:
     from .base import AbstractEchoFactory, AbstractOutputFactory, AbstractOutSource
@@ -30,13 +29,13 @@ class Event(AttrsReprable):
         time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
-        scope: Optional[Hashable] = None,
-        contents: Sequence[AbstractContent] = (),
+        scope: Hashable | None = None,
+        contents: Sequence[Content] | None = None,
     ) -> None:
         self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
-        self.contents = contents
+        self.contents = contents if contents else ()
         self.scope = scope
 
         self.spread: bool = True
@@ -51,14 +50,14 @@ class Action(AttrsReprable):
         time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
-        scope: Optional[Hashable] = None,
-        contents: Sequence[AbstractContent] = (),
+        scope: Hashable | None = None,
+        contents: Sequence[Content] | None = None,
         trigger: Event | None = None,
     ) -> None:
         self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
-        self.contents = contents
+        self.contents = contents if contents else ()
         self.scope = scope
         self.trigger = trigger
 
@@ -69,7 +68,7 @@ class Echo(AttrsReprable):
         time: float = -1,
         id: str = "",
         protocol: LiteralString | None = None,
-        scope: Optional[Hashable] = None,
+        scope: Hashable | None = None,
         ok: bool = True,
         status: int = 0,
         prompt: str = "",

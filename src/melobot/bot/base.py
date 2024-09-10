@@ -27,8 +27,9 @@ from .dispatch import Dispatcher
 class BotLifeSpan(Enum):
     LOADED = "l"
     RELOADED = "r"
+    STARTED = "sta"
     CLOSE = "c"
-    STOP = "s"
+    STOP = "sto"
 
 
 class BotExitSignal(Enum):
@@ -213,9 +214,16 @@ class Bot:
                     await self._life_bus.emit(BotLifeSpan.LOADED)
 
                 asyncio.create_task(self._dispatcher.timed_gc())
-                for adapter in self.adapters.values():
-                    await stack.enter_async_context(adapter.__adapter_launch__())
+                ts = tuple(
+                    asyncio.create_task(
+                        stack.enter_async_context(adapter.__adapter_launch__())
+                    )
+                    for adapter in self.adapters.values()
+                )
+                if len(ts):
+                    await asyncio.wait(ts)
 
+                await self._life_bus.emit(BotLifeSpan.STARTED)
                 await self._rip_signal.wait()
 
             finally:
@@ -270,6 +278,14 @@ class Bot:
     @property
     def on_loaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
         return self.on(BotLifeSpan.LOADED)
+
+    @property
+    def on_reloaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+        return self.on(BotLifeSpan.RELOADED)
+
+    @property
+    def on_started(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+        return self.on(BotLifeSpan.STARTED)
 
     @property
     def on_close(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:

@@ -1,36 +1,67 @@
 from os import PathLike
+from typing import Sequence
 
 from .._ctx import EventBuildInfoCtx
-from .model import ActionHandle
+from .content import Content
+from .model import ActionHandle, Event
 
-_INFO_CTX = EventBuildInfoCtx()
-
-
-def send_text(text: str) -> tuple[ActionHandle, ...]:
-    return _INFO_CTX.get().adapter.send_text(text)
+_CTX = EventBuildInfoCtx()
 
 
-def send_bytes(data: bytes) -> tuple[ActionHandle, ...]:
-    return _INFO_CTX.get().adapter.send_bytes(data)
+async def send_text(text: str) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_text(text)
 
 
-def send_file(path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
-    return _INFO_CTX.get().adapter.send_file(path)
-
-
-def send_video(
+async def send_media(
     name: str,
-    uri: str | None = None,
     raw: bytes | None = None,
+    url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    return _INFO_CTX.get().adapter.send_video(name, uri, raw, mimetype)
+    return await _CTX.get().adapter.send_media(name, raw, url, mimetype)
 
 
-def send_audio(
+async def send_image(
     name: str,
-    uri: str | None = None,
     raw: bytes | None = None,
+    url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    return _INFO_CTX.get().adapter.send_audio(name, uri, raw, mimetype)
+    return await _CTX.get().adapter.send_image(name, raw, url, mimetype)
+
+
+async def send_audio(
+    name: str,
+    raw: bytes | None = None,
+    url: str | None = None,
+    mimetype: str | None = None,
+) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_audio(name, raw, url, mimetype)
+
+
+async def send_voice(
+    name: str,
+    raw: bytes | None = None,
+    url: str | None = None,
+    mimetype: str | None = None,
+) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_voice(name, raw, url, mimetype)
+
+
+async def send_video(
+    name: str,
+    raw: bytes | None = None,
+    url: str | None = None,
+    mimetype: str | None = None,
+) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_video(name, raw, url, mimetype)
+
+
+async def send_file(name: str, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_file(name, path)
+
+
+async def send_refer(
+    event: Event, contents: Sequence[Content] | None = None
+) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_refer(event, contents)

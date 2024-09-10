@@ -6,25 +6,12 @@ from dataclasses import dataclass
 from functools import wraps
 from inspect import Parameter, isawaitable, signature
 from types import FunctionType, LambdaType
-from typing import (
-    Annotated,
-    Any,
-    Callable,
-    Generic,
-    Sequence,
-    TypeVar,
-    cast,
-    get_args,
-    get_origin,
-)
+from typing import Annotated, Any, Callable, Sequence, cast, get_args, get_origin
 
 from ._ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
 from .typ import AsyncCallable, P, T, VoidType, is_subhint, is_type
 from .utils import to_async
-
-MainT = TypeVar("MainT")
-SubT = TypeVar("SubT")
 
 
 class DependNotMatched(BaseException):
@@ -38,11 +25,11 @@ class DependNotMatched(BaseException):
         self.hint = hint
 
 
-class Depends(Generic[MainT, SubT]):
+class Depends:
     def __init__(
         self,
-        dep: Callable[[], MainT] | AsyncCallable[[], MainT] | Depends[Any, MainT],
-        sub_getter: Callable[[MainT], SubT] | AsyncCallable[[MainT], SubT] | None = None,
+        dep: Callable[[], Any] | AsyncCallable[[], Any] | Depends,
+        sub_getter: Callable[[Any], Any] | AsyncCallable[[Any], Any] | None = None,
         cache: bool = False,
         recursive: bool = True,
     ) -> None:

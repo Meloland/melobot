@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from asyncio import create_task
 from contextlib import AsyncExitStack, _GeneratorContextManager, asynccontextmanager
+from enum import Enum
 from os import PathLike
 from typing import (
     TYPE_CHECKING,
@@ -11,6 +12,7 @@ from typing import (
     Generic,
     Iterable,
     NoReturn,
+    Sequence,
     TypeVar,
     cast,
     final,
@@ -19,6 +21,7 @@ from typing import (
 from typing_extensions import LiteralString, Self
 
 from .._ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
+from .._hook import HookBus
 from ..exceptions import AdapterError
 from ..io.base import (
     AbstractOutSource,
@@ -30,7 +33,8 @@ from ..io.base import (
 )
 from ..log.base import LogLevel
 from ..typ import BetterABC, abstractattr, abstractmethod
-from .model import ActionHandle, ActionT, EchoT, EventT
+from .content import Content
+from .model import ActionHandle, ActionT, EchoT, Event, EventT
 
 if TYPE_CHECKING:
     from ..bot.dispatch import Dispatcher
@@ -67,19 +71,9 @@ class AbstractEchoFactory(BetterABC, Generic[EchoPacketT, EchoT]):
 EchoFactoryT = TypeVar("EchoFactoryT", bound=AbstractEchoFactory)
 
 
-async def _input_loop(adapter: Adapter, src: InSourceT) -> NoReturn:
-    logger = LoggerCtx().get()
-    while True:
-        try:
-            packet = await src.input()
-            event = await adapter.event_factory.create(
-                packet
-            )  # pylint: disable=no-member
-            with _EVENT_BUILD_INFO_CTX.on_ctx(EventBuildInfo(adapter, src)):
-                asyncio.create_task(adapter.dispatcher.broadcast(event))
-        except Exception:
-            logger.exception(f"适配器 {adapter} 处理输入与分发事件时发生异常")
-            logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
+class AdapterLifeSpan(Enum):
+    BEFORE_EVENT = "be"
+    BEFORE_ACTION = "ba"
 
 
 class Adapter(
@@ -87,6 +81,7 @@ class Adapter(
     Generic[EventFactoryT, OutputFactoryT, EchoFactoryT, InSourceT, OutSourceT],
 ):
     # pylint: disable=duplicate-code
+    # pylint: disable=unused-argument
 
     protocol: LiteralString = abstractattr()
     event_factory: EventFactoryT = abstractattr()
@@ -100,6 +95,24 @@ class Adapter(
         self.dispatcher: "Dispatcher"
 
         self._inited = False
+        self._life_bus = HookBus[AdapterLifeSpan](AdapterLifeSpan)
+
+    async def __adapter_input_loop__(self, src: InSourceT) -> NoReturn:
+        logger = LoggerCtx().get()
+        while True:
+            try:
+                packet = await src.input()
+                event = await self.event_factory.create(  # pylint: disable=no-member
+                    packet
+                )
+                with _EVENT_BUILD_INFO_CTX.on_ctx(EventBuildInfo(self, src)):
+                    await self._life_bus.emit(
+                        AdapterLifeSpan.BEFORE_EVENT, wait=True, args=(event,)
+                    )
+                    asyncio.create_task(self.dispatcher.broadcast(event))
+            except Exception:
+                logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
+                logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
 
     @asynccontextmanager
     @final
@@ -123,7 +136,7 @@ class Adapter(
                 await asyncio.wait(in_src_ts)
 
             for src in self.in_srcs:
-                create_task(_input_loop(self, src))
+                create_task(self.__adapter_input_loop__(src))
 
             self._inited = True
             yield self
@@ -135,7 +148,7 @@ class Adapter(
         return _OUT_SRC_FILTER_CTX.on_ctx(filter)
 
     @final
-    def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
+    async def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
         osrcs: Iterable[OutSourceT]
         filter = _OUT_SRC_FILTER_CTX.try_get()
         cur_isrc = _EVENT_BUILD_INFO_CTX.get().in_src
@@ -147,39 +160,71 @@ class Adapter(
         else:
             osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
 
+        await self._life_bus.emit(
+            AdapterLifeSpan.BEFORE_ACTION, wait=True, args=(action,)
+        )
         return tuple(
             ActionHandle(action, osrc, self.output_factory, self.echo_factory)
             for osrc in osrcs
         )
 
     @abstractmethod
-    def send_text(self, text: str) -> tuple[ActionHandle, ...]:
+    async def send_text(self, text: str) -> tuple[ActionHandle, ...]:
         raise NotImplementedError
 
-    @abstractmethod
-    def send_bytes(self, data: bytes) -> tuple[ActionHandle, ...]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def send_file(self, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def send_video(
+    async def send_media(
         self,
         name: str,
-        uri: str | None = None,
         raw: bytes | None = None,
+        url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
-        raise NotImplementedError
+        return await self.send_text(f"[melobot media: {name}]")
 
-    @abstractmethod
-    def send_audio(
+    async def send_image(
         self,
         name: str,
-        uri: str | None = None,
         raw: bytes | None = None,
+        url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
-        raise NotImplementedError
+        return await self.send_text(f"[melobot image: {name}]")
+
+    async def send_audio(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> tuple[ActionHandle, ...]:
+        return await self.send_text(f"[melobot audio: {name}]")
+
+    async def send_voice(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> tuple[ActionHandle, ...]:
+        return await self.send_text(f"[melobot voice: {name}]")
+
+    async def send_video(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> tuple[ActionHandle, ...]:
+        return await self.send_text(f"[melobot video: {name}]")
+
+    async def send_file(
+        self, name: str, path: str | PathLike[str]
+    ) -> tuple[ActionHandle, ...]:
+        return await self.send_text(f"[melobot file: {name}]")
+
+    async def send_refer(
+        self, event: Event, contents: Sequence[Content] | None = None
+    ) -> tuple[ActionHandle, ...]:
+        return await self.send_text(
+            f"[melobot refer: {event.__class__.__name__}({event.id})]"
+        )

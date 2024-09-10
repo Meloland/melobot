@@ -1,10 +1,12 @@
 import time
 from dataclasses import dataclass, field
+from enum import Enum
 from types import TracebackType
 from typing import Any, Generic, TypeVar
 
 from typing_extensions import LiteralString, Self
 
+from .._hook import HookBus
 from ..typ import BetterABC, abstractattr, abstractmethod
 from ..utils import get_id
 
@@ -40,8 +42,16 @@ OutPacketT = TypeVar("OutPacketT", bound=OutPacket)
 EchoPacketT = TypeVar("EchoPacketT", bound=EchoPacket)
 
 
+class SourceLifeSpan(Enum):
+    OPENED = "o"
+    CLOSE = "c"
+
+
 class AbstractSource(BetterABC):
     protocol: LiteralString = abstractattr()
+
+    def __init__(self) -> None:
+        self._life_bus = HookBus[SourceLifeSpan](SourceLifeSpan)
 
     @abstractmethod
     async def open(self) -> None:
@@ -60,6 +70,7 @@ class AbstractSource(BetterABC):
             return self
 
         await self.open()
+        await self._life_bus.emit(SourceLifeSpan.OPENED)
         return self
 
     async def __aexit__(
@@ -72,6 +83,7 @@ class AbstractSource(BetterABC):
             return None
 
         await self.close()
+        await self._life_bus.emit(SourceLifeSpan.CLOSE)
         return None
 
 

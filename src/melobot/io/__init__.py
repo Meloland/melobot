@@ -5,4 +5,5 @@ from .base import (
     EchoPacket,
     InPacket,
     OutPacket,
+    SourceLifeSpan,
 )
