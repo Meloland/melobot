@@ -2,12 +2,12 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
-from typing import Any, Generic, TypeVar
+from typing import Any, Callable, Generic, TypeVar
 
 from typing_extensions import LiteralString, Self
 
 from .._hook import HookBus
-from ..typ import BetterABC, abstractattr, abstractmethod
+from ..typ import AsyncCallable, BetterABC, P, abstractmethod
 from ..utils import get_id
 
 
@@ -48,10 +48,9 @@ class SourceLifeSpan(Enum):
 
 
 class AbstractSource(BetterABC):
-    protocol: LiteralString = abstractattr()
-
-    def __init__(self) -> None:
+    def __init__(self, protocol: LiteralString) -> None:
         self._life_bus = HookBus[SourceLifeSpan](SourceLifeSpan)
+        self.protocol = protocol
 
     @abstractmethod
     async def open(self) -> None:
@@ -85,6 +84,16 @@ class AbstractSource(BetterABC):
         await self.close()
         await self._life_bus.emit(SourceLifeSpan.CLOSE)
         return None
+
+    def on(
+        self, *period: SourceLifeSpan
+    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
+            for type in period:
+                self._life_bus.register(type, func)
+            return func
+
+        return wrapped
 
 
 class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
@@ -134,19 +143,22 @@ InOrOutSourceT = TypeVar("InOrOutSourceT", bound=AbstractInSource | AbstractOutS
 class AbstractIOSource(
     AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT], BetterABC
 ):
-    # pylint: disable=duplicate-code
-
+    @abstractmethod
     async def open(self) -> None:
         raise NotImplementedError
 
+    @abstractmethod
     async def close(self) -> None:
         raise NotImplementedError
 
+    @abstractmethod
     def opened(self) -> bool:
         raise NotImplementedError
 
+    @abstractmethod
     async def input(self) -> InPacketT:
         raise NotImplementedError
 
+    @abstractmethod
     async def output(self, packet: OutPacketT) -> EchoPacketT:
         raise NotImplementedError

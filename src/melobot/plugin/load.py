@@ -8,7 +8,7 @@ from time import time
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, Callable, Iterable
 
-from .._ctx import BotCtx, LoggerCtx
+from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginError
 from ..utils import singleton
 from .base import Plugin
@@ -211,8 +211,14 @@ class PluginLoader:
         p.__plugin_build__(p_name)
         return p
 
-    def load(self, plugin: ModuleType | str | PathLike[str], load_depth: int) -> Plugin:
+    def load(
+        self, plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int
+    ) -> Plugin:
         logger = LoggerCtx().get()
+
+        if isinstance(plugin, Plugin):
+            plugin.__plugin_build__(f"DynamicPlugin_0x{id(plugin):0x}")
+            return plugin
 
         if isinstance(plugin, ModuleType):
             if plugin.__file__ is None:

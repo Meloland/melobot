@@ -1,7 +1,7 @@
 import inspect
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any, Awaitable, Callable, Literal, ParamSpec, TypeAlias, TypeVar, cast
+from typing import Any, Awaitable, Callable, ParamSpec, TypeAlias, TypeVar, cast
 
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
@@ -21,8 +21,6 @@ __all__ = (
     "abstractattr",
     "abstractmethod",
     "VoidType",
-    "OpenMode",
-    "OpenModeReading",
 )
 
 T = TypeVar("T")
@@ -34,7 +32,7 @@ _DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)
 
 def is_type(obj: T, hint: type[Any]) -> TypeGuard[T]:
     ret = _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
-    return cast(bool, ret)
+    return ret
 
 
 class HandleLevel(float, Enum):
@@ -102,11 +100,17 @@ class BetterABCMeta(ABCMeta):
         instance = ABCMeta.__call__(cls, *args, **kwargs)
         lack_attrs = set()
         for name in dir(instance):
-            attr = getattr(instance, name)
+            try:
+                attr = getattr(instance, name)
+            except Exception:
+                if not isinstance(getattr(instance.__class__, name), property):
+                    raise
+
             if getattr(attr, "__is_abstract_attribute__", False):
                 lack_attrs.add(name)
             if inspect.iscoroutine(attr):
                 attr.close()
+
         if lack_attrs:
             raise NotImplementedError(
                 "Can't instantiate abstract class {} with"
@@ -121,83 +125,3 @@ class BetterABC(metaclass=BetterABCMeta):
 
 class VoidType(Enum):
     VOID = type("_VOID", (), {})
-
-
-_OpenTextModeUpdating: TypeAlias = Literal[
-    "r+",
-    "+r",
-    "rt+",
-    "r+t",
-    "+rt",
-    "tr+",
-    "t+r",
-    "+tr",
-    "w+",
-    "+w",
-    "wt+",
-    "w+t",
-    "+wt",
-    "tw+",
-    "t+w",
-    "+tw",
-    "a+",
-    "+a",
-    "at+",
-    "a+t",
-    "+at",
-    "ta+",
-    "t+a",
-    "+ta",
-    "x+",
-    "+x",
-    "xt+",
-    "x+t",
-    "+xt",
-    "tx+",
-    "t+x",
-    "+tx",
-]
-_OpenTextModeWriting: TypeAlias = Literal[
-    "w", "wt", "tw", "a", "at", "ta", "x", "xt", "tx"
-]
-_OpenTextModeReading: TypeAlias = Literal[
-    "r", "rt", "tr", "U", "rU", "Ur", "rtU", "rUt", "Urt", "trU", "tUr", "Utr"
-]
-_OpenTextMode: TypeAlias = (
-    _OpenTextModeUpdating | _OpenTextModeWriting | _OpenTextModeReading
-)
-_OpenBinaryModeUpdating: TypeAlias = Literal[
-    "rb+",
-    "r+b",
-    "+rb",
-    "br+",
-    "b+r",
-    "+br",
-    "wb+",
-    "w+b",
-    "+wb",
-    "bw+",
-    "b+w",
-    "+bw",
-    "ab+",
-    "a+b",
-    "+ab",
-    "ba+",
-    "b+a",
-    "+ba",
-    "xb+",
-    "x+b",
-    "+xb",
-    "bx+",
-    "b+x",
-    "+bx",
-]
-_OpenBinaryModeWriting: TypeAlias = Literal["wb", "bw", "ab", "ba", "xb", "bx"]
-_OpenBinaryModeReading: TypeAlias = Literal[
-    "rb", "br", "rbU", "rUb", "Urb", "brU", "bUr", "Ubr"
-]
-_OpenBinaryMode: TypeAlias = (
-    _OpenBinaryModeUpdating | _OpenBinaryModeReading | _OpenBinaryModeWriting
-)
-OpenMode: TypeAlias = _OpenTextMode | _OpenBinaryMode
-OpenModeReading: TypeAlias = _OpenTextModeReading | _OpenBinaryModeReading

@@ -20,10 +20,11 @@ from typing import (
 
 from typing_extensions import LiteralString, Self
 
-from .._ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
 from .._hook import HookBus
+from ..ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
+    AbstractInSource,
     AbstractOutSource,
     EchoPacketT,
     InPacketT,
@@ -32,7 +33,7 @@ from ..io.base import (
     OutSourceT,
 )
 from ..log.base import LogLevel
-from ..typ import BetterABC, abstractattr, abstractmethod
+from ..typ import AsyncCallable, BetterABC, P, abstractmethod
 from .content import Content
 from .model import ActionHandle, ActionT, EchoT, Event, EventT
 
@@ -78,18 +79,24 @@ class AdapterLifeSpan(Enum):
 
 class Adapter(
     BetterABC,
-    Generic[EventFactoryT, OutputFactoryT, EchoFactoryT, InSourceT, OutSourceT],
+    Generic[EventFactoryT, OutputFactoryT, EchoFactoryT, ActionT, InSourceT, OutSourceT],
 ):
     # pylint: disable=duplicate-code
     # pylint: disable=unused-argument
 
-    protocol: LiteralString = abstractattr()
-    event_factory: EventFactoryT = abstractattr()
-    output_factory: OutputFactoryT = abstractattr()
-    echo_factory: EchoFactoryT = abstractattr()
-
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        protocol: LiteralString,
+        event_factory: EventFactoryT,
+        output_factory: OutputFactoryT,
+        echo_factory: EchoFactoryT,
+    ) -> None:
         super().__init__()
+        self.protocol = protocol
+        self.event_factory = event_factory
+        self.output_factory = output_factory
+        self.echo_factory = echo_factory
+
         self.in_srcs: list[InSourceT] = []
         self.out_srcs: list[OutSourceT] = []
         self.dispatcher: "Dispatcher"
@@ -97,6 +104,17 @@ class Adapter(
         self._inited = False
         self._life_bus = HookBus[AdapterLifeSpan](AdapterLifeSpan)
 
+    def on(
+        self, *period: AdapterLifeSpan
+    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
+            for type in period:
+                self._life_bus.register(type, func)
+            return func
+
+        return wrapped
+
+    @final
     async def __adapter_input_loop__(self, src: InSourceT) -> NoReturn:
         logger = LoggerCtx().get()
         while True:
@@ -147,11 +165,14 @@ class Adapter(
     ) -> _GeneratorContextManager[None]:
         return _OUT_SRC_FILTER_CTX.on_ctx(filter)
 
-    @final
     async def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
         osrcs: Iterable[OutSourceT]
         filter = _OUT_SRC_FILTER_CTX.try_get()
-        cur_isrc = _EVENT_BUILD_INFO_CTX.get().in_src
+        cur_isrc: AbstractInSource | None
+        if info := _EVENT_BUILD_INFO_CTX.try_get():
+            cur_isrc = info.in_src
+        else:
+            cur_isrc = None
 
         if filter is not None:
             osrcs = (osrc for osrc in self.out_srcs if filter(osrc))

@@ -3,16 +3,16 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
-from contextlib import AsyncExitStack, ExitStack
+from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
 from enum import Enum
 from os import PathLike
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Coroutine
+from typing import Any, AsyncGenerator, Callable, Coroutine, Generator
 
-from .._ctx import BotCtx, LoggerCtx
 from .._hook import HookBus
 from ..adapter.base import Adapter
+from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotRuntimeError
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
@@ -88,6 +88,20 @@ class Bot:
     def __repr__(self) -> str:
         return f'Bot(name="{self.name}")'
 
+    @contextmanager
+    def _sync_common_ctx(self) -> Generator[ExitStack, Any, None]:
+        with ExitStack() as stack:
+            stack.enter_context(_BOT_CTX.on_ctx(self))
+            stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
+            yield stack
+
+    @asynccontextmanager
+    async def _async_common_ctx(self) -> AsyncGenerator[AsyncExitStack, None]:
+        async with AsyncExitStack() as stack:
+            stack.enter_context(_BOT_CTX.on_ctx(self))
+            stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
+            yield stack
+
     def add_input(self, src: AbstractInSource) -> Bot:
         if self._inited:
             raise BotRuntimeError(f"{self} 已不在初始化期，无法再添加输入源")
@@ -159,23 +173,21 @@ class Bot:
         self.logger.debug("bot 初始化完成，各核心组件已初始化")
 
     def load_plugin(
-        self, plugin: ModuleType | str | PathLike[str], load_depth: int = 1
+        self, plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int = 1
     ) -> Bot:
         if not self._inited:
             self._run_init()
 
-        with ExitStack() as ctx_stack:
-            ctx_stack.enter_context(_BOT_CTX.on_ctx(self))
-            ctx_stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
-
-            if isinstance(plugin, ModuleType):
-                p_name = plugin.__name__
-            else:
-                p_name = Path(plugin).resolve().parts[-1]
-            if p_name in self._plugins:
-                raise BotRuntimeError(
-                    f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
-                )
+        with self._sync_common_ctx():
+            if not isinstance(plugin, Plugin):
+                if isinstance(plugin, ModuleType):
+                    p_name = plugin.__name__
+                else:
+                    p_name = Path(plugin).resolve().parts[-1]
+                if p_name in self._plugins:
+                    raise BotRuntimeError(
+                        f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
+                    )
 
             p = self._loader.load(plugin, load_depth)
             self._plugins[p.name] = p
@@ -189,20 +201,20 @@ class Bot:
             return self
 
     def load_plugins(
-        self, *plugin: ModuleType | str | PathLike[str], load_depth: int = 1
+        self, *plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int = 1
     ) -> None:
         for p in plugin:
             self.load_plugin(p, load_depth)
 
     async def internal_run(self) -> None:
+        if not self._inited:
+            self._run_init()
+
         if self._running:
             raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
 
-        async with AsyncExitStack() as stack:
-            stack.enter_context(_BOT_CTX.on_ctx(self))
-            stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
-
+        async with self._async_common_ctx() as stack:
             try:
                 if (
                     MELO_LAST_EXIT_SIGNAL in os.environ
@@ -266,10 +278,10 @@ class Bot:
         sys.exit(BotExitSignal.RESTART.value)
 
     def on(
-        self, *types: BotLifeSpan
+        self, *period: BotLifeSpan
     ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
         def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
-            for type in types:
+            for type in period:
                 self._life_bus.register(type, func)
             return func
 

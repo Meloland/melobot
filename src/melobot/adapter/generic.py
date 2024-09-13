@@ -1,7 +1,7 @@
 from os import PathLike
 from typing import Sequence
 
-from .._ctx import EventBuildInfoCtx
+from ..ctx import EventBuildInfoCtx
 from .content import Content
 from .model import ActionHandle, Event
 

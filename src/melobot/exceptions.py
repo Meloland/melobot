@@ -18,7 +18,7 @@ logging._loggerClass = (  # type:ignore[attr-defined] # pylint: disable=protecte
 
 
 class BotException(Exception):
-    def __init__(self, obj: object):
+    def __init__(self, obj: object = ""):
         super().__init__(self, obj)
         self.err = str(obj)
 

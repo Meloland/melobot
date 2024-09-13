@@ -3,10 +3,10 @@ from __future__ import annotations
 import asyncio
 from asyncio import Condition, Lock
 from contextlib import _AsyncGeneratorContextManager, asynccontextmanager
-from typing import Any, AsyncGenerator, Generic, cast
+from typing import Any, AsyncGenerator, cast
 
-from .._ctx import FlowCtx, SessionCtx
-from ..adapter.model import EventT
+from ..adapter.model import Event
+from ..ctx import FlowCtx, SessionCtx
 from ..exceptions import BotException
 from ..handle.process import stop
 from ..typ import AsyncCallable
@@ -28,7 +28,7 @@ class SessionState:
     def __init__(self, session: "Session") -> None:
         self.session = session
 
-    async def work(self, event: EventT) -> None:
+    async def work(self, event: Event) -> None:
         raise SessionStateError(meth=SessionState.work.__name__)
 
     async def rest(self) -> None:
@@ -37,7 +37,7 @@ class SessionState:
     async def suspend(self, timeout: float | None) -> bool:
         raise SessionStateError(meth=SessionState.suspend.__name__)
 
-    async def wakeup(self, event: EventT) -> None:
+    async def wakeup(self, event: Event) -> None:
         raise SessionStateError(meth=SessionState.wakeup.__name__)
 
     async def expire(self) -> None:
@@ -45,7 +45,7 @@ class SessionState:
 
 
 class SpareSessionState(SessionState):
-    async def work(self, event: EventT) -> None:
+    async def work(self, event: Event) -> None:
         self.session.event = event
         self.session.to_state(WorkingSessionState)
 
@@ -89,7 +89,7 @@ class WorkingSessionState(SessionState):
 
 class SuspendSessionState(SessionState):
 
-    async def wakeup(self, event: EventT) -> None:
+    async def wakeup(self, event: Event) -> None:
         self.session.event = event
         cond = self.session.wakeup_cond
         async with cond:
@@ -103,12 +103,12 @@ class ExpireSessionState(SessionState): ...
 class SessionStore(dict[str, Any]): ...
 
 
-class Session(Generic[EventT]):
+class Session:
     __instances__: dict[Rule, set["Session"]] = {}
     __instance_locks__: dict[Rule, Lock] = {}
     __cls_lock__ = Lock()
 
-    def __init__(self, event: EventT, rule: Rule | None, keep: bool = False) -> None:
+    def __init__(self, event: Event, rule: Rule | None, keep: bool = False) -> None:
         self.store: SessionStore = SessionStore()
         self.event = event
         self.rule = rule
@@ -127,7 +127,7 @@ class Session(Generic[EventT]):
     def on_state(self, state_class: type[SessionState]) -> bool:
         return isinstance(self._state, state_class)
 
-    async def work(self, event: EventT) -> None:
+    async def work(self, event: Event) -> None:
         await self._state.work(event)
 
     async def rest(self) -> None:
@@ -136,7 +136,7 @@ class Session(Generic[EventT]):
     async def suspend(self, timeout: float | None = None) -> bool:
         return await self._state.suspend(timeout)
 
-    async def wakeup(self, event: EventT) -> None:
+    async def wakeup(self, event: Event) -> None:
         await self._state.wakeup(event)
 
     async def expire(self) -> None:
@@ -145,12 +145,12 @@ class Session(Generic[EventT]):
     @classmethod
     async def get(
         cls,
-        event: EventT,
+        event: Event,
         rule: Rule | None = None,
         wait: bool = True,
         nowait_cb: AsyncCallable[[], None] | None = None,
         keep: bool = False,
-    ) -> Session[EventT] | None:
+    ) -> Session | None:
         if rule is None:
             return Session(event, rule=None, keep=keep)
 
@@ -212,9 +212,9 @@ class Session(Generic[EventT]):
         wait: bool = True,
         nowait_cb: AsyncCallable[[], None] | None = None,
         keep: bool = False,
-    ) -> AsyncGenerator[Session[EventT], None]:
+    ) -> AsyncGenerator[Session, None]:
         session = await cls.get(
-            cast(EventT, FlowCtx().get().event),
+            FlowCtx().get_event(),
             rule=rule,
             wait=wait,
             nowait_cb=nowait_cb,
