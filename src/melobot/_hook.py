@@ -2,8 +2,8 @@ import asyncio
 from enum import Enum
 from typing import Any, Generic, TypeVar
 
-from ._ctx import LoggerCtx
 from ._di import inject_deps
+from .ctx import LoggerCtx
 from .log.base import LogLevel
 from .typ import AsyncCallable
 

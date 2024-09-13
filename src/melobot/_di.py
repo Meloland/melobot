@@ -8,7 +8,7 @@ from inspect import Parameter, isawaitable, signature
 from types import FunctionType, LambdaType
 from typing import Annotated, Any, Callable, Sequence, cast, get_args, get_origin
 
-from ._ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
+from .ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
 from .typ import AsyncCallable, P, T, VoidType, is_subhint, is_type
 from .utils import to_async
