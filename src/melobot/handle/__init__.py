@@ -3,7 +3,7 @@ from ..adapter.model import Event
 from ..ctx import FlowCtx as _FlowCtx
 from ..ctx import FlowRecord as _FlowRecord
 from ..ctx import FlowRecordStage, FlowStore
-from .process import Flow, block, bypass, flow_to, nextn, node, rewind, stop
+from .process import Flow, block, bypass, flow_to, nextn, no_deps_node, node, rewind, stop
 
 
 def get_flow_records() -> tuple[_FlowRecord, ...]:

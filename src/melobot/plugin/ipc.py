@@ -23,7 +23,7 @@ class AsyncShare(Generic[T], Locatable, AttrsReprable):
             inject_deps(reflector) if reflector is not None else None
         )
         self.__callback: AsyncCallable[[T], None] | None = (
-            inject_deps(callabck, pass_arg=True) if callabck is not None else None
+            inject_deps(callabck, manual_arg=True) if callabck is not None else None
         )
         self.static = static
 
@@ -47,7 +47,7 @@ class AsyncShare(Generic[T], Locatable, AttrsReprable):
             )
         if self.__callback is not None:
             raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
-        self.__callback = inject_deps(func, pass_arg=True)
+        self.__callback = inject_deps(func, manual_arg=True)
         return func
 
     async def get(self) -> T:

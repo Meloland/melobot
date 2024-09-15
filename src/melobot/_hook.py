@@ -15,7 +15,7 @@ class HookRunner(Generic[HookEnumT]):
 
     def __init__(self, type: HookEnumT, func: AsyncCallable[..., None]) -> None:
         self.type = type
-        self.callback: AsyncCallable[..., None] = inject_deps(func, pass_arg=True)
+        self.callback: AsyncCallable[..., None] = inject_deps(func, manual_arg=True)
 
     async def run(self, *args: Any, **kwargs: Any) -> None:
         try:

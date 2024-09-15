@@ -182,7 +182,7 @@ class CustomLogger:
     getter: Callable[[], Any]
 
 
-def _init_auto_deps(func: Callable[P, T], allow_pass_arg: bool) -> None:
+def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
     sign = signature(func)
     ds = deque(func.__defaults__) if func.__defaults__ is not None else deque()
     kwds = func.__kwdefaults__ if func.__kwdefaults__ is not None else {}
@@ -207,7 +207,7 @@ def _init_auto_deps(func: Callable[P, T], allow_pass_arg: bool) -> None:
         try:
             dep = AutoDepends(func, name, param.annotation)
         except DependInitError:
-            if allow_pass_arg:
+            if allow_manual_arg:
                 continue
             raise
 
@@ -241,7 +241,7 @@ def _get_bound_args(
 
 
 def inject_deps(
-    injected: Callable[P, T] | AsyncCallable[P, T], pass_arg: bool = False
+    injected: Callable[P, T] | AsyncCallable[P, T], manual_arg: bool = False
 ) -> AsyncCallable[P, T]:
     @wraps(injected)
     async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
@@ -269,7 +269,7 @@ def inject_deps(
         return ret
 
     if isinstance(injected, FunctionType):
-        _init_auto_deps(injected, pass_arg)
+        _init_auto_deps(injected, manual_arg)
         return wrapped
     if isinstance(injected, LambdaType):
         return wrapped
