@@ -9,11 +9,10 @@ from typing import (
     Hashable,
     Literal,
     Sequence,
-    TypeVar,
     cast,
 )
 
-from typing_extensions import LiteralString, Self
+from typing_extensions import LiteralString, Self, TypeVar
 
 from ..exceptions import BotRuntimeError
 from ..utils import AttrsReprable, get_id

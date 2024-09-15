@@ -1,13 +1,15 @@
 import asyncio
 from typing import Any
 
+from typing_extensions import TypeVar
+
 from ..adapter.model import Event
 from ..handle.base import EventHandler
-from ..typ import HandleLevel, TypeVar
+from ..typ import HandleLevel
 from ..utils import RWContext
 
-KeyT = TypeVar("KeyT", bound=float)
-ValT = TypeVar("ValT")
+KeyT = TypeVar("KeyT", bound=float, default=float)
+ValT = TypeVar("ValT", default=Any)
 
 
 class _KeyOrderDict(dict[KeyT, ValT]):

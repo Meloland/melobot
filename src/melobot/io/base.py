@@ -2,9 +2,9 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic
 
-from typing_extensions import LiteralString, Self
+from typing_extensions import LiteralString, Self, TypeVar
 
 from .._hook import HookBus
 from ..typ import AsyncCallable, BetterABC, P, abstractmethod
