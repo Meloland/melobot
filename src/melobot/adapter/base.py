@@ -13,12 +13,11 @@ from typing import (
     Iterable,
     NoReturn,
     Sequence,
-    TypeVar,
     cast,
     final,
 )
 
-from typing_extensions import LiteralString, Self
+from typing_extensions import LiteralString, Self, TypeVar
 
 from .._hook import HookBus
 from ..ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
@@ -200,7 +199,9 @@ class Adapter(
         url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
-        return await self.send_text(f"[melobot media: {name}]")
+        return await self.send_text(
+            f"[melobot media: {name if url is None else name + ' at ' + url}]"
+        )
 
     async def send_image(
         self,
@@ -209,7 +210,9 @@ class Adapter(
         url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
-        return await self.send_text(f"[melobot image: {name}]")
+        return await self.send_text(
+            f"[melobot image: {name if url is None else name + ' at ' + url}]"
+        )
 
     async def send_audio(
         self,
@@ -218,7 +221,9 @@ class Adapter(
         url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
-        return await self.send_text(f"[melobot audio: {name}]")
+        return await self.send_text(
+            f"[melobot audio: {name if url is None else name + ' at ' + url}]"
+        )
 
     async def send_voice(
         self,
@@ -227,7 +232,9 @@ class Adapter(
         url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
-        return await self.send_text(f"[melobot voice: {name}]")
+        return await self.send_text(
+            f"[melobot voice: {name if url is None else name + ' at ' + url}]"
+        )
 
     async def send_video(
         self,
@@ -236,12 +243,14 @@ class Adapter(
         url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle, ...]:
-        return await self.send_text(f"[melobot video: {name}]")
+        return await self.send_text(
+            f"[melobot video: {name if url is None else name + ' at ' + url}]"
+        )
 
     async def send_file(
         self, name: str, path: str | PathLike[str]
     ) -> tuple[ActionHandle, ...]:
-        return await self.send_text(f"[melobot file: {name}]")
+        return await self.send_text(f"[melobot file: {name} at {path}]")
 
     async def send_refer(
         self, event: Event, contents: Sequence[Content] | None = None
@@ -249,3 +258,6 @@ class Adapter(
         return await self.send_text(
             f"[melobot refer: {event.__class__.__name__}({event.id})]"
         )
+
+    async def send_resource(self, name: str, url: str) -> tuple[ActionHandle, ...]:
+        return await self.send_text(f"[melobot resource: {name} at {url}]")

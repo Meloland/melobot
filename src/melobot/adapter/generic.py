@@ -65,3 +65,7 @@ async def send_refer(
     event: Event, contents: Sequence[Content] | None = None
 ) -> tuple[ActionHandle, ...]:
     return await _CTX.get().adapter.send_refer(event, contents)
+
+
+async def send_resource(name: str, url: str) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_resource(name, url)

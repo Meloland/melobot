@@ -3,13 +3,13 @@ from __future__ import annotations
 import mimetypes
 from typing import Hashable, Sequence
 
-from ..typ import TypeVar
+from typing_extensions import TypeVar
 
 
 class Content: ...
 
 
-ContentT = TypeVar("ContentT", bound=Content)
+ContentT = TypeVar("ContentT", bound=Content, default=Content)
 
 
 class TextContent(Content):
@@ -41,7 +41,7 @@ class ImageContent(MediaContent): ...
 class AudioContent(MediaContent): ...
 
 
-class VoiceContent(MediaContent): ...
+class VoiceContent(AudioContent): ...
 
 
 class VideoContent(MediaContent): ...
@@ -50,20 +50,29 @@ class VideoContent(MediaContent): ...
 class FileContent(Content):
     def __init__(self, name: str, flag: Hashable) -> None:
         super().__init__()
-        self.scope = flag
-        self.name = name if name else f"[File: {flag}]"
+        self.flag = flag
+        self.name = name
+
+    def __repr__(self) -> str:
+        return f"[melobot File: {self.name} at {self.flag}]"
 
 
 class ReferContent(Content):
     def __init__(self, prompt: str, flag: Hashable, contents: Sequence[Content]) -> None:
         super().__init__()
         self.flag = flag
-        self.prompt = prompt if prompt else f"[Refer: {flag}]"
+        self.prompt = prompt
         self.sub_contents = contents
+
+    def __repr__(self) -> str:
+        return f"[melobot Refer: {self.prompt} at {self.flag}]"
 
 
 class ResourceContent(Content):
     def __init__(self, name: str, url: str) -> None:
         super().__init__()
         self.url = url
-        self.name = name if name else f"[Share: {url}]"
+        self.name = name
+
+    def __repr__(self) -> str:
+        return f"[melobot Resource: {self.name} at {self.url}]"
