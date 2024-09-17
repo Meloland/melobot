@@ -8,7 +8,7 @@ from enum import Enum
 from os import PathLike
 from pathlib import Path
 from types import ModuleType
-from typing import Any, AsyncGenerator, Callable, Coroutine, Generator
+from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable
 
 from .._hook import HookBus
 from ..adapter.base import Adapter
@@ -202,10 +202,29 @@ class Bot:
             return self
 
     def load_plugins(
-        self, *plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int = 1
+        self,
+        plugins: Iterable[ModuleType | str | PathLike[str] | Plugin],
+        load_depth: int = 1,
     ) -> None:
-        for p in plugin:
+        for p in plugins:
             self.load_plugin(p, load_depth)
+
+    def load_plugins_dir(self, pdir: str | PathLike[str], load_depth: int = 1) -> None:
+        parent_dir = Path(pdir).resolve()
+        plugin_dirs: list[Path] = []
+
+        for dirname in os.listdir(parent_dir):
+            path = Path(parent_dir).joinpath(dirname)
+            if path.is_dir() and path.parts[-1] != "__pycache__":
+                plugin_dirs.append(path)
+
+        self.load_plugins(plugin_dirs, load_depth)
+
+    def load_plugins_dirs(
+        self, pdirs: Iterable[str | PathLike[str]], load_depth: int = 1
+    ) -> None:
+        for pdir in pdirs:
+            self.load_plugins_dir(pdir, load_depth)
 
     async def core_run(self) -> None:
         if not self._inited:
