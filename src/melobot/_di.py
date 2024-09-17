@@ -5,6 +5,7 @@ from collections import deque
 from dataclasses import dataclass
 from functools import wraps
 from inspect import Parameter, isawaitable, signature
+from sys import version_info
 from types import FunctionType, LambdaType
 from typing import Annotated, Any, Callable, Sequence, cast, get_args, get_origin
 
@@ -183,7 +184,19 @@ class CustomLogger:
 
 
 def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
-    sign = signature(func)
+    try:
+        sign = signature(func)
+    except ValueError as e:
+        if (
+            str(e).startswith("no signature found for builtin")
+            and version_info.major >= 3
+            and version_info.minor <= 10
+        ):
+            raise DependInitError(
+                f"内建函数 {func} 在 python <= 3.10 的版本中，无法进行依赖注入"
+            ) from None
+        raise
+
     ds = deque(func.__defaults__) if func.__defaults__ is not None else deque()
     kwds = func.__kwdefaults__ if func.__kwdefaults__ is not None else {}
     vals: list[Any] = []
@@ -241,11 +254,16 @@ def _get_bound_args(
 
 
 def inject_deps(
-    injected: Callable[P, T] | AsyncCallable[P, T], manual_arg: bool = False
+    injectee: Callable[P, T] | AsyncCallable[P, T], manual_arg: bool = False
 ) -> AsyncCallable[P, T]:
-    @wraps(injected)
+    if hasattr(injectee, "__wrapped__"):
+        raise DependInitError(
+            f"函数 {injectee.__qualname__} 无法进行依赖注入，在依赖注入前它不能被装饰"
+        )
+
+    @wraps(injectee)
     async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        _args, _kwargs = _get_bound_args(injected, *args, **kwargs)
+        _args, _kwargs = _get_bound_args(injectee, *args, **kwargs)
         dep_scope: dict[Depends, Any] = {}
 
         for idx, _ in enumerate(_args):
@@ -258,26 +276,26 @@ def inject_deps(
             if isinstance(elem, Depends):
                 _kwargs[k] = await elem.fulfill(dep_scope)
 
-        ret = injected(*_args, **_kwargs)  # type: ignore[arg-type]
+        ret = injectee(*_args, **_kwargs)  # type: ignore[arg-type]
         if isawaitable(ret):
             return await ret
         return ret
 
-    @wraps(injected)
+    @wraps(injectee)
     async def class_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        ret = cast(Callable[P, T], injected)(*args, **kwargs)
+        ret = cast(Callable[P, T], injectee)(*args, **kwargs)
         return ret
 
-    if isinstance(injected, FunctionType):
-        _init_auto_deps(injected, manual_arg)
+    if isinstance(injectee, FunctionType):
+        _init_auto_deps(injectee, manual_arg)
         return wrapped
-    if isinstance(injected, LambdaType):
+    if isinstance(injectee, LambdaType):
         return wrapped
-    if isinstance(injected, type):
+    if isinstance(injectee, type):
         return class_wrapped
 
     raise DependInitError(
-        f"{injected} 对象不属于以下类别中的任何一种："
+        f"{injectee} 对象不属于以下类别中的任何一种："
         "{同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，类对象，"
         "实例方法、类方法、静态方法}，因此不能被注入依赖"
     )
