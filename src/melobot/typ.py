@@ -66,6 +66,34 @@ class LogicMode(Enum):
         return (v1 ^ v2) if v2 is not None else bool(v1)  # type: ignore[no-any-return]
 
     @classmethod
+    def short_calc(
+        cls, logic: "LogicMode", v1: Callable[[], Any], v2: Callable[[], Any]
+    ) -> bool:
+        if logic == LogicMode.AND:
+            return (v1() and v2()) if v2 is not None else bool(v1())  # type: ignore[no-any-return]
+        if logic == LogicMode.OR:
+            return (v1() or v2()) if v2 is not None else bool(v1())  # type: ignore[no-any-return]
+        if logic == LogicMode.NOT:
+            return not v1()
+        return (v1() ^ v2()) if v2 is not None else bool(v1())  # type: ignore[no-any-return]
+
+    @classmethod
+    async def async_short_calc(
+        cls, logic: "LogicMode", v1: AsyncCallable[[], Any], v2: AsyncCallable[[], Any]
+    ) -> bool:
+
+        if logic == LogicMode.AND:
+            res = (await v1() and await v2()) if v2 is not None else bool(await v1())
+            return res  # type: ignore[no-any-return]
+        if logic == LogicMode.OR:
+            res = (await v1() or await v2()) if v2 is not None else bool(await v1())
+            return res  # type: ignore[no-any-return]
+        if logic == LogicMode.NOT:
+            return not await v1()
+        res = (await v1() ^ await v2()) if v2 is not None else bool(await v1())
+        return res  # type: ignore[no-any-return]
+
+    @classmethod
     def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
         if len(values) <= 0:
             return False
@@ -80,6 +108,48 @@ class LogicMode(Enum):
                 idx += 1
             else:
                 res = cls.calc(logic, res, values[idx])
+            idx += 1
+        return res
+
+    @classmethod
+    def short_seq_calc(cls, logic: "LogicMode", getters: list[Callable[[], Any]]) -> bool:
+        if len(getters) <= 0:
+            return False
+        if len(getters) <= 1:
+            return bool(getters[0]())
+
+        idx = 0
+        res: bool
+        while idx < len(getters):
+            if idx == 0:
+                res = cls.short_calc(logic, getters[idx], getters[idx + 1])
+                idx += 1
+            else:
+                res = cls.short_calc(logic, lambda: res, getters[idx])
+            idx += 1
+        return res
+
+    @classmethod
+    async def async_short_seq_calc(
+        cls, logic: "LogicMode", getters: list[AsyncCallable[[], Any]]
+    ) -> bool:
+        if len(getters) <= 0:
+            return False
+        if len(getters) <= 1:
+            return bool(await getters[0]())
+
+        idx = 0
+        res: bool
+        while idx < len(getters):
+            if idx == 0:
+                res = await cls.async_short_calc(logic, getters[idx], getters[idx + 1])
+                idx += 1
+            else:
+
+                async def res_getter() -> bool:
+                    return res
+
+                res = await cls.async_short_calc(logic, res_getter, getters[idx])
             idx += 1
         return res
 
