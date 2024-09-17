@@ -149,8 +149,8 @@ class PluginInitHelper:
                 remove(pinit_typ_path)
 
             with ExitStack() as ctx_stack:
-                ctx_stack.enter_context(BotCtx().on_ctx(tmp_bot))
-                ctx_stack.enter_context(LoggerCtx().on_ctx(tmp_bot.logger))
+                ctx_stack.enter_context(BotCtx().in_ctx(tmp_bot))
+                ctx_stack.enter_context(LoggerCtx().in_ctx(tmp_bot.logger))
 
                 prefix = ".".join(p_dir.parts[-load_depth:])
                 p_load_mod_name = f"{prefix}.__plugin__"

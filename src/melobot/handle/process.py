@@ -45,7 +45,7 @@ class FlowNode:
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.on_ctx(FlowStatus(event, flow, self, True, records, store)):
+        with _FLOW_CTX.in_ctx(FlowStatus(event, flow, self, True, records, store)):
             try:
                 records.append(
                     FlowRecord(RecordStage.NODE_START, flow.name, self.name, event)
@@ -188,7 +188,7 @@ class Flow:
         new_flow = Flow(
             f"{self.name} ~ {flow.name}",
             *new_edges,
-            priority=priority if priority else max(self.priority, flow.priority),
+            priority=priority if priority else min(self.priority, flow.priority),
             temp=self.temp or flow.temp,
         )
 
@@ -198,6 +198,9 @@ class Flow:
                 continue
             for n2 in info.nexts:
                 new_flow._add(n1, n2)
+
+        if not self._valid_check():
+            raise FlowError(f"定义的处理流 {self.name} 中存在环路")
 
         return new_flow
 
@@ -211,7 +214,7 @@ class Flow:
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.on_ctx(
+        with _FLOW_CTX.in_ctx(
             FlowStatus(event, self, self.starts[0], True, records, store)
         ):
             try:

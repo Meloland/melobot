@@ -30,8 +30,7 @@ class EventHandler:
         try:
             await self.flow.run(event)
         except Exception:
-            self.logger.error(f"事件处理 {self.name} 发生异常")
-            self.logger.exception(f"事件处理 {self.name} 发生异常")
+            self.logger.exception(f"事件处理流 {self.name} 发生异常")
             self.logger.generic_obj(
                 f"异常点 event {event.id}", event.__dict__, level=LogLevel.ERROR
             )

@@ -44,13 +44,14 @@ EchoPacketT = TypeVar("EchoPacketT", bound=EchoPacket)
 
 class SourceLifeSpan(Enum):
     OPENED = "o"
-    CLOSE = "c"
+    CLOSED = "c"
 
 
 class AbstractSource(BetterABC):
     def __init__(self, protocol: LiteralString) -> None:
-        self._life_bus = HookBus[SourceLifeSpan](SourceLifeSpan)
         self.protocol = protocol
+
+        self._life_bus = HookBus[SourceLifeSpan](SourceLifeSpan)
 
     @abstractmethod
     async def open(self) -> None:
@@ -81,8 +82,10 @@ class AbstractSource(BetterABC):
         if not self.opened():
             return None
 
-        await self.close()
-        await self._life_bus.emit(SourceLifeSpan.CLOSE)
+        try:
+            await self.close()
+        finally:
+            await self._life_bus.emit(SourceLifeSpan.CLOSED, wait=True)
         return None
 
     def on(

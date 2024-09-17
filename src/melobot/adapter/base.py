@@ -122,7 +122,7 @@ class Adapter(
                 event = await self.event_factory.create(  # pylint: disable=no-member
                     packet
                 )
-                with _EVENT_BUILD_INFO_CTX.on_ctx(EventBuildInfo(self, src)):
+                with _EVENT_BUILD_INFO_CTX.in_ctx(EventBuildInfo(self, src)):
                     await self._life_bus.emit(
                         AdapterLifeSpan.BEFORE_EVENT, wait=True, args=(event,)
                     )
@@ -162,7 +162,7 @@ class Adapter(
     def filter_out(
         self, filter: Callable[[OutSourceT], bool]
     ) -> _GeneratorContextManager[None]:
-        return _OUT_SRC_FILTER_CTX.on_ctx(filter)
+        return _OUT_SRC_FILTER_CTX.in_ctx(filter)
 
     async def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
         osrcs: Iterable[OutSourceT]

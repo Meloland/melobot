@@ -28,13 +28,13 @@ class Context(Generic[T]):
     ) -> None:
         self.__storage__ = ContextVar[T](ctx_name)
         self.lookup_exc_cls = lookup_exc_cls
-        self._lookup_exc_tip = lookup_exc_tip
+        self.lookup_exc_tip = lookup_exc_tip
 
     def get(self) -> T:
         try:
             return self.__storage__.get()
         except LookupError:
-            raise self.lookup_exc_cls(self._lookup_exc_tip) from None
+            raise self.lookup_exc_cls(self.lookup_exc_tip) from None
 
     def try_get(self) -> T | None:
         return self.__storage__.get(None)
@@ -46,7 +46,7 @@ class Context(Generic[T]):
         self.__storage__.reset(token)
 
     @contextmanager
-    def on_ctx(self, obj: T) -> Generator[None, None, None]:
+    def in_ctx(self, obj: T) -> Generator[None, None, None]:
         token = self.add(obj)
         try:
             yield
@@ -60,7 +60,7 @@ _OutSrcFilterType = Callable[["OutSourceT"], bool]
 @singleton
 class OutSrcFilterCtx(Context[_OutSrcFilterType]):
     def __init__(self) -> None:
-        super().__init__("_OUT_SRC_FILTER_CTX", AdapterError)
+        super().__init__("MELOBOT_OUT_SRC_FILTER", AdapterError)
 
 
 @dataclass
@@ -73,7 +73,7 @@ class EventBuildInfo:
 class EventBuildInfoCtx(Context[EventBuildInfo]):
     def __init__(self) -> None:
         super().__init__(
-            "_EVENT_BUILD_INFO_CTX",
+            "MELOBOT_EVENT_BUILD_INFO",
             AdapterError,
             "此时不在活动的事件处理流中，无法获取适配器与输入源的上下文信息",
         )
@@ -130,7 +130,7 @@ class FlowStatus:
 class FlowCtx(Context[FlowStatus]):
     def __init__(self) -> None:
         super().__init__(
-            "_FLOW_CTX",
+            "MELOBOT_FLOW",
             FlowError,
             "此时不在活动的事件处理流中，无法获取处理流信息",
         )
@@ -157,7 +157,9 @@ class FlowCtx(Context[FlowStatus]):
 @singleton
 class BotCtx(Context["Bot"]):
     def __init__(self) -> None:
-        super().__init__("_BOT_CTX", BotRuntimeError, "此时未初始化 bot 实例，无法获取")
+        super().__init__(
+            "MELOBOT_BOT", BotRuntimeError, "此时未初始化 bot 实例，无法获取"
+        )
 
     def get_type(self) -> type["Bot"]:
         from .bot.base import Bot
@@ -169,7 +171,7 @@ class BotCtx(Context["Bot"]):
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
         super().__init__(
-            "_SESSION_CTX",
+            "MELOBOT_SESSION",
             SessionError,
             "此时不在活动的事件处理流中，无法获取会话信息",
         )
@@ -191,9 +193,17 @@ class SessionCtx(Context["Session"]):
 @singleton
 class LoggerCtx(Context["GenericLogger"]):
     def __init__(self) -> None:
-        super().__init__("_LOGGER_CTX", LogError, "此时未初始化 logger 实例，无法获取")
+        super().__init__(
+            "MELOBOT_LOGGER", LogError, "此时未初始化 logger 实例，无法获取"
+        )
 
     def get_type(self) -> type["GenericLogger"]:
         from .log.base import GenericLogger
 
         return GenericLogger
+
+
+@singleton
+class ActionManualSignalCtx(Context[bool]):
+    def __init__(self) -> None:
+        super().__init__("MELOBOT_ACTION_AUTO_SIGNAL", AdapterError)

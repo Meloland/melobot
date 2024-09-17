@@ -182,6 +182,8 @@ def to_async(
     :param obj: 需要转换的可调用对象或可等待对象
     :return: 异步函数
     """
+    if inspect.iscoroutinefunction(obj):
+        return obj
 
     async def async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         if not inspect.isawaitable(obj):
@@ -211,6 +213,8 @@ def to_coro(
     :param kwargs: 需要使用的关键字参数
     :return: 协程
     """
+    if inspect.iscoroutine(obj):
+        return obj
     return to_async(obj)(*args, **kwargs)
 
 

@@ -80,6 +80,7 @@ class Bot:
         self._plugins: dict[str, Plugin] = {}
         self._life_bus = HookBus[BotLifeSpan](BotLifeSpan)
         self._dispatcher = Dispatcher()
+        self._tasks: list[asyncio.Task] = []
 
         self._inited = False
         self._running = False
@@ -89,17 +90,17 @@ class Bot:
         return f'Bot(name="{self.name}")'
 
     @contextmanager
-    def _sync_common_ctx(self) -> Generator[ExitStack, Any, None]:
+    def _sync_common_ctx(self) -> Generator[ExitStack, None, None]:
         with ExitStack() as stack:
-            stack.enter_context(_BOT_CTX.on_ctx(self))
-            stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
+            stack.enter_context(_BOT_CTX.in_ctx(self))
+            stack.enter_context(_LOGGER_CTX.in_ctx(self.logger))
             yield stack
 
     @asynccontextmanager
     async def _async_common_ctx(self) -> AsyncGenerator[AsyncExitStack, None]:
         async with AsyncExitStack() as stack:
-            stack.enter_context(_BOT_CTX.on_ctx(self))
-            stack.enter_context(_LOGGER_CTX.on_ctx(self.logger))
+            stack.enter_context(_BOT_CTX.in_ctx(self))
+            stack.enter_context(_LOGGER_CTX.in_ctx(self.logger))
             yield stack
 
     def add_input(self, src: AbstractInSource) -> Bot:
@@ -206,7 +207,7 @@ class Bot:
         for p in plugin:
             self.load_plugin(p, load_depth)
 
-    async def internal_run(self) -> None:
+    async def core_run(self) -> None:
         if not self._inited:
             self._run_init()
 
@@ -214,8 +215,8 @@ class Bot:
             raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
 
-        async with self._async_common_ctx() as stack:
-            try:
+        try:
+            async with self._async_common_ctx() as stack:
                 if (
                     MELO_LAST_EXIT_SIGNAL in os.environ
                     and int(os.environ[MELO_LAST_EXIT_SIGNAL])
@@ -225,7 +226,8 @@ class Bot:
                 else:
                     await self._life_bus.emit(BotLifeSpan.LOADED)
 
-                asyncio.create_task(self._dispatcher.timed_gc())
+                timed_task = asyncio.create_task(self._dispatcher.timed_gc())
+                self._tasks.append(timed_task)
                 ts = tuple(
                     asyncio.create_task(
                         stack.enter_async_context(adapter.__adapter_launch__())
@@ -238,22 +240,23 @@ class Bot:
                 await self._life_bus.emit(BotLifeSpan.STARTED)
                 await self._rip_signal.wait()
 
-            finally:
-                for task in asyncio.all_tasks():
-                    task.cancel()
+        finally:
+            async with self._async_common_ctx() as stack:
+                for t in self._tasks:
+                    t.cancel()
                 await self._life_bus.emit(BotLifeSpan.STOP, wait=True)
                 self.logger.info(f"{self} 已停止运行")
                 self._running = False
 
     def run(self) -> None:
-        _safe_blocked_run(self.internal_run())
+        _safe_blocked_run(self.core_run())
 
     @classmethod
     def start(cls, *bots: Bot) -> None:
         async def bots_run() -> None:
             tasks = []
             for bot in bots:
-                tasks.append(asyncio.create_task(bot.internal_run()))
+                tasks.append(asyncio.create_task(bot.core_run()))
             try:
                 await asyncio.wait(tasks)
             except asyncio.CancelledError:
