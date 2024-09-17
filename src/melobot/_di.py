@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import wraps
 from inspect import Parameter, isawaitable, signature
 from sys import version_info
-from types import FunctionType, LambdaType
+from types import BuiltinFunctionType, FunctionType, LambdaType
 from typing import Annotated, Any, Callable, Sequence, cast, get_args, get_origin
 
 from .ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
@@ -286,7 +286,7 @@ def inject_deps(
         ret = cast(Callable[P, T], injectee)(*args, **kwargs)
         return ret
 
-    if isinstance(injectee, FunctionType):
+    if isinstance(injectee, (FunctionType, BuiltinFunctionType)):
         _init_auto_deps(injectee, manual_arg)
         return wrapped
     if isinstance(injectee, LambdaType):
