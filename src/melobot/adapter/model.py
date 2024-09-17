@@ -21,7 +21,7 @@ from typing import (
 from typing_extensions import LiteralString, Self, TypeVar
 
 from ..ctx import ActionManualSignalCtx, Context
-from ..exceptions import BotRuntimeError
+from ..exceptions import AdapterError
 from ..log import LogLevel, get_logger
 from ..typ import T
 from ..utils import AttrsReprable, get_id
@@ -142,7 +142,7 @@ class ActionHandle(Generic[ActionRetT]):
 
     def execute(self) -> Self:
         if self.status != "PENDING":
-            raise BotRuntimeError("行为操作正在执行或执行完毕，不应该再执行")
+            raise AdapterError("行为操作正在执行或执行完毕，不应该再执行")
 
         self.status = "EXECUTING"
         create_task(self._execute())

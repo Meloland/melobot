@@ -13,7 +13,7 @@ from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable
 from .._hook import HookBus
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
-from ..exceptions import BotRuntimeError
+from ..exceptions import BotError
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
 from ..plugin.base import Plugin
@@ -49,7 +49,7 @@ class Bot:
 
     def __new__(cls, name: str = "melobot", /, *args: Any, **kwargs: Any) -> Bot:
         if name in Bot.__instances__:
-            raise BotRuntimeError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
+            raise BotError(f"命名为 {name} 的 bot 实例已存在，请改名避免冲突")
         obj = super().__new__(cls)
         Bot.__instances__[name] = obj
         return obj
@@ -105,14 +105,14 @@ class Bot:
 
     def add_input(self, src: AbstractInSource) -> Bot:
         if self._inited:
-            raise BotRuntimeError(f"{self} 已不在初始化期，无法再添加输入源")
+            raise BotError(f"{self} 已不在初始化期，无法再添加输入源")
 
         self._in_srcs.setdefault(src.protocol, []).append(src)
         return self
 
     def add_output(self, src: AbstractOutSource) -> Bot:
         if self._inited:
-            raise BotRuntimeError(f"{self} 已不在初始化期，无法再添加输出源")
+            raise BotError(f"{self} 已不在初始化期，无法再添加输出源")
 
         self._out_srcs.setdefault(src.protocol, []).append(src)
         return self
@@ -124,9 +124,9 @@ class Bot:
 
     def add_adapter(self, adapter: Adapter) -> Bot:
         if self._inited:
-            raise BotRuntimeError(f"{self} 已不在初始化期，无法再添加适配器")
+            raise BotError(f"{self} 已不在初始化期，无法再添加适配器")
         if adapter.protocol in self.adapters:
-            raise BotRuntimeError(
+            raise BotError(
                 f"已存在协议 {adapter.protocol} 的适配器，同协议的适配器不能再添加"
             )
 
@@ -186,7 +186,7 @@ class Bot:
                 else:
                     p_name = Path(plugin).resolve().parts[-1]
                 if p_name in self._plugins:
-                    raise BotRuntimeError(
+                    raise BotError(
                         f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
                     )
 
@@ -231,7 +231,7 @@ class Bot:
             self._run_init()
 
         if self._running:
-            raise BotRuntimeError(f"{self} 已在运行中，不能再次启动运行")
+            raise BotError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
 
         try:
@@ -285,14 +285,14 @@ class Bot:
 
     async def close(self) -> None:
         if not self._running:
-            raise BotRuntimeError(f"{self} 未在运行中，不能停止运行")
+            raise BotError(f"{self} 未在运行中，不能停止运行")
 
         await self._life_bus.emit(BotLifeSpan.CLOSE, wait=True)
         self._rip_signal.set()
 
     async def restart(self) -> None:
         if MELO_PKG_RUNTIME not in os.environ:
-            raise BotRuntimeError(
+            raise BotError(
                 "启用重启功能，需要用以下命令运行 bot：python -m melobot run [*.py]"
             )
 

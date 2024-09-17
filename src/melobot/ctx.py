@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
 
-from .exceptions import AdapterError, BotRuntimeError, FlowError, LogError, SessionError
+from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
 from .typ import T
 from .utils import singleton
 
@@ -157,9 +157,7 @@ class FlowCtx(Context[FlowStatus]):
 @singleton
 class BotCtx(Context["Bot"]):
     def __init__(self) -> None:
-        super().__init__(
-            "MELOBOT_BOT", BotRuntimeError, "此时未初始化 bot 实例，无法获取"
-        )
+        super().__init__("MELOBOT_BOT", BotError, "此时未初始化 bot 实例，无法获取")
 
     def get_type(self) -> type["Bot"]:
         from .bot.base import Bot
@@ -193,9 +191,7 @@ class SessionCtx(Context["Session"]):
 @singleton
 class LoggerCtx(Context["GenericLogger"]):
     def __init__(self) -> None:
-        super().__init__(
-            "MELOBOT_LOGGER", LogError, "此时未初始化 logger 实例，无法获取"
-        )
+        super().__init__("MELOBOT_LOGGER", LogError, "此时未初始化 logger 实例，无法获取")
 
     def get_type(self) -> type["GenericLogger"]:
         from .log.base import GenericLogger
