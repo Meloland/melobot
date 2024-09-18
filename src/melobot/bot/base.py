@@ -10,6 +10,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable
 
+from typing_extensions import LiteralString
+
 from .._hook import HookBus
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
@@ -29,7 +31,7 @@ class BotLifeSpan(Enum):
     RELOADED = "r"
     STARTED = "sta"
     CLOSE = "c"
-    STOP = "sto"
+    STOPPED = "sto"
 
 
 class BotExitSignal(Enum):
@@ -263,7 +265,7 @@ class Bot:
             async with self._async_common_ctx() as stack:
                 for t in self._tasks:
                     t.cancel()
-                await self._life_bus.emit(BotLifeSpan.STOP, wait=True)
+                await self._life_bus.emit(BotLifeSpan.STOPPED, wait=True)
                 self.logger.info(f"{self} 已停止运行")
                 self._running = False
 
@@ -326,8 +328,25 @@ class Bot:
         return self.on(BotLifeSpan.CLOSE)
 
     @property
-    def on_stop(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        return self.on(BotLifeSpan.STOP)
+    def on_stopped(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+        return self.on(BotLifeSpan.STOPPED)
+
+    def get_adapter(
+        self,
+        protocol: LiteralString | None = None,
+        filter: Callable[[Adapter], bool] | None = None,
+    ) -> Adapter | None:
+        if protocol:
+            return self.adapters.get(protocol)
+        if filter:
+            for adapter in self.adapters.values():
+                if filter(adapter):
+                    return adapter
+            return None
+        raise BotError("protocol 或 filter 不能同时为空")
+
+    def get_adapters(self, filter: Callable[[Adapter], bool]) -> set[Adapter]:
+        return set(adapter for adapter in self.adapters.values() if filter(adapter))
 
 
 def _safe_blocked_run(main: Coroutine[Any, Any, None]) -> None:

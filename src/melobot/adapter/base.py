@@ -74,11 +74,20 @@ EchoFactoryT = TypeVar("EchoFactoryT", bound=AbstractEchoFactory)
 class AdapterLifeSpan(Enum):
     BEFORE_EVENT = "be"
     BEFORE_ACTION = "ba"
+    STARTED = "sta"
+    STOPPED = "sto"
 
 
 class Adapter(
     BetterABC,
-    Generic[EventFactoryT, OutputFactoryT, EchoFactoryT, ActionT, InSourceT, OutSourceT],
+    Generic[
+        EventFactoryT,
+        OutputFactoryT,
+        EchoFactoryT,
+        ActionT,
+        InSourceT,
+        OutSourceT,
+    ],
 ):
     # pylint: disable=duplicate-code
     # pylint: disable=unused-argument
@@ -92,17 +101,18 @@ class Adapter(
     ) -> None:
         super().__init__()
         self.protocol = protocol
-        self.event_factory = event_factory
-        self.output_factory = output_factory
-        self.echo_factory = echo_factory
 
         self.in_srcs: list[InSourceT] = []
         self.out_srcs: list[OutSourceT] = []
         self.dispatcher: "Dispatcher"
+        self._event_factory = event_factory
+        self._output_factory = output_factory
+        self._echo_factory = echo_factory
 
         self._inited = False
         self._life_bus = HookBus[AdapterLifeSpan](AdapterLifeSpan)
 
+    @final
     def on(
         self, *period: AdapterLifeSpan
     ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
@@ -114,12 +124,20 @@ class Adapter(
         return wrapped
 
     @final
+    def get_isrcs(self, filter: Callable[[InSourceT], bool]) -> set[InSourceT]:
+        return set(src for src in self.in_srcs if filter(src))
+
+    @final
+    def get_osrcs(self, filter: Callable[[OutSourceT], bool]) -> set[OutSourceT]:
+        return set(src for src in self.out_srcs if filter(src))
+
+    @final
     async def __adapter_input_loop__(self, src: InSourceT) -> NoReturn:
         logger = LoggerCtx().get()
         while True:
             try:
                 packet = await src.input()
-                event = await self.event_factory.create(  # pylint: disable=no-member
+                event = await self._event_factory.create(  # pylint: disable=no-member
                     packet
                 )
                 with _EVENT_BUILD_INFO_CTX.in_ctx(EventBuildInfo(self, src)):
@@ -138,25 +156,30 @@ class Adapter(
             raise AdapterError(f"适配器 {self} 已在运行，不能重复启动")
 
         async with AsyncExitStack() as stack:
-            out_src_ts = tuple(
-                create_task(stack.enter_async_context(src)) for src in self.out_srcs
-            )
-            if len(out_src_ts):
-                await asyncio.wait(out_src_ts)
+            try:
+                out_src_ts = tuple(
+                    create_task(stack.enter_async_context(src)) for src in self.out_srcs
+                )
+                if len(out_src_ts):
+                    await asyncio.wait(out_src_ts)
 
-            in_src_ts = tuple(
-                create_task(stack.enter_async_context(src))
-                for src in self.in_srcs
-                if not src.opened()
-            )
-            if len(in_src_ts):
-                await asyncio.wait(in_src_ts)
+                in_src_ts = tuple(
+                    create_task(stack.enter_async_context(src))
+                    for src in self.in_srcs
+                    if not src.opened()
+                )
+                if len(in_src_ts):
+                    await asyncio.wait(in_src_ts)
 
-            for src in self.in_srcs:
-                create_task(self.__adapter_input_loop__(src))
+                for src in self.in_srcs:
+                    create_task(self.__adapter_input_loop__(src))
 
-            self._inited = True
-            yield self
+                self._inited = True
+                await self._life_bus.emit(AdapterLifeSpan.STARTED, wait=True)
+                yield self
+
+            finally:
+                await self._life_bus.emit(AdapterLifeSpan.STOPPED, wait=True)
 
     @final
     def filter_out(
@@ -184,7 +207,7 @@ class Adapter(
             AdapterLifeSpan.BEFORE_ACTION, wait=True, args=(action,)
         )
         return tuple(
-            ActionHandle(action, osrc, self.output_factory, self.echo_factory)
+            ActionHandle(action, osrc, self._output_factory, self._echo_factory)
             for osrc in osrcs
         )
 

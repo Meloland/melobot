@@ -453,7 +453,8 @@ disable=raw-checker-failed,
         too-many-locals,
         too-many-branches,
         too-many-return-statements,
-        consider-using-sys-exit
+        consider-using-sys-exit,
+        too-many-public-methods
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

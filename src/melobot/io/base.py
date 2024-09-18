@@ -43,8 +43,8 @@ EchoPacketT = TypeVar("EchoPacketT", bound=EchoPacket)
 
 
 class SourceLifeSpan(Enum):
-    OPENED = "o"
-    CLOSED = "c"
+    STARTED = "sta"
+    STOPPED = "sto"
 
 
 class AbstractSource(BetterABC):
@@ -70,7 +70,7 @@ class AbstractSource(BetterABC):
             return self
 
         await self.open()
-        await self._life_bus.emit(SourceLifeSpan.OPENED)
+        await self._life_bus.emit(SourceLifeSpan.STARTED)
         return self
 
     async def __aexit__(
@@ -85,7 +85,7 @@ class AbstractSource(BetterABC):
         try:
             await self.close()
         finally:
-            await self._life_bus.emit(SourceLifeSpan.CLOSED, wait=True)
+            await self._life_bus.emit(SourceLifeSpan.STOPPED, wait=True)
         return None
 
     def on(
@@ -165,3 +165,6 @@ class AbstractIOSource(
     @abstractmethod
     async def output(self, packet: OutPacketT) -> EchoPacketT:
         raise NotImplementedError
+
+
+IOSourceT = TypeVar("IOSourceT", bound=AbstractIOSource)
