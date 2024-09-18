@@ -26,6 +26,17 @@
 
 melobot v3 pre-release 已发布。v3 支持各种协议以扩展至各种平台提供机器人服务。
 
+v3 目前可用的协议实现：
+
+- **OneBot**: [melobot-onebot-protocol](https://github.com/Meloland/melobot-protocol-onebot)
+
+其他计划支持的协议：
+
+- **Satori**
+- **Kritor**
+- **qq 官方机器人**
+- ...
+
 有任何意见或建议，欢迎加入 qq 群与我们讨论：`535705163`
 
 ## ⚠️ 声明
