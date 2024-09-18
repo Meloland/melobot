@@ -6,7 +6,7 @@ from os import PathLike, listdir, remove
 from pathlib import Path
 from time import time
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import Any, Callable, Iterable
 
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginError
@@ -15,12 +15,9 @@ from .base import Plugin
 from .imp import Importer
 from .ipc import AsyncShare, SyncShare
 
-if TYPE_CHECKING:
-    from ..bot.base import Bot
 
-
-def plugin_get_attr(get_bot: Callable[[], "Bot"], p_name: str, name: str) -> Any:
-    obj = get_bot().ipc_manager.get(p_name, name)
+def plugin_get_attr(p_name: str, name: str) -> Any:
+    obj = BotCtx().get().ipc_manager.get(p_name, name)
     if obj.static:
         return obj.get()
     return obj
