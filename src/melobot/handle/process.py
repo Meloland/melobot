@@ -94,9 +94,11 @@ class Flow:
         temp: bool = False,
     ) -> None:
         self.name = name
-        self.priority = priority
         self.temp = temp
         self.graph: dict[FlowNode, _NodeInfo] = {}
+
+        self._priority = priority
+        self._priority_cb: AsyncCallable[[HandleLevel], None]
 
         _edge_maps = tuple(
             tuple((elem,) if isinstance(elem, FlowNode) else elem for elem in emap)
@@ -134,6 +136,17 @@ class Flow:
                             edges.append((n1, n2))
 
         return edges
+
+    @property
+    def priority(self) -> HandleLevel:
+        return self._priority
+
+    def on_priority_reset(self, callback: AsyncCallable[[HandleLevel], None]) -> None:
+        self._priority_cb = callback
+
+    async def reset_priority(self, new_prior: HandleLevel) -> None:
+        await self._priority_cb(new_prior)
+        self._priority = new_prior
 
     @property
     def starts(self) -> tuple[FlowNode, ...]:

@@ -1,4 +1,5 @@
 import asyncio
+from functools import partial
 from typing import Any
 
 from typing_extensions import TypeVar
@@ -57,7 +58,8 @@ class Dispatcher:
 
     def internal_add(self, *handlers: EventHandler) -> None:
         for h in handlers:
-            self.handlers.setdefault(h.priority, set()).add(h)
+            self.handlers.setdefault(h.flow.priority, set()).add(h)
+            h.flow.on_priority_reset(partial(self.reset, h))
 
     async def add(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
@@ -66,24 +68,28 @@ class Dispatcher:
     async def _remove(self, *handlers: EventHandler) -> None:
         for h in handlers:
             await h.expire()
-            h_set = self.handlers[h.priority]
+            h_set = self.handlers[h.flow.priority]
             h_set.remove(h)
             if len(h_set) == 0:
-                self.handlers.pop(h.priority)
+                self.handlers.pop(h.flow.priority)
 
     async def expire(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
             await self._remove(*handlers)
 
     async def reset(self, handler: EventHandler, new_prior: HandleLevel) -> None:
+        if handler.flow.priority == new_prior:
+            return
+
         async with self.broadcast_ctrl.write():
-            old_prior = handler.priority
+            old_prior = handler.flow.priority
+            if old_prior == new_prior:
+                return
             h_set = self.handlers[old_prior]
             h_set.remove(handler)
             if len(h_set) == 0:
                 self.handlers.pop(old_prior)
             self.handlers.setdefault(new_prior, set()).add(handler)
-            await handler.reset_prior(new_prior)
 
     async def broadcast(self, event: Event) -> None:
         async with self.broadcast_ctrl.read():
