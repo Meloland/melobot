@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from itertools import tee
 from typing import Iterable, NoReturn, Sequence
 
-from .._di import DependNotMatched, inject_deps
+from ..di import DependNotMatched, inject_deps
 from ..adapter.model import Event
 from ..ctx import FlowCtx, FlowRecord, FlowRecords
 from ..ctx import FlowRecordStage as RecordStage

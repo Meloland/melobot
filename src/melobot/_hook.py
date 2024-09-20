@@ -2,8 +2,8 @@ import asyncio
 from enum import Enum
 from typing import Any, Generic, TypeVar
 
-from ._di import inject_deps
 from .ctx import LoggerCtx
+from .di import inject_deps
 from .log.base import LogLevel
 from .typ import AsyncCallable
 
@@ -47,7 +47,7 @@ class HookBus(Generic[HookEnumT]):
         args = args if args is not None else ()
         kwargs = kwargs if kwargs is not None else {}
         logger = LoggerCtx().get()
-        logger.debug(f"<{hook_type}> 阶段的 hook 即将开始（{wait = }）")
+        logger.debug(f"<{hook_type}> 阶段的 hook 开始（{wait = }）")  # noqa: E251, E202
 
         tasks = [
             asyncio.create_task(runner.run(*args, **kwargs))
@@ -56,4 +56,4 @@ class HookBus(Generic[HookEnumT]):
         if wait and len(tasks):
             await asyncio.wait(tasks)
 
-        logger.debug(f"<{hook_type}> 阶段的 hook 已完成（{wait = }）")
+        logger.debug(f"<{hook_type}> 阶段的 hook 已完成（{wait = }）")  # noqa: E251, E202

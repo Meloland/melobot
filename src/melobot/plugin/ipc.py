@@ -1,6 +1,6 @@
 from typing import Callable, Generic
 
-from .._di import inject_deps
+from ..di import inject_deps
 from ..exceptions import PluginIpcError
 from ..typ import AsyncCallable, T
 from ..utils import AttrsReprable, Locatable, RWContext

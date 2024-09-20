@@ -1,4 +1,3 @@
-from .._di import Depends, inject_deps
 from ..adapter.model import Event
 from ..ctx import FlowCtx as _FlowCtx
 from ..ctx import FlowRecord as _FlowRecord

@@ -137,9 +137,7 @@ class Adapter(
         while True:
             try:
                 packet = await src.input()
-                event = await self._event_factory.create(  # pylint: disable=no-member
-                    packet
-                )
+                event = await self._event_factory.create(packet)
                 with _EVENT_BUILD_INFO_CTX.in_ctx(EventBuildInfo(self, src)):
                     await self._life_bus.emit(
                         AdapterLifeSpan.BEFORE_EVENT, wait=True, args=(event,)
@@ -155,8 +153,8 @@ class Adapter(
         if self._inited:
             raise AdapterError(f"适配器 {self} 已在运行，不能重复启动")
 
-        async with AsyncExitStack() as stack:
-            try:
+        try:
+            async with AsyncExitStack() as stack:
                 out_src_ts = tuple(
                     create_task(stack.enter_async_context(src)) for src in self.out_srcs
                 )
@@ -175,10 +173,11 @@ class Adapter(
                     create_task(self.__adapter_input_loop__(src))
 
                 self._inited = True
-                await self._life_bus.emit(AdapterLifeSpan.STARTED, wait=True)
+                await self._life_bus.emit(AdapterLifeSpan.STARTED)
                 yield self
 
-            finally:
+        finally:
+            if self._inited:
                 await self._life_bus.emit(AdapterLifeSpan.STOPPED, wait=True)
 
     @final
