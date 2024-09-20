@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import asyncio.tasks
 import os
 import sys
 from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
@@ -89,7 +90,15 @@ class Bot:
         self._rip_signal = asyncio.Event()
 
     def __repr__(self) -> str:
-        return f'Bot(name="{self.name}")'
+        return (
+            f'Bot(name="{self.name}", '
+            f"plugins_num={len(self._plugins.values())}, "
+            f"handlers_num={sum(len(hs) for hs in self._dispatcher.handlers.values())})"
+        )
+
+    @property
+    def loop(self) -> asyncio.AbstractEventLoop:
+        return asyncio.get_running_loop()
 
     @contextmanager
     def _sync_common_ctx(self) -> Generator[ExitStack, None, None]:
@@ -174,6 +183,7 @@ class Bot:
 
         self._inited = True
         self.logger.debug("bot 初始化完成，各核心组件已初始化")
+        self.logger.debug(f"当前异步事件循环策略：{asyncio.get_event_loop_policy()}")
 
     def load_plugin(
         self, plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int = 1
@@ -269,11 +279,11 @@ class Bot:
                 self.logger.info(f"{self} 已停止运行")
                 self._running = False
 
-    def run(self) -> None:
-        _safe_blocked_run(self.core_run())
+    def run(self, debug: bool = False) -> None:
+        _safe_run(self.core_run(), debug)
 
     @classmethod
-    def start(cls, *bots: Bot) -> None:
+    def start(cls, *bots: Bot, debug: bool = False) -> None:
         async def bots_run() -> None:
             tasks = []
             for bot in bots:
@@ -283,7 +293,7 @@ class Bot:
             except asyncio.CancelledError:
                 pass
 
-        _safe_blocked_run(bots_run())
+        _safe_run(bots_run(), debug)
 
     async def close(self) -> None:
         if not self._running:
@@ -349,11 +359,46 @@ class Bot:
         return set(adapter for adapter in self.adapters.values() if filter(adapter))
 
 
-def _safe_blocked_run(main: Coroutine[Any, Any, None]) -> None:
+def _safe_run(main: Coroutine[Any, Any, None], debug: bool) -> None:
     try:
-        asyncio.set_event_loop(asyncio.get_event_loop())
-        asyncio.run(main)
+        loop = asyncio.get_event_loop()
+        asyncio.get_event_loop_policy().set_event_loop(loop)
+        if debug is not None:
+            loop.set_debug(debug)
+        loop.run_until_complete(main)
+
     except KeyboardInterrupt:
         pass
     except asyncio.CancelledError:
         pass
+
+    finally:
+        try:
+            _cancel_all_tasks(loop)
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            loop.run_until_complete(loop.shutdown_default_executor())
+        finally:
+            asyncio.get_event_loop_policy().set_event_loop(None)
+            loop.close()
+
+
+def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
+    to_cancel = asyncio.tasks.all_tasks(loop)
+    if not to_cancel:
+        return
+    for task in to_cancel:
+        task.cancel()
+    loop.run_until_complete(asyncio.tasks.gather(*to_cancel, return_exceptions=True))
+
+    for task in to_cancel:
+        if task.cancelled():
+            continue
+        if task.exception() is not None:
+            loop.call_exception_handler(
+                {
+                    "message": "unhandled exception during "
+                    + f"{_safe_run.__qualname__}() shutdown",
+                    "exception": task.exception(),
+                    "task": task,
+                }
+            )
