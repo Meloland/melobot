@@ -1,9 +1,9 @@
 from os import PathLike
 from typing import Sequence
 
-from ..ctx import EventBuildInfoCtx
 from ..adapter.content import Content
 from ..adapter.model import ActionHandle, Event
+from ..ctx import EventBuildInfoCtx
 
 _CTX = EventBuildInfoCtx()
 

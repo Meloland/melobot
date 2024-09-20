@@ -4,11 +4,11 @@ from dataclasses import dataclass
 from itertools import tee
 from typing import Iterable, NoReturn, Sequence
 
-from ..di import DependNotMatched, inject_deps
 from ..adapter.model import Event
 from ..ctx import FlowCtx, FlowRecord, FlowRecords
 from ..ctx import FlowRecordStage as RecordStage
 from ..ctx import FlowStatus, FlowStore
+from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
 from ..typ import AsyncCallable, HandleLevel
 
