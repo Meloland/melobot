@@ -1,8 +1,9 @@
 import asyncio
+import base64
 import inspect
 import time
-import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime
 from functools import wraps
 from typing import (
     Any,
@@ -164,12 +165,72 @@ class RWContext:
             self.write_semaphore.release()
 
 
+class SnowFlakeIdWorker:
+    def __init__(self, datacenter_id: int, worker_id: int, sequence: int = 0) -> None:
+        self.max_worker_id = -1 ^ (-1 << 3)
+        self.max_datacenter_id = -1 ^ (-1 << 5)
+        self.worker_id_shift = 12
+        self.datacenter_id_shift = 12 + 3
+        self.timestamp_left_shift = 12 + 3 + 5
+        self.sequence_mask = -1 ^ (-1 << 12)
+        self.startepoch = int(datetime(2022, 12, 11, 12, 8, 45).timestamp() * 1000)
+
+        if worker_id > self.max_worker_id or worker_id < 0:
+            raise ValueError("worker_id 值越界")
+        if datacenter_id > self.max_datacenter_id or datacenter_id < 0:
+            raise ValueError("datacenter_id 值越界")
+        self.worker_id = worker_id
+        self.datacenter_id = datacenter_id
+        self.sequence = sequence
+        self.last_timestamp = -1
+
+    def _gen_timestamp(self) -> int:
+        return int(time.time() * 1000)
+
+    def get_id(self) -> int:
+        timestamp = self._gen_timestamp()
+
+        if timestamp < self.last_timestamp:
+            raise ValueError(f"时钟回拨，{self.last_timestamp} 前拒绝 id 生成请求")
+        if timestamp == self.last_timestamp:
+            self.sequence = (self.sequence + 1) & self.sequence_mask
+            if self.sequence == 0:
+                timestamp = self._until_next_millis(self.last_timestamp)
+        else:
+            self.sequence = 0
+        self.last_timestamp = timestamp
+        new_id = (
+            ((timestamp - self.startepoch) << self.timestamp_left_shift)
+            | (self.datacenter_id << self.datacenter_id_shift)
+            | (self.worker_id << self.worker_id_shift)
+            | self.sequence
+        )
+        return new_id
+
+    def get_b64_id(self, trim_pad: bool = True) -> str:
+        id = base64.urlsafe_b64encode(
+            self.get_id().to_bytes(8, byteorder="little")
+        ).decode()
+        if trim_pad:
+            id = id.rstrip("=")
+        return id
+
+    def _until_next_millis(self, last_time: int) -> int:
+        timestamp = self._gen_timestamp()
+        while timestamp <= last_time:
+            timestamp = self._gen_timestamp()
+        return timestamp
+
+
+_DEFAULT_ID_WORKER = SnowFlakeIdWorker(1, 1, 0)
+
+
 def get_id() -> str:
-    """从 melobot 内部 id 获取器获得一个 id 值，不保证线程安全。
+    """从 melobot 内部 id 获取器获得一个 id 值，不保证线程安全。算法使用雪花算法
 
     :return: id 值
     """
-    return uuid.uuid4().hex
+    return _DEFAULT_ID_WORKER.get_b64_id()
 
 
 def to_async(
