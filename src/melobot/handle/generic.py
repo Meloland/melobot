@@ -1,9 +1,9 @@
 from os import PathLike
 from typing import Sequence
 
-from .._ctx import EventBuildInfoCtx
-from .content import Content
-from .model import ActionHandle, Event
+from ..adapter.content import Content
+from ..adapter.model import ActionHandle, Event
+from ..ctx import EventBuildInfoCtx
 
 _CTX = EventBuildInfoCtx()
 
@@ -65,3 +65,7 @@ async def send_refer(
     event: Event, contents: Sequence[Content] | None = None
 ) -> tuple[ActionHandle, ...]:
     return await _CTX.get().adapter.send_refer(event, contents)
+
+
+async def send_resource(name: str, url: str) -> tuple[ActionHandle, ...]:
+    return await _CTX.get().adapter.send_resource(name, url)

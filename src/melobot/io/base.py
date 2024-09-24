@@ -2,12 +2,12 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
-from typing import Any, Generic, TypeVar
+from typing import Any, Callable, Generic
 
-from typing_extensions import LiteralString, Self
+from typing_extensions import LiteralString, Self, TypeVar
 
 from .._hook import HookBus
-from ..typ import BetterABC, abstractattr, abstractmethod
+from ..typ import AsyncCallable, BetterABC, P, abstractmethod
 from ..utils import get_id
 
 
@@ -43,14 +43,14 @@ EchoPacketT = TypeVar("EchoPacketT", bound=EchoPacket)
 
 
 class SourceLifeSpan(Enum):
-    OPENED = "o"
-    CLOSE = "c"
+    STARTED = "sta"
+    STOPPED = "sto"
 
 
 class AbstractSource(BetterABC):
-    protocol: LiteralString = abstractattr()
+    def __init__(self, protocol: LiteralString) -> None:
+        self.protocol = protocol
 
-    def __init__(self) -> None:
         self._life_bus = HookBus[SourceLifeSpan](SourceLifeSpan)
 
     @abstractmethod
@@ -70,7 +70,7 @@ class AbstractSource(BetterABC):
             return self
 
         await self.open()
-        await self._life_bus.emit(SourceLifeSpan.OPENED)
+        await self._life_bus.emit(SourceLifeSpan.STARTED)
         return self
 
     async def __aexit__(
@@ -82,9 +82,21 @@ class AbstractSource(BetterABC):
         if not self.opened():
             return None
 
-        await self.close()
-        await self._life_bus.emit(SourceLifeSpan.CLOSE)
+        try:
+            await self.close()
+        finally:
+            await self._life_bus.emit(SourceLifeSpan.STOPPED, wait=True)
         return None
+
+    def on(
+        self, *period: SourceLifeSpan
+    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
+            for type in period:
+                self._life_bus.register(type, func)
+            return func
+
+        return wrapped
 
 
 class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
@@ -134,19 +146,25 @@ InOrOutSourceT = TypeVar("InOrOutSourceT", bound=AbstractInSource | AbstractOutS
 class AbstractIOSource(
     AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT], BetterABC
 ):
-    # pylint: disable=duplicate-code
-
+    @abstractmethod
     async def open(self) -> None:
         raise NotImplementedError
 
+    @abstractmethod
     async def close(self) -> None:
         raise NotImplementedError
 
+    @abstractmethod
     def opened(self) -> bool:
         raise NotImplementedError
 
+    @abstractmethod
     async def input(self) -> InPacketT:
         raise NotImplementedError
 
+    @abstractmethod
     async def output(self, packet: OutPacketT) -> EchoPacketT:
         raise NotImplementedError
+
+
+IOSourceT = TypeVar("IOSourceT", bound=AbstractIOSource)

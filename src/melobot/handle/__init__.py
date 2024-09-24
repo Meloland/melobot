@@ -1,9 +1,8 @@
-from .._ctx import FlowCtx as _FlowCtx
-from .._ctx import FlowRecord as _FlowRecord
-from .._ctx import FlowRecordStage, FlowStore
-from .._di import Depends, inject_deps
 from ..adapter.model import Event
-from .process import Flow, block, bypass, flow_to, nextn, node, rewind, stop
+from ..ctx import FlowCtx as _FlowCtx
+from ..ctx import FlowRecord as _FlowRecord
+from ..ctx import FlowRecordStage, FlowStore
+from .process import Flow, block, bypass, flow_to, nextn, no_deps_node, node, rewind, stop
 
 
 def get_flow_records() -> tuple[_FlowRecord, ...]:

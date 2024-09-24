@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING
 
-from .._ctx import LoggerCtx
 from ..adapter.model import Event
+from ..ctx import LoggerCtx
 from ..log.base import LogLevel
-from ..typ import HandleLevel
 from ..utils import RWContext
 from .process import Flow
 
@@ -22,16 +21,11 @@ class EventHandler:
         self._temp = flow.temp
         self.invalid = False
 
-    @property
-    def priority(self) -> HandleLevel:
-        return self.flow.priority
-
     async def _handle_event(self, event: Event) -> None:
         try:
             await self.flow.run(event)
         except Exception:
-            self.logger.error(f"事件处理 {self.name} 发生异常")
-            self.logger.exception(f"事件处理 {self.name} 发生异常")
+            self.logger.exception(f"事件处理流 {self.name} 发生异常")
             self.logger.generic_obj(
                 f"异常点 event {event.id}", event.__dict__, level=LogLevel.ERROR
             )
@@ -53,10 +47,6 @@ class EventHandler:
             await self._handle_event(event)
             self.invalid = True
             return
-
-    async def reset_prior(self, new_prior: HandleLevel) -> None:
-        async with self._handle_ctrl.write():
-            self.flow.priority = new_prior
 
     async def expire(self) -> None:
         async with self._handle_ctrl.write():

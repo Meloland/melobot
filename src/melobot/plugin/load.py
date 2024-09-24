@@ -6,21 +6,18 @@ from os import PathLike, listdir, remove
 from pathlib import Path
 from time import time
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import Any, Callable, Iterable
 
-from .._ctx import BotCtx, LoggerCtx
+from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginError
 from ..utils import singleton
 from .base import Plugin
 from .imp import Importer
 from .ipc import AsyncShare, SyncShare
 
-if TYPE_CHECKING:
-    from ..bot.base import Bot
 
-
-def plugin_get_attr(get_bot: Callable[[], "Bot"], p_name: str, name: str) -> Any:
-    obj = get_bot().ipc_manager.get(p_name, name)
+def plugin_get_attr(p_name: str, name: str) -> Any:
+    obj = BotCtx().get().ipc_manager.get(p_name, name)
     if obj.static:
         return obj.get()
     return obj
@@ -149,8 +146,8 @@ class PluginInitHelper:
                 remove(pinit_typ_path)
 
             with ExitStack() as ctx_stack:
-                ctx_stack.enter_context(BotCtx().on_ctx(tmp_bot))
-                ctx_stack.enter_context(LoggerCtx().on_ctx(tmp_bot.logger))
+                ctx_stack.enter_context(BotCtx().in_ctx(tmp_bot))
+                ctx_stack.enter_context(LoggerCtx().in_ctx(tmp_bot.logger))
 
                 prefix = ".".join(p_dir.parts[-load_depth:])
                 p_load_mod_name = f"{prefix}.__plugin__"
@@ -211,8 +208,14 @@ class PluginLoader:
         p.__plugin_build__(p_name)
         return p
 
-    def load(self, plugin: ModuleType | str | PathLike[str], load_depth: int) -> Plugin:
+    def load(
+        self, plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int
+    ) -> Plugin:
         logger = LoggerCtx().get()
+
+        if isinstance(plugin, Plugin):
+            plugin.__plugin_build__(f"DynamicPlugin_0x{id(plugin):0x}")
+            return plugin
 
         if isinstance(plugin, ModuleType):
             if plugin.__file__ is None:

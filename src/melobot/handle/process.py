@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import tee
-from typing import Generic, Iterable, NoReturn, Sequence
+from typing import Iterable, NoReturn, Sequence
 
-from .._ctx import FlowCtx, FlowRecord, FlowRecords
-from .._ctx import FlowRecordStage as RecordStage
-from .._ctx import FlowStatus, FlowStore
-from .._di import DependNotMatched, inject_deps
-from ..adapter.model import Event, EventT
+from ..adapter.model import Event
+from ..ctx import FlowCtx, FlowRecord, FlowRecords
+from ..ctx import FlowRecordStage as RecordStage
+from ..ctx import FlowStatus, FlowStore
+from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
 from ..typ import AsyncCallable, HandleLevel
 
@@ -19,6 +19,10 @@ def node(func: AsyncCallable[..., bool | None]) -> FlowNode:
     return FlowNode()(func)
 
 
+def no_deps_node(func: AsyncCallable[..., bool | None]) -> FlowNode:
+    return FlowNode()(func, no_deps=True)
+
+
 class FlowNode:
     def __init__(self) -> None:
         self.name: str
@@ -27,8 +31,10 @@ class FlowNode:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
-    def __call__(self, func: AsyncCallable[..., bool | None]) -> FlowNode:
-        self.processor = inject_deps(func)
+    def __call__(
+        self, func: AsyncCallable[..., bool | None], no_deps: bool = False
+    ) -> FlowNode:
+        self.processor = func if no_deps else inject_deps(func)
         self.name = func.__name__
         return self
 
@@ -39,7 +45,7 @@ class FlowNode:
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.on_ctx(FlowStatus(event, flow, self, True, records, store)):
+        with _FLOW_CTX.in_ctx(FlowStatus(event, flow, self, True, records, store)):
             try:
                 records.append(
                     FlowRecord(RecordStage.NODE_START, flow.name, self.name, event)
@@ -79,7 +85,7 @@ class _NodeInfo:
         return _NodeInfo(self.nexts, self.in_deg, self.out_deg)
 
 
-class Flow(Generic[EventT]):
+class Flow:
     def __init__(
         self,
         name: str,
@@ -88,9 +94,11 @@ class Flow(Generic[EventT]):
         temp: bool = False,
     ) -> None:
         self.name = name
-        self.priority = priority
         self.temp = temp
         self.graph: dict[FlowNode, _NodeInfo] = {}
+
+        self._priority = priority
+        self._priority_cb: AsyncCallable[[HandleLevel], None]
 
         _edge_maps = tuple(
             tuple((elem,) if isinstance(elem, FlowNode) else elem for elem in emap)
@@ -128,6 +136,17 @@ class Flow(Generic[EventT]):
                             edges.append((n1, n2))
 
         return edges
+
+    @property
+    def priority(self) -> HandleLevel:
+        return self._priority
+
+    def on_priority_reset(self, callback: AsyncCallable[[HandleLevel], None]) -> None:
+        self._priority_cb = callback
+
+    async def reset_priority(self, new_prior: HandleLevel) -> None:
+        await self._priority_cb(new_prior)
+        self._priority = new_prior
 
     @property
     def starts(self) -> tuple[FlowNode, ...]:
@@ -173,7 +192,32 @@ class Flow(Generic[EventT]):
 
         return True
 
-    async def run(self, event: EventT) -> None:
+    def link(self, flow: Flow, priority: HandleLevel | None = None) -> Flow:
+        # pylint: disable=protected-access
+        _froms = self.ends
+        _tos = flow.starts
+        new_edges = tuple((n1, n2) for n1 in _froms for n2 in _tos)
+
+        new_flow = Flow(
+            f"{self.name} ~ {flow.name}",
+            *new_edges,
+            priority=priority if priority else min(self.priority, flow.priority),
+            temp=self.temp or flow.temp,
+        )
+
+        for n1, info in (self.graph | flow.graph).items():
+            if not len(info.nexts):
+                new_flow._add(n1, None)
+                continue
+            for n2 in info.nexts:
+                new_flow._add(n1, n2)
+
+        if not self._valid_check():
+            raise FlowError(f"定义的处理流 {self.name} 中存在环路")
+
+        return new_flow
+
+    async def run(self, event: Event) -> None:
         if not len(self.starts):
             return
 
@@ -183,7 +227,7 @@ class Flow(Generic[EventT]):
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.on_ctx(
+        with _FLOW_CTX.in_ctx(
             FlowStatus(event, self, self.starts[0], True, records, store)
         ):
             try:
