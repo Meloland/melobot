@@ -1,8 +1,29 @@
 melobot.io
 ==========
 
-连接器
-----------
+输入输出层部件
+----------------
 
-.. automodule:: melobot.io
-   :show-inheritance:
+.. autoclass:: melobot.io.AbstractInSource
+    :members:
+
+.. autoclass:: melobot.io.AbstractOutSource
+    :members:
+
+.. autoclass:: melobot.io.AbstractIOSource
+    :members:
+
+.. autoclass:: melobot.io.SourceLifeSpan
+    :members:
+
+输入输出包基类
+------------------
+
+.. autoclass:: melobot.io.InPacket
+    :members:
+
+.. autoclass:: melobot.io.OutPacket
+    :members:
+
+.. autoclass:: melobot.io.EchoPacket
+    :members:

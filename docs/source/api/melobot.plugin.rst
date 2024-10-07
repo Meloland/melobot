@@ -1,15 +1,15 @@
 melobot.plugin
-===============
+==============
 
-插件
--------
+插件层组件
+-----------
 
-实例化 :class:`.BotPlugin` 类即可创建一个插件。插件是 melobot 的重要组件之一。 
+.. autoclass:: melobot.plugin.Plugin
+    :members:
+    :exclude-members: __init__
 
-.. autoclass:: melobot.plugin.BotPlugin
-   :members:
+.. autoclass:: melobot.plugin.AsyncShare
+    :members:
 
-.. autoclass:: melobot.plugin.PluginProxy
-   :members:
-   :exclude-members: __init__
-
+.. autoclass:: melobot.plugin.SyncShare
+    :members:

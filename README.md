@@ -97,14 +97,14 @@ pdm build
 
 之后可在 `.pdm-build` 目录获取本地构建，pip 本地安装即可。
 
+<!-- end elevator-pitch -->
+
 ## 💻 贡献指南与行为准则
 
 参考：
 
 - [CONTRIBUTING](CONTRIBUTING.md)
 - [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md)
-
-<!-- end elevator-pitch -->
 
 ## 📜 开源许可
 

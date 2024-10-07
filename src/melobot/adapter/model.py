@@ -164,7 +164,7 @@ class _ChainCtxStep(_ChainStep):
     ret_when: Literal["ALL_COMPLETED"] = "ALL_COMPLETED"
 
 
-class _ActionChain:
+class ActionChain:
     def __init__(self) -> None:
         self._chain: list[_ChainStep] = []
 
@@ -216,6 +216,6 @@ class _ActionChain:
 
 
 @contextmanager
-def open_chain() -> Generator[_ActionChain, None, None]:
+def open_chain() -> Generator[ActionChain, None, None]:
     with ActionManualSignalCtx().in_ctx(True):
-        yield _ActionChain()
+        yield ActionChain()

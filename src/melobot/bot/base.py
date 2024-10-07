@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import asyncio.tasks
 import os
+import platform
 import sys
 from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
 from enum import Enum
@@ -14,6 +15,7 @@ from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable
 from typing_extensions import LiteralString
 
 from .._hook import HookBus
+from .._meta import MetaInfo
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotError
@@ -45,6 +47,14 @@ MELO_PKG_RUNTIME = "MELOBOT_PKG_RUNTIME"
 MELO_LAST_EXIT_SIGNAL = "MELO_LAST_EXIT_SIGNAL"
 _BOT_CTX = BotCtx()
 _LOGGER_CTX = LoggerCtx()
+
+
+def _start_log(logger: GenericLogger) -> None:
+    for row in MetaInfo.logo.split("\n"):
+        logger.info(row)
+    ver_str = f"版本：{MetaInfo.ver}，平台：{platform.system()}"
+    logger.info(ver_str)
+    logger.info("-" * 37)
 
 
 class Bot:
@@ -154,6 +164,8 @@ class Bot:
         return self
 
     def _run_init(self) -> None:
+        _start_log(self.logger)
+
         for protocol, srcs in self._in_srcs.items():
             for isrc in srcs:
                 adapter = self.adapters.get(protocol)
