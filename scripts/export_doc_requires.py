@@ -1,4 +1,4 @@
-"""Cross platform melobot dependencies freshing"""
+"""Cross platform melobot doc build dependencies freshing"""
 
 import os
 from pathlib import Path
@@ -15,12 +15,13 @@ def main() -> None:
         pyproj_toml["tool"]["pdm"]["dev-dependencies"]
         | pyproj_toml["project"]["optional-dependencies"]
     )
+    except_groups.pop("docs")
     excepts = ",".join(except_groups)
-    ret = os.system(f"pdm export -o requirements.txt --without {excepts}")
+    ret = os.system(f"pdm export -o docs/requirements.txt --without {excepts}")
     if ret == 0:
-        print("已刷新项目的 requirements.txt")
+        print("已刷新文档构建的 requirements.txt")
     else:
-        print("未能完成刷新项目的 requirements.txt 的任务")
+        print("未能完成刷新文档构建的 requirements.txt 的任务")
 
 
 if __name__ == "__main__":

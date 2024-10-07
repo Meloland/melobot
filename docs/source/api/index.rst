@@ -2,53 +2,55 @@ melobot API 参考
 ================
 
 .. admonition:: 提示
-   :class: tip
+    :class: tip
 
-   如无特别说明，文档中所有与时间有关的参数，单位都为秒（s）
+    如无特别说明，文档中所有与时间有关的参数，单位都为秒（s）
 
 以下组件可从 melobot 命名空间直接导入：
 
 - :class:`.MetaInfo`
-- :class:`.MeloBot`
-- :obj:`.thisbot`
-- :class:`.ForwardWsConn`
-- :class:`.ReverseWsConn`
-- :class:`.HttpConn`
-- :class:`.SessionOption`
-- :func:`.msg_event`
-- :func:`.msg_text`
-- :func:`.msg_args`
-- :func:`.send`
-- :func:`.send_wait`
-- :func:`.send_reply`
-- :func:`.finish`
-- :func:`.reply_finish`
-- :func:`.session_store`
-- :func:`.pause`
-- :class:`.BotPlugin`
-- :class:`.GroupMsgLvlChecker`
-- :class:`.PrivateMsgLvlChecker`
-- :class:`.CmdParser`
-- :class:`.CmdArgFormatter`
-- :func:`.lock`
-- :func:`.semaphore`
-- :func:`.timelimit`
-- :func:`.this_dir`
-- :class:`.User`
-- :class:`.PriorLevel`
-- :class:`.SessionRule`
+- :class:`.Bot`
+- :class:`.Plugin`
+- :class:`.AsyncShare`
+- :class:`.SyncShare`
+- :class:`.Adapter`
+- :class:`.Event`
+- :class:`.Action`
+- :class:`.Echo`
+- :class:`.Flow`
+- :class:`.FlowStore`
+- :class:`.Depends`
+- :class:`.Rule`
+- :class:`.SessionStore`
+- :class:`.Logger`
+- :class:`.LogLevel`
+- :class:`.HandleLevel`
 - :class:`.LogicMode`
+- :class:`.Context`
+- :func:`.get_bot`
+- :func:`.get_logger`
+- :func:`.node`
+- :func:`.rewind`
+- :func:`.stop`
+- :func:`.enter_session`
+- :func:`.suspend`
 
 melobot API 二级目录索引：
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 1
 
-   melobot.meta
-   melobot.bot
-   melobot.io
-   melobot.models
-   melobot.context
-   melobot.plugin
-   melobot.utils
-   melobot.base
+    melobot
+    melobot.bot
+    melobot.plugin
+    melobot.adapter
+    melobot.io
+    melobot.protocol
+    melobot.handle
+    melobot.di
+    melobot.session
+    melobot.log
+    melobot.utils
+    melobot.typ
+    melobot.exceptions
+    melobot.ctx

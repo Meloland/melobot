@@ -4,9 +4,7 @@
 :maxdepth: 2
 :hidden:
 
-intro/index
 api/index
-references/index
 ```
 
 ```{toctree}
@@ -15,11 +13,6 @@ references/index
 :hidden:
 
 melobot-prev
-melobot-next
-prompt
-```
-
-```{include} warning.md
 ```
 
 

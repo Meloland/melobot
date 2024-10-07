@@ -6,4 +6,4 @@ from .base import (
     AdapterLifeSpan,
 )
 from .content import Content
-from .model import Action, ActionHandle, Echo, Event, open_chain
+from .model import Action, ActionChain, ActionHandle, Echo, Event, open_chain

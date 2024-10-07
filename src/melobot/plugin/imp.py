@@ -169,10 +169,12 @@ class ModuleLoader(Loader):
                 for name in rm_names:
                     sys.modules.pop(name)
 
-    def get_code(self, fullname: str) -> Any:
-        if self.inner_loader is not None and hasattr(self.inner_loader, "get_code"):
-            return self.inner_loader.get_code(fullname)
-        return None
+    def __getattr__(self, name: str) -> Any:
+        if self.inner_loader is not None:
+            return getattr(self.inner_loader, name)
+        raise AttributeError(
+            f"'{self.__class__.__name__}' object has no attribute '{name}'"
+        )
 
 
 class Importer:

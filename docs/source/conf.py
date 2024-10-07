@@ -5,9 +5,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../src/"))
 import melobot
-import melobot.meta
-
-_need_ret_fix_funcs = melobot.context.action.__all__
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -20,7 +17,7 @@ _need_ret_fix_funcs = melobot.context.action.__all__
 project = "melobot"
 author = "contributors of this doc"
 copyright = f"{datetime.date.today().year}, {author}"
-release = melobot.meta.MetaInfo.VER
+release = melobot.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -44,14 +41,15 @@ autodoc_class_signature = "separated"
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    "special-members": "__init__",
+    "special-members": "__init__, __call__",
+    "show-inheritance": True,
+    "undoc-members": True,
 }
 
 templates_path = ["_templates"]
 exclude_patterns = []
 pygments_style = "default"
 pygments_dark_style = "monokai"
-
 language = "zh_CN"
 
 # -- Options for HTML output -------------------------------------------------
@@ -79,22 +77,22 @@ html_theme_options = {
 html_static_path = ["_static"]
 
 
-def fix_type_annotation(app, what, name, obj, options, signature, return_annotation):
-    if name == "melobot.utils.CmdArgFormatter.__init__":
-        return (
-            signature.replace("<class 'melobot.base.typing.Void'>", "Void"),
-            return_annotation,
-        )
+# def fix_type_annotation(app, what, name, obj, options, signature, return_annotation):
+#     if name == "melobot.utils.CmdArgFormatter.__init__":
+#         return (
+#             signature.replace("<class 'melobot.base.typing.Void'>", "Void"),
+#             return_annotation,
+#         )
 
-    if (
-        inspect.isfunction(obj)
-        and obj.__name__ in _need_ret_fix_funcs
-        and return_annotation == "~melobot.base.abc.BotAction"
-    ):
-        return signature, "~melobot.context.ActionHandle"
-    else:
-        return signature, return_annotation
+#     if (
+#         inspect.isfunction(obj)
+#         and obj.__name__ in _need_ret_fix_funcs
+#         and return_annotation == "~melobot.base.abc.BotAction"
+#     ):
+#         return signature, "~melobot.context.ActionHandle"
+#     else:
+#         return signature, return_annotation
 
 
-def setup(app):
-    app.connect("autodoc-process-signature", fix_type_annotation)
+# def setup(app):
+#     app.connect("autodoc-process-signature", fix_type_annotation)
