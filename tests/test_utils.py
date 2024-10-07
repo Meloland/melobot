@@ -63,9 +63,10 @@ class TestAttrsReprable:
 #     pass
 
 
+# make sure the 2 readers below always get different results.
 _ESTHER_EGGS = [
-    'qwqa', 'ElapsingDreams', 'frg2089',
-    'Melorenae', 'aicorein', 'MelodyEcho',
+    'PedroDelMar', 'ElapsingDreams', 'ShimakazeProject',
+    'MelorenAe', 'aiCoreIn', 'MelodyEcho',
     'SnowyKami', 'LiteeCiallo', 'DislinkSforza'
 ]
 
@@ -74,16 +75,15 @@ class TestRWContext:
     SHARED_BUFFER = [''] * 10
     RW_CONTROL = RWContext(10)
 
-    INTERVAL = 10
+    esther_eggs = _ESTHER_EGGS + ['...']
 
-    async def write_randomized(self) -> None:
-        esther_eggs = _ESTHER_EGGS.copy()
-        esther_eggs.append('...')
+    async def write_randomized(self) -> int:
         async with self.RW_CONTROL.write():
             idx = randint(0, 9)
             if self.SHARED_BUFFER[idx]:
-                return
-            self.SHARED_BUFFER[idx] = choice(esther_eggs)
+                return HTTPStatus.INSUFFICIENT_STORAGE
+            self.SHARED_BUFFER[idx] = choice(self.esther_eggs)
+        return HTTPStatus.OK
 
     async def read_raw(self) -> str:
         async with self.RW_CONTROL.read():
@@ -113,14 +113,19 @@ class TestRWContext:
         return buffer
 
     async def test_rwcontrol(self) -> None:
-        i = 0
-        while i < self.INTERVAL:
-            i += 1
-            await self.write_randomized()
-            _ = await self.read_raw()  # dropped.
-            parsed = await self.read_parsed()
-            assert parsed is None or len(
-                [j for j in parsed if j.isupper()]) <= 1
+        rwseq = [choice([
+            self.write_randomized(),
+            self.read_parsed(),
+            self.read_raw()
+        ]) for _ in range(50)]
+        rets: list[int | Optional[str]] = await aio.gather(*rwseq)
+        for i in rets:
+            if isinstance(i, int):
+                continue
+            assert (
+                i in self.esther_eggs  # read_raw
+                or i is None  # read_parsed read empty cell.
+                or len([j for j in i if j.isupper()]) <= 1)
 
 
 # no need, since `get_id()` always use it.
