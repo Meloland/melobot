@@ -8,6 +8,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Sequence
 
+from ..exceptions import DynamicImpError
 from ..utils import singleton
 
 
@@ -197,6 +198,7 @@ class Importer:
 
         if sys_cache and name in sys.modules:
             return sys.modules[name]
+
         spec = SpecFinder().find_spec(
             name,
             (str(path),) if path is not None else None,
@@ -205,7 +207,8 @@ class Importer:
             pre_sys_len=pre_sys_len,
             pre_cache_len=pre_cache_len,
         )
-        assert spec is not None
+        if spec is None:
+            raise DynamicImpError(f"名为 {name} 的模块无法加载，指定的位置：{path}")
         mod = module_from_spec(spec)
         assert spec.loader is not None
         spec.loader.exec_module(mod)

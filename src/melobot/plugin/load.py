@@ -9,7 +9,7 @@ from types import ModuleType
 from typing import Any, Callable, Iterable
 
 from ..ctx import BotCtx, LoggerCtx
-from ..exceptions import PluginError
+from ..exceptions import DynamicImpError, PluginError
 from ..utils import singleton
 from .base import Plugin
 from .imp import Importer
@@ -222,10 +222,19 @@ class PluginLoader:
                 p_dir = Path(plugin.__path__[0])
             else:
                 p_dir = Path(plugin.__file__).parent
+
         else:
+            try:
+                if isinstance(plugin, str):
+                    p_mod = Importer.import_mod(plugin)
+                    return self.load(p_mod, load_depth)
+            except DynamicImpError:
+                pass
+
             p_dir = Path(plugin)
             if not p_dir.is_absolute():
                 p_dir = Path.cwd().joinpath(p_dir).resolve(strict=True)
+
         logger.debug(f"尝试加载来自 {repr(p_dir)} 的插件")
 
         p_name = p_dir.parts[-1]
