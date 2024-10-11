@@ -546,6 +546,8 @@
 
 <span class="sd">        适配器开发者的适配器子类可以重写此方法，以实现自定义功能</span>
 
+<span class="sd">        但子类实现中必须调用原始方法： `super().call_output(...)`</span>
+
 <span class="sd">        :param action: 行为</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -714,6 +716,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文件</span>
 
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
+
 <span class="sd">        :param name: 文件名</span>
 <span class="sd">        :param path: 文件路径</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
@@ -728,6 +732,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出对过往事件的引用</span>
 
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
+
 <span class="sd">        :param event: 过往的事件对象</span>
 <span class="sd">        :param contents: 附加的通用内容序列</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
@@ -741,6 +747,8 @@
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_resource">[文档]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">send_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出网络资源</span>
+
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
 
 <span class="sd">        :param name: 网络资源名称</span>
 <span class="sd">        :param url: 网络资源的 url</span>
