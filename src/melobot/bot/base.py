@@ -318,8 +318,20 @@ class Bot:
         for pdir in pdirs:
             self.load_plugins_dir(pdir, load_depth)
 
+    def load_site_plugins(self, *site_plugins: str) -> None:
+        """加载从站点上（例如 pip）安装的第三方插件
+
+        :param site_plugins: 要加载的第三方插件的名称，例如 "melobot_plugin_example"
+        """
+        for pname in site_plugins:
+            pmod = importlib.import_module(pname)
+            self.load_plugin(pmod)
+
     async def core_run(self) -> None:
-        """运行 bot 的方法，可以自由地在异步事件循环中使用"""
+        """运行 bot 的方法，可以在异步事件循环中自由地使用
+
+        若使用此方法，则需要自行管理异步事件循环
+        """
         if not self._inited:
             self._run_init()
 
@@ -360,17 +372,8 @@ class Bot:
                 self.logger.info(f"{self} 已停止运行")
                 self._running = False
 
-    def load_site_plugins(self, *site_plugins: str) -> None:
-        """加载从站点上（例如 pip）安装的第三方插件
-
-        :param site_plugins: 要加载的第三方插件的名称，例如 "melobot_plugin_example"
-        """
-        for pname in site_plugins:
-            pmod = importlib.import_module(pname)
-            self.load_plugin(pmod)
-
     def run(self, debug: bool = False) -> None:
-        """运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况
+        """安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况
 
         :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级
         """
@@ -378,7 +381,7 @@ class Bot:
 
     @classmethod
     def start(cls, *bots: Bot, debug: bool = False) -> None:
-        """同时运行多个 bot 的阻塞方法
+        """安全地同时运行多个 bot 的阻塞方法
 
         :param bots: 要运行的 bot 对象
         :param debug: 参见 :func:`run` 同名参数
