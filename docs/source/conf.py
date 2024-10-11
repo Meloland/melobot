@@ -57,7 +57,7 @@ language = "zh_CN"
 
 html_title = f"{project} {release}"
 html_baseurl = "/melobot/"
-html_logo = "logo.png"
+html_logo = "_static/logo.png"
 html_theme = "furo"
 html_theme_options = {
     "source_edit_link": "https://github.com/Meloland/melobot/tree/main/docs/source/{filename}",
