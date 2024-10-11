@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="下一代 melobot" href="melobot-next.html" /><link rel="prev" title="事件预处理" href="references/preprocess.html" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="prev" title="melobot.ctx" href="api/melobot.ctx.html" />
         <link rel="canonical" href="/melobot/melobot-prev.html" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>上一代 melobot - melobot 2.6.5</title>
+        <title>melobot 历史版本 - melobot 3.0.0rc6</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">melobot 2.6.5</div></a>
+      <a href="index.html"><div class="brand">melobot 3.0.0rc6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.5</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -212,40 +212,27 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro/create-bot.html">开始创建机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro/event-process.html">事件与事件处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro/msg-action.html">消息操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro/action-resp.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro/event-preprocess.html">事件预处理</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/melobot.meta.html">melobot.meta</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.bot.html">melobot.bot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/melobot.io.html">melobot.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/melobot.models.html">melobot.models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/melobot.context.html">melobot.context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.log.html">melobot.log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.utils.html">melobot.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/melobot.base.html">melobot.base</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="references/onebot.html">OneBot 协议和实现</a></li>
-<li class="toctree-l2"><a class="reference internal" href="references/connector.html">连接器类型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="references/event-action.html">事件和行为</a></li>
-<li class="toctree-l2"><a class="reference internal" href="references/msg.html">消息内容的数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="references/forward-msg.html">转发消息与消息结点</a></li>
-<li class="toctree-l2"><a class="reference internal" href="references/preprocess.html">事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">上一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="melobot-next.html">下一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prompt.html">melobot 形象</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">melobot 历史版本</a></li>
 </ul>
 
 </div>
@@ -284,19 +271,27 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="melobot">
-<h1>上一代 melobot<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h1>
-<p>melobot 上一代版本（即 melobot v1），本质上只是一个 qq 机器人程序。它以异步支持和模板扩展为主要特色，实现了对 qq 消息事件的监听和简单处理。</p>
+<h1>melobot 历史版本<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h1>
+<section id="melobot-v1">
+<h2>melobot v1<a class="headerlink" href="#melobot-v1" title="Link to this heading">¶</a></h2>
+<p>melobot v1，本质上只是一个 qq 机器人程序。它以异步支持和模板扩展为主要特色，实现了对 qq 消息事件的监听和简单处理。</p>
 <p><strong>v1 版本现已完全停止维护</strong>，不建议继续使用。如果您对 v1 感兴趣，可以看看这些：</p>
 <p>v1 源代码：<a class="reference external" href="https://github.com/Meloland/melobot/tree/386b531904829ed5603d491656567f5a22fa32bf">commit/386b531</a></p>
 <p>v1 文档仓库：<a class="reference external" href="https://github.com/aicorein/Qbot-MeloBot-docs">aicorein/Qbot-MeloBot-docs</a></p>
 <p>v1 文档地址：<a class="reference external" href="https://aicorein.github.io/Qbot-MeloBot-docs/">Qbot-MeloBot-docs</a></p>
+</section>
+<section id="melobot-v2">
+<h2>melobot v2<a class="headerlink" href="#melobot-v2" title="Link to this heading">¶</a></h2>
+<p>melobot v2，是一个只适用于 onebot 协议的，用于 qq 机器人的开发框架。</p>
+<p><strong>v2 版本现已完全停止维护</strong>，不建议继续使用。</p>
+</section>
 </section>
 
         </article>
@@ -304,23 +299,15 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="melobot-next.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">下一代 melobot</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="references/preprocess.html">
+          
+          <a class="prev-page" href="api/melobot.ctx.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">事件预处理</div>
+                <div class="title">melobot.ctx</div>
                 
               </div>
             </a>
@@ -349,13 +336,33 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">melobot 历史版本</a><ul>
+<li><a class="reference internal" href="#melobot-v1">melobot v1</a></li>
+<li><a class="reference internal" href="#melobot-v2">melobot v2</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=1deec174"></script>
+</div><script src="_static/documentation_options.js?v=33a93e33"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

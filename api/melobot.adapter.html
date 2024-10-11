@@ -1,0 +1,1093 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot.io" href="melobot.io.html" /><link rel="prev" title="melobot.plugin" href="melobot.plugin.html" />
+        <link rel="canonical" href="/melobot/api/melobot.adapter.html" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+        <title>melobot.adapter - melobot 3.0.0rc6</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">melobot API 参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="melobot.html">melobot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.bot.html">melobot.bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.log.html">melobot.log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.utils.html">melobot.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">更多</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/api/melobot.adapter.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/api/melobot.adapter.rst" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="melobot-adapter">
+<h1>melobot.adapter<a class="headerlink" href="#melobot-adapter" title="Link to this heading">¶</a></h1>
+<section id="id1">
+<h2>适配器层组件<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">Adapter</span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">EventFactoryT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputFactoryT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoFactoryT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">ActionT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">InSourceT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">OutSourceT</span></code>]</p>
+<p>适配器基类</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>protocol</strong> (<em>LiteralString</em>) – 适配器所使用的协议</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.on">
+<em class="property"><span class="pre">final</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.adapter.AdapterLifeSpan" title="melobot.adapter.base.AdapterLifeSpan"><span class="pre">AdapterLifeSpan</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.on"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.on" title="Link to this definition">¶</a></dt>
+<dd><p>生成注册适配器生命周期回调的装饰器</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>periods</strong> – 要绑定的生命周期阶段</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>装饰器</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.get_isrcs">
+<em class="property"><span class="pre">final</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_isrcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">InSourceT</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="（在 Python v3.13）"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><span class="pre">InSourceT</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.get_isrcs"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.get_isrcs" title="Link to this definition">¶</a></dt>
+<dd><p>获取与当前适配器匹配的所有输入源</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filter</strong> – 过滤函数，为 <cite>True</cite> 时保留输入源</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>输入源的集合</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.get_osrcs">
+<em class="property"><span class="pre">final</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_osrcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">OutSourceT</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="（在 Python v3.13）"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><span class="pre">OutSourceT</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.get_osrcs"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.get_osrcs" title="Link to this definition">¶</a></dt>
+<dd><p>获取与当前适配器匹配的所有输出源</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filter</strong> – 过滤函数，为 <cite>True</cite> 时保留输出源</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>输出源的集合</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.filter_out">
+<em class="property"><span class="pre">final</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filter_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">OutSourceT</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">_GeneratorContextManager</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.filter_out"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.filter_out" title="Link to this definition">¶</a></dt>
+<dd><p>上下文管理器，提供由 <cite>filter</cite> 控制输出的输出上下文</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filter</strong> – 过滤函数，为 <cite>True</cite> 时允许该输出源输出</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.call_output">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ActionT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.call_output"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.call_output" title="Link to this definition">¶</a></dt>
+<dd><p>输出行为，并返回各个输出源返回的 <a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 组成的元组</p>
+<p>适配器开发者的适配器子类可以重写此方法，以实现自定义功能</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>action</strong> – 行为</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_text">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_text"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_text" title="Link to this definition">¶</a></dt>
+<dd><p>输出文本</p>
+<p>抽象方法。所有适配器子类应该实现此方法</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> – 文本</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_media">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_media</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="（在 Python v3.13）"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mimetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_media"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_media" title="Link to this definition">¶</a></dt>
+<dd><p>输出多媒体内容</p>
+<p>建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 <a class="reference internal" href="#melobot.adapter.Adapter.send_text" title="melobot.adapter.Adapter.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a> 输出相关提示信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 多媒体内容的名称</p></li>
+<li><p><strong>raw</strong> – 多媒体内容的二进制内容</p></li>
+<li><p><strong>url</strong> – 多媒体内容的网络地址（和 <cite>raw</cite> 参数二选一）</p></li>
+<li><p><strong>mimetype</strong> – 多媒体内容的 mimetype，为空则根据 <cite>name</cite> 自动检测</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_image">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="（在 Python v3.13）"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mimetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_image"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_image" title="Link to this definition">¶</a></dt>
+<dd><p>输出图像内容</p>
+<p>建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 <a class="reference internal" href="#melobot.adapter.Adapter.send_text" title="melobot.adapter.Adapter.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a> 输出相关提示信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 图像内容的名称</p></li>
+<li><p><strong>raw</strong> – 图像内容的二进制内容</p></li>
+<li><p><strong>url</strong> – 图像内容的网络地址（和 <cite>raw</cite> 参数二选一）</p></li>
+<li><p><strong>mimetype</strong> – 图像内容的 mimetype，为空则根据 <cite>name</cite> 自动检测</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_audio">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="（在 Python v3.13）"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mimetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_audio"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_audio" title="Link to this definition">¶</a></dt>
+<dd><p>输出音频内容</p>
+<p>建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 <a class="reference internal" href="#melobot.adapter.Adapter.send_text" title="melobot.adapter.Adapter.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a> 输出相关提示信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 音频内容的名称</p></li>
+<li><p><strong>raw</strong> – 音频内容的二进制内容</p></li>
+<li><p><strong>url</strong> – 音频内容的网络地址（和 <cite>raw</cite> 参数二选一）</p></li>
+<li><p><strong>mimetype</strong> – 音频内容的 mimetype，为空则根据 <cite>name</cite> 自动检测</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_voice">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_voice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="（在 Python v3.13）"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mimetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_voice"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_voice" title="Link to this definition">¶</a></dt>
+<dd><p>输出语音内容</p>
+<p>建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 <a class="reference internal" href="#melobot.adapter.Adapter.send_text" title="melobot.adapter.Adapter.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a> 输出相关提示信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 语音内容的名称</p></li>
+<li><p><strong>raw</strong> – 语音内容的二进制内容</p></li>
+<li><p><strong>url</strong> – 语音内容的网络地址（和 <cite>raw</cite> 参数二选一）</p></li>
+<li><p><strong>mimetype</strong> – 语音内容的 mimetype，为空则根据 <cite>name</cite> 自动检测</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_video">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="（在 Python v3.13）"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mimetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_video"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_video" title="Link to this definition">¶</a></dt>
+<dd><p>输出视频内容</p>
+<p>建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 <a class="reference internal" href="#melobot.adapter.Adapter.send_text" title="melobot.adapter.Adapter.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a> 输出相关提示信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 视频内容的名称</p></li>
+<li><p><strong>raw</strong> – 视频内容的二进制内容</p></li>
+<li><p><strong>url</strong> – 视频内容的网络地址（和 <cite>raw</cite> 参数二选一）</p></li>
+<li><p><strong>mimetype</strong> – 视频内容的 mimetype，为空则根据 <cite>name</cite> 自动检测</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_file">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.13）"><span class="pre">PathLike</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_file"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_file" title="Link to this definition">¶</a></dt>
+<dd><p>输出文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 文件名</p></li>
+<li><p><strong>path</strong> – 文件路径</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_refer">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_refer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.adapter.Event" title="melobot.adapter.model.Event"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">contents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.13）"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><span class="pre">Content</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_refer"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_refer" title="Link to this definition">¶</a></dt>
+<dd><p>输出对过往事件的引用</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> – 过往的事件对象</p></li>
+<li><p><strong>contents</strong> – 附加的通用内容序列</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Adapter.send_resource">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#Adapter.send_resource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Adapter.send_resource" title="Link to this definition">¶</a></dt>
+<dd><p>输出网络资源</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 网络资源名称</p></li>
+<li><p><strong>url</strong> – 网络资源的 url</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.ActionHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionHandle</span></code></a> 元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.AdapterLifeSpan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">AdapterLifeSpan</span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#AdapterLifeSpan"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.AdapterLifeSpan" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>适配器生命周期阶段的枚举</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.adapter.AdapterLifeSpan.BEFORE_EVENT">
+<span class="sig-name descname"><span class="pre">BEFORE_EVENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'be'</span></em><a class="headerlink" href="#melobot.adapter.AdapterLifeSpan.BEFORE_EVENT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.adapter.AdapterLifeSpan.BEFORE_ACTION">
+<span class="sig-name descname"><span class="pre">BEFORE_ACTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ba'</span></em><a class="headerlink" href="#melobot.adapter.AdapterLifeSpan.BEFORE_ACTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.adapter.AdapterLifeSpan.STARTED">
+<span class="sig-name descname"><span class="pre">STARTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sta'</span></em><a class="headerlink" href="#melobot.adapter.AdapterLifeSpan.STARTED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.adapter.AdapterLifeSpan.STOPPED">
+<span class="sig-name descname"><span class="pre">STOPPED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sto'</span></em><a class="headerlink" href="#melobot.adapter.AdapterLifeSpan.STOPPED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.AbstractEventFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">AbstractEventFactory</span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#AbstractEventFactory"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.AbstractEventFactory" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EventT</span></code>]</p>
+<p>抽象事件工厂类</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.AbstractEventFactory.create">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">InPacketT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">EventT</span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#AbstractEventFactory.create"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.AbstractEventFactory.create" title="Link to this definition">¶</a></dt>
+<dd><p>将 <a class="reference internal" href="melobot.io.html#melobot.io.InPacket" title="melobot.io.InPacket"><code class="xref py py-class docutils literal notranslate"><span class="pre">InPacket</span></code></a> 对象转换为 <a class="reference internal" href="#melobot.adapter.Event" title="melobot.adapter.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> 对象的方法</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>packet</strong> – 输入包</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>事件</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.AbstractOutputFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">AbstractOutputFactory</span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#AbstractOutputFactory"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.AbstractOutputFactory" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">OutPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">ActionT</span></code>]</p>
+<p>抽象输出工厂类</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.AbstractOutputFactory.create">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ActionT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">OutPacketT</span></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#AbstractOutputFactory.create"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.AbstractOutputFactory.create" title="Link to this definition">¶</a></dt>
+<dd><p>将 <a class="reference internal" href="#melobot.adapter.Action" title="melobot.adapter.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> 对象转换为 <a class="reference internal" href="melobot.io.html#melobot.io.OutPacket" title="melobot.io.OutPacket"><code class="xref py py-class docutils literal notranslate"><span class="pre">OutPacket</span></code></a> 对象的方法</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>packet</strong> – 行为</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>输出包</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.AbstractEchoFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">AbstractEchoFactory</span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#AbstractEchoFactory"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.AbstractEchoFactory" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoT</span></code>]</p>
+<p>抽象回应工厂类</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.AbstractEchoFactory.create">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EchoPacketT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">EchoT</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/base.html#AbstractEchoFactory.create"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.AbstractEchoFactory.create" title="Link to this definition">¶</a></dt>
+<dd><p>将 <a class="reference internal" href="melobot.io.html#melobot.io.EchoPacket" title="melobot.io.EchoPacket"><code class="xref py py-class docutils literal notranslate"><span class="pre">EchoPacket</span></code></a> 对象转换为 <a class="reference internal" href="#melobot.adapter.Echo" title="melobot.adapter.Echo"><code class="xref py py-class docutils literal notranslate"><span class="pre">Echo</span></code></a> 对象的方法</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>packet</strong> – 回应包</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>回应或空值</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="id2">
+<h2>实体基类<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.Event">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#Event"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Event" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">AttrsReprable</span></code></p>
+<p>事件基类</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><em>float</em></a>) – 时间戳</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – id 标识</p></li>
+<li><p><strong>protocol</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.LiteralString" title="（在 Python v3.13）"><em>LiteralString</em></a><em> | </em><em>None</em>) – 遵循的协议，为空则协议无关</p></li>
+<li><p><strong>contents</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.13）"><em>Sequence</em></a><em>[</em><a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><em>Content</em></a><em>]</em>) – 附加的通用内容序列</p></li>
+<li><p><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.13）"><em>Hashable</em></a><em> | </em><em>None</em>) – 所在的域，可空</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.Action">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">Action</span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#Action"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Action" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">AttrsReprable</span></code></p>
+<p>行为基类</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><em>float</em></a>) – 时间戳</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – id 标识</p></li>
+<li><p><strong>protocol</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.LiteralString" title="（在 Python v3.13）"><em>LiteralString</em></a><em> | </em><em>None</em>) – 遵循的协议，为空则协议无关</p></li>
+<li><p><strong>contents</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.13）"><em>Sequence</em></a><em>[</em><a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><em>Content</em></a><em>]</em>) – 附加的通用内容序列</p></li>
+<li><p><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.13）"><em>Hashable</em></a><em> | </em><em>None</em>) – 所在的域，可空</p></li>
+<li><p><strong>trigger</strong> (<a class="reference internal" href="#melobot.adapter.Event" title="melobot.adapter.Event"><em>Event</em></a><em> | </em><em>None</em>) – 触发该行为的事件，为空表明不由事件触发</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.Echo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">Echo</span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#Echo"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Echo" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">AttrsReprable</span></code></p>
+<p>回应基类</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><em>float</em></a>) – 时间戳</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – id 标识</p></li>
+<li><p><strong>protocol</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.LiteralString" title="（在 Python v3.13）"><em>LiteralString</em></a><em> | </em><em>None</em>) – 遵循的协议，为空则协议无关</p></li>
+<li><p><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.13）"><em>Hashable</em></a><em> | </em><em>None</em>) – 所在的域，可空</p></li>
+<li><p><strong>ok</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) – 回应是否成功</p></li>
+<li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><em>int</em></a>) – 回应状态码</p></li>
+<li><p><strong>prompt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – 回应提示语</p></li>
+<li><p><strong>data</strong> (<em>Any</em>) – 回应数据</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id3">
+<h2>行为实体相关部件<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.ActionHandle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">ActionHandle</span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#ActionHandle"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.ActionHandle" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">ActionRetT</span></code>]</p>
+<p>行为操作句柄</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action</strong> (<a class="reference internal" href="#melobot.adapter.Action" title="melobot.adapter.Action"><em>Action</em></a>) – 操作包含的行为对象</p></li>
+<li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.13）"><em>Literal</em></a><em>[</em><em>&quot;PENDING&quot;</em><em>, </em><em>&quot;EXECUTING&quot;</em><em>, </em><em>&quot;FINISHED&quot;</em><em>]</em>) – 操作的状态。分别对应：未执行、执行中、执行完成</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.ActionHandle.__await__">
+<span class="sig-name descname"><span class="pre">__await__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="（在 Python v3.13）"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ActionRetT</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#ActionHandle.__await__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.ActionHandle.__await__" title="Link to this definition">¶</a></dt>
+<dd><p>本对象实现 __await__ 接口，因此可等待。返回本操作对应的回应数据</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.ActionChain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">ActionChain</span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#ActionChain"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.ActionChain" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>行为链</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.ActionChain.in_ctx">
+<span class="sig-name descname"><span class="pre">in_ctx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.ctx.html#melobot.ctx.Context" title="melobot.ctx.Context"><span class="pre">Context</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#ActionChain.in_ctx"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.ActionChain.in_ctx" title="Link to this definition">¶</a></dt>
+<dd><p>指定链后续的步骤中在 <cite>ctx</cite> 类别的上下文中执行，上下文值为 <cite>val</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> – 上下文类别</p></li>
+<li><p><strong>val</strong> – 上下文的值</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>自身，因此支持链式调用</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.ActionChain.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">handles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionHandle" title="melobot.adapter.model.ActionHandle"><span class="pre">ActionHandle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_when</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.13）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'FIRST_COMPLETED'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'FIRST_EXCEPTION'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ALL_COMPLETED'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ALL_COMPLETED'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#ActionChain.add"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.ActionChain.add" title="Link to this definition">¶</a></dt>
+<dd><p>在链的步骤中添加一组行为</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handles</strong> – 返回行为操作句柄的可等待对象</p></li>
+<li><p><strong>ret_when</strong> – 指定这一组行为的等待模式</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>自身，因此支持链式调用</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.ActionChain.sleep">
+<span class="sig-name descname"><span class="pre">sleep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#ActionChain.sleep"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.ActionChain.sleep" title="Link to this definition">¶</a></dt>
+<dd><p>在链的步骤中添加指定时长的等待</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interval</strong> – 等待时长</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>自身，因此支持链式调用</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.ActionChain.run">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#ActionChain.run"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.ActionChain.run" title="Link to this definition">¶</a></dt>
+<dd><p>顺序执行链的所有步骤</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.adapter.open_chain">
+<span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">open_chain</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="（在 Python v3.13）"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.ActionChain" title="melobot.adapter.model.ActionChain"><span class="pre">ActionChain</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#open_chain"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.open_chain" title="Link to this definition">¶</a></dt>
+<dd><p>创建行为链的上下文管理器</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yield<span class="colon">:</span></dt>
+<dd class="field-odd"><p>行为链对象</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id4">
+<h2>通用实体内容<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.Content">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">Content</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#Content"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.Content" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>通用内容基类</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.TextContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">TextContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#TextContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.TextContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><code class="xref py py-class docutils literal notranslate"><span class="pre">Content</span></code></a></p>
+<p>文本内容</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.content.TextContent.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#TextContent.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.TextContent.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化文本内容</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> – 文本</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.MediaContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">MediaContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#MediaContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.MediaContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><code class="xref py py-class docutils literal notranslate"><span class="pre">Content</span></code></a></p>
+<p>多媒体内容</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.content.MediaContent.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="（在 Python v3.13）"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mimetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#MediaContent.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.MediaContent.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化多媒体内容</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 多媒体内容的名称</p></li>
+<li><p><strong>raw</strong> – 多媒体内容的二进制内容</p></li>
+<li><p><strong>url</strong> – 多媒体内容的网络地址（和 <cite>raw</cite> 参数二选一）</p></li>
+<li><p><strong>mimetype</strong> – 多媒体内容的 mimetype，为空则根据 <cite>name</cite> 自动检测</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.ImageContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">ImageContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#ImageContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.ImageContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.MediaContent" title="melobot.adapter.content.MediaContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaContent</span></code></a></p>
+<p>图像内容</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.AudioContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">AudioContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#AudioContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.AudioContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.MediaContent" title="melobot.adapter.content.MediaContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaContent</span></code></a></p>
+<p>音频内容</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.VoiceContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">VoiceContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#VoiceContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.VoiceContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.AudioContent" title="melobot.adapter.content.AudioContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">AudioContent</span></code></a></p>
+<p>语音内容</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.VideoContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">VideoContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#VideoContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.VideoContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.MediaContent" title="melobot.adapter.content.MediaContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaContent</span></code></a></p>
+<p>视频内容</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.FileContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">FileContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#FileContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.FileContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><code class="xref py py-class docutils literal notranslate"><span class="pre">Content</span></code></a></p>
+<p>文件内容</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.content.FileContent.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.13）"><span class="pre">Hashable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#FileContent.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.FileContent.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化文件内容</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 文件名</p></li>
+<li><p><strong>flag</strong> – 文件的唯一标记</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.ReferContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">ReferContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#ReferContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.ReferContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><code class="xref py py-class docutils literal notranslate"><span class="pre">Content</span></code></a></p>
+<p>引用内容</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.content.ReferContent.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.13）"><span class="pre">Hashable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">contents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.13）"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><span class="pre">Content</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#ReferContent.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.ReferContent.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化引用内容</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prompt</strong> – 引用的文本提示</p></li>
+<li><p><strong>flag</strong> – 引用的唯一标记</p></li>
+<li><p><strong>contents</strong> – 附加的通用内容序列</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.adapter.content.ResourceContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.content.</span></span><span class="sig-name descname"><span class="pre">ResourceContent</span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#ResourceContent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.ResourceContent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.content.Content" title="melobot.adapter.content.Content"><code class="xref py py-class docutils literal notranslate"><span class="pre">Content</span></code></a></p>
+<p>资源内容</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.content.ResourceContent.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/content.html#ResourceContent.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.content.ResourceContent.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化资源内容</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 名称</p></li>
+<li><p><strong>url</strong> – 网络地址</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="melobot.io.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">melobot.io</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="melobot.plugin.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">melobot.plugin</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, contributors of this doc
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Meloland/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">melobot.adapter</a><ul>
+<li><a class="reference internal" href="#id1">适配器层组件</a><ul>
+<li><a class="reference internal" href="#melobot.adapter.Adapter"><code class="docutils literal notranslate"><span class="pre">Adapter</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.on"><code class="docutils literal notranslate"><span class="pre">Adapter.on()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.get_isrcs"><code class="docutils literal notranslate"><span class="pre">Adapter.get_isrcs()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.get_osrcs"><code class="docutils literal notranslate"><span class="pre">Adapter.get_osrcs()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.filter_out"><code class="docutils literal notranslate"><span class="pre">Adapter.filter_out()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.call_output"><code class="docutils literal notranslate"><span class="pre">Adapter.call_output()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_text"><code class="docutils literal notranslate"><span class="pre">Adapter.send_text()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_media"><code class="docutils literal notranslate"><span class="pre">Adapter.send_media()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_image"><code class="docutils literal notranslate"><span class="pre">Adapter.send_image()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_audio"><code class="docutils literal notranslate"><span class="pre">Adapter.send_audio()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_voice"><code class="docutils literal notranslate"><span class="pre">Adapter.send_voice()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_video"><code class="docutils literal notranslate"><span class="pre">Adapter.send_video()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_file"><code class="docutils literal notranslate"><span class="pre">Adapter.send_file()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_refer"><code class="docutils literal notranslate"><span class="pre">Adapter.send_refer()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Adapter.send_resource"><code class="docutils literal notranslate"><span class="pre">Adapter.send_resource()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.AdapterLifeSpan"><code class="docutils literal notranslate"><span class="pre">AdapterLifeSpan</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.AdapterLifeSpan.BEFORE_EVENT"><code class="docutils literal notranslate"><span class="pre">AdapterLifeSpan.BEFORE_EVENT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.AdapterLifeSpan.BEFORE_ACTION"><code class="docutils literal notranslate"><span class="pre">AdapterLifeSpan.BEFORE_ACTION</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.AdapterLifeSpan.STARTED"><code class="docutils literal notranslate"><span class="pre">AdapterLifeSpan.STARTED</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.AdapterLifeSpan.STOPPED"><code class="docutils literal notranslate"><span class="pre">AdapterLifeSpan.STOPPED</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.AbstractEventFactory"><code class="docutils literal notranslate"><span class="pre">AbstractEventFactory</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.AbstractEventFactory.create"><code class="docutils literal notranslate"><span class="pre">AbstractEventFactory.create()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.AbstractOutputFactory"><code class="docutils literal notranslate"><span class="pre">AbstractOutputFactory</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.AbstractOutputFactory.create"><code class="docutils literal notranslate"><span class="pre">AbstractOutputFactory.create()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.AbstractEchoFactory"><code class="docutils literal notranslate"><span class="pre">AbstractEchoFactory</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.AbstractEchoFactory.create"><code class="docutils literal notranslate"><span class="pre">AbstractEchoFactory.create()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">实体基类</a><ul>
+<li><a class="reference internal" href="#melobot.adapter.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Echo"><code class="docutils literal notranslate"><span class="pre">Echo</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">行为实体相关部件</a><ul>
+<li><a class="reference internal" href="#melobot.adapter.ActionHandle"><code class="docutils literal notranslate"><span class="pre">ActionHandle</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.ActionHandle.__await__"><code class="docutils literal notranslate"><span class="pre">ActionHandle.__await__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.ActionChain"><code class="docutils literal notranslate"><span class="pre">ActionChain</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.ActionChain.in_ctx"><code class="docutils literal notranslate"><span class="pre">ActionChain.in_ctx()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.ActionChain.add"><code class="docutils literal notranslate"><span class="pre">ActionChain.add()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.ActionChain.sleep"><code class="docutils literal notranslate"><span class="pre">ActionChain.sleep()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.ActionChain.run"><code class="docutils literal notranslate"><span class="pre">ActionChain.run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.open_chain"><code class="docutils literal notranslate"><span class="pre">open_chain()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">通用实体内容</a><ul>
+<li><a class="reference internal" href="#melobot.adapter.content.Content"><code class="docutils literal notranslate"><span class="pre">Content</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.content.TextContent"><code class="docutils literal notranslate"><span class="pre">TextContent</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.content.TextContent.__init__"><code class="docutils literal notranslate"><span class="pre">TextContent.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.content.MediaContent"><code class="docutils literal notranslate"><span class="pre">MediaContent</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.content.MediaContent.__init__"><code class="docutils literal notranslate"><span class="pre">MediaContent.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.content.ImageContent"><code class="docutils literal notranslate"><span class="pre">ImageContent</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.content.AudioContent"><code class="docutils literal notranslate"><span class="pre">AudioContent</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.content.VoiceContent"><code class="docutils literal notranslate"><span class="pre">VoiceContent</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.content.VideoContent"><code class="docutils literal notranslate"><span class="pre">VideoContent</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.content.FileContent"><code class="docutils literal notranslate"><span class="pre">FileContent</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.content.FileContent.__init__"><code class="docutils literal notranslate"><span class="pre">FileContent.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.content.ReferContent"><code class="docutils literal notranslate"><span class="pre">ReferContent</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.content.ReferContent.__init__"><code class="docutils literal notranslate"><span class="pre">ReferContent.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.adapter.content.ResourceContent"><code class="docutils literal notranslate"><span class="pre">ResourceContent</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.content.ResourceContent.__init__"><code class="docutils literal notranslate"><span class="pre">ResourceContent.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

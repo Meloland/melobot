@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="事件与事件处理" href="event-process.html" /><link rel="prev" title="开始使用" href="index.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" />
         <link rel="canonical" href="/melobot/intro/create-bot.html" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>开始创建机器人 - melobot 2.6.5</title>
+        <title>开始创建机器人 - melobot 3.0.0rc6</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 2.6.5</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.5</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -211,41 +211,28 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始使用</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">开始创建机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-process.html">事件与事件处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="msg-action.html">消息操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="action-resp.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">事件预处理</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.meta.html">melobot.meta</a></li>
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.models.html">melobot.models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.context.html">melobot.context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.log.html">melobot.log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.base.html">melobot.base</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../references/onebot.html">OneBot 协议和实现</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/connector.html">连接器类型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/event-action.html">事件和行为</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/msg.html">消息内容的数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/forward-msg.html">转发消息与消息结点</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/preprocess.html">事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">上一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-next.html">下一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../prompt.html">melobot 形象</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
 </div>
@@ -324,27 +311,27 @@
 </section>
 <section id="id3">
 <h2>小 demo 讲解<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>首先，melobot 是基于插件化管理的，因此通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin" title="melobot.plugin.BotPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotPlugin</span></code></a> 新建一个“插件对象”，用于划分接下来的操作被哪个插件管理。</p>
+<p>首先，melobot 是基于插件化管理的，因此通过 <code class="xref py py-class docutils literal notranslate"><span class="pre">BotPlugin</span></code> 新建一个“插件对象”，用于划分接下来的操作被哪个插件管理。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 参数分别是插件名和插件版本</span>
 <span class="n">plugin</span> <span class="o">=</span> <span class="n">BotPlugin</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>接下来，使用插件对象上的装饰器成员 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.BotPlugin.on_start_match" title="melobot.plugin.BotPlugin.on_start_match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>，即可在本插件上添加一个<strong>字符串起始匹配的，消息事件处理方法</strong>。</p>
+<p>接下来，使用插件对象上的装饰器成员 <code class="xref py py-meth docutils literal notranslate"><span class="pre">on_start_match()</span></code>，即可在本插件上添加一个<strong>字符串起始匹配的，消息事件处理方法</strong>。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_start_match</span><span class="p">(</span><span class="s2">&quot;.hello&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">echo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello melobot!&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>这个事件处理方法做了件很简单的事：事件发生时，通过 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 发送一条消息：<code class="docutils literal notranslate"><span class="pre">Hello</span> <span class="pre">melobot!</span></code>。这种操作在 melobot 中被称为“行为操作”。</p>
+<p>这个事件处理方法做了件很简单的事：事件发生时，通过 <code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 发送一条消息：<code class="docutils literal notranslate"><span class="pre">Hello</span> <span class="pre">melobot!</span></code>。这种操作在 melobot 中被称为“行为操作”。</p>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p><a class="reference internal" href="../references/event-action.html"><span class="doc std std-doc">什么是事件和行为？</span></a></p>
 </div>
-<p>插件初始化好了、事件处理方法也添加好了。但是还需要一个具体的 bot 去加载这个插件，否则它无法生效。但是我们连 bot 都还没有，所以先通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.MeloBot" title="melobot.bot.MeloBot"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeloBot</span></code></a> 类创建一个 bot：</p>
+<p>插件初始化好了、事件处理方法也添加好了。但是还需要一个具体的 bot 去加载这个插件，否则它无法生效。但是我们连 bot 都还没有，所以先通过 <code class="xref py py-class docutils literal notranslate"><span class="pre">MeloBot</span></code> 类创建一个 bot：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">MeloBot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>随后，bot 需要知道自己和哪个“OneBot 实现程序”对接，因此引入一个连接器 <a class="reference internal" href="../api/melobot.io.html#melobot.io.ForwardWsConn" title="melobot.io.ForwardWsConn"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardWsConn</span></code></a> 来初始化 bot：</p>
+<p>随后，bot 需要知道自己和哪个“OneBot 实现程序”对接，因此引入一个连接器 <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardWsConn</span></code> 来初始化 bot：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 这里使用一个正向 ws 连接器，与 OneBot 实现程序对接</span>
 <span class="c1"># 如果你的 OneBot 实现程序的服务的 host 和 port 不一致，请自行修改</span>
 <span class="n">bot</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">ForwardWsConn</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8080</span><span class="p">))</span>
@@ -362,7 +349,7 @@
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
 <p>melobot 默认在 linux/mac 平台使用 uvloop 事件循环策略，在 win 平台使用 winloop 事件循环策略。</p>
-<p>如果你遇到兼容性问题，可以通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.MeloBot.use_default_loop_policy" title="melobot.bot.MeloBot.use_default_loop_policy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MeloBot.use_default_loop_policy()</span></code></a> 回退到 asyncio 的默认配置。</p>
+<p>如果你遇到兼容性问题，可以通过 <code class="xref py py-meth docutils literal notranslate"><span class="pre">MeloBot.use_default_loop_policy()</span></code> 回退到 asyncio 的默认配置。</p>
 </div>
 <p>到这里，你已经学会了如何创建一个 melobot 机器人。接下来，让我们试试其他有趣的东西！</p>
 </section>
@@ -373,26 +360,8 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="event-process.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">事件与事件处理</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="index.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">开始使用</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -445,7 +414,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1deec174"></script>
+</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

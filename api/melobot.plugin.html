@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot.utils" href="melobot.utils.html" /><link rel="prev" title="melobot.context" href="melobot.context.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot.adapter" href="melobot.adapter.html" /><link rel="prev" title="melobot.bot" href="melobot.bot.html" />
         <link rel="canonical" href="/melobot/api/melobot.plugin.html" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>melobot.plugin - melobot 2.6.5</title>
+        <title>melobot.plugin - melobot 3.0.0rc6</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 2.6.5</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.5</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -212,40 +212,27 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件与事件处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/action-resp.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">melobot API 参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="melobot.meta.html">melobot.meta</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">melobot API 参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.bot.html">melobot.bot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="melobot.io.html">melobot.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="melobot.models.html">melobot.models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="melobot.context.html">melobot.context</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.log.html">melobot.log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.utils.html">melobot.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="melobot.base.html">melobot.base</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../references/onebot.html">OneBot 协议和实现</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/connector.html">连接器类型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/event-action.html">事件和行为</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/msg.html">消息内容的数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/forward-msg.html">转发消息与消息结点</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/preprocess.html">事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">上一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-next.html">下一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../prompt.html">melobot 形象</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
 </div>
@@ -293,564 +280,228 @@
           <section id="melobot-plugin">
 <h1>melobot.plugin<a class="headerlink" href="#melobot-plugin" title="Link to this heading">¶</a></h1>
 <section id="id1">
-<h2>插件<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>实例化 <a class="reference internal" href="#melobot.plugin.BotPlugin" title="melobot.plugin.BotPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotPlugin</span></code></a> 类即可创建一个插件。插件是 melobot 的重要组件之一。</p>
+<h2>插件层组件<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">BotPlugin</span></span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin" title="Link to this definition">¶</a></dt>
-<dd><p>插件类，使用该类实例化一个插件</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>初始化一个插件</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">Plugin</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#Plugin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.Plugin" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a></p>
+<p>插件基类，你需要把以下属性作为类属性或实例属性初始化</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.version">
+<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.version" title="Link to this definition">¶</a></dt>
+<dd><p>插件版本</p>
 <dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>id</strong> – 插件的 id</p></li>
-<li><p><strong>version</strong> – 插件的版本</p></li>
-<li><p><strong>desc</strong> – 插件功能描述</p></li>
-<li><p><strong>doc</strong> – 插件简单的文档说明</p></li>
-<li><p><strong>keywords</strong> – 关键词列表</p></li>
-<li><p><strong>url</strong> – 插件项目地址</p></li>
-<li><p><strong>multi_use</strong> – 是否支持同时被多个 bot 实例加载</p></li>
-</ul>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.ID">
-<span class="sig-name descname"><span class="pre">ID</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.ID" title="Link to this definition">¶</a></dt>
-<dd><p>本实例属性与初始化参数一一对应</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.shares">
+<span class="sig-name descname"><span class="pre">shares</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.plugin.SyncShare" title="melobot.plugin.ipc.SyncShare"><span class="pre">SyncShare</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.plugin.AsyncShare" title="melobot.plugin.ipc.AsyncShare"><span class="pre">AsyncShare</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.shares" title="Link to this definition">¶</a></dt>
+<dd><p>插件共享对象</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.VER">
-<span class="sig-name descname"><span class="pre">VER</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.VER" title="Link to this definition">¶</a></dt>
-<dd><p>本实例属性与初始化参数一一对应</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.funcs">
+<span class="sig-name descname"><span class="pre">funcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.funcs" title="Link to this definition">¶</a></dt>
+<dd><p>插件导出函数</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.DESC">
-<span class="sig-name descname"><span class="pre">DESC</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.DESC" title="Link to this definition">¶</a></dt>
-<dd><p>本实例属性与初始化参数一一对应</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.flows">
+<span class="sig-name descname"><span class="pre">flows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.flows" title="Link to this definition">¶</a></dt>
+<dd><p>插件处理流</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.KEYWORDS">
-<span class="sig-name descname"><span class="pre">KEYWORDS</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.KEYWORDS" title="Link to this definition">¶</a></dt>
-<dd><p>本实例属性与初始化参数一一对应</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.desc">
+<span class="sig-name descname"><span class="pre">desc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.desc" title="Link to this definition">¶</a></dt>
+<dd><p>插件的短描述信息</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.URL">
-<span class="sig-name descname"><span class="pre">URL</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.URL" title="Link to this definition">¶</a></dt>
-<dd><p>本实例属性与初始化参数一一对应</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.docs">
+<span class="sig-name descname"><span class="pre">docs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.docs" title="Link to this definition">¶</a></dt>
+<dd><p>插件的长描述信息</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.DOC">
-<span class="sig-name descname"><span class="pre">DOC</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.DOC" title="Link to this definition">¶</a></dt>
-<dd><p>本实例属性与初始化参数一一对应</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.keywords">
+<span class="sig-name descname"><span class="pre">keywords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.keywords" title="Link to this definition">¶</a></dt>
+<dd><p>插件的分类关键词</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.MULTI_USE">
-<span class="sig-name descname"><span class="pre">MULTI_USE</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.MULTI_USE" title="Link to this definition">¶</a></dt>
-<dd><p>本实例属性与初始化参数一一对应</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_event">
-<span class="sig-name descname"><span class="pre">on_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotEvent" title="melobot.base.abc.BotEvent"><span class="pre">BotEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_event"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_event" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个任意事件处理方法</p>
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.url">
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.url" title="Link to this definition">¶</a></dt>
+<dd><p>插件的项目主页</p>
 <dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_message">
-<span class="sig-name descname"><span class="pre">on_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotMatcher" title="melobot.base.abc.BotMatcher"><span class="pre">BotMatcher</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotParser" title="melobot.base.abc.BotParser"><span class="pre">BotParser</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_message"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_message" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个消息事件处理方法</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.author">
+<span class="sig-name descname"><span class="pre">author</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.author" title="Link to this definition">¶</a></dt>
+<dd><p>插件作者</p>
 <dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>matcher</strong> – 使用的匹配器（和解析器二选一）</p></li>
-<li><p><strong>parser</strong> – 使用的解析器（和匹配器二选一）</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_at_qq">
-<span class="sig-name descname"><span class="pre">on_at_qq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotMatcher" title="melobot.base.abc.BotMatcher"><span class="pre">BotMatcher</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotParser" title="melobot.base.abc.BotParser"><span class="pre">BotParser</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_at_qq"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_at_qq" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个艾特消息事件处理方法</p>
-<p>消息必须是艾特消息，且匹配成功才能被进一步处理。</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>qid</strong> – 被艾特的 qq 号。为空则接受所有艾特消息;不为空则只接受指定 qid 被艾特的艾特消息</p></li>
-<li><p><strong>matcher</strong> – 使用的匹配器（和解析器二选一）</p></li>
-<li><p><strong>parser</strong> – 使用的解析器（和匹配器二选一）</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_command">
-<span class="sig-name descname"><span class="pre">on_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd_sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formatters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.utils.html#melobot.utils.CmdArgFormatter" title="melobot.utils.parser.CmdArgFormatter"><span class="pre">CmdArgFormatter</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_command"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_command" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个消息事件处理方法</p>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<ul class="simple">
-<li><p>命令起始符和命令间隔符不允许包含：引号，各种括号，反斜杠，数字，英文，控制字符及各类空白字符。</p></li>
-<li><p>命令起始符不能是命令间隔符的子序列，反之亦然。</p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cmd_start</strong> – 命令起始符（可以是字符串或字符串列表）</p></li>
-<li><p><strong>cmd_sep</strong> – 命令间隔符（可以是字符串或字符串列表）</p></li>
-<li><p><strong>targets</strong> – 匹配的命令名</p></li>
-<li><p><strong>formatters</strong> – 格式化器列表（列表可以包含空值，即此位置的参数无格式化）</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_start_match">
-<span class="sig-name descname"><span class="pre">on_start_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.LogicMode" title="melobot.base.typing.LogicMode"><span class="pre">LogicMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">LogicMode.OR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_start_match"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_start_match" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个字符串起始匹配的消息事件处理方法</p>
-<p><cite>target</cite> 为字符串时，只进行一次起始匹配，即判断是否匹配成功。
-<cite>target</cite> 为字符串列表时，所有字符串都进行起始匹配，再将所有结果使用给定
-<cite>logic_mode</cite> 计算是否匹配成功。</p>
-<p>消息必须匹配成功才能被进一步处理。</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> – 匹配目标</p></li>
-<li><p><strong>logic_mode</strong> – <cite>target</cite> 为 <cite>list[str]</cite> 时的计算模式</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_contain_match">
-<span class="sig-name descname"><span class="pre">on_contain_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.LogicMode" title="melobot.base.typing.LogicMode"><span class="pre">LogicMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">LogicMode.OR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_contain_match"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_contain_match" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个字符串包含匹配的消息事件处理方法</p>
-<p><cite>target</cite> 为字符串时，只进行一次包含匹配，即判断是否匹配成功。
-<cite>target</cite> 为字符串列表时，所有字符串都进行包含匹配，再将所有结果使用给定
-<cite>logic_mode</cite> 计算是否匹配成功。</p>
-<p>消息必须匹配成功才能被进一步处理。</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> – 匹配目标</p></li>
-<li><p><strong>logic_mode</strong> – <cite>target</cite> 为 <cite>list[str]</cite> 时的计算模式</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_full_match">
-<span class="sig-name descname"><span class="pre">on_full_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.LogicMode" title="melobot.base.typing.LogicMode"><span class="pre">LogicMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">LogicMode.OR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_full_match"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_full_match" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个字符串全匹配的消息事件处理方法</p>
-<p><cite>target</cite> 为字符串时，只进行一次全匹配，即判断是否匹配成功。
-<cite>target</cite> 为字符串列表时，所有字符串都进行全匹配，再将所有结果使用给定
-<cite>logic_mode</cite> 计算是否匹配成功。</p>
-<p>消息必须匹配成功才能被进一步处理。</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> – 匹配目标</p></li>
-<li><p><strong>logic_mode</strong> – <cite>target</cite> 为 <cite>list[str]</cite> 时的计算模式</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_end_match">
-<span class="sig-name descname"><span class="pre">on_end_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.LogicMode" title="melobot.base.typing.LogicMode"><span class="pre">LogicMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">LogicMode.OR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_end_match"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_end_match" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个字符串结尾匹配的消息事件处理方法</p>
-<p><cite>target</cite> 为字符串时，只进行一次结尾匹配，即判断是否匹配成功。
-<cite>target</cite> 为字符串列表时，所有字符串都进行结尾匹配，再将所有结果使用给定
-<cite>logic_mode</cite> 计算是否匹配成功。</p>
-<p>消息必须匹配成功才能被进一步处理。</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> – 匹配目标</p></li>
-<li><p><strong>logic_mode</strong> – <cite>target</cite> 为 <cite>list[str]</cite> 时的计算模式</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_regex_match">
-<span class="sig-name descname"><span class="pre">on_regex_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MessageEvent" title="melobot.models.event.MessageEvent"><span class="pre">MessageEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_regex_match"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_regex_match" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个字符串正则匹配的消息事件处理方法</p>
-<p>消息必须匹配成功才能被进一步处理。</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> – 匹配目标的正则表达式，在匹配时，它应该可以使 <code class="xref py py-meth docutils literal notranslate"><span class="pre">re.findall()</span></code> 不返回空列表</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_request">
-<span class="sig-name descname"><span class="pre">on_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.RequestEvent" title="melobot.models.event.RequestEvent"><span class="pre">RequestEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.RequestEvent" title="melobot.models.event.RequestEvent"><span class="pre">RequestEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.RequestEvent" title="melobot.models.event.RequestEvent"><span class="pre">RequestEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_request"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_request" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个请求事件处理方法</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_notice">
-<span class="sig-name descname"><span class="pre">on_notice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.NoticeEvent" title="melobot.models.event.NoticeEvent"><span class="pre">NoticeEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.NoticeEvent" title="melobot.models.event.NoticeEvent"><span class="pre">NoticeEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.NoticeEvent" title="melobot.models.event.NoticeEvent"><span class="pre">NoticeEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_notice"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_notice" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个通知事件处理方法</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>type</strong> – 通知的类型，为 “ALL” 时接受所有通知</p></li>
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_meta_event">
-<span class="sig-name descname"><span class="pre">on_meta_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.abc.BotChecker" title="melobot.base.abc.BotChecker"><span class="pre">BotChecker</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MetaEvent" title="melobot.models.event.MetaEvent"><span class="pre">MetaEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MetaEvent" title="melobot.models.event.MetaEvent"><span class="pre">MetaEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.PriorLevel" title="melobot.base.typing.PriorLevel"><span class="pre">PriorLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PriorLevel.MEAN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.context.html#melobot.context.SessionOption" title="melobot.context.session.SessionOption"><span class="pre">SessionOption</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.models.html#melobot.models.MetaEvent" title="melobot.models.event.MetaEvent"><span class="pre">MetaEvent</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_meta_event"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_meta_event" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个元事件处理方法</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>checker</strong> – 使用的检查器，为空则默认通过检查</p></li>
-<li><p><strong>priority</strong> – 优先级</p></li>
-<li><p><strong>block</strong> – 是否进行优先级阻断</p></li>
-<li><p><strong>temp</strong> – 是否是一次性的</p></li>
-<li><p><strong>option</strong> – 会话选项（用于指定会话的工作方式）</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_signal">
-<span class="sig-name descname"><span class="pre">on_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_signal"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_signal" title="Link to this definition">¶</a></dt>
-<dd><p>绑定一个信号处理方法</p>
-<p><cite>namespace</cite> 为空时，自动设置它为当前插件的 <a class="reference internal" href="#melobot.plugin.BotPlugin.ID" title="melobot.plugin.BotPlugin.ID"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ID</span></code></a></p>
-<p>本方法作为异步函数的装饰器使用，此时可绑定一个函数为信号处理方法。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 假设存在一个名为 plugin 的变量，是 BotPlugin 实例</span>
-<span class="c1"># 为在命名空间 BaseUtils 中，名为 txt2img 的信号绑定处理方法：</span>
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_signal</span><span class="p">(</span><span class="s2">&quot;txt2img&quot;</span><span class="p">,</span> <span class="s2">&quot;BaseUtils&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">get_img_of_txt</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-    <span class="c1"># melobot 对被装饰函数的参数类型和返回值没有限制</span>
-    <span class="c1"># 接下来是具体逻辑</span>
-    <span class="o">...</span>
-<span class="c1"># 在这个示例中，具体的功能是为其他插件提供转换大段文本为图片的能力，因为大段文本不便于发送</span>
-</pre></div>
-</div>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>在一个 bot 实例的范围内，同命名空间同名称的信号，只能绑定一个处理方法。</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>namespace</strong> – 信号的命名空间</p></li>
-<li><p><strong>signal</strong> – 信号的名称</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_share">
-<span class="sig-name descname"><span class="pre">on_share</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reflector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.12）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.12）"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_share"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_share" title="Link to this definition">¶</a></dt>
-<dd><p>注册一个共享对象，同时绑定它的值获取方法</p>
-<p><cite>namespace</cite> 为空时，自动设置它为当前插件的 <a class="reference internal" href="#melobot.plugin.BotPlugin.ID" title="melobot.plugin.BotPlugin.ID"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ID</span></code></a></p>
-<p>本方法可作为异步函数的装饰器使用，此时被装饰函数就是共享对象的值获取方法：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 假设存在一个名为 plugin 的变量，是 BotPlugin 实例</span>
-<span class="c1"># 在命名空间 HelpUtils 中，注册一个名为 all_helps 的共享对象，且绑定值获取方法：</span>
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_share</span><span class="p">(</span><span class="s2">&quot;all_helps&quot;</span><span class="p">,</span> <span class="s2">&quot;HelpUtils&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">get_all_helps</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="c1"># melobot 对被装饰函数的要求：无参数，但必须有返回值</span>
-    <span class="k">return</span> <span class="n">ALL_HELPS_INFO_STR</span>
-<span class="c1"># 在这个示例中，具体的功能是在插件间共享 “所有插件的帮助文本” 这一数据</span>
-</pre></div>
-</div>
-<p>当然，值获取方法较为简单时，直接传参即可：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 最后一个参数不能给定具体的值，必须为一个同步函数</span>
-<span class="n">plugin</span><span class="o">.</span><span class="n">on_share</span><span class="p">(</span><span class="s2">&quot;all_helps&quot;</span><span class="p">,</span> <span class="s2">&quot;HelpUtils&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">ALL_HELPS_INFO_STR</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>在一个 bot 实例的范围内，同命名空间同名称的共享对象，只能注册一个。</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>namespace</strong> – 共享对象的命名空间</p></li>
-<li><p><strong>id</strong> – 共享对象的 id 标识</p></li>
-<li><p><strong>reflector</strong> – 本方法当作异步函数的装饰器使用时，本参数为空；直接使用本方法时，参数为共享对象值获取的同步函数</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_share_affected">
-<span class="sig-name descname"><span class="pre">on_share_affected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_share_affected"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_share_affected" title="Link to this definition">¶</a></dt>
-<dd><p>为一个共享对象绑定回调方法</p>
-<p><cite>namespace</cite> 为空时，自动设置它为当前插件的 <a class="reference internal" href="#melobot.plugin.BotPlugin.ID" title="melobot.plugin.BotPlugin.ID"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ID</span></code></a></p>
-<p>本方法作为异步函数的装饰器使用，此时可为一个共享对象绑定回调方法。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 假设存在一个名为 plugin 的变量，是 BotPlugin 实例</span>
-<span class="c1"># 为在命名空间 HelpUtils 中，名为 all_helps 的共享对象绑定回调方法：</span>
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_share_affected</span><span class="p">(</span><span class="s2">&quot;all_helps&quot;</span><span class="p">,</span> <span class="s2">&quot;HelpUtils&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">add_a_help</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="c1"># melobot 对被装饰函数的参数类型和返回值没有限制</span>
-    <span class="c1"># 接下来是具体逻辑</span>
-    <span class="o">...</span>
-<span class="c1"># 此回调用于被其他插件触发，为它们提供“影响”共享对象的能力，</span>
-<span class="c1"># 在这个示例中，具体的功能是让其他插件可以添加一条自己的帮助信息，但是有所校验</span>
-</pre></div>
-</div>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>在一个 bot 实例的范围内，同命名空间同名称的共享对象，只能绑定一个回调方法。
-而且这个共享对象必须在本插件通过 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_share" title="melobot.plugin.BotPlugin.on_share"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_share()</span></code></a> 注册（共享对象注册、共享对象回调绑定先后顺序不重要）</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>namespace</strong> – 共享对象的命名空间</p></li>
-<li><p><strong>id</strong> – 共享对象的 id 标识</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_bot_life">
-<span class="sig-name descname"><span class="pre">on_bot_life</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife" title="melobot.base.typing.BotLife"><span class="pre">BotLife</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/plugin/init.html#BotPlugin.on_bot_life"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.BotPlugin.on_bot_life" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在某个/某些生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用，此时可绑定一个函数为 bot 生命周期 hook 方法。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 假设存在一个名为 plugin 的变量，是 BotPlugin 实例</span>
-<span class="c1"># 我们希望这个插件，在 bot 连接器建立连接后给某人发一条消息</span>
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_bot_life</span><span class="p">(</span><span class="n">BotLife</span><span class="o">.</span><span class="n">CONNECTED</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">say_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="c1"># melobot 对被装饰函数的要求：无参数，返回空值</span>
-    <span class="k">await</span> <span class="n">send_custom</span><span class="p">(</span><span class="s2">&quot;Hello~&quot;</span><span class="p">,</span> <span class="n">isPrivate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">userId</span><span class="o">=</span><span class="n">xxxxx</span><span class="p">)</span>
-<span class="c1"># 在这个示例中，bot 登录上号后，便会向 xxxxx 发送一条 Hello~ 消息</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>types</strong> – bot 生命周期类型枚举值，可传入多个</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_bot_loaded">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_bot_loaded</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_bot_loaded" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.LOADED" title="melobot.base.typing.BotLife.LOADED"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.LOADED</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_first_connected">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_first_connected</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_first_connected" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.FIRST_CONNECTED" title="melobot.base.typing.BotLife.FIRST_CONNECTED"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.FIRST_CONNECTED</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_reconnected">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_reconnected</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_reconnected" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.RECONNECTED" title="melobot.base.typing.BotLife.RECONNECTED"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.RECONNECTED</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_connected">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_connected</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_connected" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.FIRST_CONNECTED" title="melobot.base.typing.BotLife.FIRST_CONNECTED"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.FIRST_CONNECTED</span></code></a> 和 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.RECONNECTED" title="melobot.base.typing.BotLife.RECONNECTED"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.RECONNECTED</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_before_close">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_before_close</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_before_close" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.BEFORE_CLOSE" title="melobot.base.typing.BotLife.BEFORE_CLOSE"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.BEFORE_CLOSE</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_before_stop">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_before_stop</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_before_stop" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.BEFORE_STOP" title="melobot.base.typing.BotLife.BEFORE_STOP"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.BEFORE_STOP</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_event_built">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_event_built</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_event_built" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.EVENT_BUILT" title="melobot.base.typing.BotLife.EVENT_BUILT"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.EVENT_BUILT</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.plugin.BotPlugin.on_action_presend">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_action_presend</span></span><a class="headerlink" href="#melobot.plugin.BotPlugin.on_action_presend" title="Link to this definition">¶</a></dt>
-<dd><p>绑定 bot 在 <a class="reference internal" href="melobot.base.html#melobot.base.typing.BotLife.ACTION_PRESEND" title="melobot.base.typing.BotLife.ACTION_PRESEND"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BotLife.ACTION_PRESEND</span></code></a> 生命周期的 hook 方法</p>
-<p>本方法作为异步函数的装饰器使用。用法与 <a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life" title="melobot.plugin.BotPlugin.on_bot_life"><code class="xref py py-class docutils literal notranslate"><span class="pre">on_bot_life</span></code></a> 类似。</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">PluginProxy</span></span><a class="reference internal" href="../_modules/melobot/plugin/init.html#PluginProxy"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginProxy" title="Link to this definition">¶</a></dt>
-<dd><p>Bot 插件代理类</p>
-<p>通过 bot 实例获取插件时，将获取此对象的列表</p>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<p>一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</p>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.id">
-<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.PluginProxy.id" title="Link to this definition">¶</a></dt>
-<dd><p>插件的 id</p>
+<dt class="sig sig-object py" id="melobot.plugin.AsyncShare">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">AsyncShare</span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#AsyncShare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.AsyncShare" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<a class="reference internal" href="melobot.typ.html#melobot.typ.T" title="melobot.typ.T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Locatable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AttrsReprable</span></code></p>
+<p>异步共享对象</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.AsyncShare.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reflector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callabck</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#AsyncShare.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.AsyncShare.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化异步共享对象</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 异步共享对象的名称</p></li>
+<li><p><strong>reflector</strong> – 获取共享值的异步可调用方法</p></li>
+<li><p><strong>callabck</strong> – 修改共享值的异步可调用方法</p></li>
+<li><p><strong>static</strong> – 是否使用静态模式</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.version">
-<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.PluginProxy.version" title="Link to this definition">¶</a></dt>
-<dd><p>插件的版本</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.AsyncShare.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#AsyncShare.__call__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.AsyncShare.__call__" title="Link to this definition">¶</a></dt>
+<dd><p>绑定获取共享值的异步方法的装饰器，如果未在初始化时绑定</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> – 被绑定的异步可调用方法</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.desc">
-<span class="sig-name descname"><span class="pre">desc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.PluginProxy.desc" title="Link to this definition">¶</a></dt>
-<dd><p>插件的简短描述</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.AsyncShare.setter">
+<span class="sig-name descname"><span class="pre">setter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#AsyncShare.setter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.AsyncShare.setter" title="Link to this definition">¶</a></dt>
+<dd><p>绑定修改共享值的异步方法的装饰器，如果未在初始化时绑定</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> – 被绑定的异步可调用方法</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.doc">
-<span class="sig-name descname"><span class="pre">doc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.PluginProxy.doc" title="Link to this definition">¶</a></dt>
-<dd><p>插件的长篇描述</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.AsyncShare.get">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#AsyncShare.get"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.AsyncShare.get" title="Link to this definition">¶</a></dt>
+<dd><p>获取异步共享值</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>异步共享值</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.keywords">
-<span class="sig-name descname"><span class="pre">keywords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.PluginProxy.keywords" title="Link to this definition">¶</a></dt>
-<dd><p>插件的关键词</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.AsyncShare.set">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#AsyncShare.set"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.AsyncShare.set" title="Link to this definition">¶</a></dt>
+<dd><p>设置异步共享值</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>val</strong> – 新的异步共享值</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.url">
-<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.PluginProxy.url" title="Link to this definition">¶</a></dt>
-<dd><p>插件的项目地址</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.multi_use">
-<span class="sig-name descname"><span class="pre">multi_use</span></span><a class="headerlink" href="#melobot.plugin.PluginProxy.multi_use" title="Link to this definition">¶</a></dt>
-<dd><p>是否支持同时被多个 bot 实例加载</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.plugin.SyncShare">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">SyncShare</span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#SyncShare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.SyncShare" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<a class="reference internal" href="melobot.typ.html#melobot.typ.T" title="melobot.typ.T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Locatable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AttrsReprable</span></code></p>
+<p>同步共享对象</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.SyncShare.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reflector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callabck</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#SyncShare.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.SyncShare.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化同步共享对象</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 同步共享对象的名称</p></li>
+<li><p><strong>reflector</strong> – 获取共享值的可调用方法</p></li>
+<li><p><strong>callabck</strong> – 修改共享值的可调用方法</p></li>
+<li><p><strong>static</strong> – 是否使用静态模式</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.shares">
-<span class="sig-name descname"><span class="pre">shares</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.12）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.PluginProxy.shares" title="Link to this definition">¶</a></dt>
-<dd><p>插件的共享对象标识：[(命名空间，id), …]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.SyncShare.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#SyncShare.__call__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.SyncShare.__call__" title="Link to this definition">¶</a></dt>
+<dd><p>绑定获取共享值的方法的装饰器，如果未在初始化时绑定</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> – 被绑定的可调用方法</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.share_cbs">
-<span class="sig-name descname"><span class="pre">share_cbs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.12）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.PluginProxy.share_cbs" title="Link to this definition">¶</a></dt>
-<dd><p>插件的共享对象回调标识：[(命名空间，id), …]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.SyncShare.setter">
+<span class="sig-name descname"><span class="pre">setter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#SyncShare.setter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.SyncShare.setter" title="Link to this definition">¶</a></dt>
+<dd><p>绑定修改共享值的方法的装饰器，如果未在初始化时绑定</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> – 被绑定的可调用方法</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.PluginProxy.signal_methods">
-<span class="sig-name descname"><span class="pre">signal_methods</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.12）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.12）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.PluginProxy.signal_methods" title="Link to this definition">¶</a></dt>
-<dd><p>插件的信号处理方法标识：[(命名空间, 信号名), …]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.SyncShare.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#SyncShare.get"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.SyncShare.get" title="Link to this definition">¶</a></dt>
+<dd><p>获取共享值</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>共享值</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.SyncShare.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/ipc.html#SyncShare.set"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.SyncShare.set" title="Link to this definition">¶</a></dt>
+<dd><p>设置共享值</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>val</strong> – 新的共享值</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -863,23 +514,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="melobot.utils.html">
+          <a class="next-page" href="melobot.adapter.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">melobot.utils</div>
+                <div class="title">melobot.adapter</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="melobot.context.html">
+          <a class="prev-page" href="melobot.bot.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">melobot.context</div>
+                <div class="title">melobot.bot</div>
                 
               </div>
             </a>
@@ -921,53 +572,33 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">melobot.plugin</a><ul>
-<li><a class="reference internal" href="#id1">插件</a><ul>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin"><code class="docutils literal notranslate"><span class="pre">BotPlugin</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.__init__"><code class="docutils literal notranslate"><span class="pre">BotPlugin.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.ID"><code class="docutils literal notranslate"><span class="pre">BotPlugin.ID</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.VER"><code class="docutils literal notranslate"><span class="pre">BotPlugin.VER</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.DESC"><code class="docutils literal notranslate"><span class="pre">BotPlugin.DESC</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.KEYWORDS"><code class="docutils literal notranslate"><span class="pre">BotPlugin.KEYWORDS</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.URL"><code class="docutils literal notranslate"><span class="pre">BotPlugin.URL</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.DOC"><code class="docutils literal notranslate"><span class="pre">BotPlugin.DOC</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.MULTI_USE"><code class="docutils literal notranslate"><span class="pre">BotPlugin.MULTI_USE</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_event"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_event()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_message"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_message()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_at_qq"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_at_qq()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_command"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_command()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_start_match"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_start_match()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_contain_match"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_contain_match()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_full_match"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_full_match()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_end_match"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_end_match()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_regex_match"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_regex_match()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_request"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_request()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_notice"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_notice()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_meta_event"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_meta_event()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_signal"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_signal()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_share"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_share()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_share_affected"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_share_affected()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_life"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_bot_life()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_bot_loaded"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_bot_loaded</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_first_connected"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_first_connected</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_reconnected"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_reconnected</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_connected"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_connected</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_before_close"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_before_close</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_before_stop"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_before_stop</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_event_built"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_event_built</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.BotPlugin.on_action_presend"><code class="docutils literal notranslate"><span class="pre">BotPlugin.on_action_presend</span></code></a></li>
+<li><a class="reference internal" href="#id1">插件层组件</a><ul>
+<li><a class="reference internal" href="#melobot.plugin.Plugin"><code class="docutils literal notranslate"><span class="pre">Plugin</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.version"><code class="docutils literal notranslate"><span class="pre">Plugin.version</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.shares"><code class="docutils literal notranslate"><span class="pre">Plugin.shares</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.funcs"><code class="docutils literal notranslate"><span class="pre">Plugin.funcs</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.flows"><code class="docutils literal notranslate"><span class="pre">Plugin.flows</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.desc"><code class="docutils literal notranslate"><span class="pre">Plugin.desc</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.docs"><code class="docutils literal notranslate"><span class="pre">Plugin.docs</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.keywords"><code class="docutils literal notranslate"><span class="pre">Plugin.keywords</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.url"><code class="docutils literal notranslate"><span class="pre">Plugin.url</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.author"><code class="docutils literal notranslate"><span class="pre">Plugin.author</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy"><code class="docutils literal notranslate"><span class="pre">PluginProxy</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.id"><code class="docutils literal notranslate"><span class="pre">PluginProxy.id</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.version"><code class="docutils literal notranslate"><span class="pre">PluginProxy.version</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.desc"><code class="docutils literal notranslate"><span class="pre">PluginProxy.desc</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.doc"><code class="docutils literal notranslate"><span class="pre">PluginProxy.doc</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.keywords"><code class="docutils literal notranslate"><span class="pre">PluginProxy.keywords</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.url"><code class="docutils literal notranslate"><span class="pre">PluginProxy.url</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.multi_use"><code class="docutils literal notranslate"><span class="pre">PluginProxy.multi_use</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.shares"><code class="docutils literal notranslate"><span class="pre">PluginProxy.shares</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.share_cbs"><code class="docutils literal notranslate"><span class="pre">PluginProxy.share_cbs</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.PluginProxy.signal_methods"><code class="docutils literal notranslate"><span class="pre">PluginProxy.signal_methods</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.AsyncShare"><code class="docutils literal notranslate"><span class="pre">AsyncShare</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.plugin.AsyncShare.__init__"><code class="docutils literal notranslate"><span class="pre">AsyncShare.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.AsyncShare.__call__"><code class="docutils literal notranslate"><span class="pre">AsyncShare.__call__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.AsyncShare.setter"><code class="docutils literal notranslate"><span class="pre">AsyncShare.setter()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.AsyncShare.get"><code class="docutils literal notranslate"><span class="pre">AsyncShare.get()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.AsyncShare.set"><code class="docutils literal notranslate"><span class="pre">AsyncShare.set()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.plugin.SyncShare"><code class="docutils literal notranslate"><span class="pre">SyncShare</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.plugin.SyncShare.__init__"><code class="docutils literal notranslate"><span class="pre">SyncShare.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.SyncShare.__call__"><code class="docutils literal notranslate"><span class="pre">SyncShare.__call__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.SyncShare.setter"><code class="docutils literal notranslate"><span class="pre">SyncShare.setter()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.SyncShare.get"><code class="docutils literal notranslate"><span class="pre">SyncShare.get()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.SyncShare.set"><code class="docutils literal notranslate"><span class="pre">SyncShare.set()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -983,7 +614,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1deec174"></script>
+</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

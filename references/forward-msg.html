@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="事件预处理" href="preprocess.html" /><link rel="prev" title="消息内容的数据结构" href="msg.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" />
         <link rel="canonical" href="/melobot/references/forward-msg.html" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>转发消息与消息结点 - melobot 2.6.5</title>
+        <title>转发消息与消息结点 - melobot 3.0.0rc6</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 2.6.5</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.5</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -211,41 +211,28 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件与事件处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/action-resp.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.meta.html">melobot.meta</a></li>
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.models.html">melobot.models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.context.html">melobot.context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.log.html">melobot.log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.base.html">melobot.base</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">相关知识</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
-<li class="toctree-l2"><a class="reference internal" href="connector.html">连接器类型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-action.html">事件和行为</a></li>
-<li class="toctree-l2"><a class="reference internal" href="msg.html">消息内容的数据结构</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">转发消息与消息结点</a></li>
-<li class="toctree-l2"><a class="reference internal" href="preprocess.html">事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">上一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-next.html">下一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../prompt.html">melobot 形象</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
 </div>
@@ -377,7 +364,7 @@
 </tbody>
 </table>
 </div>
-<p>消息 ID 在 melobot 中可通过消息事件的 <a class="reference internal" href="../api/melobot.models.html#melobot.models.MessageEvent.id" title="melobot.models.MessageEvent.id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">id</span></code></a> 属性获得。</p>
+<p>消息 ID 在 melobot 中可通过消息事件的 <code class="xref py py-attr docutils literal notranslate"><span class="pre">id</span></code> 属性获得。</p>
 </section>
 <section id="id5">
 <h3>合并转发自定义结点<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
@@ -451,8 +438,8 @@
 <h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h2>
 <p>在 melobot 中：</p>
 <ul class="simple">
-<li><p>转发消息段，属于消息段对象（类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgSegment" title="melobot.base.typing.MsgSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code></a> 的字典）</p></li>
-<li><p>消息结点，使用类型注解为 <a class="reference internal" href="../api/melobot.base.html#melobot.base.typing.MsgNode" title="melobot.base.typing.MsgNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MsgNode</span></code></a> 的字典表示</p></li>
+<li><p>转发消息段，属于消息段对象（类型注解为 <code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code> 的字典）</p></li>
+<li><p>消息结点，使用类型注解为 <code class="xref py py-class docutils literal notranslate"><span class="pre">MsgNode</span></code> 的字典表示</p></li>
 <li><p>转发消息，使用消息结点的列表（<code class="xref py py-obj docutils literal notranslate"><span class="pre">list[MsgNode]</span></code>）表示</p></li>
 </ul>
 </section>
@@ -463,26 +450,8 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="preprocess.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">事件预处理</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="msg.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">消息内容的数据结构</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -539,7 +508,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1deec174"></script>
+</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

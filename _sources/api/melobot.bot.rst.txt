@@ -1,7 +1,14 @@
 melobot.bot
 ===========
 
-bot 类
---------------
+bot 层组件
+-------------
 
-.. automodule:: melobot.bot
+.. autoclass:: melobot.bot.Bot
+    :members:
+    :exclude-members: __new__
+
+.. autoclass:: melobot.bot.BotLifeSpan
+    :members:
+
+.. autofunction:: melobot.bot.get_bot

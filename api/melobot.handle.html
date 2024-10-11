@@ -1,0 +1,699 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot.di" href="melobot.di.html" /><link rel="prev" title="melobot.protocol" href="melobot.protocol.html" />
+        <link rel="canonical" href="/melobot/api/melobot.handle.html" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+        <title>melobot.handle - melobot 3.0.0rc6</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">melobot API 参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="melobot.html">melobot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.bot.html">melobot.bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.log.html">melobot.log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.utils.html">melobot.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">更多</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/api/melobot.handle.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/api/melobot.handle.rst" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="melobot-handle">
+<h1>melobot.handle<a class="headerlink" href="#melobot-handle" title="Link to this heading">¶</a></h1>
+<section id="id1">
+<h2>处理流<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.handle.Flow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">Flow</span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#Flow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.Flow" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>处理流</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – 处理流的标识</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.handle.Flow.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">edge_maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><span class="pre">FlowNode</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><span class="pre">FlowNode</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.typ.html#melobot.typ.HandleLevel" title="melobot.typ.HandleLevel"><span class="pre">HandleLevel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">HandleLevel.NORMAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#Flow.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.Flow.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>初始化处理流</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – 处理流的标识</p></li>
+<li><p><strong>edge_maps</strong> – 边映射，遵循 melobot 的 graph edges 表示方法</p></li>
+<li><p><strong>priority</strong> – 处理流的优先级</p></li>
+<li><p><strong>temp</strong> – 处理流是否只运行一次</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="melobot.handle.Flow.priority">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">priority</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.HandleLevel" title="melobot.typ.HandleLevel"><span class="pre">HandleLevel</span></a></em><a class="headerlink" href="#melobot.handle.Flow.priority" title="Link to this definition">¶</a></dt>
+<dd><p>处理流的优先级</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.handle.Flow.reset_priority">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset_priority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_prior</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.typ.html#melobot.typ.HandleLevel" title="melobot.typ.HandleLevel"><span class="pre">HandleLevel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#Flow.reset_priority"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.Flow.reset_priority" title="Link to this definition">¶</a></dt>
+<dd><p>重设处理流的优先级</p>
+<p>不会立即生效，通常会在下一次进入处理流前生效。
+因此返回时不代表已经更改优先级，只是添加了计划重设优先级的任务</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_prior</strong> – 新优先级</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.handle.Flow.link">
+<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.typ.html#melobot.typ.HandleLevel" title="melobot.typ.HandleLevel"><span class="pre">HandleLevel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#Flow.link"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.Flow.link" title="Link to this definition">¶</a></dt>
+<dd><p>连接另一处理流返回新处理流，并设置新优先级</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> – 连接的新流</p></li>
+<li><p><strong>priority</strong> – 新优先级，若为空，则使用两者中较小的优先级</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>新的处理流</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.handle.FlowNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">FlowNode</span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#FlowNode"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.FlowNode" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>处理流结点</p>
+</dd></dl>
+
+</section>
+<section id="id2">
+<h2>处理节点<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.node">
+<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><span class="pre">FlowNode</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#node"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.node" title="Link to this definition">¶</a></dt>
+<dd><p>处理结点装饰器，将当前异步可调用对象装饰为一个处理结点</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.no_deps_node">
+<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">no_deps_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><span class="pre">FlowNode</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#no_deps_node"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.no_deps_node" title="Link to this definition">¶</a></dt>
+<dd><p>与 <a class="reference internal" href="#melobot.handle.node" title="melobot.handle.node"><code class="xref py py-func docutils literal notranslate"><span class="pre">node()</span></code></a> 类似，但是不自动为结点标记依赖注入。</p>
+<p>需要后续使用 <a class="reference internal" href="melobot.di.html#melobot.di.inject_deps" title="melobot.di.inject_deps"><code class="xref py py-func docutils literal notranslate"><span class="pre">inject_deps()</span></code></a> 手动标记依赖注入，
+这适用于某些对处理结点进行再装饰的情况</p>
+</dd></dl>
+
+</section>
+<section id="id3">
+<h2>处理流控制<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.nextn">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">nextn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#nextn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.nextn" title="Link to this definition">¶</a></dt>
+<dd><p>运行下一处理结点（在处理结点中使用）</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.block">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#block"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.block" title="Link to this definition">¶</a></dt>
+<dd><p>阻止当前事件向更低优先级的处理流传播（在处理结点中使用）</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.bypass">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">bypass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#bypass"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.bypass" title="Link to this definition">¶</a></dt>
+<dd><p>立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理结点中使用）</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.rewind">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">rewind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#rewind"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.rewind" title="Link to this definition">¶</a></dt>
+<dd><p>立即重新运行当前处理结点（在处理结点中使用）</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.stop">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#stop"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.stop" title="Link to this definition">¶</a></dt>
+<dd><p>立即停止当前处理流（在处理结点中使用）</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.flow_to">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">flow_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#flow_to"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.flow_to" title="Link to this definition">¶</a></dt>
+<dd><p>立即进入一个其他处理流（在处理结点中使用）</p>
+</dd></dl>
+
+</section>
+<section id="id4">
+<h2>处理流状态<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.handle.FlowStore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">FlowStore</span></span><a class="reference internal" href="../_modules/melobot/ctx.html#FlowStore"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.FlowStore" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code></a>]</p>
+<p>流存储，将会在流运行前初始化，运行结束后销毁</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">FlowRecordStage</span></span><a class="reference internal" href="../_modules/melobot/ctx.html#FlowRecordStage"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.FlowRecordStage" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>流记录阶段的枚举</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.FLOW_START">
+<span class="sig-name descname"><span class="pre">FLOW_START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fs'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.FLOW_START" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.FLOW_EARLY_FINISH">
+<span class="sig-name descname"><span class="pre">FLOW_EARLY_FINISH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fef'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.FLOW_EARLY_FINISH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.FLOW_FINISH">
+<span class="sig-name descname"><span class="pre">FLOW_FINISH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ff'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.FLOW_FINISH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.NODE_START">
+<span class="sig-name descname"><span class="pre">NODE_START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ns'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.NODE_START" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.DEPENDS_NOT_MATCH">
+<span class="sig-name descname"><span class="pre">DEPENDS_NOT_MATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dnm'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.DEPENDS_NOT_MATCH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.BLOCK">
+<span class="sig-name descname"><span class="pre">BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bl'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.BLOCK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.STOP">
+<span class="sig-name descname"><span class="pre">STOP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.STOP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.BYPASS">
+<span class="sig-name descname"><span class="pre">BYPASS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'by'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.BYPASS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.REWIND">
+<span class="sig-name descname"><span class="pre">REWIND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'re'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.REWIND" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.NODE_EARLY_FINISH">
+<span class="sig-name descname"><span class="pre">NODE_EARLY_FINISH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'nef'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.NODE_EARLY_FINISH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecordStage.NODE_FINISH">
+<span class="sig-name descname"><span class="pre">NODE_FINISH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'nf'</span></em><a class="headerlink" href="#melobot.handle.FlowRecordStage.NODE_FINISH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">FlowRecord</span></span><a class="reference internal" href="../_modules/melobot/ctx.html#FlowRecord"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.FlowRecord" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>流记录</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecord.stage">
+<span class="sig-name descname"><span class="pre">stage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#melobot.handle.FlowRecordStage" title="melobot.ctx.FlowRecordStage"><span class="pre">FlowRecordStage</span></a></em><a class="headerlink" href="#melobot.handle.FlowRecord.stage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecord.flow_name">
+<span class="sig-name descname"><span class="pre">flow_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.handle.FlowRecord.flow_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecord.node_name">
+<span class="sig-name descname"><span class="pre">node_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.handle.FlowRecord.node_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecord.event">
+<span class="sig-name descname"><span class="pre">event</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.Event"><span class="pre">Event</span></a></em><a class="headerlink" href="#melobot.handle.FlowRecord.event" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.handle.FlowRecord.prompt">
+<span class="sig-name descname"><span class="pre">prompt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#melobot.handle.FlowRecord.prompt" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.get_flow_store">
+<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">get_flow_store</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#melobot.handle.FlowStore" title="melobot.ctx.FlowStore"><span class="pre">FlowStore</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle.html#get_flow_store"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.get_flow_store" title="Link to this definition">¶</a></dt>
+<dd><p>获取当前上下文中的流存储</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>流存储</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.get_flow_records">
+<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">get_flow_records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.handle.FlowRecord" title="melobot.ctx.FlowRecord"><span class="pre">FlowRecord</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/handle.html#get_flow_records"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.get_flow_records" title="Link to this definition">¶</a></dt>
+<dd><p>获取当前上下文中的流记录</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>流记录</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.get_event">
+<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">get_event</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><span class="pre">Event</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle.html#get_event"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.get_event" title="Link to this definition">¶</a></dt>
+<dd><p>获取当前上下文中的事件</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>事件</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.handle.try_get_event">
+<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">try_get_event</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><span class="pre">Event</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle.html#try_get_event"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.try_get_event" title="Link to this definition">¶</a></dt>
+<dd><p>尝试获取当前上下文中的事件</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>事件或空</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="melobot.di.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">melobot.di</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="melobot.protocol.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">melobot.protocol</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, contributors of this doc
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Meloland/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">melobot.handle</a><ul>
+<li><a class="reference internal" href="#id1">处理流</a><ul>
+<li><a class="reference internal" href="#melobot.handle.Flow"><code class="docutils literal notranslate"><span class="pre">Flow</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.handle.Flow.__init__"><code class="docutils literal notranslate"><span class="pre">Flow.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.Flow.priority"><code class="docutils literal notranslate"><span class="pre">Flow.priority</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.Flow.reset_priority"><code class="docutils literal notranslate"><span class="pre">Flow.reset_priority()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.Flow.link"><code class="docutils literal notranslate"><span class="pre">Flow.link()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.handle.FlowNode"><code class="docutils literal notranslate"><span class="pre">FlowNode</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">处理节点</a><ul>
+<li><a class="reference internal" href="#melobot.handle.node"><code class="docutils literal notranslate"><span class="pre">node()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.no_deps_node"><code class="docutils literal notranslate"><span class="pre">no_deps_node()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">处理流控制</a><ul>
+<li><a class="reference internal" href="#melobot.handle.nextn"><code class="docutils literal notranslate"><span class="pre">nextn()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.block"><code class="docutils literal notranslate"><span class="pre">block()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.bypass"><code class="docutils literal notranslate"><span class="pre">bypass()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.rewind"><code class="docutils literal notranslate"><span class="pre">rewind()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.stop"><code class="docutils literal notranslate"><span class="pre">stop()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.flow_to"><code class="docutils literal notranslate"><span class="pre">flow_to()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">处理流状态</a><ul>
+<li><a class="reference internal" href="#melobot.handle.FlowStore"><code class="docutils literal notranslate"><span class="pre">FlowStore</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.FLOW_START"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.FLOW_START</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.FLOW_EARLY_FINISH"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.FLOW_EARLY_FINISH</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.FLOW_FINISH"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.FLOW_FINISH</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.NODE_START"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.NODE_START</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.DEPENDS_NOT_MATCH"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.DEPENDS_NOT_MATCH</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.BLOCK"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.BLOCK</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.STOP"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.STOP</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.BYPASS"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.BYPASS</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.REWIND"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.REWIND</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.NODE_EARLY_FINISH"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.NODE_EARLY_FINISH</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecordStage.NODE_FINISH"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.NODE_FINISH</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecord"><code class="docutils literal notranslate"><span class="pre">FlowRecord</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.handle.FlowRecord.stage"><code class="docutils literal notranslate"><span class="pre">FlowRecord.stage</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecord.flow_name"><code class="docutils literal notranslate"><span class="pre">FlowRecord.flow_name</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecord.node_name"><code class="docutils literal notranslate"><span class="pre">FlowRecord.node_name</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecord.event"><code class="docutils literal notranslate"><span class="pre">FlowRecord.event</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowRecord.prompt"><code class="docutils literal notranslate"><span class="pre">FlowRecord.prompt</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.handle.get_flow_store"><code class="docutils literal notranslate"><span class="pre">get_flow_store()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.get_flow_records"><code class="docutils literal notranslate"><span class="pre">get_flow_records()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.get_event"><code class="docutils literal notranslate"><span class="pre">get_event()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.try_get_event"><code class="docutils literal notranslate"><span class="pre">try_get_event()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

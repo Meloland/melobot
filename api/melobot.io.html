@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot.models" href="melobot.models.html" /><link rel="prev" title="melobot.bot" href="melobot.bot.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot.protocol" href="melobot.protocol.html" /><link rel="prev" title="melobot.adapter" href="melobot.adapter.html" />
         <link rel="canonical" href="/melobot/api/melobot.io.html" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>melobot.io - melobot 2.6.5</title>
+        <title>melobot.io - melobot 3.0.0rc6</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 2.6.5</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.5</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -212,40 +212,27 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件与事件处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/action-resp.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">melobot API 参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="melobot.meta.html">melobot.meta</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">melobot API 参考</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.bot.html">melobot.bot</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">melobot.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="melobot.models.html">melobot.models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="melobot.context.html">melobot.context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.log.html">melobot.log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.utils.html">melobot.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="melobot.base.html">melobot.base</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../references/onebot.html">OneBot 协议和实现</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/connector.html">连接器类型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/event-action.html">事件和行为</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/msg.html">消息内容的数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/forward-msg.html">转发消息与消息结点</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/preprocess.html">事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">上一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-next.html">下一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../prompt.html">melobot 形象</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
 </div>
@@ -292,207 +279,168 @@
         <article role="main" id="furo-main-content">
           <section id="melobot-io">
 <h1>melobot.io<a class="headerlink" href="#melobot-io" title="Link to this heading">¶</a></h1>
-<section id="module-melobot.io">
-<span id="id1"></span><h2>连接器<a class="headerlink" href="#module-melobot.io" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h2>输入输出层部件<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.io.ForwardWsConn">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">ForwardWsConn</span></span><a class="reference internal" href="../_modules/melobot/io/forward_ws.html#ForwardWsConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ForwardWsConn" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="melobot.base.html#melobot.base.abc.AbstractConnector" title="melobot.base.abc.AbstractConnector"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></p>
-<p>正向 websocket 连接器</p>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>在 melobot 中，正向 websocket 连接器会开启一个 ws 客户端。这个客户端只能和一个服务端通信。</p>
-</div>
+<dt class="sig sig-object py" id="melobot.io.AbstractSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a></p>
+<p>抽象源基类</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_delay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/forward_ws.html#ForwardWsConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ForwardWsConn.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>初始化一个正向 websocket 连接器</p>
-<p>注意：会向路径 “/” 发起行为操作</p>
+<dt class="sig sig-object py" id="melobot.io.AbstractSource.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LiteralString</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.io.AbstractSource.open">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource.open"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource.open" title="Link to this definition">¶</a></dt>
+<dd><p>源打开方法</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.io.AbstractSource.opened">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">opened</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource.opened"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource.opened" title="Link to this definition">¶</a></dt>
+<dd><p>源是否已打开</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.io.AbstractSource.close">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource.close"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource.close" title="Link to this definition">¶</a></dt>
+<dd><p>源关闭方法</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.io.AbstractSource.on">
+<span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.io.SourceLifeSpan" title="melobot.io.base.SourceLifeSpan"><span class="pre">SourceLifeSpan</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource.on"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource.on" title="Link to this definition">¶</a></dt>
+<dd><p>生成注册源生命周期回调的装饰器</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>connect_host</strong> – 连接的 host</p></li>
-<li><p><strong>connect_port</strong> – 连接的 port</p></li>
-<li><p><strong>max_retry</strong> – 连接最大重试次数，默认 -1 代表无限次重试</p></li>
-<li><p><strong>retry_delay</strong> – 连接重试间隔时间</p></li>
-<li><p><strong>cd_time</strong> – 行为操作冷却时间（用于防止风控）</p></li>
-<li><p><strong>access_token</strong> – 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）</p></li>
-<li><p><strong>reconnect</strong> – 建立连接失败是否重连。默认为 <cite>False</cite>，即服务端断线直接停止 bot；若为 <cite>True</cite>，则会按照 <cite>max_retry</cite>, <cite>retry_delay</cite> 不断尝试重连，重连成功前时所有行为操作将阻塞。</p></li>
-</ul>
+<dd class="field-odd"><p><strong>periods</strong> – 要绑定的生命周期</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>装饰器</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.max_retry">
-<span class="sig-name descname"><span class="pre">max_retry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.io.ForwardWsConn.max_retry" title="Link to this definition">¶</a></dt>
-<dd><p>连接失败最大重试次数</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.retry_delay">
-<span class="sig-name descname"><span class="pre">retry_delay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></em><a class="headerlink" href="#melobot.io.ForwardWsConn.retry_delay" title="Link to this definition">¶</a></dt>
-<dd><p>连接失败重试间隔</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.url">
-<span class="sig-name descname"><span class="pre">url</span></span><a class="headerlink" href="#melobot.io.ForwardWsConn.url" title="Link to this definition">¶</a></dt>
-<dd><p>ws 连接的 url（形如：ws://xxx:xxx）</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.conn">
-<span class="sig-name descname"><span class="pre">conn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="s"><span class="pre">'websockets.client.WebSocketClientProtocol'</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.io.ForwardWsConn.conn" title="Link to this definition">¶</a></dt>
-<dd><p>连接对象（未建立连接时为空，连接建立后可认为一定不为空）</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ForwardWsConn.access_token">
-<span class="sig-name descname"><span class="pre">access_token</span></span><a class="headerlink" href="#melobot.io.ForwardWsConn.access_token" title="Link to this definition">¶</a></dt>
-<dd><p>连接器操作鉴权的 token</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.io.ReverseWsConn">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">ReverseWsConn</span></span><a class="reference internal" href="../_modules/melobot/io/reverse_ws.html#ReverseWsConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ReverseWsConn" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="melobot.base.html#melobot.base.abc.AbstractConnector" title="melobot.base.abc.AbstractConnector"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></p>
-<p>反向 websocket 连接器</p>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>注意：在 melobot 中，反向 websocket 连接器会开启一个 ws 服务端。但是这个服务端只接受一个客户端连接，后续其他连接将被拒绝。</p>
-</div>
+<dt class="sig sig-object py" id="melobot.io.AbstractInSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractInSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractInSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractInSource" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractSource" title="melobot.io.base.AbstractSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractSource</span></code></a>, <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InPacketT</span></code>]</p>
+<p>抽象输入源基类</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listen_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/reverse_ws.html#ReverseWsConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.ReverseWsConn.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>初始化一个反向 websocket连接器</p>
-<p>注意：服务提供路径为：”/”</p>
+<dt class="sig sig-object py" id="melobot.io.AbstractInSource.input">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">InPacketT</span></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractInSource.input"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractInSource.input" title="Link to this definition">¶</a></dt>
+<dd><p>源输入方法</p>
 <dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>listen_host</strong> – 监听的 host</p></li>
-<li><p><strong>listen_port</strong> – 监听的 port</p></li>
-<li><p><strong>cd_time</strong> – 行为操作冷却时间（用于防止风控）</p></li>
-<li><p><strong>access_token</strong> – 本连接器用于鉴权的 access_token（建议从环境变量或配置中读取）</p></li>
-<li><p><strong>reconnect</strong> – 是否允许客户端重新连接。默认为 <cite>False</cite>，即客户端连接后如果断连，将直接停止 bot；若为 <cite>True</cite>，则会等待客户端重连，等待时所有行为操作将阻塞</p></li>
-</ul>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>返回 <a class="reference internal" href="#melobot.io.InPacket" title="melobot.io.InPacket"><code class="xref py py-class docutils literal notranslate"><span class="pre">InPacket</span></code></a> 对象</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.host">
-<span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.io.ReverseWsConn.host" title="Link to this definition">¶</a></dt>
-<dd><p>监听的 host</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.port">
-<span class="sig-name descname"><span class="pre">port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.io.ReverseWsConn.port" title="Link to this definition">¶</a></dt>
-<dd><p>监听的 port</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.server">
-<span class="sig-name descname"><span class="pre">server</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">websockets.server.WebSocketServer</span></em><a class="headerlink" href="#melobot.io.ReverseWsConn.server" title="Link to this definition">¶</a></dt>
-<dd><p>服务端对象</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.ReverseWsConn.access_token">
-<span class="sig-name descname"><span class="pre">access_token</span></span><a class="headerlink" href="#melobot.io.ReverseWsConn.access_token" title="Link to this definition">¶</a></dt>
-<dd><p>连接器操作鉴权的 token</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.io.HttpConn">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">HttpConn</span></span><a class="reference internal" href="../_modules/melobot/io/duplex_http.html#HttpConn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="melobot.base.html#melobot.base.abc.AbstractConnector" title="melobot.base.abc.AbstractConnector"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractConnector</span></code></a></p>
-<p>HTTP 全双工连接器</p>
-<p>HTTP 全双工连接器将会同时开启 HTTP 服务端和客户端。</p>
-<p>客户端将会向 OneBot 实现程序发起 HTTP POST 请求用于传递行为操作，
-OneBot 实现程序将会向服务端发起 HTTP POST 请求用于事件上报。</p>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>HTTP 连接是无状态的，因此本连接器无法及时察觉 OneBot 实现程序掉线。只有在后续执行行为操作失败，或等待上报超时，才会发现 OneBot 实现程序掉线。</p>
-</div>
+<dt class="sig sig-object py" id="melobot.io.AbstractOutSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractOutSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractOutSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractOutSource" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractSource" title="melobot.io.base.AbstractSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractSource</span></code></a>, <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">OutPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoPacketT</span></code>]</p>
+<p>抽象输出源基类</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onebot_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">onebot_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">listen_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cd_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.12）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.12）"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.12）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/duplex_http.html#HttpConn.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.HttpConn.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>初始化一个 HTTP 全双工连接器</p>
-<p>注意：本连接器服务提供路径为：”/”</p>
-<p>HTTP 全双工连接器与 ws 有所不同。它无法即时发现 OneBot 实现程序掉线。</p>
-<p>可以通过 <cite>max_interval</cite> 参数，启用“超时无上报则认为掉线”的功能。这一般要和 OneBot 实现程序的心跳功能一同使用。推荐设置值为心跳时间 + 1。</p>
-<p>当然即使不启用此功能，当本连接器尝试发送行为操作失败时，也会认为 OneBot 实现程序已掉线。</p>
+<dt class="sig sig-object py" id="melobot.io.AbstractOutSource.output">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">OutPacketT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">EchoPacketT</span></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractOutSource.output"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractOutSource.output" title="Link to this definition">¶</a></dt>
+<dd><p>源输出方法</p>
 <dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>返回 <a class="reference internal" href="#melobot.io.OutPacket" title="melobot.io.OutPacket"><code class="xref py py-class docutils literal notranslate"><span class="pre">OutPacket</span></code></a> 对象</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.io.AbstractIOSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractIOSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractIOSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractIOSource" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractInSource" title="melobot.io.base.AbstractInSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractInSource</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InPacketT</span></code>], <a class="reference internal" href="#melobot.io.AbstractOutSource" title="melobot.io.base.AbstractOutSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOutSource</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">OutPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoPacketT</span></code>], <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a></p>
+<p>抽象输入输出源基类</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.io.SourceLifeSpan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">SourceLifeSpan</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#SourceLifeSpan"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.SourceLifeSpan" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>源生命周期阶段的枚举</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.SourceLifeSpan.STARTED">
+<span class="sig-name descname"><span class="pre">STARTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sta'</span></em><a class="headerlink" href="#melobot.io.SourceLifeSpan.STARTED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.SourceLifeSpan.STOPPED">
+<span class="sig-name descname"><span class="pre">STOPPED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sto'</span></em><a class="headerlink" href="#melobot.io.SourceLifeSpan.STOPPED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="id2">
+<h2>输入输出包基类<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.io.InPacket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">InPacket</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#InPacket"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.InPacket" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">_Packet</span></code></p>
+<p>输入包基类（数据类）</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>onebot_host</strong> – onebot 实现程序 HTTP 服务的 host</p></li>
-<li><p><strong>onebot_port</strong> – onebot 实现程序 HTTP 服务的 port</p></li>
-<li><p><strong>listen_host</strong> – 此连接器服务端监听的 host</p></li>
-<li><p><strong>listen_port</strong> – 此连接器服务端监听的 port</p></li>
-<li><p><strong>secret</strong> – onebot 实现程序上报鉴权的 secret（建议从环境变量或配置中读取）</p></li>
-<li><p><strong>access_token</strong> – 本连接器操作鉴权的 access_token（建议从环境变量或配置中读取）</p></li>
-<li><p><strong>cd_time</strong> – 行为操作冷却时间（用于防止风控）</p></li>
-<li><p><strong>reconnect</strong> – 是否等待 OneBot 实现程序重新上线。默认为 <cite>False</cite>，即检测到 OneBot 实现程序掉线，将直接停止 bot；若为 <cite>True</cite>，则会等待 OneBot 实现程序重新上线，等待时所有行为操作将阻塞</p></li>
-<li><p><strong>max_interval</strong> – 等待 OneBot 实现程序上报的超时时间。超过此时间无任何上报，则认为已经掉线（默认值为 <cite>None</cite>，此时不启用此功能）</p></li>
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><em>float</em></a>) – 时间戳</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – id 标识</p></li>
+<li><p><strong>protocol</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.LiteralString" title="（在 Python v3.13）"><em>LiteralString</em></a><em> | </em><em>None</em>) – 遵循的协议</p></li>
+<li><p><strong>data</strong> (<em>Any</em>) – 附加的数据</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.onebot_url">
-<span class="sig-name descname"><span class="pre">onebot_url</span></span><a class="headerlink" href="#melobot.io.HttpConn.onebot_url" title="Link to this definition">¶</a></dt>
-<dd><p>onebot 实现程序提供服务的 base_url（形如：<a class="reference external" href="http://xxx:xxx">http://xxx:xxx</a>）</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.io.OutPacket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">OutPacket</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#OutPacket"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.OutPacket" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">_Packet</span></code></p>
+<p>输出包基类（数据类）</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><em>float</em></a>) – 时间戳</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – id 标识</p></li>
+<li><p><strong>protocol</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.LiteralString" title="（在 Python v3.13）"><em>LiteralString</em></a><em> | </em><em>None</em>) – 遵循的协议</p></li>
+<li><p><strong>data</strong> (<em>Any</em>) – 附加的数据</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.host">
-<span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.12）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.io.HttpConn.host" title="Link to this definition">¶</a></dt>
-<dd><p>本连接器服务端的 host</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.port">
-<span class="sig-name descname"><span class="pre">port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.12）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.io.HttpConn.port" title="Link to this definition">¶</a></dt>
-<dd><p>本连接器服务端的 port</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.serve_site">
-<span class="sig-name descname"><span class="pre">serve_site</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">aiohttp.web.TCPSite</span></em><a class="headerlink" href="#melobot.io.HttpConn.serve_site" title="Link to this definition">¶</a></dt>
-<dd><p>本连接器服务端的站点对象</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.client_session">
-<span class="sig-name descname"><span class="pre">client_session</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">aiohttp.ClientSession</span></em><a class="headerlink" href="#melobot.io.HttpConn.client_session" title="Link to this definition">¶</a></dt>
-<dd><p>本连接器客户端的会话</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.max_interval">
-<span class="sig-name descname"><span class="pre">max_interval</span></span><a class="headerlink" href="#melobot.io.HttpConn.max_interval" title="Link to this definition">¶</a></dt>
-<dd><p>本连接器用于掉线判定的超时时间</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.secret">
-<span class="sig-name descname"><span class="pre">secret</span></span><a class="headerlink" href="#melobot.io.HttpConn.secret" title="Link to this definition">¶</a></dt>
-<dd><p>上报鉴权的 secret</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.io.HttpConn.access_token">
-<span class="sig-name descname"><span class="pre">access_token</span></span><a class="headerlink" href="#melobot.io.HttpConn.access_token" title="Link to this definition">¶</a></dt>
-<dd><p>操作鉴权的 access_token</p>
-</dd></dl>
-
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.io.EchoPacket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">EchoPacket</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#EchoPacket"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.EchoPacket" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">_Packet</span></code></p>
+<p>回应包基类（数据类）</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><em>float</em></a>) – 时间戳</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – id 标识</p></li>
+<li><p><strong>protocol</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.LiteralString" title="（在 Python v3.13）"><em>LiteralString</em></a><em> | </em><em>None</em>) – 遵循的协议</p></li>
+<li><p><strong>data</strong> (<em>Any</em>) – 附加的数据</p></li>
+<li><p><strong>ok</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) – 回应是否成功</p></li>
+<li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><em>int</em></a>) – 回应状态码</p></li>
+<li><p><strong>prompt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – 提示语</p></li>
+<li><p><strong>noecho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) – 是否并无回应产生</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -503,23 +451,23 @@ OneBot 实现程序将会向服务端发起 HTTP POST 请求用于事件上报�
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="melobot.models.html">
+          <a class="next-page" href="melobot.protocol.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">melobot.models</div>
+                <div class="title">melobot.protocol</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="melobot.bot.html">
+          <a class="prev-page" href="melobot.adapter.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">melobot.bot</div>
+                <div class="title">melobot.adapter</div>
                 
               </div>
             </a>
@@ -561,36 +509,35 @@ OneBot 实现程序将会向服务端发起 HTTP POST 请求用于事件上报�
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">melobot.io</a><ul>
-<li><a class="reference internal" href="#module-melobot.io">连接器</a><ul>
-<li><a class="reference internal" href="#melobot.io.ForwardWsConn"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.io.ForwardWsConn.__init__"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ForwardWsConn.max_retry"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.max_retry</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ForwardWsConn.retry_delay"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.retry_delay</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ForwardWsConn.url"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.url</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ForwardWsConn.conn"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.conn</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ForwardWsConn.access_token"><code class="docutils literal notranslate"><span class="pre">ForwardWsConn.access_token</span></code></a></li>
+<li><a class="reference internal" href="#id1">输入输出层部件</a><ul>
+<li><a class="reference internal" href="#melobot.io.AbstractSource"><code class="docutils literal notranslate"><span class="pre">AbstractSource</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.AbstractSource.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractSource.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.AbstractSource.open"><code class="docutils literal notranslate"><span class="pre">AbstractSource.open()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.AbstractSource.opened"><code class="docutils literal notranslate"><span class="pre">AbstractSource.opened()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.AbstractSource.close"><code class="docutils literal notranslate"><span class="pre">AbstractSource.close()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.AbstractSource.on"><code class="docutils literal notranslate"><span class="pre">AbstractSource.on()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#melobot.io.ReverseWsConn"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.io.ReverseWsConn.__init__"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ReverseWsConn.host"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.host</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ReverseWsConn.port"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.port</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ReverseWsConn.server"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.server</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.ReverseWsConn.access_token"><code class="docutils literal notranslate"><span class="pre">ReverseWsConn.access_token</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.AbstractInSource"><code class="docutils literal notranslate"><span class="pre">AbstractInSource</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.AbstractInSource.input"><code class="docutils literal notranslate"><span class="pre">AbstractInSource.input()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#melobot.io.HttpConn"><code class="docutils literal notranslate"><span class="pre">HttpConn</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.io.HttpConn.__init__"><code class="docutils literal notranslate"><span class="pre">HttpConn.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.onebot_url"><code class="docutils literal notranslate"><span class="pre">HttpConn.onebot_url</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.host"><code class="docutils literal notranslate"><span class="pre">HttpConn.host</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.port"><code class="docutils literal notranslate"><span class="pre">HttpConn.port</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.serve_site"><code class="docutils literal notranslate"><span class="pre">HttpConn.serve_site</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.client_session"><code class="docutils literal notranslate"><span class="pre">HttpConn.client_session</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.max_interval"><code class="docutils literal notranslate"><span class="pre">HttpConn.max_interval</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.secret"><code class="docutils literal notranslate"><span class="pre">HttpConn.secret</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.HttpConn.access_token"><code class="docutils literal notranslate"><span class="pre">HttpConn.access_token</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.AbstractOutSource"><code class="docutils literal notranslate"><span class="pre">AbstractOutSource</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.AbstractOutSource.output"><code class="docutils literal notranslate"><span class="pre">AbstractOutSource.output()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#melobot.io.AbstractIOSource"><code class="docutils literal notranslate"><span class="pre">AbstractIOSource</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.SourceLifeSpan"><code class="docutils literal notranslate"><span class="pre">SourceLifeSpan</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.SourceLifeSpan.STARTED"><code class="docutils literal notranslate"><span class="pre">SourceLifeSpan.STARTED</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.SourceLifeSpan.STOPPED"><code class="docutils literal notranslate"><span class="pre">SourceLifeSpan.STOPPED</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">输入输出包基类</a><ul>
+<li><a class="reference internal" href="#melobot.io.InPacket"><code class="docutils literal notranslate"><span class="pre">InPacket</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.OutPacket"><code class="docutils literal notranslate"><span class="pre">OutPacket</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.EchoPacket"><code class="docutils literal notranslate"><span class="pre">EchoPacket</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -604,7 +551,7 @@ OneBot 实现程序将会向服务端发起 HTTP POST 请求用于事件上报�
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1deec174"></script>
+</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

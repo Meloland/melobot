@@ -1,115 +1,37 @@
-:tocdepth: 3
-
 melobot.utils
 =============
 
-日志器
--------
+.. autofunction:: melobot.utils.singleton
 
-日志器可使用内置的 :class:`.BotLogger`，也可以使用标准库或第三方的日志器。
+.. autoclass:: melobot.utils.Markable
+    :members:
+    :exclude-members: __init__
 
-运行时通过 :attr:`.thisbot.logger` 获取当前 bot 实例的日志器。
+.. autoclass:: melobot.utils.RWContext
+    :members:
 
-.. autoclass:: melobot.utils.BotLogger
-   :members:
+.. autofunction:: melobot.utils.get_id
 
-.. autofunction:: melobot.utils.logger_patch
+.. autofunction:: melobot.utils.to_async
 
-匹配器
----------------
+.. autofunction:: melobot.utils.to_coro
 
-匹配器被用于消息事件预处理的文本匹配过程。
+.. autofunction:: melobot.utils.lock
 
-.. admonition:: 相关知识
-   :class: seealso
+.. autofunction:: melobot.utils.cooldown
 
-   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
+.. autofunction:: melobot.utils.semaphore
 
-   但对于其他事件来说，预处理过程只有一步：检查。
+.. autofunction:: melobot.utils.timelimit
 
-.. autoclass:: melobot.utils.StartMatcher
-   :members:
-   :show-inheritance:
-   :exclude-members: match
+.. autofunction:: melobot.utils.speedlimit
 
-.. autoclass:: melobot.utils.ContainMatcher
-   :members:
-   :show-inheritance:
-   :exclude-members: match
+.. autofunction:: melobot.utils.call_later
 
-.. autoclass:: melobot.utils.EndMatcher
-   :members:
-   :show-inheritance:
-   :exclude-members: match
+.. autofunction:: melobot.utils.call_at
 
-.. autoclass:: melobot.utils.FullMatcher
-   :members:
-   :show-inheritance:
-   :exclude-members: match
+.. autofunction:: melobot.utils.async_later
 
-.. autoclass:: melobot.utils.RegexMatcher
-   :members:
-   :show-inheritance:
-   :exclude-members: match
+.. autofunction:: melobot.utils.async_at
 
-检查器
----------------
-
-检查器被用于所有事件预处理的事件检查过程。
-
-.. admonition:: 相关知识
-   :class: seealso
-
-   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
-   
-   但对于其他事件来说，预处理过程只有一步：检查。
-
-.. autoclass:: melobot.utils.MsgLvlChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
-.. autoclass:: melobot.utils.GroupMsgLvlChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
-.. autoclass:: melobot.utils.PrivateMsgLvlChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
-.. autoclass:: melobot.utils.MsgCheckerFactory
-   :members:
-
-.. autoclass:: melobot.utils.AtMsgChecker
-   :members:
-   :show-inheritance:
-   :exclude-members: check
-
-解析器
----------------
-
-解析器被用于消息事件预处理的参数解析。
-
-.. admonition:: 相关知识
-   :class: seealso
-
-   对于消息事件来说，预处理过程主要分为两步：匹配或解析、检查。
-   
-   但对于其他事件来说，预处理过程只有一步：检查。
-
-.. autoclass:: melobot.utils.CmdParser
-   :show-inheritance:
-   :members:
-   :exclude-members: parse, test, format
-
-.. autoclass:: melobot.utils.CmdParserFactory
-   :members:
-
-.. autoclass:: melobot.utils.CmdArgFormatter
-   :members:
-
-.. autoclass:: melobot.utils.FormatInfo
-   :members:
-   :exclude-members: __init__
+.. autofunction:: melobot.utils.async_interval

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="其他行为操作" href="action-resp.html" /><link rel="prev" title="事件与事件处理" href="event-process.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" />
         <link rel="canonical" href="/melobot/intro/msg-action.html" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>消息操作 - melobot 2.6.5</title>
+        <title>消息操作 - melobot 3.0.0rc6</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 2.6.5</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 2.6.5</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -211,41 +211,28 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始使用</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="create-bot.html">开始创建机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-process.html">事件与事件处理</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">消息操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="action-resp.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">事件预处理</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.meta.html">melobot.meta</a></li>
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.models.html">melobot.models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.context.html">melobot.context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.log.html">melobot.log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/melobot.base.html">melobot.base</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">相关知识</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of 相关知识</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../references/onebot.html">OneBot 协议和实现</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/connector.html">连接器类型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/event-action.html">事件和行为</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/msg.html">消息内容的数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/forward-msg.html">转发消息与消息结点</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../references/preprocess.html">事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">上一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../melobot-next.html">下一代 melobot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../prompt.html">melobot 形象</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
 </div>
@@ -311,8 +298,8 @@
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;你好啊&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>如果要发送多媒体内容，首先要通过各自的消息段构造函数构造<strong>消息段对象</strong>，然后直接传入 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 作为参数。</p>
-<p>例如使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.image_msg" title="melobot.models.image_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">image_msg()</span></code></a> 构造图片内容：</p>
+<p>如果要发送多媒体内容，首先要通过各自的消息段构造函数构造<strong>消息段对象</strong>，然后直接传入 <code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 作为参数。</p>
+<p>例如使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">image_msg()</span></code> 构造图片内容：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">image_msg</span>
 
 <span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -322,7 +309,7 @@
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>其他消息段构造函数，及这些函数的参数，参考：<a class="reference internal" href="../api/melobot.models.html#msg-build"><span class="std std-ref">消息段构造函数</span></a></p>
+<p>其他消息段构造函数，及这些函数的参数，参考：<a class="reference internal" href="#msg-build"><span class="xref myst">消息段构造函数</span></a></p>
 <p>单条消息中，自然可能有多种类型的消息段同时存在。此时这样处理：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">text_msg</span><span class="p">,</span> <span class="n">image_msg</span>
 
@@ -339,7 +326,7 @@
 <section id="id3">
 <h2>自定义消息段的构造<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>一般来说，melobot 自带的消息段构造函数已足够使用。但是某些 OneBot 实现程序，可能会支持自定义的消息段，<strong>这些自定义消息段，是 OneBot 标准中没有的</strong>。</p>
-<p>这时你可以使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.custom_type_msg" title="melobot.models.custom_type_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">custom_type_msg()</span></code></a> 来构造这些<strong>自定义消息段</strong>。</p>
+<p>这时你可以使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">custom_type_msg()</span></code> 来构造这些<strong>自定义消息段</strong>。</p>
 <p>例如在知名 OneBot 实现项目 <a class="reference external" href="https://github.com/whitechi73/OpenShamrock">OpenShamrock</a> 中，存在一种自定义的消息段 <a class="reference external" href="https://whitechi73.github.io/OpenShamrock/message/special.html#%E6%88%B3%E4%B8%80%E6%88%B3-%E5%8F%8C%E5%87%BB%E5%A4%B4%E5%83%8F">touch 消息</a>（戳一戳，双击头像）。对应的消息段数据结构如下：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;touch&quot;</span><span class="p">,</span>
@@ -369,7 +356,7 @@
 </section>
 <section id="id4">
 <h2>单条消息的其他发送方法<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p><a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 可根据当前触发事件，自动定位向何处发送消息。如果想要自定义发送目标，也很容易。只需要将<a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 换成 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_custom" title="melobot.context.send_custom"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom()</span></code></a> 即可，它的第一参数与 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send" title="melobot.context.send"><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code></a> 完全相同。</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 可根据当前触发事件，自动定位向何处发送消息。如果想要自定义发送目标，也很容易。只需要将<code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 换成 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom()</span></code> 即可，它的第一参数与 <code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 完全相同。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_custom</span>
 
 <span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -390,7 +377,7 @@
     <span class="k">await</span> <span class="n">send</span><span class="p">([</span><span class="n">reply_msg</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">text_msg</span><span class="p">(</span><span class="s2">&quot;你好哇&quot;</span><span class="p">)])</span>
 </pre></div>
 </div>
-<p>这是十分繁琐的，但是“发送回复消息”这一行为也很普遍。使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_reply" title="melobot.context.send_reply"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_reply()</span></code></a> 简化：</p>
+<p>这是十分繁琐的，但是“发送回复消息”这一行为也很普遍。使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_reply()</span></code> 简化：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_reply</span>
 
 <span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -409,7 +396,7 @@
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;主人好&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.finish" title="melobot.context.finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code></a> 可以把 <code class="docutils literal notranslate"><span class="pre">return</span></code> 简化掉：</p>
+<p>用 <code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 可以把 <code class="docutils literal notranslate"><span class="pre">return</span></code> 简化掉：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">finish</span>
 
 <span class="c1"># 刚才的代码，使用 finish 优化后</span>
@@ -421,7 +408,7 @@
     <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;主人好&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>在嵌套函数调用中，<a class="reference internal" href="../api/melobot.context.html#melobot.context.finish" title="melobot.context.finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code></a> 实际上可以退出任意深度的嵌套函数调用：</p>
+<p>在嵌套函数调用中，<code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 实际上可以退出任意深度的嵌套函数调用：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
     <span class="k">await</span> <span class="n">a</span><span class="p">()</span>
@@ -439,10 +426,10 @@
     <span class="k">await</span> <span class="n">finish</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>同理，<a class="reference internal" href="../api/melobot.context.html#melobot.context.send_reply" title="melobot.context.send_reply"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_reply()</span></code></a> 对应的提前结束版本是：<a class="reference internal" href="../api/melobot.context.html#melobot.context.reply_finish" title="melobot.context.reply_finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">reply_finish()</span></code></a>。使用方法与 <a class="reference internal" href="../api/melobot.context.html#melobot.context.finish" title="melobot.context.finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code></a> 基本一致。但是它发送的是回复消息。</p>
+<p>同理，<code class="xref py py-func docutils literal notranslate"><span class="pre">send_reply()</span></code> 对应的提前结束版本是：<code class="xref py py-func docutils literal notranslate"><span class="pre">reply_finish()</span></code>。使用方法与 <code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 基本一致。但是它发送的是回复消息。</p>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
-<p><a class="reference internal" href="../api/melobot.context.html#melobot.context.finish" title="melobot.context.finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code></a> 和 <a class="reference internal" href="../api/melobot.context.html#melobot.context.reply_finish" title="melobot.context.reply_finish"><code class="xref py py-func docutils literal notranslate"><span class="pre">reply_finish()</span></code></a>，只能在事件处理过程中使用。</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 和 <code class="xref py py-func docutils literal notranslate"><span class="pre">reply_finish()</span></code>，只能在事件处理过程中使用。</p>
 </div>
 </section>
 <section id="cq">
@@ -460,12 +447,12 @@
 </div>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
-<p>你可自行浏览 API 文档：<a class="reference internal" href="../api/melobot.context.html#action-operations"><span class="std std-ref">行为操作函数</span></a>，查看哪些支持 <code class="docutils literal notranslate"><span class="pre">cq_str</span></code> 参数。</p>
+<p>你可自行浏览 API 文档：<a class="reference internal" href="#action-operations"><span class="xref myst">行为操作函数</span></a>，查看哪些支持 <code class="docutils literal notranslate"><span class="pre">cq_str</span></code> 参数。</p>
 </div>
 <div class="attention admonition">
 <p class="admonition-title">警告</p>
 <p>发送 CQ 字符串存在潜在的安全问题：</p>
-<p>如果将用户输入（如 <a class="reference internal" href="../api/melobot.context.html#melobot.context.msg_text" title="melobot.context.msg_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">msg_text()</span></code></a> 获得的字符串）作为 CQ 字符串的一部分发送出去，这将会造成“注入攻击”！用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</p>
+<p>如果将用户输入（如 <code class="xref py py-func docutils literal notranslate"><span class="pre">msg_text()</span></code> 获得的字符串）作为 CQ 字符串的一部分发送出去，这将会造成“注入攻击”！用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</p>
 <p>任何时候启用 <code class="docutils literal notranslate"><span class="pre">cq_str</span></code> 选项，<strong>如果拼接了用户输入，务必校验</strong>。</p>
 </div>
 </section>
@@ -477,7 +464,7 @@
 </div>
 <section id="id6">
 <h3>转发消息段构造<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
-<p>构造“转发消息段”，使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.forward_msg" title="melobot.models.forward_msg"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward_msg()</span></code></a> 函数：</p>
+<p>构造“转发消息段”，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">forward_msg()</span></code> 函数：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">forward_msg</span>
 
 <span class="c1"># forward_id 是转发 id，可通过 msg_event().get_datas(&quot;forward&quot;, &quot;id&quot;) 获得</span>
@@ -494,14 +481,14 @@
 </section>
 <section id="id7">
 <h3>消息结点构造<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
-<p>构造“合并转发结点”，使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.refer_msg_node" title="melobot.models.refer_msg_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">refer_msg_node()</span></code></a> 函数：</p>
+<p>构造“合并转发结点”，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">refer_msg_node()</span></code> 函数：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">refer_msg_node</span>
 
 <span class="c1"># 这里的 msg_id 是已存在的消息的 id，可通过 msg_event().id 获得</span>
 <span class="n">refer_node</span> <span class="o">=</span> <span class="n">refer_msg_node</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>构造“合并转发自定义结点”，使用 <a class="reference internal" href="../api/melobot.models.html#melobot.models.custom_msg_node" title="melobot.models.custom_msg_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">custom_msg_node()</span></code></a> 函数：</p>
+<p>构造“合并转发自定义结点”，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">custom_msg_node()</span></code> 函数：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">custom_msg_node</span>
 
 <span class="c1"># 第一参数是消息内容，与上述消息段发送方法的第一参数相同</span>
@@ -521,7 +508,7 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>将消息结点组成列表，就是一条转发消息的等价表达了，使用 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 来发送它：</p>
+<p>将消息结点组成列表，就是一条转发消息的等价表达了，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 来发送它：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_forward</span>
 
 <span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -533,7 +520,7 @@
 </section>
 <section id="id8">
 <h2>转发消息的其他发送方法<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
-<p><a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 可根据当前触发事件，自动定位要向何处发送消息。同理，要自定义发送目标，将<a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 换成 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_custom_forward" title="melobot.context.send_custom_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom_forward()</span></code></a> 即可，它的第一参数与 <a class="reference internal" href="../api/melobot.context.html#melobot.context.send_forward" title="melobot.context.send_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 完全相同。</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 可根据当前触发事件，自动定位要向何处发送消息。同理，要自定义发送目标，将<code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 换成 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom_forward()</span></code> 即可，它的第一参数与 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 完全相同。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_custom_forward</span>
 
 <span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -557,26 +544,8 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="action-resp.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">其他行为操作</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="event-process.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">事件与事件处理</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -637,7 +606,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1deec174"></script>
+</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

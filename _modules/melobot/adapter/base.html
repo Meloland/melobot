@@ -1,0 +1,799 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
+        <link rel="canonical" href="/melobot/_modules/melobot/adapter/base.html" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+    <link rel="manifest" href="_static/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+        <title>melobot.adapter.base - melobot 3.0.0rc6</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.html">melobot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.bot.html">melobot.bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.protocol.html">melobot.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.log.html">melobot.log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.utils.html">melobot.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.ctx.html">melobot.ctx</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">更多</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../melobot-prev.html">melobot 历史版本</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>melobot.adapter.base 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">create_task</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">AsyncExitStack</span><span class="p">,</span> <span class="n">_GeneratorContextManager</span><span class="p">,</span> <span class="n">asynccontextmanager</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">AsyncGenerator</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Generic</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">NoReturn</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
+    <span class="n">final</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">LiteralString</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">from</span> <span class="nn">.._hook</span> <span class="kn">import</span> <span class="n">HookBus</span>
+<span class="kn">from</span> <span class="nn">..ctx</span> <span class="kn">import</span> <span class="n">EventBuildInfo</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">AdapterError</span>
+<span class="kn">from</span> <span class="nn">..io.base</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AbstractInSource</span><span class="p">,</span>
+    <span class="n">AbstractOutSource</span><span class="p">,</span>
+    <span class="n">EchoPacketT</span><span class="p">,</span>
+    <span class="n">InPacketT</span><span class="p">,</span>
+    <span class="n">InSourceT</span><span class="p">,</span>
+    <span class="n">OutPacketT</span><span class="p">,</span>
+    <span class="n">OutSourceT</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..log.base</span> <span class="kn">import</span> <span class="n">LogLevel</span>
+<span class="kn">from</span> <span class="nn">..typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">.content</span> <span class="kn">import</span> <span class="n">Content</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">EventT</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..bot.dispatch</span> <span class="kn">import</span> <span class="n">Dispatcher</span>
+
+
+<span class="n">_EVENT_BUILD_INFO_CTX</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
+<span class="n">_OUT_SRC_FILTER_CTX</span> <span class="o">=</span> <span class="n">OutSrcFilterCtx</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="AbstractEventFactory">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEventFactory">[文档]</a>
+<span class="k">class</span> <span class="nc">AbstractEventFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">InPacketT</span><span class="p">,</span> <span class="n">EventT</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象事件工厂类&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AbstractEventFactory.create">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEventFactory.create">[文档]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">InPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EventT</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;将 :class:`.InPacket` 对象转换为 :class:`.Event` 对象的方法</span>
+
+<span class="sd">        :param packet: 输入包</span>
+<span class="sd">        :return: 事件</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<span class="n">EventFactoryT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;EventFactoryT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">AbstractEventFactory</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AbstractOutputFactory">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractOutputFactory">[文档]</a>
+<span class="k">class</span> <span class="nc">AbstractOutputFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">OutPacketT</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象输出工厂类&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AbstractOutputFactory.create">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractOutputFactory.create">[文档]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OutPacketT</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;将 :class:`.Action` 对象转换为 :class:`.OutPacket` 对象的方法</span>
+
+<span class="sd">        :param packet: 行为</span>
+<span class="sd">        :return: 输出包</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<span class="n">OutputFactoryT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;OutputFactoryT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">AbstractOutputFactory</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AbstractEchoFactory">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEchoFactory">[文档]</a>
+<span class="k">class</span> <span class="nc">AbstractEchoFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">EchoPacketT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象回应工厂类&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AbstractEchoFactory.create">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEchoFactory.create">[文档]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">EchoPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoT</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;将 :class:`.EchoPacket` 对象转换为 :class:`.Echo` 对象的方法</span>
+
+<span class="sd">        :param packet: 回应包</span>
+<span class="sd">        :return: 回应或空值</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<span class="n">EchoFactoryT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;EchoFactoryT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">AbstractEchoFactory</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AdapterLifeSpan">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AdapterLifeSpan">[文档]</a>
+<span class="k">class</span> <span class="nc">AdapterLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;适配器生命周期阶段的枚举&quot;&quot;&quot;</span>
+
+    <span class="n">BEFORE_EVENT</span> <span class="o">=</span> <span class="s2">&quot;be&quot;</span>
+    <span class="n">BEFORE_ACTION</span> <span class="o">=</span> <span class="s2">&quot;ba&quot;</span>
+    <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;sta&quot;</span>
+    <span class="n">STOPPED</span> <span class="o">=</span> <span class="s2">&quot;sto&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Adapter">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter">[文档]</a>
+<span class="k">class</span> <span class="nc">Adapter</span><span class="p">(</span>
+    <span class="n">BetterABC</span><span class="p">,</span>
+    <span class="n">Generic</span><span class="p">[</span>
+        <span class="n">EventFactoryT</span><span class="p">,</span>
+        <span class="n">OutputFactoryT</span><span class="p">,</span>
+        <span class="n">EchoFactoryT</span><span class="p">,</span>
+        <span class="n">ActionT</span><span class="p">,</span>
+        <span class="n">InSourceT</span><span class="p">,</span>
+        <span class="n">OutSourceT</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;适配器基类</span>
+
+<span class="sd">    :ivar LiteralString protocol: 适配器所使用的协议</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># pylint: disable=duplicate-code</span>
+    <span class="c1"># pylint: disable=unused-argument</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">protocol</span><span class="p">:</span> <span class="n">LiteralString</span><span class="p">,</span>
+        <span class="n">event_factory</span><span class="p">:</span> <span class="n">EventFactoryT</span><span class="p">,</span>
+        <span class="n">output_factory</span><span class="p">:</span> <span class="n">OutputFactoryT</span><span class="p">,</span>
+        <span class="n">echo_factory</span><span class="p">:</span> <span class="n">EchoFactoryT</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">protocol</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_srcs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">InSourceT</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="p">:</span> <span class="s2">&quot;Dispatcher&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span> <span class="o">=</span> <span class="n">event_factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_factory</span> <span class="o">=</span> <span class="n">output_factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_echo_factory</span> <span class="o">=</span> <span class="n">echo_factory</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span> <span class="o">=</span> <span class="n">HookBus</span><span class="p">[</span><span class="n">AdapterLifeSpan</span><span class="p">](</span><span class="n">AdapterLifeSpan</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Adapter.on">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.on">[文档]</a>
+    <span class="nd">@final</span>
+    <span class="k">def</span> <span class="nf">on</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">periods</span><span class="p">:</span> <span class="n">AdapterLifeSpan</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成注册适配器生命周期回调的装饰器</span>
+
+<span class="sd">        :param periods: 要绑定的生命周期阶段</span>
+
+<span class="sd">        :return: 装饰器</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">periods</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">func</span>
+
+        <span class="k">return</span> <span class="n">wrapped</span></div>
+
+
+<div class="viewcode-block" id="Adapter.get_isrcs">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.get_isrcs">[文档]</a>
+    <span class="nd">@final</span>
+    <span class="k">def</span> <span class="nf">get_isrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">InSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">InSourceT</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取与当前适配器匹配的所有输入源</span>
+
+<span class="sd">        :param filter: 过滤函数，为 `True` 时保留输入源</span>
+<span class="sd">        :return: 输入源的集合</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">src</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_srcs</span> <span class="k">if</span> <span class="nb">filter</span><span class="p">(</span><span class="n">src</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Adapter.get_osrcs">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.get_osrcs">[文档]</a>
+    <span class="nd">@final</span>
+    <span class="k">def</span> <span class="nf">get_osrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OutSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取与当前适配器匹配的所有输出源</span>
+
+<span class="sd">        :param filter: 过滤函数，为 `True` 时保留输出源</span>
+<span class="sd">        :return: 输出源的集合</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">src</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span> <span class="k">if</span> <span class="nb">filter</span><span class="p">(</span><span class="n">src</span><span class="p">))</span></div>
+
+
+    <span class="nd">@final</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__adapter_input_loop__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">InSourceT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">packet</span> <span class="o">=</span> <span class="k">await</span> <span class="n">src</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">_EVENT_BUILD_INFO_CTX</span><span class="o">.</span><span class="n">in_ctx</span><span class="p">(</span><span class="n">EventBuildInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">)):</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                        <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,)</span>
+                    <span class="p">)</span>
+                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;适配器 </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 处理输入与分发事件时发生异常&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;异常点局部变量：&quot;</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+    <span class="nd">@asynccontextmanager</span>
+    <span class="nd">@final</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__adapter_launch__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AdapterError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;适配器 </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 已在运行，不能重复启动&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
+                <span class="n">out_src_ts</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="n">create_task</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">enter_async_context</span><span class="p">(</span><span class="n">src</span><span class="p">))</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_src_ts</span><span class="p">):</span>
+                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">out_src_ts</span><span class="p">)</span>
+
+                <span class="n">in_src_ts</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="n">create_task</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">enter_async_context</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_srcs</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">opened</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_src_ts</span><span class="p">):</span>
+                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">in_src_ts</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_srcs</span><span class="p">:</span>
+                    <span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__adapter_input_loop__</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">STARTED</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="bp">self</span>
+
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Adapter.filter_out">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.filter_out">[文档]</a>
+    <span class="nd">@final</span>
+    <span class="k">def</span> <span class="nf">filter_out</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OutSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_GeneratorContextManager</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;上下文管理器，提供由 `filter` 控制输出的输出上下文</span>
+
+<span class="sd">        :param filter: 过滤函数，为 `True` 时允许该输出源输出</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_OUT_SRC_FILTER_CTX</span><span class="o">.</span><span class="n">in_ctx</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.call_output">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.call_output">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">call_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出行为，并返回各个输出源返回的 :class:`.ActionHandle` 组成的元组</span>
+
+<span class="sd">        适配器开发者的适配器子类可以重写此方法，以实现自定义功能</span>
+
+<span class="sd">        :param action: 行为</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">osrcs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]</span>
+        <span class="nb">filter</span> <span class="o">=</span> <span class="n">_OUT_SRC_FILTER_CTX</span><span class="o">.</span><span class="n">try_get</span><span class="p">()</span>
+        <span class="n">cur_isrc</span><span class="p">:</span> <span class="n">AbstractInSource</span> <span class="o">|</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">info</span> <span class="o">:=</span> <span class="n">_EVENT_BUILD_INFO_CTX</span><span class="o">.</span><span class="n">try_get</span><span class="p">():</span>
+            <span class="n">cur_isrc</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">in_src</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cur_isrc</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">osrcs</span> <span class="o">=</span> <span class="p">(</span><span class="n">osrc</span> <span class="k">for</span> <span class="n">osrc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span> <span class="k">if</span> <span class="nb">filter</span><span class="p">(</span><span class="n">osrc</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cur_isrc</span><span class="p">,</span> <span class="n">AbstractOutSource</span><span class="p">):</span>
+            <span class="n">osrcs</span> <span class="o">=</span> <span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">OutSourceT</span><span class="p">,</span> <span class="n">cur_isrc</span><span class="p">),)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">osrcs</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">)</span> <span class="k">else</span> <span class="p">()</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+            <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">action</span><span class="p">,)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">ActionHandle</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">osrc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_factory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_echo_factory</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">osrc</span> <span class="ow">in</span> <span class="n">osrcs</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_text">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_text">[文档]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文本</span>
+
+<span class="sd">        抽象方法。所有适配器子类应该实现此方法</span>
+
+<span class="sd">        :param text: 文本</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_media">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_media">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_media</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出多媒体内容</span>
+
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
+
+<span class="sd">        :param name: 多媒体内容的名称</span>
+<span class="sd">        :param raw: 多媒体内容的二进制内容</span>
+<span class="sd">        :param url: 多媒体内容的网络地址（和 `raw` 参数二选一）</span>
+<span class="sd">        :param mimetype: 多媒体内容的 mimetype，为空则根据 `name` 自动检测</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[melobot media: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_image">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_image">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出图像内容</span>
+
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
+
+<span class="sd">        :param name: 图像内容的名称</span>
+<span class="sd">        :param raw: 图像内容的二进制内容</span>
+<span class="sd">        :param url: 图像内容的网络地址（和 `raw` 参数二选一）</span>
+<span class="sd">        :param mimetype: 图像内容的 mimetype，为空则根据 `name` 自动检测</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[melobot image: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_audio">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_audio">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_audio</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出音频内容</span>
+
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
+
+<span class="sd">        :param name: 音频内容的名称</span>
+<span class="sd">        :param raw: 音频内容的二进制内容</span>
+<span class="sd">        :param url: 音频内容的网络地址（和 `raw` 参数二选一）</span>
+<span class="sd">        :param mimetype: 音频内容的 mimetype，为空则根据 `name` 自动检测</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[melobot audio: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_voice">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_voice">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_voice</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出语音内容</span>
+
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
+
+<span class="sd">        :param name: 语音内容的名称</span>
+<span class="sd">        :param raw: 语音内容的二进制内容</span>
+<span class="sd">        :param url: 语音内容的网络地址（和 `raw` 参数二选一）</span>
+<span class="sd">        :param mimetype: 语音内容的 mimetype，为空则根据 `name` 自动检测</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[melobot voice: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_video">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_video">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_video</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出视频内容</span>
+
+<span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
+
+<span class="sd">        :param name: 视频内容的名称</span>
+<span class="sd">        :param raw: 视频内容的二进制内容</span>
+<span class="sd">        :param url: 视频内容的网络地址（和 `raw` 参数二选一）</span>
+<span class="sd">        :param mimetype: 视频内容的 mimetype，为空则根据 `name` 自动检测</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[melobot video: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_file">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_file">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文件</span>
+
+<span class="sd">        :param name: 文件名</span>
+<span class="sd">        :param path: 文件路径</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot file: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_refer">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_refer">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_refer</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出对过往事件的引用</span>
+
+<span class="sd">        :param event: 过往的事件对象</span>
+<span class="sd">        :param contents: 附加的通用内容序列</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[melobot refer: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)]&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_resource">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_resource">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出网络资源</span>
+
+<span class="sd">        :param name: 网络资源名称</span>
+<span class="sd">        :param url: 网络资源的 url</span>
+<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot resource: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, contributors of this doc
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Meloland/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=33a93e33"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>
