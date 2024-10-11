@@ -52,19 +52,19 @@ class MediaContent(Content):
 
 
 class ImageContent(MediaContent):
-    """图像内容"""
+    """图像内容，初始化方法参考基类"""
 
 
 class AudioContent(MediaContent):
-    """音频内容"""
+    """音频内容，初始化方法参考基类"""
 
 
 class VoiceContent(AudioContent):
-    """语音内容"""
+    """语音内容，初始化方法参考基类"""
 
 
 class VideoContent(MediaContent):
-    """视频内容"""
+    """视频内容，初始化方法参考基类"""
 
 
 class FileContent(Content):
