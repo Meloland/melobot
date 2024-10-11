@@ -15,6 +15,11 @@ api/index
 melobot-prev
 ```
 
+```{admonition} 重要提示
+:class: caution
+melobot 的文档仍在补充中，请及时关注文档更新。
+```
+
 
 ```{include} ../../README.md
 :start-after: <!-- start elevator-pitch -->
