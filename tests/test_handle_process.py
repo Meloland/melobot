@@ -6,7 +6,7 @@ def node():
     async def node():
         return True
 
-    n = FlowNode()(node)
+    n = FlowNode(node)
     n.name = str(id(n))
     return n
 
