@@ -240,6 +240,8 @@ class Adapter(
 
         适配器开发者的适配器子类可以重写此方法，以实现自定义功能
 
+        但子类实现中必须调用原始方法： `super().call_output(...)`
+
         :param action: 行为
         :return: :class:`.ActionHandle` 元组
         """
@@ -387,6 +389,8 @@ class Adapter(
     ) -> tuple[ActionHandle, ...]:
         """输出文件
 
+        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
+
         :param name: 文件名
         :param path: 文件路径
         :return: :class:`.ActionHandle` 元组
@@ -398,6 +402,8 @@ class Adapter(
     ) -> tuple[ActionHandle, ...]:
         """输出对过往事件的引用
 
+        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
+
         :param event: 过往的事件对象
         :param contents: 附加的通用内容序列
         :return: :class:`.ActionHandle` 元组
@@ -408,6 +414,8 @@ class Adapter(
 
     async def send_resource(self, name: str, url: str) -> tuple[ActionHandle, ...]:
         """输出网络资源
+
+        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
 
         :param name: 网络资源名称
         :param url: 网络资源的 url
