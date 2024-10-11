@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>melobot.bot.base - melobot 3.0.0rc6</title>
+        <title>melobot.bot.base - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.0.0rc7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc7</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -622,10 +622,25 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">load_plugins_dir</span><span class="p">(</span><span class="n">pdir</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Bot.load_site_plugins">
+<a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_site_plugins">[文档]</a>
+    <span class="k">def</span> <span class="nf">load_site_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">site_plugins</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;加载从站点上（例如 pip）安装的第三方插件</span>
+
+<span class="sd">        :param site_plugins: 要加载的第三方插件的名称，例如 &quot;melobot_plugin_example&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">pname</span> <span class="ow">in</span> <span class="n">site_plugins</span><span class="p">:</span>
+            <span class="n">pmod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">pname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">pmod</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Bot.core_run">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.core_run">[文档]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">core_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的方法，可以自由地在异步事件循环中使用&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的方法，可以在异步事件循环中自由地使用</span>
+
+<span class="sd">        若使用此方法，则需要自行管理异步事件循环</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_run_init</span><span class="p">()</span>
 
@@ -667,22 +682,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="Bot.load_site_plugins">
-<a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_site_plugins">[文档]</a>
-    <span class="k">def</span> <span class="nf">load_site_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">site_plugins</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;加载从站点上（例如 pip）安装的第三方插件</span>
-
-<span class="sd">        :param site_plugins: 要加载的第三方插件的名称，例如 &quot;melobot_plugin_example&quot;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">pname</span> <span class="ow">in</span> <span class="n">site_plugins</span><span class="p">:</span>
-            <span class="n">pmod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">pname</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">pmod</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="Bot.run">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.run">[文档]</a>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况</span>
 
 <span class="sd">        :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -693,7 +696,7 @@
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.start">[文档]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">bots</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;同时运行多个 bot 的阻塞方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;安全地同时运行多个 bot 的阻塞方法</span>
 
 <span class="sd">        :param bots: 要运行的 bot 对象</span>
 <span class="sd">        :param debug: 参见 :func:`run` 同名参数</span>
@@ -902,7 +905,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=33a93e33"></script>
+</div><script src="../../../_static/documentation_options.js?v=216f0229"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

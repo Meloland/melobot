@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>melobot.bot - melobot 3.0.0rc6</title>
+        <title>melobot.bot - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc7</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -449,12 +449,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="melobot.bot.Bot.core_run">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">core_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.core_run"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.core_run" title="Link to this definition">¶</a></dt>
-<dd><p>运行 bot 的方法，可以自由地在异步事件循环中使用</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="melobot.bot.Bot.load_site_plugins">
 <span class="sig-name descname"><span class="pre">load_site_plugins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">site_plugins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.load_site_plugins"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.load_site_plugins" title="Link to this definition">¶</a></dt>
 <dd><p>加载从站点上（例如 pip）安装的第三方插件</p>
@@ -466,9 +460,16 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="melobot.bot.Bot.core_run">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">core_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.core_run"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.core_run" title="Link to this definition">¶</a></dt>
+<dd><p>运行 bot 的方法，可以在异步事件循环中自由地使用</p>
+<p>若使用此方法，则需要自行管理异步事件循环</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="melobot.bot.Bot.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.run"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.run" title="Link to this definition">¶</a></dt>
-<dd><p>运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况</p>
+<dd><p>安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>debug</strong> – 是否启用 <a class="reference external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio" title="（在 Python v3.13）"><code class="xref py py-mod docutils literal notranslate"><span class="pre">asyncio</span></code></a> 的调试模式，但是这不会更改 <a class="reference external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio" title="（在 Python v3.13）"><code class="xref py py-mod docutils literal notranslate"><span class="pre">asyncio</span></code></a> 日志器的日志等级</p>
@@ -479,7 +480,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.bot.Bot.start">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">bots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><span class="pre">Bot</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.start"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.start" title="Link to this definition">¶</a></dt>
-<dd><p>同时运行多个 bot 的阻塞方法</p>
+<dd><p>安全地同时运行多个 bot 的阻塞方法</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -704,8 +705,8 @@
 <li><a class="reference internal" href="#melobot.bot.Bot.load_plugins"><code class="docutils literal notranslate"><span class="pre">Bot.load_plugins()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.load_plugins_dir"><code class="docutils literal notranslate"><span class="pre">Bot.load_plugins_dir()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.load_plugins_dirs"><code class="docutils literal notranslate"><span class="pre">Bot.load_plugins_dirs()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.bot.Bot.core_run"><code class="docutils literal notranslate"><span class="pre">Bot.core_run()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.load_site_plugins"><code class="docutils literal notranslate"><span class="pre">Bot.load_site_plugins()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.bot.Bot.core_run"><code class="docutils literal notranslate"><span class="pre">Bot.core_run()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.run"><code class="docutils literal notranslate"><span class="pre">Bot.run()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.start"><code class="docutils literal notranslate"><span class="pre">Bot.start()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.close"><code class="docutils literal notranslate"><span class="pre">Bot.close()</span></code></a></li>
@@ -742,7 +743,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
+</div><script src="../_static/documentation_options.js?v=216f0229"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

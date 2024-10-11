@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>melobot - melobot 3.0.0rc6</title>
+        <title>melobot - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc6</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc6</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc7</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -285,11 +285,19 @@
 <dt class="sig sig-object py" id="melobot.MetaInfo">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">MetaInfo</span></span><a class="reference internal" href="../_modules/melobot/_meta.html#MetaInfo"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.MetaInfo" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>只读项目元信息</p>
+<p>melobot 项目只读元信息</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.MetaInfo.ver">
 <span class="sig-name descname"><span class="pre">ver</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="（在 Python v3.13）"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.MetaInfo.ver" title="Link to this definition">¶</a></dt>
 <dd><p>melobot 版本</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.MetaInfo.ver_info">
+<span class="sig-name descname"><span class="pre">ver_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="（在 Python v3.13）"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot._meta.VersionInfo" title="melobot._meta.VersionInfo"><span class="pre">VersionInfo</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.MetaInfo.ver_info" title="Link to this definition">¶</a></dt>
+<dd><p>melobot 版本信息</p>
 <dl class="field-list simple">
 </dl>
 </dd></dl>
@@ -324,6 +332,60 @@
 <dd><p>melobot ascii art 图标</p>
 <dl class="field-list simple">
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot._meta.VersionInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot._meta.</span></span><span class="sig-name descname"><span class="pre">VersionInfo</span></span><a class="reference internal" href="../_modules/melobot/_meta.html#VersionInfo"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot._meta.VersionInfo" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<p>版本信息元组</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot._meta.VersionInfo.major">
+<span class="sig-name descname"><span class="pre">major</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot._meta.VersionInfo.major" title="Link to this definition">¶</a></dt>
+<dd><p>主要版本号</p>
+<p>变更时伴随重大架构更新（下一代 melobot 才会更改）</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot._meta.VersionInfo.minor">
+<span class="sig-name descname"><span class="pre">minor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot._meta.VersionInfo.minor" title="Link to this definition">¶</a></dt>
+<dd><p>次要版本号</p>
+<p>变更时伴随重要的功能更新</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot._meta.VersionInfo.micro">
+<span class="sig-name descname"><span class="pre">micro</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot._meta.VersionInfo.micro" title="Link to this definition">¶</a></dt>
+<dd><p>微版本号</p>
+<p>变更时伴随不重要的功能更新，或是漏洞/错误修复</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot._meta.VersionInfo.releaselevel">
+<span class="sig-name descname"><span class="pre">releaselevel</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.13）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'alpha'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'beta'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'pre-release'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'final'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot._meta.VersionInfo.releaselevel" title="Link to this definition">¶</a></dt>
+<dd><p>发行级别</p>
+<p><cite>micro</cite> 更新，一般直接使用 <cite>final</cite> 发行级别</p>
+<dl class="simple">
+<dt><cite>minor</cite> 更新，可能历经：</dt><dd><ul class="simple">
+<li><p><cite>alpha</cite> -&gt; <cite>beta</cite> -&gt; <cite>pre-release</cite> -&gt; <cite>final</cite> （极少）</p></li>
+<li><p><cite>pre-release</cite> -&gt; <cite>final</cite> （较多）</p></li>
+<li><p><cite>final</cite> （少）</p></li>
+</ul>
+</dd>
+<dt><cite>major</cite> 更新，一定历经：</dt><dd><ul class="simple">
+<li><p><cite>alpha</cite> -&gt; <cite>beta</cite> -&gt; <cite>pre-release</cite> -&gt; <cite>final</cite></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot._meta.VersionInfo.serial">
+<span class="sig-name descname"><span class="pre">serial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot._meta.VersionInfo.serial" title="Link to this definition">¶</a></dt>
+<dd><p>发行序列号，若 <cite>releaselevel</cite> 为 “final”，则该值与 <cite>micro</cite> 相同</p>
+<p>否则可以视为具体 <cite>releaselevel</cite> 的子版本号，相当于 <cite>nano</cite> 级版本号</p>
 </dd></dl>
 
 </dd></dl>
@@ -397,10 +459,19 @@
 <li><a class="reference internal" href="#id1">melobot 元信息</a><ul>
 <li><a class="reference internal" href="#melobot.MetaInfo"><code class="docutils literal notranslate"><span class="pre">MetaInfo</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.MetaInfo.ver"><code class="docutils literal notranslate"><span class="pre">MetaInfo.ver</span></code></a></li>
+<li><a class="reference internal" href="#melobot.MetaInfo.ver_info"><code class="docutils literal notranslate"><span class="pre">MetaInfo.ver_info</span></code></a></li>
 <li><a class="reference internal" href="#melobot.MetaInfo.name"><code class="docutils literal notranslate"><span class="pre">MetaInfo.name</span></code></a></li>
 <li><a class="reference internal" href="#melobot.MetaInfo.desc"><code class="docutils literal notranslate"><span class="pre">MetaInfo.desc</span></code></a></li>
 <li><a class="reference internal" href="#melobot.MetaInfo.src"><code class="docutils literal notranslate"><span class="pre">MetaInfo.src</span></code></a></li>
 <li><a class="reference internal" href="#melobot.MetaInfo.logo"><code class="docutils literal notranslate"><span class="pre">MetaInfo.logo</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot._meta.VersionInfo"><code class="docutils literal notranslate"><span class="pre">VersionInfo</span></code></a><ul>
+<li><a class="reference internal" href="#melobot._meta.VersionInfo.major"><code class="docutils literal notranslate"><span class="pre">VersionInfo.major</span></code></a></li>
+<li><a class="reference internal" href="#melobot._meta.VersionInfo.minor"><code class="docutils literal notranslate"><span class="pre">VersionInfo.minor</span></code></a></li>
+<li><a class="reference internal" href="#melobot._meta.VersionInfo.micro"><code class="docutils literal notranslate"><span class="pre">VersionInfo.micro</span></code></a></li>
+<li><a class="reference internal" href="#melobot._meta.VersionInfo.releaselevel"><code class="docutils literal notranslate"><span class="pre">VersionInfo.releaselevel</span></code></a></li>
+<li><a class="reference internal" href="#melobot._meta.VersionInfo.serial"><code class="docutils literal notranslate"><span class="pre">VersionInfo.serial</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -416,7 +487,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=33a93e33"></script>
+</div><script src="../_static/documentation_options.js?v=216f0229"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
