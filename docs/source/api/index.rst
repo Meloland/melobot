@@ -4,38 +4,23 @@ melobot API 参考
 .. admonition:: 提示
     :class: tip
 
-    如无特别说明，文档中所有与时间有关的参数，单位都为秒（s）
+    - 如无特别说明，文档中所有与时间有关的参数，单位都为秒（s）
+    - 如无特别说明，API 文档中没有给出 __init__ 方法的类，用户不应该手动初始化
 
 以下组件可从 melobot 命名空间直接导入：
 
 - :class:`.MetaInfo`
-- :class:`.Bot`
-- :class:`.Plugin`
-- :class:`.AsyncShare`
-- :class:`.SyncShare`
-- :class:`.Adapter`
-- :class:`.Event`
-- :class:`.Action`
-- :class:`.Echo`
-- :class:`.Flow`
-- :class:`.FlowStore`
+- :class:`.Bot`, :func:`.get_bot`
+- :class:`.Plugin`, :class:`.AsyncShare`, :class:`.SyncShare`
+- :class:`.Adapter`, :class:`.Event`, :class:`.Action`, :class:`.Echo`
+- :class:`.Flow`, :class:`.FlowStore`, :func:`.node`, :func:`.rewind`, :func:`.stop`
 - :class:`.Depends`
-- :class:`.Rule`
-- :class:`.SessionStore`
-- :class:`.Logger`
-- :class:`.LogLevel`
-- :class:`.HandleLevel`
-- :class:`.LogicMode`
+- :class:`.Rule`, :func:`.enter_session`, :class:`.SessionStore`, :func:`.suspend`
+- :class:`.GenericLogger`, :class:`.Logger`, :class:`.LogLevel`, :func:`.get_logger`
+- :class:`.HandleLevel`, :class:`.LogicMode`
 - :class:`.Context`
-- :func:`.get_bot`
-- :func:`.get_logger`
-- :func:`.node`
-- :func:`.rewind`
-- :func:`.stop`
-- :func:`.enter_session`
-- :func:`.suspend`
 
-melobot API 二级目录索引：
+各模块 API 文档索引：
 
 .. toctree::
     :maxdepth: 1

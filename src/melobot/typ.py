@@ -1,7 +1,7 @@
 import inspect
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any, Awaitable, Callable, ParamSpec, TypeAlias, TypeVar, cast
+from typing import Any, Awaitable, Callable, ParamSpec, Sequence, TypeAlias, TypeVar, cast
 
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
@@ -23,20 +23,29 @@ __all__ = (
     "VoidType",
 )
 
+#: 泛型类型变量 T，无约束
 T = TypeVar("T")
+#: :obj:`~typing.ParamSpec` 泛型 P，无约束
 P = ParamSpec("P")
+#: 用法：AsyncCallable[P, T]，是该类型的别名：Callable[P, Awaitable[T]]
 AsyncCallable: TypeAlias = Callable[P, Awaitable[T]]
 
 _DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)
 
 
 def is_type(obj: T, hint: type[Any]) -> TypeGuard[T]:
+    """检查 `obj` 是否是类型注解 `hint` 所表示的类型
+
+    :param obj: 任意对象
+    :param hint: 任意类型注解
+    :return: 布尔值
+    """
     ret = _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
     return ret
 
 
 class HandleLevel(float, Enum):
-    """事件处理器优先级枚举类型"""
+    """事件处理流优先级枚举类型"""
 
     MAX = 1 << 6
     ULTRA_HIGH = 1 << 5
@@ -57,6 +66,13 @@ class LogicMode(Enum):
 
     @classmethod
     def calc(cls, logic: "LogicMode", v1: Any, v2: Any = None) -> bool:
+        """将两个值使用指定逻辑模式运算
+
+        :param logic: 逻辑模式
+        :param v1: 值 1
+        :param v2: 值 2
+        :return: 布尔值
+        """
         if logic == LogicMode.AND:
             return (v1 and v2) if v2 is not None else bool(v1)  # type: ignore[no-any-return]
         if logic == LogicMode.OR:
@@ -69,6 +85,13 @@ class LogicMode(Enum):
     def short_calc(
         cls, logic: "LogicMode", v1: Callable[[], Any], v2: Callable[[], Any]
     ) -> bool:
+        """与 :func:`calc` 功能类似，但运算支持短路
+
+        :param logic: 逻辑模式
+        :param v1: 生成值 1 的可调用对象
+        :param v2: 生成值 2 的可调用对象
+        :return: 布尔值
+        """
         if logic == LogicMode.AND:
             return (v1() and v2()) if v2 is not None else bool(v1())  # type: ignore[no-any-return]
         if logic == LogicMode.OR:
@@ -81,7 +104,13 @@ class LogicMode(Enum):
     async def async_short_calc(
         cls, logic: "LogicMode", v1: AsyncCallable[[], Any], v2: AsyncCallable[[], Any]
     ) -> bool:
+        """与 :func:`short_calc` 功能类似，但运算支持异步
 
+        :param logic: 逻辑模式
+        :param v1: 生成值 1 的异步可调用对象
+        :param v2: 生成值 2 的异步可调用对象
+        :return: 布尔值
+        """
         if logic == LogicMode.AND:
             res = (await v1() and await v2()) if v2 is not None else bool(await v1())
             return res  # type: ignore[no-any-return]
@@ -95,6 +124,17 @@ class LogicMode(Enum):
 
     @classmethod
     def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
+        """使用指定的逻辑模式，对值序列进行运算
+
+        .. code:: python
+
+            # 操作等价与：True and False and True
+            LogicMode.seq_calc(LogicMode.AND, [True, False, True])
+
+        :param logic: 逻辑模式
+        :param values: 值序列
+        :return: 布尔值
+        """
         if len(values) <= 0:
             return False
         if len(values) <= 1:
@@ -112,7 +152,15 @@ class LogicMode(Enum):
         return res
 
     @classmethod
-    def short_seq_calc(cls, logic: "LogicMode", getters: list[Callable[[], Any]]) -> bool:
+    def short_seq_calc(
+        cls, logic: "LogicMode", getters: Sequence[Callable[[], Any]]
+    ) -> bool:
+        """与 :func:`seq_calc` 功能类似，但运算支持短路
+
+        :param logic: 逻辑模式
+        :param getters: 一组获取值的可调用对象
+        :return: 布尔值
+        """
         if len(getters) <= 0:
             return False
         if len(getters) <= 1:
@@ -131,8 +179,14 @@ class LogicMode(Enum):
 
     @classmethod
     async def async_short_seq_calc(
-        cls, logic: "LogicMode", getters: list[AsyncCallable[[], Any]]
+        cls, logic: "LogicMode", getters: Sequence[AsyncCallable[[], Any]]
     ) -> bool:
+        """与 :func:`short_seq_calc` 功能类似，但运算支持异步
+
+        :param logic: 逻辑模式
+        :param getters: 一组获取值的异步可调用对象
+        :return: 布尔值
+        """
         if len(getters) <= 0:
             return False
         if len(getters) <= 1:
@@ -155,6 +209,42 @@ class LogicMode(Enum):
 
 
 def abstractattr(obj: Callable[[Any], T] | None = None) -> T:
+    """抽象属性
+
+    与 `abstractproperty` 相比更灵活，`abstractattr` 不关心你以何种形式定义属性。只要子类在实例化后，该属性存在，即认为合法。
+
+    但注意它必须与 :class:`BetterABC` 或 :class:`BetterABCMeta` 配合使用
+
+    这意味着可以在类层级、实例层级定义属性，或使用 `property` 定义属性：
+
+    .. code:: python
+
+        class A(BetterABC):
+            foo: int = abstractattr()  # 声明为抽象属性
+
+            # 或者使用装饰器的形式声明，这与上面是等价的
+            @abstractattr
+            def bar(self) -> int: ...
+
+        # 以下实现都是合法的：
+
+        class B(A):
+            foo = 2
+            bar = 4
+
+        class C(A):
+            foo = 3
+            def __init__(self) -> None:
+                self.bar = 5
+
+        class D(A):
+            def __init__(self) -> None:
+                self.foo = 8
+
+            @property
+            def bar(self) -> int:
+                return self.foo + 10
+    """
     _obj = cast(Any, obj)
     if obj is None:
         _obj = BetterABCMeta.DummyAttribute()
@@ -163,6 +253,7 @@ def abstractattr(obj: Callable[[Any], T] | None = None) -> T:
 
 
 class BetterABCMeta(ABCMeta):
+    """更好的抽象元类，兼容 `ABCMeta` 的所有功能，但是额外支持 :func:`abstractattr`"""
 
     class DummyAttribute: ...
 
@@ -190,8 +281,19 @@ class BetterABCMeta(ABCMeta):
 
 
 class BetterABC(metaclass=BetterABCMeta):
+    """更好的抽象类，兼容 `ABC` 的所有功能，但是额外支持 :func:`abstractattr`"""
+
     __slots__ = ()
 
 
 class VoidType(Enum):
+    """空类型，需要区别于 `None` 时使用
+
+    .. code:: python
+
+        # 有些时候 `None` 也是合法值，因此需要一个额外的哨兵值：
+        def foo(val: Any | VoidType = VoidType.VOID) -> None:
+            ...
+    """
+
     VOID = type("_VOID", (), {})

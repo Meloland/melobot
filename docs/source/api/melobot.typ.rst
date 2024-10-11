@@ -7,17 +7,17 @@ melobot.typ
 
 .. autoclass:: melobot.typ.LogicMode
     :members:
-    :exclude-members: calc, seq_calc
 
 .. autofunction:: melobot.typ.is_type
 
+.. autofunction:: melobot.typ.abstractattr
+
 .. autoclass:: melobot.typ.BetterABCMeta
     :members:
+    :exclude-members: __call__, DummyAttribute
 
 .. autoclass:: melobot.typ.BetterABC
     :members:
-
-.. autofunction:: melobot.typ.abstractattr
 
 .. autoclass:: melobot.typ.VoidType
     :members:
@@ -34,4 +34,4 @@ melobot.typ
 
    用法：AsyncCallable[P, T]
    
-   是该类型的别名：Callable[P, Awaitable[T]]
+   是该类型的别名：:class:`~.collections.abc.Callable`\[P, :class:`~.typing.Awaitable`\[T\]\]

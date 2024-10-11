@@ -41,7 +41,7 @@ autodoc_class_signature = "separated"
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    "special-members": "__init__, __call__",
+    "special-members": "__init__, __call__, __await__",
     "show-inheritance": True,
     "undoc-members": True,
 }

@@ -1,4 +1,4 @@
-from typing import Any, Generic, NoReturn
+from typing import Any, ClassVar, Generic, NoReturn
 
 from .typ import T
 
@@ -35,39 +35,33 @@ class MetaInfoMeta(type):
 
 
 class MetaInfo(metaclass=MetaInfoMeta):
-    """元信息类
+    """只读项目元信息"""
 
-    .. admonition:: 提示
-       :class: tip
-
-       一般无需手动实例化该类，多数情况会直接使用本类的属性，或将本类用作类型注解。
-    """
-
-    ver: str
+    ver: ClassVar[str]
     """melobot 版本
 
        :meta hide-value:
     """
 
-    name: str
+    name: ClassVar[str]
     """melobot 项目名称
 
        :meta hide-value:
     """
 
-    desc: str
+    desc: ClassVar[str]
     """melobot 项目描述
 
        :meta hide-value:
     """
 
-    src: str
+    src: ClassVar[str]
     """melobot 项目地址
 
        :meta hide-value:
     """
 
-    logo: str
+    logo: ClassVar[str]
     """melobot ascii art 图标
 
        :meta hide-value:

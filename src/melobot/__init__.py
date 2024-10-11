@@ -5,7 +5,7 @@ from .ctx import Context
 from .di import Depends
 from .handle import Flow, FlowStore, node, rewind, stop
 from .handle.generic import send_image, send_text
-from .log import Logger, LogLevel, get_logger
+from .log import GenericLogger, Logger, LogLevel, get_logger
 from .plugin import AsyncShare, Plugin, SyncShare
 from .session import Rule, SessionStore, enter_session, suspend
 from .typ import HandleLevel, LogicMode

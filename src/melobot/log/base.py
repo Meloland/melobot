@@ -106,6 +106,8 @@ class MeloFilter(logging.Filter):
 
 
 class LogLevel(int, Enum):
+    """日志等级枚举"""
+
     CRITICAL = CRITICAL
     DEBUG = DEBUG
     ERROR = ERROR
@@ -137,30 +139,42 @@ def _current_finfo() -> tuple[str, str, int]:
 
 
 class GenericLogger(BetterABC):
+    """通用日志器抽象类
+
+    任何日志器实现或通过修补后实现抽象接口，
+    则可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化）
+    """
+
     # pylint: disable=duplicate-code
 
     @abstractmethod
     def debug(self, msg: object) -> None:
+        """`debug` 级别日志"""
         raise NotImplementedError
 
     @abstractmethod
     def info(self, msg: object) -> None:
+        """`info` 级别日志"""
         raise NotImplementedError
 
     @abstractmethod
     def warning(self, msg: object) -> None:
+        """`warning` 级别日志"""
         raise NotImplementedError
 
     @abstractmethod
     def error(self, msg: object) -> None:
+        """`error` 级别日志"""
         raise NotImplementedError
 
     @abstractmethod
     def critical(self, msg: object) -> None:
+        """`critical` 级别日志"""
         raise NotImplementedError
 
     @abstractmethod
     def exception(self, msg: object) -> None:
+        """记录异常信息的日志"""
         raise NotImplementedError
 
     @abstractmethod
@@ -171,6 +185,13 @@ class GenericLogger(BetterABC):
         level: LogLevel,
         with_exc: bool = False,
     ) -> None:
+        """通用懒惰日志方法
+
+        :param msg: 日志消息，可使用 %s 指定稍后填充的参数
+        :param arg_getters: 填充消息 %s 位置的填充函数
+        :param level: 日志等级
+        :param with_exc: 是否记录异常栈信息
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -181,6 +202,13 @@ class GenericLogger(BetterABC):
         *arg_getters: Callable[[], str],
         level: LogLevel = LogLevel.INFO,
     ) -> None:
+        """通用记录对象日志方法
+
+        :param msg: 附加的日志消息，可使用 %s 指定稍后填充的参数
+        :param obj: 需要被日志记录的对象
+        :param arg_getters: 填充消息 %s 位置的填充函数
+        :param level: 日志等级
+        """
         raise NotImplementedError
 
 
@@ -210,7 +238,11 @@ class NullLogger(_Logger, GenericLogger):
 
 
 class Logger(_Logger, GenericLogger):
-    """melobot 内置日志器类"""
+    """melobot 内置日志器
+
+    `debug`, `info`, `warning`, `error`, `critical`, `exception`
+    等接口与 :data:`logging.Logger` 用法完全一致
+    """
 
     __instances__: dict[str, "Logger"] = {}
 
@@ -230,7 +262,7 @@ class Logger(_Logger, GenericLogger):
         to_dir: Optional[str] = None,
         no_tag: bool = True,
     ) -> None:
-        """初始化一个日志器实例
+        """初始化日志器
 
         :param name: 日志器的名称（唯一）
         :param level: 日志等级
@@ -351,12 +383,12 @@ class Logger(_Logger, GenericLogger):
         handler.setFormatter(fmt)
         return handler
 
-    def setLevel(self, level: LogLevel) -> None:  # type: ignore[override]
+    def set_level(self, level: LogLevel) -> None:  # type: ignore[override]
         """设置日志等级
 
         日志等级自动应用于包含的所有 handler
 
-        :param level: 日志等级字面量
+        :param level: 日志等级
         """
         super().setLevel(level)
         for handler in self._handler_arr:
@@ -397,6 +429,13 @@ class Logger(_Logger, GenericLogger):
         level: LogLevel,
         with_exc: bool = False,
     ) -> None:
+        """通用懒惰日志方法
+
+        :param msg: 日志消息，可使用 %s 指定稍后填充的参数
+        :param arg_getters: 填充消息 %s 位置的填充函数
+        :param level: 日志等级
+        :param with_exc: 是否记录异常栈信息
+        """
         if not self.isEnabledFor(level):
             return
         exc = sys.exc_info() if with_exc else None
@@ -409,6 +448,13 @@ class Logger(_Logger, GenericLogger):
         *arg_getters: Callable[[], str],
         level: LogLevel = LogLevel.INFO,
     ) -> None:
+        """通用记录对象日志方法
+
+        :param msg: 附加的日志消息，可使用 %s 指定稍后填充的参数
+        :param obj: 需要被日志记录的对象
+        :param arg_getters: 填充消息 %s 位置的填充函数
+        :param level: 日志等级
+        """
         if isinstance(self, Logger):
             with self._filter.on_obj(obj):
                 self.generic_lazy(msg + "\n", *arg_getters, level=level)

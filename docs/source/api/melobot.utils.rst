@@ -5,6 +5,7 @@ melobot.utils
 
 .. autoclass:: melobot.utils.Markable
     :members:
+    :exclude-members: __init__
 
 .. autoclass:: melobot.utils.RWContext
     :members:

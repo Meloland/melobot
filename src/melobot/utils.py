@@ -23,6 +23,11 @@ from .typ import AsyncCallable, P, T
 
 
 def singleton(cls: Callable[P, T]) -> Callable[P, T]:
+    """单例装饰器
+
+    :param cls: 需要被单例化的可调用对象
+    :return: 需要被单例化的可调用对象
+    """
     obj_map = {}
 
     @wraps(cls)
@@ -35,10 +40,23 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
 
 
 class Markable:
+    """可标记对象
+
+    无需直接实例化，而是用作接口在其他类中继承
+    """
+
     def __init__(self) -> None:
         self._flags: dict[str, dict[str, Any]] = {}
 
     def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
+        """在 `namespace` 命名空间中设置 `flag_name` 标记，值为 `val`
+
+        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
+
+        :param namespace: 命名空间
+        :param flag_name: 标记名
+        :param val: 标记值
+        """
         self._flags.setdefault(namespace, {})
 
         if flag_name in self._flags[namespace].keys():
@@ -49,6 +67,15 @@ class Markable:
         self._flags[namespace][flag_name] = val
 
     def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
+        """检查 `namespace` 命名空间中 `flag_name` 标记值是否为 `val`
+
+        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
+
+        :param namespace: 命名空间
+        :param flag_name: 标记名
+        :param val: 标记值
+        :return: 是否通过检查
+        """
         if self._flags.get(namespace) is None:
             return False
         if flag_name not in self._flags[namespace].keys():
@@ -127,7 +154,7 @@ class RWContext:
     """
 
     def __init__(self, read_limit: Optional[int] = None) -> None:
-        """初始化一个异步读写上下文
+        """初始化异步读写上下文
 
         :param read_limit: 读取的数量限制，为空则不限制
         """
@@ -454,7 +481,7 @@ def speedlimit(
     limit: int = 60,
     duration: int = 60,
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
-    """流量/速率限制装饰器
+    """流量/速率限制装饰器（使用固定窗口算法）
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：`duration` 秒内只允许 `limit` 次调用。
 

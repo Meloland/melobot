@@ -14,10 +14,23 @@ class LazyLogMethod(Protocol):
         level: LogLevel,
         with_exc: bool = False,
     ) -> None:
+        """懒惰日志抽象方法
+
+        继承并实现该类的 __call__ 方法，即可用于日志器修补
+
+        :param msg: 日志消息
+        :param level: 日志等级
+        :param with_exc: 输出时是否附加异常信息
+        """
         raise NotImplementedError
 
 
 def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
+    """对指定的日志器进行修补操作，使其可以被用于 melobot 内部的日志记录
+
+    :param logger: 任意已经实现 `debug`, `info`, `warning`, `error`, `critical`, `exception` 接口的日志器
+    :param lazy_meth: 修补方法
+    """
     setattr(logger, Logger.generic_lazy.__name__, lazy_meth)
     setattr(
         logger, Logger.generic_obj.__name__, types.MethodType(Logger.generic_obj, logger)
@@ -26,7 +39,13 @@ def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
 
 
 class StandardPatch(LazyLogMethod):
+    """用于修补 logging.Logger 的日志修补"""
+
     def __init__(self, logger: Any) -> None:
+        """初始化一个标准日志器修补
+
+        :param logger: 标准日志器对象（`logging.Logger`）
+        """
         super().__init__()
         self.logger = logger
 
@@ -44,7 +63,13 @@ class StandardPatch(LazyLogMethod):
 
 
 class LoguruPatch(LazyLogMethod):
+    """用于修补 loguru 日志器的日志修补"""
+
     def __init__(self, logger: Any) -> None:
+        """初始化一个 loguru 日志器修补
+
+        :param logger: loguru 日志器对象
+        """
         super().__init__()
         self.logger = logger
         self.pattern = re.compile(r"%(?:[-+# 0]*\d*(?:\.\d+)?[hlL]?[diouxXeEfFgGcrs%])")
@@ -79,7 +104,13 @@ class LoguruPatch(LazyLogMethod):
 
 
 class StructlogPatch(LazyLogMethod):
+    """用于修补 structlog 日志器的日志修补"""
+
     def __init__(self, logger: Any) -> None:
+        """初始化一个 structlog 日志器修补
+
+        :param logger: structlog 日志器对象
+        """
         super().__init__()
         self.logger = logger
 

@@ -6,6 +6,12 @@ melobot.handle
 
 .. autoclass:: melobot.handle.Flow
     :members:
+    :exclude-members: on_priority_reset, starts, ends, run
+
+
+.. autoclass:: melobot.handle.FlowNode
+    :members:
+    :exclude-members: __init__, process
 
 处理节点
 -----------
@@ -40,6 +46,7 @@ melobot.handle
 
 .. autoclass:: melobot.handle.FlowRecord
     :members:
+    :exclude-members: __init__
 
 .. autofunction:: melobot.handle.get_flow_store
 

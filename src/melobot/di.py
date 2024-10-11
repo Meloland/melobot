@@ -34,6 +34,13 @@ class Depends:
         cache: bool = False,
         recursive: bool = True,
     ) -> None:
+        """初始化一个依赖项
+
+        :param dep: 依赖来源（可调用对象，异步可调用对象，或依赖项）
+        :param sub_getter: 子获取器（可调用对象，异步可调用对象或空），在获得依赖之后，于其上继续获取
+        :param cache: 是否启用缓存
+        :param recursive: 是否启用递归满足（默认启用，如果当前依赖来源中存在依赖项，会被递归满足；关闭可节约性能）
+        """
         super().__init__()
         self.ref: Depends | None
         self.getter: AsyncCallable[[], Any] | None
@@ -103,7 +110,7 @@ class AutoDepends(Depends):
             args = get_args(hint)
             if not len(args) == 2:
                 raise DependInitError(
-                    "可依赖注入的函数若使用 Annotated 注解，必须附加一个元数据信息，且最多只能有一个"
+                    "可依赖注入的函数若使用 Annotated 注解，必须附加一个元数据，且最多只能有一个"
                 )
             self.metadata = args[1]
         else:
@@ -175,11 +182,29 @@ class AutoDepends(Depends):
 
 @dataclass
 class Exclude:
+    """数据类。`types` 指定的类别会在依赖注入时被排除
+
+    .. code:: python
+
+        # 假设有继承关系 A <- B, A <- C, A <- D
+        # 表示 A 中不包括 B 和 C 类别的所有子类型，当然，还是会兼容 A 类型本身
+        NewTypeHint = Annotated[A, Exclude(types=[B, C])]
+    """
+
     types: Sequence[type]
 
 
 @dataclass
 class CustomLogger:
+    """数据类。`getter` 参数会用于指定类别日志器不存在时的获取方法
+
+    .. code:: python
+
+        # 如果 bot 设置的 logger 是 MyLogger 类型，则成功依赖注入
+        # 否则使用 getter 获取一个日志器
+        NewLoggerHint = Annotated[MyLogger, CustomLogger(getter=lambda: MyLogger())]
+    """
+
     getter: Callable[[], Any]
 
 
@@ -256,6 +281,15 @@ def _get_bound_args(
 def inject_deps(
     injectee: Callable[P, T] | AsyncCallable[P, T], manual_arg: bool = False
 ) -> AsyncCallable[P, T]:
+    """依赖注入标记装饰器，标记当前对象需要被依赖注入
+
+    可以标记的对象类别有：
+    同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，类对象，实例方法、类方法、静态方法
+
+    :param injectee: 需要被注入的对象
+    :param manual_arg: 当前对象标记需要依赖注入后，是否还可以给某些参数手动传参
+    :return: 异步可调用对象，但保留原始参数和返回值签名
+    """
     if hasattr(injectee, "__wrapped__"):
         raise DependInitError(
             f"函数 {injectee.__qualname__} 无法进行依赖注入，在依赖注入前它不能被装饰"

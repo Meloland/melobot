@@ -1,7 +1,7 @@
 melobot
 =======
 
-元信息
+melobot 元信息
 -----------
 
 .. autoclass:: melobot.MetaInfo
