@@ -9,7 +9,7 @@ from types import ModuleType
 from typing import Any, Callable, Iterable
 
 from ..ctx import BotCtx, LoggerCtx
-from ..exceptions import DynamicImpError, PluginError
+from ..exceptions import PluginError
 from ..utils import singleton
 from .base import Plugin
 from .imp import Importer
@@ -161,7 +161,7 @@ class PluginInitHelper:
                         break
                 else:
                     raise PluginError(
-                        "插件的 __plugin__.py 未实例化元数据类，无法运行初始化"
+                        "插件的 __plugin__.py 未实例化 Plugin 类，无法运行初始化"
                     )
                 for share in p_shares:
                     if share.name in p_conflicts:
@@ -203,7 +203,7 @@ class PluginLoader:
                 p: Plugin = v()
                 break
         else:
-            raise PluginError("插件的 __plugin__.py 未实例化元数据类，无法加载")
+            raise PluginError("插件的 __plugin__.py 未实例化 Plugin 类，无法加载")
 
         p.__plugin_build__(p_name)
         return p
@@ -222,15 +222,7 @@ class PluginLoader:
                 p_dir = Path(plugin.__path__[0])
             else:
                 p_dir = Path(plugin.__file__).parent
-
         else:
-            try:
-                if isinstance(plugin, str):
-                    p_mod = Importer.import_mod(plugin)
-                    return self.load(p_mod, load_depth)
-            except DynamicImpError:
-                pass
-
             p_dir = Path(plugin)
             if not p_dir.is_absolute():
                 p_dir = Path.cwd().joinpath(p_dir).resolve(strict=True)
