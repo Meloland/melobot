@@ -9,7 +9,7 @@ from ..typ import BetterABC, abstractmethod
 class Rule(BetterABC, Generic[EventT]):
     """会话规则
 
-    对于更复杂的情况，可以继承此类，在子类中结合状态信息实现更动态的会话判断过程
+    对于更复杂的情况，可以继承此类，在子类中结合状态信息实现更动态的会话判断
     """
 
     @staticmethod

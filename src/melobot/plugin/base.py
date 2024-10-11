@@ -7,7 +7,7 @@ from .ipc import AsyncShare, SyncShare
 
 
 class Plugin(BetterABC):
-    """插件基类，你需要把以下属性作为类属性或实例属性初始化"""
+    """插件基类，子类需要把以下属性按 :func:`.abstractattr` 的要求实现"""
 
     version: str = abstractattr()
     """插件版本

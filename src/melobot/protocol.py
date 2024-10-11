@@ -8,7 +8,7 @@ from .typ import BetterABC, abstractattr
 class ProtocolStack(BetterABC):
     """协议栈抽象类
 
-    子类需要把以下属性按 :func:`.abstractattr` 的要求定义
+    子类需要把以下属性按 :func:`.abstractattr` 的要求实现
     """
 
     inputs: Sequence[AbstractInSource] = abstractattr()
