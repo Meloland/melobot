@@ -291,9 +291,12 @@ def inject_deps(
     :return: 异步可调用对象，但保留原始参数和返回值签名
     """
     if hasattr(injectee, "__wrapped__"):
-        raise DependInitError(
-            f"函数 {injectee.__qualname__} 无法进行依赖注入，在依赖注入前它不能被装饰"
+        name = (
+            injectee.__qualname__
+            if hasattr(injectee, "__qualname__")
+            else "<anonymous callable>"
         )
+        raise DependInitError(f"函数 {name} 无法进行依赖注入，在依赖注入前它不能被装饰")
 
     @wraps(injectee)
     async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:

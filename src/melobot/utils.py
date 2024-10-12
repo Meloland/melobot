@@ -5,16 +5,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
-from typing import (
-    Any,
-    AsyncGenerator,
-    Awaitable,
-    Callable,
-    Coroutine,
-    Optional,
-    TypeVar,
-    cast,
-)
+from typing import Any, AsyncGenerator, Awaitable, Callable, Coroutine, TypeVar, cast
 
 from typing_extensions import Self
 
@@ -153,7 +144,7 @@ class RWContext:
            ...
     """
 
-    def __init__(self, read_limit: Optional[int] = None) -> None:
+    def __init__(self, read_limit: int | None = None) -> None:
         """初始化异步读写上下文
 
         :param read_limit: 读取的数量限制，为空则不限制
@@ -309,13 +300,13 @@ def to_coro(
 
 
 CbRetT = TypeVar("CbRetT")
-CbOneRetT = TypeVar("CbOneRetT")
-CbTwoRetT = TypeVar("CbTwoRetT")
+FirstCbRetT = TypeVar("FirstCbRetT")
+SecondCbRetT = TypeVar("SecondCbRetT")
 OriginRetT = TypeVar("OriginRetT")
 
 
 def lock(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None
+    callback: AsyncCallable[[], CbRetT] | None = None
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, CbRetT | OriginRetT]]:
     """锁装饰器
 
@@ -348,11 +339,11 @@ def lock(
 
 
 def cooldown(
-    busy_callback: Optional[AsyncCallable[[], CbOneRetT]] = None,
-    cd_callback: Optional[AsyncCallable[[float], CbTwoRetT]] = None,
+    busy_callback: AsyncCallable[[], FirstCbRetT] | None = None,
+    cd_callback: AsyncCallable[[float], SecondCbRetT] | None = None,
     interval: float = 5,
 ) -> Callable[
-    [AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbOneRetT | CbTwoRetT]
+    [AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT]
 ]:
     """冷却装饰器
 
@@ -377,12 +368,12 @@ def cooldown(
 
     def deco_func(
         func: AsyncCallable[P, OriginRetT]
-    ) -> AsyncCallable[P, OriginRetT | CbOneRetT | CbTwoRetT]:
+    ) -> AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT]:
 
         @wraps(func)
         async def wrapped_func(
             *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRetT | CbOneRetT | CbTwoRetT:
+        ) -> OriginRetT | FirstCbRetT | SecondCbRetT:
             nonlocal pre_finish_t
             if busy_callback is not None and alock.locked():
                 return await async_guard(busy_callback)
@@ -409,7 +400,7 @@ def cooldown(
 
 
 def semaphore(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None, value: int = -1
+    callback: AsyncCallable[[], CbRetT] | None = None, value: int = -1
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
     """信号量装饰器
 
@@ -443,7 +434,7 @@ def semaphore(
 
 
 def timelimit(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None, timeout: float = 5
+    callback: AsyncCallable[[], CbRetT] | None = None, timeout: float = 5
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
     """时间限制装饰器
 
@@ -478,7 +469,7 @@ def timelimit(
 
 
 def speedlimit(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None,
+    callback: AsyncCallable[[], CbRetT] | None = None,
     limit: int = 60,
     duration: int = 60,
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:

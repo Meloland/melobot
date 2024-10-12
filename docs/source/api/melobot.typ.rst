@@ -24,14 +24,15 @@ melobot.typ
 
 .. data:: melobot.typ.T
 
-   泛型 T，无约束
+    泛型 T，无约束
+
+.. data:: melobot.typ.T_co
+
+    泛型 T_co，协变无约束
 
 .. data:: melobot.typ.P
 
    :obj:`~typing.ParamSpec` 泛型 P，无约束
 
-.. data:: melobot.typ.AsyncCallable
-
-   用法：AsyncCallable[P, T]
-   
-   是该类型的别名：:class:`~.collections.abc.Callable`\[P, :class:`~.typing.Awaitable`\[T\]\]
+.. autoclass:: melobot.typ.AsyncCallable
+    :exclude-members: __call__, __init__

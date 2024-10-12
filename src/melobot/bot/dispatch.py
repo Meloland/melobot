@@ -1,5 +1,4 @@
 import asyncio
-from functools import partial
 from typing import Any
 
 from typing_extensions import TypeVar
@@ -59,7 +58,7 @@ class Dispatcher:
     def internal_add(self, *handlers: EventHandler) -> None:
         for h in handlers:
             self.handlers.setdefault(h.flow.priority, set()).add(h)
-            h.flow.on_priority_reset(partial(self.reset, h))
+            h.flow.on_priority_reset(lambda new_prior, h=h: self.reset(h, new_prior))
 
     async def add(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():

@@ -36,7 +36,7 @@ class FlowNode:
     def __init__(
         self, func: AsyncCallable[..., bool | None], no_deps: bool = False
     ) -> None:
-        self.name = func.__name__
+        self.name = func.__name__ if hasattr(func, "__name__") else "<anonymous callable>"
         self.processor: AsyncCallable[..., bool | None] = (
             func if no_deps else inject_deps(func)
         )

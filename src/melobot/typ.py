@@ -1,7 +1,7 @@
 import inspect
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any, Awaitable, Callable, ParamSpec, Sequence, TypeAlias, TypeVar, cast
+from typing import Any, Awaitable, Callable, ParamSpec, Protocol, Sequence, TypeVar, cast
 
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
@@ -23,12 +23,22 @@ __all__ = (
     "VoidType",
 )
 
-#: 泛型类型变量 T，无约束
+#: 泛型 T，无约束
 T = TypeVar("T")
+#: 泛型 T_co，协变无约束
+T_co = TypeVar("T_co", covariant=True)
 #: :obj:`~typing.ParamSpec` 泛型 P，无约束
 P = ParamSpec("P")
-#: 用法：AsyncCallable[P, T]，是该类型的别名：Callable[P, Awaitable[T]]
-AsyncCallable: TypeAlias = Callable[P, Awaitable[T]]
+
+
+class AsyncCallable(Protocol[P, T_co]):
+    """用法：AsyncCallable[P, T]
+
+    是该类型的等价形式：Callable[P, Awaitable[T]]
+    """
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Awaitable[T_co]: ...
+
 
 _DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)
 
