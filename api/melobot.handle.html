@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
         <title>melobot.handle - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -288,7 +288,7 @@
 <p>处理流</p>
 <dl class="field-list simple">
 <dt class="field-odd">变量<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – 处理流的标识</p>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 处理流的标识</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -298,11 +298,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – 处理流的标识</p></li>
-<li><p><strong>edge_maps</strong> – 边映射，遵循 melobot 的 graph edges 表示方法</p></li>
-<li><p><strong>priority</strong> – 处理流的优先级</p></li>
-<li><p><strong>temp</strong> – 处理流是否只运行一次</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 处理流的标识</p></li>
+<li><p><strong>edge_maps</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><em>Iterable</em></a><em>[</em><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><em>FlowNode</em></a><em>] </em><em>| </em><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><em>FlowNode</em></a><em>]</em>) -- 边映射，遵循 melobot 的 graph edges 表示方法</p></li>
+<li><p><strong>priority</strong> (<a class="reference internal" href="melobot.typ.html#melobot.typ.HandleLevel" title="melobot.typ.HandleLevel"><em>HandleLevel</em></a>) -- 处理流的优先级</p></li>
+<li><p><strong>temp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 处理流是否只运行一次</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -321,7 +324,10 @@
 因此返回时不代表已经更改优先级，只是添加了计划重设优先级的任务</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>new_prior</strong> – 新优先级</p>
+<dd class="field-odd"><p><strong>new_prior</strong> (<a class="reference internal" href="melobot.typ.html#melobot.typ.HandleLevel" title="melobot.typ.HandleLevel"><em>HandleLevel</em></a>) -- 新优先级</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -333,12 +339,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>flow</strong> – 连接的新流</p></li>
-<li><p><strong>priority</strong> – 新优先级，若为空，则使用两者中较小的优先级</p></li>
+<li><p><strong>flow</strong> (<a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><em>Flow</em></a>) -- 连接的新流</p></li>
+<li><p><strong>priority</strong> (<a class="reference internal" href="melobot.typ.html#melobot.typ.HandleLevel" title="melobot.typ.HandleLevel"><em>HandleLevel</em></a><em> | </em><em>None</em>) -- 新优先级，若为空，则使用两者中较小的优先级</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>新的处理流</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><em>Flow</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -359,6 +368,14 @@
 <dt class="sig sig-object py" id="melobot.handle.node">
 <span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><span class="pre">FlowNode</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#node"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.node" title="Link to this definition">¶</a></dt>
 <dd><p>处理结点装饰器，将当前异步可调用对象装饰为一个处理结点</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a><em> | </em><em>None</em><em>]</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><em>FlowNode</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -367,6 +384,14 @@
 <dd><p>与 <a class="reference internal" href="#melobot.handle.node" title="melobot.handle.node"><code class="xref py py-func docutils literal notranslate"><span class="pre">node()</span></code></a> 类似，但是不自动为结点标记依赖注入。</p>
 <p>需要后续使用 <a class="reference internal" href="melobot.di.html#melobot.di.inject_deps" title="melobot.di.inject_deps"><code class="xref py py-func docutils literal notranslate"><span class="pre">inject_deps()</span></code></a> 手动标记依赖注入，
 这适用于某些对处理结点进行再装饰的情况</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a><em> | </em><em>None</em><em>]</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.process.FlowNode"><em>FlowNode</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -376,36 +401,69 @@
 <dt class="sig sig-object py" id="melobot.handle.nextn">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">nextn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#nextn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.nextn" title="Link to this definition">¶</a></dt>
 <dd><p>运行下一处理结点（在处理结点中使用）</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.block">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#block"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.block" title="Link to this definition">¶</a></dt>
 <dd><p>阻止当前事件向更低优先级的处理流传播（在处理结点中使用）</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.bypass">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">bypass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#bypass"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.bypass" title="Link to this definition">¶</a></dt>
 <dd><p>立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理结点中使用）</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><em>NoReturn</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.rewind">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">rewind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#rewind"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.rewind" title="Link to this definition">¶</a></dt>
 <dd><p>立即重新运行当前处理结点（在处理结点中使用）</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><em>NoReturn</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.stop">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#stop"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.stop" title="Link to this definition">¶</a></dt>
 <dd><p>立即停止当前处理流（在处理结点中使用）</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><em>NoReturn</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.flow_to">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">flow_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#flow_to"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.flow_to" title="Link to this definition">¶</a></dt>
 <dd><p>立即进入一个其他处理流（在处理结点中使用）</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flow</strong> (<a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><em>Flow</em></a>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -520,6 +578,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>流存储</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.handle.FlowStore" title="melobot.ctx.FlowStore"><em>FlowStore</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -530,6 +591,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>流记录</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）">tuple</a>[<a class="reference internal" href="#melobot.handle.FlowRecord" title="melobot.ctx.FlowRecord"><em>FlowRecord</em></a>, ...]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -542,6 +606,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>事件</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -552,6 +619,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>事件或空</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -689,7 +759,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=216f0229"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

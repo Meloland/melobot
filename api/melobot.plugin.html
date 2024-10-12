@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
         <title>melobot.plugin - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -372,11 +372,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – 异步共享对象的名称</p></li>
-<li><p><strong>reflector</strong> – 获取共享值的异步可调用方法</p></li>
-<li><p><strong>callabck</strong> – 修改共享值的异步可调用方法</p></li>
-<li><p><strong>static</strong> – 是否使用静态模式</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 异步共享对象的名称</p></li>
+<li><p><strong>reflector</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><em>T</em><em>]</em><em>] </em><em>| </em><em>None</em>) -- 获取共享值的异步可调用方法</p></li>
+<li><p><strong>callabck</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>T</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><em>None</em><em>]</em><em>] </em><em>| </em><em>None</em>) -- 修改共享值的异步可调用方法</p></li>
+<li><p><strong>static</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否使用静态模式</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -387,10 +390,13 @@
 <dd><p>绑定获取共享值的异步方法的装饰器，如果未在初始化时绑定</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> – 被绑定的异步可调用方法</p>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><em>T</em><em>]</em><em>]</em>) -- 被绑定的异步可调用方法</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a>[<em>T</em>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,10 +407,13 @@
 <dd><p>绑定修改共享值的异步方法的装饰器，如果未在初始化时绑定</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> – 被绑定的异步可调用方法</p>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>T</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><em>None</em><em>]</em><em>]</em>) -- 被绑定的异步可调用方法</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<em>T</em>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a>[None]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -417,6 +426,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>异步共享值</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>T</em></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -426,7 +438,10 @@
 <dd><p>设置异步共享值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>val</strong> – 新的异步共享值</p>
+<dd class="field-odd"><p><strong>val</strong> (<em>T</em>) -- 新的异步共享值</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -445,11 +460,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – 同步共享对象的名称</p></li>
-<li><p><strong>reflector</strong> – 获取共享值的可调用方法</p></li>
-<li><p><strong>callabck</strong> – 修改共享值的可调用方法</p></li>
-<li><p><strong>static</strong> – 是否使用静态模式</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 同步共享对象的名称</p></li>
+<li><p><strong>reflector</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><em>T</em><em>] </em><em>| </em><em>None</em>) -- 获取共享值的可调用方法</p></li>
+<li><p><strong>callabck</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>T</em><em>]</em><em>, </em><em>None</em><em>] </em><em>| </em><em>None</em>) -- 修改共享值的可调用方法</p></li>
+<li><p><strong>static</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否使用静态模式</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -460,10 +478,13 @@
 <dd><p>绑定获取共享值的方法的装饰器，如果未在初始化时绑定</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> – 被绑定的可调用方法</p>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><em>T</em><em>]</em>) -- 被绑定的可调用方法</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[], <em>T</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -474,10 +495,13 @@
 <dd><p>绑定修改共享值的方法的装饰器，如果未在初始化时绑定</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> – 被绑定的可调用方法</p>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>T</em><em>]</em><em>, </em><em>None</em><em>]</em>) -- 被绑定的可调用方法</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p><cite>func</cite> 原值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<em>T</em>], None]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -490,6 +514,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>共享值</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>T</em></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -499,7 +526,10 @@
 <dd><p>设置共享值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>val</strong> – 新的共享值</p>
+<dd class="field-odd"><p><strong>val</strong> (<em>T</em>) -- 新的共享值</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -615,7 +645,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=216f0229"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

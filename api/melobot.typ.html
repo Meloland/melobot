@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
         <title>melobot.typ - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -353,13 +353,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logic</strong> – 逻辑模式</p></li>
-<li><p><strong>v1</strong> – 值 1</p></li>
-<li><p><strong>v2</strong> – 值 2</p></li>
+<li><p><strong>logic</strong> (<a class="reference internal" href="#melobot.typ.LogicMode" title="melobot.typ.LogicMode"><em>LogicMode</em></a>) -- 逻辑模式</p></li>
+<li><p><strong>v1</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a>) -- 值 1</p></li>
+<li><p><strong>v2</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em> | </em><em>None</em>) -- 值 2</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>布尔值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -371,13 +374,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logic</strong> – 逻辑模式</p></li>
-<li><p><strong>v1</strong> – 生成值 1 的可调用对象</p></li>
-<li><p><strong>v2</strong> – 生成值 2 的可调用对象</p></li>
+<li><p><strong>logic</strong> (<a class="reference internal" href="#melobot.typ.LogicMode" title="melobot.typ.LogicMode"><em>LogicMode</em></a>) -- 逻辑模式</p></li>
+<li><p><strong>v1</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>) -- 生成值 1 的可调用对象</p></li>
+<li><p><strong>v2</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>) -- 生成值 2 的可调用对象</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>布尔值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -389,13 +395,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logic</strong> – 逻辑模式</p></li>
-<li><p><strong>v1</strong> – 生成值 1 的异步可调用对象</p></li>
-<li><p><strong>v2</strong> – 生成值 2 的异步可调用对象</p></li>
+<li><p><strong>logic</strong> (<a class="reference internal" href="#melobot.typ.LogicMode" title="melobot.typ.LogicMode"><em>LogicMode</em></a>) -- 逻辑模式</p></li>
+<li><p><strong>v1</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em><em>]</em>) -- 生成值 1 的异步可调用对象</p></li>
+<li><p><strong>v2</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em><em>]</em>) -- 生成值 2 的异步可调用对象</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>布尔值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -411,12 +420,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logic</strong> – 逻辑模式</p></li>
-<li><p><strong>values</strong> – 值序列</p></li>
+<li><p><strong>logic</strong> (<a class="reference internal" href="#melobot.typ.LogicMode" title="melobot.typ.LogicMode"><em>LogicMode</em></a>) -- 逻辑模式</p></li>
+<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>) -- 值序列</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>布尔值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -428,12 +440,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logic</strong> – 逻辑模式</p></li>
-<li><p><strong>getters</strong> – 一组获取值的可调用对象</p></li>
+<li><p><strong>logic</strong> (<a class="reference internal" href="#melobot.typ.LogicMode" title="melobot.typ.LogicMode"><em>LogicMode</em></a>) -- 逻辑模式</p></li>
+<li><p><strong>getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.13）"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em><em>]</em>) -- 一组获取值的可调用对象</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>布尔值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -445,12 +460,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logic</strong> – 逻辑模式</p></li>
-<li><p><strong>getters</strong> – 一组获取值的异步可调用对象</p></li>
+<li><p><strong>logic</strong> (<a class="reference internal" href="#melobot.typ.LogicMode" title="melobot.typ.LogicMode"><em>LogicMode</em></a>) -- 逻辑模式</p></li>
+<li><p><strong>getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.13）"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em><em>]</em><em>]</em>) -- 一组获取值的异步可调用对象</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>布尔值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -464,12 +482,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> – 任意对象</p></li>
-<li><p><strong>hint</strong> – 任意类型注解</p></li>
+<li><p><strong>obj</strong> (<em>T</em>) -- 任意对象</p></li>
+<li><p><strong>hint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><em>type</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>) -- 任意类型注解</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>布尔值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard" title="（在 Python v3.13）"><em>TypeGuard</em></a>[<em>T</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -508,6 +529,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">foo</span> <span class="o">+</span> <span class="mi">10</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em><em>, </em><em>T</em><em>] </em><em>| </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>T</em></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -671,7 +700,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=216f0229"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

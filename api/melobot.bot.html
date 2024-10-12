@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
         <title>melobot.bot - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -289,8 +289,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">变量<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) – bot 对象的名称</p></li>
-<li><p><strong>logger</strong> (<a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.GenericLogger"><em>GenericLogger</em></a>) – bot 对象使用的日志器</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- bot 对象的名称</p></li>
+<li><p><strong>logger</strong> (<a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.GenericLogger"><em>GenericLogger</em></a>) -- bot 对象使用的日志器</p></li>
 </ul>
 </dd>
 </dl>
@@ -301,11 +301,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – bot 名称</p></li>
-<li><p><strong>logger</strong> – bot 使用的日志器，符合 <a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.GenericLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericLogger</span></code></a> 的接口即可。
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- bot 名称</p></li>
+<li><p><strong>logger</strong> (<a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.base.GenericLogger"><em>GenericLogger</em></a><em> | </em><em>None</em>) -- bot 使用的日志器，符合 <a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.GenericLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericLogger</span></code></a> 的接口即可。
 可使用 melobot 内置的 <a class="reference internal" href="melobot.log.html#melobot.log.Logger" title="melobot.log.Logger"><code class="xref py py-class docutils literal notranslate"><span class="pre">Logger</span></code></a>，或经过 <a class="reference internal" href="melobot.log.html#melobot.log.logger_patch" title="melobot.log.logger_patch"><code class="xref py py-func docutils literal notranslate"><span class="pre">logger_patch()</span></code></a> 修补的日志器</p></li>
-<li><p><strong>enable_log</strong> – 是否启用日志功能</p></li>
+<li><p><strong>enable_log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否启用日志功能</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -322,10 +325,13 @@
 <dd><p>绑定输入源</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>src</strong> – 输入源</p>
+<dd class="field-odd"><p><strong>src</strong> (<a class="reference internal" href="melobot.io.html#melobot.io.AbstractInSource" title="melobot.io.base.AbstractInSource"><em>AbstractInSource</em></a>) -- 输入源</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>bot 对象，因此支持链式调用</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -336,10 +342,13 @@
 <dd><p>绑定输出源</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>src</strong> – 输出源</p>
+<dd class="field-odd"><p><strong>src</strong> (<a class="reference internal" href="melobot.io.html#melobot.io.AbstractOutSource" title="melobot.io.base.AbstractOutSource"><em>AbstractOutSource</em></a>) -- 输出源</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>bot 对象，因此支持链式调用</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -350,10 +359,13 @@
 <dd><p>绑定输入输出源</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>src</strong> – 输入输出源</p>
+<dd class="field-odd"><p><strong>src</strong> (<a class="reference internal" href="melobot.io.html#melobot.io.AbstractIOSource" title="melobot.io.base.AbstractIOSource"><em>AbstractIOSource</em></a>) -- 输入输出源</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>bot 对象，因此支持链式调用</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -364,10 +376,13 @@
 <dd><p>绑定适配器</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>adapter</strong> – 适配器对象</p>
+<dd class="field-odd"><p><strong>adapter</strong> (<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a>) -- 适配器对象</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>bot 对象，因此支持链式调用</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,10 +393,13 @@
 <dd><p>绑定完整的协议栈，这包含了一组协同工作的输入源、输出源和适配器</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pstack</strong> – 协议栈对象</p>
+<dd class="field-odd"><p><strong>pstack</strong> (<a class="reference internal" href="melobot.protocol.html#melobot.protocol.ProtocolStack" title="melobot.protocol.ProtocolStack"><em>ProtocolStack</em></a>) -- 协议栈对象</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>bot 对象，因此支持链式调用</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -393,14 +411,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>plugin</strong> – 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）</p></li>
-<li><p><strong>load_depth</strong> – 插件加载时的相对引用深度，默认值 1 只支持向上引用到插件目录一级。
+<li><p><strong>plugin</strong> (<a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="（在 Python v3.13）"><em>ModuleType</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.13）"><em>PathLike</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>] </em><em>| </em><a class="reference internal" href="melobot.plugin.html#melobot.plugin.Plugin" title="melobot.plugin.base.Plugin"><em>Plugin</em></a>) -- 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）</p></li>
+<li><p><strong>load_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><em>int</em></a>) -- 插件加载时的相对引用深度，默认值 1 只支持向上引用到插件目录一级。
 增加为 2 可以引用到插件目录的父目录一级，依此类推。
 此参数一般只适用于 <cite>plugin</cite> 参数为插件的目录路径的情况。</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>bot 对象，因此支持链式调用</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -412,9 +433,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>plugins</strong> – 可迭代对象，包含：可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）</p></li>
-<li><p><strong>load_depth</strong> – 参见 <a class="reference internal" href="#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 同名参数</p></li>
+<li><p><strong>plugins</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="（在 Python v3.13）"><em>ModuleType</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.13）"><em>PathLike</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>] </em><em>| </em><a class="reference internal" href="melobot.plugin.html#melobot.plugin.Plugin" title="melobot.plugin.base.Plugin"><em>Plugin</em></a><em>]</em>) -- 可迭代对象，包含：可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）</p></li>
+<li><p><strong>load_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><em>int</em></a>) -- 参见 <a class="reference internal" href="#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 同名参数</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -426,9 +450,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pdir</strong> – 插件所在父目录的路径</p></li>
-<li><p><strong>load_depth</strong> – 参见 <a class="reference internal" href="#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 同名参数</p></li>
+<li><p><strong>pdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.13）"><em>PathLike</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>]</em>) -- 插件所在父目录的路径</p></li>
+<li><p><strong>load_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><em>int</em></a>) -- 参见 <a class="reference internal" href="#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 同名参数</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -441,9 +468,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pdirs</strong> – 可迭代对象，包含：插件所在父目录的路径</p></li>
-<li><p><strong>load_depth</strong> – 参见 <a class="reference internal" href="#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 同名参数</p></li>
+<li><p><strong>pdirs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.13）"><em>PathLike</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>]</em><em>]</em>) -- 可迭代对象，包含：插件所在父目录的路径</p></li>
+<li><p><strong>load_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><em>int</em></a>) -- 参见 <a class="reference internal" href="#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 同名参数</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -454,7 +484,10 @@
 <dd><p>加载从站点上（例如 pip）安装的第三方插件</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>site_plugins</strong> – 要加载的第三方插件的名称，例如 “melobot_plugin_example”</p>
+<dd class="field-odd"><p><strong>site_plugins</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 要加载的第三方插件的名称，例如 &quot;melobot_plugin_example&quot;</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -464,6 +497,11 @@
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">core_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.core_run"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.core_run" title="Link to this definition">¶</a></dt>
 <dd><p>运行 bot 的方法，可以在异步事件循环中自由地使用</p>
 <p>若使用此方法，则需要自行管理异步事件循环</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -472,7 +510,10 @@
 <dd><p>安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>debug</strong> – 是否启用 <a class="reference external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio" title="（在 Python v3.13）"><code class="xref py py-mod docutils literal notranslate"><span class="pre">asyncio</span></code></a> 的调试模式，但是这不会更改 <a class="reference external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio" title="（在 Python v3.13）"><code class="xref py py-mod docutils literal notranslate"><span class="pre">asyncio</span></code></a> 日志器的日志等级</p>
+<dd class="field-odd"><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否启用 <a class="reference external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio" title="（在 Python v3.13）"><code class="xref py py-mod docutils literal notranslate"><span class="pre">asyncio</span></code></a> 的调试模式，但是这不会更改 <a class="reference external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio" title="（在 Python v3.13）"><code class="xref py py-mod docutils literal notranslate"><span class="pre">asyncio</span></code></a> 日志器的日志等级</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -484,9 +525,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bots</strong> – 要运行的 bot 对象</p></li>
-<li><p><strong>debug</strong> – 参见 <a class="reference internal" href="#melobot.bot.Bot.run" title="melobot.bot.Bot.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a> 同名参数</p></li>
+<li><p><strong>bots</strong> (<a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a>) -- 要运行的 bot 对象</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 参见 <a class="reference internal" href="#melobot.bot.Bot.run" title="melobot.bot.Bot.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a> 同名参数</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -495,6 +539,11 @@
 <dt class="sig sig-object py" id="melobot.bot.Bot.close">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.close"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.close" title="Link to this definition">¶</a></dt>
 <dd><p>停止并关闭当前 bot</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -504,6 +553,11 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>melobot<span class="w"> </span>run<span class="w"> </span><span class="o">[</span>*.py<span class="o">]</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -513,12 +567,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>protocol</strong> – 适配器的协议，为空时才使用 <cite>filter</cite> 参数</p></li>
-<li><p><strong>filter</strong> – 过滤函数，返回 <cite>True</cite> 则表明需要该适配器。为空则不使用</p></li>
+<li><p><strong>protocol</strong> (<em>LiteralString</em><em> | </em><em>None</em>) -- 适配器的协议，为空时才使用 <cite>filter</cite> 参数</p></li>
+<li><p><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a><em>] </em><em>| </em><em>None</em>) -- 过滤函数，返回 <cite>True</cite> 则表明需要该适配器。为空则不使用</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>适配器或空</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -529,10 +586,13 @@
 <dd><p>获取一组适配器</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filter</strong> – 参见 <a class="reference internal" href="#melobot.bot.Bot.get_adapter" title="melobot.bot.Bot.get_adapter"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_adapter()</span></code></a> 同名参数</p>
+<dd class="field-odd"><p><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a><em>]</em>) -- 参见 <a class="reference internal" href="#melobot.bot.Bot.get_adapter" title="melobot.bot.Bot.get_adapter"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_adapter()</span></code></a> 同名参数</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>适配器的集合</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="（在 Python v3.13）">set</a>[<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -543,10 +603,13 @@
 <dd><p>生成给 bot 注册生命周期回调的装饰器</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>periods</strong> – 要绑定的生命周期阶段</p>
+<dd class="field-odd"><p><strong>periods</strong> (<a class="reference internal" href="#melobot.bot.BotLifeSpan" title="melobot.bot.base.BotLifeSpan"><em>BotLifeSpan</em></a>) -- 要绑定的生命周期阶段</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>装饰器</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[~P], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a>[None]]], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[~P], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a>[None]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -622,6 +685,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bot 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -744,7 +810,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=216f0229"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

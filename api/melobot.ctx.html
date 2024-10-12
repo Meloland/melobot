@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
         <title>melobot.ctx - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -292,10 +292,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ctx_name</strong> – 上下文的名称（唯一）</p></li>
-<li><p><strong>lookup_exc_cls</strong> – 当试图获取上下文值失败时，抛出的异常</p></li>
-<li><p><strong>lookup_exc_tip</strong> – 当试图获取上下文值失败时，抛出异常的附加说明</p></li>
+<li><p><strong>ctx_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 上下文的名称（唯一）</p></li>
+<li><p><strong>lookup_exc_cls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><em>type</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BaseException" title="（在 Python v3.13）"><em>BaseException</em></a><em>]</em>) -- 当试图获取上下文值失败时，抛出的异常</p></li>
+<li><p><strong>lookup_exc_tip</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>) -- 当试图获取上下文值失败时，抛出异常的附加说明</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -308,6 +311,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>上下文对象的上下文值</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>T</em></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -319,6 +325,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>上下文对象的上下文值</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>T</em> | None</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -328,10 +337,13 @@
 <dd><p>在当前上下文中，添加一个上下文值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ctx</strong> – 上下文值</p>
+<dd class="field-odd"><p><strong>ctx</strong> (<em>T</em>) -- 上下文值</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/contextvars.html#contextvars.Token" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">contextvars.Token</span></code></a> 对象</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Token</em>[<em>T</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -342,7 +354,10 @@
 <dd><p>移除当前上下文中的上下文值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>token</strong> – 添加时返回的 <a class="reference external" href="https://docs.python.org/3/library/contextvars.html#contextvars.Token" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">contextvars.Token</span></code></a> 对象</p>
+<dd class="field-odd"><p><strong>token</strong> (<em>Token</em><em>[</em><em>T</em><em>]</em>) -- 添加时返回的 <a class="reference external" href="https://docs.python.org/3/library/contextvars.html#contextvars.Token" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">contextvars.Token</span></code></a> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -354,7 +369,10 @@
 <p>自动运行 <a class="reference internal" href="#melobot.ctx.Context.add" title="melobot.ctx.Context.add"><code class="xref py py-func docutils literal notranslate"><span class="pre">add()</span></code></a> 并在退出上下文环境后运行 <a class="reference internal" href="#melobot.ctx.Context.remove" title="melobot.ctx.Context.remove"><code class="xref py py-func docutils literal notranslate"><span class="pre">remove()</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>obj</strong> – 上下文值</p>
+<dd class="field-odd"><p><strong>obj</strong> (<em>T</em>) -- 上下文值</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="（在 Python v3.13）"><em>Generator</em></a>[None, None, None]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -447,7 +465,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=216f0229"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
         <title>melobot.log - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -296,17 +296,20 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – 日志器的名称（唯一）</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
-<li><p><strong>file_level</strong> – 日志文件的日志等级</p></li>
-<li><p><strong>to_console</strong> – 是否输出到控制台</p></li>
-<li><p><strong>to_dir</strong> – 保存日志文件的目录，为空则不保存文件</p></li>
-<li><p><strong>add_tag</strong> – 记录日志时是否标识日志器名称</p></li>
-<li><p><strong>legacy</strong> – 记录日志时是否使用传统样式（不对日志内容进行自动高亮，而是使用日志等级的五色）</p></li>
-<li><p><strong>red_error</strong> – 记录 <cite>LogLevel.ERROR</cite> 及以上级别时，是否将日志内容着色为红色。
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 日志器的名称（唯一）</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
+<li><p><strong>file_level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志文件的日志等级</p></li>
+<li><p><strong>to_console</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否输出到控制台</p></li>
+<li><p><strong>to_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>) -- 保存日志文件的目录，为空则不保存文件</p></li>
+<li><p><strong>add_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 记录日志时是否标识日志器名称</p></li>
+<li><p><strong>legacy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 记录日志时是否使用传统样式（不对日志内容进行自动高亮，而是使用日志等级的五色）</p></li>
+<li><p><strong>red_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 记录 <cite>LogLevel.ERROR</cite> 及以上级别时，是否将日志内容着色为红色。
 <cite>legacy</cite> 选项为 <cite>True</cite> 时此参数无效</p></li>
-<li><p><strong>two_stream</strong> – 当使用记录到文件功能时，是否分离“常规日志”和“错误日志”到不同的文件</p></li>
+<li><p><strong>two_stream</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 当使用记录到文件功能时，是否分离“常规日志”和“错误日志”到不同的文件</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -318,7 +321,10 @@
 <p>日志等级自动应用于包含的所有 handler（但输出日志到文件的 handler 除外）</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>level</strong> – 日志等级</p>
+<dd class="field-odd"><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,11 +336,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 日志消息，可使用 %s 指定稍后填充的参数</p></li>
-<li><p><strong>arg_getters</strong> – 填充消息 %s 位置的填充函数</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
-<li><p><strong>with_exc</strong> – 是否记录异常栈信息</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 日志消息，可使用 %s 指定稍后填充的参数</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>]</em>) -- 填充消息 %s 位置的填充函数</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
+<li><p><strong>with_exc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否记录异常栈信息</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -346,11 +355,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 附加的日志消息，可使用 %s 指定稍后填充的参数</p></li>
-<li><p><strong>obj</strong> – 需要被日志记录的对象</p></li>
-<li><p><strong>arg_getters</strong> – 填充消息 %s 位置的填充函数</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 附加的日志消息，可使用 %s 指定稍后填充的参数</p></li>
+<li><p><strong>obj</strong> (<em>T</em>) -- 需要被日志记录的对象</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>]</em>) -- 填充消息 %s 位置的填充函数</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -397,6 +409,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>日志器</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.log.GenericLogger" title="melobot.log.base.GenericLogger"><em>GenericLogger</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -414,36 +429,84 @@
 <dt class="sig sig-object py" id="melobot.log.GenericLogger.debug">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/log/base.html#GenericLogger.debug"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.log.GenericLogger.debug" title="Link to this definition">¶</a></dt>
 <dd><p><cite>debug</cite> 级别日志</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.log.GenericLogger.info">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/log/base.html#GenericLogger.info"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.log.GenericLogger.info" title="Link to this definition">¶</a></dt>
 <dd><p><cite>info</cite> 级别日志</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.log.GenericLogger.warning">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/log/base.html#GenericLogger.warning"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.log.GenericLogger.warning" title="Link to this definition">¶</a></dt>
 <dd><p><cite>warning</cite> 级别日志</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.log.GenericLogger.error">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/log/base.html#GenericLogger.error"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.log.GenericLogger.error" title="Link to this definition">¶</a></dt>
 <dd><p><cite>error</cite> 级别日志</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.log.GenericLogger.critical">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">critical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/log/base.html#GenericLogger.critical"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.log.GenericLogger.critical" title="Link to this definition">¶</a></dt>
 <dd><p><cite>critical</cite> 级别日志</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.log.GenericLogger.exception">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/log/base.html#GenericLogger.exception"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.log.GenericLogger.exception" title="Link to this definition">¶</a></dt>
 <dd><p>记录异常信息的日志</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -453,11 +516,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 日志消息，可使用 %s 指定稍后填充的参数</p></li>
-<li><p><strong>arg_getters</strong> – 填充消息 %s 位置的填充函数</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
-<li><p><strong>with_exc</strong> – 是否记录异常栈信息</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 日志消息，可使用 %s 指定稍后填充的参数</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>]</em>) -- 填充消息 %s 位置的填充函数</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
+<li><p><strong>with_exc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否记录异常栈信息</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -469,11 +535,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 附加的日志消息，可使用 %s 指定稍后填充的参数</p></li>
-<li><p><strong>obj</strong> – 需要被日志记录的对象</p></li>
-<li><p><strong>arg_getters</strong> – 填充消息 %s 位置的填充函数</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 附加的日志消息，可使用 %s 指定稍后填充的参数</p></li>
+<li><p><strong>obj</strong> (<em>T</em>) -- 需要被日志记录的对象</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>]</em>) -- 填充消息 %s 位置的填充函数</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -487,9 +556,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logger</strong> – 任意已经实现 <cite>debug</cite>, <cite>info</cite>, <cite>warning</cite>, <cite>error</cite>, <cite>critical</cite>, <cite>exception</cite> 接口的日志器</p></li>
-<li><p><strong>lazy_meth</strong> – 修补方法</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a>) -- 任意已经实现 <cite>debug</cite>, <cite>info</cite>, <cite>warning</cite>, <cite>error</cite>, <cite>critical</cite>, <cite>exception</cite> 接口的日志器</p></li>
+<li><p><strong>lazy_meth</strong> (<a class="reference internal" href="#melobot.log.LazyLogMethod" title="melobot.log.patch.LazyLogMethod"><em>LazyLogMethod</em></a>) -- 修补方法</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.log.GenericLogger" title="melobot.log.base.GenericLogger"><em>GenericLogger</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -506,10 +578,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 日志消息</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
-<li><p><strong>with_exc</strong> – 输出时是否附加异常信息</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 日志消息</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
+<li><p><strong>with_exc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 输出时是否附加异常信息</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -527,7 +603,10 @@
 <dd><p>初始化一个标准日志器修补</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>logger</strong> – 标准日志器对象（<cite>logging.Logger</cite>）</p>
+<dd class="field-odd"><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a>) -- 标准日志器对象（<cite>logging.Logger</cite>）</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -540,10 +619,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 日志消息</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
-<li><p><strong>with_exc</strong> – 输出时是否附加异常信息</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 日志消息</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
+<li><p><strong>with_exc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 输出时是否附加异常信息</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -561,7 +644,10 @@
 <dd><p>初始化一个 loguru 日志器修补</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>logger</strong> – loguru 日志器对象</p>
+<dd class="field-odd"><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a>) -- loguru 日志器对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -574,10 +660,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 日志消息</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
-<li><p><strong>with_exc</strong> – 输出时是否附加异常信息</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 日志消息</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
+<li><p><strong>with_exc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 输出时是否附加异常信息</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -595,7 +685,10 @@
 <dd><p>初始化一个 structlog 日志器修补</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>logger</strong> – structlog 日志器对象</p>
+<dd class="field-odd"><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a>) -- structlog 日志器对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -608,10 +701,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – 日志消息</p></li>
-<li><p><strong>level</strong> – 日志等级</p></li>
-<li><p><strong>with_exc</strong> – 输出时是否附加异常信息</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 日志消息</p></li>
+<li><p><strong>level</strong> (<a class="reference internal" href="#melobot.log.LogLevel" title="melobot.log.base.LogLevel"><em>LogLevel</em></a>) -- 日志等级</p></li>
+<li><p><strong>with_exc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 输出时是否附加异常信息</p></li>
+<li><p><strong>arg_getters</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -749,7 +846,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=216f0229"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
         <title>melobot.session - melobot 3.0.0rc7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -289,8 +289,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">变量<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>store</strong> (<a class="reference internal" href="#melobot.session.SessionStore" title="melobot.session.SessionStore"><em>SessionStore</em></a>) – 当前会话上下文的会话存储</p></li>
-<li><p><strong>rule</strong> (<a class="reference internal" href="#melobot.session.Rule" title="melobot.session.Rule"><em>Rule</em></a>) – 当前会话上下文的会话规则</p></li>
+<li><p><strong>store</strong> (<a class="reference internal" href="#melobot.session.SessionStore" title="melobot.session.SessionStore"><em>SessionStore</em></a>) -- 当前会话上下文的会话存储</p></li>
+<li><p><strong>rule</strong> (<a class="reference internal" href="#melobot.session.Rule" title="melobot.session.Rule"><em>Rule</em></a>) -- 当前会话上下文的会话规则</p></li>
 </ul>
 </dd>
 </dl>
@@ -315,10 +315,13 @@
 <dd><p>从可调用对象创建一个新的会话规则对象</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>meth</strong> – 用于会话判断的可调用对象</p>
+<dd class="field-odd"><p><strong>meth</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>EventT</em><em>, </em><em>EventT</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a><em>]</em>) -- 用于会话判断的可调用对象</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>会话规则</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#melobot.session.Rule" title="melobot.session.option.Rule"><em>Rule</em></a>[<em>EventT</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,12 +333,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>e1</strong> – 事件 1</p></li>
-<li><p><strong>e2</strong> – 事件 2</p></li>
+<li><p><strong>e1</strong> (<em>EventT</em>) -- 事件 1</p></li>
+<li><p><strong>e2</strong> (<em>EventT</em>) -- 事件 2</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>为 <cite>True</cite> 则在一个会话中，反之亦然</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -349,14 +355,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rule</strong> – 会话规则</p></li>
-<li><p><strong>wait</strong> – 当出现会话冲突时，是否需要等待</p></li>
-<li><p><strong>nowait_cb</strong> – 指定了 <cite>wait=False</cite> 后，会话冲突时执行的回调</p></li>
-<li><p><strong>keep</strong> – 会话在退出会话上下文后是否继续保持</p></li>
+<li><p><strong>rule</strong> (<a class="reference internal" href="#melobot.session.Rule" title="melobot.session.option.Rule"><em>Rule</em></a>) -- 会话规则</p></li>
+<li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 当出现会话冲突时，是否需要等待</p></li>
+<li><p><strong>nowait_cb</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Awaitable" title="（在 Python v3.13）"><em>Awaitable</em></a><em>[</em><em>None</em><em>]</em><em>] </em><em>| </em><em>None</em>) -- 指定了 <cite>wait=False</cite> 后，会话冲突时执行的回调</p></li>
+<li><p><strong>keep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 会话在退出会话上下文后是否继续保持</p></li>
 </ul>
 </dd>
 <dt class="field-even">Yield<span class="colon">:</span></dt>
 <dd class="field-even"><p>会话对象</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>_AsyncGeneratorContextManager</em>[<a class="reference internal" href="#melobot.session.Session" title="melobot.session.base.Session"><em>Session</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,10 +379,13 @@
 <dd><p>挂起当前会话</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout</strong> – 挂起后再唤醒的超时时间, 为空则永不超时</p>
+<dd class="field-odd"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><em>float</em></a><em> | </em><em>None</em>) -- 挂起后再唤醒的超时时间, 为空则永不超时</p>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>如果为 <cite>False</cite> 则表明唤醒超时</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -386,6 +398,9 @@
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>会话规则或空</p>
 </dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.session.Rule" title="melobot.session.option.Rule"><em>Rule</em></a> | None</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -396,6 +411,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">返回<span class="colon">:</span></dt>
 <dd class="field-odd"><p>会话存储</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#melobot.session.SessionStore" title="melobot.session.base.SessionStore"><em>SessionStore</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -495,7 +513,7 @@
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=216f0229"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
