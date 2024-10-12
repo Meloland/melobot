@@ -1,5 +1,3 @@
-import datetime
-import inspect
 import os
 import sys
 
@@ -16,7 +14,7 @@ import melobot
 
 project = "melobot"
 author = "contributors of this doc"
-copyright = f"{datetime.date.today().year}, {author}"
+copyright = f"%Y, {author}"
 release = melobot.__version__
 
 # -- General configuration ---------------------------------------------------
@@ -41,10 +39,11 @@ autodoc_class_signature = "separated"
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    "special-members": "__init__, __call__",
+    "special-members": "__init__, __call__, __await__",
     "show-inheritance": True,
     "undoc-members": True,
 }
+autodoc_typehints = "both"
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -57,7 +56,7 @@ language = "zh_CN"
 
 html_title = f"{project} {release}"
 html_baseurl = "/melobot/"
-html_logo = "logo.png"
+html_logo = "_static/logo.png"
 html_theme = "furo"
 html_theme_options = {
     "source_edit_link": "https://github.com/Meloland/melobot/tree/main/docs/source/{filename}",
@@ -75,24 +74,3 @@ html_theme_options = {
     ],
 }
 html_static_path = ["_static"]
-
-
-# def fix_type_annotation(app, what, name, obj, options, signature, return_annotation):
-#     if name == "melobot.utils.CmdArgFormatter.__init__":
-#         return (
-#             signature.replace("<class 'melobot.base.typing.Void'>", "Void"),
-#             return_annotation,
-#         )
-
-#     if (
-#         inspect.isfunction(obj)
-#         and obj.__name__ in _need_ret_fix_funcs
-#         and return_annotation == "~melobot.base.abc.BotAction"
-#     ):
-#         return signature, "~melobot.context.ActionHandle"
-#     else:
-#         return signature, return_annotation
-
-
-# def setup(app):
-#     app.connect("autodoc-process-signature", fix_type_annotation)

@@ -32,6 +32,15 @@ if TYPE_CHECKING:
 
 
 class Event(AttrsReprable):
+    """事件基类
+
+    :ivar float time: 时间戳
+    :ivar str id: id 标识
+    :ivar typing.LiteralString | None protocol: 遵循的协议，为空则协议无关
+    :ivar typing.Sequence[Content] contents: 附加的通用内容序列
+    :ivar typing.Hashable | None scope: 所在的域，可空
+    """
+
     def __init__(
         self,
         time: float = -1,
@@ -53,6 +62,16 @@ EventT = TypeVar("EventT", bound=Event)
 
 
 class Action(AttrsReprable):
+    """行为基类
+
+    :ivar float time: 时间戳
+    :ivar str id: id 标识
+    :ivar typing.LiteralString | None protocol: 遵循的协议，为空则协议无关
+    :ivar typing.Sequence[Content] contents: 附加的通用内容序列
+    :ivar typing.Hashable | None scope: 所在的域，可空
+    :ivar Event | None trigger: 触发该行为的事件，为空表明不由事件触发
+    """
+
     def __init__(
         self,
         time: float = -1,
@@ -71,6 +90,18 @@ class Action(AttrsReprable):
 
 
 class Echo(AttrsReprable):
+    """回应基类
+
+    :ivar float time: 时间戳
+    :ivar str id: id 标识
+    :ivar typing.LiteralString | None protocol: 遵循的协议，为空则协议无关
+    :ivar typing.Hashable | None scope: 所在的域，可空
+    :ivar bool ok: 回应是否成功
+    :ivar int status: 回应状态码
+    :ivar str prompt: 回应提示语
+    :ivar Any data: 回应数据
+    """
+
     def __init__(
         self,
         time: float = -1,
@@ -100,6 +131,12 @@ ActionRetT = TypeVar("ActionRetT", bound=Echo | None)
 
 
 class ActionHandle(Generic[ActionRetT]):
+    """行为操作句柄
+
+    :ivar Action action: 操作包含的行为对象
+    :ivar typing.Literal["PENDING", "EXECUTING", "FINISHED"] status: 操作的状态。分别对应：未执行、执行中、执行完成
+    """
+
     def __init__(
         self,
         action: Action,
@@ -107,9 +144,7 @@ class ActionHandle(Generic[ActionRetT]):
         output_factory: "AbstractOutputFactory",
         echo_factory: "AbstractEchoFactory",
     ) -> None:
-        #: 本操作包含的行为对象
         self.action = action
-        #: 本操作当前状态。分别对应：未执行、执行中、执行完成
         self.status: Literal["PENDING", "EXECUTING", "FINISHED"] = "PENDING"
 
         self._echo: ActionRetT
@@ -126,6 +161,7 @@ class ActionHandle(Generic[ActionRetT]):
         return self._echo
 
     def __await__(self) -> Generator[Any, Any, ActionRetT]:
+        """本对象实现 __await__ 接口，因此可等待。返回本操作对应的回应数据"""
         return self._wait().__await__()
 
     async def _execute(self) -> None:
@@ -165,6 +201,8 @@ class _ChainCtxStep(_ChainStep):
 
 
 class ActionChain:
+    """行为链"""
+
     def __init__(self) -> None:
         self._chain: list[_ChainStep] = []
 
@@ -174,6 +212,12 @@ class ActionChain:
         self._chain.append(step)
 
     def in_ctx(self, ctx: Context[T], val: T) -> Self:
+        """指定链后续的步骤中在 `ctx` 类别的上下文中执行，上下文值为 `val`
+
+        :param ctx: 上下文类别
+        :param val: 上下文的值
+        :return: 自身，因此支持链式调用
+        """
         self._add_step(_ChainCtxStep(ctx_var=ctx, ctx_val=val))
         return self
 
@@ -190,11 +234,23 @@ class ActionChain:
             "FIRST_COMPLETED", "FIRST_EXCEPTION", "ALL_COMPLETED"
         ] = "ALL_COMPLETED",
     ) -> Self:
+        """在链的步骤中添加一组行为
+
+        :param handles: 返回行为操作句柄的可等待对象
+        :param ret_when: 指定这一组行为的等待模式
+        :return: 自身，因此支持链式调用
+        """
         coros = tuple(self._exec_handle(hs) for hs in handles)
         self._add_step(_ChainStep(coros, ret_when))
         return self
 
     def sleep(self, interval: float) -> Self:
+        """
+        在链的步骤中添加指定时长的等待
+
+        :param interval: 等待时长
+        :return: 自身，因此支持链式调用
+        """
         coros = (asyncio.sleep(interval),)
         self._add_step(_ChainStep(coros, ret_when="ALL_COMPLETED"))
         return self
@@ -212,10 +268,15 @@ class ActionChain:
             await self._start(step.next)
 
     async def run(self) -> None:
+        """顺序执行链的所有步骤"""
         await self._start(self._chain[0])
 
 
 @contextmanager
 def open_chain() -> Generator[ActionChain, None, None]:
+    """创建行为链的上下文管理器
+
+    :yield: 行为链对象
+    """
     with ActionManualSignalCtx().in_ctx(True):
         yield ActionChain()

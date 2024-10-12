@@ -4,13 +4,17 @@ melobot.session
 会话层部件
 ----------------
 
+.. autoclass:: melobot.session.Session
+    :members:
+    :exclude-members: __init__, __lshift__, to_state, on_state, work, rest, suspend, wakeup, expire, get, enter_ctx
+
+.. autoclass:: melobot.session.SessionStore
+    :members:
+
 .. autoclass:: melobot.session.Rule
     :members:
 
 .. autofunction:: melobot.session.enter_session
-
-.. autoclass:: melobot.session.SessionStore
-    :members:
 
 会话状态
 -----------------

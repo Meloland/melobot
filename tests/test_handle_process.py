@@ -6,7 +6,7 @@ def node() -> FlowNode:
     async def node() -> bool:
         return True
 
-    n = FlowNode()(node)
+    n = FlowNode(node)
     n.name = str(id(n))
     return n
 

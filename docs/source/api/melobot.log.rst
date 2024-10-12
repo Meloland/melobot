@@ -6,9 +6,11 @@ melobot.log
 
 .. autoclass:: melobot.log.Logger
     :members:
+    :exclude-members: __new__, findCaller
 
 .. autoclass:: melobot.log.LogLevel
     :members:
+    :exclude-members: __new__
 
 .. autofunction:: melobot.log.get_logger
 
@@ -18,8 +20,11 @@ melobot.log
 .. autoclass:: melobot.log.GenericLogger
     :members:
 
+.. autofunction:: melobot.log.logger_patch
+
 .. autoclass:: melobot.log.LazyLogMethod
     :members:
+    :exclude-members: __init__
 
 .. autoclass:: melobot.log.StandardPatch
     :members:
@@ -29,5 +34,3 @@ melobot.log
 
 .. autoclass:: melobot.log.StructlogPatch
     :members:
-
-.. autofunction:: melobot.log.logger_patch

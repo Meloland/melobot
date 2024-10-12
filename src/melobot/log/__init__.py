@@ -4,4 +4,8 @@ from .patch import LazyLogMethod, LoguruPatch, StandardPatch, StructlogPatch, lo
 
 
 def get_logger() -> GenericLogger:
+    """获取当前上下文中日志器
+
+    :return: 日志器
+    """
     return _LoggerCtx().get()

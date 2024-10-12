@@ -100,10 +100,17 @@ class SuspendSessionState(SessionState):
 class ExpireSessionState(SessionState): ...
 
 
-class SessionStore(dict[str, Any]): ...
+class SessionStore(dict[str, Any]):
+    """会话存储，生命周期伴随会话对象"""
 
 
 class Session:
+    """会话
+
+    :ivar SessionStore store: 当前会话上下文的会话存储
+    :ivar Rule rule: 当前会话上下文的会话规则
+    """
+
     __instances__: dict[Rule, set["Session"]] = {}
     __instance_locks__: dict[Rule, Lock] = {}
     __cls_lock__ = Lock()
@@ -117,9 +124,6 @@ class Session:
         self.keep = keep
 
         self._state: SessionState = WorkingSessionState(self)
-
-    def __lshift__(self, another: "Session") -> None:
-        self.store.update(another.store)
 
     def to_state(self, state_class: type[SessionState]) -> None:
         self._state = state_class(self)
@@ -237,6 +241,11 @@ class Session:
 
 
 async def suspend(timeout: float | None = None) -> bool:
+    """挂起当前会话
+
+    :param timeout: 挂起后再唤醒的超时时间, 为空则永不超时
+    :return: 如果为 `False` 则表明唤醒超时
+    """
     return await SessionCtx().get().suspend(timeout)
 
 
@@ -246,4 +255,12 @@ def enter_session(
     nowait_cb: AsyncCallable[[], None] | None = None,
     keep: bool = False,
 ) -> _AsyncGeneratorContextManager[Session]:
+    """上下文管理器，提供一个会话上下文，在此上下文中可使用会话的高级特性
+
+    :param rule: 会话规则
+    :param wait: 当出现会话冲突时，是否需要等待
+    :param nowait_cb: 指定了 `wait=False` 后，会话冲突时执行的回调
+    :param keep: 会话在退出会话上下文后是否继续保持
+    :yield: 会话对象
+    """
     return Session.enter_ctx(rule, wait, nowait_cb, keep)

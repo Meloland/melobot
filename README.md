@@ -72,7 +72,7 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 
 ## 💬 文档
 
-项目文档：[melobot 文档](https://docs.melobot.org)（文档依然为 v2 版本，请等待 v3 版本文档更新后再查阅）
+项目文档：[melobot 文档](https://docs.melobot.org)
 
 对于文档可能出现的纰漏，恳请各位包涵。欢迎提出修正和优化文档的 PR：[文档源文件](https://github.com/Meloland/melobot/tree/main/docs/source)
 
