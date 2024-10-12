@@ -477,8 +477,8 @@
 <span class="k">class</span> <span class="nc">GenericLogger</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;通用日志器抽象类</span>
 
-<span class="sd">    任何日志器实现或通过修补后实现抽象接口，</span>
-<span class="sd">    则可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化）</span>
+<span class="sd">    任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，</span>
+<span class="sd">    即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.__init__`）</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># pylint: disable=duplicate-code</span>
@@ -603,8 +603,10 @@
 <span class="k">class</span> <span class="nc">Logger</span><span class="p">(</span><span class="n">_Logger</span><span class="p">,</span> <span class="n">GenericLogger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 内置日志器</span>
 
+<span class="sd">    推荐使用的日志器。实现了 :class:`GenericLogger` 接口，因此可以用于 melobot 内部日志记录。</span>
+
 <span class="sd">    `debug`, `info`, `warning`, `error`, `critical`, `exception`</span>
-<span class="sd">    等接口与 :data:`logging.Logger` 用法完全一致</span>
+<span class="sd">    等接口与 :class:`logging.Logger` 用法完全一致</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__instances__</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;Logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -626,7 +628,7 @@
         <span class="n">file_level</span><span class="p">:</span> <span class="n">LogLevel</span> <span class="o">=</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
         <span class="n">to_console</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">to_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">add_tag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">add_tag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">legacy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">red_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">two_stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -827,7 +829,7 @@
         <span class="n">level</span><span class="p">:</span> <span class="n">LogLevel</span><span class="p">,</span>
         <span class="n">with_exc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;通用懒惰日志方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;懒惰日志方法</span>
 
 <span class="sd">        :param msg: 日志消息，可使用 %s 指定稍后填充的参数</span>
 <span class="sd">        :param arg_getters: 填充消息 %s 位置的填充函数</span>
@@ -849,7 +851,7 @@
         <span class="o">*</span><span class="n">arg_getters</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">level</span><span class="p">:</span> <span class="n">LogLevel</span> <span class="o">=</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;通用记录对象日志方法</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;记录对象的日志方法</span>
 
 <span class="sd">        :param msg: 附加的日志消息，可使用 %s 指定稍后填充的参数</span>
 <span class="sd">        :param obj: 需要被日志记录的对象</span>

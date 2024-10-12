@@ -453,6 +453,7 @@
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.RWContext.read">[文档]</a>
     <span class="nd">@asynccontextmanager</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;上下文管理器，展开一个关于该对象的安全异步读上下文&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_semaphore</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
 
@@ -476,6 +477,7 @@
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.RWContext.write">[文档]</a>
     <span class="nd">@asynccontextmanager</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;上下文管理器，展开一个关于该对象的安全异步写上下文&quot;&quot;&quot;</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">yield</span>
@@ -668,9 +670,8 @@
 <span class="sd">    `busy_callback` 参数为空，则等待已运行的运行完成。随后执行下面的“冷却”处理逻辑。</span>
 
 <span class="sd">    当被装饰函数没有在运行的，但冷却时间未结束：</span>
-
-<span class="sd">       - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。</span>
-<span class="sd">       - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。</span>
+<span class="sd">        - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。</span>
+<span class="sd">        - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。</span>
 
 <span class="sd">    被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</span>
 

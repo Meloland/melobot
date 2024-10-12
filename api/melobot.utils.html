@@ -366,12 +366,14 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.utils.RWContext.read">
 <span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.AsyncGenerator" title="（在 Python v3.13）"><span class="pre">AsyncGenerator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/utils.html#RWContext.read"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.utils.RWContext.read" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>上下文管理器，展开一个关于该对象的安全异步读上下文</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.utils.RWContext.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.AsyncGenerator" title="（在 Python v3.13）"><span class="pre">AsyncGenerator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/utils.html#RWContext.write"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.utils.RWContext.write" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>上下文管理器，展开一个关于该对象的安全异步写上下文</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -442,13 +444,13 @@
 <p>本方法作为异步函数的装饰器使用，可以为被装饰函数添加 cd 时间。</p>
 <p>如果被装饰函数已有一个在运行，此时调用 <cite>busy_callback</cite> 生成回调并执行。回调执行完毕后直接返回。</p>
 <p><cite>busy_callback</cite> 参数为空，则等待已运行的运行完成。随后执行下面的“冷却”处理逻辑。</p>
-<p>当被装饰函数没有在运行的，但冷却时间未结束：</p>
-<blockquote>
-<div><ul class="simple">
+<dl class="simple">
+<dt>当被装饰函数没有在运行的，但冷却时间未结束：</dt><dd><ul class="simple">
 <li><p><cite>cd_callback</cite> 不为空：使用 <cite>cd_callback</cite> 生成回调并执行。</p></li>
 <li><p><cite>cd_callback</cite> 为空，被装饰函数持续等待，直至冷却结束再执行。</p></li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 <p>被装饰函数的返回值：被装饰函数被执行 -&gt; 被装饰函数返回值；执行任何回调 -&gt; 那个回调的返回值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
