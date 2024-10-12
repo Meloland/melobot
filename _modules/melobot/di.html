@@ -577,9 +577,12 @@
 <span class="sd">    :return: 异步可调用对象，但保留原始参数和返回值签名</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="s2">&quot;__wrapped__&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;函数 </span><span class="si">{</span><span class="n">injectee</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 无法进行依赖注入，在依赖注入前它不能被装饰&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">injectee</span><span class="o">.</span><span class="vm">__qualname__</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="s2">&quot;__qualname__&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">&quot;&lt;anonymous callable&gt;&quot;</span>
         <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;函数 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 无法进行依赖注入，在依赖注入前它不能被装饰&quot;</span><span class="p">)</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">injectee</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>

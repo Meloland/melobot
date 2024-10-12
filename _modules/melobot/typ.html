@@ -270,7 +270,7 @@
 <span></span><span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span> <span class="nn">beartype</span> <span class="kn">import</span> <span class="n">BeartypeConf</span> <span class="k">as</span> <span class="n">_BeartypeConf</span>
 <span class="kn">from</span> <span class="nn">beartype.door</span> <span class="kn">import</span> <span class="n">is_bearable</span> <span class="k">as</span> <span class="n">_is_type</span>
@@ -292,12 +292,25 @@
     <span class="s2">&quot;VoidType&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1">#: 泛型类型变量 T，无约束</span>
+<span class="c1">#: 泛型 T，无约束</span>
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+<span class="c1">#: 泛型 T_co，协变无约束</span>
+<span class="n">T_co</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T_co&quot;</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1">#: :obj:`~typing.ParamSpec` 泛型 P，无约束</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)</span>
-<span class="c1">#: 用法：AsyncCallable[P, T]，是该类型的别名：Callable[P, Awaitable[T]]</span>
-<span class="n">AsyncCallable</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="AsyncCallable">
+<a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.AsyncCallable">[文档]</a>
+<span class="k">class</span> <span class="nc">AsyncCallable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T_co</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;用法：AsyncCallable[P, T]</span>
+
+<span class="sd">    是该类型的等价形式：Callable[P, Awaitable[T]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_co</span><span class="p">]:</span> <span class="o">...</span></div>
+
+
 
 <span class="n">_DEFAULT_BEARTYPE_CONF</span> <span class="o">=</span> <span class="n">_BeartypeConf</span><span class="p">(</span><span class="n">is_pep484_tower</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 

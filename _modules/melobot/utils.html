@@ -274,16 +274,7 @@
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Any</span><span class="p">,</span>
-    <span class="n">AsyncGenerator</span><span class="p">,</span>
-    <span class="n">Awaitable</span><span class="p">,</span>
-    <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">Coroutine</span><span class="p">,</span>
-    <span class="n">Optional</span><span class="p">,</span>
-    <span class="n">TypeVar</span><span class="p">,</span>
-    <span class="n">cast</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AsyncGenerator</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Self</span>
 
@@ -438,7 +429,7 @@
 
 <div class="viewcode-block" id="RWContext.__init__">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.RWContext.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化异步读写上下文</span>
 
 <span class="sd">        :param read_limit: 读取的数量限制，为空则不限制</span>
@@ -611,15 +602,15 @@
 
 
 <span class="n">CbRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CbRetT&quot;</span><span class="p">)</span>
-<span class="n">CbOneRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CbOneRetT&quot;</span><span class="p">)</span>
-<span class="n">CbTwoRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CbTwoRetT&quot;</span><span class="p">)</span>
+<span class="n">FirstCbRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FirstCbRetT&quot;</span><span class="p">)</span>
+<span class="n">SecondCbRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;SecondCbRetT&quot;</span><span class="p">)</span>
 <span class="n">OriginRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;OriginRetT&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="lock">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.lock">[文档]</a>
 <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">CbRetT</span> <span class="o">|</span> <span class="n">OriginRetT</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;锁装饰器</span>
 
@@ -655,11 +646,11 @@
 <div class="viewcode-block" id="cooldown">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.cooldown">[文档]</a>
 <span class="k">def</span> <span class="nf">cooldown</span><span class="p">(</span>
-    <span class="n">busy_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbOneRetT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">cd_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="n">CbTwoRetT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">busy_callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">FirstCbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cd_callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="n">SecondCbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
-    <span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbOneRetT</span> <span class="o">|</span> <span class="n">CbTwoRetT</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">FirstCbRetT</span> <span class="o">|</span> <span class="n">SecondCbRetT</span><span class="p">]</span>
 <span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;冷却装饰器</span>
 
@@ -684,12 +675,12 @@
 
     <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbOneRetT</span> <span class="o">|</span> <span class="n">CbTwoRetT</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">FirstCbRetT</span> <span class="o">|</span> <span class="n">SecondCbRetT</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span>
             <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbOneRetT</span> <span class="o">|</span> <span class="n">CbTwoRetT</span><span class="p">:</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">FirstCbRetT</span> <span class="o">|</span> <span class="n">SecondCbRetT</span><span class="p">:</span>
             <span class="k">nonlocal</span> <span class="n">pre_finish_t</span>
             <span class="k">if</span> <span class="n">busy_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">busy_callback</span><span class="p">)</span>
@@ -719,7 +710,7 @@
 <div class="viewcode-block" id="semaphore">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.semaphore">[文档]</a>
 <span class="k">def</span> <span class="nf">semaphore</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;信号量装饰器</span>
 
@@ -756,7 +747,7 @@
 <div class="viewcode-block" id="timelimit">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.timelimit">[文档]</a>
 <span class="k">def</span> <span class="nf">timelimit</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;时间限制装饰器</span>
 
@@ -794,7 +785,7 @@
 <div class="viewcode-block" id="speedlimit">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.speedlimit">[文档]</a>
 <span class="k">def</span> <span class="nf">speedlimit</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
     <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]]:</span>
