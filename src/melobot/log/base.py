@@ -203,8 +203,8 @@ def _current_finfo() -> tuple[str, str, int]:
 class GenericLogger(BetterABC):
     """通用日志器抽象类
 
-    任何日志器实现或通过修补后实现抽象接口，
-    则可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化）
+    任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，
+    即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.__init__`）
     """
 
     # pylint: disable=duplicate-code
@@ -302,8 +302,10 @@ class NullLogger(_Logger, GenericLogger):
 class Logger(_Logger, GenericLogger):
     """melobot 内置日志器
 
+    推荐使用的日志器。实现了 :class:`GenericLogger` 接口，因此可以用于 melobot 内部日志记录。
+
     `debug`, `info`, `warning`, `error`, `critical`, `exception`
-    等接口与 :data:`logging.Logger` 用法完全一致
+    等接口与 :class:`logging.Logger` 用法完全一致
     """
 
     __instances__: dict[str, "Logger"] = {}
@@ -323,7 +325,7 @@ class Logger(_Logger, GenericLogger):
         file_level: LogLevel = LogLevel.DEBUG,
         to_console: bool = True,
         to_dir: Optional[str] = None,
-        add_tag: bool = True,
+        add_tag: bool = False,
         legacy: bool = False,
         red_error: bool = True,
         two_stream: bool = False,
@@ -518,7 +520,7 @@ class Logger(_Logger, GenericLogger):
         level: LogLevel,
         with_exc: bool = False,
     ) -> None:
-        """通用懒惰日志方法
+        """懒惰日志方法
 
         :param msg: 日志消息，可使用 %s 指定稍后填充的参数
         :param arg_getters: 填充消息 %s 位置的填充函数
@@ -537,7 +539,7 @@ class Logger(_Logger, GenericLogger):
         *arg_getters: Callable[[], str],
         level: LogLevel = LogLevel.INFO,
     ) -> None:
-        """通用记录对象日志方法
+        """记录对象的日志方法
 
         :param msg: 附加的日志消息，可使用 %s 指定稍后填充的参数
         :param obj: 需要被日志记录的对象

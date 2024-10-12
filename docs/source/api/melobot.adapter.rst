@@ -80,3 +80,24 @@ melobot.adapter
 
 .. autoclass:: melobot.adapter.content.ResourceContent
     :members:
+
+通用输出方法
+--------------
+
+.. autofunction:: melobot.adapter.generic.send_text
+
+.. autofunction:: melobot.adapter.generic.send_media
+
+.. autofunction:: melobot.adapter.generic.send_image
+
+.. autofunction:: melobot.adapter.generic.send_audio
+
+.. autofunction:: melobot.adapter.generic.send_voice
+
+.. autofunction:: melobot.adapter.generic.send_video
+
+.. autofunction:: melobot.adapter.generic.send_file
+
+.. autofunction:: melobot.adapter.generic.send_refer
+
+.. autofunction:: melobot.adapter.generic.send_resource

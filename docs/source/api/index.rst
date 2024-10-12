@@ -13,6 +13,7 @@ melobot API 参考
 - :class:`.Bot`, :func:`.get_bot`
 - :class:`.Plugin`, :class:`.AsyncShare`, :class:`.SyncShare`
 - :class:`.Adapter`, :class:`.Event`, :class:`.Action`, :class:`.Echo`
+- :func:`.send_text`, :func:`.send_image`
 - :class:`.Flow`, :class:`.FlowStore`, :func:`.node`, :func:`.rewind`, :func:`.stop`
 - :class:`.Depends`
 - :class:`.Rule`, :func:`.enter_session`, :class:`.SessionStore`, :func:`.suspend`

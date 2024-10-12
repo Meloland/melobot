@@ -165,6 +165,7 @@ class RWContext:
 
     @asynccontextmanager
     async def read(self) -> AsyncGenerator[None, None]:
+        """上下文管理器，展开一个关于该对象的安全异步读上下文"""
         if self.read_semaphore:
             await self.read_semaphore.acquire()
 
@@ -185,6 +186,7 @@ class RWContext:
 
     @asynccontextmanager
     async def write(self) -> AsyncGenerator[None, None]:
+        """上下文管理器，展开一个关于该对象的安全异步写上下文"""
         await self.write_semaphore.acquire()
         try:
             yield
@@ -361,9 +363,8 @@ def cooldown(
     `busy_callback` 参数为空，则等待已运行的运行完成。随后执行下面的“冷却”处理逻辑。
 
     当被装饰函数没有在运行的，但冷却时间未结束：
-
-       - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。
-       - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。
+        - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。
+        - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。
 
     被装饰函数的返回值：被装饰函数被执行 -> 被装饰函数返回值；执行任何回调 -> 那个回调的返回值
 
