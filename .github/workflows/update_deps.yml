@@ -22,9 +22,8 @@ jobs:
     - name: "Update dependencies"
       run: |
         pdm install
-        summary=$(pdm update)
         echo 'SUMMARY<<EOF' >> $GITHUB_OUTPUT
-        echo $summary >> $GITHUB_OUTPUT
+        pdm update >> $GITHUB_OUTPUT
         echo 'EOF' >> $GITHUB_OUTPUT
       shell: bash
       id: pdm-update
