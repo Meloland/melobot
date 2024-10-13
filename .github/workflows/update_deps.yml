@@ -1,0 +1,26 @@
+name: update_deps
+
+on:
+  push:
+    branches:
+      main
+
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  update_dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Update dependencies
+      uses: pdm-project/update-deps-action@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "[CI] Auto update dependencies"
+        pr-title: "[CI] Update dependencies"
+        install-plugins: "false"
+        sign-off-commit: "false"

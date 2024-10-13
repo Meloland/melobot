@@ -1,4 +1,4 @@
-name: makedoc
+name: make_doc
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       main
 
 jobs:
-  build:
+  build_doc:
     runs-on: ubuntu-latest
 
     steps:
