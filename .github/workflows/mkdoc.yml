@@ -2,11 +2,11 @@ name: makedoc
 
 on:
   push:
-    branches:    
+    branches:
       main
 
   pull_request:
-    branches:    
+    branches:
       main
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10' 
+        python-version: '3.10'
 
     - name: Build the doc
       run: |
@@ -28,6 +28,7 @@ jobs:
         make html && cd ..
 
     - name: Refresh changes and commit
+      if: github.event_name == 'push'
       run: |
         git clone https://github.com/Meloland/melobot.git --branch gh-pages --single-branch gh-pages
         mkdir tmp-files && cd gh-pages
@@ -45,10 +46,9 @@ jobs:
         cd ..
 
     - name: Push changes
+      if: github.event_name == 'push'
       uses: ad-m/github-push-action@master
       with:
         branch: gh-pages
         directory: gh-pages
-        force-with-lease: true
-        repository: ${{ github.repository }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
