@@ -188,9 +188,9 @@ snowballstemmer==2.2.0 \
 soupsieve==2.6 \
     --hash=sha256:e2e68417777af359ec65daac1057404a3c8a5455bb8abc36f1a9866ab1a51abb \
     --hash=sha256:e72c4ff06e4fb6e4b5a9f0f55fe6e81514581fca1515028625d0f299c602ccc9
-sphinx==8.1.1 \
-    --hash=sha256:65e0ee8f76c9cbfd53ec8466ac8c87a73f9ed911767a8ef36c3bf3c522242bcd \
-    --hash=sha256:84db3c819ed4ae63c6b1847f64576fcffe9d4f40670eefffcd215f9abc992393
+sphinx==8.1.2 \
+    --hash=sha256:5e96eb11b5cf7bb2d3f32326c579c3db2a4b7fe1207e84126d57185194988716 \
+    --hash=sha256:b19e24b51d1926567e0bb8f4fbd372e40cb19f1f62bcba91b45c9ee0cdd8874e
 sphinx-basic-ng==1.0.0b2 \
     --hash=sha256:9ec55a47c90c8c002b5960c57492ec3021f5193cb26cebc2dc4ea226848651c9 \
     --hash=sha256:eb09aedbabfb650607e9b4b68c9d240b90b1e1be221d6ad71d61c52e29f7932b
