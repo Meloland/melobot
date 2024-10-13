@@ -20,7 +20,12 @@ jobs:
       uses: pdm-project/setup-pdm@v4
 
     - name: "Update dependencies"
-      run: echo "SUMMARY='$(pdm update)'" >> $GITHUB_OUTPUT
+      run: |
+        pdm install
+        summary=$(pdm update)
+        echo 'SUMMARY<<EOF' >> $GITHUB_OUTPUT
+        echo $summary >> $GITHUB_OUTPUT
+        echo 'EOF' >> $GITHUB_OUTPUT
       shell: bash
       id: pdm-update
 
@@ -36,6 +41,8 @@ jobs:
     - name: Create Pull Request
       if: steps.detect-changes.outputs.changed == 'true'
       uses: peter-evans/create-pull-request@v6
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         commit-message: "[CI] Auto update dependencies"
         sign-commits: true
