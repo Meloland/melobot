@@ -29,27 +29,15 @@ jobs:
 
     - name: Refresh changes and commit
       run: |
-        if git show-ref --quiet refs/heads/gh-pages; then
-          echo "gh-pages branch exists"
-          git checkout gh-pages
-          mkdir .tmp
-          mv CNAME .nojekyll README.md .git .tmp/
-          mv -r docs .docs
-          rm -rf * && rm .buildinfo
-          cp -r .docs/build/html/* ./
-          cp .docs/build/html/.buildinfo ./
-          mv .tmp/* .tmp/.git .tmp/.nojekyll ./
-          rmdir .tmp
-          rm -rf .docs
-        else
-          echo "gh-pages branch not exist"
-          git checkout -b gh-pages
-          touch .nojekyll
-          mv -r docs .docs
-          cp -r .docs/build/html/* ./
-          cp .docs/build/html/.buildinfo ./
-          rm -rf .docs
-        fi
+        git clone https://github.com/Meloland/melobot.git --branch gh-pages --single-branch gh-pages
+        mkdir tmp-files && cd gh-pages
+        mv CNAME .nojekyll README.md .git ../tmp-files
+        rm -rf * && rm .buildinfo && cd ..
+        cp -r docs/build/html/* gh-pages
+        cp docs/build/html/.buildinfo gh-pages
+        mv tmp-files/* tmp-files/.git tmp-files/.nojekyll gh-pages
+        rmdir tmp-files
+        cd gh-pages
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
@@ -60,5 +48,7 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         branch: gh-pages
-        directory: ./
+        directory: gh-pages
+        force-with-lease: true
+        repository: ${{ github.repository }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
