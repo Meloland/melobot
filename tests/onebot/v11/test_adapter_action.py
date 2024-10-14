@@ -1,5 +1,3 @@
-from typing import xxx
-
 from melobot.protocols.onebot.v11.adapter import action
 from melobot.protocols.onebot.v11.adapter import segment as seg
 from tests.base import *
