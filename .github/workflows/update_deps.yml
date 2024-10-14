@@ -1,4 +1,4 @@
-name: update_deps
+name: Update deps
 
 on:
   push:

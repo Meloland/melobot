@@ -1,4 +1,4 @@
-name: update_deps
+name: Pytest
 
 on:
   push:

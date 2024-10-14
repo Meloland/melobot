@@ -1,4 +1,4 @@
-name: make_doc
+name: Make doc
 
 on:
   push:
