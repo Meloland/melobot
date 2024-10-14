@@ -25,7 +25,7 @@ from ..log.base import GenericLogger, Logger, NullLogger
 from ..plugin.base import Plugin
 from ..plugin.ipc import IPCManager
 from ..plugin.load import PluginLoader
-from ..protocol import ProtocolStack
+from ..protocols.base import ProtocolStack
 from ..typ import AsyncCallable, P
 from .dispatch import Dispatcher
 

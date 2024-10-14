@@ -44,7 +44,9 @@ Issues = "https://github.com/Meloland/melobot/issues"
 
 [project.optional-dependencies]
 onebot = [
-    "melobot-protocol-onebot>=1.0.0rc2",
+    "pydantic>=2.9.2",
+    "websockets>=13.1",
+    "aiohttp>=3.10.10",
 ]
 [build-system]
 requires = ["pdm-backend"]
@@ -73,7 +75,6 @@ distribution = true
 version = { source = "file", path = "src/melobot/_meta.py" }
 
 [tool.pdm.scripts]
-fresh = {call = "fresh_proj_depends:main"}
 isort = {shell = "isort src/melobot"}
 format = {shell = "black src/melobot"}
 check = {shell = "flake8 src/melobot"}
@@ -86,9 +87,10 @@ trace = {shell = "viztracer"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
 
-_requires_fresh = {call = "scripts.export_requires:main"}
-_doc_requires_fresh = {call = "scripts.export_doc_requires:main"}
-post_install = {composite = ["_requires_fresh", "_doc_requires_fresh"]}
+_requires = {call = "scripts.export_requires:main"}
+_doc_requires = {call = "scripts.export_doc_requires:main"}
+_onebot_requires = {call = "scripts.export_onebot_requires:main"}
+post_install = {composite = ["_requires", "_doc_requires", "_onebot_requires"]}
 
 [tool.pdm.dev-dependencies]
 test = [

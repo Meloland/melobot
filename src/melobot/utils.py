@@ -343,7 +343,8 @@ def cooldown(
     cd_callback: AsyncCallable[[float], SecondCbRetT] | None = None,
     interval: float = 5,
 ) -> Callable[
-    [AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT]
+    [AsyncCallable[P, OriginRetT]],
+    AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT],
 ]:
     """冷却装饰器
 

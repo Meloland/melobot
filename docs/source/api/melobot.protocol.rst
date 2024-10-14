@@ -1,5 +1,5 @@
-melobot.protocol
-================
+melobot.protocols
+=================
 
-.. autoclass:: melobot.protocol.ProtocolStack
+.. autoclass:: melobot.protocols.ProtocolStack
     :members:
