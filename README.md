@@ -99,12 +99,16 @@ pdm build
 
 <!-- end elevator-pitch -->
 
-## 💻 贡献指南与行为准则
+## 💻 其他
 
-参考：
+**贡献指南与行为准则**：
 
 - [CONTRIBUTING](CONTRIBUTING.md)
 - [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md)
+
+**安全政策**：
+
+- [SECURITY POLICY](SECURITY.md)
 
 ## 📜 开源许可
 
