@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "docs", "lint", "manage", "onebot", "test"]
+groups = ["default", "docs", "lint", "manage", "measure", "onebot", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:746ddbecd6607c0beea9e0d478c6fb42d617abbcc82c613e484ea9ffbe1fc017"
+content_hash = "sha256:6b3286d50cb181e3f61f82dfe9a7c2b660527e6bc5a6c453430e0e38f1f4c730"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -794,7 +794,7 @@ name = "objprint"
 version = "0.2.3"
 requires_python = ">=3.6"
 summary = "A library that can print Python objects in human readable format"
-groups = ["test"]
+groups = ["measure"]
 files = [
     {file = "objprint-0.2.3-py3-none-any.whl", hash = "sha256:1721e6f97bae5c5b86c2716a0d45a9dd2c9a4cd9f52cfc8a0dfbe801805554cb"},
     {file = "objprint-0.2.3.tar.gz", hash = "sha256:73d0ad5a7c3151fce634c8892e5c2a050ccae3b1a353bf1316f08b7854da863b"},
@@ -1020,7 +1020,7 @@ files = [
 name = "pydeps"
 version = "1.12.20"
 summary = "Display module dependencies"
-groups = ["lint"]
+groups = ["measure"]
 dependencies = [
     "enum34; python_version < \"3.4\"",
     "stdlib-list",
@@ -1338,7 +1338,7 @@ name = "stdlib-list"
 version = "0.10.0"
 requires_python = ">=3.7"
 summary = "A list of Python Standard Libraries (2.7 through 3.12)."
-groups = ["lint"]
+groups = ["measure"]
 files = [
     {file = "stdlib_list-0.10.0-py3-none-any.whl", hash = "sha256:b3a911bc441d03e0332dd1a9e7d0870ba3bb0a542a74d7524f54fb431256e214"},
     {file = "stdlib_list-0.10.0.tar.gz", hash = "sha256:6519c50d645513ed287657bfe856d527f277331540691ddeaf77b25459964a14"},
@@ -1405,7 +1405,7 @@ name = "viztracer"
 version = "0.16.3"
 requires_python = ">=3.8"
 summary = "A debugging and profiling tool that can trace and visualize python code execution"
-groups = ["test"]
+groups = ["measure"]
 dependencies = [
     "objprint>0.1.3",
 ]

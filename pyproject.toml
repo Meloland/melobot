@@ -87,15 +87,12 @@ trace = {shell = "viztracer"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
 
-_requires = {call = "scripts.export_requires:main"}
-_doc_requires = {call = "scripts.export_doc_requires:main"}
-_onebot_requires = {call = "scripts.export_onebot_requires:main"}
-post_install = {composite = ["_requires", "_doc_requires", "_onebot_requires"]}
+_requires = {call = "scripts.exports:main"}
+post_install.composite = ["_requires"]
 
 [tool.pdm.dev-dependencies]
 test = [
     "pytest>=8.1.1",
-    "viztracer>=0.16.2",
     "pytest-asyncio>=0.24.0",
 ]
 docs = [
@@ -106,7 +103,6 @@ docs = [
 ]
 lint = [
     "black>=24.2.0",
-    "pydeps>=1.12.19",
     "isort>=5.13.2",
     "flake8>=7.0.0",
     "pylint>=3.2.6",
@@ -114,4 +110,8 @@ lint = [
 ]
 manage = [
     "toml>=0.10.2",
+]
+measure = [
+    "viztracer>=0.16.3",
+    "pydeps>=1.12.20",
 ]
