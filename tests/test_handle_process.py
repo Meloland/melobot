@@ -2,8 +2,8 @@ from melobot.handle.process import Flow, FlowNode
 from tests.base import *
 
 
-def node():
-    async def node():
+def node() -> FlowNode:
+    async def node() -> bool:
         return True
 
     n = FlowNode(node)
@@ -11,7 +11,7 @@ def node():
     return n
 
 
-async def test_flow_link():
+async def test_flow_link() -> None:
     a = Flow("a", [node()], [node(), node()], [node()])
     b = Flow("b", [node(), node()])
     c = Flow("c", [node()])
