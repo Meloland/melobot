@@ -1,16 +1,16 @@
-name: makedoc
+name: Make doc
 
 on:
   push:
-    branches:    
+    branches:
       main
 
   pull_request:
-    branches:    
+    branches:
       main
 
 jobs:
-  build:
+  build_doc:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10' 
+        python-version: '3.10'
 
     - name: Build the doc
       run: |
@@ -28,6 +28,7 @@ jobs:
         make html && cd ..
 
     - name: Refresh changes and commit
+      if: github.event_name == 'push'
       run: |
         git clone https://github.com/Meloland/melobot.git --branch gh-pages --single-branch gh-pages
         mkdir tmp-files && cd gh-pages
@@ -38,13 +39,14 @@ jobs:
         mv tmp-files/* tmp-files/.git tmp-files/.nojekyll gh-pages
         rmdir tmp-files
         cd gh-pages
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+        git config --local user.name "${{ github.actor }}"
         git add .
         git commit -m "Update doc by Github Action" -a || true
         cd ..
 
     - name: Push changes
+      if: github.event_name == 'push'
       uses: ad-m/github-push-action@master
       with:
         branch: gh-pages

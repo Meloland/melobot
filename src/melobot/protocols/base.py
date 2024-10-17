@@ -1,8 +1,8 @@
 from typing import Sequence
 
-from .adapter.base import Adapter
-from .io.base import AbstractInSource, AbstractOutSource
-from .typ import BetterABC, abstractattr
+from ..adapter.base import Adapter
+from ..io.base import AbstractInSource, AbstractOutSource
+from ..typ import BetterABC, abstractattr
 
 
 class ProtocolStack(BetterABC):
