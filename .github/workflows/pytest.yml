@@ -34,10 +34,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r tests/requirements.txt
-        for i in $(ls *requirements.txt);
-        do
-          pip install -r $i
-        done
         pytest -c pytest.ini
         if [ $? -ne 0 ]; then
           echo "::error title=Pytest failed::Tests failure"
@@ -49,7 +45,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r tests/requirements.txt
-        Get-ChildItem -Filter *requirements.txt | ForEach-Object { pip install -r $_.FullName }
         pytest -c pytest.ini
         if ($LASTEXITCODE -ne 0) {
             Write-Host "::error title=Pytest failed::Tests failure"
