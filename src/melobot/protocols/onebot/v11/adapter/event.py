@@ -12,7 +12,6 @@ from .segment import Segment, TextSegment, segs_to_contents
 
 
 class Event(RootEvent):
-
     class Model(BaseModel):
         time: int
         self_id: int
@@ -20,13 +19,18 @@ class Event(RootEvent):
 
     def __init__(self, **event_data: Any) -> None:
         self._model = self.Model(**event_data)
+        #: 时间戳
         self.time: int
 
         super().__init__(self._model.time, protocol=PROTOCOL_IDENTIFIER)
-        self.self_id = self._model.self_id
-        self.post_type = self._model.post_type
-
-        self.raw = event_data
+        #: 自身ID
+        self.self_id: int = self._model.self_id
+        #: 事件类型
+        self.post_type: Literal["message", "notice", "request", "meta_event"] | str = (
+            self._model.post_type
+        )
+        #: 事件原始数据
+        self.raw: dict[str, Any] = event_data
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> Event:
@@ -54,7 +58,6 @@ class Event(RootEvent):
 
 
 class MessageEvent(Event):
-
     class Model(Event.Model):
         post_type: Literal["message"]
         message_type: Literal["private", "group"] | str
@@ -73,9 +76,14 @@ class MessageEvent(Event):
         super().__init__(**event_data)
 
         self._model: MessageEvent.Model
+        #: 消息内容（消息段表示）
         self.message: list[Segment]
+        #: 消息发送者
         self.sender: _MessageSender | _GroupMessageSender
+        #: 消息内容（通用内容表示）
         self.contents: Sequence[content.Content] = []
+        #: 消息内容（cq 字符串表示）
+        self.raw_message: str
 
         data = event_data
         if isinstance(data["message"], str):
@@ -86,12 +94,22 @@ class MessageEvent(Event):
             ]
         self.contents = segs_to_contents(self.message)
 
-        self.message_type = self._model.message_type
-        self.sub_type = self._model.sub_type
-        self.message_id = self._model.message_id
-        self.user_id = self._model.user_id
+        #: 消息类型
+        self.message_type: Literal["private", "group"] | str = self._model.message_type
+        #: 消息子类型
+        self.sub_type: (
+            Literal[
+                "friend", "group", "other", "normal", "anonymous", "notice", "group_self"
+            ]
+            | str
+        ) = self._model.sub_type
+        #: 消息 id
+        self.message_id: int = self._model.message_id
+        #: 消息发送者 ID
+        self.user_id: int = self._model.user_id
         self.raw_message = self._model.raw_message
-        self.font = self._model.font
+        #: 消息字体
+        self.font: int = self._model.font
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> MessageEvent:
@@ -176,10 +194,14 @@ class _MessageSender:
     def __init__(self, **sender_data: Any) -> None:
         self._model = self.Model(**sender_data)
 
-        self.user_id = self._model.user_id
-        self.nickname = self._model.nickname
-        self.sex = self._model.sex
-        self.age = self._model.age
+        #: 发送者 ID
+        self.user_id: int | None = self._model.user_id
+        #: 发送者昵称
+        self.nickname: str | None = self._model.nickname
+        #: 发送者性别
+        self.sex: Literal["male", "female", "unknown"] | None = self._model.sex
+        #: 发送者年龄
+        self.age: int | None = self._model.age
 
     def is_group_owner(self) -> bool:
         """判断是否为群主，若不是或不是群类型消息，返回 False"""
@@ -222,11 +244,14 @@ class PrivateMessageEvent(MessageEvent):
     def __init__(self, **event_data: Any) -> None:
         super().__init__(**event_data)
 
+        #: 消息发送者
         self.sender: _MessageSender
         self.sender = _MessageSender(**event_data["sender"])
 
         self._model: PrivateMessageEvent.Model
+        #: 消息类型
         self.message_type: Literal["private"]
+        # 消息子类型
         self.sub_type: Literal["friend", "group", "other"]
 
 
@@ -240,9 +265,12 @@ class _MessageAnonymous:
     def __init__(self, **anonymous_data: Any) -> None:
         self._model = self.Model(**anonymous_data)
 
-        self.id = self._model.id
-        self.name = self._model.name
-        self.flag = self._model.flag
+        #: 匿名信息的 id
+        self.id: int = self._model.id
+        #: 匿名信息的 name
+        self.name: str = self._model.name
+        #: 匿名信息的 flag
+        self.flag: str = self._model.flag
 
 
 class _GroupMessageSender(_MessageSender):
@@ -258,11 +286,16 @@ class _GroupMessageSender(_MessageSender):
         self._model: _GroupMessageSender.Model
         super().__init__(**sender_data)
 
-        self.card = self._model.card
-        self.area = self._model.area
-        self.level = self._model.level
-        self.role = self._model.role
-        self.title = self._model.title
+        #: 发送者头衔
+        self.card: str | None = self._model.card
+        #: 发送者地区
+        self.area: str | None = self._model.area
+        #: 发送者等级
+        self.level: str | None = self._model.level
+        #: 发送者角色
+        self.role: Literal["owner", "admin", "member"] | None = self._model.role
+        #: 发送者群昵称
+        self.title: str | None = self._model.title
 
 
 class GroupMessageEvent(MessageEvent):
@@ -275,17 +308,22 @@ class GroupMessageEvent(MessageEvent):
     def __init__(self, **event_data: Any) -> None:
         super().__init__(**event_data)
 
+        #: 消息发送者
         self.sender: _GroupMessageSender
         self.sender = _GroupMessageSender(**event_data["sender"])
-        self.anonymous = (
+        #: 消息匿名信息段
+        self.anonymous: _MessageAnonymous | None = (
             _MessageAnonymous(**event_data["anonymous"])
             if event_data["anonymous"]
             else None
         )
-        self.group_id = self._model.group_id
+        #: 消息来源群号
+        self.group_id: int = self._model.group_id
 
         self._model: GroupMessageEvent.Model
+        #: 消息类型
         self.message_type: Literal["group"]
+        #: 消息子类型
         self.sub_type: Literal["normal", "anonymous", "notice", "group_self"]
 
 
@@ -299,7 +337,10 @@ class MetaEvent(Event):
         super().__init__(**event_data)
 
         self._model: MetaEvent.Model
-        self.meta_event_type = self._model.meta_event_type
+        #: 元事件类型
+        self.meta_event_type: Literal["lifecycle", "heartbeat"] | str = (
+            self._model.meta_event_type
+        )
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> MetaEvent:
@@ -328,8 +369,12 @@ class LifeCycleMetaEvent(MetaEvent):
         super().__init__(**event_data)
 
         self._model: LifeCycleMetaEvent.Model
+        #: 元事件类型
         self.meta_event_type: Literal["lifecycle"]
-        self.sub_type = self._model.sub_type
+        #: 元事件子类型
+        self.sub_type: Literal["enable", "disable", "connect"] | str = (
+            self._model.sub_type
+        )
 
     def is_enable(self) -> bool:
         return self.sub_type == "enable"
@@ -350,8 +395,11 @@ class _MetaHeartBeatStatus:
     def __init__(self, **status_data: Any) -> None:
         self._model = self.Model(**status_data)
 
-        self.online = self._model.online
-        self.good = self._model.good
+        #: 心跳元事件在线状态
+        self.online: bool | None = self._model.online
+        #: 心跳元事件健康状态
+        self.good: bool = self._model.good
+        #: 心跳元事件原始内容
         self.raw: dict[str, Any] = status_data
 
 
@@ -366,9 +414,12 @@ class HeartBeatMetaEvent(MetaEvent):
 
         self._model: HeartBeatMetaEvent.Model
 
+        #: 元事件类型
         self.meta_event_type: Literal["heartbeat"]
-        self.status = _MetaHeartBeatStatus(**event_data["status"])
-        self.interval = self._model.interval
+        #: 心跳元事件状态
+        self.status: _MetaHeartBeatStatus = _MetaHeartBeatStatus(**event_data["status"])
+        #: 心跳间隔
+        self.interval: int = self._model.interval
 
 
 class NoticeEvent(Event):
@@ -394,7 +445,21 @@ class NoticeEvent(Event):
         super().__init__(**event_data)
 
         self._model: NoticeEvent.Model
-        self.notice_type = self._model.notice_type
+        #: 通知事件类型
+        self.notice_type: (
+            Literal[
+                "group_upload",
+                "group_admin",
+                "group_decrease",
+                "group_increase",
+                "group_ban",
+                "friend_add",
+                "group_recall",
+                "friend_recall",
+                "notify",
+            ]
+            | str
+        ) = self._model.notice_type
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> NoticeEvent:
@@ -416,30 +481,39 @@ class NoticeEvent(Event):
         return cls(**event_data)
 
     def is_group_upload(self) -> bool:
+        """是否是群文件上传通知事件"""
         return self.notice_type == "group_upload"
 
     def is_group_admin(self) -> bool:
+        """是否是群管理员变动通知事件"""
         return self.notice_type == "group_admin"
 
     def is_group_decrease(self) -> bool:
+        """是否是群成员减少通知事件"""
         return self.notice_type == "group_decrease"
 
     def is_group_increase(self) -> bool:
+        """是否是群成员增加通知事件"""
         return self.notice_type == "group_increase"
 
     def is_group_ban(self) -> bool:
+        """是否是群禁言通知事件"""
         return self.notice_type == "group_ban"
 
     def is_friend_add(self) -> bool:
+        """是否是好友添加事件"""
         return self.notice_type == "friend_add"
 
     def is_group_recall(self) -> bool:
+        """是否是群消息撤回事件"""
         return self.notice_type == "group_recall"
 
     def is_friend_recall(self) -> bool:
+        """是否是私聊消息撤回事件"""
         return self.notice_type == "friend_recall"
 
     def is_notify(self) -> bool:
+        """是否是 notify 类型通知事件"""
         return self.notice_type == "notify"
 
 
@@ -454,10 +528,14 @@ class _GroupUploadFile:
     def __init__(self, **file_data: Any) -> None:
         self._model = self.Model(**file_data)
 
-        self.id = self._model.id
-        self.name = self._model.name
-        self.size = self._model.size
-        self.busid = self._model.busid
+        #: 群文件 id
+        self.id: str = self._model.id
+        #: 群文件名称
+        self.name: str = self._model.name
+        #: 群文件大小
+        self.size: int = self._model.size
+        #: 群文件 busid
+        self.busid: int = self._model.busid
 
 
 class GroupUploadNoticeEvent(NoticeEvent):
@@ -472,10 +550,14 @@ class GroupUploadNoticeEvent(NoticeEvent):
 
         self._model: GroupUploadNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["group_upload"]
-        self.group_id = self._model.group_id
-        self.user_id = self._model.user_id
-        self.file = _GroupUploadFile(**event_data["file"])
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
+        #: 文件描述对象
+        self.file: _GroupUploadFile = _GroupUploadFile(**event_data["file"])
 
 
 class GroupAdminNoticeEvent(NoticeEvent):
@@ -491,10 +573,14 @@ class GroupAdminNoticeEvent(NoticeEvent):
 
         self._model: GroupAdminNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["group_admin"]
-        self.sub_type = self._model.sub_type
-        self.group_id = self._model.group_id
-        self.user_id = self._model.user_id
+        #: 子类型
+        self.sub_type: Literal["set", "unset"] = self._model.sub_type
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
 
     def is_set(self) -> bool:
         return self.sub_type == "set"
@@ -517,11 +603,16 @@ class GroupDecreaseNoticeEvent(NoticeEvent):
 
         self._model: GroupDecreaseNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["group_decrease"]
-        self.sub_type = self._model.sub_type
-        self.group_id = self._model.group_id
-        self.operator_id = self._model.operator_id
-        self.user_id = self._model.user_id
+        #: 子类型
+        self.sub_type: Literal["kick", "leave", "kick_me"] = self._model.sub_type
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 操作者 qq 号
+        self.operator_id: int = self._model.operator_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
 
     def is_kick(self) -> bool:
         return self.sub_type == "kick"
@@ -547,11 +638,16 @@ class GroupIncreaseNoticeEvent(NoticeEvent):
 
         self._model: GroupIncreaseNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["group_increase"]
-        self.sub_type = self._model.sub_type
-        self.group_id = self._model.group_id
-        self.operator_id = self._model.operator_id
-        self.user_id = self._model.user_id
+        #: 子类型
+        self.sub_type: Literal["invite", "approve"] = self._model.sub_type
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 操作者 qq 号
+        self.operator_id: int = self._model.operator_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
 
     def is_invite(self) -> bool:
         return self.sub_type == "invite"
@@ -575,12 +671,18 @@ class GroupBanNoticeEvent(NoticeEvent):
 
         self._model: GroupBanNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["group_ban"]
-        self.sub_type = self._model.sub_type
-        self.group_id = self._model.group_id
-        self.operator_id = self._model.operator_id
-        self.user_id = self._model.user_id
-        self.duration = self._model.duration
+        #: 子类型
+        self.sub_type: Literal["ban", "lift_ban"] = self._model.sub_type
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 操作者 qq 号
+        self.operator_id: int = self._model.operator_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
+        #: 禁言间隔
+        self.duration: int = self._model.duration
 
     def is_ban(self) -> bool:
         return self.sub_type == "ban"
@@ -600,8 +702,10 @@ class FriendAddNoticeEvent(NoticeEvent):
 
         self._model: FriendAddNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["friend_add"]
-        self.user_id = self._model.user_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
 
 
 class GroupRecallNoticeEvent(NoticeEvent):
@@ -618,11 +722,16 @@ class GroupRecallNoticeEvent(NoticeEvent):
 
         self._model: GroupRecallNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["group_recall"]
-        self.group_id = self._model.group_id
-        self.user_id = self._model.user_id
-        self.operator_id = self._model.operator_id
-        self.message_id = self._model.message_id
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
+        #: 操作者 qq 号
+        self.operator_id: int = self._model.operator_id
+        #: 被撤回的消息 id
+        self.message_id: int = self._model.message_id
 
 
 class FriendRecallNoticeEvent(NoticeEvent):
@@ -637,9 +746,12 @@ class FriendRecallNoticeEvent(NoticeEvent):
 
         self._model: FriendRecallNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["friend_recall"]
-        self.user_id = self._model.user_id
-        self.message_id = self._model.message_id
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
+        #: 被撤回的消息 id
+        self.message_id: int = self._model.message_id
 
 
 class NotifyNoticeEvent(NoticeEvent):
@@ -653,8 +765,10 @@ class NotifyNoticeEvent(NoticeEvent):
 
         self._model: NotifyNoticeEvent.Model
 
+        #: 通知事件类型
         self.notice_type: Literal["notify"]
-        self.sub_type = self._model.sub_type
+        #: 子类型
+        self.sub_type: Literal["poke", "lucky_king", "honor"] | str = self._model.sub_type
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> NotifyNoticeEvent:
@@ -689,10 +803,14 @@ class PokeNotifyEvent(NotifyNoticeEvent):
         super().__init__(**event_data)
 
         self._model: PokeNotifyEvent.Model
+        #: 子类型
         self.sub_type: Literal["poke"]
-        self.group_id = self._model.group_id
-        self.user_id = self._model.user_id
-        self.target_id = self._model.target_id
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 事件发起者 qq 号
+        self.user_id: int = self._model.user_id
+        #: 事件作用者 qq 号
+        self.target_id: int = self._model.target_id
 
 
 class LuckyKingNotifyEvent(NotifyNoticeEvent):
@@ -708,10 +826,14 @@ class LuckyKingNotifyEvent(NotifyNoticeEvent):
 
         self._model: LuckyKingNotifyEvent.Model
 
+        #: 子类型
         self.sub_type: Literal["lucky_king"]
-        self.group_id = self._model.group_id
-        self.user_id = self._model.user_id
-        self.target_id = self._model.target_id
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 红包发送者 qq 号
+        self.user_id: int = self._model.user_id
+        #: 运气王 qq 号
+        self.target_id: int = self._model.target_id
 
 
 class HonorNotifyEvent(NotifyNoticeEvent):
@@ -727,10 +849,16 @@ class HonorNotifyEvent(NotifyNoticeEvent):
 
         self._model: HonorNotifyEvent.Model
 
+        #: 子类型
         self.sub_type: Literal["honor"]
-        self.group_id = self._model.group_id
-        self.honor_type = self._model.honor_type
-        self.user_id = self._model.user_id
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 群荣誉类型
+        self.honor_type: Literal["talkative", "performer", "emotion"] = (
+            self._model.honor_type
+        )
+        #: 事件主体人 qq 号
+        self.user_id: int = self._model.user_id
 
     def is_talkative(self) -> bool:
         return self.honor_type == "talkative"
@@ -752,7 +880,8 @@ class RequestEvent(Event):
         super().__init__(**event_data)
 
         self._model: RequestEvent.Model
-        self.request_type = self._model.request_type
+        #: 请求事件类型
+        self.request_type: Literal["friend", "group"] | str = self._model.request_type
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> RequestEvent:
@@ -784,10 +913,14 @@ class FriendRequestEvent(RequestEvent):
 
         self._model: FriendRequestEvent.Model
 
+        #: 请求事件类型
         self.request_type: Literal["friend"]
-        self.user_id = self._model.user_id
-        self.comment = self._model.comment
-        self.flag = self._model.flag
+        #: 请求人 qq 号
+        self.user_id: int = self._model.user_id
+        #: 加好友备注
+        self.comment: str = self._model.comment
+        #: 请求 flag，在调用处理请求的 API 时需要传入
+        self.flag: str = self._model.flag
 
 
 class GroupRequestEvent(RequestEvent):
@@ -804,12 +937,18 @@ class GroupRequestEvent(RequestEvent):
         super().__init__(**event_data)
 
         self._model: GroupRequestEvent.Model
+        #: 请求事件类型
         self.request_type: Literal["group"]
-        self.sub_type = self._model.sub_type
-        self.group_id = self._model.group_id
-        self.user_id = self._model.user_id
-        self.comment = self._model.comment
-        self.flag = self._model.flag
+        #: 子类型
+        self.sub_type: str = self._model.sub_type
+        #: 群号
+        self.group_id: int = self._model.group_id
+        #: 请求人 qq 号
+        self.user_id: int = self._model.user_id
+        #: 加群备注
+        self.comment: str = self._model.comment
+        #: 请求 flag，在调用处理请求的 API 时需要传入
+        self.flag: str = self._model.flag
 
     def is_add(self) -> bool:
         return self.sub_type == "add"

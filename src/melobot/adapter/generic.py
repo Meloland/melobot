@@ -9,7 +9,7 @@ _CTX = EventBuildInfoCtx()
 
 
 async def send_text(text: str) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_text` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_text` 调用
 
     函数参数和返回值参考原方法
     """
@@ -22,7 +22,7 @@ async def send_media(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_media` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_media` 调用
 
     函数参数和返回值参考原方法
     """
@@ -35,7 +35,7 @@ async def send_image(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_image` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_image` 调用
 
     函数参数和返回值参考原方法
     """
@@ -48,7 +48,7 @@ async def send_audio(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_audio` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_audio` 调用
 
     函数参数和返回值参考原方法
     """
@@ -61,7 +61,7 @@ async def send_voice(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_voice` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_voice` 调用
 
     函数参数和返回值参考原方法
     """
@@ -74,7 +74,7 @@ async def send_video(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_video` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_video` 调用
 
     函数参数和返回值参考原方法
     """
@@ -82,7 +82,7 @@ async def send_video(
 
 
 async def send_file(name: str, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_file` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_file` 调用
 
     函数参数和返回值参考原方法
     """
@@ -92,7 +92,7 @@ async def send_file(name: str, path: str | PathLike[str]) -> tuple[ActionHandle,
 async def send_refer(
     event: Event, contents: Sequence[Content] | None = None
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_refer` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_refer` 调用
 
     函数参数和返回值参考原方法
     """
@@ -100,7 +100,7 @@ async def send_refer(
 
 
 async def send_resource(name: str, url: str) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~.Adapter.send_resource` 调用
+    """包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_resource` 调用
 
     函数参数和返回值参考原方法
     """

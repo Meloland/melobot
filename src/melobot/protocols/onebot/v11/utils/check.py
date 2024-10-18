@@ -19,6 +19,8 @@ class LevelRole(int, Enum):
 
 
 class GroupRole(int, Enum):
+    """群权限等级枚举"""
+
     OWNER = 1 << 2
     ADMIN = 1 << 1
     MEMBER = 1

@@ -23,6 +23,7 @@ class ArgsCtx(Context[ParseArgs | None]):
 
 class Args(Depends):
     def __init__(self) -> None:
+        """初始化一个用于依赖注入的解析参数对象"""
         super().__init__(ArgsCtx().get, recursive=False)
 
 

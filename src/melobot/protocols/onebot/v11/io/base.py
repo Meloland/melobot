@@ -7,6 +7,11 @@ from .packet import EchoPacket, InPacket, OutPacket
 
 
 class BaseIO(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
+    """
+
+    :ivar float cd_time: 发送行为操作的冷却时间（防风控）
+    """
+
     # pylint: disable=duplicate-code
     def __init__(self, cd_time: float) -> None:
         super().__init__(PROTOCOL_IDENTIFIER)

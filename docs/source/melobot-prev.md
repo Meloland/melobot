@@ -16,4 +16,6 @@ v1 文档地址：[Qbot-MeloBot-docs](https://aicorein.github.io/Qbot-MeloBot-do
 
 melobot v2，是一个只适用于 onebot 协议的，用于 qq 机器人的开发框架。
 
-**v2 版本现已完全停止维护**，不建议继续使用。
+**v2 版本现已完全停止维护**，不建议继续使用。如果您对 v2 感兴趣，可以看看这些：
+
+v2 源代码：[commit/1a332d1](https://github.com/Meloland/melobot/tree/1a332d1cfdad08016eacf08eb2112ea8bfd382fd)

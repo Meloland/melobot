@@ -1,0 +1,19 @@
+v11.const
+=========
+
+v11 协议常量
+---------------
+
+.. data:: melobot.protocols.onebot.v11.PROTOCOL_NAME
+
+    OneBot v11 协议名
+
+.. data:: melobot.protocols.onebot.v11.PROTOCOL_VERSION
+
+    OneBot v11 协议版本
+
+.. data:: melobot.protocols.onebot.v11.PROTOCOL_IDENTIFIER
+
+    OneBot v11 协议 melobot 侧实现的唯一标识
+    
+    对于同一协议，可能存在多个实现，因此需要标识

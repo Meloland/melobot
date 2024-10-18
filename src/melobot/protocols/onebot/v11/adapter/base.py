@@ -23,19 +23,15 @@ from . import action as ac
 from . import echo as ec
 from . import event as ev
 from . import segment as se
-from .action import Action
-from .echo import Echo
-from .event import Event
-from .segment import Segment
 
 
-class EventFactory(AbstractEventFactory[InPacket, Event]):
-    async def create(self, packet: InPacket) -> Event:
-        return Event.resolve(packet.data)
+class EventFactory(AbstractEventFactory[InPacket, ev.Event]):
+    async def create(self, packet: InPacket) -> ev.Event:
+        return ev.Event.resolve(packet.data)
 
 
-class OutputFactory(AbstractOutputFactory[OutPacket, Action]):
-    async def create(self, action: Action) -> OutPacket:
+class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):
+    async def create(self, action: ac.Action) -> OutPacket:
         return OutPacket(
             data=action.flatten(),
             action_type=action.type,
@@ -44,11 +40,11 @@ class OutputFactory(AbstractOutputFactory[OutPacket, Action]):
         )
 
 
-class EchoFactory(AbstractEchoFactory[EchoPacket, Echo]):
-    async def create(self, packet: EchoPacket) -> Echo | None:
+class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo]):
+    async def create(self, packet: EchoPacket) -> ec.Echo | None:
         if packet.noecho:
             return None
-        return Echo.resolve(action_type=packet.action_type, **packet.data)
+        return ec.Echo.resolve(action_type=packet.action_type, **packet.data)
 
 
 @singleton
@@ -58,14 +54,19 @@ class EchoRequireCtx(Context[bool]):
 
 
 class Adapter(
-    RootAdapter[EventFactory, OutputFactory, EchoFactory, Action, BaseIO, BaseIO]
+    RootAdapter[EventFactory, OutputFactory, EchoFactory, ac.Action, BaseIO, BaseIO]
 ):
     def __init__(self) -> None:
         super().__init__(
             PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory()
         )
 
-    async def call_output(self, action: Action) -> tuple[ActionHandle, ...]:
+    async def call_output(self, action: ac.Action) -> tuple[ActionHandle, ...]:
+        """输出行为的底层方法
+
+        :param action: 行为对象
+        :return: :class:`.ActionHandle` 元组
+        """
         if EchoRequireCtx().try_get():
             action.need_echo = True
         return await super().call_output(action)
@@ -179,7 +180,7 @@ class Adapter(
         return await self.send(se.contents_to_segs([mc.ResourceContent(name, url)])[0])
 
     async def send(
-        self, msgs: str | Segment | Iterable[Segment] | dict | Iterable[dict]
+        self, msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict]
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         event = try_get_event()
         if not isinstance(event, ev.MessageEvent):
@@ -193,7 +194,7 @@ class Adapter(
 
     async def send_custom(
         self,
-        msgs: str | Segment | Iterable[Segment] | dict | Iterable[dict],
+        msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict],
         user_id: Optional[int] = None,
         group_id: Optional[int] = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:

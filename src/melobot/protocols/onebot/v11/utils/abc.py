@@ -73,12 +73,7 @@ class CustomChecker(Checker):
 class WrappedChecker(Checker):
     """合并检查器
 
-    在两个 :class:`BotChecker` 对象间使用 | & ^ ~ 运算符即可返回合并检查器。
-
-    .. admonition:: 提示
-       :class: tip
-
-       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    在两个 :class:`Checker` 对象间使用 | & ^ ~ 运算符即可返回合并检查器。
     """
 
     def __init__(
@@ -147,12 +142,7 @@ class Matcher(BetterABC, Cloneable):
 class WrappedMatcher(Matcher):
     """合并匹配器
 
-    在两个 :class:`BotMatcher` 对象间使用 | & ^ ~ 运算符即可返回合并匹配器
-
-    .. admonition:: 提示
-       :class: tip
-
-       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
+    在两个 :class:`Matcher` 对象间使用 | & ^ ~ 运算符即可返回合并匹配器
     """
 
     def __init__(
@@ -184,6 +174,8 @@ class WrappedMatcher(Matcher):
 
 @dataclass
 class ParseArgs:
+    """解析参数"""
+
     vals: list[Any]
 
 
