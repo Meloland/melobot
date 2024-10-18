@@ -229,6 +229,17 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">OneBot 协议</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../ob_api/index.html">protocols.onebot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of protocols.onebot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.const.html">v11.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.adapter.html">v11.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.io.html">v11.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.handle.html">v11.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.utils.html">v11.utils</a></li>
+</ul>
+</li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../melobot-prev.html">melobot 历史版本</a></li>
@@ -280,7 +291,7 @@
 <div class="viewcode-block" id="send_text">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_text">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_text` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_text` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -296,7 +307,7 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_media` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_media` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -312,7 +323,7 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_image` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_image` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -328,7 +339,7 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_audio` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_audio` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -344,7 +355,7 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_voice` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_voice` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -360,7 +371,7 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_video` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_video` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -371,7 +382,7 @@
 <div class="viewcode-block" id="send_file">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_file">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_file` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_file` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -384,7 +395,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_refer</span><span class="p">(</span>
     <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_refer` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_refer` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -395,7 +406,7 @@
 <div class="viewcode-block" id="send_resource">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_resource">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_resource</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.Adapter.send_resource` 调用</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~.melobot.adapter.generic.send_resource` 调用</span>
 
 <span class="sd">    函数参数和返回值参考原方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>

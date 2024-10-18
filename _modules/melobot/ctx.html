@@ -229,6 +229,17 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">OneBot 协议</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ob_api/index.html">protocols.onebot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of protocols.onebot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../ob_api/v11.const.html">v11.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ob_api/v11.adapter.html">v11.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ob_api/v11.io.html">v11.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ob_api/v11.handle.html">v11.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ob_api/v11.utils.html">v11.utils</a></li>
+</ul>
+</li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../melobot-prev.html">melobot 历史版本</a></li>
@@ -279,7 +290,7 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.adapter.base</span> <span class="kn">import</span> <span class="n">Adapter</span>
-    <span class="kn">from</span> <span class="nn">.adapter.model</span> <span class="kn">import</span> <span class="n">Event</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">adapter</span>
     <span class="kn">from</span> <span class="nn">.bot.base</span> <span class="kn">import</span> <span class="n">Bot</span>
     <span class="kn">from</span> <span class="nn">.handle.process</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">FlowNode</span>
     <span class="kn">from</span> <span class="nn">.io.base</span> <span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">OutSourceT</span>
@@ -437,7 +448,7 @@
     <span class="n">stage</span><span class="p">:</span> <span class="n">FlowRecordStage</span>
     <span class="n">flow_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;Event&quot;</span>
+    <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;adapter.model.Event&quot;</span>
     <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
 
 
@@ -456,7 +467,7 @@
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">FlowStatus</span><span class="p">:</span>
-    <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;Event&quot;</span>
+    <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;adapter.model.Event&quot;</span>
     <span class="n">flow</span><span class="p">:</span> <span class="s2">&quot;Flow&quot;</span>
     <span class="n">node</span><span class="p">:</span> <span class="s2">&quot;FlowNode&quot;</span>
     <span class="n">next_valid</span><span class="p">:</span> <span class="nb">bool</span>
@@ -473,14 +484,14 @@
             <span class="s2">&quot;此时不在活动的事件处理流中，无法获取处理流信息&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Event&quot;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;adapter.model.Event&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">event</span>
 
-    <span class="k">def</span> <span class="nf">try_get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Event&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">try_get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;adapter.model.Event&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_get</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">status</span><span class="o">.</span><span class="n">event</span> <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">get_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Event&quot;</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;adapter.model.Event&quot;</span><span class="p">]:</span>
         <span class="kn">from</span> <span class="nn">.adapter.model</span> <span class="kn">import</span> <span class="n">Event</span>
 
         <span class="k">return</span> <span class="n">Event</span>

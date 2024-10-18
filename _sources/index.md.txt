@@ -9,6 +9,14 @@ api/index
 
 ```{toctree}
 :maxdepth: 2
+:caption: OneBot 协议
+:hidden:
+
+ob_api/index
+```
+
+```{toctree}
+:maxdepth: 2
 :caption: 更多
 :hidden:
 
