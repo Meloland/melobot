@@ -395,7 +395,7 @@
     <span class="n">text</span> <span class="o">=</span> <span class="n">msg_text</span><span class="p">()</span>  <span class="c1"># 等价于：msg_event().text</span>
 </pre></div>
 </div>
-<p>如果要获取多媒体内容，例如图片、表情等，可以使用 <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_segments()</span></code> 方法获得多媒体内容对应的<strong>消息段对象列表</strong>。</p>
+<p>如果要获取多媒体内容，例如图片、表情等，可以使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_segments" title="melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_segments"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_segments()</span></code></a> 方法获得多媒体内容对应的<strong>消息段对象列表</strong>。</p>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
 <p>如果你不知道，消息段对象是消息内容的表示方式之一，建议先浏览：<a class="reference internal" href="../references/msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a></p>
@@ -424,7 +424,7 @@
 <p>所有媒体内容对应的消息段表示：<a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/message/segment.md">OneBot 消息段</a></p>
 <p>此链接也包含了每种消息段的 type 标识，及 data 字段拥有的参数。</p>
 </div>
-<p>如果只需要 data 字段的某一参数，使用 <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_datas()</span></code> 即可：</p>
+<p>如果只需要 data 字段的某一参数，使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_datas" title="melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_datas"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_datas()</span></code></a> 即可：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
     <span class="c1"># 获取当前这条消息，所有图片的 url</span>
