@@ -3,8 +3,8 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" />
-        <link rel="canonical" href="/melobot/references/msg.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="OneBot 事件预处理" href="preprocess.html" /><link rel="prev" title="OneBot 消息内容的数据结构" href="msg.html" />
+        <link rel="canonical" href="/melobot/ob_refer/forward-msg.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>消息内容的数据结构 - melobot 3.0.0rc7</title>
+        <title>OneBot 转发消息与消息结点 - melobot 3.0.0rc8</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc7</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc8</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc7</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc8</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -211,8 +211,32 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+  <p class="caption" role="heading"><span class="caption-text">起步</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action-resp.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">相关知识</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">OneBot 相关</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of OneBot 相关</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="impl.html">OneBot 协议实现端类型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-action.html">OneBot 事件、行为和回应</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msg.html">OneBot 消息内容的数据结构</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">OneBot 转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocess.html">OneBot 事件预处理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of melobot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.plugin.html">melobot.plugin</a></li>
@@ -229,10 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">OneBot 协议</span></p>
-<ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of protocols.onebot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
@@ -264,12 +285,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/references/msg.md.txt" title="View this page">
+  <a class="muted-link" href="../_sources/ob_refer/forward-msg.md.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/references/msg.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/ob_refer/forward-msg.md" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -288,171 +309,166 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="id1">
-<h1>消息内容的数据结构<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
-<p>消息内容，由于有文本、语音、图片等多种类型，因此需要特定的数据结构来表示。在 OneBot 标准中，主要有两种格式，来表示消息内容的数据结构：字符串（string）和数组（array）。</p>
-<p>在 melobot 中，你不需要手动处理消息内容的数据结构，<strong>但是了解消息内容的数据结构，有助于你使用 melobot 提供的相关方法</strong>。</p>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>本页以下部分为保证阅读流畅性，直接复制了来源于 <a class="reference external" href="https://github.com/botuniverse/onebot-11">OneBot 标准</a>的一些内容。</p>
+          <section id="onebot">
+<h1>OneBot 转发消息与消息结点<a class="headerlink" href="#onebot" title="Link to this heading">¶</a></h1>
+<p>在前一部分 <a class="reference internal" href="msg.html"><span class="doc std std-doc">OneBot 消息内容的数据结构</span></a> 中我们说明了 OneBot 标准是如何表示<strong>单条 qq 消息中</strong>可能存在的多种类型的内容的（如文本、语音或图片），主要是通过 <strong>CQ 字符串</strong>或<strong>消息段数组</strong>的形式。</p>
+<p>但是如果是转发消息这种包含<strong>多条消息</strong>的消息，要如何表示呢？这个时候就需要<strong>转发消息段或消息结点</strong>了。</p>
+<p>在 melobot 中，你不需要手动处理“转发消息段”、“消息结点”的数据结构。<strong>虽然无需手动处理，但是了解这些数据结构，有助于你使用 melobot 提供的相关方法</strong>。</p>
+<section id="id1">
+<h2>转发消息段<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>每一条已存在的转发消息，都对应一个唯一的转发 id。使用转发 id 就可以表示<strong>一条已存在的转发消息</strong>。</p>
+<p>两种格式的表示方法：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;forward&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxxxxxxxx&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">forward</span><span class="p">,</span><span class="nb">id</span><span class="o">=</span><span class="n">xxxxxxxxx</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>收</p></th>
+<th class="head"><p>发</p></th>
+<th class="head"><p>可能的值</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+<td><p>-</p></td>
+<td><p>转发 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="id2">
-<h2>字符串格式<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>在字符串格式中，无论纯文本还是图片、表情、链接分享等多媒体内容都放在同一个字符串里，即，一条消息对应一个字符串。以下是一个字符串格式消息的例子：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">face</span><span class="p">,</span><span class="nb">id</span><span class="o">=</span><span class="mi">178</span><span class="p">]</span><span class="n">看看我刚拍的照片</span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">image</span><span class="p">,</span><span class="n">file</span><span class="o">=</span><span class="mf">123.</span><span class="n">jpg</span><span class="p">]</span>
-</pre></div>
+<h2>消息结点<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>在 OneBot 标准和其他一些文档中，习惯说“消息节点”，这与本文档中的“消息结点”完全是同一概念。</p>
 </div>
-<section id="cq">
-<h3>CQ 码格式<a class="headerlink" href="#cq" title="Link to this heading">¶</a></h3>
-<p>消息中的多媒体内容使用 CQ 码来表示，形如 <code class="docutils literal notranslate"><span class="pre">[CQ:face,id=178]</span></code>。其中，<code class="docutils literal notranslate"><span class="pre">[CQ:]</span></code> 是固定格式；<code class="docutils literal notranslate"><span class="pre">face</span></code> 是「功能名」，除了 <code class="docutils literal notranslate"><span class="pre">face</span></code> 还有许多不同的功能名；<code class="docutils literal notranslate"><span class="pre">id=178</span></code> 是「参数」，某些功能不需要参数，而另一些需要多个参数，当有多个参数时，参数间使用逗号分隔。</p>
-<p>一些 CQ 码的例子如下：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">shake</span><span class="p">]</span>
-<span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">face</span><span class="p">,</span><span class="nb">id</span><span class="o">=</span><span class="mi">178</span><span class="p">]</span>
-<span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">share</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="n">标题</span><span class="p">,</span><span class="n">url</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">baidu</span><span class="o">.</span><span class="n">com</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>更多 CQ 码功能请参考 <a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/message/segment.md">消息段类型</a>。</p>
-<div class="caution admonition">
-<p class="admonition-title">注意</p>
-<p>CQ 码中不应有多余的空格，例如不应该使用 <code class="docutils literal notranslate"><span class="pre">[CQ:face,</span> <span class="pre">id=178]</span></code>。</p>
-<p>CQ 码的参数值可以包含空格、换行、除 <code class="docutils literal notranslate"><span class="pre">[],&amp;</span></code> 之外的特殊符号等。在解析时，应直接取 <code class="docutils literal notranslate"><span class="pre">[CQ:</span></code> 后、第一个 <code class="docutils literal notranslate"><span class="pre">,</span></code> 或 <code class="docutils literal notranslate"><span class="pre">]</span></code> 前的部分为功能名，第一个 <code class="docutils literal notranslate"><span class="pre">,</span></code> 之后到 <code class="docutils literal notranslate"><span class="pre">]</span></code> 之间的部分为参数，按 <code class="docutils literal notranslate"><span class="pre">,</span></code> 分割后，每个部分第一个 <code class="docutils literal notranslate"><span class="pre">=</span></code> 前的内容为参数名，之后的部分为参数值。例如 <code class="docutils literal notranslate"><span class="pre">[CQ:share,title=标题中有=等号,url=http://baidu.com]</span></code> 中，功能名为 <code class="docutils literal notranslate"><span class="pre">share</span></code>，<code class="docutils literal notranslate"><span class="pre">title</span></code> 参数值为 <code class="docutils literal notranslate"><span class="pre">标题中有=等号</span></code>，<code class="docutils literal notranslate"><span class="pre">url</span></code> 参数值为 <code class="docutils literal notranslate"><span class="pre">http://baidu.com</span></code>。</p>
-</div>
-</section>
+<p>除了使用转发 ID 表示已存在的转发消息，我们也可以通过<strong>已存在的单条消息</strong>或<strong>一条新消息</strong>来构造<strong>一条过去不存在的转发消息（新转发消息）</strong>。</p>
+<p>此时，<strong>已存在的单条消息</strong>、<strong>一条新消息</strong>都需要用“消息结点”来表示。而消息结点的数组，自然也就可以表示整条“新转发消息”了。消息结点有两种：</p>
+<ul class="simple">
+<li><p>合并转发结点（对应“已存在的单条消息”，需要消息 ID 来标识）</p></li>
+<li><p>合并转发自定义结点（对应“一条新消息”，这条消息之前完全不存在）</p></li>
+</ul>
 <section id="id3">
-<h3>CQ 码转义<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
-<p>CQ 码中包含一些特殊字符：<code class="docutils literal notranslate"><span class="pre">[</span></code>、<code class="docutils literal notranslate"><span class="pre">]</span></code>、<code class="docutils literal notranslate"><span class="pre">,</span></code> 等，而 CQ 码又是可能混杂在纯文本内容之中的，因此消息中的纯文本内容需要对特殊字符进行转义，以避免歧义。具体的转义规则如下：</p>
+<h3>合并转发结点<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>两种格式的表示方法：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123456&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">node</span><span class="p">,</span><span class="nb">id</span><span class="o">=</span><span class="mi">123456</span><span class="p">]</span>
+</pre></div>
+</div>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>转义前</p></th>
-<th class="head"><p>转义后</p></th>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>收</p></th>
+<th class="head"><p>发</p></th>
+<th class="head"><p>可能的值</p></th>
+<th class="head"><p>说明</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&amp;</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&amp;amp;</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&amp;#91;</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">]</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&amp;#93;</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p></p></td>
+<td><p>✓</p></td>
+<td><p>-</p></td>
+<td><p>转发的消息 ID</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>例如，一个纯文本消息转义前内容如下：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>- [x] 使用 `&amp;data` 获取地址
-</pre></div>
-</div>
-<p>转义后如下：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="o">&amp;</span><span class="c1">#91;x&amp;#93; 使用 `&amp;amp;data` 获取地址</span>
-</pre></div>
-</div>
-<p>另一方面，CQ 码内部的参数值也可能出现特殊字符，也是需要转义的。由于 <code class="docutils literal notranslate"><span class="pre">,</span></code>（半角逗号）在 CQ 码中用于分隔参数，因此除了上面的转义规则，还需要对 <code class="docutils literal notranslate"><span class="pre">,</span></code> 进行转义，如下：</p>
-<div class="table-wrapper colwidths-auto docutils container">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>转义前</p></th>
-<th class="head"><p>转义后</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&amp;</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&amp;amp;</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&amp;#91;</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">]</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&amp;#93;</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">,</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&amp;#44;</span></code></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>例如，一个链接分享消息的 CQ 码可能如下：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">share</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="n">震惊</span><span class="o">&amp;</span><span class="c1">#44;小伙睡觉前居然...,url=http://baidu.com/?a=1&amp;amp;b=2]</span>
-</pre></div>
-</div>
-</section>
+<p>消息 ID 在 melobot 中可通过消息事件的 <code class="xref py py-attr docutils literal notranslate"><span class="pre">id</span></code> 属性获得。</p>
 </section>
 <section id="id4">
-<h2>数组格式<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p>数组格式将消息表示为一系列消息段对象的数组，在基本语义上与字符串格式等价，可以相互转换，但数组格式的表达能力更强，例如可以嵌套、规定参数数据类型等。</p>
-<section id="id5">
-<h3>消息段<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
-<p>在字符串格式中，使用 CQ 码表示多媒体内容，例如 <code class="docutils literal notranslate"><span class="pre">[CQ:image,file=123.jpg]</span></code>，这里 CQ 码功能名为 <code class="docutils literal notranslate"><span class="pre">image</span></code>，参数为 <code class="docutils literal notranslate"><span class="pre">file=123.jpg</span></code>，也即一个键值对。</p>
-<p>消息段是 CQ 码在数组格式中的表示形式，基本格式如下：</p>
+<h3>合并转发自定义结点<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>合并转发自定义结点的 <code class="docutils literal notranslate"><span class="pre">content</span></code> 字段，可以是“CQ字符串”或“消息段数组”。</p>
+</div>
+<p>例子 1：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;image&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123.jpg&quot;</span>
+<span class="w">        </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10001000&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;nickname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;某人&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[CQ:face,id=123]哈喽～&quot;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>其中 <code class="docutils literal notranslate"><span class="pre">type</span></code> 字段的类型为字符串，对应 CQ 码中的「功能名」；<code class="docutils literal notranslate"><span class="pre">data</span></code> 字段的类型为对象，对应 CQ 码的「参数」，此字段可为 null。<strong>目前，除了合并转发相关的特殊消息段外，几乎所有消息段参数值类型均为字符串，以支持与 CQ 码的相互转换</strong>。</p>
-<p><strong>由于消息段不会将纯文本和多媒体内容放在一起，也就意味着任意一个字段的值都是真实值，而不再需要转义。</strong></p>
-<p>为了使用消息段表示纯文本，引入一个特殊消息段类型 <code class="docutils literal notranslate"><span class="pre">text</span></code>，并在 <code class="docutils literal notranslate"><span class="pre">data</span></code> 中使用 <code class="docutils literal notranslate"><span class="pre">text</span></code> 字段来指示纯文本内容，例如：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">CQ</span><span class="p">:</span><span class="n">node</span><span class="p">,</span><span class="n">user_id</span><span class="o">=</span><span class="mi">10001000</span><span class="p">,</span><span class="n">nickname</span><span class="o">=</span><span class="n">某人</span><span class="p">,</span><span class="n">content</span><span class="o">=&amp;</span><span class="c1">#91;CQ:face&amp;#44;id=123&amp;#93;哈喽～]</span>
+</pre></div>
+</div>
+<p>例子 2：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;这是一段纯文本&quot;</span>
+<span class="w">        </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10001000&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;nickname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;某人&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;face&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">}},</span>
+<span class="w">            </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;哈喽～&quot;</span><span class="p">}}</span>
+<span class="w">        </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>在将上面的消息段转成 CQ 码时，将会直接变成纯文本字符串，而不是真的转成 CQ 码。</p>
-<p>更多消息段类型请参考 <a class="reference external" href="https://github.com/botuniverse/onebot-11/blob/master/message/segment.md">消息段类型</a>。</p>
-</section>
-<section id="id6">
-<h3>消息段数组<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
-<p>了解了消息段概念之后，就不难理解消息的数组格式了，即消息段组成的数组。</p>
-<p>例如，字符串格式下的这样一条消息：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&amp;</span><span class="c1">#91;第一部分&amp;#93;[CQ:image,file=123.jpg]图片之后的部分，表情：[CQ:face,id=123]</span>
-</pre></div>
-</div>
-<p>表示成数组格式即为：</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[第一部分]&quot;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;image&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123.jpg&quot;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;图片之后的部分，表情：&quot;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;face&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">]</span>
-</pre></div>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>收</p></th>
+<th class="head"><p>发</p></th>
+<th class="head"><p>可能的值</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">user_id</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+<td><p>-</p></td>
+<td><p>发送者 QQ 号</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nickname</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+<td><p>-</p></td>
+<td><p>发送者昵称</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">content</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+<td><p>-</p></td>
+<td><p>消息内容，即上一章所述的<a class="reference internal" href="msg.html"><span class="doc std std-doc">单条消息内容</span></a></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
 </section>
 <section id="melobot">
 <h2>melobot 中的表示<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h2>
-<p>在 melobot 中：</p>
-<ul class="simple">
-<li><p>CQ 字符串使用字符串类型 <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> 表示</p></li>
-<li><p>消息段对象，使用类型注解为 <code class="xref py py-class docutils literal notranslate"><span class="pre">MsgSegment</span></code> 的字典表示</p></li>
-</ul>
+<p>在 melobot 中，转发消息段、消息结点都属于消息段的类别。</p>
 </section>
 </section>
 
@@ -461,8 +477,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="preprocess.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">OneBot 事件预处理</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="msg.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">OneBot 消息内容的数据结构</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -500,15 +534,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">消息内容的数据结构</a><ul>
-<li><a class="reference internal" href="#id2">字符串格式</a><ul>
-<li><a class="reference internal" href="#cq">CQ 码格式</a></li>
-<li><a class="reference internal" href="#id3">CQ 码转义</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id4">数组格式</a><ul>
-<li><a class="reference internal" href="#id5">消息段</a></li>
-<li><a class="reference internal" href="#id6">消息段数组</a></li>
+<li><a class="reference internal" href="#">OneBot 转发消息与消息结点</a><ul>
+<li><a class="reference internal" href="#id1">转发消息段</a></li>
+<li><a class="reference internal" href="#id2">消息结点</a><ul>
+<li><a class="reference internal" href="#id3">合并转发结点</a></li>
+<li><a class="reference internal" href="#id4">合并转发自定义结点</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#melobot">melobot 中的表示</a></li>
@@ -523,7 +553,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=216f0229"></script>
+</div><script src="../_static/documentation_options.js?v=cb0c56bf"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

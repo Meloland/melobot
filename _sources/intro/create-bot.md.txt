@@ -2,22 +2,24 @@
 
 ## 预先配置
 
-melobot 目前是基于 OneBot 协议的 bot 开发框架，因此 melobot 需要一个“OneBot 实现程序”作为“前端”，
-完成与 qq 服务器的通信过程。请自行配置 OneBot 协议实现。
+我们先从最简单的 OneBot 协议开始学习如何搭建一个机器人，并以此学习 melobot 的基本特性。
+
+首先需要一个“OneBot 实现程序”作为“前端”，完成与 qq 服务器的通信过程。请自行配置 OneBot 协议实现。
 
 ```{admonition} 相关知识
 :class: note
-[什么是 OneBot 协议和 OneBot 实现？](../references/onebot)
+[什么是 OneBot 协议和 OneBot 实现？](../ob_refer/onebot)
 ```
 
 ## 一个小 demo
 
-先来运行一段 demo 代码：（不要害怕，稍后我们会讲解其中的细节）
+先来运行一段 demo 代码：（稍后我们会讲解其中的细节）
 
 ```{code} python
 :number-lines:
 
-from melobot import MeloBot, BotPlugin, send, ForwardWsConn
+from melobot import Bot, Plugin, send_text
+from melobot.protocols.onebot.v11 import ForwardWebsocketIO
 
 plugin = BotPlugin(__name__, "1.0.0")
 
@@ -56,7 +58,7 @@ async def echo() -> None:
 
 ```{admonition} 相关知识
 :class: note
-[什么是事件和行为？](../references/event-action)
+[什么是事件和行为？](../ob_refer/event-action)
 ```
 
 插件初始化好了、事件处理方法也添加好了。但是还需要一个具体的 bot 去加载这个插件，否则它无法生效。但是我们连 bot 都还没有，所以先通过 {class}`.MeloBot` 类创建一个 bot：
@@ -75,7 +77,7 @@ bot.init(ForwardWsConn("127.0.0.1", 8080))
 
 ```{admonition} 相关知识
 :class: note
-更多连接器类型，请参考：[连接器类型](../references/connector)
+更多连接器类型，请参考：[连接器类型](../ob_refer/connector)
 ```
 
 最后加载插件到 bot，启动 bot 就可以了：

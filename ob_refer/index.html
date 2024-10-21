@@ -3,8 +3,8 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" />
-        <link rel="canonical" href="/melobot/references/preprocess.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="OneBot 协议和实现" href="onebot.html" /><link rel="prev" title="事件预处理" href="../intro/event-preprocess.html" />
+        <link rel="canonical" href="/melobot/ob_refer/index.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>事件预处理 - melobot 3.0.0rc7</title>
+        <title>OneBot 相关 - melobot 3.0.0rc8</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc7</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc8</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc7</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc8</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -211,8 +211,32 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of melobot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+  <p class="caption" role="heading"><span class="caption-text">起步</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">事件与事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action-resp.html">其他行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">事件预处理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">相关知识</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">OneBot 相关</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of OneBot 相关</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="impl.html">OneBot 协议实现端类型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-action.html">OneBot 事件、行为和回应</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msg.html">OneBot 消息内容的数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forward-msg.html">OneBot 转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocess.html">OneBot 事件预处理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of melobot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.plugin.html">melobot.plugin</a></li>
@@ -229,10 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">OneBot 协议</span></p>
-<ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API 参考</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of protocols.onebot API 参考</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
@@ -264,12 +285,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/references/preprocess.md.txt" title="View this page">
+  <a class="muted-link" href="../_sources/ob_refer/index.md.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/references/preprocess.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/ob_refer/index.md" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -282,37 +303,26 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="id1">
-<h1>事件预处理<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
-<section id="id2">
-<h2>预处理简介<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>所有事件都有预处理过程。预处理在事件处理函数执行前发生。预处理是否成功，将会决定后续的事件处理是否可以进行。预处理失败，将不会再进行事件处理；反之则可以进行事件处理。</p>
-<p>每一个事件处理方法，都有<strong>独立的预处理过程</strong>。用户如果不指定预处理规则，事件绑定方法将会为事件处理方法<strong>自动应用默认的预处理规则</strong>。</p>
-</section>
-<section id="id3">
-<h2>预处理流程<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<div class="note admonition">
-<p class="admonition-title">相关知识</p>
-<p>预处理流程由一个或多个环节组成。</p>
-<p>任一环节没有规则，此环节直接通过。但任一环节不通过，预处理直接失败。所有环节通过，预处理才通过。</p>
+          <section id="onebot">
+<h1>OneBot 相关<a class="headerlink" href="#onebot" title="Link to this heading">¶</a></h1>
+<p>本章节主要包含对 OneBot 标准各种概念、术语的解释，以及在 melobot 中的支持细节。</p>
+<p><strong>建议按顺序阅读</strong>，这样不会“突然出现”没有解释过的概念。</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="impl.html">OneBot 协议实现端类型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event-action.html">OneBot 事件、行为和回应</a></li>
+<li class="toctree-l1"><a class="reference internal" href="msg.html">OneBot 消息内容的数据结构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forward-msg.html">OneBot 转发消息与消息结点</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">OneBot 事件预处理</a></li>
+</ul>
 </div>
-<p>对于消息事件，它的预处理环节有两个，按顺序分别是：<code class="docutils literal notranslate"><span class="pre">匹配或解析</span></code>、<code class="docutils literal notranslate"><span class="pre">检查</span></code>：</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">匹配</span></code>：对消息中的纯文本内容进行匹配（和 <code class="docutils literal notranslate"><span class="pre">解析</span></code> 二选一）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">解析</span></code>：对消息中的纯文本内容进行参数解析（和 <code class="docutils literal notranslate"><span class="pre">匹配</span></code> 二选一）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">检查</span></code>：对消息事件进行检查</p></li>
-</ul>
-<p>消息事件外的其他事件类型，预处理环节只有一个：<code class="docutils literal notranslate"><span class="pre">检查</span></code>：</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">检查</span></code>：对事件进行检查</p></li>
-</ul>
-</section>
 </section>
 
         </article>
@@ -320,8 +330,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="onebot.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">OneBot 协议和实现</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../intro/event-preprocess.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">事件预处理</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -347,33 +375,13 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">事件预处理</a><ul>
-<li><a class="reference internal" href="#id2">预处理简介</a></li>
-<li><a class="reference internal" href="#id3">预处理流程</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=216f0229"></script>
+</div><script src="../_static/documentation_options.js?v=cb0c56bf"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -2,7 +2,7 @@
 
 ```{admonition} 相关知识
 :class: note
-如果你不知道什么是“行为”和“行为操作”，建议先浏览：[行为的相关知识](../references/event-action)
+如果你不知道什么是“行为”和“行为操作”，建议先浏览：[行为的相关知识](../ob_refer/event-action)
 ```
 
 其他行为操作都由对应的行为操作函数产生。关于这些函数和它们的参数，参考：[行为操作函数](action-operations)

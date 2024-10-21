@@ -1,4 +1,4 @@
-melobot API 参考
+melobot API
 ================
 
 .. admonition:: 提示
