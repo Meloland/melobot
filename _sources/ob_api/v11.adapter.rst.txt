@@ -3,6 +3,8 @@
 v11.adapter
 ===========
 
+.. _onebot_v11_adapter:
+
 v11 适配器
 ------------
 
@@ -14,6 +16,8 @@ v11 适配器
     :no-show-inheritance:
 
     基类：:class:`.Context`\[:py:data:`bool`\]
+
+.. _onebot_v11_event:
 
 v11 事件
 --------------
@@ -102,6 +106,8 @@ v11 事件
 .. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent
     :exclude-members: Model, __init__, resolve
 
+.. _onebot_v11_segment:
+
 v11 消息段
 ----------------
 
@@ -117,112 +123,114 @@ v11 消息段
     assert seg.data['text'] == '<whatever>'
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.Segment
-    :exclude-members: Model, __init__
+    :exclude-members: Model
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.TextSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.FaceSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ImageSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment
     :exclude-members: Model, __init__, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RecordSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RecordSendSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RecordRecvSegment
     :exclude-members: Model, __init__, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.VideoSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.VideoSendSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.VideoRecvSegment
     :exclude-members: Model, __init__, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.AtSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RpsSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.DiceSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ShakeSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.PokeSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.PokeSendSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.PokeRecvSegment
     :exclude-members: Model, __init__, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.AnonymousSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ShareSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ContactSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ContactFriendSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ContactGroupSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.LocationSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.MusicSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.MusicPlatformSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.MusicCustomSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ReplySegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ForwardSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeSegment
-    :exclude-members: Model, __init__, resolve, to_dict
+    :exclude-members: Model, resolve, to_dict
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeReferSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeStdCustomSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeGocqCustomSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.XmlSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.segment.JsonSegment
-    :exclude-members: Model, __init__, resolve
+    :exclude-members: Model, resolve
+
+.. _onebot_v11_action:
 
 v11 行为（动作）
 ---------------------
@@ -234,6 +242,7 @@ v11 行为（动作）
 .. automodule:: melobot.protocols.onebot.v11.adapter.action
     :exclude-members: msgs_to_dicts
 
+.. _onebot_v11_echo:
 
 v11 回应
 ---------------

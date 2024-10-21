@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="其他行为操作" href="action-resp.html" /><link rel="prev" title="事件与事件处理" href="event-process.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="OneBot 行为操作" href="action-echo.html" /><link rel="prev" title="OneBot 事件处理" href="event-process.html" />
         <link rel="canonical" href="/melobot/intro/msg-action.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>消息操作 - melobot 3.0.0rc8</title>
+        <title>OneBot 消息操作 - melobot 3.0.0rc9</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc8</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc8</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc9</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -215,10 +215,10 @@
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始使用</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="create-bot.html">开始创建机器人</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-process.html">事件与事件处理</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">消息操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="action-resp.html">其他行为操作</a></li>
-<li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-process.html">OneBot 事件处理</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">OneBot 消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action-echo.html">OneBot 行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">OneBot 事件预处理</a></li>
 </ul>
 </li>
 </ul>
@@ -309,57 +309,81 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="id1">
-<h1>消息操作<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+          <section id="onebot">
+<h1>OneBot 消息操作<a class="headerlink" href="#onebot" title="Link to this heading">¶</a></h1>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
-<p>如果你不知道什么是“行为”和“行为操作”，建议先浏览：<a class="reference internal" href="../ob_refer/event-action.html"><span class="doc std std-doc">行为的相关知识</span></a></p>
+<p>如果你不知道什么是 OneBot “行为”和“行为操作”，建议先浏览：<a class="reference internal" href="../ob_refer/event-action.html"><span class="doc std std-doc">行为的相关知识</span></a></p>
 </div>
 <p>消息操作作为 melobot 中最主要的行为操作，十分常用。</p>
-<section id="id2">
-<h2>单条消息的构造<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<div class="note admonition">
-<p class="admonition-title">相关知识</p>
-<p>如果你不知道单条消息的表示方式，有“cq 字符串”和“消息段”两种格式，建议先浏览：<a class="reference internal" href="../ob_refer/msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a></p>
-</div>
-<p>一般来说，发送纯文本内容是最普遍的，方法也十分简单：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send</span>
+<section id="id1">
+<h2>单条消息的构造<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>一般来说，发送纯文本内容是最普遍的，可以直接使用 melobot 的通用文本输出接口：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot</span> <span class="kn">import</span> <span class="n">send_text</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span>
 
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;你好啊&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;你好啊&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>如果要发送多媒体内容，首先要通过各自的消息段构造函数构造<strong>消息段对象</strong>，然后直接传入 <code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 作为参数。</p>
-<p>例如使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">image_msg()</span></code> 构造图片内容：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">image_msg</span>
+<p>也可以使用具体协议的适配器的接口：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
 
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;你好啊&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如果要发送多媒体内容，则只能使用适配器的 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 接口。首先构造<strong>消息段对象</strong>，然后传入 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 作为参数。例如：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">ImageSegment</span>
+
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
     <span class="c1"># 构造一个“图片”消息段，然后发送</span>
-    <span class="n">img</span> <span class="o">=</span> <span class="n">image_msg</span><span class="p">(</span><span class="s2">&quot;https://www.glowmem.com/static/avatar.jpg&quot;</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">ImageSegment</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;https://www.glowmem.com/static/avatar.jpg&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>其他消息段构造函数，及这些函数的参数，参考：<a class="reference internal" href="#msg-build"><span class="xref myst">消息段构造函数</span></a></p>
-<p>单条消息中，自然可能有多种类型的消息段同时存在。此时这样处理：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">text_msg</span><span class="p">,</span> <span class="n">image_msg</span>
+<p>或者传递原始的 OneBot v11 消息段字典：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
 
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
+    <span class="c1"># 构造一个“图片”消息段字典，然后发送</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.glowmem.com/static/avatar.jpg&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>其他消息段参考：<a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-segment"><span class="std std-ref">消息段对象</span></a></p>
+<p>单条消息中，自然可能有多种类型的消息段同时存在。此时这样处理：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">ImageSegment</span><span class="p">,</span> <span class="n">TextSegment</span>
+
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
     <span class="c1"># 例如文本和图片同时存在：</span>
     <span class="k">await</span> <span class="n">send</span><span class="p">([</span>
-        <span class="n">text_msg</span><span class="p">(</span><span class="s2">&quot;给你分享一张图片哦，这是 melobot 项目作者的头像&quot;</span><span class="p">),</span>
-        <span class="n">image_msg</span><span class="p">(</span><span class="s2">&quot;https://www.glowmem.com/static/avatar.jpg&quot;</span><span class="p">)</span>
+        <span class="n">TextSegment</span><span class="p">(</span><span class="s2">&quot;给你分享一张图片哦，这是 melobot 项目作者的头像&quot;</span><span class="p">),</span>
+        <span class="n">ImageSegment</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;https://www.glowmem.com/static/avatar.jpg&quot;</span><span class="p">)</span>
     <span class="p">])</span>
 </pre></div>
 </div>
 </section>
+<section id="id2">
+<h2>消息段的继承关系<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>在文档中，你会发现诸如 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSegment</span></code></a> 这样的类型，还会存在子类（<a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSendSegment</span></code></a> 和 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageRecvSegment</span></code></a>）。这是为了提供更加精准的类型注解而产生的。所有这些类型只要有 <code class="docutils literal notranslate"><span class="pre">__init__</span></code> 方法，即可手动实例化并使用。</p>
+</section>
 <section id="id3">
 <h2>自定义消息段的构造<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>一般来说，melobot 自带的消息段构造函数已足够使用。但是某些 OneBot 实现程序，可能会支持自定义的消息段，<strong>这些自定义消息段，是 OneBot 标准中没有的</strong>。</p>
-<p>这时你可以使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">custom_type_msg()</span></code> 来构造这些<strong>自定义消息段</strong>。</p>
-<p>例如在知名 OneBot 实现项目 <a class="reference external" href="https://github.com/whitechi73/OpenShamrock">OpenShamrock</a> 中，存在一种自定义的消息段 <a class="reference external" href="https://whitechi73.github.io/OpenShamrock/message/special.html#%E6%88%B3%E4%B8%80%E6%88%B3-%E5%8F%8C%E5%87%BB%E5%A4%B4%E5%83%8F">touch 消息</a>（戳一戳，双击头像）。对应的消息段数据结构如下：</p>
+<p>通过 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment" title="melobot.protocols.onebot.v11.adapter.segment.Segment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Segment</span></code></a> 创建<strong>自定义消息段</strong>。</p>
+<p>例如在某些 OneBot 实现端项目，存在一种自定义的消息段：touch 消息（戳一戳，双击头像）。对应的消息段数据结构如下：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;touch&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -369,123 +393,51 @@
 </pre></div>
 </div>
 <p>如何让 melobot 发送这种自定义的消息段？非常简单：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">custom_type_msg</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
+<span class="c1"># 临时构造自定义消息段</span>
+<span class="n">seg</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;touch&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1574260633&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>或者构造一种新的消息段类型：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypedDict</span>
 
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="n">touch</span> <span class="o">=</span> <span class="n">custom_type_msg</span><span class="p">(</span><span class="s2">&quot;touch&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1574260633&quot;</span><span class="p">})</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">_TouchData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
 
-<span class="c1"># 或者再自行封装一下 :)</span>
-<span class="k">def</span> <span class="nf">touch_msg</span><span class="p">(</span><span class="n">uid</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">custom_type_msg</span><span class="p">(</span><span class="s2">&quot;touch&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">)})</span>
-
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">touch_msg</span><span class="p">(</span><span class="mi">1574260633</span><span class="p">))</span>
+<span class="c1"># 返回新类型 TouchSegment</span>
+<span class="c1"># 后续的事件中，会自动将对应消息段初始化为 TouchSegment 类型</span>
+<span class="n">TouchSegment</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">add_type</span><span class="p">(</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;toch&#39;</span><span class="p">],</span> <span class="n">_TouchData</span><span class="p">)</span>
+<span class="c1"># 使用新的消息段类型来构造：</span>
+<span class="n">seg</span> <span class="o">=</span> <span class="n">TouchSegment</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1574260633&quot;</span><span class="p">})</span>
 </pre></div>
 </div>
 </section>
 <section id="id4">
 <h2>单条消息的其他发送方法<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 可根据当前触发事件，自动定位向何处发送消息。如果想要自定义发送目标，也很容易。只需要将<code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 换成 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom()</span></code> 即可，它的第一参数与 <code class="xref py py-func docutils literal notranslate"><span class="pre">send()</span></code> 完全相同。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_custom</span>
+<p><a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 可根据当前触发事件，自动定位向何处发送消息。如果想要自定义发送目标，也很容易。只需要将 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 换成 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_custom" title="melobot.protocols.onebot.v11.Adapter.send_custom"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_custom()</span></code></a> 即可，它的第一参数与 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_custom" title="melobot.protocols.onebot.v11.Adapter.send_custom"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_custom()</span></code></a> 完全相同。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
 
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="c1"># 发送一个自定义目标的私聊消息，userId 为 qq 号</span>
-    <span class="k">await</span> <span class="n">send_custom</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">isPrivate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">userId</span><span class="o">=</span><span class="mi">1574260633</span><span class="p">)</span>
-    <span class="c1"># 发送一个自定义目标的群聊消息，groupId 为群号</span>
-    <span class="k">await</span> <span class="n">send_custom</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">isPrivate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">groupId</span><span class="o">=</span><span class="mi">535705163</span><span class="p">)</span>
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
+    <span class="c1"># 发送一个自定义目标的私聊消息，user_id 为 qq 号</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send_custom</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="mi">1574260633</span><span class="p">)</span>
+    <span class="c1"># 发送一个自定义目标的群聊消息，group_id 为群号</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send_custom</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="mi">535705163</span><span class="p">)</span>
 </pre></div>
-</div>
-<p>如果要回复消息事件对应的那条消息，按照之前学到的，应该这样做：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">reply_msg</span><span class="p">,</span> <span class="n">text_msg</span>
-
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">e</span> <span class="o">=</span> <span class="n">msg_event</span><span class="p">()):</span>
-    <span class="c1"># reply_msg 是消息段构造函数之一，用于构造回复消息段</span>
-    <span class="c1"># 消息事件的 id 属性值存储消息的 id</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">([</span><span class="n">reply_msg</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">text_msg</span><span class="p">(</span><span class="s2">&quot;你好哇&quot;</span><span class="p">)])</span>
-</pre></div>
-</div>
-<p>这是十分繁琐的，但是“发送回复消息”这一行为也很普遍。使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_reply()</span></code> 简化：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_reply</span>
-
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="c1"># send_reply 第一参数与 send 完全相同</span>
-    <span class="k">await</span> <span class="n">send_reply</span><span class="p">(</span><span class="s2">&quot;你好哇&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>想要提前结束事件处理方法，一般会用 <code class="docutils literal notranslate"><span class="pre">return</span></code>：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">e</span> <span class="o">=</span> <span class="n">msg_event</span><span class="p">()):</span>
-    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="mi">1574260633</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;你好~ 你不是我的主人哦&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
-    <span class="c1"># 接下来是机器人主人的处理逻辑</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;主人好&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>用 <code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 可以把 <code class="docutils literal notranslate"><span class="pre">return</span></code> 简化掉：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">finish</span>
-
-<span class="c1"># 刚才的代码，使用 finish 优化后</span>
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">e</span> <span class="o">=</span> <span class="n">msg_event</span><span class="p">()):</span>
-    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="mi">1574260633</span><span class="p">:</span>
-        <span class="c1"># finish 运行完就返回啦，不需要显式 return</span>
-        <span class="k">await</span> <span class="n">finish</span><span class="p">(</span><span class="s2">&quot;你好~ 你不是我的主人哦&quot;</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;主人好&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>在嵌套函数调用中，<code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 实际上可以退出任意深度的嵌套函数调用：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="k">await</span> <span class="n">a</span><span class="p">()</span>
-    <span class="k">await</span> <span class="n">b</span><span class="p">()</span>
-    <span class="o">...</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">a</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
-    <span class="c1"># 退出 a 函数后，直接从 say_hi 的 a 函数调用点直接退出</span>
-    <span class="k">await</span> <span class="n">finish</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">b</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
-    <span class="c1"># 退出 b 函数后，直接从 say_hi 的 b 函数调用点直接退出</span>
-    <span class="k">await</span> <span class="n">finish</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>同理，<code class="xref py py-func docutils literal notranslate"><span class="pre">send_reply()</span></code> 对应的提前结束版本是：<code class="xref py py-func docutils literal notranslate"><span class="pre">reply_finish()</span></code>。使用方法与 <code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 基本一致。但是它发送的是回复消息。</p>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">finish()</span></code> 和 <code class="xref py py-func docutils literal notranslate"><span class="pre">reply_finish()</span></code>，只能在事件处理过程中使用。</p>
 </div>
 </section>
 <section id="cq">
-<h2>使用 CQ 字符串<a class="headerlink" href="#cq" title="Link to this heading">¶</a></h2>
-<p>除使用消息段对象外，也可以使用<strong>CQ 字符串</strong>直接表示单条消息的所有消息内容。</p>
-<p>只要是有 <code class="docutils literal notranslate"><span class="pre">cq_str</span></code> 参数的行为操作函数，设置 <code class="docutils literal notranslate"><span class="pre">cq_str=True</span></code> 后，此行为操作函数将不再认为字符串是纯文本内容。而认为字符串是可解释的 CQ 字符串。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="c1"># 第一参数是字符串，无论内容是什么，都是纯文本消息内容</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;[CQ:face,id=178]你好啊&quot;</span><span class="p">)</span>
-    <span class="c1"># 启用了 cq_str 后，第一参数如果是字符串，将会被解释为 CQ 字符串</span>
-    <span class="c1"># 如果存在有效的 CQ 字符串，将会被直接应用</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="s2">&quot;[CQ:face,id=178]你好啊&quot;</span><span class="p">,</span> <span class="n">cq_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<h2>获取 CQ 字符串<a class="headerlink" href="#cq" title="Link to this heading">¶</a></h2>
+<p>除使用消息段对象外，也可以使用<strong>CQ 字符串</strong>直接表示单条消息的所有消息内容。但你必须先构造消息段对象，然后才能生成 cq 字符串：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">ImageSegment</span>
+
+<span class="n">img_cq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ImageSegment</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;https://example.com/test.jpg&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_cq</span><span class="p">()</span>
 </pre></div>
-</div>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<p>你可自行浏览 API 文档：<a class="reference internal" href="#action-operations"><span class="xref myst">行为操作函数</span></a>，查看哪些支持 <code class="docutils literal notranslate"><span class="pre">cq_str</span></code> 参数。</p>
 </div>
 <div class="attention admonition">
 <p class="admonition-title">警告</p>
-<p>发送 CQ 字符串存在潜在的安全问题：</p>
-<p>如果将用户输入（如 <code class="xref py py-func docutils literal notranslate"><span class="pre">msg_text()</span></code> 获得的字符串）作为 CQ 字符串的一部分发送出去，这将会造成“注入攻击”！用户可以构造包含恶意图片、语音的 CQ 码，让 bot 发送。</p>
-<p>任何时候启用 <code class="docutils literal notranslate"><span class="pre">cq_str</span></code> 选项，<strong>如果拼接了用户输入，务必校验</strong>。</p>
+<p>CQ 字符串存在注入攻击的安全隐患。因此 melobot 不提供将 cq 字符串转为消息段的方法，也不允许接口直接发送 cq 字符串。</p>
 </div>
 </section>
 <section id="id5">
@@ -496,71 +448,65 @@
 </div>
 <section id="id6">
 <h3>转发消息段构造<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
-<p>构造“转发消息段”，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">forward_msg()</span></code> 函数：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">forward_msg</span>
+<p>构造转发消息段：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">ForwardSegment</span>
 
-<span class="c1"># forward_id 是转发 id，可通过 msg_event().get_datas(&quot;forward&quot;, &quot;id&quot;) 获得</span>
-<span class="n">msg</span> <span class="o">=</span> <span class="n">forward_msg</span><span class="p">(</span><span class="n">forward_id</span><span class="p">)</span>
+<span class="c1"># forward_id 是转发 id，可通过消息事件的 get_datas(&quot;forward&quot;, &quot;id&quot;) 获得</span>
+<span class="n">seg</span> <span class="o">=</span> <span class="n">ForwardSegment</span><span class="p">(</span><span class="n">forward_id</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>此时，<code class="docutils literal notranslate"><span class="pre">msg</span></code> 变量已经是一条转发消息的等价表达了，直接使用 <code class="docutils literal notranslate"><span class="pre">send</span></code> 发送：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="c1"># 这里也可以使用其他能发送消息段的方法：send_reply, finish...</span>
-    <span class="k">await</span> <span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>此时，<code class="docutils literal notranslate"><span class="pre">seg</span></code> 变量已经是一条转发消息的等价表达了，直接使用适配器的 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 或 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_custom" title="melobot.protocols.onebot.v11.Adapter.send_custom"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_custom()</span></code></a> 发送即可。</p>
 </section>
 <section id="id7">
 <h3>消息结点构造<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
-<p>构造“合并转发结点”，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">refer_msg_node()</span></code> 函数：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">refer_msg_node</span>
+<p>构造合并转发结点：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">NodeSegment</span>
 
-<span class="c1"># 这里的 msg_id 是已存在的消息的 id，可通过 msg_event().id 获得</span>
-<span class="n">refer_node</span> <span class="o">=</span> <span class="n">refer_msg_node</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
+<span class="c1"># 这里的 msg_id 是已存在的消息的 id，可通过消息事件的 id 获得</span>
+<span class="n">refer_node</span> <span class="o">=</span> <span class="n">NodeSegment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>构造“合并转发自定义结点”，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">custom_msg_node()</span></code> 函数：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.models</span> <span class="kn">import</span> <span class="n">custom_msg_node</span>
+<p>构造合并转发自定义结点：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">NodeSegment</span>
 
-<span class="c1"># 第一参数是消息内容，与上述消息段发送方法的第一参数相同</span>
+<span class="c1"># content 是消息内容，与上述消息段发送方法（例如 send, send_custom）的第一参数相同</span>
 <span class="c1"># 后续参数是在转发消息中显示的，发送人昵称 和 发送人的qq号（int 类型）</span>
-<span class="n">node1</span> <span class="o">=</span> <span class="n">custom_msg_node</span><span class="p">(</span><span class="s2">&quot;你好&quot;</span><span class="p">,</span> <span class="n">sendName</span><span class="o">=</span><span class="s2">&quot;机器人&quot;</span><span class="p">,</span> <span class="n">sendId</span><span class="o">=</span><span class="n">xxxxxx</span><span class="p">)</span>
+<span class="n">node1</span> <span class="o">=</span> <span class="n">NodeSegment</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;你好&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;melobot instance&quot;</span><span class="p">,</span> <span class="n">uin</span><span class="o">=</span><span class="mi">10001</span><span class="p">)</span>
 
-<span class="n">node2</span> <span class="o">=</span> <span class="n">custom_msg_node</span><span class="p">(</span>
-    <span class="n">image_msg</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-    <span class="n">sendName</span><span class="o">=</span><span class="s2">&quot;机器人&quot;</span><span class="p">,</span>
-    <span class="n">sendId</span><span class="o">=</span><span class="n">xxxxxx</span>
+<span class="n">node2</span> <span class="o">=</span> <span class="n">NodeSegment</span><span class="p">(</span>
+    <span class="n">content</span><span class="o">=</span><span class="n">ImageSegment</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;melobot instance&quot;</span><span class="p">,</span>
+    <span class="n">uin</span><span class="o">=</span><span class="mi">10001</span>
 <span class="p">)</span>
 
-<span class="n">node3</span> <span class="o">=</span> <span class="n">custom_msg_node</span><span class="p">(</span>
-    <span class="p">[</span><span class="n">text_msg</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">image_msg</span><span class="p">(</span><span class="o">...</span><span class="p">)],</span>
-    <span class="n">sendName</span><span class="o">=</span><span class="s2">&quot;机器人&quot;</span><span class="p">,</span>
-    <span class="n">sendId</span><span class="o">=</span><span class="n">xxxxxx</span>
+<span class="n">node3</span> <span class="o">=</span> <span class="n">NodeSegment</span><span class="p">(</span>
+    <span class="n">content</span><span class="o">=</span><span class="p">[</span><span class="n">TextSegment</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">ImageSegment</span><span class="p">(</span><span class="o">...</span><span class="p">)],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;melobot instance&quot;</span><span class="p">,</span>
+    <span class="n">uin</span><span class="o">=</span><span class="mi">10001</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>将消息结点组成列表，就是一条转发消息的等价表达了，使用 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 来发送它：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_forward</span>
+<p>将消息结点组成列表，就是一条转发消息的等价表达了，使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_forward" title="melobot.protocols.onebot.v11.Adapter.send_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 来发送它：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
 
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="k">await</span> <span class="n">send_forward</span><span class="p">([</span><span class="n">refer_node</span><span class="p">,</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">node3</span><span class="p">])</span>
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send_forward</span><span class="p">([</span><span class="n">refer_node</span><span class="p">,</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">node3</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="id8">
 <h2>转发消息的其他发送方法<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 可根据当前触发事件，自动定位要向何处发送消息。同理，要自定义发送目标，将<code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 换成 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_custom_forward()</span></code> 即可，它的第一参数与 <code class="xref py py-func docutils literal notranslate"><span class="pre">send_forward()</span></code> 完全相同。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.context</span> <span class="kn">import</span> <span class="n">send_custom_forward</span>
+<p><a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_forward" title="melobot.protocols.onebot.v11.Adapter.send_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 可根据当前触发事件，自动定位要向何处发送消息。同理，要自定义发送目标，将 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_forward" title="melobot.protocols.onebot.v11.Adapter.send_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 换成 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_forward_custom" title="melobot.protocols.onebot.v11.Adapter.send_forward_custom"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_forward_custom()</span></code></a> 即可。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
 
-<span class="nd">@plugin</span><span class="o">.</span><span class="n">on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
-    <span class="c1"># 发送一个自定义目标的私聊转发消息，userId 为 qq 号</span>
-    <span class="k">await</span> <span class="n">send_custom_forward</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">isPrivate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">userId</span><span class="o">=</span><span class="mi">1574260633</span><span class="p">)</span>
-    <span class="c1"># 发送一个自定义目标的群聊转发消息，groupId 为群号</span>
-    <span class="k">await</span> <span class="n">send_custom_forward</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">isPrivate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">groupId</span><span class="o">=</span><span class="mi">535705163</span><span class="p">)</span>
+<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
+    <span class="c1"># 发送一个自定义目标的私聊转发消息，user_id 为 qq 号</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send_forward_custom</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="mi">1574260633</span><span class="p">)</span>
+    <span class="c1"># 发送一个自定义目标的群聊转发消息，group_id 为群号</span>
+    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send_forward_custom</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="mi">535705163</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -576,12 +522,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="action-resp.html">
+          <a class="next-page" href="action-echo.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">其他行为操作</div>
+                <div class="title">OneBot 行为操作</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -592,7 +538,7 @@
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">事件与事件处理</div>
+                <div class="title">OneBot 事件处理</div>
                 
               </div>
             </a>
@@ -633,11 +579,12 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">消息操作</a><ul>
-<li><a class="reference internal" href="#id2">单条消息的构造</a></li>
+<li><a class="reference internal" href="#">OneBot 消息操作</a><ul>
+<li><a class="reference internal" href="#id1">单条消息的构造</a></li>
+<li><a class="reference internal" href="#id2">消息段的继承关系</a></li>
 <li><a class="reference internal" href="#id3">自定义消息段的构造</a></li>
 <li><a class="reference internal" href="#id4">单条消息的其他发送方法</a></li>
-<li><a class="reference internal" href="#cq">使用 CQ 字符串</a></li>
+<li><a class="reference internal" href="#cq">获取 CQ 字符串</a></li>
 <li><a class="reference internal" href="#id5">转发消息的构造</a><ul>
 <li><a class="reference internal" href="#id6">转发消息段构造</a></li>
 <li><a class="reference internal" href="#id7">消息结点构造</a></li>
@@ -656,7 +603,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=cb0c56bf"></script>
+</div><script src="../_static/documentation_options.js?v=d9ca6aa5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
