@@ -84,7 +84,7 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 通过 `pip` 安装：
 
 ```shell
-pip install melobot
+pip install 'melobot[onebot]==3.0.0rc9'
 ```
 
 通过源码构建：（对于普通用户不推荐）
