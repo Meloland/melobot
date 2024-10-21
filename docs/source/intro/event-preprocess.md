@@ -11,7 +11,7 @@
 
 ```{admonition} 相关知识
 :class: note
-建议先阅读：[什么是事件预处理？](../references/preprocess)
+建议先阅读：[什么是事件预处理？](../ob_refer/preprocess)
 ```
 
 ## 匹配或解析

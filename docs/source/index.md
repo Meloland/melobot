@@ -2,16 +2,26 @@
 
 ```{toctree}
 :maxdepth: 2
+:caption: 起步
+
+intro/index
+```
+
+
+```{toctree}
+:maxdepth: 2
+:caption: 相关知识
 :hidden:
 
-api/index
+ob_refer/index
 ```
 
 ```{toctree}
 :maxdepth: 2
-:caption: OneBot 协议
+:caption: API 参考
 :hidden:
 
+api/index
 ob_api/index
 ```
 

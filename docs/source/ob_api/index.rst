@@ -1,4 +1,4 @@
-protocols.onebot API 参考
+protocols.onebot API
 ================================
 
 .. admonition:: 提示
