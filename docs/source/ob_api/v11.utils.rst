@@ -1,6 +1,8 @@
 v11.utils
 =========
 
+.. _onebot_v11_check:
+
 v11 检查（验证）器
 --------------------
 
@@ -26,6 +28,7 @@ v11 检查（验证）器
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.AtMsgChecker
 
+.. _onebot_v11_match:
 
 v11 匹配器
 --------------

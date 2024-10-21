@@ -18,7 +18,7 @@ protocols.onebot API
 - :class:`~.v11.adapter.base.Adapter`, :class:`.EchoRequireCtx`
 - :class:`.ForwardWebSocketIO`, :class:`.ReverseWebSocketIO`, :class:`.HttpIO`
 - :class:`~.adapter.event.Event`, :class:`~.adapter.segment.Segment`, :class:`~.adapter.action.Action`, :class:`~.adapter.echo.Echo`
-- :func:`.on_event`, :func:`.on_message`, :func:`.on_notice`, :func:`.on_request`, :func:`.on_meta`
+- :func:`.on_event`, :func:`.on_message`, :func:`.on_start_match`, :func:`.on_contain_match`, :func:`.on_full_match`, :func:`.on_end_match`, :func:`.on_regex_match`, :func:`.on_command`, :func:`.on_at_qq`, :func:`.on_notice`, :func:`.on_request`, :func:`.on_meta`
 - :class:`.LevelRole`, :class:`.GroupRole`, :class:`.ParseArgs`
 
 各模块 API 文档索引：
