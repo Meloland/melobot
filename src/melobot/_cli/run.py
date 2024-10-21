@@ -4,7 +4,7 @@ import sys
 from argparse import Namespace
 from pathlib import Path
 
-from ..bot.base import MELO_LAST_EXIT_SIGNAL, MELO_PKG_RUNTIME, BotExitSignal
+from melobot.bot.base import MELO_LAST_EXIT_SIGNAL, MELO_PKG_RUNTIME, BotExitSignal
 
 
 def main(args: Namespace) -> None:
@@ -16,6 +16,10 @@ def main(args: Namespace) -> None:
 
     if not entry.endswith(".py"):
         entry += ".py"
+    if not Path(entry).exists():
+        print(f"不存在的入口文件：{str(entry)}")
+        sys.exit(1)
+
     cmd = [sys.executable, entry]
     cwd = str(Path.cwd().resolve())
     os.environ[MELO_PKG_RUNTIME] = "1"

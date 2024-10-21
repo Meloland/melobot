@@ -103,7 +103,8 @@ class HttpIO(BaseIO):
                 return
 
             raw = await http_resp.json()
-            if (echo_id := raw["echo"]) is None:
+            echo_id = raw.get("echo")
+            if echo_id in (None, ""):
                 return
 
             action_type, fut = self._echo_table.pop(echo_id)

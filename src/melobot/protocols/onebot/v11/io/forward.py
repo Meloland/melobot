@@ -54,7 +54,8 @@ class ForwardWebSocketIO(BaseIO):
                     await self._in_buf.put(InPacket(time=raw["time"], data=raw))
                     continue
 
-                if (echo_id := raw["echo"]) is None:
+                echo_id = raw.get("echo")
+                if echo_id in (None, ""):
                     continue
 
                 action_type, fut = self._echo_table.pop(echo_id)
@@ -69,6 +70,7 @@ class ForwardWebSocketIO(BaseIO):
                 )
             except ConnectionClosed:
                 self.logger.warning("OneBot v11 正向 WebSocket IO 源的 ws 连接已关闭")
+                break
             except Exception:
                 self.logger.exception("OneBot v11 正向 WebSocket IO 源输入异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
