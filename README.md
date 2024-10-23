@@ -68,6 +68,7 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 使用本框架的机器人项目如下：
 
 - [MeloInf](https://github.com/aicorein/meloinf)
+- [MarshoAI](https://github.com/LiteyukiStudio/marshoai-melo)
 
 你可以将这些项目作为 melobot 使用的实例参考。欢迎你基于 melobot 实现完整的机器人项目后，向本文档提出 PR，在此处展示。
 
