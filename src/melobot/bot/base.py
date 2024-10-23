@@ -54,10 +54,12 @@ _LOGGER_CTX = LoggerCtx()
 
 def _start_log(logger: GenericLogger) -> None:
     for row in MetaInfo.logo.split("\n"):
-        logger.info(row)
-    ver_str = f"版本：{MetaInfo.ver}，平台：{platform.system()}"
-    logger.info(ver_str)
-    logger.info("-" * 37)
+        logger.info(f"{row}")
+    logger.info("")
+    logger.info(f"版本：{MetaInfo.ver}")
+    logger.info(f"系统：{platform.system()} {platform.machine()} {platform.release()}")
+    logger.info(f"环境：{platform.python_implementation()} {platform.python_version()}")
+    logger.info("=" * 40)
 
 
 class Bot:
