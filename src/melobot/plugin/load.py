@@ -57,9 +57,7 @@ class PluginInitHelper:
             imp_parts = list(parts1[len(parts2) :])
             imp_parts[-1] = imp_parts[-1].rstrip(".py")
 
-            mod = Importer.import_mod(
-                share.__obj_module__, share_located.parent, sys_cache=False
-            )
+            mod = Importer.import_mod(share.__obj_module__, share_located.parent)
             for k in dir(mod):
                 v = getattr(mod, k)
                 if v is share:
@@ -88,9 +86,7 @@ class PluginInitHelper:
             if func.__name__.startswith("_"):
                 raise PluginError(f"导出函数 {func} 的名称不能以 _ 开头")
 
-            mod = Importer.import_mod(
-                func.__module__, func_located.parent, sys_cache=False
-            )
+            mod = Importer.import_mod(func.__module__, func_located.parent)
             for k in dir(mod):
                 v = getattr(mod, k)
                 if v is func:
@@ -151,7 +147,7 @@ class PluginInitHelper:
 
                 prefix = ".".join(p_dir.parts[-load_depth:])
                 p_load_mod_name = f"{prefix}.__plugin__"
-                p_load_mod = Importer.import_mod(p_load_mod_name, p_dir, sys_cache=False)
+                p_load_mod = Importer.import_mod(p_load_mod_name, p_dir)
                 for k in dir(p_load_mod):
                     v = getattr(p_load_mod, k)
                     if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
@@ -244,6 +240,6 @@ class PluginLoader:
             prefix = ".".join(p_dir.parts[-load_depth:])
             p_load_mod_name = f"{prefix}.__plugin__"
 
-        p_load_mod = Importer.import_mod(p_load_mod_name, p_dir, sys_cache=False)
+        p_load_mod = Importer.import_mod(p_load_mod_name, p_dir)
         _plugin = self._build_plugin(p_name, p_load_mod)
         return _plugin
