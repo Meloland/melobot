@@ -101,7 +101,7 @@ async def _():
 ```python
 from melobot.protocols.onebot.v11.adapter.segment import Segment
 # 临时构造自定义消息段
-seg = Segment(type='touch', data={"id": "1574260633"})
+seg = Segment(type="touch", id="1574260633")
 ```
 
 或者构造一种新的消息段类型：
@@ -115,9 +115,9 @@ class _TouchData(TypedDict):
 
 # 返回新类型 TouchSegment
 # 后续的事件中，会自动将对应消息段初始化为 TouchSegment 类型
-TouchSegment = Segment.add_type(Literal['toch'], _TouchData)
+TouchSegment = Segment.add_type(Literal['touch'], _TouchData)
 # 使用新的消息段类型来构造：
-seg = TouchSegment({"id": "1574260633"})
+seg = TouchSegment(id="1574260633")
 ```
 
 ## 单条消息的其他发送方法
