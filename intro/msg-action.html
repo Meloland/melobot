@@ -395,7 +395,7 @@
 <p>如何让 melobot 发送这种自定义的消息段？非常简单：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
 <span class="c1"># 临时构造自定义消息段</span>
-<span class="n">seg</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;touch&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1574260633&quot;</span><span class="p">})</span>
+<span class="n">seg</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;touch&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;1574260633&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>或者构造一种新的消息段类型：</p>
@@ -407,9 +407,9 @@
 
 <span class="c1"># 返回新类型 TouchSegment</span>
 <span class="c1"># 后续的事件中，会自动将对应消息段初始化为 TouchSegment 类型</span>
-<span class="n">TouchSegment</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">add_type</span><span class="p">(</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;toch&#39;</span><span class="p">],</span> <span class="n">_TouchData</span><span class="p">)</span>
+<span class="n">TouchSegment</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">add_type</span><span class="p">(</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;touch&#39;</span><span class="p">],</span> <span class="n">_TouchData</span><span class="p">)</span>
 <span class="c1"># 使用新的消息段类型来构造：</span>
-<span class="n">seg</span> <span class="o">=</span> <span class="n">TouchSegment</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1574260633&quot;</span><span class="p">})</span>
+<span class="n">seg</span> <span class="o">=</span> <span class="n">TouchSegment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;1574260633&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
