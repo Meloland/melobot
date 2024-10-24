@@ -795,7 +795,7 @@ class PokeNotifyEvent(NotifyNoticeEvent):
 
     class Model(NotifyNoticeEvent.Model):
         sub_type: Literal["poke"]
-        group_id: int
+        group_id: int | None = None
         user_id: int
         target_id: int
 
@@ -806,7 +806,7 @@ class PokeNotifyEvent(NotifyNoticeEvent):
         #: 子类型
         self.sub_type: Literal["poke"]
         #: 群号
-        self.group_id: int = self._model.group_id
+        self.group_id: int | None = self._model.group_id
         #: 事件发起者 qq 号
         self.user_id: int = self._model.user_id
         #: 事件作用者 qq 号
