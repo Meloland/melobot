@@ -137,21 +137,21 @@ grp_c2 = checker_ft.get_group(GroupRole.ADMIN)
 final_checker = priv_c | grp_c1 | grp_c2
 ```
 
-其他高级特性请参考文档 [内置检查器与检查器工厂](onebot_v11_check)。
+其他高级特性：自定义检查成功回调，自定义检查失败回调等，请参考 [内置检查器与检查器工厂](onebot_v11_check) 中各种对象的参数。
 
-除了这些接口，melobot 内部其实也有一种隐式检查，这就是**基于依赖注入的自动重载**：
+除了这些接口，melobot 内部其实也有一种隐式检查，这就是**基于依赖注入的区分调用**：
 
 ```python
 from melobot.protocols.onebot.v11 import on_message, on_event
 from melobot.protocols.onebot.v11.adapter.event import GroupMessageEvent, PrivateMessageEvent
 
 @on_message(...)
-async def msg_handle(ev: GroupMessageEvent):
+async def msg_handle1(ev: GroupMessageEvent):
     # 只有触发事件属于 群聊消息事件 时，才会进入这个处理方法
     ...
 
 @on_message(...)
-async def msg_handle(ev: PrivateMessageEvent):
+async def msg_handle2(ev: PrivateMessageEvent):
     # 只有触发事件属于 私聊消息事件 时，才会进入这个处理方法
     ...
 
@@ -208,7 +208,7 @@ async def _():
 
 ## 匹配
 
-匹配只对消息事件的文本内容生效。只有在匹配通过后，才能进入事件处理。其他事件绑定方法无法指定匹配器。
+匹配只对消息事件的文本内容生效。只有在匹配通过后，才能运行后续操作。其他事件绑定方法无法指定匹配。
 
 常用的几个事件绑定接口，就是内置了匹配的流程：{func}`~.v11.handle.on_command`、{func}`~.v11.handle.on_start_match`、{func}`~.v11.handle.on_contain_match`、{func}`~.v11.handle.on_full_match`、{func}`~.v11.handle.on_end_match`、{func}`~.v11.handle.on_regex_match`。
 
@@ -231,9 +231,243 @@ async def _():
     ...
 ```
 
+其他高级特性：自定义匹配成功回调，自定义匹配失败回调等，请参考 [内置匹配器](onebot_v11_match) 中各种对象的参数。
+
 ## 解析
 
-```{admonition} 施工中
-:class: note
-内容等待补充中...
+解析只对消息事件的文本内容生效。解析完成后将会生成一个 {class}`.ParseArgs` 对象。其他事件绑定方法无法指定解析。
+
+想象一个典型的使用案例，你需要：
+- 机器人响应指令：`.天气 杭州 7`
+- 匹配到“天气”指令的处理方法
+- 传递参数列表 `["杭州", "7"]` 给处理方法，实现具体的逻辑。
+
+显然，自己编写指令解析是比较费劲的。可以使用 {class}`.CmdParser`，并利用 {class}`~.v11.handle.Args` 获取解析参数：
+
+```python
+from melobot.protocols.onebot.v11 import on_message, ParseArgs
+from melobot.protocols.onebot.v11.utils import CmdParser
+from melobot.protocols.onebot.v11.handle import Args
+
+@on_message(parser=CmdParser(cmd_start='.', cmd_sep=' ', targets='天气'))
+# 使用 Args 进行依赖注入
+async def _(args: ParseArgs = Args()):
+    assert args.name == "天气"
+    assert args.vals == ["杭州", "7"]
 ```
+
+需要多个指令起始符，多个指令间隔符，多个匹配的目标？这些也同样支持：
+
+```python
+from melobot.protocols.onebot.v11 import on_message, ParseArgs
+from melobot.protocols.onebot.v11.utils import CmdParser
+from melobot.protocols.onebot.v11.handle import Args
+
+@on_message(parser=CmdParser(
+    cmd_start=[".", "~"], 
+    cmd_sep=[" ", "#"], 
+    targets=["天气", "weather"]
+))
+async def _(args: ParseArgs = Args()):
+    ...
+```
+
+此时，以下字符串都可以产生与刚才类似的解析结果：
+- `~天气#杭州  7` -> `name='天气', vals=['杭州', '7']`
+- `~天气##杭州    7` -> `name='天气', vals=['杭州', '7']`
+- `.weather#杭州#7` -> `name='weather', vals=['杭州', '7']`
+- `.天气   杭州      7` -> `name='天气', vals=['杭州', '7']`
+
+实际上，利用 targets 参数可以给定多个值的特点，你可以一次解析一组指令，然后再处理：
+
+```python
+@on_message(parser=CmdParser(
+    cmd_start="/", 
+    cmd_sep=[" ", "#"], 
+    targets=["功能1", "功能2", "功能3"]
+))
+async def _(args: ParseArgs = Args()):
+    match args.name:
+        case "功能1":
+            func1(args.vals)
+        case "功能2":
+            func2(args.vals)
+        case "功能3":
+            func3(args.vals)
+        case _:
+            return
+```
+
+同理也可以实现子命令支持，这里不再演示。
+
+使用 {func}`.on_message` 手动给定 {class}`.CmdParser` 还是略显麻烦。一般的情景，更建议使用 {func}`.on_command`：
+
+```python
+from melobot.protocols.onebot.v11 import on_command, ParseArgs
+from melobot.protocols.onebot.v11.handle import Args
+
+@on_command(cmd_start=[".", "~"], cmd_sep=[" ", "#"], targets=["天气", "weather"])
+async def _(args: ParseArgs = Args()):
+    ...
+```
+
+为了进一步简化重复操作，同样有命令解析器工厂 {class}`.CmdParserFactory`。
+
+## 解析格式化
+
+解析得到的结果，还可以进行参数格式化（类型转换、校验）。
+
+下面是一个例子。这个 `add` 指令，接受两个浮点数，且第二参数可以有默认值：
+
+```python
+from melobot.protocols.onebot.v11 import on_command, ParseArgs
+from melobot.protocols.onebot.v11.handle import Args
+from melobot.protocols.onebot.v11.utils import CmdArgFormatter as Fmtter
+
+@on_command(
+    cmd_start=".",
+    cmd_sep=" ",
+    targets="add",
+    fmtters=[
+        Fmtter(
+            # 转换函数，接受字符串再返回一个值，不需要则空
+            convert=float,
+            # 校验函数，在格式化之后执行，不需要则空
+            validate=lambda i: 0 <= i <= 100,
+            # 此参数的描述（可供回调使用）
+            src_desc="操作数1",
+            # 此参数期待值的说明（可供回调使用）
+            src_expect="[0, 100] 的浮点数",
+        ),
+        Fmtter(
+            convert=float,
+            validate=lambda i: 0 <= i <= 100,
+            src_desc="操作数2",
+            src_expect="[0, 100] 的浮点数",
+            # 默认值
+            default=0,
+        ),
+    ],
+)
+async def _(args: ParseArgs = Args()):
+    pass
+```
+
+解析情况如下：
+- `.add 12 24` -> `vals=[12.0, 24.0]`
+- `.add 12` -> `vals=[12.0, 0]`
+- `.add 12 24 asfdja` -> `vals=[12.0, 24.0]`（多余参数被忽略）
+- `.add` -> 日志输出内置的“参数缺少”提示，不进入事件处理
+- `.add ajfa` -> 日志输出内置的“参数格式化失败”提示，不进入事件处理
+- `.add 120` -> 日志输出内置的“参数验证失败”提示，不进入事件处理
+
+如果某一个参数不需要任何格式化呢？
+
+```python
+# 对第二参数不运行格式化
+fmtters = [Fmtter(...), None, Fmtter(...)]
+```
+
+此外，你还可以自定义“参数转换失败”、“参数验证失败”、“参数缺少”时的回调。比如直接静默，而不是在日志提示：
+
+```python
+from melobot.utils import to_async
+
+nothing = to_async(lambda *_: None)
+
+fmtters = [
+    Fmtter(
+        ..., 
+        convert_fail=nothing, 
+        validate_fail=nothing, 
+        arg_lack=nothing
+    ),
+    ...
+]
+```
+
+或者利用回调函数 {class}`.FormatInfo` 参数提供的信息，给用户回复提示：
+
+```python
+from melobot import send_text
+from melobot.protocols.onebot.v11.utils import FormatInfo
+
+async def convert_fail(self, info: FormatInfo) -> None:
+    e_class = info.exc.__class__.__qualname__
+    src = repr(info.src) if isinstance(info.src, str) else info.src
+
+    tip = f"第 {info.idx + 1} 个参数"
+    tip += (
+        f"（{info.src_desc}）无法处理，给定的值为：{src}。"
+        if info.src_desc
+        else f"给定的值 {src} 无法处理。"
+    )
+
+    tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+    tip += f"\n详细错误描述：[{e_class}] {info.exc}"
+    tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
+    # 回复提示
+    await send_text(tip)
+
+async def validate_fail(self, info: FormatInfo) -> None:
+    src = repr(info.src) if isinstance(info.src, str) else info.src
+
+    tip = f"第 {info.idx + 1} 个参数"
+    tip += (
+        f"（{info.src_desc}）不符合要求，给定的值为：{src}。"
+        if info.src_desc
+        else f"给定的值 {src} 不符合要求。"
+    )
+
+    tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+    tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
+    # 回复提示
+    await send_text(tip)
+
+async def arg_lack(self, info: FormatInfo) -> None:
+    tip = f"第 {info.idx + 1} 个参数"
+    tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
+    tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
+    tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
+    # 回复提示
+    await send_text(tip)
+
+
+fmtters = [
+    Fmtter(
+        ..., 
+        convert_fail=convert_fail, 
+        validate_fail=validate_fail, 
+        arg_lack=arg_lack
+    ),
+    ...
+]
+```
+
+## 自定义解析器
+
+使用内置的抽象类来自定义解析器：
+
+```python
+from melobot.protocols.onebot.v11 import on_message
+from melobot.protocols.onebot.v11.utils import Parser
+
+class MyParser(Parser):
+    async def parse(text: str) -> ParseArgs | None:
+        # 返回 None 代表没有有效的解析结果
+        ...
+
+@on_message(parser=MyParser())
+async def _():
+    ...
+```
+
+## 总结
+
+本篇主要说明了预处理机制中的检查、匹配和解析。
+
+消息事件绑定方法，检查、匹配和解析可以同时指定。顺序是：先检查，再匹配，最后解析。其他事件绑定方法，只能指定检查。
+
+再次提醒，所有内置预处理机制，**均不是异步安全的**。若需要异步安全，请实现自定义类。
+
+同时，读者也无需拘泥于文档所给的示例。充分利用 OOP 的编程思路，可以创造出更多有趣的玩法。
