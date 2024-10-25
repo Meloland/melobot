@@ -49,6 +49,8 @@ v11 匹配器
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.RegexMatcher
 
+.. _onebot_v11_parse:
+
 v11 解析器
 --------------
 
@@ -63,5 +65,6 @@ v11 解析器
 .. autoclass:: melobot.protocols.onebot.v11.utils.CmdArgFormatter
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.FormatInfo
+    :exclude-members: __init__
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.CmdParserFactory

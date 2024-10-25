@@ -137,7 +137,7 @@ async def _(adapter: Adapter):
 
 ## 获取 CQ 字符串
 
-除使用消息段对象外，也可以使用**CQ 字符串**直接表示单条消息的所有消息内容。但你必须先构造消息段对象，然后才能生成 cq 字符串：
+除使用消息段对象外，也可以使用**CQ 字符串**直接表示单条消息的所有消息内容。但只能从消息段对象生成 cq 字符串：
 
 ```python
 from melobot.protocols.onebot.v11.adapter.segment import ImageSegment

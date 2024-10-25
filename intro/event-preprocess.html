@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OneBot 事件预处理 - melobot 3.0.0rc11</title>
+        <title>OneBot 事件预处理 - melobot 3.0.0rc12</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc11</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc11</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -433,18 +433,18 @@
 <span class="n">final_checker</span> <span class="o">=</span> <span class="n">priv_c</span> <span class="o">|</span> <span class="n">grp_c1</span> <span class="o">|</span> <span class="n">grp_c2</span>
 </pre></div>
 </div>
-<p>其他高级特性请参考文档 <a class="reference internal" href="../ob_api/v11.utils.html#onebot-v11-check"><span class="std std-ref">内置检查器与检查器工厂</span></a>。</p>
-<p>除了这些接口，melobot 内部其实也有一种隐式检查，这就是<strong>基于依赖注入的自动重载</strong>：</p>
+<p>其他高级特性：自定义检查成功回调，自定义检查失败回调等，请参考 <a class="reference internal" href="../ob_api/v11.utils.html#onebot-v11-check"><span class="std std-ref">内置检查器与检查器工厂</span></a> 中各种对象的参数。</p>
+<p>除了这些接口，melobot 内部其实也有一种隐式检查，这就是<strong>基于依赖注入的区分调用</strong>：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">on_event</span>
 <span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.event</span> <span class="kn">import</span> <span class="n">GroupMessageEvent</span><span class="p">,</span> <span class="n">PrivateMessageEvent</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">msg_handle</span><span class="p">(</span><span class="n">ev</span><span class="p">:</span> <span class="n">GroupMessageEvent</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">msg_handle1</span><span class="p">(</span><span class="n">ev</span><span class="p">:</span> <span class="n">GroupMessageEvent</span><span class="p">):</span>
     <span class="c1"># 只有触发事件属于 群聊消息事件 时，才会进入这个处理方法</span>
     <span class="o">...</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">msg_handle</span><span class="p">(</span><span class="n">ev</span><span class="p">:</span> <span class="n">PrivateMessageEvent</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">msg_handle2</span><span class="p">(</span><span class="n">ev</span><span class="p">:</span> <span class="n">PrivateMessageEvent</span><span class="p">):</span>
     <span class="c1"># 只有触发事件属于 私聊消息事件 时，才会进入这个处理方法</span>
     <span class="o">...</span>
 
@@ -498,7 +498,7 @@
 </section>
 <section id="id3">
 <h2>匹配<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>匹配只对消息事件的文本内容生效。只有在匹配通过后，才能进入事件处理。其他事件绑定方法无法指定匹配器。</p>
+<p>匹配只对消息事件的文本内容生效。只有在匹配通过后，才能运行后续操作。其他事件绑定方法无法指定匹配。</p>
 <p>常用的几个事件绑定接口，就是内置了匹配的流程：<a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_command" title="melobot.protocols.onebot.v11.handle.on_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_command()</span></code></a>、<a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_start_match" title="melobot.protocols.onebot.v11.handle.on_start_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>、<a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_contain_match" title="melobot.protocols.onebot.v11.handle.on_contain_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_contain_match()</span></code></a>、<a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_full_match" title="melobot.protocols.onebot.v11.handle.on_full_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_full_match()</span></code></a>、<a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_end_match" title="melobot.protocols.onebot.v11.handle.on_end_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_end_match()</span></code></a>、<a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_regex_match" title="melobot.protocols.onebot.v11.handle.on_regex_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_regex_match()</span></code></a>。</p>
 <p>对应的匹配器可查看文档：<a class="reference internal" href="../ob_api/v11.utils.html#onebot-v11-match"><span class="std std-ref">内置匹配器</span></a>。你也可以自定义匹配器：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span>
@@ -517,13 +517,227 @@
     <span class="o">...</span>
 </pre></div>
 </div>
+<p>其他高级特性：自定义匹配成功回调，自定义匹配失败回调等，请参考 <a class="reference internal" href="../ob_api/v11.utils.html#onebot-v11-match"><span class="std std-ref">内置匹配器</span></a> 中各种对象的参数。</p>
 </section>
 <section id="id4">
 <h2>解析<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<div class="note admonition">
-<p class="admonition-title">施工中</p>
-<p>内容等待补充中...</p>
+<p>解析只对消息事件的文本内容生效。解析完成后将会生成一个 <a class="reference internal" href="../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="melobot.protocols.onebot.v11.utils.abc.ParseArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseArgs</span></code></a> 对象。其他事件绑定方法无法指定解析。</p>
+<p>想象一个典型的使用案例，你需要：</p>
+<ul class="simple">
+<li><p>机器人响应指令：<code class="docutils literal notranslate"><span class="pre">.天气</span> <span class="pre">杭州</span> <span class="pre">7</span></code></p></li>
+<li><p>匹配到“天气”指令的处理方法</p></li>
+<li><p>传递参数列表 <code class="docutils literal notranslate"><span class="pre">[&quot;杭州&quot;,</span> <span class="pre">&quot;7&quot;]</span></code> 给处理方法，实现具体的逻辑。</p></li>
+</ul>
+<p>显然，自己编写指令解析是比较费劲的。可以使用 <a class="reference internal" href="../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.CmdParser" title="melobot.protocols.onebot.v11.utils.CmdParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">CmdParser</span></code></a>，并利用 <a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.Args" title="melobot.protocols.onebot.v11.handle.Args"><code class="xref py py-class docutils literal notranslate"><span class="pre">Args</span></code></a> 获取解析参数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">ParseArgs</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.utils</span> <span class="kn">import</span> <span class="n">CmdParser</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.handle</span> <span class="kn">import</span> <span class="n">Args</span>
+
+<span class="nd">@on_message</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">CmdParser</span><span class="p">(</span><span class="n">cmd_start</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">cmd_sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="s1">&#39;天气&#39;</span><span class="p">))</span>
+<span class="c1"># 使用 Args 进行依赖注入</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span> <span class="o">=</span> <span class="n">Args</span><span class="p">()):</span>
+    <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;天气&quot;</span>
+    <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">vals</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;杭州&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">]</span>
+</pre></div>
 </div>
+<p>需要多个指令起始符，多个指令间隔符，多个匹配的目标？这些也同样支持：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">ParseArgs</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.utils</span> <span class="kn">import</span> <span class="n">CmdParser</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.handle</span> <span class="kn">import</span> <span class="n">Args</span>
+
+<span class="nd">@on_message</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">CmdParser</span><span class="p">(</span>
+    <span class="n">cmd_start</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;~&quot;</span><span class="p">],</span> 
+    <span class="n">cmd_sep</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="p">],</span> 
+    <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;天气&quot;</span><span class="p">,</span> <span class="s2">&quot;weather&quot;</span><span class="p">]</span>
+<span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span> <span class="o">=</span> <span class="n">Args</span><span class="p">()):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>此时，以下字符串都可以产生与刚才类似的解析结果：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">~天气#杭州</span>&#160; <span class="pre">7</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">name='天气',</span> <span class="pre">vals=['杭州',</span> <span class="pre">'7']</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">~天气##杭州</span>&#160;&#160;&#160; <span class="pre">7</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">name='天气',</span> <span class="pre">vals=['杭州',</span> <span class="pre">'7']</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.weather#杭州#7</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">name='weather',</span> <span class="pre">vals=['杭州',</span> <span class="pre">'7']</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.天气</span>&#160;&#160; <span class="pre">杭州</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">7</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">name='天气',</span> <span class="pre">vals=['杭州',</span> <span class="pre">'7']</span></code></p></li>
+</ul>
+<p>实际上，利用 targets 参数可以给定多个值的特点，你可以一次解析一组指令，然后再处理：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@on_message</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">CmdParser</span><span class="p">(</span>
+    <span class="n">cmd_start</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> 
+    <span class="n">cmd_sep</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="p">],</span> 
+    <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;功能1&quot;</span><span class="p">,</span> <span class="s2">&quot;功能2&quot;</span><span class="p">,</span> <span class="s2">&quot;功能3&quot;</span><span class="p">]</span>
+<span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span> <span class="o">=</span> <span class="n">Args</span><span class="p">()):</span>
+    <span class="k">match</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="k">case</span> <span class="s2">&quot;功能1&quot;</span><span class="p">:</span>
+            <span class="n">func1</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">case</span> <span class="s2">&quot;功能2&quot;</span><span class="p">:</span>
+            <span class="n">func2</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">case</span> <span class="s2">&quot;功能3&quot;</span><span class="p">:</span>
+            <span class="n">func3</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="k">return</span>
+</pre></div>
+</div>
+<p>同理也可以实现子命令支持，这里不再演示。</p>
+<p>使用 <a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_message" title="melobot.protocols.onebot.v11.handle.on_message"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_message()</span></code></a> 手动给定 <a class="reference internal" href="../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.CmdParser" title="melobot.protocols.onebot.v11.utils.CmdParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">CmdParser</span></code></a> 还是略显麻烦。一般的情景，更建议使用 <a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_command" title="melobot.protocols.onebot.v11.handle.on_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_command()</span></code></a>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_command</span><span class="p">,</span> <span class="n">ParseArgs</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.handle</span> <span class="kn">import</span> <span class="n">Args</span>
+
+<span class="nd">@on_command</span><span class="p">(</span><span class="n">cmd_start</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;~&quot;</span><span class="p">],</span> <span class="n">cmd_sep</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="p">],</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;天气&quot;</span><span class="p">,</span> <span class="s2">&quot;weather&quot;</span><span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span> <span class="o">=</span> <span class="n">Args</span><span class="p">()):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>为了进一步简化重复操作，同样有命令解析器工厂 <a class="reference internal" href="../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.CmdParserFactory" title="melobot.protocols.onebot.v11.utils.CmdParserFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">CmdParserFactory</span></code></a>。</p>
+</section>
+<section id="id5">
+<h2>解析格式化<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p>解析得到的结果，还可以进行参数格式化（类型转换、校验）。</p>
+<p>下面是一个例子。这个 <code class="docutils literal notranslate"><span class="pre">add</span></code> 指令，接受两个浮点数，且第二参数可以有默认值：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_command</span><span class="p">,</span> <span class="n">ParseArgs</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.handle</span> <span class="kn">import</span> <span class="n">Args</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.utils</span> <span class="kn">import</span> <span class="n">CmdArgFormatter</span> <span class="k">as</span> <span class="n">Fmtter</span>
+
+<span class="nd">@on_command</span><span class="p">(</span>
+    <span class="n">cmd_start</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+    <span class="n">cmd_sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span>
+    <span class="n">targets</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">,</span>
+    <span class="n">fmtters</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">Fmtter</span><span class="p">(</span>
+            <span class="c1"># 转换函数，接受字符串再返回一个值，不需要则空</span>
+            <span class="n">convert</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="c1"># 校验函数，在格式化之后执行，不需要则空</span>
+            <span class="n">validate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="c1"># 此参数的描述（可供回调使用）</span>
+            <span class="n">src_desc</span><span class="o">=</span><span class="s2">&quot;操作数1&quot;</span><span class="p">,</span>
+            <span class="c1"># 此参数期待值的说明（可供回调使用）</span>
+            <span class="n">src_expect</span><span class="o">=</span><span class="s2">&quot;[0, 100] 的浮点数&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">Fmtter</span><span class="p">(</span>
+            <span class="n">convert</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="n">src_desc</span><span class="o">=</span><span class="s2">&quot;操作数2&quot;</span><span class="p">,</span>
+            <span class="n">src_expect</span><span class="o">=</span><span class="s2">&quot;[0, 100] 的浮点数&quot;</span><span class="p">,</span>
+            <span class="c1"># 默认值</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">ParseArgs</span> <span class="o">=</span> <span class="n">Args</span><span class="p">()):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>解析情况如下：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.add</span> <span class="pre">12</span> <span class="pre">24</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">vals=[12.0,</span> <span class="pre">24.0]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.add</span> <span class="pre">12</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">vals=[12.0,</span> <span class="pre">0]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.add</span> <span class="pre">12</span> <span class="pre">24</span> <span class="pre">asfdja</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">vals=[12.0,</span> <span class="pre">24.0]</span></code>（多余参数被忽略）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.add</span></code> -&gt; 日志输出内置的“参数缺少”提示，不进入事件处理</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.add</span> <span class="pre">ajfa</span></code> -&gt; 日志输出内置的“参数格式化失败”提示，不进入事件处理</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.add</span> <span class="pre">120</span></code> -&gt; 日志输出内置的“参数验证失败”提示，不进入事件处理</p></li>
+</ul>
+<p>如果某一个参数不需要任何格式化呢？</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 对第二参数不运行格式化</span>
+<span class="n">fmtters</span> <span class="o">=</span> <span class="p">[</span><span class="n">Fmtter</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Fmtter</span><span class="p">(</span><span class="o">...</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>此外，你还可以自定义“参数转换失败”、“参数验证失败”、“参数缺少”时的回调。比如直接静默，而不是在日志提示：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">to_async</span>
+
+<span class="n">nothing</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="n">fmtters</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Fmtter</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span> 
+        <span class="n">convert_fail</span><span class="o">=</span><span class="n">nothing</span><span class="p">,</span> 
+        <span class="n">validate_fail</span><span class="o">=</span><span class="n">nothing</span><span class="p">,</span> 
+        <span class="n">arg_lack</span><span class="o">=</span><span class="n">nothing</span>
+    <span class="p">),</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>或者利用回调函数 <a class="reference internal" href="../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.FormatInfo" title="melobot.protocols.onebot.v11.utils.FormatInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">FormatInfo</span></code></a> 参数提供的信息，给用户回复提示：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot</span> <span class="kn">import</span> <span class="n">send_text</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.utils</span> <span class="kn">import</span> <span class="n">FormatInfo</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">convert_fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">e_class</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">src</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">info</span><span class="o">.</span><span class="n">src</span>
+
+    <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;第 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> 个参数&quot;</span>
+    <span class="n">tip</span> <span class="o">+=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;（</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_desc</span><span class="si">}</span><span class="s2">）无法处理，给定的值为：</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">。&quot;</span>
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_desc</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;给定的值 </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> 无法处理。&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">详细错误描述：[</span><span class="si">{</span><span class="n">e_class</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># 回复提示</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">validate_fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">src</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">info</span><span class="o">.</span><span class="n">src</span>
+
+    <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;第 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> 个参数&quot;</span>
+    <span class="n">tip</span> <span class="o">+=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;（</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_desc</span><span class="si">}</span><span class="s2">）不符合要求，给定的值为：</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">。&quot;</span>
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_desc</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;给定的值 </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> 不符合要求。&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># 回复提示</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">arg_lack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;第 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> 个参数&quot;</span>
+    <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;（</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_desc</span><span class="si">}</span><span class="s2">）缺失。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_desc</span> <span class="k">else</span> <span class="s2">&quot;缺失。&quot;</span>
+    <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># 回复提示</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+
+
+<span class="n">fmtters</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Fmtter</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span> 
+        <span class="n">convert_fail</span><span class="o">=</span><span class="n">convert_fail</span><span class="p">,</span> 
+        <span class="n">validate_fail</span><span class="o">=</span><span class="n">validate_fail</span><span class="p">,</span> 
+        <span class="n">arg_lack</span><span class="o">=</span><span class="n">arg_lack</span>
+    <span class="p">),</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h2>自定义解析器<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<p>使用内置的抽象类来自定义解析器：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span>
+<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.utils</span> <span class="kn">import</span> <span class="n">Parser</span>
+
+<span class="k">class</span> <span class="nc">MyParser</span><span class="p">(</span><span class="n">Parser</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseArgs</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># 返回 None 代表没有有效的解析结果</span>
+        <span class="o">...</span>
+
+<span class="nd">@on_message</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">MyParser</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>总结<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<p>本篇主要说明了预处理机制中的检查、匹配和解析。</p>
+<p>消息事件绑定方法，检查、匹配和解析可以同时指定。顺序是：先检查，再匹配，最后解析。其他事件绑定方法，只能指定检查。</p>
+<p>再次提醒，所有内置预处理机制，<strong>均不是异步安全的</strong>。若需要异步安全，请实现自定义类。</p>
+<p>同时，读者也无需拘泥于文档所给的示例。充分利用 OOP 的编程思路，可以创造出更多有趣的玩法。</p>
 </section>
 </section>
 
@@ -594,6 +808,9 @@
 <li><a class="reference internal" href="#id2">自定义检查</a></li>
 <li><a class="reference internal" href="#id3">匹配</a></li>
 <li><a class="reference internal" href="#id4">解析</a></li>
+<li><a class="reference internal" href="#id5">解析格式化</a></li>
+<li><a class="reference internal" href="#id6">自定义解析器</a></li>
+<li><a class="reference internal" href="#id7">总结</a></li>
 </ul>
 </li>
 </ul>
@@ -605,7 +822,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=c75b95a1"></script>
+</div><script src="../_static/documentation_options.js?v=f011d18f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

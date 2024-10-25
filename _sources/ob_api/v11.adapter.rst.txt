@@ -339,4 +339,3 @@ v11 回应
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetVersionInfoEcho
     :exclude-members: Model, __init__, resolve
-

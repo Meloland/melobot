@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.onebot.v11.utils.parse - melobot 3.0.0rc11</title>
+        <title>melobot.protocols.onebot.v11.utils.parse - melobot 3.0.0rc12</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">melobot 3.0.0rc11</div></a>
+      <a href="../../../../../../index.html"><div class="brand">melobot 3.0.0rc12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc11</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -329,15 +329,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;命令参数格式化信息对象</span>
 
 <span class="sd">    用于在命令参数格式化异常时传递信息。</span>
-
-<span class="sd">    .. admonition:: 提示</span>
-<span class="sd">       :class: tip</span>
-
-<span class="sd">       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FormatInfo.__init__">
-<a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.FormatInfo.__init__">[文档]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">src</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">VoidType</span><span class="p">,</span>
@@ -346,23 +339,22 @@
         <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
         <span class="n">exc_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">],</span>
-        <span class="n">group_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1">#: 命令参数格式化前的原值</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">src</span>
-        <span class="c1">#: 命令参数值的功能描述</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span> <span class="o">=</span> <span class="n">src_desc</span>
-        <span class="c1">#: 命令参数值的值期待描述</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span> <span class="o">=</span> <span class="n">src_expect</span>
-        <span class="c1">#: 命令参数值的顺序（从 0 开始索引）</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span>
-        <span class="c1">#: 命令参数格式化异常时的异常对象</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span>
-        <span class="c1">#: 命令参数格式化异常时的调用栈信息</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exc_tb</span> <span class="o">=</span> <span class="n">exc_tb</span>
         <span class="c1">#: 命令参数所属命令的命令名</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">group_id</span></div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="c1">#: 命令参数格式化前的原值，参数缺失时是 VoidType.VOID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">VoidType</span> <span class="o">=</span> <span class="n">src</span>
+        <span class="c1">#: 命令参数值的功能描述</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">src_desc</span>
+        <span class="c1">#: 命令参数值的值期待描述</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_expect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">src_expect</span>
+        <span class="c1">#: 命令参数值的顺序（从 0 开始索引）</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="c1">#: 命令参数格式化异常时的异常对象</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span> <span class="o">=</span> <span class="n">exc</span>
+        <span class="c1">#: 命令参数格式化异常时的调用栈信息</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exc_tb</span><span class="p">:</span> <span class="n">TracebackType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">exc_tb</span></div>
 
 
 
@@ -500,7 +492,7 @@
 
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">详细错误描述：[</span><span class="si">{</span><span class="n">e_class</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_validate_fail_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -514,14 +506,14 @@
         <span class="p">)</span>
 
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_arglack_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">FormatInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;第 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> 个参数&quot;</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;（</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_desc</span><span class="si">}</span><span class="s2">）缺失。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_desc</span> <span class="k">else</span> <span class="s2">&quot;缺失。&quot;</span>
         <span class="n">tip</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;参数要求：</span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">src_expect</span><span class="si">}</span><span class="s2">。&quot;</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">src_expect</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">tip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;命令 </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 参数格式化失败：</span><span class="se">\n</span><span class="si">{</span><span class="n">tip</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span></div>
 
 
@@ -623,7 +615,9 @@
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.CmdParser.parse">[文档]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParseArgs</span><span class="p">]:</span>
         <span class="n">cmd_dict</span> <span class="o">=</span> <span class="n">_cmd_parse</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_regex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep_regex</span><span class="p">)</span>
-        <span class="n">args_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">cmd_name</span><span class="p">:</span> <span class="n">ParseArgs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="k">for</span> <span class="n">cmd_name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">cmd_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">args_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">cmd_name</span><span class="p">:</span> <span class="n">ParseArgs</span><span class="p">(</span><span class="n">cmd_name</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span> <span class="k">for</span> <span class="n">cmd_name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">cmd_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
             <span class="n">args</span> <span class="o">=</span> <span class="n">args_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
@@ -728,7 +722,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../../_static/documentation_options.js?v=c75b95a1"></script>
+</div><script src="../../../../../../_static/documentation_options.js?v=f011d18f"></script>
     <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OneBot 消息操作 - melobot 3.0.0rc11</title>
+        <title>OneBot 消息操作 - melobot 3.0.0rc12</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc11</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc11</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -429,7 +429,7 @@
 </section>
 <section id="cq">
 <h2>获取 CQ 字符串<a class="headerlink" href="#cq" title="Link to this heading">¶</a></h2>
-<p>除使用消息段对象外，也可以使用<strong>CQ 字符串</strong>直接表示单条消息的所有消息内容。但你必须先构造消息段对象，然后才能生成 cq 字符串：</p>
+<p>除使用消息段对象外，也可以使用<strong>CQ 字符串</strong>直接表示单条消息的所有消息内容。但只能从消息段对象生成 cq 字符串：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">ImageSegment</span>
 
 <span class="n">img_cq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ImageSegment</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;https://example.com/test.jpg&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_cq</span><span class="p">()</span>
@@ -603,7 +603,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=c75b95a1"></script>
+</div><script src="../_static/documentation_options.js?v=f011d18f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

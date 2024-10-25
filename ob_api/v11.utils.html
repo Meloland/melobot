@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>v11.utils - melobot 3.0.0rc11</title>
+        <title>v11.utils - melobot 3.0.0rc12</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0rc11</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.0.0rc12</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc11</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc12</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -916,8 +916,8 @@
 </dd></dl>
 
 </section>
-<section id="id2">
-<h2>v11 解析器<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="onebot-v11-parse">
+<span id="id2"></span><h2>v11 解析器<a class="headerlink" href="#onebot-v11-parse" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.abc.Parser">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.onebot.v11.utils.abc.</span></span><span class="sig-name descname"><span class="pre">Parser</span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/utils/abc.html#Parser"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.abc.Parser" title="Link to this definition">¶</a></dt>
@@ -949,6 +949,11 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.onebot.v11.utils.abc.</span></span><span class="sig-name descname"><span class="pre">ParseArgs</span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/utils/abc.html#ParseArgs"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>解析参数</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.abc.ParseArgs.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.abc.ParseArgs.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.abc.ParseArgs.vals">
 <span class="sig-name descname"><span class="pre">vals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.abc.ParseArgs.vals" title="Link to this definition">¶</a></dt>
@@ -1064,71 +1069,46 @@
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>命令参数格式化信息对象</p>
 <p>用于在命令参数格式化异常时传递信息。</p>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<p>一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。</p>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../api/melobot.typ.html#melobot.typ.VoidType" title="melobot.typ.VoidType"><span class="pre">VoidType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_expect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="（在 Python v3.13）"><span class="pre">Exception</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_tb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/types.html#types.TracebackType" title="（在 Python v3.13）"><span class="pre">TracebackType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/utils/parse.html#FormatInfo.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.__init__" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><a class="reference internal" href="../api/melobot.typ.html#melobot.typ.VoidType" title="melobot.typ.VoidType"><em>VoidType</em></a>)</p></li>
-<li><p><strong>src_desc</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>)</p></li>
-<li><p><strong>src_expect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>)</p></li>
-<li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><em>int</em></a>)</p></li>
-<li><p><strong>exc</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="（在 Python v3.13）"><em>Exception</em></a>)</p></li>
-<li><p><strong>exc_tb</strong> (<a class="reference external" href="https://docs.python.org/3/library/types.html#types.TracebackType" title="（在 Python v3.13）"><em>TracebackType</em></a><em> | </em><em>None</em>)</p></li>
-<li><p><strong>group_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回类型<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.name" title="Link to this definition">¶</a></dt>
+<dd><p>命令参数所属命令的命令名</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.src">
-<span class="sig-name descname"><span class="pre">src</span></span><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src" title="Link to this definition">¶</a></dt>
-<dd><p>命令参数格式化前的原值</p>
+<span class="sig-name descname"><span class="pre">src</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../api/melobot.typ.html#melobot.typ.VoidType" title="melobot.typ.VoidType"><span class="pre">VoidType</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src" title="Link to this definition">¶</a></dt>
+<dd><p>命令参数格式化前的原值，参数缺失时是 VoidType.VOID</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.src_desc">
-<span class="sig-name descname"><span class="pre">src_desc</span></span><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src_desc" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">src_desc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src_desc" title="Link to this definition">¶</a></dt>
 <dd><p>命令参数值的功能描述</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.src_expect">
-<span class="sig-name descname"><span class="pre">src_expect</span></span><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src_expect" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">src_expect</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src_expect" title="Link to this definition">¶</a></dt>
 <dd><p>命令参数值的值期待描述</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.idx">
-<span class="sig-name descname"><span class="pre">idx</span></span><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.idx" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.13）"><span class="pre">int</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.idx" title="Link to this definition">¶</a></dt>
 <dd><p>命令参数值的顺序（从 0 开始索引）</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.exc">
-<span class="sig-name descname"><span class="pre">exc</span></span><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.exc" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">exc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="（在 Python v3.13）"><span class="pre">Exception</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.exc" title="Link to this definition">¶</a></dt>
 <dd><p>命令参数格式化异常时的异常对象</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.exc_tb">
-<span class="sig-name descname"><span class="pre">exc_tb</span></span><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.exc_tb" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">exc_tb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/types.html#types.TracebackType" title="（在 Python v3.13）"><span class="pre">TracebackType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></em><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.exc_tb" title="Link to this definition">¶</a></dt>
 <dd><p>命令参数格式化异常时的调用栈信息</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.utils.FormatInfo.group_id">
-<span class="sig-name descname"><span class="pre">group_id</span></span><a class="headerlink" href="#melobot.protocols.onebot.v11.utils.FormatInfo.group_id" title="Link to this definition">¶</a></dt>
-<dd><p>命令参数所属命令的命令名</p>
 </dd></dl>
 
 </dd></dl>
@@ -1329,12 +1309,13 @@
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id2">v11 解析器</a><ul>
+<li><a class="reference internal" href="#onebot-v11-parse">v11 解析器</a><ul>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.abc.Parser"><code class="docutils literal notranslate"><span class="pre">Parser</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.abc.Parser.parse"><code class="docutils literal notranslate"><span class="pre">Parser.parse()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.abc.ParseArgs"><code class="docutils literal notranslate"><span class="pre">ParseArgs</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.abc.ParseArgs.name"><code class="docutils literal notranslate"><span class="pre">ParseArgs.name</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.abc.ParseArgs.vals"><code class="docutils literal notranslate"><span class="pre">ParseArgs.vals</span></code></a></li>
 </ul>
 </li>
@@ -1349,14 +1330,13 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo"><code class="docutils literal notranslate"><span class="pre">FormatInfo</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.__init__"><code class="docutils literal notranslate"><span class="pre">FormatInfo.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.name"><code class="docutils literal notranslate"><span class="pre">FormatInfo.name</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src"><code class="docutils literal notranslate"><span class="pre">FormatInfo.src</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src_desc"><code class="docutils literal notranslate"><span class="pre">FormatInfo.src_desc</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.src_expect"><code class="docutils literal notranslate"><span class="pre">FormatInfo.src_expect</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.idx"><code class="docutils literal notranslate"><span class="pre">FormatInfo.idx</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.exc"><code class="docutils literal notranslate"><span class="pre">FormatInfo.exc</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.exc_tb"><code class="docutils literal notranslate"><span class="pre">FormatInfo.exc_tb</span></code></a></li>
-<li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.FormatInfo.group_id"><code class="docutils literal notranslate"><span class="pre">FormatInfo.group_id</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.utils.CmdParserFactory"><code class="docutils literal notranslate"><span class="pre">CmdParserFactory</span></code></a><ul>
@@ -1377,7 +1357,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=c75b95a1"></script>
+</div><script src="../_static/documentation_options.js?v=f011d18f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
