@@ -119,11 +119,7 @@ class Bot:
         self._rip_signal = asyncio.Event()
 
     def __repr__(self) -> str:
-        return (
-            f'Bot(name="{self.name}", '
-            f"plugins_num={len(self._plugins.values())}, "
-            f"handlers_num={sum(len(hs) for hs in self._dispatcher.handlers.values())})"
-        )
+        return f'Bot(name="{self.name}")'
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
