@@ -26,11 +26,6 @@ class FormatInfo:
     """命令参数格式化信息对象
 
     用于在命令参数格式化异常时传递信息。
-
-    .. admonition:: 提示
-       :class: tip
-
-       一般无需手动实例化该类，多数情况会直接使用本类对象，或将本类用作类型注解。
     """
 
     def __init__(
@@ -41,22 +36,22 @@ class FormatInfo:
         idx: int,
         exc: Exception,
         exc_tb: Optional[TracebackType],
-        group_id: str,
+        name: str,
     ) -> None:
-        #: 命令参数格式化前的原值
-        self.src = src
-        #: 命令参数值的功能描述
-        self.src_desc = src_desc
-        #: 命令参数值的值期待描述
-        self.src_expect = src_expect
-        #: 命令参数值的顺序（从 0 开始索引）
-        self.idx = idx
-        #: 命令参数格式化异常时的异常对象
-        self.exc = exc
-        #: 命令参数格式化异常时的调用栈信息
-        self.exc_tb = exc_tb
         #: 命令参数所属命令的命令名
-        self.group_id = group_id
+        self.name: str = name
+        #: 命令参数格式化前的原值，参数缺失时是 VoidType.VOID
+        self.src: str | VoidType = src
+        #: 命令参数值的功能描述
+        self.src_desc: str | None = src_desc
+        #: 命令参数值的值期待描述
+        self.src_expect: str | None = src_expect
+        #: 命令参数值的顺序（从 0 开始索引）
+        self.idx: int = idx
+        #: 命令参数格式化异常时的异常对象
+        self.exc: Exception = exc
+        #: 命令参数格式化异常时的调用栈信息
+        self.exc_tb: TracebackType | None = exc_tb
 
 
 class CmdArgFormatter:
@@ -185,7 +180,7 @@ class CmdArgFormatter:
 
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip += f"\n详细错误描述：[{e_class}] {info.exc}"
-        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
+        tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
         get_logger().warning(tip)
 
     async def _validate_fail_default(self, info: FormatInfo) -> None:
@@ -199,14 +194,14 @@ class CmdArgFormatter:
         )
 
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
+        tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
         get_logger().warning(tip)
 
     async def _arglack_default(self, info: FormatInfo) -> None:
         tip = f"第 {info.idx + 1} 个参数"
         tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
-        tip = f"命令 {info.group_id} 参数格式化失败：\n{tip}"
+        tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
         get_logger().warning(tip)
 
 
@@ -300,7 +295,9 @@ class CmdParser(Parser):
 
     async def parse(self, text: str) -> Optional[ParseArgs]:
         cmd_dict = _cmd_parse(text, self.start_regex, self.sep_regex)
-        args_dict = {cmd_name: ParseArgs(vals) for cmd_name, vals in cmd_dict.items()}
+        args_dict = {
+            cmd_name: ParseArgs(cmd_name, vals) for cmd_name, vals in cmd_dict.items()
+        }
 
         for group_id in self.targets:
             args = args_dict.get(group_id)

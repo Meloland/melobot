@@ -176,6 +176,7 @@ class WrappedMatcher(Matcher):
 class ParseArgs:
     """解析参数"""
 
+    name: str
     vals: list[Any]
 
 
