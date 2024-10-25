@@ -4,6 +4,7 @@
 :maxdepth: 2
 :hidden:
 
+async-callable
 create-bot
 event-process
 msg-action
