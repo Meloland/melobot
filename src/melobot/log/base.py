@@ -324,7 +324,7 @@ class Logger(_Logger, GenericLogger):
         level: LogLevel = LogLevel.INFO,
         file_level: LogLevel = LogLevel.DEBUG,
         to_console: bool = True,
-        to_dir: Optional[str] = None,
+        to_dir: str | None = "./",
         add_tag: bool = False,
         legacy: bool = False,
         red_error: bool = True,
