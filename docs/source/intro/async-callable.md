@@ -59,3 +59,18 @@ await bar1()
 await bar2()
 await bar3()
 ```
+
+在 melobot 中，也提供了装饰器 {func}`.to_async` 转换可调用为异步可调用：
+
+```python
+# 在一般函数上装饰，转换为异步可调用
+@to_async
+def sync_func(...):
+    ...
+
+# 直接调用，适用于各种可调用对象：
+async def _any_coro_f(*args, **kwargs): ...
+f = to_async(lambda: _any_coro_f(1, 2, 3))
+
+aprint = to_async(print)
+```
