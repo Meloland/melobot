@@ -362,6 +362,19 @@
 <span class="k">await</span> <span class="n">bar3</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>在 melobot 中，也提供了装饰器 <a class="reference internal" href="../api/melobot.utils.html#melobot.utils.to_async" title="melobot.utils.to_async"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_async()</span></code></a> 转换可调用为异步可调用：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 在一般函数上装饰，转换为异步可调用</span>
+<span class="nd">@to_async</span>
+<span class="k">def</span> <span class="nf">sync_func</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c1"># 直接调用，适用于各种可调用对象：</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_any_coro_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="o">...</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_any_coro_f</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="n">aprint</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 
         </article>
