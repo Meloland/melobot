@@ -70,7 +70,7 @@ from melobot.protocols.onebot.v11 import on_start_match
 from melobot.protocols.onebot.v11.adapter.event import MessageEvent
 from melobot import send_text
 
-ONWER_QID = 10001
+OWNER_QID = 10001
 
 @on_start_match(".sayhi")
 async def say_hi(e: MessageEvent) -> None:

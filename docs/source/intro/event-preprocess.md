@@ -24,14 +24,14 @@ from melobot.protocols.onebot.v11 import on_message
 from melobot.protocols.onebot.v11.utils import MsgChecker, LevelRole
 
 # 这些整型值都代表 qq 号
-ONWER = 10001
+OWNER = 10001
 SUPER = [12345, 12346]
 WHTIE = [12347, 12348]
 BLACK = []
 
 @on_message(checker=MsgChecker(
     role=LevelRole.OWNER, 
-    owner=ONWER, 
+    owner=OWNER, 
     super_users=SUPER, 
     white_users=WHITE, 
     black_users=BLACK
@@ -44,7 +44,7 @@ WHITEG = [1000000]
 
 @on_message(checker=GroupMsgChecker(
     role=LevelRole.OWNER, 
-    owner=ONWER, 
+    owner=OWNER, 
     super_users=SUPER, 
     white_users=WHITE, 
     black_users=BLACK,
@@ -57,7 +57,7 @@ async def _():
 
 @on_message(checker=PrivateMsgChecker(
     role=LevelRole.OWNER, 
-    owner=ONWER, 
+    owner=OWNER, 
     super_users=SUPER, 
     white_users=WHITE, 
     black_users=BLACK,
@@ -75,7 +75,7 @@ from melobot.protocols.onebot.v11.utils import MsgCheckerFactory
 
 checker_ft = MsgCheckerFactory(
     role=LevelRole.OWNER, 
-    owner=ONWER, 
+    owner=OWNER, 
     super_users=SUPER, 
     white_users=WHITE, 
     black_users=BLACK,
@@ -238,6 +238,7 @@ async def _():
 解析只对消息事件的文本内容生效。解析完成后将会生成一个 {class}`.ParseArgs` 对象。其他事件绑定方法无法指定解析。
 
 想象一个典型的使用案例，你需要：
+
 - 机器人响应指令：`.天气 杭州 7`
 - 匹配到“天气”指令的处理方法
 - 传递参数列表 `["杭州", "7"]` 给处理方法，实现具体的逻辑。
@@ -273,6 +274,7 @@ async def _(args: ParseArgs = Args()):
 ```
 
 此时，以下字符串都可以产生与刚才类似的解析结果：
+
 - `~天气#杭州  7` -> `name='天气', vals=['杭州', '7']`
 - `~天气##杭州    7` -> `name='天气', vals=['杭州', '7']`
 - `.weather#杭州#7` -> `name='weather', vals=['杭州', '7']`
@@ -354,6 +356,7 @@ async def _(args: ParseArgs = Args()):
 ```
 
 解析情况如下：
+
 - `.add 12 24` -> `vals=[12.0, 24.0]`
 - `.add 12` -> `vals=[12.0, 0]`
 - `.add 12 24 asfdja` -> `vals=[12.0, 24.0]`（多余参数被忽略）
