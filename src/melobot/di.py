@@ -7,11 +7,20 @@ from functools import wraps
 from inspect import Parameter, isawaitable, signature
 from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
-from typing import Annotated, Any, Callable, Sequence, cast, get_args, get_origin
+from typing import Annotated, Any, Callable, Generic, Sequence, cast, get_args, get_origin
 
 from .ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
-from .typ import AsyncCallable, P, T, VoidType, is_subhint, is_type
+from .typ import (
+    AsyncCallable,
+    BetterABC,
+    P,
+    T,
+    VoidType,
+    abstractmethod,
+    is_subhint,
+    is_type,
+)
 from .utils import to_async
 
 
@@ -278,13 +287,31 @@ def _get_bound_args(
     return list(bind.args), bind.kwargs
 
 
+class DependsHook(BetterABC, Generic[T]):
+    """依赖钩子
+
+    包装一个依赖项，依赖满足后内部的 hook 将会执行
+    """
+
+    def __init__(
+        self,
+        func: Callable[P, T] | AsyncCallable[P, T],
+        cache: bool = False,
+        recursive: bool = False,
+    ) -> None:
+        self.__inner_depends__ = Depends(func, cache=cache, recursive=recursive)
+
+    @abstractmethod
+    async def deps_callback(self, val: T) -> None: ...
+
+
 def inject_deps(
     injectee: Callable[P, T] | AsyncCallable[P, T], manual_arg: bool = False
 ) -> AsyncCallable[P, T]:
     """依赖注入标记装饰器，标记当前对象需要被依赖注入
 
     可以标记的对象类别有：
-    同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，类对象，实例方法、类方法、静态方法
+    同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，实例方法、类方法、静态方法
 
     :param injectee: 需要被注入的对象
     :param manual_arg: 当前对象标记需要依赖注入后，是否还可以给某些参数手动传参
@@ -308,19 +335,22 @@ def inject_deps(
             if isinstance(elem, Depends):
                 _args[idx] = await elem.fulfill(dep_scope)
 
+            if isinstance(elem, DependsHook):
+                val = await elem.__inner_depends__.fulfill(dep_scope)
+                await elem.deps_callback(val)
+
         for idx, k in enumerate(_kwargs.keys()):
             elem = _kwargs[k]
             if isinstance(elem, Depends):
                 _kwargs[k] = await elem.fulfill(dep_scope)
 
+            if isinstance(elem, DependsHook):
+                val = await elem.__inner_depends__.fulfill(dep_scope)
+                await elem.deps_callback(val)
+
         ret = injectee(*_args, **_kwargs)  # type: ignore[arg-type]
         if isawaitable(ret):
             return await ret
-        return ret
-
-    @wraps(injectee)
-    async def class_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        ret = cast(Callable[P, T], injectee)(*args, **kwargs)
         return ret
 
     if isinstance(injectee, (FunctionType, BuiltinFunctionType)):
@@ -328,11 +358,9 @@ def inject_deps(
         return wrapped
     if isinstance(injectee, LambdaType):
         return wrapped
-    if isinstance(injectee, type):
-        return class_wrapped
 
     raise DependInitError(
         f"{injectee} 对象不属于以下类别中的任何一种："
-        "{同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，类对象，"
+        "{同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，"
         "实例方法、类方法、静态方法}，因此不能被注入依赖"
     )
