@@ -23,7 +23,7 @@ from ..exceptions import BotError
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
 from ..plugin.base import Plugin
-from ..plugin.ipc import IPCManager
+from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
 from ..typ import AsyncCallable, P
@@ -446,6 +446,22 @@ class Bot:
         :return: 适配器的集合
         """
         return set(adapter for adapter in self.adapters.values() if filter(adapter))
+
+    def get_plugins(self) -> list[str]:
+        """获取所有绑定的插件的名称
+
+        :return: 所绑定的插件的名称列表
+        """
+        return list(self._plugins.keys())
+
+    def get_share(self, plugin: str, share: str) -> SyncShare | AsyncShare:
+        """获取绑定的插件中的共享对象
+
+        :param plugin: 插件名称
+        :param share: 共享对象的标识
+        :return: 共享对象
+        """
+        return self.ipc_manager.get(plugin, share)
 
     def on(
         self, *periods: BotLifeSpan
