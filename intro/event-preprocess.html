@@ -328,14 +328,14 @@
 <span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.utils</span> <span class="kn">import</span> <span class="n">MsgChecker</span><span class="p">,</span> <span class="n">LevelRole</span>
 
 <span class="c1"># 这些整型值都代表 qq 号</span>
-<span class="n">ONWER</span> <span class="o">=</span> <span class="mi">10001</span>
+<span class="n">OWNER</span> <span class="o">=</span> <span class="mi">10001</span>
 <span class="n">SUPER</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12345</span><span class="p">,</span> <span class="mi">12346</span><span class="p">]</span>
 <span class="n">WHTIE</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12347</span><span class="p">,</span> <span class="mi">12348</span><span class="p">]</span>
 <span class="n">BLACK</span> <span class="o">=</span> <span class="p">[]</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="n">checker</span><span class="o">=</span><span class="n">MsgChecker</span><span class="p">(</span>
     <span class="n">role</span><span class="o">=</span><span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span><span class="p">,</span> 
-    <span class="n">owner</span><span class="o">=</span><span class="n">ONWER</span><span class="p">,</span> 
+    <span class="n">owner</span><span class="o">=</span><span class="n">OWNER</span><span class="p">,</span> 
     <span class="n">super_users</span><span class="o">=</span><span class="n">SUPER</span><span class="p">,</span> 
     <span class="n">white_users</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> 
     <span class="n">black_users</span><span class="o">=</span><span class="n">BLACK</span>
@@ -348,7 +348,7 @@
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="n">checker</span><span class="o">=</span><span class="n">GroupMsgChecker</span><span class="p">(</span>
     <span class="n">role</span><span class="o">=</span><span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span><span class="p">,</span> 
-    <span class="n">owner</span><span class="o">=</span><span class="n">ONWER</span><span class="p">,</span> 
+    <span class="n">owner</span><span class="o">=</span><span class="n">OWNER</span><span class="p">,</span> 
     <span class="n">super_users</span><span class="o">=</span><span class="n">SUPER</span><span class="p">,</span> 
     <span class="n">white_users</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> 
     <span class="n">black_users</span><span class="o">=</span><span class="n">BLACK</span><span class="p">,</span>
@@ -361,7 +361,7 @@
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="n">checker</span><span class="o">=</span><span class="n">PrivateMsgChecker</span><span class="p">(</span>
     <span class="n">role</span><span class="o">=</span><span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span><span class="p">,</span> 
-    <span class="n">owner</span><span class="o">=</span><span class="n">ONWER</span><span class="p">,</span> 
+    <span class="n">owner</span><span class="o">=</span><span class="n">OWNER</span><span class="p">,</span> 
     <span class="n">super_users</span><span class="o">=</span><span class="n">SUPER</span><span class="p">,</span> 
     <span class="n">white_users</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> 
     <span class="n">black_users</span><span class="o">=</span><span class="n">BLACK</span><span class="p">,</span>
@@ -377,7 +377,7 @@
 
 <span class="n">checker_ft</span> <span class="o">=</span> <span class="n">MsgCheckerFactory</span><span class="p">(</span>
     <span class="n">role</span><span class="o">=</span><span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span><span class="p">,</span> 
-    <span class="n">owner</span><span class="o">=</span><span class="n">ONWER</span><span class="p">,</span> 
+    <span class="n">owner</span><span class="o">=</span><span class="n">OWNER</span><span class="p">,</span> 
     <span class="n">super_users</span><span class="o">=</span><span class="n">SUPER</span><span class="p">,</span> 
     <span class="n">white_users</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> 
     <span class="n">black_users</span><span class="o">=</span><span class="n">BLACK</span><span class="p">,</span>
