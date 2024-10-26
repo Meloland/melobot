@@ -9,8 +9,8 @@ from .typ import T
 from .utils import singleton
 
 if TYPE_CHECKING:
+    from .adapter import model
     from .adapter.base import Adapter
-    from . import adapter
     from .bot.base import Bot
     from .handle.process import Flow, FlowNode
     from .io.base import AbstractInSource, OutSourceT
@@ -142,7 +142,7 @@ class FlowRecord:
     stage: FlowRecordStage
     flow_name: str
     node_name: str
-    event: "adapter.model.Event"
+    event: "model.Event"
     prompt: str = ""
 
 
@@ -157,7 +157,7 @@ class FlowStore(dict[str, Any]):
 
 @dataclass
 class FlowStatus:
-    event: "adapter.model.Event"
+    event: "model.Event"
     flow: "Flow"
     node: "FlowNode"
     next_valid: bool
@@ -174,14 +174,14 @@ class FlowCtx(Context[FlowStatus]):
             "此时不在活动的事件处理流中，无法获取处理流信息",
         )
 
-    def get_event(self) -> "adapter.model.Event":
+    def get_event(self) -> "model.Event":
         return self.get().event
 
-    def try_get_event(self) -> Union["adapter.model.Event", None]:
+    def try_get_event(self) -> Union["model.Event", None]:
         status = self.try_get()
         return status.event if status is not None else None
 
-    def get_event_type(self) -> type["adapter.model.Event"]:
+    def get_event_type(self) -> type["model.Event"]:
         from .adapter.model import Event
 
         return Event

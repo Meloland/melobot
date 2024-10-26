@@ -1,12 +1,14 @@
 import inspect
+import warnings
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any, Awaitable, Callable, ParamSpec, Protocol, Sequence, TypeVar, cast
+from functools import wraps
+from typing import Any, Awaitable, Callable, Protocol, Sequence, cast
 
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
 from beartype.door import is_subhint
-from typing_extensions import TypeGuard
+from typing_extensions import ParamSpec, TypeGuard, TypeVar
 
 __all__ = (
     "T",
@@ -24,11 +26,11 @@ __all__ = (
 )
 
 #: 泛型 T，无约束
-T = TypeVar("T")
+T = TypeVar("T", default=Any)
 #: 泛型 T_co，协变无约束
-T_co = TypeVar("T_co", covariant=True)
+T_co = TypeVar("T_co", covariant=True, default=Any)
 #: :obj:`~typing.ParamSpec` 泛型 P，无约束
-P = ParamSpec("P")
+P = ParamSpec("P", default=Any)
 
 
 class AsyncCallable(Protocol[P, T_co]):
@@ -307,3 +309,21 @@ class VoidType(Enum):
     """
 
     VOID = type("_VOID", (), {})
+
+
+def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
+
+    def decorator(func: Callable[P, T]) -> Callable[P, T]:
+
+        @wraps(func)
+        def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+            warnings.warn(
+                f"调用了弃用函数 {func.__name__}: {msg}",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            return func(*args, **kwargs)
+
+        return wrapped
+
+    return decorator
