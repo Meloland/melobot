@@ -325,7 +325,7 @@
 <span class="kn">from</span> <span class="nn">..io.base</span> <span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">AbstractIOSource</span><span class="p">,</span> <span class="n">AbstractOutSource</span>
 <span class="kn">from</span> <span class="nn">..log.base</span> <span class="kn">import</span> <span class="n">GenericLogger</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">NullLogger</span>
 <span class="kn">from</span> <span class="nn">..plugin.base</span> <span class="kn">import</span> <span class="n">Plugin</span>
-<span class="kn">from</span> <span class="nn">..plugin.ipc</span> <span class="kn">import</span> <span class="n">IPCManager</span>
+<span class="kn">from</span> <span class="nn">..plugin.ipc</span> <span class="kn">import</span> <span class="n">AsyncShare</span><span class="p">,</span> <span class="n">IPCManager</span><span class="p">,</span> <span class="n">SyncShare</span>
 <span class="kn">from</span> <span class="nn">..plugin.load</span> <span class="kn">import</span> <span class="n">PluginLoader</span>
 <span class="kn">from</span> <span class="nn">..protocols.base</span> <span class="kn">import</span> <span class="n">ProtocolStack</span>
 <span class="kn">from</span> <span class="nn">..typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">P</span>
@@ -806,6 +806,28 @@
 <span class="sd">        :return: 适配器的集合</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">adapter</span> <span class="k">for</span> <span class="n">adapter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">filter</span><span class="p">(</span><span class="n">adapter</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Bot.get_plugins">
+<a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.get_plugins">[文档]</a>
+    <span class="k">def</span> <span class="nf">get_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取所有绑定的插件的名称</span>
+
+<span class="sd">        :return: 所绑定的插件的名称列表</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Bot.get_share">
+<a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.get_share">[文档]</a>
+    <span class="k">def</span> <span class="nf">get_share</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">share</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SyncShare</span> <span class="o">|</span> <span class="n">AsyncShare</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取绑定的插件中的共享对象</span>
+
+<span class="sd">        :param plugin: 插件名称</span>
+<span class="sd">        :param share: 共享对象的标识</span>
+<span class="sd">        :return: 共享对象</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ipc_manager</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="n">share</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Bot.on">
