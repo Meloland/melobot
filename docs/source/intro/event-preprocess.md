@@ -242,16 +242,16 @@ async def _():
 - 匹配到“天气”指令的处理方法
 - 传递参数列表 `["杭州", "7"]` 给处理方法，实现具体的逻辑。
 
-显然，自己编写指令解析是比较费劲的。可以使用 {class}`.CmdParser`，并利用 {class}`~.v11.handle.Args` 获取解析参数：
+显然，自己编写指令解析是比较费劲的。可以使用 {class}`.CmdParser`，并利用 {func}`~.v11.handle.GetParseArgs` 获取解析参数：
 
 ```python
 from melobot.protocols.onebot.v11 import on_message, ParseArgs
 from melobot.protocols.onebot.v11.utils import CmdParser
-from melobot.protocols.onebot.v11.handle import Args
+from melobot.protocols.onebot.v11.handle import GetParseArgs
 
 @on_message(parser=CmdParser(cmd_start='.', cmd_sep=' ', targets='天气'))
-# 使用 Args 进行依赖注入
-async def _(args: ParseArgs = Args()):
+# 使用 GetParseArgs 进行依赖注入
+async def _(args: ParseArgs = GetParseArgs()):
     assert args.name == "天气"
     assert args.vals == ["杭州", "7"]
 ```
@@ -261,14 +261,14 @@ async def _(args: ParseArgs = Args()):
 ```python
 from melobot.protocols.onebot.v11 import on_message, ParseArgs
 from melobot.protocols.onebot.v11.utils import CmdParser
-from melobot.protocols.onebot.v11.handle import Args
+from melobot.protocols.onebot.v11.handle import GetParseArgs
 
 @on_message(parser=CmdParser(
     cmd_start=[".", "~"], 
     cmd_sep=[" ", "#"], 
     targets=["天气", "weather"]
 ))
-async def _(args: ParseArgs = Args()):
+async def _(args: ParseArgs = GetParseArgs()):
     ...
 ```
 
@@ -286,7 +286,7 @@ async def _(args: ParseArgs = Args()):
     cmd_sep=[" ", "#"], 
     targets=["功能1", "功能2", "功能3"]
 ))
-async def _(args: ParseArgs = Args()):
+async def _(args: ParseArgs = GetParseArgs()):
     match args.name:
         case "功能1":
             func1(args.vals)
@@ -304,10 +304,10 @@ async def _(args: ParseArgs = Args()):
 
 ```python
 from melobot.protocols.onebot.v11 import on_command, ParseArgs
-from melobot.protocols.onebot.v11.handle import Args
+from melobot.protocols.onebot.v11.handle import GetParseArgs
 
 @on_command(cmd_start=[".", "~"], cmd_sep=[" ", "#"], targets=["天气", "weather"])
-async def _(args: ParseArgs = Args()):
+async def _(args: ParseArgs = GetParseArgs()):
     ...
 ```
 
@@ -321,7 +321,7 @@ async def _(args: ParseArgs = Args()):
 
 ```python
 from melobot.protocols.onebot.v11 import on_command, ParseArgs
-from melobot.protocols.onebot.v11.handle import Args
+from melobot.protocols.onebot.v11.handle import GetParseArgs
 from melobot.protocols.onebot.v11.utils import CmdArgFormatter as Fmtter
 
 @on_command(
@@ -349,7 +349,7 @@ from melobot.protocols.onebot.v11.utils import CmdArgFormatter as Fmtter
         ),
     ],
 )
-async def _(args: ParseArgs = Args()):
+async def _(args: ParseArgs = GetParseArgs()):
     pass
 ```
 

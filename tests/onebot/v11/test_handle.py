@@ -60,7 +60,10 @@ h = handle.on_start_match(
 
 @h
 async def test_this(
-    bot: Bot, event: MessageEvent, logger: GenericLogger, args: ParseArgs = handle.Args()
+    bot: Bot,
+    event: MessageEvent,
+    logger: GenericLogger,
+    args: ParseArgs = handle.GetParseArgs(),
 ) -> None:
     logger.info(args)
     await bot.close()

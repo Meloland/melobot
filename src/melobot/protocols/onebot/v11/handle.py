@@ -4,7 +4,7 @@ from typing import Callable, cast
 from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
-from melobot.typ import AsyncCallable, HandleLevel, LogicMode
+from melobot.typ import AsyncCallable, HandleLevel, LogicMode, deprecated
 from melobot.utils import singleton
 
 from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
@@ -14,17 +14,32 @@ from .utils.parse import CmdArgFormatter, CmdParser
 
 
 @singleton
-class ArgsCtx(Context[ParseArgs | None]):
+class ParseArgsCtx(Context[ParseArgs | None]):
     def __init__(self) -> None:
         super().__init__(
-            "ONEBOT_V11_MSG_ARGS", LookupError, "当前上下文中不存在参数解析结果"
+            "ONEBOT_V11_PARSE_ARGS", LookupError, "当前上下文中不存在解析参数"
         )
 
 
-class Args(Depends):
-    def __init__(self) -> None:
-        """初始化一个用于依赖注入的解析参数对象"""
-        super().__init__(ArgsCtx().get, recursive=False)
+def GetParseArgs() -> ParseArgs:  # pylint: disable=invalid-name
+    """获取解析参数
+
+    :return: 解析参数
+    """
+    return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
+
+
+@deprecated(
+    "将于 melobot v3.0.0 移除，使用 melobot.protocols.onebot.v11.handle.GetParseArgs 代替"
+)
+def Args() -> ParseArgs:  # pylint: disable=invalid-name
+    """获取解析参数，与 :func:`~.v11.handle.GetParseArgs` 等价
+
+    已弃用。将于 `v3.0.0` 移除，使用 :func:`~.v11.handle.GetParseArgs` 代替
+
+    :return: 解析参数
+    """
+    return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
 
 
 FlowDecorator = Callable[[AsyncCallable[..., bool | None]], Flow]
@@ -68,7 +83,7 @@ def on_event(
                     p_args = parse_args
 
             event.spread = not block
-            with ArgsCtx().in_ctx(p_args):
+            with ParseArgsCtx().in_ctx(p_args):
                 return await func()
 
         n = no_deps_node(_node)

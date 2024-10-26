@@ -20,9 +20,9 @@ from typing import (
 
 from typing_extensions import LiteralString, Self, TypeVar
 
-from ..ctx import ActionManualSignalCtx, Context
+from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
 from ..exceptions import AdapterError
-from ..log import LogLevel, get_logger
+from ..log.base import LogLevel
 from ..typ import T
 from ..utils import AttrsReprable, get_id
 from .content import Content
@@ -172,7 +172,7 @@ class ActionHandle(Generic[ActionRetT]):
             self.status = "FINISHED"
             self._done.set()
         except Exception:
-            logger = get_logger()
+            logger = LoggerCtx().get()
             logger.exception(f"{self.action} 执行时出现异常")
             logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
 
