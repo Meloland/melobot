@@ -312,29 +312,35 @@
         <article role="main" id="furo-main-content">
           <section id="v11-handle">
 <h1>v11.handle<a class="headerlink" href="#v11-handle" title="Link to this heading">¶</a></h1>
-<section id="v11">
-<h2>v11 处理流相关接口<a class="headerlink" href="#v11" title="Link to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.handle.ArgsCtx">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.onebot.v11.handle.</span></span><span class="sig-name descname"><span class="pre">ArgsCtx</span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/handle.html#ArgsCtx"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.handle.ArgsCtx" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="../api/melobot.ctx.html#melobot.ctx.Context" title="melobot.ctx.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a>[<a class="reference internal" href="v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="melobot.protocols.onebot.v11.utils.abc.ParseArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseArgs</span></code></a> | <cite>None</cite>]</p>
-</dd></dl>
-
-<dl class="py class" id="module-melobot.protocols.onebot.v11.handle">
-<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.handle.Args">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.onebot.v11.handle.</span></span><span class="sig-name descname"><span class="pre">Args</span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/handle.html#Args"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.handle.Args" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="../api/melobot.di.html#melobot.di.Depends" title="melobot.di.Depends"><code class="xref py py-class docutils literal notranslate"><span class="pre">Depends</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.handle.Args.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/handle.html#Args.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.handle.Args.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>初始化一个用于依赖注入的解析参数对象</p>
+<section id="module-melobot.protocols.onebot.v11.handle">
+<span id="v11"></span><h2>v11 处理流相关接口<a class="headerlink" href="#module-melobot.protocols.onebot.v11.handle" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.handle.GetParseArgs">
+<span class="sig-prename descclassname"><span class="pre">melobot.protocols.onebot.v11.handle.</span></span><span class="sig-name descname"><span class="pre">GetParseArgs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="melobot.protocols.onebot.v11.utils.abc.ParseArgs"><span class="pre">ParseArgs</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/handle.html#GetParseArgs"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.handle.GetParseArgs" title="Link to this definition">¶</a></dt>
+<dd><p>获取解析参数</p>
 <dl class="field-list simple">
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>解析参数</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="melobot.protocols.onebot.v11.utils.abc.ParseArgs"><em>ParseArgs</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.protocols.onebot.v11.handle.Args">
+<span class="sig-prename descclassname"><span class="pre">melobot.protocols.onebot.v11.handle.</span></span><span class="sig-name descname"><span class="pre">Args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="melobot.protocols.onebot.v11.utils.abc.ParseArgs"><span class="pre">ParseArgs</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/onebot/v11/handle.html#Args"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.onebot.v11.handle.Args" title="Link to this definition">¶</a></dt>
+<dd><p>获取解析参数，与 <a class="reference internal" href="#melobot.protocols.onebot.v11.handle.GetParseArgs" title="melobot.protocols.onebot.v11.handle.GetParseArgs"><code class="xref py py-func docutils literal notranslate"><span class="pre">GetParseArgs()</span></code></a> 等价</p>
+<p>已弃用。将于 <cite>v3.0.0</cite> 移除，使用 <a class="reference internal" href="#melobot.protocols.onebot.v11.handle.GetParseArgs" title="melobot.protocols.onebot.v11.handle.GetParseArgs"><code class="xref py py-func docutils literal notranslate"><span class="pre">GetParseArgs()</span></code></a> 代替</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>解析参数</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="melobot.protocols.onebot.v11.utils.abc.ParseArgs"><em>ParseArgs</em></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -652,12 +658,9 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">v11.handle</a><ul>
-<li><a class="reference internal" href="#v11">v11 处理流相关接口</a><ul>
-<li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.ArgsCtx"><code class="docutils literal notranslate"><span class="pre">ArgsCtx</span></code></a></li>
-<li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.Args"><code class="docutils literal notranslate"><span class="pre">Args</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.Args.__init__"><code class="docutils literal notranslate"><span class="pre">Args.__init__()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#module-melobot.protocols.onebot.v11.handle">v11 处理流相关接口</a><ul>
+<li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.GetParseArgs"><code class="docutils literal notranslate"><span class="pre">GetParseArgs()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.Args"><code class="docutils literal notranslate"><span class="pre">Args()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.on_event"><code class="docutils literal notranslate"><span class="pre">on_event()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.on_message"><code class="docutils literal notranslate"><span class="pre">on_message()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.protocols.onebot.v11.handle.on_at_qq"><code class="docutils literal notranslate"><span class="pre">on_at_qq()</span></code></a></li>
