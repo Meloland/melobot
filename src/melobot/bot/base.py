@@ -421,23 +421,30 @@ class Bot:
 
     def get_adapter(
         self,
-        protocol: LiteralString | None = None,
+        type: LiteralString | type[Adapter] | None = None,
         filter: Callable[[Adapter], bool] | None = None,
     ) -> Adapter | None:
         """获取 bot 所绑定的适配器
 
-        :param protocol: 适配器的协议，为空时才使用 `filter` 参数
+        :param type: 适配器的类型（可传入协议字符串或协议类型），为空时才使用 `filter` 参数
         :param filter: 过滤函数，返回 `True` 则表明需要该适配器。为空则不使用
         :return: 适配器或空
         """
-        if protocol:
-            return self.adapters.get(protocol)
-        if filter:
+        if type is not None:
+            if isinstance(type, str):
+                return self.adapters.get(type)
+
+            for a in self.adapters.values():
+                if isinstance(a, type):
+                    return a
+            return None
+
+        if filter is not None:
             for adapter in self.adapters.values():
                 if filter(adapter):
                     return adapter
-            return None
-        raise BotError("protocol 或 filter 不能同时为空")
+
+        return None
 
     def get_adapters(self, filter: Callable[[Adapter], bool]) -> set[Adapter]:
         """获取一组适配器

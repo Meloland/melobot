@@ -7,7 +7,17 @@ from functools import wraps
 from inspect import Parameter, isawaitable, signature
 from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
-from typing import Annotated, Any, Callable, Generic, Sequence, cast, get_args, get_origin
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Any,
+    Callable,
+    Generic,
+    Sequence,
+    cast,
+    get_args,
+    get_origin,
+)
 
 from .ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
@@ -22,6 +32,9 @@ from .typ import (
     is_type,
 )
 from .utils import to_async
+
+if TYPE_CHECKING:
+    from .adapter.base import Adapter
 
 
 class DependNotMatched(BaseException):
@@ -134,7 +147,7 @@ class AutoDepends(Depends):
             self.orig_getter = BotCtx().get
 
         elif is_subhint(hint, EventBuildInfoCtx().get_adapter_type()):
-            self.orig_getter = lambda: EventBuildInfoCtx().get().adapter
+            self.orig_getter = lambda h=hint: AutoDepends._adapter_get(h)  # type: ignore[misc]
 
         elif is_subhint(hint, LoggerCtx().get_type()):
             self.orig_getter = LoggerCtx().get
@@ -157,6 +170,14 @@ class AutoDepends(Depends):
             )
 
         super().__init__(self.orig_getter, sub_getter=None, cache=False, recursive=False)
+
+    @staticmethod
+    def _adapter_get(hint: Any) -> "Adapter | None":
+        ctx = EventBuildInfoCtx()
+        try:
+            return ctx.get().adapter
+        except ctx.lookup_exc_cls:
+            return BotCtx().get().get_adapter(hint)
 
     def _get_unmatch_exc(self, real_type: Any) -> DependNotMatched:
         return DependNotMatched(
