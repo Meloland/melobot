@@ -39,7 +39,6 @@ class MsgChecker(Checker):
         super_users: Optional[list[int]] = None,
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
-        ok_cb: Optional[AsyncCallable[[], None]] = None,
         fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器
@@ -49,12 +48,9 @@ class MsgChecker(Checker):
         :param super_users: 超级用户 qq 号列表
         :param white_users: 白名单用户 qq 号列表
         :param black_users: 黑名单用户 qq 号列表
-        :param ok_cb: 检查通过的回调
         :param fail_cb: 检查不通过的回调
         """
-        super().__init__()
-        self.ok_cb = ok_cb
-        self.fail_cb = fail_cb
+        super().__init__(fail_cb)
         self.check_role = role
 
         self.owner = owner
@@ -100,8 +96,6 @@ class MsgChecker(Checker):
         else:
             status = self._check(event)
 
-        if status and self.ok_cb is not None:
-            await self.ok_cb()
         if not status and self.fail_cb is not None:
             await self.fail_cb()
         return status
@@ -124,7 +118,6 @@ class GroupMsgChecker(MsgChecker):
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
         white_groups: Optional[list[int]] = None,
-        ok_cb: Optional[AsyncCallable[[], None]] = None,
         fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个群聊消息事件分级权限检查器
@@ -135,12 +128,9 @@ class GroupMsgChecker(MsgChecker):
         :param white_users: 白名单用户 qq 号列表
         :param black_users: 黑名单用户 qq 号列表
         :param white_groups: 白名单群号列表（不在其中的群不通过校验）
-        :param ok_cb: 检查通过的回调
         :param fail_cb: 检查不通过的回调
         """
-        super().__init__(
-            role, owner, super_users, white_users, black_users, ok_cb, fail_cb
-        )
+        super().__init__(role, owner, super_users, white_users, black_users, fail_cb)
         self.white_group_list = white_groups if white_groups is not None else []
 
     def _check(self, event: MessageEvent) -> bool:
@@ -169,7 +159,6 @@ class PrivateMsgChecker(MsgChecker):
         super_users: Optional[list[int]] = None,
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
-        ok_cb: Optional[AsyncCallable[[], None]] = None,
         fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个私聊消息事件分级权限检查器
@@ -179,12 +168,9 @@ class PrivateMsgChecker(MsgChecker):
         :param super_users: 超级用户 qq 号列表
         :param white_users: 白名单用户 qq 号列表
         :param black_users: 黑名单用户 qq 号列表
-        :param ok_cb: 检查通过的回调
         :param fail_cb: 检查不通过的回调
         """
-        super().__init__(
-            role, owner, super_users, white_users, black_users, ok_cb, fail_cb
-        )
+        super().__init__(role, owner, super_users, white_users, black_users, fail_cb)
 
     def _check(self, event: MessageEvent) -> bool:
         if not event.is_private():
@@ -206,7 +192,6 @@ class MsgCheckerFactory:
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
         white_groups: Optional[list[int]] = None,
-        ok_cb: Optional[AsyncCallable[[], None]] = None,
         fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器的工厂
@@ -216,7 +201,6 @@ class MsgCheckerFactory:
         :param white_users: 白名单用户 qq 号列表
         :param black_users: 黑名单用户 qq 号列表
         :param white_groups: 白名单群号列表（不在其中的群不通过校验）
-        :param ok_cb: 检查通过的回调（这将自动附加到生成的检查器上）
         :param fail_cb: 检查不通过的回调（这将自动附加到生成的检查器上）
         """
         self.owner = owner
@@ -225,19 +209,16 @@ class MsgCheckerFactory:
         self.black_list = black_users if black_users is not None else []
         self.white_group_list = white_groups if white_groups is not None else []
 
-        self.ok_cb = ok_cb
         self.fail_cb = fail_cb
 
     def get_base(
         self,
         role: LevelRole | GroupRole,
-        ok_cb: Optional[AsyncCallable[[], None]] = None,
         fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> MsgChecker:
         """根据内部依据和给定等级，生成一个 :class:`MsgChecker` 对象
 
         :param role: 允许的等级（>= 此等级才能通过校验）
-        :param ok_cb: 检查通过的回调
         :param fail_cb: 检查不通过的回调
         :return: 消息事件分级权限检查器
         """
@@ -247,20 +228,17 @@ class MsgCheckerFactory:
             self.su_list,
             self.white_list,
             self.black_list,
-            self.ok_cb if ok_cb is None else ok_cb,
             self.fail_cb if fail_cb is None else fail_cb,
         )
 
     def get_group(
         self,
         role: LevelRole | GroupRole,
-        ok_cb: Optional[AsyncCallable[[], None]] = None,
         fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> GroupMsgChecker:
         """根据内部依据和给定等级，生成一个 :class:`GroupMsgChecker` 对象
 
         :param role: 允许的等级（>= 此等级才能通过校验）
-        :param ok_cb: 检查通过的回调
         :param fail_cb: 检查不通过的回调
         :return: 群聊消息事件分级权限检查器
         """
@@ -271,20 +249,17 @@ class MsgCheckerFactory:
             self.white_list,
             self.black_list,
             self.white_group_list,
-            self.ok_cb if ok_cb is None else ok_cb,
             self.fail_cb if fail_cb is None else fail_cb,
         )
 
     def get_private(
         self,
         role: LevelRole,
-        ok_cb: Optional[AsyncCallable[[], None]] = None,
         fail_cb: Optional[AsyncCallable[[], None]] = None,
     ) -> PrivateMsgChecker:
         """根据内部依据和给定等级，生成一个 :class:`PrivateMsgChecker` 对象
 
         :param role: 允许的等级（>= 此等级才能通过校验）
-        :param ok_cb: 检查通过的回调
         :param fail_cb: 检查不通过的回调
         :return: 私聊消息事件分级权限检查器
         """
@@ -294,7 +269,6 @@ class MsgCheckerFactory:
             self.su_list,
             self.white_list,
             self.black_list,
-            self.ok_cb if ok_cb is None else ok_cb,
             self.fail_cb if fail_cb is None else fail_cb,
         )
 
@@ -302,12 +276,16 @@ class MsgCheckerFactory:
 class AtMsgChecker(Checker):
     """艾特消息事件检查器"""
 
-    def __init__(self, qid: int | Literal["all"] | None = None) -> None:
+    def __init__(
+        self,
+        qid: int | Literal["all"] | None = None,
+        fail_cb: Optional[AsyncCallable[[], None]] = None,
+    ) -> None:
         """初始化一个艾特消息事件检查器
 
         :param qid: 被艾特的 qq 号。为空则接受所有艾特消息事件；不为空则只接受指定 qid 被艾特的艾特消息事件
         """
-        super().__init__()
+        super().__init__(fail_cb)
         self.qid = qid
 
     async def check(self, event: Event) -> bool:
@@ -317,4 +295,8 @@ class AtMsgChecker(Checker):
         qids = [seg.data["qq"] for seg in event.message if isinstance(seg, AtSegment)]
         if self.qid is None:
             return len(qids) > 0
-        return any(id == self.qid for id in qids)
+        status = any(id == self.qid for id in qids)
+
+        if not status and self.fail_cb is not None:
+            await self.fail_cb()
+        return status

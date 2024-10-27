@@ -7,7 +7,7 @@ from typing import Any, Callable, Coroutine
 from typing_extensions import Self
 
 from melobot.exceptions import BotException
-from melobot.typ import BetterABC, LogicMode, abstractmethod
+from melobot.typ import AsyncCallable, BetterABC, LogicMode, abstractmethod
 from melobot.utils import to_async
 
 from ..adapter.event import Event
@@ -24,23 +24,24 @@ class Cloneable:
 class Checker(BetterABC, Cloneable):
     """检查器基类"""
 
-    def __init__(self) -> None:
+    def __init__(self, fail_cb: AsyncCallable[[], None] | None = None) -> None:
         super().__init__()
+        self.fail_cb = fail_cb
 
-    def __and__(self, other: Checker) -> Checker:
+    def __and__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
             raise UtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.AND, self, other)
 
-    def __or__(self, other: Checker) -> Checker:
+    def __or__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
             raise UtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.OR, self, other)
 
-    def __invert__(self) -> Checker:
+    def __invert__(self) -> WrappedChecker:
         return WrappedChecker(LogicMode.NOT, self)
 
-    def __xor__(self, other: Checker) -> Checker:
+    def __xor__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
             raise UtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.XOR, self, other)
@@ -92,15 +93,22 @@ class WrappedChecker(Checker):
         self.mode = mode
         self.c1, self.c2 = checker1, checker2
 
+    def set_fail_cb(self, fail_cb: AsyncCallable[[], None] | None) -> None:
+        self.fail_cb = fail_cb
+
     async def check(self, event: Event) -> bool:
         c2_check: Callable[[], Coroutine[Any, Any, bool | None]] = (
             (lambda: self.c2.check(event))  # type: ignore[union-attr]
             if self.c2 is not None
             else to_async(lambda: None)  # type: ignore[misc,arg-type]
         )
-        return await LogicMode.async_short_calc(
+        status = await LogicMode.async_short_calc(
             self.mode, lambda: self.c1.check(event), c2_check
         )
+
+        if not status and self.fail_cb is not None:
+            await self.fail_cb()
+        return status
 
 
 class Matcher(BetterABC, Cloneable):

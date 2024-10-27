@@ -108,8 +108,8 @@ async def test_msg_checker(msg_factory: MsgCheckerFactory):
     assert not await c4.check(group_e(1, 8))
     _CB_BUF.get_nowait()
 
-    c5 = msg_factory.get_base(LevelRole.NORMAL, ok_cb=lambda: _CB_BUF.put(True))
-    assert await c5.check(priv_e(1))
+    c5 = msg_factory.get_base(LevelRole.NORMAL, fail_cb=lambda: _CB_BUF.put(True))
+    assert not await c5.check(priv_e(5))
     _CB_BUF.get_nowait()
 
     c6 = msg_factory.get_base(GroupRole.OWNER)
