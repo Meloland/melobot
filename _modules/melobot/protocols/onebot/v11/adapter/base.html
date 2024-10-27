@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.onebot.v11.adapter.base - melobot 3.0.0rc13</title>
+        <title>melobot.protocols.onebot.v11.adapter.base - melobot 3.0.0rc14</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">melobot 3.0.0rc13</div></a>
+      <a href="../../../../../../index.html"><div class="brand">melobot 3.0.0rc14</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc13</span>
+  <span class="sidebar-brand-text">melobot 3.0.0rc14</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -301,7 +301,7 @@
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.adapter.base 源代码</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span> <span class="nn">melobot.adapter</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AbstractEchoFactory</span><span class="p">,</span>
@@ -533,6 +533,28 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">ev</span><span class="o">.</span><span class="n">GroupMessageEvent</span><span class="p">):</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_custom</span><span class="p">(</span><span class="n">msgs</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">group_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_custom</span><span class="p">(</span><span class="n">msgs</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adapter.send_reply">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_reply">[文档]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_reply</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">msgs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">se</span><span class="o">.</span><span class="n">Segment</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">se</span><span class="o">.</span><span class="n">Segment</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">try_get_event</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">ev</span><span class="o">.</span><span class="n">MessageEvent</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AdapterError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;当前上下文中不存在事件，或事件不为 </span><span class="si">{</span><span class="n">ev</span><span class="o">.</span><span class="n">MessageEvent</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 类型，无法发送消息&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;msgs&quot;</span><span class="p">:</span> <span class="n">ac</span><span class="o">.</span><span class="n">msgs_to_dicts</span><span class="p">(</span><span class="n">se</span><span class="o">.</span><span class="n">ReplySegment</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">message_id</span><span class="p">)))</span>
+            <span class="o">+</span> <span class="n">ac</span><span class="o">.</span><span class="n">msgs_to_dicts</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">ev</span><span class="o">.</span><span class="n">GroupMessageEvent</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">group_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">user_id</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">SendMsgAction</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Adapter.send_custom">
@@ -896,7 +918,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../../_static/documentation_options.js?v=e2d7ed95"></script>
+</div><script src="../../../../../../_static/documentation_options.js?v=9e8559d3"></script>
     <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/scripts/furo.js?v=5fa4622c"></script>
