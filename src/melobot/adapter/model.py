@@ -24,7 +24,7 @@ from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
 from ..exceptions import AdapterError
 from ..log.base import LogLevel
 from ..typ import T
-from ..utils import AttrsReprable, get_id
+from ..utils import AttrsReprable, get_id, to_coro
 from .content import Content
 
 if TYPE_CHECKING:
@@ -225,7 +225,7 @@ class ActionChain:
         _handles = await handles
         for handle in _handles:
             handle.execute()
-        await asyncio.wait(_handles)
+        await asyncio.wait(map(lambda h: create_task(to_coro(h)), _handles))
 
     def add(
         self,
