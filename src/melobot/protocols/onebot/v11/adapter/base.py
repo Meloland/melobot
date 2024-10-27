@@ -1,5 +1,5 @@
 from os import PathLike
-from typing import Iterable, Literal, Optional, cast
+from typing import Any, Iterable, Literal, Optional, cast
 
 from melobot.adapter import (
     AbstractEchoFactory,
@@ -191,6 +191,25 @@ class Adapter(
         if isinstance(event, ev.GroupMessageEvent):
             return await self.send_custom(msgs, group_id=event.group_id)
         return await self.send_custom(msgs, user_id=event.user_id)
+
+    async def send_reply(
+        self, msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict]
+    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+        event = try_get_event()
+        if not isinstance(event, ev.MessageEvent):
+            raise AdapterError(
+                f"当前上下文中不存在事件，或事件不为 {ev.MessageEvent.__qualname__} 类型，无法发送消息"
+            )
+
+        kwargs: dict[str, Any] = {
+            "msgs": ac.msgs_to_dicts(se.ReplySegment(str(event.message_id)))
+            + ac.msgs_to_dicts(msgs)
+        }
+        if isinstance(event, ev.GroupMessageEvent):
+            kwargs["group_id"] = event.group_id
+        else:
+            kwargs["user_id"] = event.user_id
+        return await self.call_output(ac.SendMsgAction(**kwargs))
 
     async def send_custom(
         self,

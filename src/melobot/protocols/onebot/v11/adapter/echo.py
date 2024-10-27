@@ -30,6 +30,15 @@ class Echo(RootEcho):
             data=self._model.data,
         )
 
+    def is_ok(self) -> bool:
+        return self._model.status == "ok"
+
+    def is_async(self) -> bool:
+        return self._model.status == "async"
+
+    def is_failed(self) -> bool:
+        return self._model.status == "failed"
+
     @classmethod
     def resolve(cls, **kwds: Any) -> Echo:
         action_type = kwds.pop("action_type")
