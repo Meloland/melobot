@@ -178,7 +178,7 @@ class IPCManager:
 
     def get(self, plugin: str, id: str) -> AsyncShare | SyncShare:
         if (objs := self._shares.get(plugin)) is None:
-            raise PluginIpcError(f"插件 {plugin} 不提供共享功能")
+            raise PluginIpcError(f"插件 {plugin} 未加载，或其不提供共享功能")
         if (obj := objs.get(id)) is None:
             raise PluginIpcError(f"无法获取不存在的共享对象：标识 {id} 不存在")
         return obj
