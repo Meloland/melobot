@@ -31,10 +31,14 @@ class HookRunner(Generic[HookEnumT]):
 class HookBus(Generic[HookEnumT]):
     def __init__(self, type: type[HookEnumT]) -> None:
         self._store: dict[HookEnumT, list[HookRunner]] = {t: [] for t in list(type)}
+        self._periods: set[HookEnumT] = set()
 
     def register(self, hook_type: HookEnumT, hook_func: AsyncCallable[..., None]) -> None:
         runner = HookRunner(hook_type, hook_func)
         self._store[hook_type].append(runner)
+
+    def check_after(self, hook_type: HookEnumT) -> bool:
+        return hook_type in self._periods
 
     async def emit(
         self,
@@ -57,3 +61,4 @@ class HookBus(Generic[HookEnumT]):
             await asyncio.wait(tasks)
 
         logger.debug(f"<{hook_type}> 阶段的 hook 已完成（{wait = }）")  # noqa: E251, E202
+        self._periods.add(hook_type)
