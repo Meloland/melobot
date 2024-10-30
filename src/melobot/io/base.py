@@ -70,6 +70,7 @@ class SourceLifeSpan(Enum):
     """源生命周期阶段的枚举"""
 
     STARTED = "sta"
+    RESTARTED = "res"
     STOPPED = "sto"
 
 
