@@ -69,6 +69,7 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 
 - [MeloInf](https://github.com/aicorein/meloinf)
 - [MarshoAI](https://github.com/LiteyukiStudio/marshoai-melo)
+- [MiraiChan](https://github.com/NingmengLemon/MiraiChan)
 
 你可以将这些项目作为 melobot 使用的实例参考。欢迎你基于 melobot 实现完整的机器人项目后，向本文档提出 PR，在此处展示。
 
@@ -103,7 +104,7 @@ pdm build
 
 <!-- end elevator-pitch -->
 
-## 💻 其他
+## 💻 其他文档
 
 **贡献指南与行为准则**：
 
@@ -139,3 +140,36 @@ pdm build
 <img width=192 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
 
 此图标版权归属于 [@meloland](https://github.com/meloland) 组织，在非商业盈利情景下可自由使用，但请标注版权所属。其他使用情景请致电邮件：[contact@meloland.org](mailto:contact@meloland.org)
+
+## ✨ 项目动态
+
+### 贡献者
+
+[![][contrib-image_iks]][contrib-link_iks]
+
+> 感谢每一位贡献者的付出，melobot 因你们而变得更好 ow<
+
+[contrib-image_iks]: https://contrib.rocks/image?repo=Meloland/melobot
+
+[contrib-link_iks]: https://github.com/Meloland/melobot/graphs/contributors
+
+### 星标历史
+
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="
+      https://api.star-history.com/svg?repos=Meloland/melobot&type=Date&theme=dark
+    "
+  />
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="
+      https://api.star-history.com/svg?repos=Meloland/melobot&type=Date
+    "
+  />
+  <img
+    alt="melobot Star Chart"
+    src="https://api.star-history.com/svg?repos=Meloland/melobot&type=Date"
+  />
+</picture>
