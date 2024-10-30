@@ -68,14 +68,14 @@ class MockWebsocket:
     async def recv(self) -> str:
         return await _IN_BUF.get()
 
-    async def close(self):
+    def close(self):
         return
 
     async def wait_closed(self) -> None:
         return
 
 
-async def test_forward_ws(monkeypatch) -> None:
+async def test_reverse_ws(monkeypatch) -> None:
     with LoggerCtx().in_ctx(Logger()):
         monkeypatch.setattr(websockets, "serve", MockWebsocket.get)
         io = ReverseWebSocketIO("localhost", 8080)

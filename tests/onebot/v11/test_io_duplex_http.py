@@ -69,7 +69,7 @@ class MockClientSession:
         return
 
 
-async def test_forward_ws(monkeypatch) -> None:
+async def test_http(monkeypatch) -> None:
     with LoggerCtx().in_ctx(Logger()):
         aiohttp._ClientSession = aiohttp.ClientSession
         monkeypatch.setattr(aiohttp, "ClientSession", lambda: MockClientSession())
