@@ -149,7 +149,7 @@ class ForwardWebSocketIO(BaseIO):
             self._tasks.append(asyncio.create_task(self._input_loop()))
             self._tasks.append(asyncio.create_task(self._output_loop()))
             self._opened.set()
-            self.logger.info("OneBot v11 正向 WebSocket IO 源已连接实现端")
+            self.logger.info("OneBot v11 正向 WebSocket IO 源与实现端建立了连接")
 
             if self._restart_flag.is_set():
                 self._restart_flag.clear()
@@ -175,7 +175,7 @@ class ForwardWebSocketIO(BaseIO):
                 t.cancel()
             await asyncio.wait(self._tasks)
             self._tasks.clear()
-            self.logger.info("OneBot v11 正向 WebSocket IO 源已关闭连接")
+            self.logger.info("OneBot v11 正向 WebSocket IO 源已断开连接")
 
             if self._restart_flag.is_set():
                 asyncio.create_task(self.open())

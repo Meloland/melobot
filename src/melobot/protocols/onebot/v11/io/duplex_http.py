@@ -64,9 +64,6 @@ class HttpIO(BaseIO):
 
         try:
             raw = json.loads(data.decode())
-            self.logger.generic_obj(
-                "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
-            )
             if (
                 self._life_bus.check_after(SourceLifeSpan.STARTED)
                 and raw.get("post_type") == "meta_event"
@@ -74,6 +71,9 @@ class HttpIO(BaseIO):
                 and raw.get("sub_type") == "connect"
             ):
                 await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
+            self.logger.generic_obj(
+                "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
+            )
             await self._in_buf.put(InPacket(time=raw["time"], data=raw))
 
         except Exception:
