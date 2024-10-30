@@ -47,7 +47,7 @@ class BotExitSignal(Enum):
 
 
 MELO_PKG_RUNTIME = "MELOBOT_PKG_RUNTIME"
-MELO_LAST_EXIT_SIGNAL = "MELO_LAST_EXIT_SIGNAL"
+MELO_LAST_EXIT_SIGNAL = "MELOBOT_LAST_EXIT_SIGNAL"
 _BOT_CTX = BotCtx()
 _LOGGER_CTX = LoggerCtx()
 
@@ -366,6 +366,7 @@ class Bot:
             async with self._async_common_ctx() as stack:
                 for t in self._tasks:
                     t.cancel()
+
                 await self._life_bus.emit(BotLifeSpan.STOPPED, wait=True)
                 self.logger.info(f"{self} 已停止运行")
                 self._running = False
@@ -446,12 +447,14 @@ class Bot:
 
         return None
 
-    def get_adapters(self, filter: Callable[[Adapter], bool]) -> set[Adapter]:
+    def get_adapters(self, filter: Callable[[Adapter], bool] | None = None) -> set[Adapter]:
         """获取一组适配器
 
-        :param filter: 参见 :func:`get_adapter` 同名参数
+        :param filter: 参见 :func:`get_adapter` 同名参数。但此处为空时直接获取所有适配器
         :return: 适配器的集合
         """
+        if filter is None:
+            return set(self.adapters.values())
         return set(adapter for adapter in self.adapters.values() if filter(adapter))
 
     def get_plugins(self) -> list[str]:
