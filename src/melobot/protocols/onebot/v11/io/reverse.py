@@ -10,6 +10,7 @@ import websockets
 import websockets.server
 from websockets import ConnectionClosed
 
+from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
 from .base import BaseIO
@@ -27,14 +28,17 @@ class ReverseWebSocketIO(BaseIO):
         self.server: websockets.server.WebSocketServer
         self.access_token = access_token
 
-        self._tasks: list[asyncio.Task] = []
         self._in_buf: asyncio.Queue[InPacket] = asyncio.Queue()
         self._out_buf: asyncio.Queue[OutPacket] = asyncio.Queue()
         self._echo_table: dict[str, tuple[str, Future[EchoPacket]]] = {}
-        self._opened = asyncio.Event()
         self._pre_send_time = time.time_ns()
+
+        self._tasks: list[asyncio.Task] = []
+        self._opened = asyncio.Event()
         self._conn_requested = False
-        self._request_lock = asyncio.Lock()
+        self._req_lock = asyncio.Lock()
+        self._lock = asyncio.Lock()
+        self._restart_flag = asyncio.Event()
 
     async def _req_check(
         self, _: str, headers: websockets.HeadersLike
@@ -52,12 +56,13 @@ class ReverseWebSocketIO(BaseIO):
         if self._conn_requested:
             return resp_403(reconn_refused)
 
-        async with self._request_lock:
+        async with self._req_lock:
             if self._conn_requested:
                 return resp_403(reconn_refused)
 
             if (
                 self.access_token is not None
+                and _headers.get("authorization") != f"Bearer {self.access_token}"
                 and _headers.get("Authorization") != f"Bearer {self.access_token}"
             ):
                 self.logger.warning("OneBot 实现端的 access_token 不匹配，拒绝连接")
@@ -70,7 +75,11 @@ class ReverseWebSocketIO(BaseIO):
         # pylint: disable=duplicate-code
         self.conn = ws
         self._opened.set()
-        self.logger.info("OneBot v11 反向 WebSocket IO 源与实现端建立了连接")
+        self.logger.info("实现端与 OneBot v11 反向 WebSocket IO 源建立了连接")
+
+        if self._restart_flag.is_set():
+            self._restart_flag.clear()
+            await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
 
         while True:
             try:
@@ -100,9 +109,19 @@ class ReverseWebSocketIO(BaseIO):
                         action_type=action_type,
                     )
                 )
-            except ConnectionClosed:
-                self.logger.warning("OneBot v11 正向 WebSocket IO 源的 ws 连接已关闭")
+
+            except asyncio.CancelledError:
                 break
+
+            except ConnectionClosed:
+                self.logger.info(
+                    "实现端与 OneBot v11 反向 WebSocket IO 源已断连，等待连接中"
+                )
+                self._opened.clear()
+                self._restart_flag.set()
+                self._conn_requested = False
+                break
+
             except Exception:
                 self.logger.exception("OneBot v11 反向 WebSocket IO 源输入异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
@@ -111,11 +130,17 @@ class ReverseWebSocketIO(BaseIO):
     async def _output_loop(self) -> None:
         while True:
             try:
+                await self._opened.wait()
+
                 out_packet = await self._out_buf.get()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 await asyncio.sleep(wait_time)
                 await self.conn.send(out_packet.data)
                 self._pre_send_time = time.time_ns()
+
+            except asyncio.CancelledError:
+                break
+
             except Exception:
                 self.logger.exception("OneBot v11 反向 WebSocket IO 源输出异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
@@ -124,25 +149,40 @@ class ReverseWebSocketIO(BaseIO):
                 )
 
     async def open(self) -> None:
-        self.server = await websockets.serve(
-            self._input_loop, self.host, self.port, process_request=self._req_check
-        )
-        self._tasks.append(asyncio.create_task(self._output_loop()))
-        self.logger.info("OneBot v11 反向 WebSocket IO 源启动了服务，等待连接中")
-        await self._opened.wait()
+        if self.opened():
+            return
+
+        async with self._lock:
+            if self.opened():
+                return
+
+            self.server = await websockets.serve(
+                self._input_loop, self.host, self.port, process_request=self._req_check
+            )
+            self._tasks.append(asyncio.create_task(self._output_loop()))
+            self.logger.info("OneBot v11 反向 WebSocket IO 源启动了服务，等待连接中")
+            await self._opened.wait()
 
     def opened(self) -> bool:
         return self._opened.is_set()
 
     async def close(self) -> None:
-        if self.opened():
-            await self.server.close()  # type: ignore[func-returns-value]
-            await self.server.wait_closed()
-            for t in self._tasks:
-                t.cancel()
+        if not self.opened():
+            return
+
+        async with self._lock:
+            if not self.opened():
+                return
 
             self._opened.clear()
-            self.logger.info("OneBot v11 反向 WebSocket IO 源已停止运行")
+            self.server.close()  # type: ignore[func-returns-value]
+            await self.server.wait_closed()
+
+            for t in self._tasks:
+                t.cancel()
+            await asyncio.wait(self._tasks)
+            self._tasks.clear()
+            self.logger.info("OneBot v11 反向 WebSocket IO 源的服务已停止运行")
 
     async def input(self) -> InPacket:
         return await self._in_buf.get()

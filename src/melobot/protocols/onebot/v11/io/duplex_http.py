@@ -9,6 +9,7 @@ import aiohttp
 import aiohttp.log
 import aiohttp.web
 
+from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
 from .base import BaseIO
@@ -38,9 +39,11 @@ class HttpIO(BaseIO):
         self._tasks: list[asyncio.Task] = []
         self._in_buf: asyncio.Queue[InPacket] = asyncio.Queue()
         self._out_buf: asyncio.Queue[OutPacket] = asyncio.Queue()
+        self._pre_send_time = time.time_ns()
+
         self._echo_table: dict[str, tuple[str, Future[EchoPacket]]] = {}
         self._opened = asyncio.Event()
-        self._pre_send_time = time.time_ns()
+        self._lock = asyncio.Lock()
 
     async def _respond(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
         if not self._opened.is_set():
@@ -61,8 +64,18 @@ class HttpIO(BaseIO):
 
         try:
             raw = json.loads(data.decode())
-            self.logger.generic_obj("收到上报，未格式化的字典", raw, level=LogLevel.DEBUG)
+            self.logger.generic_obj(
+                "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
+            )
+            if (
+                self._life_bus.check_after(SourceLifeSpan.STARTED)
+                and raw.get("post_type") == "meta_event"
+                and raw.get("meta_event_type") == "lifecycle"
+                and raw.get("sub_type") == "connect"
+            ):
+                await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
             await self._in_buf.put(InPacket(time=raw["time"], data=raw))
+
         except Exception:
             self.logger.exception("OneBot v11 HTTP IO 源输入异常")
             self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
@@ -76,11 +89,17 @@ class HttpIO(BaseIO):
     async def _output_loop(self) -> None:
         while True:
             try:
+                await self._opened.wait()
+
                 out_packet = await self._out_buf.get()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 await asyncio.sleep(wait_time)
                 asyncio.create_task(self._handle_output(out_packet))
                 self._pre_send_time = time.time_ns()
+
+            except asyncio.CancelledError:
+                break
+
             except Exception:
                 self.logger.exception("OneBot v11 HTTP IO 源输出异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
@@ -127,29 +146,44 @@ class HttpIO(BaseIO):
             self.logger.generic_obj("异常点的发送数据", packet.data, level=LogLevel.ERROR)
 
     async def open(self) -> None:
-        self.client_session = aiohttp.ClientSession()
-        app = aiohttp.web.Application()
-        app.add_routes([aiohttp.web.post("/", self._respond)])
-        runner = aiohttp.web.AppRunner(app)
+        if self.opened():
+            return
 
-        await runner.setup()
-        self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
-        await self.serve_site.start()
-        self._tasks.append(asyncio.create_task(self._output_loop()))
+        async with self._lock:
+            if self.opened():
+                return
 
-        self.logger.info("OneBot v11 HTTP IO 源就绪，等待实现端上线中")
-        await self._opened.wait()
-        self.logger.info("OneBot v11 HTTP IO 源双向通信已建立")
+            self.client_session = aiohttp.ClientSession()
+            app = aiohttp.web.Application()
+            app.add_routes([aiohttp.web.post("/", self._respond)])
+            runner = aiohttp.web.AppRunner(app)
+
+            await runner.setup()
+            self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
+            await self.serve_site.start()
+            self._tasks.append(asyncio.create_task(self._output_loop()))
+
+            self.logger.info("OneBot v11 HTTP IO 源就绪，等待实现端上线中")
+            await self._opened.wait()
+            self.logger.info("OneBot v11 HTTP IO 源双向通信已建立")
 
     def opened(self) -> bool:
         return self._opened.is_set()
 
     async def close(self) -> None:
-        if self.opened():
+        if not self.opened():
+            return
+
+        async with self._lock:
+            if not self.opened():
+                return
+
             await self.serve_site.stop()
             await self.client_session.close()
             for t in self._tasks:
                 t.cancel()
+            await asyncio.wait(self._tasks)
+            self._tasks.clear()
 
             self._opened.clear()
             self.logger.info("OneBot v11 HTTP IO 源已停止运行")

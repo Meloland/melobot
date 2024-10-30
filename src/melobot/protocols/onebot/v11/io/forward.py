@@ -2,13 +2,14 @@
 import asyncio
 import json
 import time
-from asyncio import Future
+from asyncio import Future, Lock
 from itertools import count
 
 import websockets
 from websockets.exceptions import ConnectionClosed
 
 from melobot.exceptions import IOError
+from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
 from .base import BaseIO
@@ -31,17 +32,22 @@ class ForwardWebSocketIO(BaseIO):
         self.max_retry: int = max_retry
         self.retry_delay: float = retry_delay if retry_delay > 0 else 0
 
-        self._tasks: list[asyncio.Task] = []
         self._in_buf: asyncio.Queue[InPacket] = asyncio.Queue()
         self._out_buf: asyncio.Queue[OutPacket] = asyncio.Queue()
-        self._echo_table: dict[str, tuple[str, Future[EchoPacket]]] = {}
-        self._opened = False
         self._pre_send_time = time.time_ns()
+        self._echo_table: dict[str, tuple[str, Future[EchoPacket]]] = {}
+
+        self._tasks: list[asyncio.Task] = []
+        self._opened = asyncio.Event()
+        self._lock = Lock()
+        self._restart_flag = asyncio.Event()
 
     async def _input_loop(self) -> None:
         # pylint: disable=duplicate-code
         while True:
             try:
+                await self._opened.wait()
+
                 raw_str = await self.conn.recv()
                 self.logger.generic_obj(
                     "收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG
@@ -68,9 +74,16 @@ class ForwardWebSocketIO(BaseIO):
                         action_type=action_type,
                     )
                 )
-            except ConnectionClosed:
-                self.logger.warning("OneBot v11 正向 WebSocket IO 源的 ws 连接已关闭")
+
+            except asyncio.CancelledError:
                 break
+
+            except ConnectionClosed:
+                if self.opened():
+                    self._restart_flag.set()
+                    asyncio.create_task(self.close())
+                break
+
             except Exception:
                 self.logger.exception("OneBot v11 正向 WebSocket IO 源输入异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
@@ -79,11 +92,17 @@ class ForwardWebSocketIO(BaseIO):
     async def _output_loop(self) -> None:
         while True:
             try:
+                await self._opened.wait()
+
                 out_packet = await self._out_buf.get()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 await asyncio.sleep(wait_time)
                 await self.conn.send(out_packet.data)
                 self._pre_send_time = time.time_ns()
+
+            except asyncio.CancelledError:
+                break
+
             except Exception:
                 self.logger.exception("OneBot v11 正向 WebSocket IO 源输出异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
@@ -92,51 +111,74 @@ class ForwardWebSocketIO(BaseIO):
                 )
 
     async def open(self) -> None:
-        headers: dict | None = None
-        if self.access_token is not None:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
+        if self.opened():
+            return
 
-        retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
-        first_try, ok_flag = True, False
-        # mypy's bullshit: Item "range" of "range | Iterator[int]" has no attribute "__next__"
-        for _ in retry_iter:  # type: ignore[union-attr]
-            if first_try:
-                first_try = False
-            else:
-                await asyncio.sleep(self.retry_delay)
+        async with self._lock:
+            if self.opened():
+                return
 
-            try:
-                self.conn = await websockets.connect(self.url, extra_headers=headers)
-                ok_flag = True
-                break
+            headers: dict | None = None
+            if self.access_token is not None:
+                headers = {"Authorization": f"Bearer {self.access_token}"}
 
-            except Exception as e:
-                self.logger.warning(
-                    f"ws 连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}"
-                )
-                if "403" in str(e):
-                    self.logger.warning("403 错误可能是 access_token 未配置或无效")
-        if not ok_flag:
-            raise IOError("重试已达最大次数，已放弃建立连接")
+            retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
+            first_try, ok_flag = True, False
+            # mypy's bullshit: Item "range" of "range | Iterator[int]" has no attribute "__next__"
+            for _ in retry_iter:  # type: ignore[union-attr]
+                if first_try:
+                    first_try = False
+                else:
+                    await asyncio.sleep(self.retry_delay)
 
-        self._tasks.append(asyncio.create_task(self._input_loop()))
-        self._tasks.append(asyncio.create_task(self._output_loop()))
-        self._opened = True
-        self.logger.info("OneBot v11 正向 WebSocket IO 源已连接实现端")
+                try:
+                    self.conn = await websockets.connect(self.url, extra_headers=headers)
+                    ok_flag = True
+                    break
+
+                except BaseException as e:
+                    self.logger.warning(
+                        f"连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}"
+                    )
+                    if "403" in str(e):
+                        self.logger.warning("403 错误可能是 access_token 未配置或无效")
+
+            if not ok_flag:
+                raise IOError("重试已达最大次数，已放弃建立连接")
+
+            self._tasks.append(asyncio.create_task(self._input_loop()))
+            self._tasks.append(asyncio.create_task(self._output_loop()))
+            self._opened.set()
+            self.logger.info("OneBot v11 正向 WebSocket IO 源已连接实现端")
+
+            if self._restart_flag.is_set():
+                self._restart_flag.clear()
+                await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
 
     def opened(self) -> bool:
-        return self._opened
+        return self._opened.is_set()
 
     async def close(self) -> None:
-        if self.opened():
+        if not self.opened():
+            return
+
+        async with self._lock:
+            if not self.opened():
+                return
+
             self.conn.close_timeout = 2
+            self._opened.clear()
             await self.conn.close()
             await self.conn.wait_closed()
+
             for t in self._tasks:
                 t.cancel()
+            await asyncio.wait(self._tasks)
+            self._tasks.clear()
+            self.logger.info("OneBot v11 正向 WebSocket IO 源已关闭连接")
 
-            self._opened = False
-            self.logger.info("OneBot v11 正向 WebSocket IO 源已停止运行")
+            if self._restart_flag.is_set():
+                asyncio.create_task(self.open())
 
     async def input(self) -> InPacket:
         return await self._in_buf.get()
