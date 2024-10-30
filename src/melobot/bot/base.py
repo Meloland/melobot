@@ -447,7 +447,9 @@ class Bot:
 
         return None
 
-    def get_adapters(self, filter: Callable[[Adapter], bool] | None = None) -> set[Adapter]:
+    def get_adapters(
+        self, filter: Callable[[Adapter], bool] | None = None
+    ) -> set[Adapter]:
         """获取一组适配器
 
         :param filter: 参见 :func:`get_adapter` 同名参数。但此处为空时直接获取所有适配器
