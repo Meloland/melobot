@@ -77,7 +77,7 @@ class Context(Generic[T]):
     def in_ctx(self, obj: T) -> Generator[None, None, None]:
         """上下文管理器，展开一个上下文值为 `obj` 的上下文环境
 
-        自动运行 :func:`add` 并在退出上下文环境后运行 :func:`remove`
+        退出上下文管理器作用域后自动清理
 
         :param obj: 上下文值
         """
@@ -175,11 +175,20 @@ class FlowCtx(Context[FlowStatus]):
         )
 
     def get_event(self) -> "model.Event":
+        session = SessionCtx().try_get()
+        if session is not None:
+            return session.event
         return self.get().event
 
     def try_get_event(self) -> Union["model.Event", None]:
+        session = SessionCtx().try_get()
+        if session is not None:
+            return session.event
+
         status = self.try_get()
-        return status.event if status is not None else None
+        if status is not None:
+            return status.event
+        return None
 
     def get_event_type(self) -> type["model.Event"]:
         from .adapter.model import Event
