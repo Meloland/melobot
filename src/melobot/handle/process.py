@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from asyncio import create_task
 from dataclasses import dataclass
 from itertools import tee
-from typing import Generic, Iterable, NoReturn, Sequence
+from typing import Iterable, NoReturn, Sequence
 
-from .._ctx import FlowCtx, FlowRecord, FlowRecords
-from .._ctx import FlowRecordStage as RecordStage
-from .._ctx import FlowStatus, FlowStore
-from .._di import DependNotMatched, inject_deps
-from ..adapter.model import Event, EventT
+from ..adapter.model import Event
+from ..ctx import FlowCtx, FlowRecord, FlowRecords
+from ..ctx import FlowRecordStage as RecordStage
+from ..ctx import FlowStatus, FlowStore
+from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
 from ..typ import AsyncCallable, HandleLevel
 
@@ -16,21 +17,32 @@ _FLOW_CTX = FlowCtx()
 
 
 def node(func: AsyncCallable[..., bool | None]) -> FlowNode:
-    return FlowNode()(func)
+    """处理结点装饰器，将当前异步可调用对象装饰为一个处理结点"""
+    return FlowNode(func)
+
+
+def no_deps_node(func: AsyncCallable[..., bool | None]) -> FlowNode:
+    """与 :func:`node` 类似，但是不自动为结点标记依赖注入。
+
+    需要后续使用 :func:`.inject_deps` 手动标记依赖注入，
+    这适用于某些对处理结点进行再装饰的情况
+    """
+    return FlowNode(func, no_deps=True)
 
 
 class FlowNode:
-    def __init__(self) -> None:
-        self.name: str
-        self.processor: AsyncCallable[..., bool | None]
+    """处理流结点"""
+
+    def __init__(
+        self, func: AsyncCallable[..., bool | None], no_deps: bool = False
+    ) -> None:
+        self.name = func.__name__ if hasattr(func, "__name__") else "<anonymous callable>"
+        self.processor: AsyncCallable[..., bool | None] = (
+            func if no_deps else inject_deps(func)
+        )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
-
-    def __call__(self, func: AsyncCallable[..., bool | None]) -> FlowNode:
-        self.processor = inject_deps(func)
-        self.name = func.__name__
-        return self
 
     async def process(self, event: Event, flow: Flow) -> None:
         try:
@@ -39,7 +51,7 @@ class FlowNode:
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.on_ctx(FlowStatus(event, flow, self, True, records, store)):
+        with _FLOW_CTX.in_ctx(FlowStatus(event, flow, self, True, records, store)):
             try:
                 records.append(
                     FlowRecord(RecordStage.NODE_START, flow.name, self.name, event)
@@ -79,7 +91,12 @@ class _NodeInfo:
         return _NodeInfo(self.nexts, self.in_deg, self.out_deg)
 
 
-class Flow(Generic[EventT]):
+class Flow:
+    """处理流
+
+    :ivar str name: 处理流的标识
+    """
+
     def __init__(
         self,
         name: str,
@@ -87,10 +104,19 @@ class Flow(Generic[EventT]):
         priority: HandleLevel = HandleLevel.NORMAL,
         temp: bool = False,
     ) -> None:
+        """初始化处理流
+
+        :param name: 处理流的标识
+        :param edge_maps: 边映射，遵循 melobot 的 graph edges 表示方法
+        :param priority: 处理流的优先级
+        :param temp: 处理流是否只运行一次
+        """
         self.name = name
-        self.priority = priority
         self.temp = temp
         self.graph: dict[FlowNode, _NodeInfo] = {}
+
+        self._priority = priority
+        self._priority_cb: AsyncCallable[[HandleLevel], None]
 
         _edge_maps = tuple(
             tuple((elem,) if isinstance(elem, FlowNode) else elem for elem in emap)
@@ -128,6 +154,29 @@ class Flow(Generic[EventT]):
                             edges.append((n1, n2))
 
         return edges
+
+    @property
+    def priority(self) -> HandleLevel:
+        """处理流的优先级"""
+        return self._priority
+
+    def on_priority_reset(self, callback: AsyncCallable[[HandleLevel], None]) -> None:
+        self._priority_cb = callback
+
+    async def reset_priority(self, new_prior: HandleLevel) -> None:
+        """重设处理流的优先级
+
+        不会立即生效，通常会在下一次进入处理流前生效。
+        因此返回时不代表已经更改优先级，只是添加了计划重设优先级的任务
+
+        :param new_prior: 新优先级
+        """
+
+        async def _reset_wrapper() -> None:
+            await self._priority_cb(new_prior)
+            self._priority = new_prior
+
+        create_task(_reset_wrapper())
 
     @property
     def starts(self) -> tuple[FlowNode, ...]:
@@ -173,7 +222,38 @@ class Flow(Generic[EventT]):
 
         return True
 
-    async def run(self, event: EventT) -> None:
+    def link(self, flow: Flow, priority: HandleLevel | None = None) -> Flow:
+        """连接另一处理流返回新处理流，并设置新优先级
+
+        :param flow: 连接的新流
+        :param priority: 新优先级，若为空，则使用两者中较小的优先级
+        :return: 新的处理流
+        """
+        # pylint: disable=protected-access
+        _froms = self.ends
+        _tos = flow.starts
+        new_edges = tuple((n1, n2) for n1 in _froms for n2 in _tos)
+
+        new_flow = Flow(
+            f"{self.name} ~ {flow.name}",
+            *new_edges,
+            priority=priority if priority else min(self.priority, flow.priority),
+            temp=self.temp or flow.temp,
+        )
+
+        for n1, info in (self.graph | flow.graph).items():
+            if not len(info.nexts):
+                new_flow._add(n1, None)
+                continue
+            for n2 in info.nexts:
+                new_flow._add(n1, n2)
+
+        if not self._valid_check():
+            raise FlowError(f"定义的处理流 {self.name} 中存在环路")
+
+        return new_flow
+
+    async def run(self, event: Event) -> None:
         if not len(self.starts):
             return
 
@@ -183,7 +263,7 @@ class Flow(Generic[EventT]):
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.on_ctx(
+        with _FLOW_CTX.in_ctx(
             FlowStatus(event, self, self.starts[0], True, records, store)
         ):
             try:
@@ -223,6 +303,7 @@ class FlowRewound(_FlowSignal): ...
 
 
 async def nextn() -> None:
+    """运行下一处理结点（在处理结点中使用）"""
     try:
         status = _FLOW_CTX.get()
         nexts = status.flow.graph[status.node].nexts
@@ -244,6 +325,7 @@ async def nextn() -> None:
 
 
 async def block() -> None:
+    """阻止当前事件向更低优先级的处理流传播（在处理结点中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.BLOCK, status.flow.name, status.node.name, status.event)
@@ -252,6 +334,7 @@ async def block() -> None:
 
 
 async def stop() -> NoReturn:
+    """立即停止当前处理流（在处理结点中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.STOP, status.flow.name, status.node.name, status.event)
@@ -276,6 +359,7 @@ async def stop() -> NoReturn:
 
 
 async def bypass() -> NoReturn:
+    """立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理结点中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.BYPASS, status.flow.name, status.node.name, status.event)
@@ -292,6 +376,7 @@ async def bypass() -> NoReturn:
 
 
 async def rewind() -> NoReturn:
+    """立即重新运行当前处理结点（在处理结点中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.REWIND, status.flow.name, status.node.name, status.event)
@@ -308,5 +393,6 @@ async def rewind() -> NoReturn:
 
 
 async def flow_to(flow: Flow) -> None:
+    """立即进入一个其他处理流（在处理结点中使用）"""
     status = _FLOW_CTX.get()
     await flow.run(status.event)

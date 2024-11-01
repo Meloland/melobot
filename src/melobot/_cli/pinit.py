@@ -1,7 +1,7 @@
 from argparse import Namespace
 from pathlib import Path
 
-from ..plugin.load import PluginInitHelper
+from melobot.plugin.load import PluginInitHelper
 
 
 def main(args: Namespace) -> None:

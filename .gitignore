@@ -1,11 +1,13 @@
 __pycache__
 */__pycache__
 *.bak
+*.log
 private
 dev
 */build
 dist
 */dist
+pydeps.png
 
 .venv
 .vscode

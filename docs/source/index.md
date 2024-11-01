@@ -2,11 +2,27 @@
 
 ```{toctree}
 :maxdepth: 2
-:hidden:
+:caption: 起步
 
 intro/index
+```
+
+
+```{toctree}
+:maxdepth: 2
+:caption: 相关知识
+:hidden:
+
+ob_refer/index
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: API 参考
+:hidden:
+
 api/index
-references/index
+ob_api/index
 ```
 
 ```{toctree}
@@ -15,11 +31,11 @@ references/index
 :hidden:
 
 melobot-prev
-melobot-next
-prompt
 ```
 
-```{include} warning.md
+```{admonition} 重要提示
+:class: caution
+melobot 的文档仍在补充中，请及时关注文档更新。
 ```
 
 

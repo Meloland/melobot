@@ -3,7 +3,7 @@ from .base import (
     AbstractEventFactory,
     AbstractOutputFactory,
     Adapter,
+    AdapterLifeSpan,
 )
 from .content import Content
-from .generic import *
-from .model import Action, ActionHandle, Echo, Event
+from .model import Action, ActionChain, ActionHandle, Echo, Event, open_chain

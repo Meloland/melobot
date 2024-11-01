@@ -11,9 +11,9 @@
     <a href="https://github.com/Meloland/melobot"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Meloland/melobot"></a>
   </p>
   <p align="center">
-    <a href="https://python.org" title="Go to Python homepage"><img src="https://img.shields.io/badge/Python-%3E=3.10-green?logo=python&logoColor=white" alt="Made with Python"></a>
-    <a href="https://pdm-project.org"><img src="https://img.shields.io/badge/PDM-Managed-purple?logo=pdm&logoColor=white" alt="PDM - Managed"></a>
+    <a href="https://python.org" title="Go to Python homepage"><img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-2ea44f?logo=python&logoColor=white" alt="Made with Python"></a>
     <a href="https://pypi.org/project/melobot/"><img alt="PyPI" src="https://img.shields.io/pypi/v/melobot"></a>
+    <a href="https://pdm-project.org"><img src="https://img.shields.io/badge/PDM-Managed-purple?logo=pdm&logoColor=white" alt="PDM - Managed"></a>
   </p>
   <p>
     <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
@@ -26,7 +26,19 @@
 
 melobot v3 pre-release 已发布。v3 支持各种协议以扩展至各种平台提供机器人服务。
 
-有任何意见或建议，欢迎加入 qq 群与我们讨论：`535705163`
+v3 目前可用的协议实现：
+
+- **OneBot**（melobot 内置支持，但尚未支持 v12 版本）
+
+其他计划支持的协议：
+
+- **Console**（melobot 内置支持，跨平台的控制台输入输出协议）
+- **Satori**
+- **Kritor**
+- **qq 官方协议**
+- ...
+
+有任何对 melobot 项目的意见或建议，欢迎加入 qq 群与我们讨论：`535705163`
 
 ## ⚠️ 声明
 
@@ -56,12 +68,14 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 使用本框架的机器人项目如下：
 
 - [MeloInf](https://github.com/aicorein/meloinf)
+- [MarshoAI](https://github.com/LiteyukiStudio/marshoai-melo)
+- [MiraiChan](https://github.com/NingmengLemon/MiraiChan)
 
 你可以将这些项目作为 melobot 使用的实例参考。欢迎你基于 melobot 实现完整的机器人项目后，向本文档提出 PR，在此处展示。
 
 ## 💬 文档
 
-项目文档：[melobot 文档](https://docs.melobot.org)（文档依然为 v2 版本，请等待 v3 版本文档更新后再查阅）
+项目文档：[melobot 文档](https://docs.melobot.org)
 
 对于文档可能出现的纰漏，恳请各位包涵。欢迎提出修正和优化文档的 PR：[文档源文件](https://github.com/Meloland/melobot/tree/main/docs/source)
 
@@ -69,15 +83,17 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 
 > Python 版本需求：>= 3.10
 
-通过 `pip` 安装：
+如果您对 melobot 完全不熟悉，建议配合文档开始学习。文档以 OneBot v11 协议为例，通过以下命令安装所有必要的组件：
 
 ```shell
-pip install melobot
+pip install 'melobot[onebot]>=3.0.0rc13'
 ```
 
-通过源码构建：（对于普通用户不推荐）
+如果您对 melobot 已经十分了解，请自由地安装核心+任何可选依赖。
 
-> 本项目使用 pdm 管理，你首先需要安装 [pdm](https://pdm-project.org/latest/#installation)。首次运行 pdm 需要初始化虚拟环境，请参照 pdm 文档操作。
+也可以通过源码构建：（对于普通用户不推荐）
+
+> 本项目使用 pdm 管理，你首先需要安装 [pdm](https://pdm-project.org/latest/#installation)。
 
 ```shell
 pdm install
@@ -86,14 +102,18 @@ pdm build
 
 之后可在 `.pdm-build` 目录获取本地构建，pip 本地安装即可。
 
-## 💻 贡献指南与行为准则
+<!-- end elevator-pitch -->
 
-参考：
+## 💻 其他文档
+
+**贡献指南与行为准则**：
 
 - [CONTRIBUTING](CONTRIBUTING.md)
 - [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md)
 
-<!-- end elevator-pitch -->
+**安全政策**：
+
+- [SECURITY POLICY](SECURITY.md)
 
 ## 📜 开源许可
 
@@ -120,3 +140,36 @@ pdm build
 <img width=192 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
 
 此图标版权归属于 [@meloland](https://github.com/meloland) 组织，在非商业盈利情景下可自由使用，但请标注版权所属。其他使用情景请致电邮件：[contact@meloland.org](mailto:contact@meloland.org)
+
+## ✨ 项目动态
+
+### 贡献者
+
+[![][contrib-image_iks]][contrib-link_iks]
+
+> 感谢每一位贡献者的付出，melobot 因你们而变得更好 ow<
+
+[contrib-image_iks]: https://contrib.rocks/image?repo=Meloland/melobot
+
+[contrib-link_iks]: https://github.com/Meloland/melobot/graphs/contributors
+
+### 星标历史
+
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="
+      https://api.star-history.com/svg?repos=Meloland/melobot&type=Date&theme=dark
+    "
+  />
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="
+      https://api.star-history.com/svg?repos=Meloland/melobot&type=Date
+    "
+  />
+  <img
+    alt="melobot Star Chart"
+    src="https://api.star-history.com/svg?repos=Meloland/melobot&type=Date"
+  />
+</picture>

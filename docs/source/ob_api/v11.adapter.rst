@@ -1,0 +1,341 @@
+:tocdepth: 3
+
+v11.adapter
+===========
+
+.. _onebot_v11_adapter:
+
+v11 适配器
+------------
+
+.. autoclass:: melobot.protocols.onebot.v11.Adapter
+    :exclude-members: __init__
+
+.. autoclass:: melobot.protocols.onebot.v11.EchoRequireCtx
+    :exclude-members: __init__
+    :no-show-inheritance:
+
+    基类：:class:`.Context`\[:py:data:`bool`\]
+
+.. _onebot_v11_event:
+
+v11 事件
+--------------
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.Event
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.MessageEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event._MessageSender
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event._GroupMessageSender
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event._MessageAnonymous
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.PrivateMessageEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupMessageEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.MetaEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.LifeCycleMetaEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.HeartBeatMetaEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event._MetaHeartBeatStatus
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.NoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupUploadNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event._GroupUploadFile
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupAdminNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupDecreaseNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupIncreaseNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupBanNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.FriendAddNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupRecallNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.FriendRecallNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.NotifyNoticeEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.PokeNotifyEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.LuckyKingNotifyEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.HonorNotifyEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.RequestEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.FriendRequestEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent
+    :exclude-members: Model, __init__, resolve
+
+.. _onebot_v11_segment:
+
+v11 消息段
+----------------
+
+各种消息段类型的 `type` 与 `data` 参数内容遵循 OneBot v11 原始文档规范，请自行查阅其文档。
+
+.. code:: python
+
+    # 例子：
+    seg: TextSegment = event.get_segments('text')
+    assert seg.type == 'text'
+    # 建议始终使用下标访问，而不是 get
+    # 使用下标，类型提示将会完美工作
+    assert seg.data['text'] == '<whatever>'
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.Segment
+    :exclude-members: Model
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.TextSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.FaceSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ImageSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RecordSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RecordSendSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RecordRecvSegment
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.VideoSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.VideoSendSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.VideoRecvSegment
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.AtSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.RpsSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.DiceSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ShakeSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.PokeSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.PokeSendSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.PokeRecvSegment
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.AnonymousSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ShareSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ContactSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ContactFriendSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ContactGroupSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.LocationSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.MusicSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.MusicPlatformSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.MusicCustomSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ReplySegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.ForwardSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeSegment
+    :exclude-members: Model, resolve, to_dict
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeReferSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeStdCustomSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.NodeGocqCustomSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.XmlSegment
+    :exclude-members: Model, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.segment.JsonSegment
+    :exclude-members: Model, resolve
+
+.. _onebot_v11_action:
+
+v11 行为（动作）
+---------------------
+
+一般来说，无需手动通过这些原始的行为类构建行为，直接调用 :class:`~.v11.adapter.base.Adapter` 的输出方法即可。
+
+但仍然提供这些接口用于高级操作。
+
+.. automodule:: melobot.protocols.onebot.v11.adapter.action
+    :exclude-members: msgs_to_dicts
+
+.. _onebot_v11_echo:
+
+v11 回应
+---------------
+
+各种回应类型的 `data` 参数内容遵循 OneBot v11 原始文档规范，请自行查阅其文档。
+
+.. code:: python
+
+    # 使用回应的例子：
+    handles = await adapter.with_echo(adapter.send)("Hello Melobot!")
+    # 当需要频繁使用时：
+    block_send = adapter.with_echo(adapter.send)
+    handles1 = await block_send("Hello Melobot!")
+    handles2 = await block_send("Hello OneBot!")
+    # 当然，或者这样：
+    with EchoRequireCtx().in_ctx(True):
+        handles1 = await adapter.send("Hello Melobot!")
+        handles2 = await adapter.send_image(
+            "test.jpg", 
+            url="https://glowmem.com/static/avatar.jpg"
+        )
+    
+    # 使用：
+    echo: SendMsgEcho = await handles[0]
+    # 建议始终使用下标访问，而不是 get
+    # 使用下标，类型提示将会完美工作
+    assert isinstance(echo.data['message_id'], int)
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.Echo
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.EmptyEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.SendMsgEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.SendForwardMsgEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetMsgEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetForwardMsgEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetLoginInfoEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetStrangerInfoEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetFriendListEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetGroupInfoEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetGroupListEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetGroupMemberInfoEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetGroupMemberListEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetGroupHonorInfoEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetCookiesEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetCsrfTokenEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetCredentialsEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetRecordEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetImageEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.CanSendImageEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.CanSendRecordEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetStatusEcho
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.echo.GetVersionInfoEcho
+    :exclude-members: Model, __init__, resolve

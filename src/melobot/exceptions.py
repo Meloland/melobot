@@ -18,7 +18,9 @@ logging._loggerClass = (  # type:ignore[attr-defined] # pylint: disable=protecte
 
 
 class BotException(Exception):
-    def __init__(self, obj: object):
+    """bot 异常基类"""
+
+    def __init__(self, obj: object = ""):
         super().__init__(self, obj)
         self.err = str(obj)
 
@@ -26,34 +28,57 @@ class BotException(Exception):
         return self.err
 
 
-class ValidateError(BotException): ...
+class ValidateError(BotException):
+    """:py:mod:`melobot.utils` 函数参数验证异常"""
 
 
-class BotRuntimeError(BotException): ...
+class BotError(BotException):
+    """melobot bot 异常"""
 
 
-class PluginError(BotException): ...
+class IOError(BotException):
+    """melobot 输入输出源异常"""
 
 
-class PluginIpcError(BotException): ...
+class PluginError(BotException):
+    """melobot 插件异常"""
 
 
-class SessionError(BotException): ...
+class PluginIpcError(PluginError):
+    """melobot 插件间通信异常"""
 
 
-class FlowError(BotException): ...
+class SessionError(BotException):
+    """melobot 会话异常"""
 
 
-class LogError(BotException): ...
+class FlowError(BotException):
+    """melobot 处理流异常"""
 
 
-class HookError(BotException): ...
+class LogError(BotException):
+    """melobot 日志器异常"""
 
 
-class AdapterError(BotException): ...
+class HookError(BotException):
+    """melobot 生命周期组件异常"""
 
 
-class DependInitError(BotException): ...
+class AdapterError(BotException):
+    """melobot 适配器异常"""
 
 
-class DependBindError(BotException): ...
+class DependError(BotException):
+    """melobot 依赖注入异常"""
+
+
+class DependInitError(DependError):
+    """melobot 依赖注入项初始化失败"""
+
+
+class DependBindError(DependError):
+    """melobot 依赖注入项值绑定失败"""
+
+
+class DynamicImpError(BotException):
+    """melobot 动态导入组件异常"""

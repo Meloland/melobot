@@ -30,6 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed"
@@ -42,6 +43,12 @@ Documentation = "https://docs.melobot.org"
 Repository = "https://github.com/Meloland/melobot.git"
 Issues = "https://github.com/Meloland/melobot/issues"
 
+[project.optional-dependencies]
+onebot = [
+    "pydantic>=2.9.2",
+    "websockets>=13.1",
+    "aiohttp>=3.10.10",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
@@ -69,23 +76,24 @@ distribution = true
 version = { source = "file", path = "src/melobot/_meta.py" }
 
 [tool.pdm.scripts]
-fresh = {call = "fresh_proj_depends:main"}
 isort = {shell = "isort src/melobot"}
 format = {shell = "black src/melobot"}
 check = {shell = "flake8 src/melobot"}
 analyse = {shell = "mypy src/melobot"}
 pylint = {shell = "pylint src/melobot"}
 all_lint = {composite = ["isort", "format", "check", "analyse", "pylint"]}
+
 test = {shell = "pytest -c pytest.ini"}
 trace = {shell = "viztracer"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
-post_install = {call = "scripts.export_requires:main"}
+
+_requires = {call = "scripts.exports:main"}
+post_install.composite = ["_requires"]
 
 [tool.pdm.dev-dependencies]
 test = [
     "pytest>=8.1.1",
-    "viztracer>=0.16.2",
     "pytest-asyncio>=0.24.0",
 ]
 docs = [
@@ -96,7 +104,6 @@ docs = [
 ]
 lint = [
     "black>=24.2.0",
-    "pydeps>=1.12.19",
     "isort>=5.13.2",
     "flake8>=7.0.0",
     "pylint>=3.2.6",
@@ -104,4 +111,8 @@ lint = [
 ]
 manage = [
     "toml>=0.10.2",
+]
+measure = [
+    "viztracer>=0.16.3",
+    "pydeps>=1.12.20",
 ]

@@ -1,19 +1,11 @@
 import asyncio
+import base64
 import inspect
 import time
-import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime
 from functools import wraps
-from typing import (
-    Any,
-    AsyncGenerator,
-    Awaitable,
-    Callable,
-    Coroutine,
-    Optional,
-    TypeVar,
-    cast,
-)
+from typing import Any, AsyncGenerator, Awaitable, Callable, Coroutine, TypeVar, cast
 
 from typing_extensions import Self
 
@@ -22,6 +14,11 @@ from .typ import AsyncCallable, P, T
 
 
 def singleton(cls: Callable[P, T]) -> Callable[P, T]:
+    """单例装饰器
+
+    :param cls: 需要被单例化的可调用对象
+    :return: 需要被单例化的可调用对象
+    """
     obj_map = {}
 
     @wraps(cls)
@@ -34,10 +31,23 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
 
 
 class Markable:
+    """可标记对象
+
+    无需直接实例化，而是用作接口在其他类中继承
+    """
+
     def __init__(self) -> None:
         self._flags: dict[str, dict[str, Any]] = {}
 
     def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
+        """在 `namespace` 命名空间中设置 `flag_name` 标记，值为 `val`
+
+        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
+
+        :param namespace: 命名空间
+        :param flag_name: 标记名
+        :param val: 标记值
+        """
         self._flags.setdefault(namespace, {})
 
         if flag_name in self._flags[namespace].keys():
@@ -48,6 +58,15 @@ class Markable:
         self._flags[namespace][flag_name] = val
 
     def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
+        """检查 `namespace` 命名空间中 `flag_name` 标记值是否为 `val`
+
+        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
+
+        :param namespace: 命名空间
+        :param flag_name: 标记名
+        :param val: 标记值
+        :return: 是否通过检查
+        """
         if self._flags.get(namespace) is None:
             return False
         if flag_name not in self._flags[namespace].keys():
@@ -125,8 +144,8 @@ class RWContext:
            ...
     """
 
-    def __init__(self, read_limit: Optional[int] = None) -> None:
-        """初始化一个异步读写上下文
+    def __init__(self, read_limit: int | None = None) -> None:
+        """初始化异步读写上下文
 
         :param read_limit: 读取的数量限制，为空则不限制
         """
@@ -137,6 +156,7 @@ class RWContext:
 
     @asynccontextmanager
     async def read(self) -> AsyncGenerator[None, None]:
+        """上下文管理器，展开一个关于该对象的安全异步读上下文"""
         if self.read_semaphore:
             await self.read_semaphore.acquire()
 
@@ -157,6 +177,7 @@ class RWContext:
 
     @asynccontextmanager
     async def write(self) -> AsyncGenerator[None, None]:
+        """上下文管理器，展开一个关于该对象的安全异步写上下文"""
         await self.write_semaphore.acquire()
         try:
             yield
@@ -164,12 +185,72 @@ class RWContext:
             self.write_semaphore.release()
 
 
+class SnowFlakeIdWorker:
+    def __init__(self, datacenter_id: int, worker_id: int, sequence: int = 0) -> None:
+        self.max_worker_id = -1 ^ (-1 << 3)
+        self.max_datacenter_id = -1 ^ (-1 << 5)
+        self.worker_id_shift = 12
+        self.datacenter_id_shift = 12 + 3
+        self.timestamp_left_shift = 12 + 3 + 5
+        self.sequence_mask = -1 ^ (-1 << 12)
+        self.startepoch = int(datetime(2022, 12, 11, 12, 8, 45).timestamp() * 1000)
+
+        if worker_id > self.max_worker_id or worker_id < 0:
+            raise ValueError("worker_id 值越界")
+        if datacenter_id > self.max_datacenter_id or datacenter_id < 0:
+            raise ValueError("datacenter_id 值越界")
+        self.worker_id = worker_id
+        self.datacenter_id = datacenter_id
+        self.sequence = sequence
+        self.last_timestamp = -1
+
+    def _gen_timestamp(self) -> int:
+        return int(time.time() * 1000)
+
+    def get_id(self) -> int:
+        timestamp = self._gen_timestamp()
+
+        if timestamp < self.last_timestamp:
+            raise ValueError(f"时钟回拨，{self.last_timestamp} 前拒绝 id 生成请求")
+        if timestamp == self.last_timestamp:
+            self.sequence = (self.sequence + 1) & self.sequence_mask
+            if self.sequence == 0:
+                timestamp = self._until_next_millis(self.last_timestamp)
+        else:
+            self.sequence = 0
+        self.last_timestamp = timestamp
+        new_id = (
+            ((timestamp - self.startepoch) << self.timestamp_left_shift)
+            | (self.datacenter_id << self.datacenter_id_shift)
+            | (self.worker_id << self.worker_id_shift)
+            | self.sequence
+        )
+        return new_id
+
+    def get_b64_id(self, trim_pad: bool = True) -> str:
+        id = base64.urlsafe_b64encode(
+            self.get_id().to_bytes(8, byteorder="little")
+        ).decode()
+        if trim_pad:
+            id = id.rstrip("=")
+        return id
+
+    def _until_next_millis(self, last_time: int) -> int:
+        timestamp = self._gen_timestamp()
+        while timestamp <= last_time:
+            timestamp = self._gen_timestamp()
+        return timestamp
+
+
+_DEFAULT_ID_WORKER = SnowFlakeIdWorker(1, 1, 0)
+
+
 def get_id() -> str:
-    """从 melobot 内部 id 获取器获得一个 id 值，不保证线程安全。
+    """从 melobot 内部 id 获取器获得一个 id 值，不保证线程安全。算法使用雪花算法
 
     :return: id 值
     """
-    return uuid.uuid4().hex
+    return _DEFAULT_ID_WORKER.get_b64_id()
 
 
 def to_async(
@@ -182,6 +263,8 @@ def to_async(
     :param obj: 需要转换的可调用对象或可等待对象
     :return: 异步函数
     """
+    if inspect.iscoroutinefunction(obj):
+        return obj
 
     async def async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         if not inspect.isawaitable(obj):
@@ -211,17 +294,19 @@ def to_coro(
     :param kwargs: 需要使用的关键字参数
     :return: 协程
     """
+    if inspect.iscoroutine(obj):
+        return obj
     return to_async(obj)(*args, **kwargs)
 
 
 CbRetT = TypeVar("CbRetT")
-CbOneRetT = TypeVar("CbOneRetT")
-CbTwoRetT = TypeVar("CbTwoRetT")
+FirstCbRetT = TypeVar("FirstCbRetT")
+SecondCbRetT = TypeVar("SecondCbRetT")
 OriginRetT = TypeVar("OriginRetT")
 
 
 def lock(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None
+    callback: AsyncCallable[[], CbRetT] | None = None
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, CbRetT | OriginRetT]]:
     """锁装饰器
 
@@ -254,11 +339,12 @@ def lock(
 
 
 def cooldown(
-    busy_callback: Optional[AsyncCallable[[], CbOneRetT]] = None,
-    cd_callback: Optional[AsyncCallable[[float], CbTwoRetT]] = None,
+    busy_callback: AsyncCallable[[], FirstCbRetT] | None = None,
+    cd_callback: AsyncCallable[[float], SecondCbRetT] | None = None,
     interval: float = 5,
 ) -> Callable[
-    [AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbOneRetT | CbTwoRetT]
+    [AsyncCallable[P, OriginRetT]],
+    AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT],
 ]:
     """冷却装饰器
 
@@ -269,9 +355,8 @@ def cooldown(
     `busy_callback` 参数为空，则等待已运行的运行完成。随后执行下面的“冷却”处理逻辑。
 
     当被装饰函数没有在运行的，但冷却时间未结束：
-
-       - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。
-       - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。
+        - `cd_callback` 不为空：使用 `cd_callback` 生成回调并执行。
+        - `cd_callback` 为空，被装饰函数持续等待，直至冷却结束再执行。
 
     被装饰函数的返回值：被装饰函数被执行 -> 被装饰函数返回值；执行任何回调 -> 那个回调的返回值
 
@@ -284,12 +369,12 @@ def cooldown(
 
     def deco_func(
         func: AsyncCallable[P, OriginRetT]
-    ) -> AsyncCallable[P, OriginRetT | CbOneRetT | CbTwoRetT]:
+    ) -> AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT]:
 
         @wraps(func)
         async def wrapped_func(
             *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRetT | CbOneRetT | CbTwoRetT:
+        ) -> OriginRetT | FirstCbRetT | SecondCbRetT:
             nonlocal pre_finish_t
             if busy_callback is not None and alock.locked():
                 return await async_guard(busy_callback)
@@ -316,7 +401,7 @@ def cooldown(
 
 
 def semaphore(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None, value: int = -1
+    callback: AsyncCallable[[], CbRetT] | None = None, value: int = -1
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
     """信号量装饰器
 
@@ -350,7 +435,7 @@ def semaphore(
 
 
 def timelimit(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None, timeout: float = 5
+    callback: AsyncCallable[[], CbRetT] | None = None, timeout: float = 5
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
     """时间限制装饰器
 
@@ -385,11 +470,11 @@ def timelimit(
 
 
 def speedlimit(
-    callback: Optional[AsyncCallable[[], CbRetT]] = None,
+    callback: AsyncCallable[[], CbRetT] | None = None,
     limit: int = 60,
     duration: int = 60,
 ) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
-    """流量/速率限制装饰器
+    """流量/速率限制装饰器（使用固定窗口算法）
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：`duration` 秒内只允许 `limit` 次调用。
 
