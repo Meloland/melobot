@@ -85,6 +85,8 @@ class MessageEvent(Event):
         #: 消息内容（cq 字符串表示）
         self.raw_message: str
 
+        self.scope: tuple[int, ...]
+
         data = event_data
         if isinstance(data["message"], str):
             self.message = Segment.resolve_cq(data["raw_message"])
@@ -247,6 +249,7 @@ class PrivateMessageEvent(MessageEvent):
         #: 消息发送者
         self.sender: _MessageSender
         self.sender = _MessageSender(**event_data["sender"])
+        self.scope = (-1, self.user_id)
 
         self._model: PrivateMessageEvent.Model
         #: 消息类型
@@ -319,6 +322,7 @@ class GroupMessageEvent(MessageEvent):
         )
         #: 消息来源群号
         self.group_id: int = self._model.group_id
+        self.scope = (self.group_id, self.user_id)
 
         self._model: GroupMessageEvent.Model
         #: 消息类型
