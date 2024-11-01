@@ -404,6 +404,8 @@
         <span class="c1">#: 消息内容（cq 字符串表示）</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_message</span><span class="p">:</span> <span class="nb">str</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">scope</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="n">event_data</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">resolve_cq</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;raw_message&quot;</span><span class="p">])</span>
@@ -617,6 +619,7 @@
         <span class="c1">#: 消息发送者</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">:</span> <span class="n">_MessageSender</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sender</span> <span class="o">=</span> <span class="n">_MessageSender</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">PrivateMessageEvent</span><span class="o">.</span><span class="n">Model</span>
         <span class="c1">#: 消息类型</span>
@@ -698,6 +701,7 @@
         <span class="p">)</span>
         <span class="c1">#: 消息来源群号</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">group_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupMessageEvent</span><span class="o">.</span><span class="n">Model</span>
         <span class="c1">#: 消息类型</span>
