@@ -6,6 +6,7 @@
 from http import HTTPStatus
 from io import StringIO
 from random import randint, choice
+from typing import Optional
 
 from melobot.log import Logger, LogLevel
 from melobot.utils import *
