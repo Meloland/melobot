@@ -433,6 +433,21 @@
 
 
 
+<span class="k">def</span> <span class="nf">_adapter_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Adapter | None&quot;</span><span class="p">:</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span>
+    <span class="k">except</span> <span class="n">ctx</span><span class="o">.</span><span class="n">lookup_exc_cls</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_custom_logger_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">CustomLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">getter</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">val</span>
+
+
 <span class="k">class</span> <span class="nc">AutoDepends</span><span class="p">(</span><span class="n">Depends</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hint</span> <span class="o">=</span> <span class="n">hint</span>
@@ -441,15 +456,15 @@
 
         <span class="k">if</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Annotated</span><span class="p">:</span>
             <span class="n">args</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span>
-                    <span class="s2">&quot;可依赖注入的函数若使用 Annotated 注解，必须附加一个元数据，且最多只能有一个&quot;</span>
+                    <span class="s2">&quot;可依赖注入的函数若使用 Annotated 注解，必须附加元数据&quot;</span>
                 <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadatas</span> <span class="o">=</span> <span class="n">args</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadatas</span> <span class="o">=</span> <span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_event_type</span><span class="p">()):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">FlowCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_event</span>
@@ -458,7 +473,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span>
 
         <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_adapter_type</span><span class="p">()):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">h</span><span class="o">=</span><span class="n">hint</span><span class="p">:</span> <span class="n">AutoDepends</span><span class="o">.</span><span class="n">_adapter_get</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>  <span class="c1"># type: ignore[misc]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">h</span><span class="o">=</span><span class="n">hint</span><span class="p">:</span> <span class="n">_adapter_get</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
 
         <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_type</span><span class="p">()):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span>
@@ -469,28 +484,32 @@
         <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">SessionCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_store_type</span><span class="p">()):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">SessionCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_store</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">CustomLogger</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span>
-
         <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">SessionCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_rule_type</span><span class="p">()</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">SessionCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">rule</span>
 
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadatas</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">CustomLogger</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">h</span><span class="o">=</span><span class="n">hint</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">data</span><span class="p">:</span> <span class="n">_custom_logger_get</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;函数 </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 的参数 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 提供的类型注解 </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2"> 无法用于注入任何依赖，请检查是否有误&quot;</span>
             <span class="p">)</span>
 
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadatas</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Reflect</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span>
+                    <span class="k">lambda</span> <span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span><span class="p">:</span> <span class="n">Reflection</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">g</span><span class="p">)),</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span><span class="p">,</span> <span class="n">sub_getter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_adapter_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Adapter | None&quot;</span><span class="p">:</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span>
-        <span class="k">except</span> <span class="n">ctx</span><span class="o">.</span><span class="n">lookup_exc_cls</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_get_unmatch_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">real_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DependNotMatched</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_unmatch_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">real_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DependNotMatched</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">DependNotMatched</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;函数 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 的参数 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">arg_name</span><span class="si">}</span><span class="s2"> &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;与注解 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="si">}</span><span class="s2"> 不匹配&quot;</span><span class="p">,</span>
@@ -500,25 +519,34 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">,</span>
         <span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_match_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadatas</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Exclude</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">types</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unmatch_exc</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadatas</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">CustomLogger</span><span class="p">):</span>
+                <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unmatch_exc</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">Exclude</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">types</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_unmatch_exc</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Reflection</span><span class="p">):</span>
+            <span class="n">inner_val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">__obj_getter__</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">isawaitable</span><span class="p">(</span><span class="n">inner_val</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;异步依赖项不能通过 </span><span class="si">{</span><span class="n">Reflect</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 创建反射依赖&quot;</span>
+                <span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">CustomLogger</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">getter</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_match_check</span><span class="p">(</span><span class="n">inner_val</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">val</span>
 
-        <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_type</span><span class="p">()):</span>
-            <span class="k">return</span> <span class="n">val</span>
-
-        <span class="k">if</span> <span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">val</span>
-
-        <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_unmatch_exc</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_match_check</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">val</span>
 
 
 <div class="viewcode-block" id="Exclude">
@@ -553,6 +581,39 @@
 
     <span class="n">getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span></div>
 
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Reflect</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理</span>
+
+<span class="sd">    .. code:: python</span>
+<span class="sd">        # 注入一个依赖时进一步包装为反射依赖</span>
+<span class="sd">        EventProxy = Annotated[Event, Reflect()]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">Reflection</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="s2">&quot;__obj_getter__&quot;</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">getter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_getter__</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__obj_getter__&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">getter</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;在反射对象上，不允许访问名称以 _ 开头的属性：</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">getter</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">getter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_getter__</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__obj_getter__&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">getter</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;在反射对象上，不允许修改名称以 _ 开头的属性：</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">getter</span><span class="p">(),</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_init_auto_deps</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">allow_manual_arg</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -625,7 +686,7 @@
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">bind</span><span class="o">.</span><span class="n">args</span><span class="p">),</span> <span class="n">bind</span><span class="o">.</span><span class="n">kwargs</span>
 
 
-<span class="k">class</span> <span class="nc">DependsHook</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">DependsHook</span><span class="p">(</span><span class="n">Depends</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;依赖钩子</span>
 
 <span class="sd">    包装一个依赖项，依赖满足后内部的 hook 将会执行</span>
@@ -637,10 +698,15 @@
         <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__inner_depends__</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">deps_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_callback</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">val</span>
 
 
 <div class="viewcode-block" id="inject_deps">
@@ -675,18 +741,10 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">Depends</span><span class="p">):</span>
                 <span class="n">_args</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">elem</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">DependsHook</span><span class="p">):</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="n">elem</span><span class="o">.</span><span class="n">__inner_depends__</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
-                <span class="k">await</span> <span class="n">elem</span><span class="o">.</span><span class="n">deps_callback</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="n">elem</span> <span class="o">=</span> <span class="n">_kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">Depends</span><span class="p">):</span>
                 <span class="n">_kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">elem</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">DependsHook</span><span class="p">):</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="n">elem</span><span class="o">.</span><span class="n">__inner_depends__</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
-                <span class="k">await</span> <span class="n">elem</span><span class="o">.</span><span class="n">deps_callback</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 
         <span class="n">ret</span> <span class="o">=</span> <span class="n">injectee</span><span class="p">(</span><span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="k">if</span> <span class="n">isawaitable</span><span class="p">(</span><span class="n">ret</span><span class="p">):</span>
