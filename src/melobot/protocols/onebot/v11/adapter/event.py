@@ -23,7 +23,7 @@ class Event(RootEvent):
         self.time: int
 
         super().__init__(self._model.time, protocol=PROTOCOL_IDENTIFIER)
-        #: 自身ID
+        #: 机器人自己的 qq 号
         self.self_id: int = self._model.self_id
         #: 事件类型
         self.post_type: Literal["message", "notice", "request", "meta_event"] | str = (
