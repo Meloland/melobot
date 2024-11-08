@@ -316,7 +316,7 @@ def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
 
         @wraps(func)
-        def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        def deprecate_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
             warnings.warn(
                 f"调用了弃用函数 {func.__name__}: {msg}",
                 category=DeprecationWarning,
@@ -324,6 +324,6 @@ def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
             )
             return func(*args, **kwargs)
 
-        return wrapped
+        return deprecate_wrapped
 
     return decorator

@@ -57,7 +57,7 @@ def _start_log(logger: GenericLogger) -> None:
         logger.info(f"{row}")
     logger.info("")
     logger.info(f"版本：{MetaInfo.ver}")
-    logger.info(f"系统：{platform.system()} {platform.machine()} {platform.release()}")
+    logger.info(f"系统：{platform.system()} {platform.release()} {platform.machine()}")
     logger.info(f"环境：{platform.python_implementation()} {platform.python_version()}")
     logger.info("=" * 40)
 

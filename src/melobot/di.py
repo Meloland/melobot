@@ -280,6 +280,10 @@ class Reflection:
     def __init__(self, getter: Callable[[], Any]) -> None:
         super().__setattr__("__obj_getter__", getter)
 
+    @property
+    def __origin__(self) -> Any:
+        return self.__obj_getter__()
+
     def __getattr__(self, name: str) -> Any:
         getter = self.__obj_getter__
         if name == "__obj_getter__":
@@ -413,7 +417,7 @@ def inject_deps(
         raise DependInitError(f"函数 {name} 无法进行依赖注入，在依赖注入前它不能被装饰")
 
     @wraps(injectee)
-    async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def di_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         _args, _kwargs = _get_bound_args(injectee, *args, **kwargs)
         dep_scope: dict[Depends, Any] = {}
 
@@ -434,9 +438,9 @@ def inject_deps(
 
     if isinstance(injectee, (FunctionType, BuiltinFunctionType)):
         _init_auto_deps(injectee, manual_arg)
-        return wrapped
+        return di_wrapped
     if isinstance(injectee, LambdaType):
-        return wrapped
+        return di_wrapped
 
     raise DependInitError(
         f"{injectee} 对象不属于以下类别中的任何一种："
