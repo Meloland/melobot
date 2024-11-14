@@ -61,6 +61,7 @@ v11 解析器
     :exclude-members: __init__
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.CmdParser
+    :exclude-members: format
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.CmdArgFormatter
 
