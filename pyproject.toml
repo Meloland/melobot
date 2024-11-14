@@ -49,6 +49,9 @@ onebot = [
     "websockets>=13.1",
     "aiohttp>=3.10.10",
 ]
+cli = [
+    "watchdog>=6.0.0",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"

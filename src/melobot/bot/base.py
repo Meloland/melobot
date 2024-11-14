@@ -11,7 +11,7 @@ from enum import Enum
 from os import PathLike
 from pathlib import Path
 from types import ModuleType
-from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable
+from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable, NoReturn
 
 from typing_extensions import LiteralString
 
@@ -46,8 +46,10 @@ class BotExitSignal(Enum):
     RESTART = 2
 
 
-MELO_PKG_RUNTIME = "MELOBOT_PKG_RUNTIME"
-MELO_LAST_EXIT_SIGNAL = "MELOBOT_LAST_EXIT_SIGNAL"
+CLI_RUNTIME = "MELOBOT_CLI_RUNTIME"
+CLI_DEV = "MELOBOT_CLI_DEV"
+CLI_DEV_ALIVE_SIGNAL = "MELOBOT_CLI_DEV_ALIVE_SIGNAL"
+LAST_EXIT_SIGNAL = "MELOBOT_LAST_EXIT_SIGNAL"
 _BOT_CTX = BotCtx()
 _LOGGER_CTX = LoggerCtx()
 
@@ -340,9 +342,8 @@ class Bot:
         try:
             async with self._async_common_ctx() as stack:
                 if (
-                    MELO_LAST_EXIT_SIGNAL in os.environ
-                    and int(os.environ[MELO_LAST_EXIT_SIGNAL])
-                    == BotExitSignal.RESTART.value
+                    LAST_EXIT_SIGNAL in os.environ
+                    and int(os.environ[LAST_EXIT_SIGNAL]) == BotExitSignal.RESTART.value
                 ):
                     await self._life_bus.emit(BotLifeSpan.RELOADED)
                 else:
@@ -405,14 +406,14 @@ class Bot:
         await self._life_bus.emit(BotLifeSpan.CLOSE, wait=True)
         self._rip_signal.set()
 
-    async def restart(self) -> None:
+    async def restart(self) -> NoReturn:
         """重启当前 bot，需要通过模块运行模式启动 bot 主脚本：
 
         .. code:: shell
 
             python3 -m melobot run [*.py]
         """
-        if MELO_PKG_RUNTIME not in os.environ:
+        if CLI_RUNTIME not in os.environ:
             raise BotError(
                 "启用重启功能，需要用以下命令运行 bot：python -m melobot run [*.py]"
             )
@@ -521,8 +522,13 @@ def _safe_run(main: Coroutine[Any, Any, None], debug: bool) -> None:
     try:
         loop = asyncio.get_event_loop()
         asyncio.get_event_loop_policy().set_event_loop(loop)
+
         if debug is not None:
             loop.set_debug(debug)
+
+        if CLI_DEV in os.environ:
+            main = alive_signal_guard(main)
+
         loop.run_until_complete(main)
 
     except KeyboardInterrupt:
@@ -538,6 +544,17 @@ def _safe_run(main: Coroutine[Any, Any, None], debug: bool) -> None:
         finally:
             asyncio.get_event_loop_policy().set_event_loop(None)
             loop.close()
+
+
+async def alive_signal_guard(main_coro: Coroutine[Any, Any, None]) -> None:
+    asyncio.create_task(main_coro)
+
+    while True:
+        if not os.path.exists(os.environ[CLI_DEV_ALIVE_SIGNAL]):
+            for bot in Bot.__instances__.values():
+                bot._rip_signal.set()  # pylint: disable=protected-access
+            break
+        await asyncio.sleep(0.45)
 
 
 def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
