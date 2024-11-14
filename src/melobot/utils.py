@@ -296,7 +296,7 @@ def to_coro(
     """
     if inspect.iscoroutine(obj):
         return obj
-    return to_async(obj)(*args, **kwargs)
+    return to_async(obj)(*args, **kwargs)  # type: ignore[arg-type]
 
 
 CbRetT = TypeVar("CbRetT")
@@ -518,7 +518,7 @@ def speedlimit(
         # 分离出来定义，方便 result_set 调用形成递归。主要逻辑通过 Future 实现，有利于避免竞争问题。
         nonlocal called_num, min_start
         passed_time = time.perf_counter() - min_start
-        res_fut: Any = asyncio.Future()
+        res_fut: Any = asyncio.get_running_loop().create_future()
 
         if passed_time <= duration:
             if called_num < limit:
@@ -617,7 +617,7 @@ def async_later(callback: Coroutine[Any, Any, T], delay: float) -> asyncio.Futur
         except asyncio.CancelledError:
             callback.close()
 
-    fut: asyncio.Future[T] = asyncio.Future()
+    fut: asyncio.Future[T] = asyncio.get_running_loop().create_future()
     asyncio.create_task(async_cb(fut))
     return fut
 

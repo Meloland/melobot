@@ -192,6 +192,6 @@ class ReverseWebSocketIO(BaseIO):
         if packet.echo_id is None:
             return EchoPacket(noecho=True)
 
-        fut: Future[EchoPacket] = Future()
+        fut: Future[EchoPacket] = asyncio.get_running_loop().create_future()
         self._echo_table[packet.echo_id] = (packet.action_type, fut)
         return await fut
