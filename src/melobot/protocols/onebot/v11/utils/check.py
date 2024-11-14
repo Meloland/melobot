@@ -284,6 +284,7 @@ class AtMsgChecker(Checker):
         """初始化一个艾特消息事件检查器
 
         :param qid: 被艾特的 qq 号。为空则接受所有艾特消息事件；不为空则只接受指定 qid 被艾特的艾特消息事件
+        :param fail_cb: 检查不通过的回调
         """
         super().__init__(fail_cb)
         self.qid = qid
