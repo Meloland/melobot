@@ -6,6 +6,7 @@ from asyncio import Future, Lock
 from itertools import count
 
 import websockets
+from websockets.asyncio.client import ClientConnection
 from websockets.exceptions import ConnectionClosed
 
 from melobot.exceptions import IOError
@@ -27,7 +28,7 @@ class ForwardWebSocketIO(BaseIO):
     ) -> None:
         super().__init__(cd_time)
         self.url = url
-        self.conn: websockets.client.WebSocketClientProtocol
+        self.conn: ClientConnection
         self.access_token = access_token
         self.max_retry: int = max_retry
         self.retry_delay: float = retry_delay if retry_delay > 0 else 0
@@ -124,7 +125,6 @@ class ForwardWebSocketIO(BaseIO):
 
             retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
             first_try, ok_flag = True, False
-            # mypy's bullshit: Item "range" of "range | Iterator[int]" has no attribute "__next__"
             for _ in retry_iter:  # type: ignore[union-attr]
                 if first_try:
                     first_try = False
@@ -132,7 +132,9 @@ class ForwardWebSocketIO(BaseIO):
                     await asyncio.sleep(self.retry_delay)
 
                 try:
-                    self.conn = await websockets.connect(self.url, extra_headers=headers)
+                    self.conn = await websockets.connect(
+                        self.url, additional_headers=headers
+                    )
                     ok_flag = True
                     break
 

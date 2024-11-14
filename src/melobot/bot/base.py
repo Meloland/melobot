@@ -341,13 +341,12 @@ class Bot:
 
         try:
             async with self._async_common_ctx() as stack:
+                await self._life_bus.emit(BotLifeSpan.LOADED)
                 if (
                     LAST_EXIT_SIGNAL in os.environ
                     and int(os.environ[LAST_EXIT_SIGNAL]) == BotExitSignal.RESTART.value
                 ):
                     await self._life_bus.emit(BotLifeSpan.RELOADED)
-                else:
-                    await self._life_bus.emit(BotLifeSpan.LOADED)
 
                 timed_task = asyncio.create_task(self._dispatcher.timed_gc())
                 self._tasks.append(timed_task)
