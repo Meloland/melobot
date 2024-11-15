@@ -81,33 +81,32 @@ def main(args: Namespace) -> None:
                         else:
                             # 避免一直等待导致线程池无法关闭
                             reload_signal.set()
-                            retcode = BotExitSignal.NORMAL_STOP.value
+                            retcode = proc.returncode
 
                     except KeyboardInterrupt:
                         clear_alive_sig()
                         proc.wait()
                         # 避免一直等待导致线程池无法关闭
                         reload_signal.set()
-                        retcode = BotExitSignal.NORMAL_STOP.value
+                        retcode = proc.returncode
 
-            proc.returncode = retcode
             if LAST_EXIT_SIGNAL in os.environ:
                 os.environ.pop(LAST_EXIT_SIGNAL)
 
-            if proc.returncode == BotExitSignal.NORMAL_STOP.value:
+            if retcode == BotExitSignal.NORMAL_STOP.value:
                 break
 
-            if proc.returncode == BotExitSignal.RESTART.value:
+            if retcode == BotExitSignal.RESTART.value:
                 print("\n>>> [mb-cli] 正在重启 Bot 主程序\n")
                 os.environ[LAST_EXIT_SIGNAL] = str(BotExitSignal.RESTART.value)
                 continue
 
-            if proc.returncode == BotExitSignal.ERROR.value:
+            if retcode == BotExitSignal.ERROR.value:
                 break
 
             print()
-            print(f">>> [mb-cli] Bot main script exitcode: {proc.returncode}")
-            print(">>> [mb-cli] Bot 主程序退出时返回了无法处理的返回值")
+            print(f">>> [mb-cli] Bot 主程序返回了意料之外的退出码: {retcode}")
+            print(">>> [mb-cli] 若提示“已安全停止运行”，则无需关注此警告")
             break
 
     finally:

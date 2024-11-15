@@ -368,7 +368,7 @@ class Bot:
                     t.cancel()
 
                 await self._life_bus.emit(BotLifeSpan.STOPPED, wait=True)
-                self.logger.info(f"{self} 已停止运行")
+                self.logger.info(f"{self} 已安全停止运行")
                 self._running = False
 
     def run(self, debug: bool = False) -> None:
