@@ -45,12 +45,12 @@ Issues = "https://github.com/Meloland/melobot/issues"
 
 [project.optional-dependencies]
 onebot = [
-    "pydantic>=2.9.2",
-    "websockets>=13.1",
-    "aiohttp>=3.10.10",
+    "pydantic>=2.9.2,<3",
+    "websockets>=14.1,<15",
+    "aiohttp>=3.10.10,<4",
 ]
 cli = [
-    "watchdog>=6.0.0",
+    "watchdog>=6.0.0,<7",
 ]
 [build-system]
 requires = ["pdm-backend"]
