@@ -9,10 +9,7 @@ _CTX = EventBuildInfoCtx()
 
 
 async def send_text(text: str) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_text` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用文本输出方法"""
     return await _CTX.get().adapter.__send_text__(text)
 
 
@@ -22,10 +19,7 @@ async def send_media(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_media` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用媒体内容输出方法"""
     return await _CTX.get().adapter.__send_media__(name, raw, url, mimetype)
 
 
@@ -35,10 +29,7 @@ async def send_image(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_image` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用图像内容输出方法"""
     return await _CTX.get().adapter.__send_image__(name, raw, url, mimetype)
 
 
@@ -48,10 +39,7 @@ async def send_audio(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_audio` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用音频内容输出方法"""
     return await _CTX.get().adapter.__send_audio__(name, raw, url, mimetype)
 
 
@@ -61,10 +49,7 @@ async def send_voice(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_voice` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用语音内容输出方法"""
     return await _CTX.get().adapter.__send_voice__(name, raw, url, mimetype)
 
 
@@ -74,34 +59,22 @@ async def send_video(
     url: str | None = None,
     mimetype: str | None = None,
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_video` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用视频内容输出方法"""
     return await _CTX.get().adapter.__send_video__(name, raw, url, mimetype)
 
 
 async def send_file(name: str, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_file` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用文件输出方法"""
     return await _CTX.get().adapter.__send_file__(name, path)
 
 
 async def send_refer(
     event: Event, contents: Sequence[Content] | None = None
 ) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_refer` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用过往事件引用输出方法"""
     return await _CTX.get().adapter.__send_refer__(event, contents)
 
 
 async def send_resource(name: str, url: str) -> tuple[ActionHandle, ...]:
-    """包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_resource` 调用
-
-    函数参数和返回值参考原方法
-    """
+    """通用其他资源输出方法"""
     return await _CTX.get().adapter.__send_resource__(name, url)

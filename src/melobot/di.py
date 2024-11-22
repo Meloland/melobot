@@ -271,9 +271,21 @@ class CustomLogger:
 class Reflect:
     """数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理
 
+    这适用于希望依赖会随着上下文改变，而动态变化的情况。例如动态引用会话流程中的事件对象
+
     .. code:: python
+
         # 注入一个依赖时进一步包装为反射依赖
-        EventProxy = Annotated[Event, Reflect()]
+        event_proxy = Annotated[Event, Reflect()]
+        # 就像使用 event 一样使用 event_proxy
+        event_proxy.attr_xxx
+        event_proxy.method_xxx()
+
+        # 不过 event_proxy 不是完美的代理
+        # 因此 isinstance 类似的操作，使用 __origin__ 获取原始对象
+        isinstance(event_proxy.__origin__, SomeEventType)
+        # 或者是作为运行逻辑未知的函数的参数
+        dont_know_what_this_do(event_proxy.__origin__)
     """
 
 
@@ -391,7 +403,12 @@ class DependsHook(Depends, BetterABC, Generic[T]):
         super().__init__(func, cache=cache, recursive=recursive)
 
     @abstractmethod
-    async def deps_callback(self, val: T) -> None: ...
+    async def deps_callback(self, val: T) -> None:
+        """所有依赖钩子子类必须实现该抽象方法
+
+        :param val: 依赖项被满足后的值
+        """
+        raise NotImplementedError
 
     async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
         val = await super().fulfill(dep_scope)
