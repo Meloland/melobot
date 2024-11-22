@@ -308,7 +308,6 @@
 
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">AdapterError</span><span class="p">,</span> <span class="n">BotError</span><span class="p">,</span> <span class="n">FlowError</span><span class="p">,</span> <span class="n">LogError</span><span class="p">,</span> <span class="n">SessionError</span>
 <span class="kn">from</span> <span class="nn">.typ</span> <span class="kn">import</span> <span class="n">T</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">singleton</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.adapter</span> <span class="kn">import</span> <span class="n">model</span>
@@ -321,9 +320,20 @@
     <span class="kn">from</span> <span class="nn">.session.option</span> <span class="kn">import</span> <span class="n">Rule</span>
 
 
+<span class="k">class</span> <span class="nc">_ContextMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="n">__instances__</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ContextMeta</span><span class="o">.</span><span class="n">__instances__</span><span class="p">:</span>
+            <span class="n">_ContextMeta</span><span class="o">.</span><span class="n">__instances__</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">_ContextMeta</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_ContextMeta</span><span class="o">.</span><span class="n">__instances__</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span>
+
+
 <div class="viewcode-block" id="Context">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context">[文档]</a>
-<span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">_ContextMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;上下文对象，本质是对 :class:`contextvars.ContextVar` 操作的封装</span>
 
 <span class="sd">    可以继承该基类，实现自己的上下文对象</span>
@@ -414,7 +424,6 @@
 <span class="n">_OutSrcFilterType</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;OutSourceT&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
 
 
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">OutSrcFilterCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">_OutSrcFilterType</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_OUT_SRC_FILTER&quot;</span><span class="p">,</span> <span class="n">AdapterError</span><span class="p">)</span>
@@ -426,7 +435,6 @@
     <span class="n">in_src</span><span class="p">:</span> <span class="s2">&quot;AbstractInSource&quot;</span>
 
 
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">EventBuildInfoCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">EventBuildInfo</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -497,7 +505,6 @@
     <span class="n">store</span><span class="p">:</span> <span class="n">FlowStore</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FlowStore</span><span class="p">)</span>
 
 
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">FlowCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">FlowStatus</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -534,7 +541,6 @@
         <span class="k">return</span> <span class="n">FlowStore</span>
 
 
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">BotCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;Bot&quot;</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_BOT&quot;</span><span class="p">,</span> <span class="n">BotError</span><span class="p">,</span> <span class="s2">&quot;此时未初始化 bot 实例，无法获取&quot;</span><span class="p">)</span>
@@ -545,7 +551,6 @@
         <span class="k">return</span> <span class="n">Bot</span>
 
 
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">SessionCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;Session&quot;</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -568,7 +573,6 @@
         <span class="k">return</span> <span class="n">Rule</span>
 
 
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">LoggerCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;GenericLogger&quot;</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_LOGGER&quot;</span><span class="p">,</span> <span class="n">LogError</span><span class="p">,</span> <span class="s2">&quot;此时未初始化 logger 实例，无法获取&quot;</span><span class="p">)</span>
@@ -579,7 +583,6 @@
         <span class="k">return</span> <span class="n">GenericLogger</span>
 
 
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">ActionManualSignalCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_ACTION_AUTO_SIGNAL&quot;</span><span class="p">,</span> <span class="n">AdapterError</span><span class="p">)</span>

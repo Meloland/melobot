@@ -316,7 +316,6 @@
 <span class="kn">from</span> <span class="nn">melobot.exceptions</span> <span class="kn">import</span> <span class="n">AdapterError</span>
 <span class="kn">from</span> <span class="nn">melobot.handle</span> <span class="kn">import</span> <span class="n">try_get_event</span>
 <span class="kn">from</span> <span class="nn">melobot.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span>
-<span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">singleton</span>
 
 <span class="kn">from</span> <span class="nn">..const</span> <span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">P</span>
 <span class="kn">from</span> <span class="nn">..io.base</span> <span class="kn">import</span> <span class="n">BaseIO</span>
@@ -351,7 +350,6 @@
 
 <div class="viewcode-block" id="EchoRequireCtx">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.EchoRequireCtx">[文档]</a>
-<span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">EchoRequireCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ONEBOT_V11_ECHO_STATUS&quot;</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">)</span></div>
