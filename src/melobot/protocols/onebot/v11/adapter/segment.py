@@ -356,7 +356,7 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
         return cls(seg_type, **seg_data)
 
     @classmethod
-    def resolve_cq(cls, cq_str: str) -> list[Segment]:
+    def __resolve_cq__(cls, cq_str: str) -> list[Segment]:
         dicts = _cq_to_dicts(cq_str)
         segs = [cls.resolve(dic["type"], dic["data"]) for dic in dicts]
         return segs

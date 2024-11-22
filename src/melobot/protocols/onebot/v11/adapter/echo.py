@@ -169,7 +169,7 @@ class GetMsgEcho(Echo):
         msgs = data["message"]
         segs: list[Segment]
         if isinstance(msgs, str):
-            segs = Segment.resolve_cq(msgs)
+            segs = Segment.__resolve_cq__(msgs)
         else:
             segs = [Segment.resolve(seg_dic["type"], seg_dic["data"]) for seg_dic in msgs]
 
@@ -206,7 +206,7 @@ class GetForwardMsgEcho(Echo):
         msgs = data["message"]
         segs: list[Segment]
         if isinstance(msgs, str):
-            segs = Segment.resolve_cq(msgs)
+            segs = Segment.__resolve_cq__(msgs)
         else:
             segs = [Segment.resolve(seg_dic["type"], seg_dic["data"]) for seg_dic in msgs]
 

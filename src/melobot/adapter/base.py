@@ -269,7 +269,7 @@ class Adapter(
         )
 
     @abstractmethod
-    async def send_text(self, text: str) -> tuple[ActionHandle, ...]:
+    async def __send_text__(self, text: str) -> tuple[ActionHandle, ...]:
         """输出文本
 
         抽象方法。所有适配器子类应该实现此方法
@@ -279,7 +279,7 @@ class Adapter(
         """
         raise NotImplementedError
 
-    async def send_media(
+    async def __send_media__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -296,11 +296,11 @@ class Adapter(
         :param mimetype: 多媒体内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot media: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_image(
+    async def __send_image__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -317,11 +317,11 @@ class Adapter(
         :param mimetype: 图像内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot image: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_audio(
+    async def __send_audio__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -338,11 +338,11 @@ class Adapter(
         :param mimetype: 音频内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot audio: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_voice(
+    async def __send_voice__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -359,11 +359,11 @@ class Adapter(
         :param mimetype: 语音内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot voice: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_video(
+    async def __send_video__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -380,11 +380,11 @@ class Adapter(
         :param mimetype: 视频内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot video: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_file(
+    async def __send_file__(
         self, name: str, path: str | PathLike[str]
     ) -> tuple[ActionHandle, ...]:
         """输出文件
@@ -395,9 +395,9 @@ class Adapter(
         :param path: 文件路径
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(f"[melobot file: {name} at {path}]")
+        return await self.__send_text__(f"[melobot file: {name} at {path}]")
 
-    async def send_refer(
+    async def __send_refer__(
         self, event: Event, contents: Sequence[Content] | None = None
     ) -> tuple[ActionHandle, ...]:
         """输出对过往事件的引用
@@ -408,11 +408,11 @@ class Adapter(
         :param contents: 附加的通用内容序列
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot refer: {event.__class__.__name__}({event.id})]"
         )
 
-    async def send_resource(self, name: str, url: str) -> tuple[ActionHandle, ...]:
+    async def __send_resource__(self, name: str, url: str) -> tuple[ActionHandle, ...]:
         """输出网络资源
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -421,4 +421,4 @@ class Adapter(
         :param url: 网络资源的 url
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(f"[melobot resource: {name} at {url}]")
+        return await self.__send_text__(f"[melobot resource: {name} at {url}]")

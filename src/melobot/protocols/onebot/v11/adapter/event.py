@@ -89,7 +89,7 @@ class MessageEvent(Event):
 
         data = event_data
         if isinstance(data["message"], str):
-            self.message = Segment.resolve_cq(data["raw_message"])
+            self.message = Segment.__resolve_cq__(data["raw_message"])
         else:
             self.message = [
                 Segment.resolve(dic["type"], dic["data"]) for dic in data["message"]

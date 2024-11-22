@@ -37,17 +37,17 @@ async def test_add_type():
 
 
 async def test_serialize_and_deserialize():
-    sl1 = seg.Segment.resolve_cq("12345[CQ:image,file=12345678.jpg]123456")
-    sl2 = seg.Segment.resolve_cq(
+    sl1 = seg.Segment.__resolve_cq__("12345[CQ:image,file=12345678.jpg]123456")
+    sl2 = seg.Segment.__resolve_cq__(
         "123&#91;45[CQ:node,user_id=10001000,nickname=某人,content=&#91;CQ:face&#44;id=123&#93;哈喽～]12345"
     )
 
     s3 = seg.ImageSegment(file="12345678")
     s4 = seg.RpsSegment()
-    s5 = seg.Segment.resolve_cq("12345")[0]
-    s6 = seg.Segment.resolve_cq("[CQ:image,file=12345678.jpg]")[0]
+    s5 = seg.Segment.__resolve_cq__("12345")[0]
+    s6 = seg.Segment.__resolve_cq__("[CQ:image,file=12345678.jpg]")[0]
     s7 = seg.AtSegment(15742)
-    s8 = seg.Segment.resolve_cq("")
+    s8 = seg.Segment.__resolve_cq__("")
 
     assert s8 == []
 

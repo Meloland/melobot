@@ -75,21 +75,21 @@ async def process(adapter: Adapter, event: MessageEvent, logger: GenericLogger) 
     pending = await adapter.with_echo(send_text)("generic send test")
     assert (await pending[0]).data["message_id"] == 123456
 
-    pending = await adapter.send_media("test.bmp", url="https://example.com/test.bmp")
+    pending = await adapter.__send_media__("test.bmp", url="https://example.com/test.bmp")
     assert pending[0].action.params["message"][0]["type"] == "share"
-    pending = await adapter.send_media("test.bmp", raw=b"123")
+    pending = await adapter.__send_media__("test.bmp", raw=b"123")
     assert pending[0].action.params["message"][0]["type"] == "text"
 
-    pending = await adapter.send_image("test.jpg", url="https://example.com/test.jpg")
+    pending = await adapter.__send_image__("test.jpg", url="https://example.com/test.jpg")
     assert pending[0].action.params["message"][0]["type"] == "image"
 
-    pending = await adapter.send_file("test.txt", path="/home/abc/test.txt")
+    pending = await adapter.__send_file__("test.txt", path="/home/abc/test.txt")
     assert pending[0].action.params["message"][0]["type"] == "text"
 
-    pending = await adapter.send_refer(event)
+    pending = await adapter.__send_refer__(event)
     assert pending[0].action.params["message"][0]["type"] == "reply"
 
-    pending = await adapter.send_resource("123456", "https://example.com/test.jpg")
+    pending = await adapter.__send_resource__("123456", "https://example.com/test.jpg")
     assert pending[0].action.params["message"][0]["type"] == "share"
 
     logger.info("adapter main event process ok")

@@ -83,25 +83,26 @@ class Adapter(
 
         return wrapped_api
 
-    async def send_text(
+    async def __send_text__(
         self, text: str
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(text)
 
-    async def send_media(
+    async def __send_media__(
         self,
         name: str,
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+        """通用媒体发送方法"""
         return await self.send(
             se.contents_to_segs(
                 [mc.MediaContent(name=name, url=url, raw=raw, mimetype=mimetype)]
             )[0]
         )
 
-    async def send_image(
+    async def __send_image__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -114,7 +115,7 @@ class Adapter(
             )[0]
         )
 
-    async def send_audio(
+    async def __send_audio__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -127,7 +128,7 @@ class Adapter(
             )[0]
         )
 
-    async def send_voice(
+    async def __send_voice__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -140,7 +141,7 @@ class Adapter(
             )[0]
         )
 
-    async def send_video(
+    async def __send_video__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -153,14 +154,14 @@ class Adapter(
             )[0]
         )
 
-    async def send_file(
+    async def __send_file__(
         self, name: str, path: str | PathLike[str]
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(
             se.contents_to_segs([mc.FileContent(name=name, flag=str(path))])[0]
         )
 
-    async def send_refer(
+    async def __send_refer__(
         self, event: ev.RootEvent, contents: ev.Sequence[Content] | None = None
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         if not isinstance(event, ev.MessageEvent):
@@ -174,7 +175,7 @@ class Adapter(
             return await self.send_custom(segs, group_id=event.group_id)
         return await self.send_custom(segs, user_id=event.user_id)
 
-    async def send_resource(
+    async def __send_resource__(
         self, name: str, url: str
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(se.contents_to_segs([mc.ResourceContent(name, url)])[0])

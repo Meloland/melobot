@@ -13,7 +13,7 @@ async def send_text(text: str) -> tuple[ActionHandle, ...]:
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_text(text)
+    return await _CTX.get().adapter.__send_text__(text)
 
 
 async def send_media(
@@ -26,7 +26,7 @@ async def send_media(
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_media(name, raw, url, mimetype)
+    return await _CTX.get().adapter.__send_media__(name, raw, url, mimetype)
 
 
 async def send_image(
@@ -39,7 +39,7 @@ async def send_image(
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_image(name, raw, url, mimetype)
+    return await _CTX.get().adapter.__send_image__(name, raw, url, mimetype)
 
 
 async def send_audio(
@@ -52,7 +52,7 @@ async def send_audio(
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_audio(name, raw, url, mimetype)
+    return await _CTX.get().adapter.__send_audio__(name, raw, url, mimetype)
 
 
 async def send_voice(
@@ -65,7 +65,7 @@ async def send_voice(
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_voice(name, raw, url, mimetype)
+    return await _CTX.get().adapter.__send_voice__(name, raw, url, mimetype)
 
 
 async def send_video(
@@ -78,7 +78,7 @@ async def send_video(
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_video(name, raw, url, mimetype)
+    return await _CTX.get().adapter.__send_video__(name, raw, url, mimetype)
 
 
 async def send_file(name: str, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
@@ -86,7 +86,7 @@ async def send_file(name: str, path: str | PathLike[str]) -> tuple[ActionHandle,
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_file(name, path)
+    return await _CTX.get().adapter.__send_file__(name, path)
 
 
 async def send_refer(
@@ -96,7 +96,7 @@ async def send_refer(
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_refer(event, contents)
+    return await _CTX.get().adapter.__send_refer__(event, contents)
 
 
 async def send_resource(name: str, url: str) -> tuple[ActionHandle, ...]:
@@ -104,4 +104,4 @@ async def send_resource(name: str, url: str) -> tuple[ActionHandle, ...]:
 
     函数参数和返回值参考原方法
     """
-    return await _CTX.get().adapter.send_resource(name, url)
+    return await _CTX.get().adapter.__send_resource__(name, url)
