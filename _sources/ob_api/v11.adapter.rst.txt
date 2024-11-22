@@ -258,7 +258,7 @@ v11 回应
     handles1 = await block_send("Hello Melobot!")
     handles2 = await block_send("Hello OneBot!")
     # 当然，或者这样：
-    with EchoRequireCtx().in_ctx(True):
+    with EchoRequireCtx().unfold(True):
         handles1 = await adapter.send("Hello Melobot!")
         handles2 = await adapter.send_image(
             "test.jpg", 
