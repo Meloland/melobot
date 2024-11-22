@@ -414,8 +414,6 @@
                 <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">val</span>
 
-<div class="viewcode-block" id="Depends.fulfill">
-<a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.Depends.fulfill">[文档]</a>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
@@ -429,7 +427,6 @@
 
         <span class="n">dep_scope</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">val</span></div>
-</div>
 
 
 
@@ -584,14 +581,29 @@
 
 
 
+<div class="viewcode-block" id="Reflect">
+<a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.Reflect">[文档]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Reflect</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理</span>
 
+<span class="sd">    这适用于希望依赖会随着上下文改变，而动态变化的情况。例如动态引用会话流程中的事件对象</span>
+
 <span class="sd">    .. code:: python</span>
+
 <span class="sd">        # 注入一个依赖时进一步包装为反射依赖</span>
-<span class="sd">        EventProxy = Annotated[Event, Reflect()]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        event_proxy = Annotated[Event, Reflect()]</span>
+<span class="sd">        # 就像使用 event 一样使用 event_proxy</span>
+<span class="sd">        event_proxy.attr_xxx</span>
+<span class="sd">        event_proxy.method_xxx()</span>
+
+<span class="sd">        # 不过 event_proxy 不是完美的代理</span>
+<span class="sd">        # 因此 isinstance 类似的操作，使用 __origin__ 获取原始对象</span>
+<span class="sd">        isinstance(event_proxy.__origin__, SomeEventType)</span>
+<span class="sd">        # 或者是作为运行逻辑未知的函数的参数</span>
+<span class="sd">        dont_know_what_this_do(event_proxy.__origin__)</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
 
 
 <span class="k">class</span> <span class="nc">Reflection</span><span class="p">:</span>
@@ -693,27 +705,41 @@
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">bind</span><span class="o">.</span><span class="n">args</span><span class="p">),</span> <span class="n">bind</span><span class="o">.</span><span class="n">kwargs</span>
 
 
+<div class="viewcode-block" id="DependsHook">
+<a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.DependsHook">[文档]</a>
 <span class="k">class</span> <span class="nc">DependsHook</span><span class="p">(</span><span class="n">Depends</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;依赖钩子</span>
 
 <span class="sd">    包装一个依赖项，依赖满足后内部的 hook 将会执行</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="DependsHook.__init__">
+<a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.DependsHook.__init__">[文档]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
         <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="DependsHook.deps_callback">
+<a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.DependsHook.deps_callback">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">deps_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">deps_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;所有依赖钩子子类必须实现该抽象方法</span>
+
+<span class="sd">        :param val: 依赖项被满足后的值</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_callback</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="n">val</span></div>
+
 
 
 <div class="viewcode-block" id="inject_deps">

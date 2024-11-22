@@ -375,6 +375,8 @@
 <span class="n">aprint</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><a class="reference internal" href="../api/melobot.utils.html#melobot.utils.to_async" title="melobot.utils.to_async"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_async()</span></code></a> 只是将原对象包裹在一个异步函数中，从而满足异步可调用的接口。</p>
+<p><strong>即：<a class="reference internal" href="../api/melobot.utils.html#melobot.utils.to_async" title="melobot.utils.to_async"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_async()</span></code></a> 不做接口兼容外的处理，因此也就不会提供并发/并行的能力。</strong></p>
 </section>
 
         </article>

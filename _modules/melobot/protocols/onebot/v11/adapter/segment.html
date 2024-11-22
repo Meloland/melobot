@@ -668,14 +668,11 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">seg_type</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Segment.resolve_cq">
-<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.resolve_cq">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve_cq</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">__resolve_cq__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cq_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
         <span class="n">dicts</span> <span class="o">=</span> <span class="n">_cq_to_dicts</span><span class="p">(</span><span class="n">cq_str</span><span class="p">)</span>
         <span class="n">segs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">dic</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">dic</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">dic</span> <span class="ow">in</span> <span class="n">dicts</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">segs</span></div>
-
+        <span class="k">return</span> <span class="n">segs</span>
 
 <div class="viewcode-block" id="Segment.to_cq">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.to_cq">[文档]</a>

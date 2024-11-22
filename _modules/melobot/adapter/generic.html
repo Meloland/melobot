@@ -313,11 +313,8 @@
 <div class="viewcode-block" id="send_text">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_text">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_text` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用文本输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
 
 
 
@@ -329,11 +326,8 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_media` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_media</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用媒体内容输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_media__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
 
 
 
@@ -345,11 +339,8 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_image` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_image</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用图像内容输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_image__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
 
 
 
@@ -361,11 +352,8 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_audio` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_audio</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用音频内容输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_audio__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
 
 
 
@@ -377,11 +365,8 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_voice` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_voice</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用语音内容输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_voice__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
 
 
 
@@ -393,22 +378,16 @@
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_video` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_video</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用视频内容输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_video__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="send_file">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_file">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_file` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_file</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用文件输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_file__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
 
 
@@ -417,22 +396,16 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_refer</span><span class="p">(</span>
     <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_refer` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_refer</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用过往事件引用输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_refer__</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="send_resource">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_resource">[文档]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">send_resource</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;包装对当前上下文中适配器的 :meth:`~melobot.adapter.Adapter.send_resource` 调用</span>
-
-<span class="sd">    函数参数和返回值参考原方法</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">send_resource</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;通用其他资源输出方法&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_resource__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span></div>
 
 </pre></div>
         </article>

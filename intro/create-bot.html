@@ -326,7 +326,7 @@
 </div>
 </section>
 <section id="demo">
-<h2>一个小 demo<a class="headerlink" href="#demo" title="Link to this heading">¶</a></h2>
+<h2>一个 demo<a class="headerlink" href="#demo" title="Link to this heading">¶</a></h2>
 <p>先来运行一段 demo 代码：（稍后我们会讲解其中的细节）</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">melobot</span> <span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">send_text</span>
 <span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">ForwardWebSocketIO</span><span class="p">,</span> <span class="n">on_start_match</span>
@@ -352,7 +352,7 @@
 <p>运行后，在机器人加入的任何一个群聊中，或与机器人的私聊中，输入以 <code class="docutils literal notranslate"><span class="pre">.sayhi</span></code> 起始的消息，即可回复：<code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">melobot!</span></code>。</p>
 </section>
 <section id="id3">
-<h2>小 demo 讲解<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<h2>demo 讲解<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>首先使用装饰器 <a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_start_match" title="melobot.protocols.onebot.v11.handle.on_start_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>，即可在本插件上添加一个<strong>字符串起始匹配的，消息事件处理方法</strong>。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -457,8 +457,8 @@
             <ul>
 <li><a class="reference internal" href="#">开始创建机器人</a><ul>
 <li><a class="reference internal" href="#id2">预先配置</a></li>
-<li><a class="reference internal" href="#demo">一个小 demo</a></li>
-<li><a class="reference internal" href="#id3">小 demo 讲解</a></li>
+<li><a class="reference internal" href="#demo">一个 demo</a></li>
+<li><a class="reference internal" href="#id3">demo 讲解</a></li>
 </ul>
 </li>
 </ul>

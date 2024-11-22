@@ -337,6 +337,8 @@
 </li>
         <li><a href="api/melobot.di.html#melobot.di.Depends.__init__">__init__() （melobot.di.Depends 方法）</a>
 </li>
+        <li><a href="api/melobot.di.html#melobot.di.DependsHook.__init__">__init__() （melobot.di.DependsHook 方法）</a>
+</li>
         <li><a href="api/melobot.handle.html#melobot.handle.Flow.__init__">__init__() （melobot.handle.Flow 方法）</a>
 </li>
         <li><a href="api/melobot.io.html#melobot.io.AbstractSource.__init__">__init__() （melobot.io.AbstractSource 方法）</a>
@@ -815,10 +817,10 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetStrangerInfoEcho.data">data（melobot.protocols.onebot.v11.adapter.echo.GetStrangerInfoEcho 属性）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetVersionInfoEcho.data">data（melobot.protocols.onebot.v11.adapter.echo.GetVersionInfoEcho 属性）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.SendForwardMsgEcho.data">data（melobot.protocols.onebot.v11.adapter.echo.SendForwardMsgEcho 属性）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.SendMsgEcho.data">data（melobot.protocols.onebot.v11.adapter.echo.SendMsgEcho 属性）</a>
@@ -841,7 +843,11 @@
 </li>
         <li><a href="api/melobot.handle.html#melobot.handle.FlowRecordStage.DEPENDS_NOT_MATCH">DEPENDS_NOT_MATCH（melobot.handle.FlowRecordStage 属性）</a>
 </li>
+        <li><a href="api/melobot.di.html#melobot.di.DependsHook">DependsHook（melobot.di 中的类）</a>
+</li>
         <li><a href="api/melobot.di.html#melobot.di.Depends">Depends（melobot.di 中的类）</a>
+</li>
+        <li><a href="api/melobot.di.html#melobot.di.DependsHook.deps_callback">deps_callback() （melobot.di.DependsHook 方法）</a>
 </li>
         <li><a href="api/melobot.html#melobot.MetaInfo.desc">desc（melobot.MetaInfo 属性）</a>
 </li>
@@ -939,10 +945,10 @@
 </li>
         <li><a href="api/melobot.handle.html#melobot.handle.flow_to">flow_to()（在 melobot.handle 模块中）</a>
 </li>
-        <li><a href="api/melobot.exceptions.html#melobot.exceptions.FlowError">FlowError</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/melobot.exceptions.html#melobot.exceptions.FlowError">FlowError</a>
+</li>
         <li><a href="api/melobot.handle.html#melobot.handle.FlowNode">FlowNode（melobot.handle 中的类）</a>
 </li>
         <li><a href="api/melobot.handle.html#melobot.handle.FlowRecordStage">FlowRecordStage（melobot.handle 中的类）</a>
@@ -970,8 +976,6 @@
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.FriendRecallNoticeEvent">FriendRecallNoticeEvent（melobot.protocols.onebot.v11.adapter.event 中的类）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.FriendRequestEvent">FriendRequestEvent（melobot.protocols.onebot.v11.adapter.event 中的类）</a>
-</li>
-        <li><a href="api/melobot.di.html#melobot.di.Depends.fulfill">fulfill() （melobot.di.Depends 方法）</a>
 </li>
         <li><a href="ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.FullMatcher">FullMatcher（melobot.protocols.onebot.v11.utils 中的类）</a>
 </li>
@@ -1803,6 +1807,8 @@
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.content.ReferContent">ReferContent（melobot.adapter.content 中的类）</a>
 </li>
+        <li><a href="api/melobot.di.html#melobot.di.Reflect">Reflect（melobot.di 中的类）</a>
+</li>
         <li><a href="ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.RegexMatcher">RegexMatcher（melobot.protocols.onebot.v11.utils 中的类）</a>
 </li>
         <li><a href="api/melobot.html#melobot._meta.VersionInfo.releaselevel">releaselevel（melobot._meta.VersionInfo 属性）</a>
@@ -1817,17 +1823,15 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent.request_type">request_type（melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent 属性）</a>
 </li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.RequestEvent.request_type">request_type（melobot.protocols.onebot.v11.adapter.event.RequestEvent 属性）</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.RequestEvent.request_type">request_type（melobot.protocols.onebot.v11.adapter.event.RequestEvent 属性）</a>
+</li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.RequestEvent">RequestEvent（melobot.protocols.onebot.v11.adapter.event 中的类）</a>
 </li>
         <li><a href="api/melobot.handle.html#melobot.handle.Flow.reset_priority">reset_priority() （melobot.handle.Flow 方法）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.resolve">resolve()（melobot.protocols.onebot.v11.adapter.segment.Segment 类方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.resolve_cq">resolve_cq()（melobot.protocols.onebot.v11.adapter.segment.Segment 类方法）</a>
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.content.ResourceContent">ResourceContent（melobot.adapter.content 中的类）</a>
 </li>
@@ -1869,17 +1873,9 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send">send() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_audio">send_audio() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_audio">send_audio() （melobot.protocols.onebot.v11.Adapter 方法）</a>
-</li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_audio">send_audio()（在 melobot.adapter.generic 模块中）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_custom">send_custom() （melobot.protocols.onebot.v11.Adapter 方法）</a>
-</li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_file">send_file() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_file">send_file() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_file">send_file()（在 melobot.adapter.generic 模块中）</a>
 </li>
@@ -1887,49 +1883,21 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_forward_custom">send_forward_custom() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_image">send_image() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_image">send_image() （melobot.protocols.onebot.v11.Adapter 方法）</a>
-</li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_image">send_image()（在 melobot.adapter.generic 模块中）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_like">send_like() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_media">send_media() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_media">send_media() （melobot.protocols.onebot.v11.Adapter 方法）</a>
-</li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_media">send_media()（在 melobot.adapter.generic 模块中）</a>
-</li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_refer">send_refer() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_refer">send_refer() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_refer">send_refer()（在 melobot.adapter.generic 模块中）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_reply">send_reply() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_resource">send_resource() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_resource">send_resource() （melobot.protocols.onebot.v11.Adapter 方法）</a>
-</li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_resource">send_resource()（在 melobot.adapter.generic 模块中）</a>
-</li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_text">send_text() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_text">send_text() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_text">send_text()（在 melobot.adapter.generic 模块中）</a>
 </li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_video">send_video() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_video">send_video() （melobot.protocols.onebot.v11.Adapter 方法）</a>
-</li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_video">send_video()（在 melobot.adapter.generic 模块中）</a>
-</li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.send_voice">send_voice() （melobot.adapter.Adapter 方法）</a>
-</li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_voice">send_voice() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.generic.send_voice">send_voice()（在 melobot.adapter.generic 模块中）</a>
 </li>
@@ -1987,8 +1955,6 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.set_group_name">set_group_name() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.set_group_special_title">set_group_special_title() （melobot.protocols.onebot.v11.Adapter 方法）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.set_group_whole_ban">set_group_whole_ban() （melobot.protocols.onebot.v11.Adapter 方法）</a>
@@ -2007,6 +1973,8 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAnonymousBanAction.AnonymousDict">SetGroupAnonymousBanAction.AnonymousDict（melobot.protocols.onebot.v11.adapter.action 中的类）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAnonymousBanAction">SetGroupAnonymousBanAction（melobot.protocols.onebot.v11.adapter.action 中的类）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupBanAction">SetGroupBanAction（melobot.protocols.onebot.v11.adapter.action 中的类）</a>

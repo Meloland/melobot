@@ -494,7 +494,7 @@
         <span class="n">msgs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span>
         <span class="n">segs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msgs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">segs</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">resolve_cq</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span>
+            <span class="n">segs</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">__resolve_cq__</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">segs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Segment</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">seg_dic</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">seg_dic</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">seg_dic</span> <span class="ow">in</span> <span class="n">msgs</span><span class="p">]</span>
 
@@ -534,7 +534,7 @@
         <span class="n">msgs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span>
         <span class="n">segs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msgs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">segs</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">resolve_cq</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span>
+            <span class="n">segs</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">__resolve_cq__</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">segs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Segment</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">seg_dic</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">seg_dic</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">seg_dic</span> <span class="ow">in</span> <span class="n">msgs</span><span class="p">]</span>
 

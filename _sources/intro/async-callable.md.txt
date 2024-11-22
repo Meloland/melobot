@@ -74,3 +74,7 @@ f = to_async(lambda: _any_coro_f(1, 2, 3))
 
 aprint = to_async(print)
 ```
+
+{func}`.to_async` 只是将原对象包裹在一个异步函数中，从而满足异步可调用的接口。
+
+**即：{func}`.to_async` 不做接口兼容外的处理，因此也就不会提供并发/并行的能力。**

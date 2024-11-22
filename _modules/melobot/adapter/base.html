@@ -608,10 +608,8 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Adapter.send_text">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_text">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_text__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文本</span>
 
 <span class="sd">        抽象方法。所有适配器子类应该实现此方法</span>
@@ -619,12 +617,9 @@
 <span class="sd">        :param text: 文本</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-
-<div class="viewcode-block" id="Adapter.send_media">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_media">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_media</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_media__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -641,14 +636,11 @@
 <span class="sd">        :param mimetype: 多媒体内容的 mimetype，为空则根据 `name` 自动检测</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot media: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-
-<div class="viewcode-block" id="Adapter.send_image">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_image">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_image</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_image__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -665,14 +657,11 @@
 <span class="sd">        :param mimetype: 图像内容的 mimetype，为空则根据 `name` 自动检测</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot image: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-
-<div class="viewcode-block" id="Adapter.send_audio">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_audio">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_audio</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_audio__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -689,14 +678,11 @@
 <span class="sd">        :param mimetype: 音频内容的 mimetype，为空则根据 `name` 自动检测</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot audio: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-
-<div class="viewcode-block" id="Adapter.send_voice">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_voice">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_voice</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_voice__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -713,14 +699,11 @@
 <span class="sd">        :param mimetype: 语音内容的 mimetype，为空则根据 `name` 自动检测</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot voice: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-
-<div class="viewcode-block" id="Adapter.send_video">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_video">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_video</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_video__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -737,14 +720,11 @@
 <span class="sd">        :param mimetype: 视频内容的 mimetype，为空则根据 `name` 自动检测</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot video: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-
-<div class="viewcode-block" id="Adapter.send_file">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_file">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_file</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_file__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文件</span>
@@ -755,12 +735,9 @@
 <span class="sd">        :param path: 文件路径</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot file: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot file: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="Adapter.send_refer">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_refer">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_refer</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_refer__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出对过往事件的引用</span>
@@ -771,14 +748,11 @@
 <span class="sd">        :param contents: 附加的通用内容序列</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot refer: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)]&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-
-<div class="viewcode-block" id="Adapter.send_resource">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.send_resource">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_resource__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出网络资源</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
@@ -787,8 +761,7 @@
 <span class="sd">        :param url: 网络资源的 url</span>
 <span class="sd">        :return: :class:`.ActionHandle` 元组</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot resource: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot resource: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
