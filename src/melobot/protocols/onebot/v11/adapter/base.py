@@ -14,7 +14,6 @@ from melobot.ctx import Context
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
 from melobot.typ import AsyncCallable
-from melobot.utils import singleton
 
 from ..const import PROTOCOL_IDENTIFIER, P
 from ..io.base import BaseIO
@@ -47,7 +46,6 @@ class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo]):
         return ec.Echo.resolve(action_type=packet.action_type, **packet.data)
 
 
-@singleton
 class EchoRequireCtx(Context[bool]):
     def __init__(self) -> None:
         super().__init__("ONEBOT_V11_ECHO_STATUS", LookupError)

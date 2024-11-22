@@ -5,7 +5,7 @@ from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
 from melobot.typ import AsyncCallable, HandleLevel, LogicMode, deprecated
-from melobot.utils import get_obj_name, singleton
+from melobot.utils import get_obj_name
 
 from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 from .utils import check, match
@@ -13,7 +13,6 @@ from .utils.abc import Checker, Matcher, ParseArgs, Parser
 from .utils.parse import CmdArgFormatter, CmdParser
 
 
-@singleton
 class ParseArgsCtx(Context[ParseArgs | None]):
     def __init__(self) -> None:
         super().__init__(

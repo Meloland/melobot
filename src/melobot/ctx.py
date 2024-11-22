@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
 from .typ import T
-from .utils import singleton
 
 if TYPE_CHECKING:
     from .adapter import model
@@ -19,7 +18,18 @@ if TYPE_CHECKING:
     from .session.option import Rule
 
 
-class Context(Generic[T]):
+class _ContextMeta(type):
+    __instances__: dict[type, Any] = {}
+
+    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
+        if cls not in _ContextMeta.__instances__:
+            _ContextMeta.__instances__[cls] = super(_ContextMeta, cls).__call__(
+                *args, **kwargs
+            )
+        return _ContextMeta.__instances__[cls]
+
+
+class Context(Generic[T], metaclass=_ContextMeta):
     """上下文对象，本质是对 :class:`contextvars.ContextVar` 操作的封装
 
     可以继承该基类，实现自己的上下文对象
@@ -91,7 +101,6 @@ class Context(Generic[T]):
 _OutSrcFilterType = Callable[["OutSourceT"], bool]
 
 
-@singleton
 class OutSrcFilterCtx(Context[_OutSrcFilterType]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_OUT_SRC_FILTER", AdapterError)
@@ -103,7 +112,6 @@ class EventBuildInfo:
     in_src: "AbstractInSource"
 
 
-@singleton
 class EventBuildInfoCtx(Context[EventBuildInfo]):
     def __init__(self) -> None:
         super().__init__(
@@ -165,7 +173,6 @@ class FlowStatus:
     store: FlowStore = field(default_factory=FlowStore)
 
 
-@singleton
 class FlowCtx(Context[FlowStatus]):
     def __init__(self) -> None:
         super().__init__(
@@ -202,7 +209,6 @@ class FlowCtx(Context[FlowStatus]):
         return FlowStore
 
 
-@singleton
 class BotCtx(Context["Bot"]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_BOT", BotError, "此时未初始化 bot 实例，无法获取")
@@ -213,7 +219,6 @@ class BotCtx(Context["Bot"]):
         return Bot
 
 
-@singleton
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
         super().__init__(
@@ -236,7 +241,6 @@ class SessionCtx(Context["Session"]):
         return Rule
 
 
-@singleton
 class LoggerCtx(Context["GenericLogger"]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_LOGGER", LogError, "此时未初始化 logger 实例，无法获取")
@@ -247,7 +251,6 @@ class LoggerCtx(Context["GenericLogger"]):
         return GenericLogger
 
 
-@singleton
 class ActionManualSignalCtx(Context[bool]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_ACTION_AUTO_SIGNAL", AdapterError)
