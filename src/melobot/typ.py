@@ -318,7 +318,7 @@ def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
         @wraps(func)
         def deprecate_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
             warnings.warn(
-                f"调用了弃用函数 {func.__qualname__}: {msg}",
+                f"使用了弃用函数/方法 {func.__qualname__}: {msg}",
                 category=DeprecationWarning,
                 stacklevel=2,
             )

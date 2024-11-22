@@ -76,7 +76,7 @@ class MockWebsocket:
 
 
 async def test_reverse_ws(monkeypatch) -> None:
-    with LoggerCtx().in_ctx(Logger()):
+    with LoggerCtx().unfold(Logger()):
         monkeypatch.setattr(websockets, "serve", MockWebsocket.get)
         io = ReverseWebSocketIO("localhost", 8080)
         async with io:

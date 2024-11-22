@@ -58,7 +58,7 @@ from melobot.protocols.onebot.v11 import Adapter, on_message, EchoRequireCtx
 
 @on_message(...)
 async def _(adapter: Adapter):
-    with EchoRequireCtx().in_ctx(True):
+    with EchoRequireCtx().unfold(True):
         # 全部都会等待
         await adapter.send("我一定先被看到")
         await adapter.send("我一定是第二条消息")

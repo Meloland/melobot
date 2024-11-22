@@ -5,7 +5,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union, cast
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
-from .typ import T
+from .typ import T, deprecated
 
 if TYPE_CHECKING:
     from .adapter import model
@@ -90,10 +90,30 @@ class Context(Generic[T], metaclass=_ContextMeta):
         self.__storage__.reset(token)
 
     @contextmanager
+    def unfold(self, obj: T) -> Generator[T, None, None]:
+        """展开一个上下文值为 `obj` 的上下文环境，返回上下文管理器
+
+        上下文管理器可 `yield` 上下文值，退出上下文管理器作用域后自动清理
+
+        :param obj: 上下文值
+        """
+        token = self.add(obj)
+        try:
+            yield obj
+        finally:
+            self.remove(token)
+
+    @deprecated("将于 melobot v3.0.0 移除，使用 Context.unfold 方法代替")
+    @contextmanager
     def in_ctx(self, obj: T) -> Generator[None, None, None]:
-        """上下文管理器，展开一个上下文值为 `obj` 的上下文环境
+        """展开一个上下文值为 `obj` 的上下文环境，返回上下文管理器
 
         退出上下文管理器作用域后自动清理
+
+        .. admonition:: 重要提示
+            :class: caution
+
+            已弃用。将于 `v3.0.0` 移除，使用 :meth:`unfold` 代替
 
         :param obj: 上下文值
         """

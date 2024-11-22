@@ -34,7 +34,10 @@ def GetParseArgs() -> ParseArgs:  # pylint: disable=invalid-name
 def Args() -> ParseArgs:  # pylint: disable=invalid-name
     """获取解析参数，与 :func:`~.v11.handle.GetParseArgs` 等价
 
-    已弃用。将于 `v3.0.0` 移除，使用 :func:`~.v11.handle.GetParseArgs` 代替
+    .. admonition:: 重要提示
+        :class: caution
+
+        已弃用。将于 `v3.0.0` 移除，使用 :func:`~.v11.handle.GetParseArgs` 代替
 
     :return: 解析参数
     """
@@ -82,7 +85,7 @@ def on_event(
                     p_args = parse_args
 
             event.spread = not block
-            with ParseArgsCtx().in_ctx(p_args):
+            with ParseArgsCtx().unfold(p_args):
                 return await func()
 
         n = no_deps_node(wrapped)

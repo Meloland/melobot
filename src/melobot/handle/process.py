@@ -52,7 +52,7 @@ class FlowNode:
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.in_ctx(FlowStatus(event, flow, self, True, records, store)):
+        with _FLOW_CTX.unfold(FlowStatus(event, flow, self, True, records, store)):
             try:
                 records.append(
                     FlowRecord(RecordStage.NODE_START, flow.name, self.name, event)
@@ -264,7 +264,7 @@ class Flow:
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.in_ctx(
+        with _FLOW_CTX.unfold(
             FlowStatus(event, self, self.starts[0], True, records, store)
         ):
             try:

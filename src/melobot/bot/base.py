@@ -131,15 +131,15 @@ class Bot:
     @contextmanager
     def _sync_common_ctx(self) -> Generator[ExitStack, None, None]:
         with ExitStack() as stack:
-            stack.enter_context(_BOT_CTX.in_ctx(self))
-            stack.enter_context(_LOGGER_CTX.in_ctx(self.logger))
+            stack.enter_context(_BOT_CTX.unfold(self))
+            stack.enter_context(_LOGGER_CTX.unfold(self.logger))
             yield stack
 
     @asynccontextmanager
     async def _async_common_ctx(self) -> AsyncGenerator[AsyncExitStack, None]:
         async with AsyncExitStack() as stack:
-            stack.enter_context(_BOT_CTX.in_ctx(self))
-            stack.enter_context(_LOGGER_CTX.in_ctx(self.logger))
+            stack.enter_context(_BOT_CTX.unfold(self))
+            stack.enter_context(_LOGGER_CTX.unfold(self.logger))
             yield stack
 
     def add_input(self, src: AbstractInSource) -> Bot:

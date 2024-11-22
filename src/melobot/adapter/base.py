@@ -183,7 +183,7 @@ class Adapter(
             try:
                 packet = await src.input()
                 event = await self._event_factory.create(packet)
-                with _EVENT_BUILD_INFO_CTX.in_ctx(EventBuildInfo(self, src)):
+                with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
                     await self._life_bus.emit(
                         AdapterLifeSpan.BEFORE_EVENT, wait=True, args=(event,)
                     )
@@ -228,12 +228,12 @@ class Adapter(
     @final
     def filter_out(
         self, filter: Callable[[OutSourceT], bool]
-    ) -> _GeneratorContextManager[None]:
+    ) -> _GeneratorContextManager[Callable[[OutSourceT], bool]]:
         """上下文管理器，提供由 `filter` 控制输出的输出上下文
 
         :param filter: 过滤函数，为 `True` 时允许该输出源输出
         """
-        return _OUT_SRC_FILTER_CTX.in_ctx(filter)
+        return _OUT_SRC_FILTER_CTX.unfold(filter)
 
     async def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
         """输出行为，并返回各个输出源返回的 :class:`.ActionHandle` 组成的元组

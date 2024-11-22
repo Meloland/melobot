@@ -70,7 +70,7 @@ class MockClientSession:
 
 
 async def test_http(monkeypatch) -> None:
-    with LoggerCtx().in_ctx(Logger()):
+    with LoggerCtx().unfold(Logger()):
         aiohttp._ClientSession = aiohttp.ClientSession
         monkeypatch.setattr(aiohttp, "ClientSession", lambda: MockClientSession())
         io = HttpIO("localhost", 8080, "localhost", 9090)

@@ -227,7 +227,7 @@ class Session:
         if session is None:
             await stop()
 
-        with _SESSION_CTX.in_ctx(session):
+        with _SESSION_CTX.unfold(session):
             try:
                 yield session
             except asyncio.CancelledError:

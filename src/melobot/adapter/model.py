@@ -211,7 +211,7 @@ class ActionChain:
             self._chain[-1].next = step
         self._chain.append(step)
 
-    def in_ctx(self, ctx: Context[T], val: T) -> Self:
+    def unfold(self, ctx: Context[T], val: T) -> Self:
         """指定链后续的步骤中在 `ctx` 类别的上下文中执行，上下文值为 `val`
 
         :param ctx: 上下文类别
@@ -257,7 +257,7 @@ class ActionChain:
 
     async def _start(self, step: _ChainStep) -> None:
         if isinstance(step, _ChainCtxStep):
-            with step.ctx_var.in_ctx(step.ctx_val):
+            with step.ctx_var.unfold(step.ctx_val):
                 if step.next:
                     await self._start(step.next)
             return
@@ -278,5 +278,5 @@ def open_chain() -> Generator[ActionChain, None, None]:
 
     :yield: 行为链对象
     """
-    with ActionManualSignalCtx().in_ctx(True):
+    with ActionManualSignalCtx().unfold(True):
         yield ActionChain()
