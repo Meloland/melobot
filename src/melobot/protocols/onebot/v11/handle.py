@@ -5,7 +5,7 @@ from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
 from melobot.typ import AsyncCallable, HandleLevel, LogicMode, deprecated
-from melobot.utils import singleton
+from melobot.utils import get_obj_name, singleton
 
 from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 from .utils import check, match
@@ -39,7 +39,7 @@ def Args() -> ParseArgs:  # pylint: disable=invalid-name
 
     :return: 解析参数
     """
-    return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
+    return GetParseArgs()
 
 
 FlowDecorator = Callable[[AsyncCallable[..., bool | None]], Flow]
@@ -63,7 +63,7 @@ def on_event(
         func = inject_deps(func)
 
         @wraps(func)
-        async def _node() -> bool | None:
+        async def wrapped() -> bool | None:
             event = cast(Event, get_event())
             status = await _checker.check(event)
             if not status:
@@ -86,11 +86,11 @@ def on_event(
             with ParseArgsCtx().in_ctx(p_args):
                 return await func()
 
-        n = no_deps_node(_node)
-        n.name = func.__name__ if hasattr(func, "__name__") else "<anonymous callable>"
+        n = no_deps_node(wrapped)
+        n.name = get_obj_name(func, otype="callable")
         return Flow(
             f"OneBotV11Flow[{n.name}]",
-            [n],
+            (n,),
             priority=priority,
             temp=temp,
         )

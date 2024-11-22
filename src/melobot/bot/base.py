@@ -570,8 +570,7 @@ def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
         if task.exception() is not None:
             loop.call_exception_handler(
                 {
-                    "message": "unhandled exception during "
-                    + f"{_safe_run.__qualname__}() shutdown",
+                    "message": "unhandled exception during eventloop shutdown",
                     "exception": task.exception(),
                     "task": task,
                 }

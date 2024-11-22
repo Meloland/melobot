@@ -12,6 +12,7 @@ from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
 from ..typ import AsyncCallable, HandleLevel
+from ..utils import get_obj_name
 
 _FLOW_CTX = FlowCtx()
 
@@ -36,7 +37,7 @@ class FlowNode:
     def __init__(
         self, func: AsyncCallable[..., bool | None], no_deps: bool = False
     ) -> None:
-        self.name = func.__name__ if hasattr(func, "__name__") else "<anonymous callable>"
+        self.name = get_obj_name(func, otype="callable")
         self.processor: AsyncCallable[..., bool | None] = (
             func if no_deps else inject_deps(func)
         )
