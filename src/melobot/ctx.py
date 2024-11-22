@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
+from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union, cast
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
 from .typ import T
@@ -21,18 +21,19 @@ if TYPE_CHECKING:
 class _ContextMeta(type):
     __instances__: dict[type, Any] = {}
 
-    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
+    def __call__(cls: type[T], *args: Any, **kwargs: Any) -> T:
         if cls not in _ContextMeta.__instances__:
-            _ContextMeta.__instances__[cls] = super(_ContextMeta, cls).__call__(
-                *args, **kwargs
+            _ContextMeta.__instances__[cls] = cast(
+                T, super(_ContextMeta, cls).__call__(*args, **kwargs)  # type: ignore[misc]
             )
-        return _ContextMeta.__instances__[cls]
+        return cast(T, _ContextMeta.__instances__[cls])
 
 
 class Context(Generic[T], metaclass=_ContextMeta):
     """上下文对象，本质是对 :class:`contextvars.ContextVar` 操作的封装
 
-    可以继承该基类，实现自己的上下文对象
+    继承该基类，可以实现自己的上下文对象。
+    任何时候不应该直接实例化该类，而是应该继承实现子类，再使用子类
     """
 
     def __init__(
@@ -47,6 +48,11 @@ class Context(Generic[T], metaclass=_ContextMeta):
         :param lookup_exc_cls: 当试图获取上下文值失败时，抛出的异常
         :param lookup_exc_tip: 当试图获取上下文值失败时，抛出异常的附加说明
         """
+        if self.__class__ is Context:
+            raise TypeError(
+                f"任何时候都不应该直接实例化 {Context.__name__}，而应该实现子类"
+            )
+
         self.__storage__ = ContextVar[T](ctx_name)
         self.lookup_exc_cls = lookup_exc_cls
         self.lookup_exc_tip = lookup_exc_tip
