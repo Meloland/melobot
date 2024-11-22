@@ -5,12 +5,62 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
-from typing import Any, AsyncGenerator, Awaitable, Callable, Coroutine, TypeVar, cast
+from typing import (
+    Any,
+    AsyncContextManager,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    ContextManager,
+    Coroutine,
+    Literal,
+    TypeVar,
+    cast,
+)
 
 from typing_extensions import Self
 
 from .exceptions import ValidateError
 from .typ import AsyncCallable, P, T
+
+
+def get_obj_name(
+    obj: Any,
+    otype: Literal["callable", "class", "object"] | str = "object",
+    default: str = "<anonymous %s>",
+) -> str:
+    """获取一个对象的限定名称或名称，这适用于一些类型较宽的参数。
+
+    无法获取有效名称时，产生一个 `default % otype` 字符串
+
+    例如某处接受一个 `Callable` 类型的参数，对于一般函数来说，使用
+    `__qualname__` 或 `__name__` 可获得名称，但某些可调用对象这些值可能为 `None`
+    或不存在。使用此方法可保证一定返回字符串
+
+    .. code:: python
+
+        def _(a: Callable) -> None:
+            valid_str: str = get_obj_name(a, otype="callable")
+
+        def _(a: type) -> None:
+            valid_str: str = get_obj_name(a, otype="class")
+
+        def _(a: Any) -> None:
+            valid_str: str = get_obj_name(a, otype="type of a, only for str concat")
+
+
+    :param obj: 对象
+    :param otype: 预期的对象类型
+    :param default: 无法获取任何有效名称时的默认字符串
+    :return: 对象名称或默认字符串
+    """
+    if hasattr(obj, "__qualname__"):
+        return cast(str, obj.__qualname__)
+
+    if hasattr(obj, "__name__"):
+        return cast(str, obj.__name__)
+
+    return default % otype
 
 
 def singleton(cls: Callable[P, T]) -> Callable[P, T]:
@@ -303,6 +353,68 @@ CbRetT = TypeVar("CbRetT")
 FirstCbRetT = TypeVar("FirstCbRetT")
 SecondCbRetT = TypeVar("SecondCbRetT")
 OriginRetT = TypeVar("OriginRetT")
+
+
+def if_not(
+    condition: Callable[[], Any] | AsyncCallable[[], Any] | bool,
+    reject: AsyncCallable[[], None],
+    give_up: bool = False,
+) -> Callable[[AsyncCallable[P, T]], AsyncCallable[P, T | None]]:
+    """条件判断装饰器
+
+    :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）
+    :param reject: 当条件为 `False` 时，执行的回调
+    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数
+    """
+
+    def deco_func(func: AsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
+
+        @wraps(func)
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> T | None:
+            if not isinstance(condition, bool):
+                ret = condition()
+                status = bool(await ret if inspect.isawaitable(ret) else ret)
+            else:
+                status = condition
+
+            if not status:
+                await reject()
+
+            if status or not give_up:
+                return await func(*args, **kwargs)
+            return None
+
+        return wrapped_func
+
+    return deco_func
+
+
+def unfold_ctx(
+    getter: Callable[[], ContextManager | AsyncContextManager],
+) -> Callable[[AsyncCallable[P, T]], AsyncCallable[P, T]]:
+    """上下文装饰器
+
+    展开一个上下文，供被装饰函数使用。
+    但注意此装饰器不支持获取上下文管理器 `yield` 的值
+
+    :param getter: 上下文管理器获取方法
+    """
+
+    def deco_func(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
+
+        @wraps(func)
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> T:
+            manager = getter()
+            if isinstance(manager, ContextManager):
+                with manager:
+                    return await func(*args, **kwargs)
+            else:
+                async with manager:
+                    return await func(*args, **kwargs)
+
+        return wrapped_func
+
+    return deco_func
 
 
 def lock(

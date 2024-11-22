@@ -1,6 +1,8 @@
 melobot.utils
 =============
 
+.. autofunction:: melobot.utils.get_obj_name
+
 .. autofunction:: melobot.utils.singleton
 
 .. autoclass:: melobot.utils.Markable
@@ -15,6 +17,10 @@ melobot.utils
 .. autofunction:: melobot.utils.to_async
 
 .. autofunction:: melobot.utils.to_coro
+
+.. autofunction:: melobot.utils.if_not
+
+.. autofunction:: melobot.utils.unfold_ctx
 
 .. autofunction:: melobot.utils.lock
 
