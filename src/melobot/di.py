@@ -4,7 +4,7 @@ from asyncio import Lock
 from collections import deque
 from dataclasses import dataclass
 from functools import wraps
-from inspect import Parameter, isawaitable, signature
+from inspect import Parameter, isawaitable, signature, unwrap
 from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
 from typing import (
@@ -31,7 +31,7 @@ from .typ import (
     is_subhint,
     is_type,
 )
-from .utils import to_async
+from .utils import get_obj_name, to_async
 
 if TYPE_CHECKING:
     from .adapter.base import Adapter
@@ -141,6 +141,7 @@ class AutoDepends(Depends):
     def __init__(self, func: Callable, name: str, hint: Any) -> None:
         self.hint = hint
         self.func = func
+        self.func_name = get_obj_name(func, otype="callable")
         self.arg_name = name
 
         if get_origin(hint) is Annotated:
@@ -185,7 +186,8 @@ class AutoDepends(Depends):
 
         if self.orig_getter is None:
             raise DependInitError(
-                f"函数 {func.__qualname__} 的参数 {name} 提供的类型注解 {hint} 无法用于注入任何依赖，请检查是否有误"
+                f"函数 {self.func_name} 的参数 {name} 提供的类型注解"
+                f" {hint} 无法用于注入任何依赖，请检查是否有误"
             )
 
         for data in self.metadatas:
@@ -200,9 +202,8 @@ class AutoDepends(Depends):
 
     def _unmatch_exc(self, real_type: Any) -> DependNotMatched:
         return DependNotMatched(
-            f"函数 {self.func.__qualname__} 的参数 {self.arg_name} "
-            f"与注解 {self.hint} 不匹配",
-            self.func.__qualname__,
+            f"函数 {self.func_name} 的参数 {self.arg_name} " f"与注解 {self.hint} 不匹配",
+            self.func_name,
             self.arg_name,
             real_type,
             self.hint,
@@ -317,24 +318,25 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
             ) from None
         raise
 
-    ds = deque(func.__defaults__) if func.__defaults__ is not None else deque()
-    kwds = func.__kwdefaults__ if func.__kwdefaults__ is not None else {}
-    vals: list[Any] = []
-    _empty = Parameter.empty
+    empty = Parameter.empty
+    origin_f = unwrap(func, stop=lambda f: hasattr(f, "__signature__"))
+    ds = deque(origin_f.__defaults__) if origin_f.__defaults__ is not None else deque()
+    kwds = origin_f.__kwdefaults__ if origin_f.__kwdefaults__ is not None else {}
+    nargs: list[Any] = []
 
     for name, param in sign.parameters.items():
         if param.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
             continue
 
-        if param.default is not _empty:
+        if param.default is not empty:
             if name in kwds:
                 pass
             else:
                 ds.popleft()
-                vals.append(param.default)
+                nargs.append(param.default)
             continue
 
-        if param.annotation is _empty:
+        if param.annotation is empty:
             continue
 
         try:
@@ -350,10 +352,10 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
         if param.kind is Parameter.KEYWORD_ONLY:
             kwds[name] = dep
         else:
-            vals.append(dep)
+            nargs.append(dep)
 
-    func.__defaults__ = tuple(vals) if len(vals) else None
-    func.__kwdefaults__ = kwds if len(kwds) else None  # type: ignore[assignment]
+    origin_f.__defaults__ = tuple(nargs) if len(nargs) else None
+    origin_f.__kwdefaults__ = kwds if len(kwds) else None  # type: ignore[assignment]
 
 
 def _get_bound_args(
@@ -364,8 +366,9 @@ def _get_bound_args(
     try:
         bind = sign.bind(*args, **kwargs)
     except TypeError as e:
+        fname = get_obj_name(func, otype="callable")
         raise DependBindError(
-            f"解析依赖时失败。匹配函数 {func.__qualname__} 的参数时发生错误：{e}。"
+            f"依赖注入匹配失败。匹配函数 {fname} 的参数时发生错误：{e}。"
             "这可能是因为传参有误，或提供了错误的类型注解"
         ) from None
 
@@ -397,8 +400,8 @@ class DependsHook(Depends, BetterABC, Generic[T]):
 
 
 def inject_deps(
-    injectee: Callable[P, T] | AsyncCallable[P, T], manual_arg: bool = False
-) -> AsyncCallable[P, T]:
+    injectee: Callable[..., T] | AsyncCallable[..., T], manual_arg: bool = False
+) -> AsyncCallable[..., T]:
     """依赖注入标记装饰器，标记当前对象需要被依赖注入
 
     可以标记的对象类别有：
@@ -408,13 +411,6 @@ def inject_deps(
     :param manual_arg: 当前对象标记需要依赖注入后，是否还可以给某些参数手动传参
     :return: 异步可调用对象，但保留原始参数和返回值签名
     """
-    if hasattr(injectee, "__wrapped__"):
-        name = (
-            injectee.__qualname__
-            if hasattr(injectee, "__qualname__")
-            else "<anonymous callable>"
-        )
-        raise DependInitError(f"函数 {name} 无法进行依赖注入，在依赖注入前它不能被装饰")
 
     @wraps(injectee)
     async def di_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
