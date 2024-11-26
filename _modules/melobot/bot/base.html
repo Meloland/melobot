@@ -709,7 +709,7 @@
                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">:</span>
                     <span class="n">t</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 已安全停止运行&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="o">=</span> <span class="kc">False</span></div>
 
@@ -753,7 +753,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 未在运行中，不能停止运行&quot;</span><span class="p">)</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rip_signal</span><span class="o">.</span><span class="n">set</span><span class="p">()</span></div>
 
 

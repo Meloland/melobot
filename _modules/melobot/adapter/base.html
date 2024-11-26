@@ -519,7 +519,7 @@
                 <span class="n">event</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
                 <span class="k">with</span> <span class="n">_EVENT_BUILD_INFO_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">EventBuildInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">)):</span>
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
-                        <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,)</span>
+                        <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,)</span>
                     <span class="p">)</span>
                     <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -557,7 +557,7 @@
 
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Adapter.filter_out">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.filter_out">[文档]</a>
@@ -599,9 +599,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">osrcs</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">)</span> <span class="k">else</span> <span class="p">()</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
-            <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">action</span><span class="p">,)</span>
-        <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">action</span><span class="p">,))</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
             <span class="n">ActionHandle</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">osrc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_factory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_echo_factory</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">osrc</span> <span class="ow">in</span> <span class="n">osrcs</span>

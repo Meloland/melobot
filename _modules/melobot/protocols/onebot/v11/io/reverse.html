@@ -379,7 +379,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart_flag</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_restart_flag</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">SourceLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">SourceLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>

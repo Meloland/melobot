@@ -445,7 +445,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">SourceLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">SourceLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="AbstractSource.on">
