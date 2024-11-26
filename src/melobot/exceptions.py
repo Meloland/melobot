@@ -23,6 +23,7 @@ class BotException(Exception):
     def __init__(self, obj: object = ""):
         super().__init__(self, obj)
         self.err = str(obj)
+        self.pretty_err = f"[{self.__class__.__qualname__}] {self.err}"
 
     def __str__(self) -> str:
         return self.err
