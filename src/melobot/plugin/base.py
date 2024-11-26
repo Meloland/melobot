@@ -7,10 +7,13 @@ from .ipc import AsyncShare, SyncShare
 
 
 class Plugin(BetterABC):
-    """插件基类，子类需要把以下属性按 :func:`.abstractattr` 的要求实现"""
+    """插件基类
+
+    子类需要把以下标记为抽象属性的属性，按 :func:`.abstractattr` 的要求实现，其余属性可选实现。
+    """
 
     version: str = abstractattr()
-    """插件版本
+    """插件版本（抽象属性）
 
        :meta hide-value:
     """

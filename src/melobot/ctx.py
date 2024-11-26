@@ -103,7 +103,7 @@ class Context(Generic[T], metaclass=_ContextMeta):
         finally:
             self.remove(token)
 
-    @deprecated("将于 melobot v3.0.0 移除，使用 Context.unfold 方法代替")
+    @deprecated("将于 melobot v3.0.0 移除，使用 unfold 方法代替")
     @contextmanager
     def in_ctx(self, obj: T) -> Generator[None, None, None]:
         """展开一个上下文值为 `obj` 的上下文环境，返回上下文管理器
