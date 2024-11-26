@@ -44,6 +44,7 @@ class HookBus(Generic[HookEnumT]):
         self,
         hook_type: HookEnumT,
         wait: bool = False,
+        /,
         *,
         args: tuple | None = None,
         kwargs: dict[str, Any] | None = None,

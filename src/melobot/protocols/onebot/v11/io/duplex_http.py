@@ -70,7 +70,7 @@ class HttpIO(BaseIO):
                 and raw.get("meta_event_type") == "lifecycle"
                 and raw.get("sub_type") == "connect"
             ):
-                await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
+                await self._life_bus.emit(SourceLifeSpan.RESTARTED, False)
             self.logger.generic_obj(
                 "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
             )

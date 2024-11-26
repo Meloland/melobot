@@ -72,7 +72,7 @@ class ReverseWebSocketIO(BaseIO):
 
         if self._restart_flag.is_set():
             self._restart_flag.clear()
-            await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
+            await self._life_bus.emit(SourceLifeSpan.RESTARTED, False)
 
         while True:
             try:

@@ -185,7 +185,7 @@ class Adapter(
                 event = await self._event_factory.create(packet)
                 with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
                     await self._life_bus.emit(
-                        AdapterLifeSpan.BEFORE_EVENT, wait=True, args=(event,)
+                        AdapterLifeSpan.BEFORE_EVENT, True, args=(event,)
                     )
                     asyncio.create_task(self.dispatcher.broadcast(event))
             except Exception:
@@ -223,7 +223,7 @@ class Adapter(
 
         finally:
             if self._inited:
-                await self._life_bus.emit(AdapterLifeSpan.STOPPED, wait=True)
+                await self._life_bus.emit(AdapterLifeSpan.STOPPED, True)
 
     @final
     def filter_out(
@@ -260,9 +260,7 @@ class Adapter(
         else:
             osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
 
-        await self._life_bus.emit(
-            AdapterLifeSpan.BEFORE_ACTION, wait=True, args=(action,)
-        )
+        await self._life_bus.emit(AdapterLifeSpan.BEFORE_ACTION, True, args=(action,))
         return tuple(
             ActionHandle(action, osrc, self._output_factory, self._echo_factory)
             for osrc in osrcs

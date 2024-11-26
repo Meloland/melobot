@@ -367,7 +367,7 @@ class Bot:
                 for t in self._tasks:
                     t.cancel()
 
-                await self._life_bus.emit(BotLifeSpan.STOPPED, wait=True)
+                await self._life_bus.emit(BotLifeSpan.STOPPED, True)
                 self.logger.info(f"{self} 已安全停止运行")
                 self._running = False
 
@@ -402,7 +402,7 @@ class Bot:
         if not self._running:
             raise BotError(f"{self} 未在运行中，不能停止运行")
 
-        await self._life_bus.emit(BotLifeSpan.CLOSE, wait=True)
+        await self._life_bus.emit(BotLifeSpan.CLOSE, True)
         self._rip_signal.set()
 
     async def restart(self) -> NoReturn:

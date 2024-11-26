@@ -117,7 +117,7 @@ class AbstractSource(BetterABC):
         try:
             await self.close()
         finally:
-            await self._life_bus.emit(SourceLifeSpan.STOPPED, wait=True)
+            await self._life_bus.emit(SourceLifeSpan.STOPPED, True)
         return None
 
     def on(
