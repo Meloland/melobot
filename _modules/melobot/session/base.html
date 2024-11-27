@@ -583,7 +583,7 @@
 <span class="sd">    :param timeout: 挂起后再唤醒的超时时间, 为空则永不超时</span>
 <span class="sd">    :return: 如果为 `False` 则表明唤醒超时</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">SessionCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">__suspend__</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">_SESSION_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">__suspend__</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span></div>
 
 
 
