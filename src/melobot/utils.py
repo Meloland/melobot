@@ -14,11 +14,10 @@ from typing import (
     ContextManager,
     Coroutine,
     Literal,
-    TypeVar,
     cast,
 )
 
-from typing_extensions import Self
+from typing_extensions import Self, TypeVar
 
 from .exceptions import ValidateError
 from .typ import AsyncCallable, P, T
@@ -349,10 +348,10 @@ def to_coro(
     return to_async(obj)(*args, **kwargs)  # type: ignore[arg-type]
 
 
-CbRetT = TypeVar("CbRetT")
-FirstCbRetT = TypeVar("FirstCbRetT")
-SecondCbRetT = TypeVar("SecondCbRetT")
-OriginRetT = TypeVar("OriginRetT")
+CbRetT = TypeVar("CbRetT", default=Any)
+FirstCbRetT = TypeVar("FirstCbRetT", default=Any)
+SecondCbRetT = TypeVar("SecondCbRetT", default=Any)
+OriginRetT = TypeVar("OriginRetT", default=Any)
 
 
 def if_not(

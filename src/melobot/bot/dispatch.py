@@ -58,7 +58,7 @@ class Dispatcher:
     def internal_add(self, *handlers: EventHandler) -> None:
         for h in handlers:
             self.handlers.setdefault(h.flow.priority, set()).add(h)
-            h.flow.on_priority_reset(lambda new_prior, h=h: self.reset(h, new_prior))
+            h.flow.on_priority_reset(lambda new_prior, h=h: self._reset(h, new_prior))
 
     async def add(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
@@ -76,7 +76,7 @@ class Dispatcher:
         async with self.broadcast_ctrl.write():
             await self._remove(*handlers)
 
-    async def reset(self, handler: EventHandler, new_prior: HandleLevel) -> None:
+    async def _reset(self, handler: EventHandler, new_prior: HandleLevel) -> None:
         if handler.flow.priority == new_prior:
             return
 

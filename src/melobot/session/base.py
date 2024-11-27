@@ -264,7 +264,7 @@ async def suspend(timeout: float | None = None) -> bool:
     :param timeout: 挂起后再唤醒的超时时间, 为空则永不超时
     :return: 如果为 `False` 则表明唤醒超时
     """
-    return await SessionCtx().get().__suspend__(timeout)
+    return await _SESSION_CTX.get().__suspend__(timeout)
 
 
 def enter_session(
