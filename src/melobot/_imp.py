@@ -14,8 +14,6 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Sequence, cast
 
-import pkg_resources
-
 from .exceptions import DynamicImpError
 from .utils import singleton
 
@@ -331,13 +329,17 @@ class Importer:
         return ModuleCacher().get_cache(path)
 
 
-def _union_provider(mod: Any) -> pkg_resources.NullProvider:
-    if hasattr(mod.__spec__, ZIP_MODULE_TAG):
-        return pkg_resources.ZipProvider(mod)
-    return pkg_resources.DefaultProvider(mod)
-
-
 sys.meta_path.insert(0, SpecFinder())
+
 # 兼容 pkg_resources 的资源获取操作
-pkg_resources.register_loader_type(ModuleLoader, cast(type, _union_provider))
-pkg_resources.register_namespace_handler(SpecFinder, pkg_resources.file_ns_handler)
+# 但此模块于 3.12 删除，因此前向版本不再兼容
+if sys.version_info.major >= 3 and sys.version_info.minor < 12:
+    import pkg_resources
+
+    def _union_provider(mod: Any) -> pkg_resources.NullProvider:
+        if hasattr(mod.__spec__, ZIP_MODULE_TAG):
+            return pkg_resources.ZipProvider(mod)
+        return pkg_resources.DefaultProvider(mod)
+
+    pkg_resources.register_loader_type(ModuleLoader, cast(type, _union_provider))
+    pkg_resources.register_namespace_handler(SpecFinder, pkg_resources.file_ns_handler)
