@@ -20,7 +20,8 @@ from .exceptions import DynamicImpError
 from .utils import singleton
 
 ALL_EXTS = tuple(all_suffixes())
-NAMESPACE_PKG_TAG = "__melobot_namespace__"
+EMPTY_PKG_TAG = "__melobot_namespace_pkg__"
+ZIP_MODULE_TAG = "__melobot_zip_module__"
 
 
 class _NestedQuickExit(BaseException): ...
@@ -28,12 +29,11 @@ class _NestedQuickExit(BaseException): ...
 
 @singleton
 class SpecFinder(MetaPathFinder):
-
     def find_spec(
         self,
         fullname: str,
         paths: Sequence[str] | None,
-        target: ModuleType | None = None,  # pylint: disable=unused-argument
+        target: ModuleType | None = None,
         sys_cache: bool = True,
         load_cache: bool = True,
         pre_sys_len: int = -1,
@@ -48,19 +48,21 @@ class SpecFinder(MetaPathFinder):
 
         mod_path: Path | None = None
         submod_locs: list[str] | None = None
-        # The spec finding according PEP420: https://peps.python.org/pep-0420/#specification
+
+        # 模块查找的优先级，遵循 PEP420: https://peps.python.org/pep-0420/#specification
         try:
             for entry in paths:
                 entry_path = Path(entry)
-                zip_file_path = entry_path.joinpath(f"{name}.zip")
                 dir_path = entry_path.joinpath(name)
                 pkg_init_path = dir_path.joinpath("__init__.py")
 
+                # 带有 __init__.py 的包优先
                 if pkg_init_path.exists():
                     mod_path = pkg_init_path
                     submod_locs = [str(dir_path.resolve())]
                     raise _NestedQuickExit
 
+                # 其次是各种可加载的文件
                 for ext in ALL_EXTS:
                     _mod_path = entry_path.joinpath(f"{name}{ext}")
                     if _mod_path.exists():
@@ -68,23 +70,28 @@ class SpecFinder(MetaPathFinder):
                         submod_locs = None
                         raise _NestedQuickExit
 
-                if zip_file_path.exists():
-                    spec = zipimport.zipimporter(str(zip_file_path)).find_spec(
-                        fullname, target
+                # 再次是 zip 文件导入
+                if entry_path.suffix == ".zip" and entry_path.exists():
+                    zip_importer = zipimport.zipimporter(  # pylint: disable=no-member
+                        str(entry_path)
                     )
-                    assert spec is not None
-                    assert spec.loader is not None
-                    spec.loader = ModuleLoader(
-                        fullname,
-                        zip_file_path,
-                        sys_cache,
-                        load_cache,
-                        pre_sys_len,
-                        pre_cache_len,
-                        spec.loader,
-                    )
-                    return spec
+                    spec = zip_importer.find_spec(fullname, target)
+                    if spec is not None:
+                        assert spec.origin is not None and spec.origin != ""
+                        assert spec.loader is not None
+                        spec.loader = ModuleLoader(
+                            fullname,
+                            Path(spec.origin).resolve(),
+                            sys_cache,
+                            load_cache,
+                            pre_sys_len,
+                            pre_cache_len,
+                            spec.loader,
+                        )
+                        setattr(spec, ZIP_MODULE_TAG, True)
+                        return spec
 
+                # 没有 __init__.py 的包最后查找，spec 设置为与内置导入兼容的命名空间包格式
                 if dir_path.exists() and dir_path.is_dir():
                     dir_path_str = str(dir_path.resolve())
                     submod_locs = _NamespacePath(
@@ -109,7 +116,7 @@ class SpecFinder(MetaPathFinder):
                     assert spec is not None
                     spec.has_location = False
                     spec.origin = None
-                    setattr(spec, NAMESPACE_PKG_TAG, True)
+                    setattr(spec, EMPTY_PKG_TAG, True)
                     return spec
 
         except _NestedQuickExit:
@@ -155,7 +162,7 @@ class ModuleCacher:
         ):
             return
 
-        # __file__ 存在且不为空，可能包或任意可被加载的文件，包对应 __init__.py，应该转换为不包含 __init__.py 后缀的形式
+        # __file__ 存在且不为空，可能包或任意可被加载的文件
         if mod.__file__ is not None:
             fp = Path(mod.__file__)
             if fp.parts[-1] == "__init__.py":
@@ -192,61 +199,66 @@ class ModuleLoader(Loader):
         inner_loader: Loader | None = None,
     ) -> None:
         super().__init__()
-        self.cacher = ModuleCacher()
-        self.fullname = fullname
-        self.fp = fp
-        self.use_sys_cache = sys_cache
-        self.use_load_cache = load_cache
-        self.pre_sys_len = pre_sys_len
-        self.pre_cache_len = pre_cache_len
+        # 避免在 self.__getattr__() 运行反射时重名
+        self.melobot_cacher = ModuleCacher()
+        self.melobot_fullname = fullname
+        self.melobot_fp = fp
+        self.melobot_sys_cache = sys_cache
+        self.melobot_load_cache = load_cache
+        self.melobot_pre_sys_len = pre_sys_len
+        self.melobot_pre_cache_len = pre_cache_len
 
-        self.inner_loader: Loader | None = inner_loader
+        self.melobot_inner_loader: Loader | None = inner_loader
         if inner_loader is not None:
             return
 
         for loader_class, suffixes in _get_supported_file_loaders():
             if str(fp).endswith(tuple(suffixes)):
                 loader = loader_class(fullname, str(fp))  # pylint: disable=not-callable
-                self.inner_loader = loader
+                self.melobot_inner_loader = loader
                 break
 
     def create_module(self, spec: ModuleSpec) -> ModuleType | None:
         mod = None
-        if self.use_load_cache:
-            mod = self.cacher.get_cache(self.fp)
-        if mod is None and self.inner_loader is not None:
-            mod = self.inner_loader.create_module(spec)
+        if self.melobot_load_cache:
+            mod = self.melobot_cacher.get_cache(self.melobot_fp)
+        if mod is None and self.melobot_inner_loader is not None:
+            mod = self.melobot_inner_loader.create_module(spec)
         return mod
 
     def exec_module(self, mod: ModuleType) -> None:
-        if self.cacher.has_cache(mod):
-            pass
-        else:
-            if self.inner_loader is not None:
-                if self.use_sys_cache:
-                    sys.modules[self.fullname] = mod
+        if (
+            not self.melobot_cacher.has_cache(mod)
+            and self.melobot_inner_loader is not None
+        ):
+            # 遵循先记录原则，防止 exec_module 发起的某些递归导入出现错误
+            if self.melobot_sys_cache:
+                sys.modules[self.melobot_fullname] = mod
 
+            try:
+                self.melobot_inner_loader.exec_module(mod)
+                # 设置为与内置导入机制兼容的模式
+                if hasattr(mod.__spec__, EMPTY_PKG_TAG):
+                    mod.__file__ = None
+            except BaseException:
                 try:
-                    self.inner_loader.exec_module(mod)
-                    if hasattr(mod.__spec__, NAMESPACE_PKG_TAG):
-                        mod.__file__ = None
-                except BaseException:
-                    try:
-                        del sys.modules[self.fullname]
-                    except KeyError:
-                        pass
-                    raise
+                    del sys.modules[self.melobot_fullname]
+                except KeyError:
+                    pass
+                raise
+        # 若 inner_loader 为空，则是纯粹的命名空间包（没有 __init__.py 的包模块）
+        # 也就不需要任何实质性的 exec_module 过程
 
-        if self.use_load_cache:
-            self.cacher.set_cache(self.fullname, mod)
+        if self.melobot_load_cache:
+            self.melobot_cacher.set_cache(self.melobot_fullname, mod)
 
-        if not self.use_load_cache:
-            diff = self.cacher.get_len() - self.pre_cache_len
+        if not self.melobot_load_cache:
+            diff = self.melobot_cacher.get_len() - self.melobot_pre_cache_len
             if diff > 0:
-                self.cacher.rm_lastn(diff)
+                self.melobot_cacher.rm_lastn(diff)
 
-        if not self.use_sys_cache:
-            diff = len(sys.modules) - self.pre_sys_len
+        if not self.melobot_sys_cache:
+            diff = len(sys.modules) - self.melobot_pre_sys_len
             if diff > 0:
                 iter = reversed(sys.modules.keys())
                 rm_names: list[str] = []
@@ -256,8 +268,10 @@ class ModuleLoader(Loader):
                     sys.modules.pop(name)
 
     def __getattr__(self, name: str) -> Any:
-        if self.inner_loader is not None:
-            return getattr(self.inner_loader, name)
+        # 直接使用反射，而不是更复杂的继承方案
+        # inner_loader 实现了必要的 内省接口、importlib.resources 接口
+        if self.melobot_inner_loader is not None:
+            return getattr(self.melobot_inner_loader, name)
         raise AttributeError(
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
         )
@@ -271,13 +285,13 @@ class Importer:
         sys_cache: bool = True,
         load_cache: bool = True,
     ) -> ModuleType:
+        # 必须先获取，后续可能运行的递归将会影响序列长度
         pre_sys_len = len(sys.modules)
         pre_cache_len = ModuleCacher().get_len()
 
         if path is not None:
-            if load_cache:
-                if (mod_cache := Importer.get_cache(Path(path))) is not None:
-                    return mod_cache
+            if load_cache and (mod_cache := Importer.get_cache(Path(path))) is not None:
+                return mod_cache
 
             try:
                 sep = name.rindex(".")
@@ -302,6 +316,7 @@ class Importer:
                 name=name,
                 path=str(path),
             )
+
         mod = module_from_spec(spec)
         assert spec.loader is not None
         spec.loader.exec_module(mod)
@@ -316,7 +331,13 @@ class Importer:
         return ModuleCacher().get_cache(path)
 
 
+def _union_provider(mod: Any) -> pkg_resources.NullProvider:
+    if hasattr(mod.__spec__, ZIP_MODULE_TAG):
+        return pkg_resources.ZipProvider(mod)
+    return pkg_resources.DefaultProvider(mod)
+
+
 sys.meta_path.insert(0, SpecFinder())
-pkg_resources.register_finder(SpecFinder, pkg_resources.find_on_path)
-pkg_resources.register_loader_type(ModuleLoader, pkg_resources.DefaultProvider)
+# 兼容 pkg_resources 的资源获取操作
+pkg_resources.register_loader_type(ModuleLoader, cast(type, _union_provider))
 pkg_resources.register_namespace_handler(SpecFinder, pkg_resources.file_ns_handler)
