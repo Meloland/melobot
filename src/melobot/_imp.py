@@ -288,9 +288,6 @@ class Importer:
         pre_cache_len = ModuleCacher().get_len()
 
         if path is not None:
-            if load_cache and (mod_cache := Importer.get_cache(Path(path))) is not None:
-                return mod_cache
-
             try:
                 sep = name.rindex(".")
                 Importer.import_mod(name[:sep], Path(path).parent, True, True)
