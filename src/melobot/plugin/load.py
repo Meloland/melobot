@@ -8,11 +8,11 @@ from time import time
 from types import ModuleType
 from typing import Any, Callable, Iterable
 
+from .._imp import Importer
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginError
 from ..utils import singleton
 from .base import Plugin
-from .imp import Importer
 from .ipc import AsyncShare, SyncShare
 
 

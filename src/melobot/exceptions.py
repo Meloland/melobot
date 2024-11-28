@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Any
 
 import better_exceptions
 
@@ -20,9 +21,14 @@ logging._loggerClass = (  # type:ignore[attr-defined] # pylint: disable=protecte
 class BotException(Exception):
     """bot 异常基类"""
 
-    def __init__(self, obj: object = ""):
-        super().__init__(self, obj)
-        self.err = str(obj)
+    def __init__(self, *args: object):
+        super().__init__(self, args)
+        if not len(args):
+            self.err = ""
+        elif len(args) == 1:
+            self.err = str(args[0])
+        else:
+            self.err = str(args)
         self.pretty_err = f"[{self.__class__.__qualname__}] {self.err}"
 
     def __str__(self) -> str:
@@ -81,5 +87,11 @@ class DependBindError(DependError):
     """melobot 依赖注入项值绑定失败"""
 
 
-class DynamicImpError(BotException):
+class DynamicImpError(BotException, ImportError):
     """melobot 动态导入组件异常"""
+
+    def __init__(
+        self, *args: Any, name: str | None = None, path: str | None = None
+    ) -> None:
+        BotException.__init__(self, *args)
+        ImportError.__init__(self, *args, name=name, path=path)

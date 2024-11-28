@@ -1,4 +1,5 @@
 import sys
+import zipimport
 from importlib._bootstrap_external import PathFinder as _PathFinder
 from importlib._bootstrap_external import (
     _get_supported_file_loaders,
@@ -13,8 +14,10 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Sequence, cast
 
-from ..exceptions import DynamicImpError
-from ..utils import singleton
+import pkg_resources
+
+from .exceptions import DynamicImpError
+from .utils import singleton
 
 ALL_EXTS = tuple(all_suffixes())
 NAMESPACE_PKG_TAG = "__melobot_namespace__"
@@ -37,7 +40,7 @@ class SpecFinder(MetaPathFinder):
         pre_cache_len: int = -1,
     ) -> ModuleSpec | None:
         if paths is None:
-            paths = sys.path.copy()
+            paths = sys.path
         if "." in fullname:
             *_, name = fullname.split(".")
         else:
@@ -48,29 +51,50 @@ class SpecFinder(MetaPathFinder):
         # The spec finding according PEP420: https://peps.python.org/pep-0420/#specification
         try:
             for entry in paths:
-                dir_path = Path(entry).joinpath(name)
+                entry_path = Path(entry)
+                zip_file_path = entry_path.joinpath(f"{name}.zip")
+                dir_path = entry_path.joinpath(name)
                 pkg_init_path = dir_path.joinpath("__init__.py")
+
                 if pkg_init_path.exists():
                     mod_path = pkg_init_path
-                    submod_locs = [str(dir_path)]
+                    submod_locs = [str(dir_path.resolve())]
                     raise _NestedQuickExit
 
                 for ext in ALL_EXTS:
-                    _mod_path = Path(entry).joinpath(f"{name}{ext}")
+                    _mod_path = entry_path.joinpath(f"{name}{ext}")
                     if _mod_path.exists():
                         mod_path = _mod_path
                         submod_locs = None
                         raise _NestedQuickExit
 
+                if zip_file_path.exists():
+                    spec = zipimport.zipimporter(str(zip_file_path)).find_spec(
+                        fullname, target
+                    )
+                    assert spec is not None
+                    assert spec.loader is not None
+                    spec.loader = ModuleLoader(
+                        fullname,
+                        zip_file_path,
+                        sys_cache,
+                        load_cache,
+                        pre_sys_len,
+                        pre_cache_len,
+                        spec.loader,
+                    )
+                    return spec
+
                 if dir_path.exists() and dir_path.is_dir():
+                    dir_path_str = str(dir_path.resolve())
                     submod_locs = _NamespacePath(
                         fullname,
-                        [str(dir_path)],
+                        [dir_path_str],
                         _PathFinder()._get_spec,  # pylint: disable=protected-access
                     )
                     spec = spec_from_file_location(
                         fullname,
-                        dir_path,
+                        dir_path_str,
                         loader=ModuleLoader(
                             fullname,
                             dir_path,
@@ -78,7 +102,7 @@ class SpecFinder(MetaPathFinder):
                             load_cache,
                             pre_sys_len,
                             pre_cache_len,
-                            _NamespaceLoader(fullname, dir_path, submod_locs),
+                            _NamespaceLoader(fullname, [dir_path_str], submod_locs),
                         ),
                         submodule_search_locations=submod_locs,
                     )
@@ -97,15 +121,12 @@ class SpecFinder(MetaPathFinder):
         mod_path = cast(Path, mod_path).resolve()
         return spec_from_file_location(
             fullname,
-            mod_path,
+            str(mod_path),
             loader=ModuleLoader(
                 fullname, mod_path, sys_cache, load_cache, pre_sys_len, pre_cache_len
             ),
             submodule_search_locations=submod_locs,
         )
-
-
-sys.meta_path.insert(0, SpecFinder())
 
 
 @singleton
@@ -202,9 +223,19 @@ class ModuleLoader(Loader):
             pass
         else:
             if self.inner_loader is not None:
-                self.inner_loader.exec_module(mod)
-                if hasattr(mod.__spec__, NAMESPACE_PKG_TAG):
-                    mod.__file__ = None
+                if self.use_sys_cache:
+                    sys.modules[self.fullname] = mod
+
+                try:
+                    self.inner_loader.exec_module(mod)
+                    if hasattr(mod.__spec__, NAMESPACE_PKG_TAG):
+                        mod.__file__ = None
+                except BaseException:
+                    try:
+                        del sys.modules[self.fullname]
+                    except KeyError:
+                        pass
+                    raise
 
         if self.use_load_cache:
             self.cacher.set_cache(self.fullname, mod)
@@ -244,6 +275,10 @@ class Importer:
         pre_cache_len = ModuleCacher().get_len()
 
         if path is not None:
+            if load_cache:
+                if (mod_cache := Importer.get_cache(Path(path))) is not None:
+                    return mod_cache
+
             try:
                 sep = name.rindex(".")
                 Importer.import_mod(name[:sep], Path(path).parent, True, True)
@@ -262,12 +297,14 @@ class Importer:
             pre_cache_len=pre_cache_len,
         )
         if spec is None:
-            raise DynamicImpError(f"名为 {name} 的模块无法加载，指定的位置：{path}")
+            raise DynamicImpError(
+                f"名为 {name} 的模块无法加载，指定的位置：{path}",
+                name=name,
+                path=str(path),
+            )
         mod = module_from_spec(spec)
         assert spec.loader is not None
         spec.loader.exec_module(mod)
-        if sys_cache:
-            sys.modules[name] = mod
         return mod
 
     @staticmethod
@@ -277,3 +314,9 @@ class Importer:
     @staticmethod
     def get_cache(path: Path) -> ModuleType | None:
         return ModuleCacher().get_cache(path)
+
+
+sys.meta_path.insert(0, SpecFinder())
+pkg_resources.register_finder(SpecFinder, pkg_resources.find_on_path)
+pkg_resources.register_loader_type(ModuleLoader, pkg_resources.DefaultProvider)
+pkg_resources.register_namespace_handler(SpecFinder, pkg_resources.file_ns_handler)
