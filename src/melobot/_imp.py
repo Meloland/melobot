@@ -330,7 +330,7 @@ sys.meta_path.insert(0, SpecFinder())
 
 # 兼容 pkg_resources 的资源获取操作
 # 但此模块于 3.12 删除，因此前向版本不再兼容
-if sys.version_info.major >= 3 and sys.version_info.minor < 12:
+if sys.version_info < (3, 12):
     import pkg_resources
 
     def _union_provider(mod: Any) -> pkg_resources.NullProvider:
