@@ -29,7 +29,9 @@ class BotException(Exception):
             self.err = str(args[0])
         else:
             self.err = str(args)
-        self.pretty_err = f"[{self.__class__.__qualname__}] {self.err}"
+        self.pretty_err = (
+            f"[{self.__class__.__module__}.{self.__class__.__qualname__}] {self.err}"
+        )
 
     def __str__(self) -> str:
         return self.err

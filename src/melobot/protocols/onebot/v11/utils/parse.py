@@ -168,7 +168,7 @@ class CmdArgFormatter:
             return False
 
     async def _convert_fail_default(self, info: FormatInfo) -> None:
-        e_class = info.exc.__class__.__qualname__
+        e_class = f"{info.exc.__class__.__module__}.{info.exc.__class__.__qualname__}"
         src = repr(info.src) if isinstance(info.src, str) else info.src
 
         tip = f"第 {info.idx + 1} 个参数"

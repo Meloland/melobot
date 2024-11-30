@@ -173,7 +173,9 @@ class ActionHandle(Generic[ActionRetT]):
             self._done.set()
         except Exception:
             logger = LoggerCtx().get()
-            logger.exception(f"{self.action.__class__.__qualname__} 执行时出现异常")
+            logger.exception(
+                f"{self.__class__.__module__}.{self.action.__class__.__qualname__} 执行时出现异常"
+            )
             logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
 
     def execute(self) -> Self:
