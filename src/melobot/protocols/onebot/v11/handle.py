@@ -1,9 +1,11 @@
+from contextlib import _AsyncGeneratorContextManager
 from functools import wraps
 from typing import Callable, cast
 
 from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
+from melobot.session import Rule, Session, enter_session
 from melobot.typ import AsyncCallable, HandleLevel, LogicMode, deprecated
 from melobot.utils import get_obj_name
 
@@ -45,6 +47,16 @@ def Args() -> ParseArgs:  # pylint: disable=invalid-name
 
 
 FlowDecorator = Callable[[AsyncCallable[..., bool | None]], Flow]
+
+_DefaultRule = Rule[MessageEvent].new(lambda e1, e2: e1.scope == e2.scope)
+
+
+def msg_session() -> _AsyncGeneratorContextManager[Session]:
+    """消息事件的会话上下文管理器
+
+    展开一个传统意义上的消息会话上下文，这与其他 bot 开发框架中的“会话”语义等价
+    """
+    return enter_session(_DefaultRule)
 
 
 def on_event(

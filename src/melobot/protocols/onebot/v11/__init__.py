@@ -6,6 +6,7 @@ from .adapter.event import Event
 from .adapter.segment import Segment
 from .const import PROTOCOL_IDENTIFIER
 from .handle import (
+    msg_session,
     on_at_qq,
     on_command,
     on_contain_match,
