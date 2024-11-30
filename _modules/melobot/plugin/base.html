@@ -300,17 +300,28 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.plugin.base 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">final</span>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">final</span>
 
+<span class="kn">from</span> <span class="nn">.._hook</span> <span class="kn">import</span> <span class="n">HookBus</span>
 <span class="kn">from</span> <span class="nn">..handle.base</span> <span class="kn">import</span> <span class="n">EventHandler</span>
 <span class="kn">from</span> <span class="nn">..handle.process</span> <span class="kn">import</span> <span class="n">Flow</span>
-<span class="kn">from</span> <span class="nn">..typ</span> <span class="kn">import</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">abstractattr</span>
+<span class="kn">from</span> <span class="nn">..typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">SingletonBetterABCMeta</span><span class="p">,</span> <span class="n">abstractattr</span>
 <span class="kn">from</span> <span class="nn">.ipc</span> <span class="kn">import</span> <span class="n">AsyncShare</span><span class="p">,</span> <span class="n">SyncShare</span>
+
+
+<div class="viewcode-block" id="PluginLifeSpan">
+<a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.PluginLifeSpan">[文档]</a>
+<span class="k">class</span> <span class="nc">PluginLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;插件生命周期的枚举&quot;&quot;&quot;</span>
+
+    <span class="n">INITED</span> <span class="o">=</span> <span class="s2">&quot;i&quot;</span></div>
+
 
 
 <div class="viewcode-block" id="Plugin">
 <a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.Plugin">[文档]</a>
-<span class="k">class</span> <span class="nc">Plugin</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Plugin</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">SingletonBetterABCMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;插件基类</span>
 
 <span class="sd">    子类需要把以下标记为抽象属性的属性，按 :func:`.abstractattr` 的要求实现，其余属性可选实现。</span>
@@ -370,15 +381,47 @@
 <span class="sd">       :meta hide-value:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">_hook_bus</span><span class="p">:</span> <span class="n">HookBus</span><span class="p">[</span><span class="n">PluginLifeSpan</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">EventHandler</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_built</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__init_hook_bus__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">p_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;_hook_bus&quot;</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_hook_bus</span> <span class="o">=</span> <span class="n">HookBus</span><span class="p">[</span><span class="n">PluginLifeSpan</span><span class="p">](</span><span class="n">PluginLifeSpan</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">set_tag</span><span class="p">(</span><span class="n">p_name</span><span class="p">)</span>
 
     <span class="nd">@final</span>
     <span class="k">def</span> <span class="nf">__plugin_build__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">EventHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">)</span> <span class="k">for</span> <span class="n">flow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_built</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init_hook_bus__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">EventHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">)</span> <span class="k">for</span> <span class="n">flow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_built</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Plugin.on">
+<a class="viewcode-back" href="../../../api/melobot.plugin.html#melobot.plugin.Plugin.on">[文档]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">on</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">periods</span><span class="p">:</span> <span class="n">PluginLifeSpan</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个 hook</span>
+
+<span class="sd">        :param periods: 要绑定的 hook 类型</span>
+<span class="sd">        :return: 装饰器</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__init_hook_bus__</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">periods</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">func</span>
+
+        <span class="k">return</span> <span class="n">wrapped</span></div>
+</div>
 
 </pre></div>
         </article>

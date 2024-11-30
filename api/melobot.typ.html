@@ -533,7 +533,7 @@
 <span class="sig-prename descclassname"><span class="pre">melobot.typ.</span></span><span class="sig-name descname"><span class="pre">abstractattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../_modules/melobot/typ.html#abstractattr"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.typ.abstractattr" title="Link to this definition">¶</a></dt>
 <dd><p>抽象属性</p>
 <p>与 <cite>abstractproperty</cite> 相比更灵活，<cite>abstractattr</cite> 不关心你以何种形式定义属性。只要子类在实例化后，该属性存在，即认为合法。</p>
-<p>但注意它必须与 <a class="reference internal" href="#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a> 或 <a class="reference internal" href="#melobot.typ.BetterABCMeta" title="melobot.typ.BetterABCMeta"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABCMeta</span></code></a> 配合使用</p>
+<p>但注意它必须与 <a class="reference internal" href="#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a> 或 <a class="reference internal" href="#melobot.typ.BetterABCMeta" title="melobot.typ.BetterABCMeta"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABCMeta</span></code></a> 或 <a class="reference internal" href="#melobot.typ.SingletonBetterABCMeta" title="melobot.typ.SingletonBetterABCMeta"><code class="xref py py-class docutils literal notranslate"><span class="pre">SingletonBetterABCMeta</span></code></a> 配合使用</p>
 <p>这意味着可以在类层级、实例层级定义属性，或使用 <cite>property</cite> 定义属性：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">A</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">):</span>
     <span class="n">foo</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">abstractattr</span><span class="p">()</span>  <span class="c1"># 声明为抽象属性</span>
@@ -584,6 +584,71 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.typ.</span></span><span class="sig-name descname"><span class="pre">BetterABC</span></span><a class="reference internal" href="../_modules/melobot/typ.html#BetterABC"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.typ.BetterABC" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>更好的抽象类，兼容 <cite>ABC</cite> 的所有功能，但是额外支持 <a class="reference internal" href="#melobot.typ.abstractattr" title="melobot.typ.abstractattr"><code class="xref py py-func docutils literal notranslate"><span class="pre">abstractattr()</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.typ.SingletonMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.typ.</span></span><span class="sig-name descname"><span class="pre">SingletonMeta</span></span><a class="reference internal" href="../_modules/melobot/typ.html#SingletonMeta"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.typ.SingletonMeta" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></a></p>
+<p>单例元类</p>
+<p>相比单例装饰器，可以自动保证所有子类都为单例</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.typ.SingletonBetterABCMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.typ.</span></span><span class="sig-name descname"><span class="pre">SingletonBetterABCMeta</span></span><a class="reference internal" href="../_modules/melobot/typ.html#SingletonBetterABCMeta"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.typ.SingletonBetterABCMeta" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.typ.BetterABCMeta" title="melobot.typ.BetterABCMeta"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABCMeta</span></code></a></p>
+<p>单例抽象元类</p>
+<p>相比普通的抽象元类，还可以自动保证所有子类都为单例</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.typ.Markable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.typ.</span></span><span class="sig-name descname"><span class="pre">Markable</span></span><a class="reference internal" href="../_modules/melobot/typ.html#Markable"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.typ.Markable" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>可标记对象</p>
+<p>无需直接实例化，而是用作接口在其他类中继承</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.typ.Markable.flag_mark">
+<span class="sig-name descname"><span class="pre">flag_mark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/typ.html#Markable.flag_mark"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.typ.Markable.flag_mark" title="Link to this definition">¶</a></dt>
+<dd><p>在 <cite>namespace</cite> 命名空间中设置 <cite>flag_name</cite> 标记，值为 <cite>val</cite></p>
+<p>注：不同的对象并不共享 <cite>namespace</cite>，<cite>namespace</cite> 只适用于单个对象</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>namespace</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 命名空间</p></li>
+<li><p><strong>flag_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 标记名</p></li>
+<li><p><strong>val</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em> | </em><em>None</em>) -- 标记值</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.typ.Markable.flag_check">
+<span class="sig-name descname"><span class="pre">flag_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/melobot/typ.html#Markable.flag_check"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.typ.Markable.flag_check" title="Link to this definition">¶</a></dt>
+<dd><p>检查 <cite>namespace</cite> 命名空间中 <cite>flag_name</cite> 标记值是否为 <cite>val</cite></p>
+<p>注：不同的对象并不共享 <cite>namespace</cite>，<cite>namespace</cite> 只适用于单个对象</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>namespace</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 命名空间</p></li>
+<li><p><strong>flag_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 标记名</p></li>
+<li><p><strong>val</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em> | </em><em>None</em>) -- 标记值</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>是否通过检查</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -694,37 +759,16 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">melobot.typ</a><ul>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel"><code class="docutils literal notranslate"><span class="pre">HandleLevel</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel.MAX"><code class="docutils literal notranslate"><span class="pre">HandleLevel.MAX</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel.ULTRA_HIGH"><code class="docutils literal notranslate"><span class="pre">HandleLevel.ULTRA_HIGH</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel.HIGH"><code class="docutils literal notranslate"><span class="pre">HandleLevel.HIGH</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel.NORMAL"><code class="docutils literal notranslate"><span class="pre">HandleLevel.NORMAL</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel.LOW"><code class="docutils literal notranslate"><span class="pre">HandleLevel.LOW</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel.ULTRA_LOW"><code class="docutils literal notranslate"><span class="pre">HandleLevel.ULTRA_LOW</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.HandleLevel.MIN"><code class="docutils literal notranslate"><span class="pre">HandleLevel.MIN</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode"><code class="docutils literal notranslate"><span class="pre">LogicMode</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.AND"><code class="docutils literal notranslate"><span class="pre">LogicMode.AND</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.OR"><code class="docutils literal notranslate"><span class="pre">LogicMode.OR</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.NOT"><code class="docutils literal notranslate"><span class="pre">LogicMode.NOT</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.XOR"><code class="docutils literal notranslate"><span class="pre">LogicMode.XOR</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.calc"><code class="docutils literal notranslate"><span class="pre">LogicMode.calc()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.short_calc"><code class="docutils literal notranslate"><span class="pre">LogicMode.short_calc()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.async_short_calc"><code class="docutils literal notranslate"><span class="pre">LogicMode.async_short_calc()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.seq_calc"><code class="docutils literal notranslate"><span class="pre">LogicMode.seq_calc()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.short_seq_calc"><code class="docutils literal notranslate"><span class="pre">LogicMode.short_seq_calc()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.LogicMode.async_short_seq_calc"><code class="docutils literal notranslate"><span class="pre">LogicMode.async_short_seq_calc()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#melobot.typ.HandleLevel"><code class="docutils literal notranslate"><span class="pre">HandleLevel</span></code></a></li>
+<li><a class="reference internal" href="#melobot.typ.LogicMode"><code class="docutils literal notranslate"><span class="pre">LogicMode</span></code></a></li>
 <li><a class="reference internal" href="#melobot.typ.is_type"><code class="docutils literal notranslate"><span class="pre">is_type()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.typ.abstractattr"><code class="docutils literal notranslate"><span class="pre">abstractattr()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.typ.BetterABCMeta"><code class="docutils literal notranslate"><span class="pre">BetterABCMeta</span></code></a></li>
 <li><a class="reference internal" href="#melobot.typ.BetterABC"><code class="docutils literal notranslate"><span class="pre">BetterABC</span></code></a></li>
-<li><a class="reference internal" href="#melobot.typ.VoidType"><code class="docutils literal notranslate"><span class="pre">VoidType</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.typ.VoidType.VOID"><code class="docutils literal notranslate"><span class="pre">VoidType.VOID</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#melobot.typ.SingletonMeta"><code class="docutils literal notranslate"><span class="pre">SingletonMeta</span></code></a></li>
+<li><a class="reference internal" href="#melobot.typ.SingletonBetterABCMeta"><code class="docutils literal notranslate"><span class="pre">SingletonBetterABCMeta</span></code></a></li>
+<li><a class="reference internal" href="#melobot.typ.Markable"><code class="docutils literal notranslate"><span class="pre">Markable</span></code></a></li>
+<li><a class="reference internal" href="#melobot.typ.VoidType"><code class="docutils literal notranslate"><span class="pre">VoidType</span></code></a></li>
 <li><a class="reference internal" href="#melobot.typ.T"><code class="docutils literal notranslate"><span class="pre">melobot.typ.T</span></code></a></li>
 <li><a class="reference internal" href="#melobot.typ.T_co"><code class="docutils literal notranslate"><span class="pre">melobot.typ.T_co</span></code></a></li>
 <li><a class="reference internal" href="#melobot.typ.P"><code class="docutils literal notranslate"><span class="pre">melobot.typ.P</span></code></a></li>

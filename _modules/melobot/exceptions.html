@@ -315,7 +315,7 @@
 <span class="c1"># 直接 hook，而不是让它使用环境变量触发</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="n">better_exceptions</span><span class="o">.</span><span class="n">excepthook</span>
 <span class="c1"># 取消它的猴子补丁</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">_loggerClass</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># type:ignore[attr-defined] # pylint: disable=protected-access</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">_loggerClass</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># type:ignore[attr-defined]</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span>
 <span class="p">)</span>
 
@@ -333,7 +333,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">err</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">err</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pretty_err</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretty_err</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">err</span></div>
@@ -365,6 +367,20 @@
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.PluginError">[文档]</a>
 <span class="k">class</span> <span class="nc">PluginError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 插件异常&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PluginAutoGenError">
+<a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.PluginAutoGenError">[文档]</a>
+<span class="k">class</span> <span class="nc">PluginAutoGenError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 插件自动生成异常&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PluginLoadError">
+<a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.PluginLoadError">[文档]</a>
+<span class="k">class</span> <span class="nc">PluginLoadError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 插件加载异常&quot;&quot;&quot;</span></div>
 
 
 

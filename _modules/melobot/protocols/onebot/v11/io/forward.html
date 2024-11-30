@@ -462,7 +462,7 @@
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart_flag</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_restart_flag</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_life_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">SourceLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">SourceLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ForwardWebSocketIO.opened">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.ForwardWebSocketIO.opened">[文档]</a>

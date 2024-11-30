@@ -365,55 +365,6 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.utils.Markable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.utils.</span></span><span class="sig-name descname"><span class="pre">Markable</span></span><a class="reference internal" href="../_modules/melobot/utils.html#Markable"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.utils.Markable" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>可标记对象</p>
-<p>无需直接实例化，而是用作接口在其他类中继承</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.utils.Markable.flag_mark">
-<span class="sig-name descname"><span class="pre">flag_mark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/utils.html#Markable.flag_mark"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.utils.Markable.flag_mark" title="Link to this definition">¶</a></dt>
-<dd><p>在 <cite>namespace</cite> 命名空间中设置 <cite>flag_name</cite> 标记，值为 <cite>val</cite></p>
-<p>注：不同的对象并不共享 <cite>namespace</cite>，<cite>namespace</cite> 只适用于单个对象</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>namespace</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 命名空间</p></li>
-<li><p><strong>flag_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 标记名</p></li>
-<li><p><strong>val</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em> | </em><em>None</em>) -- 标记值</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回类型<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.utils.Markable.flag_check">
-<span class="sig-name descname"><span class="pre">flag_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/melobot/utils.html#Markable.flag_check"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.utils.Markable.flag_check" title="Link to this definition">¶</a></dt>
-<dd><p>检查 <cite>namespace</cite> 命名空间中 <cite>flag_name</cite> 标记值是否为 <cite>val</cite></p>
-<p>注：不同的对象并不共享 <cite>namespace</cite>，<cite>namespace</cite> 只适用于单个对象</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>namespace</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 命名空间</p></li>
-<li><p><strong>flag_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 标记名</p></li>
-<li><p><strong>val</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><em>Any</em></a><em> | </em><em>None</em>) -- 标记值</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>是否通过检查</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="melobot.utils.RWContext">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.utils.</span></span><span class="sig-name descname"><span class="pre">RWContext</span></span><a class="reference internal" href="../_modules/melobot/utils.html#RWContext"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.utils.RWContext" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
@@ -843,11 +794,6 @@
 <li><a class="reference internal" href="#">melobot.utils</a><ul>
 <li><a class="reference internal" href="#melobot.utils.get_obj_name"><code class="docutils literal notranslate"><span class="pre">get_obj_name()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.utils.singleton"><code class="docutils literal notranslate"><span class="pre">singleton()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.utils.Markable"><code class="docutils literal notranslate"><span class="pre">Markable</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.utils.Markable.flag_mark"><code class="docutils literal notranslate"><span class="pre">Markable.flag_mark()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.utils.Markable.flag_check"><code class="docutils literal notranslate"><span class="pre">Markable.flag_check()</span></code></a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#melobot.utils.RWContext"><code class="docutils literal notranslate"><span class="pre">RWContext</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.utils.RWContext.__init__"><code class="docutils literal notranslate"><span class="pre">RWContext.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.utils.RWContext.read"><code class="docutils literal notranslate"><span class="pre">RWContext.read()</span></code></a></li>

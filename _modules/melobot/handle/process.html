@@ -551,7 +551,6 @@
 <span class="sd">        :param priority: 新优先级，若为空，则使用两者中较小的优先级</span>
 <span class="sd">        :return: 新的处理流</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># pylint: disable=protected-access</span>
         <span class="n">_froms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ends</span>
         <span class="n">_tos</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">starts</span>
         <span class="n">new_edges</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span> <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="n">_froms</span> <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">_tos</span><span class="p">)</span>

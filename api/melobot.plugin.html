@@ -317,7 +317,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.plugin.Plugin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">Plugin</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#Plugin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.Plugin" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a></p>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>插件基类</p>
 <p>子类需要把以下标记为抽象属性的属性，按 <a class="reference internal" href="melobot.typ.html#melobot.typ.abstractattr" title="melobot.typ.abstractattr"><code class="xref py py-func docutils literal notranslate"><span class="pre">abstractattr()</span></code></a> 的要求实现，其余属性可选实现。</p>
 <dl class="py attribute">
@@ -391,6 +391,35 @@
 <dl class="field-list simple">
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.Plugin.on">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.plugin.PluginLifeSpan" title="melobot.plugin.base.PluginLifeSpan"><span class="pre">PluginLifeSpan</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#Plugin.on"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.Plugin.on" title="Link to this definition">¶</a></dt>
+<dd><p>注册一个 hook</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>periods</strong> (<a class="reference internal" href="#melobot.plugin.PluginLifeSpan" title="melobot.plugin.base.PluginLifeSpan"><em>PluginLifeSpan</em></a>) -- 要绑定的 hook 类型</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>装饰器</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]], <a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.plugin.PluginLifeSpan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">PluginLifeSpan</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginLifeSpan"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginLifeSpan" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>插件生命周期的枚举</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.PluginLifeSpan.INITED">
+<span class="sig-name descname"><span class="pre">INITED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'i'</span></em><a class="headerlink" href="#melobot.plugin.PluginLifeSpan.INITED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -647,6 +676,11 @@
 <li><a class="reference internal" href="#melobot.plugin.Plugin.keywords"><code class="docutils literal notranslate"><span class="pre">Plugin.keywords</span></code></a></li>
 <li><a class="reference internal" href="#melobot.plugin.Plugin.url"><code class="docutils literal notranslate"><span class="pre">Plugin.url</span></code></a></li>
 <li><a class="reference internal" href="#melobot.plugin.Plugin.author"><code class="docutils literal notranslate"><span class="pre">Plugin.author</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin.on"><code class="docutils literal notranslate"><span class="pre">Plugin.on()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.plugin.PluginLifeSpan"><code class="docutils literal notranslate"><span class="pre">PluginLifeSpan</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.plugin.PluginLifeSpan.INITED"><code class="docutils literal notranslate"><span class="pre">PluginLifeSpan.INITED</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#melobot.plugin.AsyncShare"><code class="docutils literal notranslate"><span class="pre">AsyncShare</span></code></a><ul>
