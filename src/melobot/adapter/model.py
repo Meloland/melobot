@@ -23,8 +23,8 @@ from typing_extensions import LiteralString, Self, TypeVar
 from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
 from ..exceptions import AdapterError
 from ..log.base import LogLevel
-from ..typ import T
-from ..utils import AttrsReprable, get_id, to_coro
+from ..typ import AttrsReprable, T
+from ..utils import get_id, to_coro
 from .content import Content
 
 if TYPE_CHECKING:

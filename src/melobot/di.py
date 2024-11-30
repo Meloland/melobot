@@ -381,7 +381,7 @@ def _get_bound_args(
         fname = get_obj_name(func, otype="callable")
         raise DependBindError(
             f"依赖注入匹配失败。匹配函数 {fname} 的参数时发生错误：{e}。"
-            "这可能是因为传参有误，或提供了错误的类型注解"
+            "这可能是因为传参个数不匹配，或提供了错误的类型注解"
         ) from None
 
     bind.apply_defaults()

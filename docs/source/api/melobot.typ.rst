@@ -1,3 +1,5 @@
+:tocdepth: 2
+
 melobot.typ
 ===========
 
@@ -18,6 +20,16 @@ melobot.typ
 
 .. autoclass:: melobot.typ.BetterABC
     :members:
+
+.. autoclass:: melobot.typ.SingletonMeta
+    :exclude-members: __call__
+
+.. autoclass:: melobot.typ.SingletonBetterABCMeta
+    :exclude-members: __call__
+
+.. autoclass:: melobot.typ.Markable
+    :members:
+    :exclude-members: __init__
 
 .. autoclass:: melobot.typ.VoidType
     :members:

@@ -155,7 +155,7 @@ class ForwardWebSocketIO(BaseIO):
 
             if self._restart_flag.is_set():
                 self._restart_flag.clear()
-                await self._life_bus.emit(SourceLifeSpan.RESTARTED, False)
+                await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
 
     def opened(self) -> bool:
         return self._opened.is_set()

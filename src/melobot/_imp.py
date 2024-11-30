@@ -93,9 +93,7 @@ class SpecFinder(MetaPathFinder):
                 if dir_path.exists() and dir_path.is_dir():
                     dir_path_str = str(dir_path.resolve())
                     submod_locs = _NamespacePath(
-                        fullname,
-                        [dir_path_str],
-                        _PathFinder()._get_spec,  # pylint: disable=protected-access
+                        fullname, [dir_path_str], _PathFinder()._get_spec
                     )
                     spec = spec_from_file_location(
                         fullname,
@@ -281,8 +279,16 @@ class Importer:
         name: str,
         path: str | PathLike[str] | None = None,
         sys_cache: bool = True,
-        load_cache: bool = True,
+        mb_cache: bool = True,
     ) -> ModuleType:
+        """动态导入一个模块
+
+        :param name: 模块名
+        :param path: 在何处查找模块，为空则按照默认规则查找
+        :param sys_cache: 是否加载后在 `sys.modules` 中缓存
+        :param load_cache: 是否加载后在 melobot 模块缓存器中缓存
+        :return: 模块
+        """
         # 必须先获取，后续可能运行的递归将会影响序列长度
         pre_sys_len = len(sys.modules)
         pre_cache_len = ModuleCacher().get_len()
@@ -301,7 +307,7 @@ class Importer:
             name,
             (str(path),) if path is not None else None,
             sys_cache=sys_cache,
-            load_cache=load_cache,
+            load_cache=mb_cache,
             pre_sys_len=pre_sys_len,
             pre_cache_len=pre_cache_len,
         )

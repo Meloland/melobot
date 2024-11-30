@@ -6,6 +6,7 @@ melobot.adapter
 
 .. autoclass:: melobot.adapter.Adapter
     :members:
+    :inherited-members:
     :exclude-members: __init__
 
 .. autoclass:: melobot.adapter.AdapterLifeSpan

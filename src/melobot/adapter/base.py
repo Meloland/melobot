@@ -19,7 +19,7 @@ from typing import (
 
 from typing_extensions import LiteralString, Self, TypeVar
 
-from .._hook import HookBus
+from .._hook import Hookable
 from ..ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
@@ -111,6 +111,7 @@ class Adapter(
         InSourceT,
         OutSourceT,
     ],
+    Hookable[AdapterLifeSpan],
 ):
     """适配器基类
 
@@ -127,9 +128,9 @@ class Adapter(
         output_factory: OutputFactoryT,
         echo_factory: EchoFactoryT,
     ) -> None:
-        super().__init__()
-        self.protocol = protocol
+        Hookable.__init__(self, AdapterLifeSpan, tag=protocol)
 
+        self.protocol = protocol
         self.in_srcs: list[InSourceT] = []
         self.out_srcs: list[OutSourceT] = []
         self.dispatcher: "Dispatcher"
@@ -138,22 +139,15 @@ class Adapter(
         self._echo_factory = echo_factory
 
         self._inited = False
-        self._life_bus = HookBus[AdapterLifeSpan](AdapterLifeSpan)
 
-    @final
     def on(
         self, *periods: AdapterLifeSpan
     ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """生成注册适配器生命周期回调的装饰器
-
-        :param periods: 要绑定的生命周期阶段
-
-        :return: 装饰器
-        """
+        groups = (AdapterLifeSpan.BEFORE_EVENT, AdapterLifeSpan.BEFORE_ACTION)
 
         def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
             for type in periods:
-                self._life_bus.register(type, func)
+                self._hook_bus.register(type, func, once=type not in groups)
             return func
 
         return wrapped
@@ -184,7 +178,7 @@ class Adapter(
                 packet = await src.input()
                 event = await self._event_factory.create(packet)
                 with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
-                    await self._life_bus.emit(
+                    await self._hook_bus.emit(
                         AdapterLifeSpan.BEFORE_EVENT, True, args=(event,)
                     )
                     asyncio.create_task(self.dispatcher.broadcast(event))
@@ -218,12 +212,12 @@ class Adapter(
                     create_task(self.__adapter_input_loop__(src))
 
                 self._inited = True
-                await self._life_bus.emit(AdapterLifeSpan.STARTED)
+                await self._hook_bus.emit(AdapterLifeSpan.STARTED)
                 yield self
 
         finally:
             if self._inited:
-                await self._life_bus.emit(AdapterLifeSpan.STOPPED, True)
+                await self._hook_bus.emit(AdapterLifeSpan.STOPPED, True)
 
     @final
     def filter_out(
@@ -260,7 +254,7 @@ class Adapter(
         else:
             osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
 
-        await self._life_bus.emit(AdapterLifeSpan.BEFORE_ACTION, True, args=(action,))
+        await self._hook_bus.emit(AdapterLifeSpan.BEFORE_ACTION, True, args=(action,))
         return tuple(
             ActionHandle(action, osrc, self._output_factory, self._echo_factory)
             for osrc in osrcs

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import asyncio.tasks
-import importlib
 import os
 import platform
 import sys
@@ -15,14 +14,14 @@ from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable
 
 from typing_extensions import LiteralString
 
-from .._hook import HookBus
+from .._hook import Hookable
 from .._meta import MetaInfo
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotError
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
-from ..plugin.base import Plugin
+from ..plugin.base import Plugin, PluginLifeSpan
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
@@ -64,7 +63,7 @@ def _start_log(logger: GenericLogger) -> None:
     logger.info("=" * 40)
 
 
-class Bot:
+class Bot(Hookable[BotLifeSpan]):
     """bot 类
 
     :ivar str name: bot 对象的名称
@@ -96,6 +95,8 @@ class Bot:
             可使用 melobot 内置的 :class:`.Logger`，或经过 :func:`.logger_patch` 修补的日志器
         :param enable_log: 是否启用日志功能
         """
+        Hookable.__init__(self, BotLifeSpan, tag=name)
+
         self.name = name
         self.logger: GenericLogger
         if not enable_log:
@@ -112,7 +113,6 @@ class Bot:
         self._out_srcs: dict[str, list[AbstractOutSource]] = {}
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
-        self._life_bus = HookBus[BotLifeSpan](BotLifeSpan)
         self._dispatcher = Dispatcher()
         self._tasks: list[asyncio.Task] = []
 
@@ -129,14 +129,14 @@ class Bot:
         return asyncio.get_running_loop()
 
     @contextmanager
-    def _sync_common_ctx(self) -> Generator[ExitStack, None, None]:
+    def _common_sync_ctx(self) -> Generator[ExitStack, None, None]:
         with ExitStack() as stack:
             stack.enter_context(_BOT_CTX.unfold(self))
             stack.enter_context(_LOGGER_CTX.unfold(self.logger))
             yield stack
 
     @asynccontextmanager
-    async def _async_common_ctx(self) -> AsyncGenerator[AsyncExitStack, None]:
+    async def _common_async_ctx(self) -> AsyncGenerator[AsyncExitStack, None]:
         async with AsyncExitStack() as stack:
             stack.enter_context(_BOT_CTX.unfold(self))
             stack.enter_context(_LOGGER_CTX.unfold(self.logger))
@@ -206,7 +206,7 @@ class Bot:
             self.add_output(osrc)
         return self
 
-    def _run_init(self) -> None:
+    def _core_init(self) -> None:
         _start_log(self.logger)
 
         for protocol, srcs in self._in_srcs.items():
@@ -245,28 +245,21 @@ class Bot:
     ) -> Bot:
         """加载插件
 
-        :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）
+        :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，可直接 import 包名称，插件对象）
         :param load_depth:
             插件加载时的相对引用深度，默认值 1 只支持向上引用到插件目录一级。
             增加为 2 可以引用到插件目录的父目录一级，依此类推。
-            此参数一般只适用于 `plugin` 参数为插件的目录路径的情况。
+            此参数只在 `plugin` 参数为插件的目录路径时有效。
         :return: bot 对象，因此支持链式调用
         """
         if not self._inited:
-            self._run_init()
+            self._core_init()
 
-        with self._sync_common_ctx():
-            if not isinstance(plugin, Plugin):
-                if isinstance(plugin, ModuleType):
-                    p_name = plugin.__name__
-                else:
-                    p_name = Path(plugin).resolve().parts[-1]
-                if p_name in self._plugins:
-                    raise BotError(
-                        f"尝试加载的插件 {p_name} 与其他已加载的 melobot 插件重名，请修改名称（修改插件目录名）"
-                    )
+        with self._common_sync_ctx():
+            p, is_loaded = self._loader.load(plugin, load_depth)
+            if is_loaded:
+                return self
 
-            p = self._loader.load(plugin, load_depth)
             self._plugins[p.name] = p
             self._dispatcher.internal_add(*p.handlers)
             for share in p.shares:
@@ -275,6 +268,8 @@ class Bot:
                 self.ipc_manager.add_func(p.name, func)
             self.logger.info(f"成功加载插件：{p.name}")
 
+            if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
+                asyncio.create_task(p._hook_bus.emit(PluginLifeSpan.INITED))
             return self
 
     def load_plugins(
@@ -318,35 +313,29 @@ class Bot:
         for pdir in pdirs:
             self.load_plugins_dir(pdir, load_depth)
 
-    def load_site_plugins(self, *site_plugins: str) -> None:
-        """加载从站点上（例如 pip）安装的第三方插件
-
-        :param site_plugins: 要加载的第三方插件的名称，例如 "melobot_plugin_example"
-        """
-        for pname in site_plugins:
-            pmod = importlib.import_module(pname)
-            self.load_plugin(pmod)
-
     async def core_run(self) -> None:
         """运行 bot 的方法，可以在异步事件循环中自由地使用
 
         若使用此方法，则需要自行管理异步事件循环
         """
         if not self._inited:
-            self._run_init()
+            self._core_init()
 
         if self._running:
             raise BotError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
 
         try:
-            async with self._async_common_ctx() as stack:
-                await self._life_bus.emit(BotLifeSpan.LOADED)
+            async with self._common_async_ctx() as stack:
+                await self._hook_bus.emit(BotLifeSpan.LOADED)
                 if (
                     LAST_EXIT_SIGNAL in os.environ
                     and int(os.environ[LAST_EXIT_SIGNAL]) == BotExitSignal.RESTART.value
                 ):
-                    await self._life_bus.emit(BotLifeSpan.RELOADED)
+                    await self._hook_bus.emit(BotLifeSpan.RELOADED)
+
+                for p in self._plugins.values():
+                    await p._hook_bus.emit(PluginLifeSpan.INITED)
 
                 timed_task = asyncio.create_task(self._dispatcher.timed_gc())
                 self._tasks.append(timed_task)
@@ -359,15 +348,15 @@ class Bot:
                 if len(ts):
                     await asyncio.wait(ts)
 
-                await self._life_bus.emit(BotLifeSpan.STARTED)
+                await self._hook_bus.emit(BotLifeSpan.STARTED)
                 await self._rip_signal.wait()
 
         finally:
-            async with self._async_common_ctx() as stack:
+            async with self._common_async_ctx() as stack:
                 for t in self._tasks:
                     t.cancel()
 
-                await self._life_bus.emit(BotLifeSpan.STOPPED, True)
+                await self._hook_bus.emit(BotLifeSpan.STOPPED, True)
                 self.logger.info(f"{self} 已安全停止运行")
                 self._running = False
 
@@ -402,7 +391,7 @@ class Bot:
         if not self._running:
             raise BotError(f"{self} 未在运行中，不能停止运行")
 
-        await self._life_bus.emit(BotLifeSpan.CLOSE, True)
+        await self._hook_bus.emit(BotLifeSpan.CLOSE, True)
         self._rip_signal.set()
 
     async def restart(self) -> NoReturn:
@@ -475,45 +464,29 @@ class Bot:
         """
         return self.ipc_manager.get(plugin, share)
 
-    def on(
-        self, *periods: BotLifeSpan
-    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """生成给 bot 注册生命周期回调的装饰器
-
-        :param periods: 要绑定的生命周期阶段
-        :return: 装饰器
-        """
-
-        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
-            for type in periods:
-                self._life_bus.register(type, func)
-            return func
-
-        return wrapped
-
     @property
     def on_loaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 loaded 生命周期回调的装饰器"""
+        """给 bot 注册 :obj:`.BotLifeSpan.LOADED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.LOADED)
 
     @property
     def on_reloaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 reloaded 生命周期回调的装饰器"""
+        """给 bot 注册 :obj:`.BotLifeSpan.RELOADED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.RELOADED)
 
     @property
     def on_started(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 started 生命周期回调的装饰器"""
+        """给 bot 注册 :obj:`.BotLifeSpan.STARTED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STARTED)
 
     @property
     def on_close(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 close 生命周期回调的装饰器"""
+        """给 bot 注册 :obj:`.BotLifeSpan.CLOSE` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.CLOSE)
 
     @property
     def on_stopped(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 stopped 生命周期回调的装饰器"""
+        """给 bot 注册 :obj:`.BotLifeSpan.STOPPED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STOPPED)
 
 
@@ -551,7 +524,7 @@ async def alive_signal_guard(main_coro: Coroutine[Any, Any, None]) -> None:
     while True:
         if not os.path.exists(os.environ[CLI_DEV_ALIVE_SIGNAL]):
             for bot in Bot.__instances__.values():
-                bot._rip_signal.set()  # pylint: disable=protected-access
+                bot._rip_signal.set()
             break
         await asyncio.sleep(0.45)
 

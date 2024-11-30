@@ -58,7 +58,9 @@ class Dispatcher:
     def internal_add(self, *handlers: EventHandler) -> None:
         for h in handlers:
             self.handlers.setdefault(h.flow.priority, set()).add(h)
-            h.flow.on_priority_reset(lambda new_prior, h=h: self._reset(h, new_prior))
+            h.flow.on_priority_reset(
+                lambda new_prior, h=h: self._reset_hook(h, new_prior)
+            )
 
     async def add(self, *handlers: EventHandler) -> None:
         async with self.broadcast_ctrl.write():
@@ -76,7 +78,7 @@ class Dispatcher:
         async with self.broadcast_ctrl.write():
             await self._remove(*handlers)
 
-    async def _reset(self, handler: EventHandler, new_prior: HandleLevel) -> None:
+    async def _reset_hook(self, handler: EventHandler, new_prior: HandleLevel) -> None:
         if handler.flow.priority == new_prior:
             return
 
@@ -95,7 +97,6 @@ class Dispatcher:
             for h_set in self.handlers.values():
                 tasks = tuple(asyncio.create_task(h.handle(event)) for h in h_set)
                 await asyncio.wait(tasks)
-
                 if not event.spread:
                     break
 

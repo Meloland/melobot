@@ -28,6 +28,6 @@ dev_parser.set_defaults(_cmd_handler=dev.main)
 
 args = parser.parse_args()
 if len(sys.argv) > 1:
-    args._cmd_handler(args)  # pylint: disable=protected-access
+    args._cmd_handler(args)
 else:
     print("无命令参数，mb-cli 已结束运行，使用 -h 命令参数获取帮助信息")

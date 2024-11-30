@@ -230,7 +230,6 @@ class Flow:
         :param priority: 新优先级，若为空，则使用两者中较小的优先级
         :return: 新的处理流
         """
-        # pylint: disable=protected-access
         _froms = self.ends
         _tos = flow.starts
         new_edges = tuple((n1, n2) for n1 in _froms for n2 in _tos)

@@ -17,7 +17,7 @@ from typing import (
     cast,
 )
 
-from typing_extensions import Self, TypeVar
+from typing_extensions import TypeVar
 
 from .exceptions import ValidateError
 from .typ import AsyncCallable, P, T
@@ -77,102 +77,6 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
         return obj_map[cls]
 
     return wrapped
-
-
-class Markable:
-    """可标记对象
-
-    无需直接实例化，而是用作接口在其他类中继承
-    """
-
-    def __init__(self) -> None:
-        self._flags: dict[str, dict[str, Any]] = {}
-
-    def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
-        """在 `namespace` 命名空间中设置 `flag_name` 标记，值为 `val`
-
-        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
-
-        :param namespace: 命名空间
-        :param flag_name: 标记名
-        :param val: 标记值
-        """
-        self._flags.setdefault(namespace, {})
-
-        if flag_name in self._flags[namespace].keys():
-            raise ValueError(
-                f"标记失败。对象的命名空间 {namespace} 中已存在名为 {flag_name} 的标记"
-            )
-
-        self._flags[namespace][flag_name] = val
-
-    def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
-        """检查 `namespace` 命名空间中 `flag_name` 标记值是否为 `val`
-
-        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
-
-        :param namespace: 命名空间
-        :param flag_name: 标记名
-        :param val: 标记值
-        :return: 是否通过检查
-        """
-        if self._flags.get(namespace) is None:
-            return False
-        if flag_name not in self._flags[namespace].keys():
-            return False
-        flag = self._flags[namespace][flag_name]
-
-        if val is None:
-            return flag is None
-        return cast(bool, flag == val)
-
-
-class AttrsReprable:
-    def __repr__(self) -> str:
-        attrs = ", ".join(
-            f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
-        )
-        return f"{self.__class__.__name__}({attrs})"
-
-
-class Locatable:
-    def __new__(cls, *_args: Any, **_kwargs: Any) -> Self:
-        obj = super().__new__(cls)
-        obj.__obj_location__ = obj._init_location()  # type: ignore[attr-defined]
-        return obj
-
-    def __init__(self) -> None:
-        self.__obj_location__: tuple[str, str, int]
-
-    @staticmethod
-    def _init_location() -> tuple[str, str, int]:
-        frame = inspect.currentframe()
-        while frame:
-            if frame.f_code.co_name == "<module>":
-                return (
-                    frame.f_globals["__name__"],
-                    frame.f_globals["__file__"],
-                    frame.f_lineno,
-                )
-            frame = frame.f_back
-
-        return (
-            "<unknown module>",
-            "<unknown file>",
-            -1,
-        )
-
-    @property
-    def __obj_module__(self) -> str:
-        return self.__obj_location__[0]
-
-    @property
-    def __obj_file__(self) -> str:
-        return self.__obj_location__[1]
-
-    @property
-    def __obj_line__(self) -> int:
-        return self.__obj_location__[2]
 
 
 class RWContext:

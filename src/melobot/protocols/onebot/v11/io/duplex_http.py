@@ -65,12 +65,12 @@ class HttpIO(BaseIO):
         try:
             raw = json.loads(data.decode())
             if (
-                self._life_bus.check_after(SourceLifeSpan.STARTED)
+                self._hook_bus.get_evoke_time(SourceLifeSpan.STARTED) != -1
                 and raw.get("post_type") == "meta_event"
                 and raw.get("meta_event_type") == "lifecycle"
                 and raw.get("sub_type") == "connect"
             ):
-                await self._life_bus.emit(SourceLifeSpan.RESTARTED, False)
+                await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
             self.logger.generic_obj(
                 "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
             )

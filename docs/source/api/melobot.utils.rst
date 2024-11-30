@@ -5,10 +5,6 @@ melobot.utils
 
 .. autofunction:: melobot.utils.singleton
 
-.. autoclass:: melobot.utils.Markable
-    :members:
-    :exclude-members: __init__
-
 .. autoclass:: melobot.utils.RWContext
     :members:
 

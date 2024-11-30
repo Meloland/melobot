@@ -8,6 +8,9 @@ melobot.plugin
     :members:
     :exclude-members: __init__
 
+.. autoclass:: melobot.plugin.PluginLifeSpan
+    :members:
+
 .. autoclass:: melobot.plugin.AsyncShare
     :members:
 

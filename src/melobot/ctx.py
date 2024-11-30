@@ -2,10 +2,10 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
-from .typ import T, deprecated
+from .typ import SingletonMeta, T, deprecated
 
 if TYPE_CHECKING:
     from .adapter import model
@@ -18,18 +18,7 @@ if TYPE_CHECKING:
     from .session.option import Rule
 
 
-class _ContextMeta(type):
-    __instances__: dict[type, Any] = {}
-
-    def __call__(cls: type[T], *args: Any, **kwargs: Any) -> T:
-        if cls not in _ContextMeta.__instances__:
-            _ContextMeta.__instances__[cls] = cast(
-                T, super(_ContextMeta, cls).__call__(*args, **kwargs)  # type: ignore[misc]
-            )
-        return cast(T, _ContextMeta.__instances__[cls])
-
-
-class Context(Generic[T], metaclass=_ContextMeta):
+class Context(Generic[T], metaclass=SingletonMeta):
     """上下文对象，本质是对 :class:`contextvars.ContextVar` 操作的封装
 
     继承该基类，可以实现自己的上下文对象。

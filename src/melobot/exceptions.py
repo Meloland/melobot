@@ -13,7 +13,7 @@ better_exceptions.formatter.ENCODING = sys.stdout.encoding
 # 直接 hook，而不是让它使用环境变量触发
 sys.excepthook = better_exceptions.excepthook
 # 取消它的猴子补丁
-logging._loggerClass = (  # type:ignore[attr-defined] # pylint: disable=protected-access
+logging._loggerClass = (  # type:ignore[attr-defined]
     logging.Logger
 )
 
@@ -49,6 +49,14 @@ class IOError(BotException):
 
 class PluginError(BotException):
     """melobot 插件异常"""
+
+
+class PluginAutoGenError(PluginError):
+    """melobot 插件自动生成异常"""
+
+
+class PluginLoadError(PluginError):
+    """melobot 插件加载异常"""
 
 
 class PluginIpcError(PluginError):
