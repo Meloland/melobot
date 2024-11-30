@@ -320,11 +320,8 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
     try:
         sign = signature(func)
     except ValueError as e:
-        if (
-            str(e).startswith("no signature found for builtin")
-            and version_info.major >= 3
-            and version_info.minor <= 10
-        ):
+        tip = "no signature found for builtin"
+        if str(e).startswith(tip) and version_info <= (3, 10):
             raise DependInitError(
                 f"内建函数 {func} 在 python <= 3.10 的版本中，无法进行依赖注入"
             ) from None
