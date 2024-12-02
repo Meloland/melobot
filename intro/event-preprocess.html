@@ -434,7 +434,7 @@
 <span class="n">final_checker</span> <span class="o">=</span> <span class="n">priv_c</span> <span class="o">|</span> <span class="n">grp_c1</span> <span class="o">|</span> <span class="n">grp_c2</span>
 </pre></div>
 </div>
-<p>其他高级特性：自定义检查成功回调，自定义检查失败回调等，请参考 <a class="reference internal" href="../ob_api/v11.utils.html#onebot-v11-check"><span class="std std-ref">内置检查器与检查器工厂</span></a> 中各种对象的参数。</p>
+<p>其他高级特性：自定义检查失败回调等，请参考 <a class="reference internal" href="../ob_api/v11.utils.html#onebot-v11-check"><span class="std std-ref">内置检查器与检查器工厂</span></a> 中各种对象的参数。</p>
 <p>除了这些接口，melobot 内部其实也有一种隐式检查，这就是<strong>基于依赖注入的区分调用</strong>：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">on_event</span>
 <span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.event</span> <span class="kn">import</span> <span class="n">GroupMessageEvent</span><span class="p">,</span> <span class="n">PrivateMessageEvent</span>
@@ -484,6 +484,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="mi">0</span>
 
+    <span class="c1"># 因为确定检查器只在 on_message 中使用，所以传入的事件必为消息事件</span>
+    <span class="c1"># 否则需要指定为对应的更宽泛的事件类型</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">user_id</span> <span class="o">!=</span> <span class="mi">10001</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
