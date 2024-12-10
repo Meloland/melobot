@@ -439,6 +439,7 @@ class VoidType(Enum):
 
 
 def deprecate_warn(msg: str) -> None:
+    # pylint: disable=cyclic-import
     from .ctx import LoggerCtx
 
     if logger := LoggerCtx().try_get():
