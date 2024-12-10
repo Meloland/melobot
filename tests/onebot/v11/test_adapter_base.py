@@ -5,7 +5,7 @@ from melobot.adapter.generic import send_text
 from melobot.bot import Bot
 from melobot.handle import Flow, node
 from melobot.log import GenericLogger
-from melobot.plugin import Plugin
+from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.adapter.event import MessageEvent
 from melobot.protocols.onebot.v11.io.base import BaseIO
@@ -96,11 +96,6 @@ async def process(adapter: Adapter, event: MessageEvent, logger: GenericLogger) 
     _SUCCESS_SIGNAL.set()
 
 
-class TempPlugin(Plugin):
-    version = "1.0.0"
-    flows = [Flow("test_flow", [process])]
-
-
 async def after_bot_started(bot: Bot):
     adapter = next(iter(bot.adapters.values()))
     pending = await adapter.with_echo(adapter.send_custom)("Hello World!", user_id=12345)
@@ -114,7 +109,10 @@ async def test_adapter_base():
     mbot = Bot("test_adapter_base")
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
-    mbot.load_plugin(TempPlugin())
+
+    flow = Flow("test_adapter_base", [process])
+    mbot.load_plugin(PluginPlanner("1.0.0", flows=[flow]))
+
     mbot.on_started(after_bot_started)
     create_task(mbot.core_run())
     await mbot._rip_signal.wait()

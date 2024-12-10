@@ -3,7 +3,7 @@ from asyncio import Queue, create_task
 
 from melobot.bot import Bot
 from melobot.log import GenericLogger
-from melobot.plugin import Plugin
+from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11 import handle
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.adapter.event import MessageEvent
@@ -70,11 +70,6 @@ async def test_this(
     _SUCCESS_SIGNAL.set()
 
 
-class TempPlugin(Plugin):
-    version = "1.0.0"
-    flows = [test_this]
-
-
 class TempIO(BaseIO):
     def __init__(self) -> None:
         super().__init__(1)
@@ -105,7 +100,7 @@ async def test_adapter_base():
     mbot = Bot("test_handle")
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
-    mbot.load_plugin(TempPlugin())
+    mbot.load_plugin(PluginPlanner("1.0.0", flows=[test_this]))
     create_task(mbot.core_run())
     await mbot._rip_signal.wait()
     await _SUCCESS_SIGNAL.wait()

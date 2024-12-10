@@ -31,7 +31,7 @@ async def test_add_type():
     s = SType(key="123")
     assert s.type == "MyS"
     assert s.data == {"key": "123"}
-    assert SType.__name__ in seg.Segment.__dynamic_segments__
+    assert SType in seg.Segment.__subclasses__()
     with pt.raises(ValidationError):
         SType(key=123)
 
