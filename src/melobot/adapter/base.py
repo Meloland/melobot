@@ -49,7 +49,7 @@ class AbstractEventFactory(BetterABC, Generic[InPacketT, EventT]):
 
     @abstractmethod
     async def create(self, packet: InPacketT) -> EventT:
-        """将 :class:`.InPacket` 对象转换为 :class:`.Event` 对象的方法
+        """将 :class:`~melobot.io.InPacket` 对象转换为 :class:`.Event` 对象的方法
 
         :param packet: 输入包
         :return: 事件

@@ -9,6 +9,7 @@ melobot.plugin
 
 .. autoclass:: melobot.plugin.PluginInfo
     :members:
+    :exclude-members: version, desc, docs, keywords, url, author
 
 .. autoclass:: melobot.plugin.Plugin
     :members:

@@ -9,6 +9,11 @@ from ..const import PROTOCOL_IDENTIFIER
 
 @dataclass(kw_only=True)
 class InPacket(RootInPak):
+    """OneBot v11 输入包
+
+    :ivar dict data: 事件原始字典
+    """
+
     data: dict
     protocol: str = PROTOCOL_IDENTIFIER
 
