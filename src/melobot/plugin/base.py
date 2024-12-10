@@ -32,6 +32,8 @@ class PluginLifeSpan(Enum):
 
 @dataclass(frozen=True)
 class PluginInfo:
+    """插件信息类，用于添加描述信息"""
+
     version: str = ""
     desc: str = ""
     docs: Path | None = None
@@ -55,6 +57,14 @@ class PluginPlanner:
         *,
         info: PluginInfo | None = None,
     ) -> None:
+        """插件管理器初始化
+
+        :param version: 版本号
+        :param flows: 事件流列表。可以先指定为空，后续使用 :meth:`use` 绑定
+        :param shares: 共享对象列表。可以先指定为空，后续使用 :meth:`use` 绑定
+        :param funcs: 导出函数列表。可以先指定为空，后续使用 :meth:`use` 绑定
+        :param info: 插件信息
+        """
         self.version = version
         self.flows = [] if flows is None else flows
         self.shares = [] if shares is None else shares
@@ -68,7 +78,7 @@ class PluginPlanner:
 
     # REMOVE: 3.0.0
     @classmethod
-    def from_legacy(cls, legacy: LegacyPlugin) -> PluginPlanner:
+    def __from_legacy__(cls, legacy: LegacyPlugin) -> PluginPlanner:
         deprecate_warn(
             "继承 melobot.plugin.Plugin 类声明插件的方式已弃用，将在 3.0.0 移除。"
             "实例化 melobot.plugin.PluginPlanner 类来代替。"
@@ -124,6 +134,13 @@ class PluginPlanner:
 
     @final
     def use(self, obj: T) -> T:
+        """装饰器
+
+        绑定一个组件（流，共享对象，导出函数），标记插件创建后使用该组件。
+
+        :param obj: 可用的组件
+        :return: 被绑定的组件本身
+        """
         if isinstance(obj, Flow):
             self.flows.append(obj)
         elif isinstance(obj, (SyncShare, AsyncShare)):
@@ -135,7 +152,7 @@ class PluginPlanner:
         return obj
 
     @final
-    def _build(self, name: str) -> Plugin:
+    def __p_build__(self, name: str) -> Plugin:
         if not self._built:
             self._pname = name
             self._hook_bus.set_tag(name)
@@ -172,7 +189,7 @@ class PluginPlanner:
     def remove_flow(self, *flows: Flow) -> None:
         """在运行期为指定的插件移除一批处理流
 
-        如果插件没有对应的处理流，不会发出异常，而是忽略
+        如果插件没有启用对应的处理流，不会发出异常，而是忽略
 
         在 :obj:`.PluginLifeSpan.INITED` 及其之后的阶段可以使用
 

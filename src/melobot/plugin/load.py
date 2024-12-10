@@ -190,7 +190,7 @@ class PluginInitHelper:
                         and issubclass(val, LegacyPlugin)
                         and val is not LegacyPlugin
                     ):
-                        p_planner = PluginPlanner.from_legacy(val())
+                        p_planner = PluginPlanner.__from_legacy__(val())
                         p_shares = p_planner.shares
                         p_funcs = p_planner.funcs
                         break
@@ -257,7 +257,9 @@ class PluginLoader:
                         and issubclass(val, LegacyPlugin)
                         and val is not LegacyPlugin
                     ):
-                        setattr(entry, P_PLANNER_ATTR, PluginPlanner.from_legacy(val()))
+                        setattr(
+                            entry, P_PLANNER_ATTR, PluginPlanner.__from_legacy__(val())
+                        )
                         break
                     # REMOVE END ########
 
@@ -270,7 +272,7 @@ class PluginLoader:
 
         # REMOVE: 3.0.0
         if isinstance(p_planner, LegacyPlugin):
-            p_planner = PluginPlanner.from_legacy(p_planner)
+            p_planner = PluginPlanner.__from_legacy__(p_planner)
         # REMOVE END ########
 
         p_planner = cast(PluginPlanner, p_planner)
@@ -279,7 +281,7 @@ class PluginLoader:
             LoggerCtx().get().debug(f"插件 {p.name} 已加载，重复加载将被跳过")
             return p, True
 
-        p = p_planner._build(name=p_name)
+        p = p_planner.__p_build__(name=p_name)
         return p, False
 
     def load(

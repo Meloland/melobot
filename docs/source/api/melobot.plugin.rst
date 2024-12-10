@@ -4,7 +4,16 @@ melobot.plugin
 插件层组件
 -----------
 
+.. autoclass:: melobot.plugin.PluginPlanner
+    :members: __init__
+
+.. autoclass:: melobot.plugin.PluginInfo
+    :members:
+
 .. autoclass:: melobot.plugin.Plugin
+    :members:
+    
+.. autoclass:: melobot.plugin.LegacyPlugin
     :members:
     :exclude-members: __init__
 

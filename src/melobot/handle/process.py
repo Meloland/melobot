@@ -303,7 +303,7 @@ class FlowRewound(_FlowSignal): ...
 
 
 async def nextn() -> None:
-    """运行下一处理结点（在处理结点中使用）"""
+    """运行下一处理结点（在处理流中使用）"""
     try:
         status = _FLOW_CTX.get()
         nexts = status.flow.graph[status.node].nexts
@@ -325,7 +325,7 @@ async def nextn() -> None:
 
 
 async def block() -> None:
-    """阻止当前事件向更低优先级的处理流传播（在处理结点中使用）"""
+    """阻止当前事件向更低优先级的处理流传播（在处理流中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.BLOCK, status.flow.name, status.node.name, status.event)
@@ -334,7 +334,7 @@ async def block() -> None:
 
 
 async def stop() -> NoReturn:
-    """立即停止当前处理流（在处理结点中使用）"""
+    """立即停止当前处理流（在处理流中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.STOP, status.flow.name, status.node.name, status.event)
@@ -359,7 +359,7 @@ async def stop() -> NoReturn:
 
 
 async def bypass() -> NoReturn:
-    """立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理结点中使用）"""
+    """立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理流中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.BYPASS, status.flow.name, status.node.name, status.event)
@@ -376,7 +376,7 @@ async def bypass() -> NoReturn:
 
 
 async def rewind() -> NoReturn:
-    """立即重新运行当前处理结点（在处理结点中使用）"""
+    """立即重新运行当前处理结点（在处理流中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
         FlowRecord(RecordStage.REWIND, status.flow.name, status.node.name, status.event)
@@ -393,6 +393,6 @@ async def rewind() -> NoReturn:
 
 
 async def flow_to(flow: Flow) -> None:
-    """立即进入一个其他处理流（在处理结点中使用）"""
+    """立即进入一个其他处理流（在处理流中使用）"""
     status = _FLOW_CTX.get()
     await flow.run(status.event)
