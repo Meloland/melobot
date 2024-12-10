@@ -30,6 +30,7 @@ def GetParseArgs() -> ParseArgs:  # pylint: disable=invalid-name
     return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
 
 
+# REMOVE: 3.0.0
 @deprecated(
     "将于 melobot v3.0.0 移除，使用 melobot.protocols.onebot.v11.handle.GetParseArgs 代替"
 )

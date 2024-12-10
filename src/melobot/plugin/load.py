@@ -13,7 +13,9 @@ from .._imp import Importer
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginAutoGenError, PluginLoadError
 from ..utils import singleton
-from .base import Plugin
+
+# REMOVE: 3.0.0 (LegacyPlugin)
+from .base import LegacyPlugin, Plugin, PluginPlanner
 from .ipc import AsyncShare, SyncShare
 
 
@@ -175,15 +177,28 @@ class PluginInitHelper:
                 p_entry_mod_name = f"{prefix}.__plugin__"
                 p_entry_mod = Importer.import_mod(p_entry_mod_name, p_dir)
                 for k in dir(p_entry_mod):
-                    v = getattr(p_entry_mod, k)
-                    if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
-                        p = v()
-                        p_shares = p.shares
-                        p_funcs = p.funcs
+                    val = getattr(p_entry_mod, k)
+                    if isinstance(val, PluginPlanner):
+                        p_planner = val
+                        p_shares = p_planner.shares
+                        p_funcs = p_planner.funcs
                         break
+
+                    # REMOVE: 3.0.0
+                    if (
+                        isinstance(val, type)
+                        and issubclass(val, LegacyPlugin)
+                        and val is not LegacyPlugin
+                    ):
+                        p_planner = PluginPlanner.from_legacy(val())
+                        p_shares = p_planner.shares
+                        p_funcs = p_planner.funcs
+                        break
+                    # REMOVE END ##########
                 else:
                     raise PluginAutoGenError(
-                        f"插件的 __plugin__.py 未实例化 Plugin 类，无法解析。对应插件：{p_dir}"
+                        f"插件的 __plugin__.py 未实例化 {PluginPlanner.__name__} 类，"
+                        f"无法解析。对应插件：{p_dir}"
                     )
                 for share in p_shares:
                     if share.name in p_conflicts:
@@ -218,7 +233,7 @@ class PluginInitHelper:
             Importer.clear_cache()
 
 
-PLUGIN_OBJ_ATTR = "__plugin_obj__"
+P_PLANNER_ATTR = "__plugin_planner__"
 
 
 @singleton
@@ -227,42 +242,56 @@ class PluginLoader:
         self._dir_caches: dict[str, Path] = {}
 
     def _build_plugin(
-        self, p_name: str, entry: ModuleType | None, plugin: Plugin | None
+        self, p_name: str, entry: ModuleType | None, p_planner: PluginPlanner | None
     ) -> tuple[Plugin, bool]:
-        if plugin is None:
-            if not hasattr(entry, PLUGIN_OBJ_ATTR):
+        if p_planner is None:
+            if not hasattr(entry, P_PLANNER_ATTR):
                 for k in dir(entry):
-                    v = getattr(entry, k)
-                    if isinstance(v, type) and v is not Plugin and issubclass(v, Plugin):
-                        setattr(entry, PLUGIN_OBJ_ATTR, v())
+                    val = getattr(entry, k)
+                    if isinstance(val, PluginPlanner):
+                        setattr(entry, P_PLANNER_ATTR, val)
                         break
+                    # REMOVE: 3.0.0
+                    if (
+                        isinstance(val, type)
+                        and issubclass(val, LegacyPlugin)
+                        and val is not LegacyPlugin
+                    ):
+                        setattr(entry, P_PLANNER_ATTR, PluginPlanner.from_legacy(val()))
+                        break
+                    # REMOVE END ########
+
                 else:
                     raise PluginLoadError(
-                        f"插件的 __plugin__.py 未实例化 Plugin 类，无法加载。"
+                        f"插件的 __plugin__.py 未实例化 {PluginPlanner.__name__} 类，无法加载。"
                         f"对应插件：{Path(cast(ModuleType, entry).__path__[0])}"
                     )
+            p_planner = getattr(entry, P_PLANNER_ATTR)
 
-            p: Plugin = getattr(entry, PLUGIN_OBJ_ATTR)
+        # REMOVE: 3.0.0
+        if isinstance(p_planner, LegacyPlugin):
+            p_planner = PluginPlanner.from_legacy(p_planner)
+        # REMOVE END ########
 
-        else:
-            p = plugin
-
-        if p._built:
+        p_planner = cast(PluginPlanner, p_planner)
+        if p_planner._built:
+            p = p_planner._plugin
             LoggerCtx().get().debug(f"插件 {p.name} 已加载，重复加载将被跳过")
             return p, True
 
-        p.__plugin_build__(name=p_name)
+        p = p_planner._build(name=p_name)
         return p, False
 
     def load(
-        self, plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int
+        self, plugin: ModuleType | str | PathLike[str] | PluginPlanner, load_depth: int
     ) -> tuple[Plugin, bool]:
         logger = LoggerCtx().get()
         _plugin_repr = repr(plugin)
 
-        if isinstance(plugin, Plugin):
+        # REMOVE: 3.0.0
+        if isinstance(plugin, (PluginPlanner, LegacyPlugin)):
             p_name = f"_DynamicPlugin_0x{id(plugin):0x}"
-            return self._build_plugin(p_name, entry=None, plugin=plugin)
+            return self._build_plugin(p_name, entry=None, p_planner=plugin)
 
         if isinstance(plugin, str):
             try:
@@ -309,7 +338,7 @@ class PluginLoader:
             )
 
         p_entry_mod = Importer.import_mod(p_entry_mod_name, p_dir)
-        p, is_repeat = self._build_plugin(p_name, entry=p_entry_mod, plugin=None)
+        p, is_repeat = self._build_plugin(p_name, entry=p_entry_mod, p_planner=None)
         if not is_repeat:
             self._dir_caches[p.name] = p_dir.resolve()
         return p, is_repeat

@@ -92,6 +92,7 @@ class Context(Generic[T], metaclass=SingletonMeta):
         finally:
             self.remove(token)
 
+    # REMOVE: 3.0.0
     @deprecated("将于 melobot v3.0.0 移除，使用 unfold 方法代替")
     @contextmanager
     def in_ctx(self, obj: T) -> Generator[None, None, None]:

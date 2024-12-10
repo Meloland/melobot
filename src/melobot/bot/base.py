@@ -21,7 +21,7 @@ from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotError
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
-from ..plugin.base import Plugin, PluginLifeSpan
+from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
@@ -241,11 +241,13 @@ class Bot(Hookable[BotLifeSpan]):
         self.logger.debug(f"当前异步事件循环策略：{asyncio.get_event_loop_policy()}")
 
     def load_plugin(
-        self, plugin: ModuleType | str | PathLike[str] | Plugin, load_depth: int = 1
+        self,
+        plugin: ModuleType | str | PathLike[str] | PluginPlanner,
+        load_depth: int = 1,
     ) -> Bot:
         """加载插件
 
-        :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，可直接 import 包名称，插件对象）
+        :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，可直接 import 包名称，插件管理器对象）
         :param load_depth:
             插件加载时的相对引用深度，默认值 1 只支持向上引用到插件目录一级。
             增加为 2 可以引用到插件目录的父目录一级，依此类推。
@@ -261,7 +263,12 @@ class Bot(Hookable[BotLifeSpan]):
                 return self
 
             self._plugins[p.name] = p
-            self._dispatcher.internal_add(*p.handlers)
+
+            if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
+                asyncio.create_task(self._dispatcher.add(*p.handlers))
+            else:
+                self._dispatcher.add_nowait(*p.handlers)
+
             for share in p.shares:
                 self.ipc_manager.add(p.name, share)
             for func in p.funcs:
@@ -269,12 +276,12 @@ class Bot(Hookable[BotLifeSpan]):
             self.logger.info(f"成功加载插件：{p.name}")
 
             if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
-                asyncio.create_task(p._hook_bus.emit(PluginLifeSpan.INITED))
+                asyncio.create_task(p.hook_bus.emit(PluginLifeSpan.INITED))
             return self
 
     def load_plugins(
         self,
-        plugins: Iterable[ModuleType | str | PathLike[str] | Plugin],
+        plugins: Iterable[ModuleType | str | PathLike[str] | PluginPlanner],
         load_depth: int = 1,
     ) -> None:
         """与 :func:`load_plugin` 行为类似，但是参数变为可迭代对象
@@ -335,7 +342,7 @@ class Bot(Hookable[BotLifeSpan]):
                     await self._hook_bus.emit(BotLifeSpan.RELOADED)
 
                 for p in self._plugins.values():
-                    await p._hook_bus.emit(PluginLifeSpan.INITED)
+                    await p.hook_bus.emit(PluginLifeSpan.INITED)
 
                 timed_task = asyncio.create_task(self._dispatcher.timed_gc())
                 self._tasks.append(timed_task)

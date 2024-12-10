@@ -6,6 +6,8 @@ from .ctx import Context
 from .di import Depends
 from .handle import Flow, FlowStore, node, rewind, stop
 from .log import GenericLogger, Logger, LogLevel, get_logger
-from .plugin import AsyncShare, Plugin, PluginLifeSpan, SyncShare
+
+# REMOVE: 3.0.0 (Plugin)
+from .plugin import AsyncShare, Plugin, PluginLifeSpan, PluginPlanner, SyncShare
 from .session import Rule, SessionStore, enter_session, suspend
 from .typ import HandleLevel, LogicMode

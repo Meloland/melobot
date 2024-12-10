@@ -5,7 +5,7 @@ from typing_extensions import TypeVar
 
 from ..adapter.model import Event
 from ..handle.base import EventHandler
-from ..typ import HandleLevel
+from ..typ import AsyncCallable, HandleLevel
 from ..utils import RWContext
 
 KeyT = TypeVar("KeyT", bound=float, default=float)
@@ -52,19 +52,23 @@ class _KeyOrderDict(dict[KeyT, ValT]):
 class Dispatcher:
     def __init__(self) -> None:
         self.handlers: _KeyOrderDict[HandleLevel, set[EventHandler]] = _KeyOrderDict()
-        self.broadcast_ctrl = RWContext()
+        self.dispatch_ctrl = RWContext()
         self.gc_interval = 5
 
-    def internal_add(self, *handlers: EventHandler) -> None:
+    def add_nowait(self, *handlers: EventHandler) -> None:
         for h in handlers:
             self.handlers.setdefault(h.flow.priority, set()).add(h)
             h.flow.on_priority_reset(
                 lambda new_prior, h=h: self._reset_hook(h, new_prior)
             )
 
-    async def add(self, *handlers: EventHandler) -> None:
-        async with self.broadcast_ctrl.write():
-            self.internal_add(*handlers)
+    async def add(
+        self, *handlers: EventHandler, callback: AsyncCallable[[], None] | None = None
+    ) -> None:
+        async with self.dispatch_ctrl.write():
+            self.add_nowait(*handlers)
+            if callback is not None:
+                await callback()
 
     async def _remove(self, *handlers: EventHandler) -> None:
         for h in handlers:
@@ -74,15 +78,19 @@ class Dispatcher:
             if len(h_set) == 0:
                 self.handlers.pop(h.flow.priority)
 
-    async def expire(self, *handlers: EventHandler) -> None:
-        async with self.broadcast_ctrl.write():
+    async def remove(
+        self, *handlers: EventHandler, callback: AsyncCallable[[], None] | None = None
+    ) -> None:
+        async with self.dispatch_ctrl.write():
             await self._remove(*handlers)
+            if callback is not None:
+                await callback()
 
     async def _reset_hook(self, handler: EventHandler, new_prior: HandleLevel) -> None:
         if handler.flow.priority == new_prior:
             return
 
-        async with self.broadcast_ctrl.write():
+        async with self.dispatch_ctrl.write():
             old_prior = handler.flow.priority
             if old_prior == new_prior:
                 return
@@ -93,7 +101,7 @@ class Dispatcher:
             self.handlers.setdefault(new_prior, set()).add(handler)
 
     async def broadcast(self, event: Event) -> None:
-        async with self.broadcast_ctrl.read():
+        async with self.dispatch_ctrl.read():
             for h_set in self.handlers.values():
                 tasks = tuple(asyncio.create_task(h.handle(event)) for h in h_set)
                 await asyncio.wait(tasks)
@@ -103,7 +111,7 @@ class Dispatcher:
     async def timed_gc(self) -> None:
         while True:
             await asyncio.sleep(self.gc_interval)
-            async with self.broadcast_ctrl.write():
+            async with self.dispatch_ctrl.write():
                 hs = tuple(
                     h for h_set in self.handlers.values() for h in h_set if h.invalid
                 )

@@ -21,7 +21,7 @@ class EventHandler:
         self._temp = flow.temp
         self.invalid = False
 
-    async def _handle_event(self, event: Event) -> None:
+    async def _handle(self, event: Event) -> None:
         try:
             await self.flow.run(event)
         except Exception:
@@ -39,12 +39,12 @@ class EventHandler:
             async with self._handle_ctrl.read():
                 if self.invalid:
                     return
-                return await self._handle_event(event)
+                return await self._handle(event)
 
         async with self._handle_ctrl.write():
             if self.invalid:
                 return
-            await self._handle_event(event)
+            await self._handle(event)
             self.invalid = True
             return
 
