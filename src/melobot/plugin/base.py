@@ -4,7 +4,7 @@ import asyncio
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Iterable, final
+from typing import Iterable, final, overload
 
 from .._hook import HookBus
 from ..ctx import BotCtx
@@ -16,6 +16,7 @@ from ..typ import (
     Callable,
     P,
     SingletonBetterABCMeta,
+    T,
     abstractattr,
     deprecate_warn,
 )
@@ -111,6 +112,27 @@ class PluginPlanner:
             return func
 
         return wrapped
+
+    @overload
+    def use(self, obj: Flow) -> Flow: ...
+    @overload
+    def use(self, obj: SyncShare[T]) -> SyncShare[T]: ...  # type: ignore[overload-overlap]
+    @overload
+    def use(self, obj: AsyncShare[T]) -> AsyncShare[T]: ...  # type: ignore[overload-overlap]
+    @overload
+    def use(self, obj: Callable[P, T]) -> Callable[P, T]: ...
+
+    @final
+    def use(self, obj: T) -> T:
+        if isinstance(obj, Flow):
+            self.flows.append(obj)
+        elif isinstance(obj, (SyncShare, AsyncShare)):
+            self.shares.append(obj)
+        elif callable(obj):
+            self.funcs.append(obj)
+        else:
+            raise PluginLoadError(f"插件无法使用并使用 {type(obj)} 类型的对象")
+        return obj
 
     @final
     def _build(self, name: str) -> Plugin:
