@@ -45,8 +45,8 @@ class BotError(BotException):
     """melobot bot 异常"""
 
 
-class IOError(BotException):
-    """melobot 输入输出源异常"""
+class SourceError(BotException):
+    """melobot 源异常"""
 
 
 class PluginError(BotException):

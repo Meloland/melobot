@@ -11,7 +11,7 @@ from ..typ import BetterABC, abstractmethod
 from ..utils import get_id
 
 
-@dataclass(frozen=True)
+@dataclass
 class _Packet:
     time: float = field(default_factory=lambda: time.time_ns() / 1e9)
     id: str = field(default_factory=get_id)
@@ -19,7 +19,7 @@ class _Packet:
     data: Any = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class InPacket(_Packet):
     """输入包基类（数据类）
 
@@ -30,7 +30,7 @@ class InPacket(_Packet):
     """
 
 
-@dataclass(frozen=True)
+@dataclass
 class OutPacket(_Packet):
     """输出包基类（数据类）
 
@@ -41,7 +41,7 @@ class OutPacket(_Packet):
     """
 
 
-@dataclass(frozen=True)
+@dataclass
 class EchoPacket(_Packet):
     """回应包基类（数据类）
 
