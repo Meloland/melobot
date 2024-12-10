@@ -269,4 +269,4 @@ class LoggerCtx(Context["GenericLogger"]):
 
 class ActionManualSignalCtx(Context[bool]):
     def __init__(self) -> None:
-        super().__init__("MELOBOT_ACTION_AUTO_SIGNAL", AdapterError)
+        super().__init__("MELOBOT_ACTION_MANUAL_SIGNAL", AdapterError)
