@@ -48,7 +48,7 @@ class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo]):
 
 class EchoRequireCtx(Context[bool]):
     def __init__(self) -> None:
-        super().__init__("ONEBOT_V11_ECHO_STATUS", LookupError)
+        super().__init__("ONEBOT_V11_ECHO_REQUIRE", LookupError)
 
 
 class Adapter(
@@ -93,7 +93,6 @@ class Adapter(
         url: str | None = None,
         mimetype: str | None = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
-        """通用媒体发送方法"""
         return await self.send(
             se.contents_to_segs(
                 [mc.MediaContent(name=name, url=url, raw=raw, mimetype=mimetype)]

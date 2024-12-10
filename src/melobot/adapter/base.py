@@ -95,8 +95,9 @@ EchoFactoryT = TypeVar("EchoFactoryT", bound=AbstractEchoFactory)
 class AdapterLifeSpan(Enum):
     """适配器生命周期阶段的枚举"""
 
-    BEFORE_EVENT = "be"
-    BEFORE_ACTION = "ba"
+    BEFORE_EVENT_CREATE = "bec"
+    BEFORE_EVENT_HANDLE = "beh"
+    BEFORE_ACTION_EXEC = "bae"
     STARTED = "sta"
     STOPPED = "sto"
 
@@ -143,7 +144,11 @@ class Adapter(
     def on(
         self, *periods: AdapterLifeSpan
     ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        groups = (AdapterLifeSpan.BEFORE_EVENT, AdapterLifeSpan.BEFORE_ACTION)
+        groups = (
+            AdapterLifeSpan.BEFORE_EVENT_CREATE,
+            AdapterLifeSpan.BEFORE_EVENT_HANDLE,
+            AdapterLifeSpan.BEFORE_ACTION_EXEC,
+        )
 
         def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
             for type in periods:
@@ -176,10 +181,13 @@ class Adapter(
         while True:
             try:
                 packet = await src.input()
+                await self._hook_bus.emit(
+                    AdapterLifeSpan.BEFORE_EVENT_CREATE, True, args=(packet,)
+                )
                 event = await self._event_factory.create(packet)
                 with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
                     await self._hook_bus.emit(
-                        AdapterLifeSpan.BEFORE_EVENT, True, args=(event,)
+                        AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,)
                     )
                     asyncio.create_task(self.dispatcher.broadcast(event))
             except Exception:
@@ -254,7 +262,9 @@ class Adapter(
         else:
             osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
 
-        await self._hook_bus.emit(AdapterLifeSpan.BEFORE_ACTION, True, args=(action,))
+        await self._hook_bus.emit(
+            AdapterLifeSpan.BEFORE_ACTION_EXEC, True, args=(action,)
+        )
         return tuple(
             ActionHandle(action, osrc, self._output_factory, self._echo_factory)
             for osrc in osrcs
