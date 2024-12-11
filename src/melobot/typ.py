@@ -3,15 +3,26 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 from functools import wraps
-from typing import Any, Awaitable, Callable, Protocol, Sequence, cast
 
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
 from beartype.door import is_subhint
-from typing_extensions import ParamSpec, Self, TypeGuard, TypeVar
+from typing_extensions import (
+    Any,
+    Awaitable,
+    Callable,
+    ParamSpec,
+    Protocol,
+    Self,
+    Sequence,
+    TypeGuard,
+    TypeVar,
+    cast,
+)
 
 __all__ = (
     "T",
+    "T_co",
     "P",
     "AsyncCallable",
     "is_type",
@@ -19,9 +30,15 @@ __all__ = (
     "HandleLevel",
     "LogicMode",
     "BetterABCMeta",
+    "BetterABCMeta",
     "BetterABC",
+    "SingletonMeta",
+    "SingletonBetterABCMeta",
     "abstractattr",
     "abstractmethod",
+    "Markable",
+    "AttrsReprable",
+    "Locatable",
     "VoidType",
 )
 

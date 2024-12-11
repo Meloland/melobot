@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, final
+from typing_extensions import Callable, Generic, final
 
 from ..adapter.model import EventT
 from ..typ import BetterABC, abstractmethod

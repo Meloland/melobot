@@ -1,7 +1,6 @@
 import json
-from typing import Any, Iterable, Literal, Optional
 
-from typing_extensions import TypedDict
+from typing_extensions import Any, Iterable, Literal, Optional, TypedDict
 
 from melobot.adapter.model import Action as RootAction
 from melobot.handle import try_get_event

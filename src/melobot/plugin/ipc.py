@@ -1,4 +1,4 @@
-from typing import Callable, Generic
+from typing_extensions import Callable, Generic
 
 from ..di import inject_deps
 from ..exceptions import PluginIpcError

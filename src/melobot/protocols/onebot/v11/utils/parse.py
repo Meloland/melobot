@@ -1,7 +1,8 @@
 import re
 from functools import lru_cache
 from types import TracebackType
-from typing import Any, Callable, Iterator, Optional
+
+from typing_extensions import Any, Callable, Iterator, Optional
 
 from melobot.exceptions import BotException
 from melobot.log import get_logger

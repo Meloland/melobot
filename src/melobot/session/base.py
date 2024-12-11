@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 from asyncio import Condition, Lock
 from contextlib import _AsyncGeneratorContextManager, asynccontextmanager
-from typing import Any, AsyncGenerator
+
+from typing_extensions import Any, AsyncGenerator
 
 from ..adapter.model import Event
 from ..ctx import FlowCtx, SessionCtx

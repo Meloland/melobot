@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Literal, Sequence, cast
-
 from pydantic import BaseModel
+from typing_extensions import Any, Literal, Sequence, cast
 
 from melobot.adapter import content
 from melobot.adapter.model import Event as RootEvent

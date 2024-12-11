@@ -5,7 +5,8 @@ from asyncio import create_task
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from time import time_ns
-from typing import (
+
+from typing_extensions import (
     TYPE_CHECKING,
     Any,
     Awaitable,
@@ -14,21 +15,23 @@ from typing import (
     Generic,
     Hashable,
     Literal,
+    LiteralString,
+    Self,
     Sequence,
+    TypeVar,
     cast,
 )
 
-from typing_extensions import LiteralString, Self, TypeVar
-
 from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
 from ..exceptions import AdapterError
+from ..io.base import AbstractOutSource
 from ..log.base import LogLevel
 from ..typ import AttrsReprable, T
 from ..utils import get_id, to_coro
 from .content import Content
 
 if TYPE_CHECKING:
-    from .base import AbstractEchoFactory, AbstractOutputFactory, AbstractOutSource
+    from .base import AbstractEchoFactory, AbstractOutputFactory
 
 
 class Event(AttrsReprable):
@@ -135,20 +138,21 @@ class ActionHandle(Generic[ActionRetT]):
 
     :ivar Action action: 操作包含的行为对象
     :ivar typing.Literal["PENDING", "EXECUTING", "FINISHED"] status: 操作的状态。分别对应：未执行、执行中、执行完成
+    :ivar OutSourceT out_src: 执行操作的输出源对象
     """
 
     def __init__(
         self,
         action: Action,
-        out_src: "AbstractOutSource",
+        out_src: AbstractOutSource,
         output_factory: "AbstractOutputFactory",
         echo_factory: "AbstractEchoFactory",
     ) -> None:
         self.action = action
         self.status: Literal["PENDING", "EXECUTING", "FINISHED"] = "PENDING"
+        self.out_src = out_src
 
         self._echo: ActionRetT
-        self._out_src = out_src
         self._output_factory = output_factory
         self._echo_factory = echo_factory
         self._done = asyncio.Event()
@@ -167,7 +171,7 @@ class ActionHandle(Generic[ActionRetT]):
     async def _execute(self) -> None:
         try:
             output_packet = await self._output_factory.create(self.action)
-            echo_packet = await self._out_src.output(output_packet)
+            echo_packet = await self.out_src.output(output_packet)
             self._echo = cast(ActionRetT, await self._echo_factory.create(echo_packet))
             self.status = "FINISHED"
             self._done.set()

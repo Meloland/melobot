@@ -7,7 +7,8 @@ import tempfile
 import threading
 from argparse import Namespace
 from pathlib import Path
-from typing import Callable
+
+from typing_extensions import Callable
 
 from melobot import __version__
 from melobot.bot.base import (

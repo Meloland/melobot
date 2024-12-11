@@ -1,6 +1,7 @@
 from contextlib import _AsyncGeneratorContextManager
 from functools import wraps
-from typing import Callable, cast
+
+from typing_extensions import Callable, cast
 
 from melobot.ctx import Context
 from melobot.di import Depends, inject_deps

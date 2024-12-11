@@ -1,7 +1,8 @@
 import re
 import sys
 import types
-from typing import Any, Callable, Protocol, cast
+
+from typing_extensions import Any, Callable, Protocol, cast
 
 from .base import GenericLogger, Logger, LogLevel
 

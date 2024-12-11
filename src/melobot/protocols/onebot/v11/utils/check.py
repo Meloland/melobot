@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Literal, Optional, cast
+
+from typing_extensions import Literal, Optional, cast
 
 from melobot.typ import AsyncCallable
 

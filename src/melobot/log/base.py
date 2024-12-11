@@ -14,7 +14,6 @@ from inspect import currentframe
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from logging import Logger as _Logger
 from logging import _srcfile as _LOGGING_SRC_FILE
-from typing import Any, Callable, Generator, Literal, Optional
 
 import colorlog
 import rich.console
@@ -23,6 +22,7 @@ from better_exceptions import ExceptionFormatter
 from rich.highlighter import Highlighter, ReprHighlighter
 from rich.style import Style
 from rich.text import Text
+from typing_extensions import Any, Callable, Generator, Literal, Optional
 
 from ..typ import BetterABC, T, VoidType, abstractmethod
 from ..utils import singleton

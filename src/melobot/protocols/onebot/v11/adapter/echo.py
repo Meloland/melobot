@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Literal, Mapping, cast
-
 from pydantic import BaseModel
-from typing_extensions import TypedDict
+from typing_extensions import Any, Literal, Mapping, TypedDict, cast
 
 from melobot.adapter.model import Echo as RootEcho
 

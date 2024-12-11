@@ -1,7 +1,8 @@
 import asyncio
 import time
 from enum import Enum
-from typing import Any, Callable, Generic, TypeVar
+
+from typing_extensions import Any, Callable, Generic, TypeVar
 
 from .ctx import LoggerCtx
 from .di import inject_deps

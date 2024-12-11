@@ -4,7 +4,8 @@ import asyncio
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Iterable, final, overload
+
+from typing_extensions import Iterable, final, overload
 
 from .._hook import HookBus
 from ..ctx import BotCtx

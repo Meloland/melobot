@@ -2,7 +2,8 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
+
+from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
 from .typ import SingletonMeta, T, deprecated

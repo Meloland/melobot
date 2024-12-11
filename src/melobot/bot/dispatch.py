@@ -1,7 +1,6 @@
 import asyncio
-from typing import Any
 
-from typing_extensions import TypeVar
+from typing_extensions import Any, TypeVar
 
 from ..adapter.model import Event
 from ..handle.base import EventHandler

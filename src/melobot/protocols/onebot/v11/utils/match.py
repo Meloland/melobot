@@ -1,5 +1,6 @@
 import re
-from typing import Any
+
+from typing_extensions import Any
 
 from melobot.typ import LogicMode
 

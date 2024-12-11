@@ -1,8 +1,8 @@
 import logging
 import sys
-from typing import Any
 
 import better_exceptions
+from typing_extensions import Any
 
 better_exceptions.SUPPORTS_COLOR = True
 better_exceptions.color.SUPPORTS_COLOR = True

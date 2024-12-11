@@ -12,7 +12,8 @@ from importlib.util import module_from_spec, spec_from_file_location
 from os import PathLike
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Sequence, cast
+
+from typing_extensions import Any, Sequence, cast
 
 from .exceptions import DynamicImpError
 from .utils import singleton

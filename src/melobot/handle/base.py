@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing_extensions import TYPE_CHECKING
 
 from ..adapter.model import Event
 from ..ctx import LoggerCtx

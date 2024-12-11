@@ -3,7 +3,8 @@ from __future__ import annotations
 from asyncio import create_task
 from dataclasses import dataclass
 from itertools import tee
-from typing import Iterable, NoReturn, Sequence
+
+from typing_extensions import Iterable, NoReturn, Sequence
 
 from ..adapter.model import Event
 from ..ctx import FlowCtx, FlowRecord, FlowRecords

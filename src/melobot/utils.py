@@ -5,7 +5,8 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
-from typing import (
+
+from typing_extensions import (
     Any,
     AsyncContextManager,
     AsyncGenerator,
@@ -14,10 +15,9 @@ from typing import (
     ContextManager,
     Coroutine,
     Literal,
+    TypeVar,
     cast,
 )
-
-from typing_extensions import TypeVar
 
 from .exceptions import ValidateError
 from .typ import AsyncCallable, P, T

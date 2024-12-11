@@ -7,7 +7,8 @@ from os import PathLike, listdir, remove
 from pathlib import Path
 from time import time
 from types import ModuleType
-from typing import Any, Callable, Iterable, cast
+
+from typing_extensions import Any, Callable, Iterable, cast
 
 from .._imp import Importer
 from ..ctx import BotCtx, LoggerCtx

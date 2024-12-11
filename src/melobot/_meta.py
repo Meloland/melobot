@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Generic, Literal, NamedTuple, NoReturn
+from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoReturn
 
 from .typ import T
 

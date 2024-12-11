@@ -7,7 +7,8 @@ from functools import wraps
 from inspect import Parameter, isawaitable, signature, unwrap
 from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
-from typing import (
+
+from typing_extensions import (
     TYPE_CHECKING,
     Annotated,
     Any,

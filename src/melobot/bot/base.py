@@ -10,9 +10,17 @@ from enum import Enum
 from os import PathLike
 from pathlib import Path
 from types import ModuleType
-from typing import Any, AsyncGenerator, Callable, Coroutine, Generator, Iterable, NoReturn
 
-from typing_extensions import LiteralString
+from typing_extensions import (
+    Any,
+    AsyncGenerator,
+    Callable,
+    Coroutine,
+    Generator,
+    Iterable,
+    LiteralString,
+    NoReturn,
+)
 
 from .._hook import Hookable
 from .._meta import MetaInfo

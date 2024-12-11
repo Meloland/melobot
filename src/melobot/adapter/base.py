@@ -5,19 +5,21 @@ from asyncio import create_task
 from contextlib import AsyncExitStack, _GeneratorContextManager, asynccontextmanager
 from enum import Enum
 from os import PathLike
-from typing import (
+
+from typing_extensions import (
     TYPE_CHECKING,
     AsyncGenerator,
     Callable,
     Generic,
     Iterable,
+    LiteralString,
     NoReturn,
+    Self,
     Sequence,
+    TypeVar,
     cast,
     final,
 )
-
-from typing_extensions import LiteralString, Self, TypeVar
 
 from .._hook import Hookable
 from ..ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx

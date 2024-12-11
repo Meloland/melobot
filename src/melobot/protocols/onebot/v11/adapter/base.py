@@ -1,5 +1,6 @@
 from os import PathLike
-from typing import Any, Iterable, Literal, Optional, cast
+
+from typing_extensions import Any, Iterable, Literal, Optional, cast
 
 from melobot.adapter import (
     AbstractEchoFactory,

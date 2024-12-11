@@ -1,5 +1,6 @@
 from os import PathLike
-from typing import Sequence
+
+from typing_extensions import Sequence
 
 from ..ctx import EventBuildInfoCtx
 from .content import Content
