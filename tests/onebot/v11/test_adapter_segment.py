@@ -31,7 +31,14 @@ async def test_add_type():
     s = SType(key="123")
     assert s.type == "MyS"
     assert s.data == {"key": "123"}
-    assert SType in seg.Segment.__subclasses__()
+    assert s.raw == {"type": "MyS", "data": {"key": "123"}}
+
+    s2 = seg.Segment.resolve("MyS", {"key": "123"})
+    assert s.type == "MyS"
+    assert s.data == {"key": "123"}
+    assert s.raw == {"type": "MyS", "data": {"key": "123"}}
+    assert isinstance(s2, SType)
+
     with pt.raises(ValidationError):
         SType(key=123)
 

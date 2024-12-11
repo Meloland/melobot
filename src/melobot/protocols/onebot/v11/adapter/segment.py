@@ -308,13 +308,14 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
 
         seg_cls = type(
             type_classname,
-            (Segment,),
+            (_CustomSegInterface,),
             {
                 "Model": create_model(
                     type_dataname,
                     type=(seg_type_hint, ...),
                     data=(seg_data_hint, ...),
-                )
+                ),
+                "SegTypeVal": type_name,
             },
         )
         setattr(
@@ -342,7 +343,10 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
     @classmethod
     def resolve(cls, seg_type: Any, seg_data: Any) -> Segment:
         cls_name = f"{seg_type.lower().capitalize()}Segment"
-        cls_map = {subcls.__name__: subcls for subcls in cls.__subclasses__()}
+        cls_map = {
+            subcls.__name__: subcls
+            for subcls in cls.__subclasses__() + _CustomSegInterface.__subclasses__()
+        }
         if cls_name in cls_map:
             return cls_map[cls_name].resolve(seg_type, seg_data)
         return cls(seg_type, **seg_data)
@@ -370,9 +374,13 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
 
 
 class _CustomSegInterface(Segment[_SegTypeT, _SegDataT]):
-    def __init__(  # pylint: disable=super-init-not-called,unused-argument
-        self, **data: Any
-    ) -> None: ...
+    SegTypeVal: str
+
+    def __init__(self, seg_type: _SegTypeT | None = None, **seg_data: _SegDataT) -> None:
+        if seg_type is None:
+            super().__init__(cast(_SegTypeT, self.__class__.SegTypeVal), **seg_data)
+        else:
+            super().__init__(seg_type, **seg_data)
 
 
 class _TextData(TypedDict):
