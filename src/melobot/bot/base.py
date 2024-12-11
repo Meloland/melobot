@@ -245,8 +245,10 @@ class Bot(Hookable[BotLifeSpan]):
             adapter.dispatcher = self._dispatcher
 
         self._inited = True
-        self.logger.debug("bot 初始化完成，各核心组件已初始化")
-        self.logger.debug(f"当前异步事件循环策略：{asyncio.get_event_loop_policy()}")
+        self.logger.debug("bot 核心组件初始化完成")
+        self.logger.debug(
+            f"当前事件循环策略：<{asyncio.get_event_loop_policy().__class__.__name__}>"
+        )
 
     def load_plugin(
         self,
