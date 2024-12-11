@@ -265,10 +265,17 @@ class PluginLoader:
                     # REMOVE END ########
 
                 else:
+                    entry = cast(ModuleType, entry)
+                    if entry.__file__ is None:
+                        p_dir = Path(entry.__path__[0])
+                    else:
+                        p_dir = Path(entry.__file__).parent
+
                     raise PluginLoadError(
                         f"插件的 __plugin__.py 未实例化 {PluginPlanner.__name__} 类，无法加载。"
-                        f"对应插件：{Path(cast(ModuleType, entry).__path__[0])}"
+                        f"对应插件：{p_dir}"
                     )
+
             p_planner = getattr(entry, P_PLANNER_ATTR)
 
         # REMOVE: 3.0.0
