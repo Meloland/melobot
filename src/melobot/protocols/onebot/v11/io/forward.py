@@ -131,6 +131,9 @@ class ForwardWebSocketIO(BaseIO):
                     )
                     break
 
+                except asyncio.CancelledError:
+                    raise
+
                 except BaseException as e:
                     self.logger.warning(
                         f"连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}"
