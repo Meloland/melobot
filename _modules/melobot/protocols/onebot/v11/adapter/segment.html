@@ -617,13 +617,14 @@
 
         <span class="n">seg_cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span>
             <span class="n">type_classname</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">Segment</span><span class="p">,),</span>
+            <span class="p">(</span><span class="n">_CustomSegInterface</span><span class="p">,),</span>
             <span class="p">{</span>
                 <span class="s2">&quot;Model&quot;</span><span class="p">:</span> <span class="n">create_model</span><span class="p">(</span>
                     <span class="n">type_dataname</span><span class="p">,</span>
                     <span class="nb">type</span><span class="o">=</span><span class="p">(</span><span class="n">seg_type_hint</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
                     <span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">seg_data_hint</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
-                <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;SegTypeVal&quot;</span><span class="p">:</span> <span class="n">type_name</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span>
@@ -654,7 +655,10 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">seg_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">seg_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Segment</span><span class="p">:</span>
         <span class="n">cls_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seg_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">Segment&quot;</span>
-        <span class="n">cls_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">subcls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">subcls</span> <span class="k">for</span> <span class="n">subcls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()}</span>
+        <span class="n">cls_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">subcls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">subcls</span>
+            <span class="k">for</span> <span class="n">subcls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span> <span class="o">+</span> <span class="n">_CustomSegInterface</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span>
+        <span class="p">}</span>
         <span class="k">if</span> <span class="n">cls_name</span> <span class="ow">in</span> <span class="n">cls_map</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">cls_map</span><span class="p">[</span><span class="n">cls_name</span><span class="p">]</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">seg_type</span><span class="p">,</span> <span class="n">seg_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">seg_type</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">)</span></div>
@@ -693,9 +697,13 @@
 
 
 <span class="k">class</span> <span class="nc">_CustomSegInterface</span><span class="p">(</span><span class="n">Segment</span><span class="p">[</span><span class="n">_SegTypeT</span><span class="p">,</span> <span class="n">_SegDataT</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=super-init-not-called,unused-argument</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="n">SegTypeVal</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seg_type</span><span class="p">:</span> <span class="n">_SegTypeT</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">:</span> <span class="n">_SegDataT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">seg_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">_SegTypeT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">SegTypeVal</span><span class="p">),</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">seg_type</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_TextData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
