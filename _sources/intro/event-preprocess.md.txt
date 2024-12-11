@@ -378,14 +378,14 @@ fmtters = [Fmtter(...), None, Fmtter(...)]
 ```python
 from melobot.utils import to_async
 
-nothing = to_async(lambda *_: None)
+do_nothing = to_async(lambda *_: None)
 
 fmtters = [
     Fmtter(
         ..., 
-        convert_fail=nothing, 
-        validate_fail=nothing, 
-        arg_lack=nothing
+        convert_fail=do_nothing, 
+        validate_fail=do_nothing, 
+        arg_lack=do_nothing
     ),
     ...
 ]

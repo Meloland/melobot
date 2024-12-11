@@ -307,19 +307,21 @@
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">AsyncExitStack</span><span class="p">,</span> <span class="n">_GeneratorContextManager</span><span class="p">,</span> <span class="n">asynccontextmanager</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">AsyncGenerator</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Generic</span><span class="p">,</span>
     <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">LiteralString</span><span class="p">,</span>
     <span class="n">NoReturn</span><span class="p">,</span>
+    <span class="n">Self</span><span class="p">,</span>
     <span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">final</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">LiteralString</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span> <span class="nn">.._hook</span> <span class="kn">import</span> <span class="n">Hookable</span>
 <span class="kn">from</span> <span class="nn">..ctx</span> <span class="kn">import</span> <span class="n">EventBuildInfo</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
@@ -417,8 +419,8 @@
 <span class="k">class</span> <span class="nc">AdapterLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;适配器生命周期阶段的枚举&quot;&quot;&quot;</span>
 
-    <span class="n">BEFORE_EVENT</span> <span class="o">=</span> <span class="s2">&quot;be&quot;</span>
-    <span class="n">BEFORE_ACTION</span> <span class="o">=</span> <span class="s2">&quot;ba&quot;</span>
+    <span class="n">BEFORE_EVENT_HANDLE</span> <span class="o">=</span> <span class="s2">&quot;beh&quot;</span>
+    <span class="n">BEFORE_ACTION_EXEC</span> <span class="o">=</span> <span class="s2">&quot;bae&quot;</span>
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;sta&quot;</span>
     <span class="n">STOPPED</span> <span class="o">=</span> <span class="s2">&quot;sto&quot;</span></div>
 
@@ -470,7 +472,7 @@
     <span class="k">def</span> <span class="nf">on</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">periods</span><span class="p">:</span> <span class="n">AdapterLifeSpan</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-        <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT</span><span class="p">,</span> <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION</span><span class="p">)</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION_EXEC</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
             <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">periods</span><span class="p">:</span>
@@ -513,7 +515,7 @@
                 <span class="n">event</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
                 <span class="k">with</span> <span class="n">_EVENT_BUILD_INFO_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">EventBuildInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">)):</span>
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
-                        <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,)</span>
+                        <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,)</span>
                     <span class="p">)</span>
                     <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -593,7 +595,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">osrcs</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">)</span> <span class="k">else</span> <span class="p">()</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">action</span><span class="p">,))</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+            <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION_EXEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">action</span><span class="p">,)</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
             <span class="n">ActionHandle</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">osrc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_factory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_echo_factory</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">osrc</span> <span class="ow">in</span> <span class="n">osrcs</span>

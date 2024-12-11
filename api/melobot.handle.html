@@ -433,7 +433,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.nextn">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">nextn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#nextn"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.nextn" title="Link to this definition">¶</a></dt>
-<dd><p>运行下一处理结点（在处理结点中使用）</p>
+<dd><p>运行下一处理结点（在处理流中使用）</p>
 <dl class="field-list simple">
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
@@ -444,7 +444,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.block">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#block"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.block" title="Link to this definition">¶</a></dt>
-<dd><p>阻止当前事件向更低优先级的处理流传播（在处理结点中使用）</p>
+<dd><p>阻止当前事件向更低优先级的处理流传播（在处理流中使用）</p>
 <dl class="field-list simple">
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
@@ -455,7 +455,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.bypass">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">bypass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#bypass"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.bypass" title="Link to this definition">¶</a></dt>
-<dd><p>立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理结点中使用）</p>
+<dd><p>立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理流中使用）</p>
 <dl class="field-list simple">
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><em>NoReturn</em></a></p>
@@ -466,7 +466,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.rewind">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">rewind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#rewind"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.rewind" title="Link to this definition">¶</a></dt>
-<dd><p>立即重新运行当前处理结点（在处理结点中使用）</p>
+<dd><p>立即重新运行当前处理结点（在处理流中使用）</p>
 <dl class="field-list simple">
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><em>NoReturn</em></a></p>
@@ -477,7 +477,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.stop">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><span class="pre">NoReturn</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#stop"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.stop" title="Link to this definition">¶</a></dt>
-<dd><p>立即停止当前处理流（在处理结点中使用）</p>
+<dd><p>立即停止当前处理流（在处理流中使用）</p>
 <dl class="field-list simple">
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NoReturn" title="（在 Python v3.13）"><em>NoReturn</em></a></p>
@@ -488,7 +488,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.flow_to">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">flow_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/process.html#flow_to"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.flow_to" title="Link to this definition">¶</a></dt>
-<dd><p>立即进入一个其他处理流（在处理结点中使用）</p>
+<dd><p>立即进入一个其他处理流（在处理流中使用）</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>flow</strong> (<a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.process.Flow"><em>Flow</em></a>)</p>
@@ -505,7 +505,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.handle.FlowStore">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">FlowStore</span></span><a class="reference internal" href="../_modules/melobot/ctx.html#FlowStore"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.FlowStore" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.13）"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code></a>]</p>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code>]</p>
 <p>流存储，将会在流运行前初始化，运行结束后销毁</p>
 </dd></dl>
 

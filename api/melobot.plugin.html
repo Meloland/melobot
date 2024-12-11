@@ -315,86 +315,193 @@
 <section id="id1">
 <h2>插件层组件<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">Plugin</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#Plugin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.Plugin" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="melobot.plugin.PluginPlanner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">PluginPlanner</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginPlanner"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginPlanner" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>插件基类</p>
-<p>子类需要把以下标记为抽象属性的属性，按 <a class="reference internal" href="melobot.typ.html#melobot.typ.abstractattr" title="melobot.typ.abstractattr"><code class="xref py py-func docutils literal notranslate"><span class="pre">abstractattr()</span></code></a> 的要求实现，其余属性可选实现。</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.version">
-<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.version" title="Link to this definition">¶</a></dt>
-<dd><p>插件版本（抽象属性）</p>
+<p>插件管理器类</p>
+<p>用于声明一个插件，并为插件添加功能</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.PluginPlanner.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shares</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.plugin.SyncShare" title="melobot.plugin.ipc.SyncShare"><span class="pre">SyncShare</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.plugin.AsyncShare" title="melobot.plugin.ipc.AsyncShare"><span class="pre">AsyncShare</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">funcs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.plugin.PluginInfo" title="melobot.plugin.base.PluginInfo"><span class="pre">PluginInfo</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginPlanner.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginPlanner.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>插件管理器初始化</p>
 <dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.shares">
-<span class="sig-name descname"><span class="pre">shares</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.plugin.SyncShare" title="melobot.plugin.ipc.SyncShare"><span class="pre">SyncShare</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.plugin.AsyncShare" title="melobot.plugin.ipc.AsyncShare"><span class="pre">AsyncShare</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.shares" title="Link to this definition">¶</a></dt>
-<dd><p>插件共享对象</p>
-<dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.funcs">
-<span class="sig-name descname"><span class="pre">funcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.funcs" title="Link to this definition">¶</a></dt>
-<dd><p>插件导出函数</p>
-<dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.flows">
-<span class="sig-name descname"><span class="pre">flows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.flows" title="Link to this definition">¶</a></dt>
-<dd><p>插件处理流</p>
-<dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.desc">
-<span class="sig-name descname"><span class="pre">desc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.desc" title="Link to this definition">¶</a></dt>
-<dd><p>插件的短描述信息</p>
-<dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.docs">
-<span class="sig-name descname"><span class="pre">docs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.docs" title="Link to this definition">¶</a></dt>
-<dd><p>插件的长描述信息</p>
-<dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.keywords">
-<span class="sig-name descname"><span class="pre">keywords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.plugin.Plugin.keywords" title="Link to this definition">¶</a></dt>
-<dd><p>插件的分类关键词</p>
-<dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.url">
-<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.url" title="Link to this definition">¶</a></dt>
-<dd><p>插件的项目主页</p>
-<dl class="field-list simple">
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.author">
-<span class="sig-name descname"><span class="pre">author</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.plugin.Plugin.author" title="Link to this definition">¶</a></dt>
-<dd><p>插件作者</p>
-<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 版本号</p></li>
+<li><p><strong>flows</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><em>list</em></a><em>[</em><a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><em>Flow</em></a><em>] </em><em>| </em><em>None</em>) -- 事件流列表。可以先指定为空，后续使用 <a class="reference internal" href="#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 绑定</p></li>
+<li><p><strong>shares</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><em>list</em></a><em>[</em><a class="reference internal" href="#melobot.plugin.SyncShare" title="melobot.plugin.ipc.SyncShare"><em>SyncShare</em></a><em> | </em><a class="reference internal" href="#melobot.plugin.AsyncShare" title="melobot.plugin.ipc.AsyncShare"><em>AsyncShare</em></a><em>] </em><em>| </em><em>None</em>) -- 共享对象列表。可以先指定为空，后续使用 <a class="reference internal" href="#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 绑定</p></li>
+<li><p><strong>funcs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>] </em><em>| </em><em>None</em>) -- 导出函数列表。可以先指定为空，后续使用 <a class="reference internal" href="#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 绑定</p></li>
+<li><p><strong>info</strong> (<a class="reference internal" href="#melobot.plugin.PluginInfo" title="melobot.plugin.base.PluginInfo"><em>PluginInfo</em></a><em> | </em><em>None</em>) -- 插件信息</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="melobot.plugin.Plugin.on">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.plugin.PluginLifeSpan" title="melobot.plugin.base.PluginLifeSpan"><span class="pre">PluginLifeSpan</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#Plugin.on"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.Plugin.on" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="melobot.plugin.PluginPlanner.on">
+<span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.plugin.PluginLifeSpan" title="melobot.plugin.base.PluginLifeSpan"><span class="pre">PluginLifeSpan</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginPlanner.on"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginPlanner.on" title="Link to this definition">¶</a></dt>
+<dd><p>注册一个 hook</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>periods</strong> (<a class="reference internal" href="#melobot.plugin.PluginLifeSpan" title="melobot.plugin.base.PluginLifeSpan"><em>PluginLifeSpan</em></a>) -- 要绑定的 hook 类型</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>装饰器</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]], <a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.PluginPlanner.use">
+<span class="sig-name descname"><span class="pre">use</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginPlanner.use"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginPlanner.use" title="Link to this definition">¶</a></dt>
+<dd><p>装饰器</p>
+<p>绑定一个组件（流，共享对象，导出函数），标记插件创建后使用该组件。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<em>T</em>) -- 可用的组件</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>被绑定的组件本身</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>T</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.PluginPlanner.add_flow">
+<span class="sig-name descname"><span class="pre">add_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">flows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginPlanner.add_flow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginPlanner.add_flow" title="Link to this definition">¶</a></dt>
+<dd><p>在运行期为指定的插件添加一批处理流</p>
+<p>在 <a class="reference internal" href="#melobot.plugin.PluginLifeSpan.INITED" title="melobot.plugin.PluginLifeSpan.INITED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PluginLifeSpan.INITED</span></code></a> 及其之后的阶段可以使用</p>
+<p>注意：不会立即生效，通常会在下一次事件处理前生效。
+因此返回时不代表已经添加了处理流，只是增添了添加处理流的任务</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flows</strong> (<a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><em>Flow</em></a>) -- 处理流</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.PluginPlanner.remove_flow">
+<span class="sig-name descname"><span class="pre">remove_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">flows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginPlanner.remove_flow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginPlanner.remove_flow" title="Link to this definition">¶</a></dt>
+<dd><p>在运行期为指定的插件移除一批处理流</p>
+<p>如果插件没有启用对应的处理流，不会发出异常，而是忽略</p>
+<p>在 <a class="reference internal" href="#melobot.plugin.PluginLifeSpan.INITED" title="melobot.plugin.PluginLifeSpan.INITED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PluginLifeSpan.INITED</span></code></a> 及其之后的阶段可以使用</p>
+<p>注意：不会立即生效，通常会在下一次事件处理前生效。
+因此返回时不代表已经移除了处理流，只是增添了移除处理流的任务</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flows</strong> (<a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><em>Flow</em></a>) -- 处理流</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.plugin.PluginInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">PluginInfo</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#PluginInfo"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.PluginInfo" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>插件信息类，用于添加描述信息</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.PluginInfo.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="（在 Python v3.13）"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="headerlink" href="#melobot.plugin.PluginInfo.__init__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>)</p></li>
+<li><p><strong>desc</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>)</p></li>
+<li><p><strong>docs</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="（在 Python v3.13）"><em>Path</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>keywords</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>)</p></li>
+<li><p><strong>author</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.Plugin">
+<span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">Plugin</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#Plugin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.Plugin" title="Link to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#melobot.plugin.LegacyPlugin" title="melobot.plugin.base.LegacyPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyPlugin</span></code></a> 的别名</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.plugin.</span></span><span class="sig-name descname"><span class="pre">LegacyPlugin</span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#LegacyPlugin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.LegacyPlugin" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>旧版插件类</p>
+<div class="caution admonition">
+<p class="admonition-title">重要提示</p>
+<p>已弃用使用该类声明插件，将于 <cite>v3.0.0</cite> 移除。请使用 <a class="reference internal" href="#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 代替。</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.version">
+<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;melobot.typ.BetterABCMeta.DummyAttribute</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.version" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.shares">
+<span class="sig-name descname"><span class="pre">shares</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.plugin.AsyncShare" title="melobot.plugin.ipc.AsyncShare"><span class="pre">AsyncShare</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#melobot.plugin.SyncShare" title="melobot.plugin.ipc.SyncShare"><span class="pre">SyncShare</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.shares" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.funcs">
+<span class="sig-name descname"><span class="pre">funcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.funcs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.flows">
+<span class="sig-name descname"><span class="pre">flows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="（在 Python v3.13）"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.handle.html#melobot.handle.Flow" title="melobot.handle.process.Flow"><span class="pre">Flow</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.flows" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.desc">
+<span class="sig-name descname"><span class="pre">desc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.desc" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.docs">
+<span class="sig-name descname"><span class="pre">docs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.docs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.keywords">
+<span class="sig-name descname"><span class="pre">keywords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.keywords" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.url">
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.author">
+<span class="sig-name descname"><span class="pre">author</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#melobot.plugin.LegacyPlugin.author" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.plugin.LegacyPlugin.on">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.plugin.PluginLifeSpan" title="melobot.plugin.base.PluginLifeSpan"><span class="pre">PluginLifeSpan</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/plugin/base.html#LegacyPlugin.on"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.plugin.LegacyPlugin.on" title="Link to this definition">¶</a></dt>
 <dd><p>注册一个 hook</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -666,17 +773,30 @@
             <ul>
 <li><a class="reference internal" href="#">melobot.plugin</a><ul>
 <li><a class="reference internal" href="#id1">插件层组件</a><ul>
-<li><a class="reference internal" href="#melobot.plugin.Plugin"><code class="docutils literal notranslate"><span class="pre">Plugin</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.version"><code class="docutils literal notranslate"><span class="pre">Plugin.version</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.shares"><code class="docutils literal notranslate"><span class="pre">Plugin.shares</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.funcs"><code class="docutils literal notranslate"><span class="pre">Plugin.funcs</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.flows"><code class="docutils literal notranslate"><span class="pre">Plugin.flows</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.desc"><code class="docutils literal notranslate"><span class="pre">Plugin.desc</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.docs"><code class="docutils literal notranslate"><span class="pre">Plugin.docs</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.keywords"><code class="docutils literal notranslate"><span class="pre">Plugin.keywords</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.url"><code class="docutils literal notranslate"><span class="pre">Plugin.url</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.author"><code class="docutils literal notranslate"><span class="pre">Plugin.author</span></code></a></li>
-<li><a class="reference internal" href="#melobot.plugin.Plugin.on"><code class="docutils literal notranslate"><span class="pre">Plugin.on()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.PluginPlanner"><code class="docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.plugin.PluginPlanner.__init__"><code class="docutils literal notranslate"><span class="pre">PluginPlanner.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.PluginPlanner.on"><code class="docutils literal notranslate"><span class="pre">PluginPlanner.on()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.PluginPlanner.use"><code class="docutils literal notranslate"><span class="pre">PluginPlanner.use()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.PluginPlanner.add_flow"><code class="docutils literal notranslate"><span class="pre">PluginPlanner.add_flow()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.PluginPlanner.remove_flow"><code class="docutils literal notranslate"><span class="pre">PluginPlanner.remove_flow()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.plugin.PluginInfo"><code class="docutils literal notranslate"><span class="pre">PluginInfo</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.plugin.PluginInfo.__init__"><code class="docutils literal notranslate"><span class="pre">PluginInfo.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.plugin.Plugin"><code class="docutils literal notranslate"><span class="pre">Plugin</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.version"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.version</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.shares"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.shares</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.funcs"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.funcs</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.flows"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.flows</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.desc"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.desc</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.docs"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.docs</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.keywords"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.keywords</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.url"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.url</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.author"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.author</span></code></a></li>
+<li><a class="reference internal" href="#melobot.plugin.LegacyPlugin.on"><code class="docutils literal notranslate"><span class="pre">LegacyPlugin.on()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#melobot.plugin.PluginLifeSpan"><code class="docutils literal notranslate"><span class="pre">PluginLifeSpan</span></code></a><ul>

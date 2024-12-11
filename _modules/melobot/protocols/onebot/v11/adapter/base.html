@@ -300,8 +300,11 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.adapter.base 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
+
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span> <span class="nn">melobot.adapter</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AbstractEchoFactory</span><span class="p">,</span>
@@ -316,8 +319,9 @@
 <span class="kn">from</span> <span class="nn">melobot.exceptions</span> <span class="kn">import</span> <span class="n">AdapterError</span>
 <span class="kn">from</span> <span class="nn">melobot.handle</span> <span class="kn">import</span> <span class="n">try_get_event</span>
 <span class="kn">from</span> <span class="nn">melobot.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span>
+<span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">to_coro</span>
 
-<span class="kn">from</span> <span class="nn">..const</span> <span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">P</span>
+<span class="kn">from</span> <span class="nn">..const</span> <span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span>
 <span class="kn">from</span> <span class="nn">..io.base</span> <span class="kn">import</span> <span class="n">BaseIO</span>
 <span class="kn">from</span> <span class="nn">..io.packet</span> <span class="kn">import</span> <span class="n">EchoPacket</span><span class="p">,</span> <span class="n">InPacket</span><span class="p">,</span> <span class="n">OutPacket</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">action</span> <span class="k">as</span> <span class="n">ac</span>
@@ -325,10 +329,46 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">event</span> <span class="k">as</span> <span class="n">ev</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">segment</span> <span class="k">as</span> <span class="n">se</span>
 
+<span class="n">_ValidateErrHandler</span> <span class="o">=</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
 
-<span class="k">class</span> <span class="nc">EventFactory</span><span class="p">(</span><span class="n">AbstractEventFactory</span><span class="p">[</span><span class="n">InPacket</span><span class="p">,</span> <span class="n">ev</span><span class="o">.</span><span class="n">Event</span><span class="p">]):</span>
+
+<span class="k">class</span> <span class="nc">ValidateErrHandleable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_handlers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_ValidateErrHandler</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add_validate_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">_ValidateErrHandler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">validate_handle</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
+
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+
+            <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">tasks</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">to_coro</span><span class="p">(</span><span class="n">cb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">e</span><span class="p">)))</span>
+                        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">err_handlers</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">wrapped</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<span class="k">class</span> <span class="nc">EventFactory</span><span class="p">(</span><span class="n">AbstractEventFactory</span><span class="p">[</span><span class="n">InPacket</span><span class="p">,</span> <span class="n">ev</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">ValidateErrHandleable</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">InPacket</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ev</span><span class="o">.</span><span class="n">Event</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ev</span><span class="o">.</span><span class="n">Event</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_handle</span><span class="p">(</span><span class="n">data</span><span class="p">)(</span><span class="n">ev</span><span class="o">.</span><span class="n">Event</span><span class="o">.</span><span class="n">resolve</span><span class="p">)(</span><span class="n">data</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">OutputFactory</span><span class="p">(</span><span class="n">AbstractOutputFactory</span><span class="p">[</span><span class="n">OutPacket</span><span class="p">,</span> <span class="n">ac</span><span class="o">.</span><span class="n">Action</span><span class="p">]):</span>
@@ -341,18 +381,23 @@
         <span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">EchoFactory</span><span class="p">(</span><span class="n">AbstractEchoFactory</span><span class="p">[</span><span class="n">EchoPacket</span><span class="p">,</span> <span class="n">ec</span><span class="o">.</span><span class="n">Echo</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">EchoFactory</span><span class="p">(</span><span class="n">AbstractEchoFactory</span><span class="p">[</span><span class="n">EchoPacket</span><span class="p">,</span> <span class="n">ec</span><span class="o">.</span><span class="n">Echo</span><span class="p">],</span> <span class="n">ValidateErrHandleable</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">EchoPacket</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ec</span><span class="o">.</span><span class="n">Echo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">packet</span><span class="o">.</span><span class="n">noecho</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">ec</span><span class="o">.</span><span class="n">Echo</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">action_type</span><span class="o">=</span><span class="n">packet</span><span class="o">.</span><span class="n">action_type</span><span class="p">,</span> <span class="o">**</span><span class="n">packet</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">ac_type</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="n">action_type</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_handle</span><span class="p">(</span><span class="n">data</span><span class="p">)(</span><span class="n">ec</span><span class="o">.</span><span class="n">Echo</span><span class="o">.</span><span class="n">resolve</span><span class="p">)(</span>
+            <span class="n">action_type</span><span class="o">=</span><span class="n">ac_type</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="EchoRequireCtx">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.EchoRequireCtx">[文档]</a>
 <span class="k">class</span> <span class="nc">EchoRequireCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ONEBOT_V11_ECHO_STATUS&quot;</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ONEBOT_V11_ECHO_REQUIRE&quot;</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">)</span></div>
 
 
 
@@ -365,6 +410,26 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">EventFactory</span><span class="p">(),</span> <span class="n">OutputFactory</span><span class="p">(),</span> <span class="n">EchoFactory</span><span class="p">()</span>
         <span class="p">)</span>
+
+<div class="viewcode-block" id="Adapter.when_validate_error">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.when_validate_error">[文档]</a>
+    <span class="k">def</span> <span class="nf">when_validate_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validate_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;event&quot;</span><span class="p">,</span> <span class="s2">&quot;echo&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
+        <span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+        <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span>
+            <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">validate_type</span> <span class="o">==</span> <span class="s2">&quot;event&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span><span class="o">.</span><span class="n">add_validate_handler</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">validate_type</span> <span class="o">==</span> <span class="s2">&quot;echo&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_echo_factory</span><span class="o">.</span><span class="n">add_validate_handler</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AdapterError</span><span class="p">(</span><span class="s2">&quot;无效的验证类型，合法值是 &#39;event&#39;, &#39;echo&#39; 之一&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">func</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span></div>
+
 
 <div class="viewcode-block" id="Adapter.call_output">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.call_output">[文档]</a>
@@ -406,7 +471,6 @@
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;通用媒体发送方法&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
             <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">MediaContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)]</span>
@@ -473,7 +537,7 @@
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_refer__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">RootEvent</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">RootEvent</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">ev</span><span class="o">.</span><span class="n">MessageEvent</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">AdapterError</span><span class="p">(</span>

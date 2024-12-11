@@ -23,23 +23,21 @@
 ```{code} python
 :number-lines:
 
-from melobot import Bot, Plugin, send_text
+from melobot import Bot, PluginPlanner, send_text
 from melobot.protocols.onebot.v11 import Adapter, ForwardWebSocketIO, on_start_match
 
 @on_start_match(".sayhi")
 async def echo_hi() -> None:
     await send_text("Hello, melobot!")
 
-class MyPlugin(Plugin):
-    version = "1.0.0"
-    flows = [echo_hi]
+test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 
 if __name__ == "__main__":
     (
         Bot(__name__)
         .add_io(ForwardWebSocketIO("ws://127.0.0.1:8080"))
         .add_adapter(Adapter())
-        .load_plugin(MyPlugin())
+        .load_plugin(test_plugin)
         .run()
     )
 ```
@@ -58,14 +56,12 @@ async def echo_hi() -> None:
 
 这个事件处理方法做了件很简单的事：当收到一条消息时，如果消息内容以 `.sayhi` 起始，则通过 {func}`.send_text` 发送一条消息：`Hello, melobot!`。
 
-由于 melobot 是基于插件化管理的，随后继承 {class}`.Plugin` 定义一个新的插件类，用于划分接下来的操作被哪个插件管理。
+由于 melobot 是基于插件化管理的，随后通过 {class}`.PluginPlanner` 创建一个插件管理器。插件管理器将被 melobot 用于创建插件。
 
 ```python
-# version 属性描述插件的版本
-# flows 属性填入刚才的事件处理方法
-class MyPlugin(Plugin):
-    version = "1.0.0"
-    flows = [echo_hi]
+# version 描述插件的版本
+# flows 填入刚才的事件处理方法
+test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 ```
 
 接下来开始按以下步骤创建、初始化和启动一个 bot：
@@ -73,7 +69,7 @@ class MyPlugin(Plugin):
 1. 通过 {class}`.Bot` 创建一个 bot；
 2. 通过 {class}`.ForwardWebSocketIO` 添加一个 OneBot v11 协议的输入输出源；
 3. 通过 {class}`.v11.Adapter` 添加 OneBot v11 协议的适配器；
-4. 通过 {meth}`.load_plugin` 加载插件
+4. 通过 {meth}`.load_plugin` 创建并加载插件
 5. 启动 bot
 
 ```python
@@ -81,7 +77,7 @@ class MyPlugin(Plugin):
     Bot(__name__)
     .add_io(ForwardWebSocketIO("ws://127.0.0.1:8080"))
     .add_adapter(Adapter())
-    .load_plugin(MyPlugin())
+    .load_plugin(test_plugin)
     .run()
 )
 ```

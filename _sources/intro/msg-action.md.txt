@@ -79,13 +79,13 @@ async def _():
 
 ## 消息段的继承关系
 
-在文档中，你会发现诸如 {class}`~.v11.adapter.segment.ImageSegment` 这样的类型，还会存在子类（{class}`~.v11.adapter.segment.ImageSendSegment` 和 {class}`~.v11.adapter.segment.ImageRecvSegment`）。这是为了提供更加精准的类型注解而产生的。所有这些类型只要有 `__init__` 方法，即可手动实例化并使用。
+在文档中，你会发现诸如 {class}`~.v11.adapter.segment.ImageSegment` 这样的类型，还会存在子类（{class}`~.v11.adapter.segment.ImageSendSegment` 和 {class}`~.v11.adapter.segment.ImageRecvSegment`）。这是为了提供更加精准的类型注解而产生的。所有这些类型只要文档中有 `__init__` 方法，即可手动实例化并使用。
 
 ## 自定义消息段的构造
 
 通过 {class}`~.v11.adapter.segment.Segment` 创建**自定义消息段**。
 
-例如在某些 OneBot 实现端项目，存在一种自定义的消息段：touch 消息（戳一戳，双击头像）。对应的消息段数据结构如下：
+例如在某些 OneBot 实现端，支持一种自定义的消息段：touch 消息（戳一戳，双击头像）。对应的消息段数据结构如下：
 
 ```json
 {
@@ -114,7 +114,7 @@ class _TouchData(TypedDict):
     id: str
 
 # 返回新类型 TouchSegment
-# 后续的事件中，会自动将对应消息段初始化为 TouchSegment 类型
+# 后续事件的消息段创建过程，会自动将对应消息段初始化为 TouchSegment 类型
 TouchSegment = Segment.add_type(Literal['touch'], _TouchData)
 # 使用新的消息段类型来构造：
 seg = TouchSegment(id="1574260633")

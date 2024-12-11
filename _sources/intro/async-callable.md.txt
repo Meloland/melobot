@@ -33,9 +33,10 @@ f: Callable = ...
 
 同样的思路，melobot 中提出了 {class}`.AsyncCallable` 类型。它用于许多接口的类型注解，有以下特性：
 
-{class}`.AsyncCallable`\[{data}`.P`, {data}`.T`\] {math}`\iff` {external:class}`~collections.abc.Callable`\[{data}`.P`, {external:class}`~collections.abc.Awaitable`\[{data}`.T`\]\]
+{class}`.AsyncCallable`\[{data}`.P`, {data}`.T`\] {math}`\iff`
+{external:class}`~collections.abc.Callable`\[{data}`.P`, {external:class}`~collections.abc.Awaitable`\[{data}`.T`\]\]
 
-其中 P 为 {external:class}`~typing.ParamSpec` 泛型，T 为普通的无约束泛型。
+其中 P 为 {external:class}`~typing.ParamSpec` 类型变量，T 为普通的无约束类型变量。
 
 典型的异步可调用对象包括：
 

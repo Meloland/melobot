@@ -304,7 +304,8 @@
 <span class="kn">from</span> <span class="nn">contextvars</span> <span class="kn">import</span> <span class="n">ContextVar</span><span class="p">,</span> <span class="n">Token</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">AdapterError</span><span class="p">,</span> <span class="n">BotError</span><span class="p">,</span> <span class="n">FlowError</span><span class="p">,</span> <span class="n">LogError</span><span class="p">,</span> <span class="n">SessionError</span>
 <span class="kn">from</span> <span class="nn">.typ</span> <span class="kn">import</span> <span class="n">SingletonMeta</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">deprecated</span>
@@ -414,6 +415,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">token</span><span class="p">)</span></div>
 
 
+    <span class="c1"># REMOVE: 3.0.0</span>
 <div class="viewcode-block" id="Context.in_ctx">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context.in_ctx">[文档]</a>
     <span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;将于 melobot v3.0.0 移除，使用 unfold 方法代替&quot;</span><span class="p">)</span>
@@ -603,7 +605,7 @@
 
 <span class="k">class</span> <span class="nc">ActionManualSignalCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_ACTION_AUTO_SIGNAL&quot;</span><span class="p">,</span> <span class="n">AdapterError</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_ACTION_MANUAL_SIGNAL&quot;</span><span class="p">,</span> <span class="n">AdapterError</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

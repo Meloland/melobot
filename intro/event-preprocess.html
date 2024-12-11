@@ -648,14 +648,14 @@
 <p>此外，你还可以自定义“参数转换失败”、“参数验证失败”、“参数缺少”时的回调。比如直接静默，而不是在日志提示：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">to_async</span>
 
-<span class="n">nothing</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">do_nothing</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
 
 <span class="n">fmtters</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">Fmtter</span><span class="p">(</span>
         <span class="o">...</span><span class="p">,</span> 
-        <span class="n">convert_fail</span><span class="o">=</span><span class="n">nothing</span><span class="p">,</span> 
-        <span class="n">validate_fail</span><span class="o">=</span><span class="n">nothing</span><span class="p">,</span> 
-        <span class="n">arg_lack</span><span class="o">=</span><span class="n">nothing</span>
+        <span class="n">convert_fail</span><span class="o">=</span><span class="n">do_nothing</span><span class="p">,</span> 
+        <span class="n">validate_fail</span><span class="o">=</span><span class="n">do_nothing</span><span class="p">,</span> 
+        <span class="n">arg_lack</span><span class="o">=</span><span class="n">do_nothing</span>
     <span class="p">),</span>
     <span class="o">...</span>
 <span class="p">]</span>

@@ -319,7 +319,7 @@
     <span class="c1"># pylint: disable=duplicate-code</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cd_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PROTOCOL_IDENTIFIER</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cd_time</span> <span class="o">=</span> <span class="n">cd_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cd_time</span> <span class="o">=</span> <span class="n">cd_time</span> <span class="k">if</span> <span class="n">cd_time</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.01</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericLogger</span><span class="p">:</span>

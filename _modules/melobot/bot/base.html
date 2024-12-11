@@ -312,9 +312,17 @@
 <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AsyncGenerator</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">NoReturn</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">LiteralString</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">AsyncGenerator</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Coroutine</span><span class="p">,</span>
+    <span class="n">Generator</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">LiteralString</span><span class="p">,</span>
+    <span class="n">NoReturn</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">.._hook</span> <span class="kn">import</span> <span class="n">Hookable</span>
 <span class="kn">from</span> <span class="nn">.._meta</span> <span class="kn">import</span> <span class="n">MetaInfo</span>
@@ -323,7 +331,7 @@
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">BotError</span>
 <span class="kn">from</span> <span class="nn">..io.base</span> <span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">AbstractIOSource</span><span class="p">,</span> <span class="n">AbstractOutSource</span>
 <span class="kn">from</span> <span class="nn">..log.base</span> <span class="kn">import</span> <span class="n">GenericLogger</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">NullLogger</span>
-<span class="kn">from</span> <span class="nn">..plugin.base</span> <span class="kn">import</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">PluginLifeSpan</span>
+<span class="kn">from</span> <span class="nn">..plugin.base</span> <span class="kn">import</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">PluginLifeSpan</span><span class="p">,</span> <span class="n">PluginPlanner</span>
 <span class="kn">from</span> <span class="nn">..plugin.ipc</span> <span class="kn">import</span> <span class="n">AsyncShare</span><span class="p">,</span> <span class="n">IPCManager</span><span class="p">,</span> <span class="n">SyncShare</span>
 <span class="kn">from</span> <span class="nn">..plugin.load</span> <span class="kn">import</span> <span class="n">PluginLoader</span>
 <span class="kn">from</span> <span class="nn">..protocols.base</span> <span class="kn">import</span> <span class="n">ProtocolStack</span>
@@ -562,17 +570,21 @@
             <span class="n">adapter</span><span class="o">.</span><span class="n">dispatcher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bot 初始化完成，各核心组件已初始化&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;当前异步事件循环策略：</span><span class="si">{</span><span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop_policy</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bot 核心组件初始化完成&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;当前事件循环策略：&lt;</span><span class="si">{</span><span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop_policy</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="Bot.load_plugin">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugin">[文档]</a>
     <span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plugin</span><span class="p">:</span> <span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">PluginPlanner</span><span class="p">,</span>
+        <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;加载插件</span>
 
-<span class="sd">        :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，可直接 import 包名称，插件对象）</span>
+<span class="sd">        :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，可直接 import 包名称，插件管理器对象）</span>
 <span class="sd">        :param load_depth:</span>
 <span class="sd">            插件加载时的相对引用深度，默认值 1 只支持向上引用到插件目录一级。</span>
 <span class="sd">            增加为 2 可以引用到插件目录的父目录一级，依此类推。</span>
@@ -588,7 +600,12 @@
                 <span class="k">return</span> <span class="bp">self</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">internal_add</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">handlers</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">get_evoke_time</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STARTED</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">handlers</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">add_nowait</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">handlers</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">share</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">shares</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ipc_manager</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">share</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">funcs</span><span class="p">:</span>
@@ -596,7 +613,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功加载插件：</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">get_evoke_time</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STARTED</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">PluginLifeSpan</span><span class="o">.</span><span class="n">INITED</span><span class="p">))</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">PluginLifeSpan</span><span class="o">.</span><span class="n">INITED</span><span class="p">))</span>
             <span class="k">return</span> <span class="bp">self</span></div>
 
 
@@ -604,7 +621,7 @@
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugins">[文档]</a>
     <span class="k">def</span> <span class="nf">load_plugins</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">plugins</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Plugin</span><span class="p">],</span>
+        <span class="n">plugins</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">PluginPlanner</span><span class="p">],</span>
         <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`load_plugin` 行为类似，但是参数变为可迭代对象</span>
@@ -674,7 +691,7 @@
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">RELOADED</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                    <span class="k">await</span> <span class="n">p</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">PluginLifeSpan</span><span class="o">.</span><span class="n">INITED</span><span class="p">)</span>
+                    <span class="k">await</span> <span class="n">p</span><span class="o">.</span><span class="n">hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">PluginLifeSpan</span><span class="o">.</span><span class="n">INITED</span><span class="p">)</span>
 
                 <span class="n">timed_task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">timed_gc</span><span class="p">())</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timed_task</span><span class="p">)</span>

@@ -328,25 +328,23 @@
 <section id="demo">
 <h2>一个 demo<a class="headerlink" href="#demo" title="Link to this heading">¶</a></h2>
 <p>先来运行一段 demo 代码：（稍后我们会讲解其中的细节）</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">melobot</span> <span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">send_text</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">melobot</span> <span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">PluginPlanner</span><span class="p">,</span> <span class="n">send_text</span>
 <span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">ForwardWebSocketIO</span><span class="p">,</span> <span class="n">on_start_match</span>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
 <span class="linenos"> 5</span><span class="k">async</span> <span class="k">def</span> <span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="linenos"> 6</span>    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;Hello, melobot!&quot;</span><span class="p">)</span>
 <span class="linenos"> 7</span>
-<span class="linenos"> 8</span><span class="k">class</span> <span class="nc">MyPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
-<span class="linenos"> 9</span>    <span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;1.0.0&quot;</span>
-<span class="linenos">10</span>    <span class="n">flows</span> <span class="o">=</span> <span class="p">[</span><span class="n">echo_hi</span><span class="p">]</span>
-<span class="linenos">11</span>
-<span class="linenos">12</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-<span class="linenos">13</span>    <span class="p">(</span>
-<span class="linenos">14</span>        <span class="n">Bot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<span class="linenos">15</span>        <span class="o">.</span><span class="n">add_io</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">))</span>
-<span class="linenos">16</span>        <span class="o">.</span><span class="n">add_adapter</span><span class="p">(</span><span class="n">Adapter</span><span class="p">())</span>
-<span class="linenos">17</span>        <span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">MyPlugin</span><span class="p">())</span>
-<span class="linenos">18</span>        <span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="linenos">19</span>    <span class="p">)</span>
+<span class="linenos"> 8</span><span class="n">test_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">flows</span><span class="o">=</span><span class="p">[</span><span class="n">echo_hi</span><span class="p">])</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">11</span>    <span class="p">(</span>
+<span class="linenos">12</span>        <span class="n">Bot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="linenos">13</span>        <span class="o">.</span><span class="n">add_io</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">))</span>
+<span class="linenos">14</span>        <span class="o">.</span><span class="n">add_adapter</span><span class="p">(</span><span class="n">Adapter</span><span class="p">())</span>
+<span class="linenos">15</span>        <span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">test_plugin</span><span class="p">)</span>
+<span class="linenos">16</span>        <span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="linenos">17</span>    <span class="p">)</span>
 </pre></div>
 </div>
 <p>运行后，在机器人加入的任何一个群聊中，或与机器人的私聊中，输入以 <code class="docutils literal notranslate"><span class="pre">.sayhi</span></code> 起始的消息，即可回复：<code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">melobot!</span></code>。</p>
@@ -360,12 +358,10 @@
 </pre></div>
 </div>
 <p>这个事件处理方法做了件很简单的事：当收到一条消息时，如果消息内容以 <code class="docutils literal notranslate"><span class="pre">.sayhi</span></code> 起始，则通过 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.generic.send_text" title="melobot.adapter.generic.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a> 发送一条消息：<code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">melobot!</span></code>。</p>
-<p>由于 melobot 是基于插件化管理的，随后继承 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.Plugin" title="melobot.plugin.Plugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plugin</span></code></a> 定义一个新的插件类，用于划分接下来的操作被哪个插件管理。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># version 属性描述插件的版本</span>
-<span class="c1"># flows 属性填入刚才的事件处理方法</span>
-<span class="k">class</span> <span class="nc">MyPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
-    <span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;1.0.0&quot;</span>
-    <span class="n">flows</span> <span class="o">=</span> <span class="p">[</span><span class="n">echo_hi</span><span class="p">]</span>
+<p>由于 melobot 是基于插件化管理的，随后通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 创建一个插件管理器。插件管理器将被 melobot 用于创建插件。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># version 描述插件的版本</span>
+<span class="c1"># flows 填入刚才的事件处理方法</span>
+<span class="n">test_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">flows</span><span class="o">=</span><span class="p">[</span><span class="n">echo_hi</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>接下来开始按以下步骤创建、初始化和启动一个 bot：</p>
@@ -373,14 +369,14 @@
 <li><p>通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot" title="melobot.bot.Bot"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bot</span></code></a> 创建一个 bot；</p></li>
 <li><p>通过 <a class="reference internal" href="../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.ForwardWebSocketIO" title="melobot.protocols.onebot.v11.io.ForwardWebSocketIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardWebSocketIO</span></code></a> 添加一个 OneBot v11 协议的输入输出源；</p></li>
 <li><p>通过 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter" title="melobot.protocols.onebot.v11.Adapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">v11.Adapter</span></code></a> 添加 OneBot v11 协议的适配器；</p></li>
-<li><p>通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 加载插件</p></li>
+<li><p>通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 创建并加载插件</p></li>
 <li><p>启动 bot</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span>
     <span class="n">Bot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="o">.</span><span class="n">add_io</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">))</span>
     <span class="o">.</span><span class="n">add_adapter</span><span class="p">(</span><span class="n">Adapter</span><span class="p">())</span>
-    <span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">MyPlugin</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">test_plugin</span><span class="p">)</span>
     <span class="o">.</span><span class="n">run</span><span class="p">()</span>
 <span class="p">)</span>
 </pre></div>

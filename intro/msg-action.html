@@ -379,12 +379,12 @@
 </section>
 <section id="id2">
 <h2>消息段的继承关系<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>在文档中，你会发现诸如 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSegment</span></code></a> 这样的类型，还会存在子类（<a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSendSegment</span></code></a> 和 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageRecvSegment</span></code></a>）。这是为了提供更加精准的类型注解而产生的。所有这些类型只要有 <code class="docutils literal notranslate"><span class="pre">__init__</span></code> 方法，即可手动实例化并使用。</p>
+<p>在文档中，你会发现诸如 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSegment</span></code></a> 这样的类型，还会存在子类（<a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSendSegment</span></code></a> 和 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment" title="melobot.protocols.onebot.v11.adapter.segment.ImageRecvSegment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageRecvSegment</span></code></a>）。这是为了提供更加精准的类型注解而产生的。所有这些类型只要文档中有 <code class="docutils literal notranslate"><span class="pre">__init__</span></code> 方法，即可手动实例化并使用。</p>
 </section>
 <section id="id3">
 <h2>自定义消息段的构造<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>通过 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment" title="melobot.protocols.onebot.v11.adapter.segment.Segment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Segment</span></code></a> 创建<strong>自定义消息段</strong>。</p>
-<p>例如在某些 OneBot 实现端项目，存在一种自定义的消息段：touch 消息（戳一戳，双击头像）。对应的消息段数据结构如下：</p>
+<p>例如在某些 OneBot 实现端，支持一种自定义的消息段：touch 消息（戳一戳，双击头像）。对应的消息段数据结构如下：</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;touch&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -407,7 +407,7 @@
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
 
 <span class="c1"># 返回新类型 TouchSegment</span>
-<span class="c1"># 后续的事件中，会自动将对应消息段初始化为 TouchSegment 类型</span>
+<span class="c1"># 后续事件的消息段创建过程，会自动将对应消息段初始化为 TouchSegment 类型</span>
 <span class="n">TouchSegment</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">add_type</span><span class="p">(</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;touch&#39;</span><span class="p">],</span> <span class="n">_TouchData</span><span class="p">)</span>
 <span class="c1"># 使用新的消息段类型来构造：</span>
 <span class="n">seg</span> <span class="o">=</span> <span class="n">TouchSegment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;1574260633&quot;</span><span class="p">)</span>
