@@ -1,6 +1,8 @@
+import asyncio
+from functools import wraps
 from os import PathLike
 
-from typing_extensions import Any, Iterable, Literal, Optional, cast
+from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence, cast
 
 from melobot.adapter import (
     AbstractEchoFactory,
@@ -15,8 +17,9 @@ from melobot.ctx import Context
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
 from melobot.typ import AsyncCallable
+from melobot.utils import to_coro
 
-from ..const import PROTOCOL_IDENTIFIER, P
+from ..const import PROTOCOL_IDENTIFIER, P, T
 from ..io.base import BaseIO
 from ..io.packet import EchoPacket, InPacket, OutPacket
 from . import action as ac
@@ -24,10 +27,46 @@ from . import echo as ec
 from . import event as ev
 from . import segment as se
 
+_ValidateErrHandler = AsyncCallable[[dict[str, Any], Exception], None]
 
-class EventFactory(AbstractEventFactory[InPacket, ev.Event]):
+
+class ValidateErrHandleable:
+    def __init__(self) -> None:
+        self.err_handlers: list[_ValidateErrHandler] = []
+
+    def add_validate_handler(self, callback: _ValidateErrHandler) -> None:
+        self.err_handlers.append(callback)
+
+    def validate_handle(
+        self, data: dict[str, Any]
+    ) -> Callable[[Callable[P, T]], AsyncCallable[P, T]]:
+
+        def wrapper(func: Callable[P, T]) -> AsyncCallable[P, T]:
+
+            @wraps(func)
+            async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+                try:
+                    return func(*args, **kwargs)
+
+                except Exception as e:
+                    tasks = tuple(
+                        asyncio.create_task(to_coro(cb(data, e)))
+                        for cb in self.err_handlers
+                    )
+                    if len(tasks):
+                        await asyncio.wait(tasks)
+
+                return func(*args, **kwargs)
+
+            return wrapped
+
+        return wrapper
+
+
+class EventFactory(AbstractEventFactory[InPacket, ev.Event], ValidateErrHandleable):
     async def create(self, packet: InPacket) -> ev.Event:
-        return ev.Event.resolve(packet.data)
+        data = packet.data
+        return await self.validate_handle(data)(ev.Event.resolve)(data)
 
 
 class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):
@@ -40,11 +79,16 @@ class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):
         )
 
 
-class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo]):
+class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo], ValidateErrHandleable):
     async def create(self, packet: EchoPacket) -> ec.Echo | None:
         if packet.noecho:
             return None
-        return ec.Echo.resolve(action_type=packet.action_type, **packet.data)
+
+        ac_type = packet.action_type
+        data = packet.data
+        return await self.validate_handle(data)(ec.Echo.resolve)(
+            action_type=ac_type, **data
+        )
 
 
 class EchoRequireCtx(Context[bool]):
@@ -59,6 +103,23 @@ class Adapter(
         super().__init__(
             PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory()
         )
+
+    def when_validate_error(self, validate_type: Literal["event", "echo"]) -> Callable[
+        [AsyncCallable[[dict[str, Any], Exception], None]],
+        AsyncCallable[[dict[str, Any], Exception], None],
+    ]:
+        def wrapper(
+            func: AsyncCallable[[dict[str, Any], Exception], None]
+        ) -> AsyncCallable[[dict[str, Any], Exception], None]:
+            if validate_type == "event":
+                self._event_factory.add_validate_handler(func)
+            elif validate_type == "echo":
+                self._echo_factory.add_validate_handler(func)
+            else:
+                raise AdapterError("无效的验证类型，合法值是 'event', 'echo' 之一")
+            return func
+
+        return wrapper
 
     async def call_output(self, action: ac.Action) -> tuple[ActionHandle, ...]:
         """输出行为的底层方法
@@ -160,7 +221,7 @@ class Adapter(
         )
 
     async def __send_refer__(
-        self, event: ev.RootEvent, contents: ev.Sequence[Content] | None = None
+        self, event: ev.RootEvent, contents: Sequence[Content] | None = None
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         if not isinstance(event, ev.MessageEvent):
             raise AdapterError(
