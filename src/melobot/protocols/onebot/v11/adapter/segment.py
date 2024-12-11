@@ -5,20 +5,7 @@ import json
 import re
 import warnings
 from collections.abc import Mapping
-from functools import partial
 from itertools import chain, zip_longest
-from typing import (
-    Annotated,
-    Any,
-    Generic,
-    Literal,
-    Match,
-    TypeAlias,
-    cast,
-    final,
-    get_args,
-    overload,
-)
 
 from beartype.door import is_subhint
 from pydantic import (
@@ -30,11 +17,24 @@ from pydantic import (
     UrlConstraints,
     create_model,
 )
-from typing_extensions import NotRequired, Self, TypedDict, TypeVar
+from typing_extensions import (
+    Annotated,
+    Any,
+    Generic,
+    Literal,
+    Match,
+    NotRequired,
+    Self,
+    TypeAlias,
+    TypedDict,
+    TypeVar,
+    cast,
+    final,
+    get_args,
+    overload,
+)
 
 from melobot.adapter import content as mbcontent
-
-from ..const import T, V
 
 MediaUrl: TypeAlias = Annotated[
     AnyUrl, UrlConstraints(allowed_schemes=["http", "https", "file", "base64"])
@@ -283,8 +283,8 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
     @classmethod
     @final
     def add_type(
-        cls, seg_type_hint: type[T], seg_data_hint: type[V]
-    ) -> type[_CustomSegInterface[T, V]]:  # type: ignore[type-var]
+        cls, seg_type_hint: type[_SegTypeT], seg_data_hint: type[_SegDataT]
+    ) -> type[_CustomSegInterface[_SegTypeT, _SegDataT]]:  # type: ignore[type-var]
         if cls is not Segment:
             raise ValueError(
                 f"只能使用 {Segment.__name__} 类的 {Segment.add_type.__name__} 方法"
@@ -306,10 +306,6 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
         if type_classname in {subcls.__name__ for subcls in cls.__subclasses__()}:
             raise ValueError(f"类型为 {type_name} 的消息段类型已经存在")
 
-        def __custom_init__(self: type, **data: Any) -> None:
-            model = getattr(self, "Model")(type=getattr(self, "SegTypeVal"), data=data)
-            setattr(self, "_model", model)
-
         seg_cls = type(
             type_classname,
             (Segment,),
@@ -318,21 +314,22 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
                     type_dataname,
                     type=(seg_type_hint, ...),
                     data=(seg_data_hint, ...),
-                ),
-                "SegTypeVal": type_name,
+                )
             },
         )
         setattr(
             seg_cls,
-            "__init__",
-            partial(__custom_init__, seg_cls),
-        )
-        setattr(
-            seg_cls,
             Segment.resolve.__name__,
-            lambda _, seg_data: seg_cls(**seg_data),
+            lambda _, seg_data: seg_cls(type_name, **seg_data),
         )
-        return cast(type[_CustomSegInterface[T, V]], seg_cls)  # type: ignore[type-var]
+        return cast(
+            type[
+                _CustomSegInterface[  # pylint: disable=unsubscriptable-object
+                    _SegTypeT, _SegDataT
+                ]
+            ],
+            seg_cls,
+        )
 
     @property
     def type(self) -> _SegTypeT:
