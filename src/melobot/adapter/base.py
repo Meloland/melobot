@@ -51,7 +51,7 @@ class AbstractEventFactory(BetterABC, Generic[InPacketT, EventT]):
 
     @abstractmethod
     async def create(self, packet: InPacketT) -> EventT:
-        """将 :class:`~melobot.io.InPacket` 对象转换为 :class:`.Event` 对象的方法
+        """将 :class:`.InPacket` 对象转换为 :class:`.Event` 对象的方法
 
         :param packet: 输入包
         :return: 事件
@@ -97,7 +97,6 @@ EchoFactoryT = TypeVar("EchoFactoryT", bound=AbstractEchoFactory)
 class AdapterLifeSpan(Enum):
     """适配器生命周期阶段的枚举"""
 
-    BEFORE_EVENT_CREATE = "bec"
     BEFORE_EVENT_HANDLE = "beh"
     BEFORE_ACTION_EXEC = "bae"
     STARTED = "sta"
@@ -146,11 +145,7 @@ class Adapter(
     def on(
         self, *periods: AdapterLifeSpan
     ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        groups = (
-            AdapterLifeSpan.BEFORE_EVENT_CREATE,
-            AdapterLifeSpan.BEFORE_EVENT_HANDLE,
-            AdapterLifeSpan.BEFORE_ACTION_EXEC,
-        )
+        groups = (AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC)
 
         def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
             for type in periods:
@@ -183,9 +178,6 @@ class Adapter(
         while True:
             try:
                 packet = await src.input()
-                await self._hook_bus.emit(
-                    AdapterLifeSpan.BEFORE_EVENT_CREATE, True, args=(packet,)
-                )
                 event = await self._event_factory.create(packet)
                 with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
                     await self._hook_bus.emit(
