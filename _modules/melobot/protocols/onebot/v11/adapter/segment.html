@@ -343,8 +343,8 @@
 <span class="p">]</span>
 
 
-<span class="n">_SegTypeT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_SegTypeT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
-<span class="n">_SegDataT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_SegDataT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
+<span class="n">SegTypeT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;SegTypeT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
+<span class="n">SegDataT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;SegDataT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">cq_filter_text</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -569,9 +569,13 @@
     <span class="k">return</span> <span class="n">segments</span>
 
 
+<span class="n">TypeT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;TypeT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
+<span class="n">DataT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;DataT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="Segment">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment">[文档]</a>
-<span class="k">class</span> <span class="nc">Segment</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">_SegTypeT</span><span class="p">,</span> <span class="n">_SegDataT</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">Segment</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">SegTypeT</span><span class="p">,</span> <span class="n">SegDataT</span><span class="p">]):</span>
 
     <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>
@@ -579,7 +583,7 @@
 
 <div class="viewcode-block" id="Segment.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seg_type</span><span class="p">:</span> <span class="n">_SegTypeT</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seg_type</span><span class="p">:</span> <span class="n">SegTypeT</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">seg_type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">seg_data</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">seg_type</span><span class="p">,</span>
@@ -592,8 +596,8 @@
     <span class="nd">@classmethod</span>
     <span class="nd">@final</span>
     <span class="k">def</span> <span class="nf">add_type</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">seg_type_hint</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_SegTypeT</span><span class="p">],</span> <span class="n">seg_data_hint</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_SegDataT</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">_CustomSegInterface</span><span class="p">[</span><span class="n">_SegTypeT</span><span class="p">,</span> <span class="n">_SegDataT</span><span class="p">]]:</span>  <span class="c1"># type: ignore[type-var]</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">seg_type_hint</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">TypeT</span><span class="p">],</span> <span class="n">seg_data_hint</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">DataT</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">_CustomSegInterface</span><span class="p">[</span><span class="n">TypeT</span><span class="p">,</span> <span class="n">DataT</span><span class="p">]]:</span>  <span class="c1"># type: ignore[type-var]</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Segment</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;只能使用 </span><span class="si">{</span><span class="n">Segment</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 类的 </span><span class="si">{</span><span class="n">Segment</span><span class="o">.</span><span class="n">add_type</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 方法&quot;</span>
@@ -630,25 +634,18 @@
         <span class="nb">setattr</span><span class="p">(</span>
             <span class="n">seg_cls</span><span class="p">,</span>
             <span class="n">Segment</span><span class="o">.</span><span class="n">resolve</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-            <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">seg_data</span><span class="p">:</span> <span class="n">seg_cls</span><span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">),</span>
+            <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">seg_data</span><span class="p">:</span> <span class="n">seg_cls</span><span class="p">(</span><span class="o">**</span><span class="n">seg_data</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-            <span class="nb">type</span><span class="p">[</span>
-                <span class="n">_CustomSegInterface</span><span class="p">[</span>  <span class="c1"># pylint: disable=unsubscriptable-object</span>
-                    <span class="n">_SegTypeT</span><span class="p">,</span> <span class="n">_SegDataT</span>
-                <span class="p">]</span>
-            <span class="p">],</span>
-            <span class="n">seg_cls</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">type</span><span class="p">[</span><span class="n">_CustomSegInterface</span><span class="p">],</span> <span class="n">seg_cls</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SegTypeT</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">_SegTypeT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SegTypeT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">SegTypeT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SegDataT</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">_SegDataT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SegDataT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">SegDataT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Segment.resolve">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.resolve">[文档]</a>
@@ -696,14 +693,11 @@
 
 
 
-<span class="k">class</span> <span class="nc">_CustomSegInterface</span><span class="p">(</span><span class="n">Segment</span><span class="p">[</span><span class="n">_SegTypeT</span><span class="p">,</span> <span class="n">_SegDataT</span><span class="p">]):</span>
-    <span class="n">SegTypeVal</span><span class="p">:</span> <span class="nb">str</span>
+<span class="k">class</span> <span class="nc">_CustomSegInterface</span><span class="p">(</span><span class="n">Segment</span><span class="p">[</span><span class="n">TypeT</span><span class="p">,</span> <span class="n">DataT</span><span class="p">]):</span>
+    <span class="n">SegTypeVal</span><span class="p">:</span> <span class="n">TypeT</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seg_type</span><span class="p">:</span> <span class="n">_SegTypeT</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">:</span> <span class="n">_SegDataT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">seg_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">_SegTypeT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">SegTypeVal</span><span class="p">),</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">seg_type</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">:</span> <span class="n">DataT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">SegTypeVal</span><span class="p">,</span> <span class="o">**</span><span class="n">seg_data</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_TextData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
