@@ -138,7 +138,7 @@ class ActionHandle(Generic[ActionRetT]):
 
     :ivar Action action: 操作包含的行为对象
     :ivar typing.Literal["PENDING", "EXECUTING", "FINISHED"] status: 操作的状态。分别对应：未执行、执行中、执行完成
-    :ivar OutSourceT out_src: 执行操作的输出源对象
+    :ivar AbstractOutSource out_src: 执行操作的输出源对象
     """
 
     def __init__(
