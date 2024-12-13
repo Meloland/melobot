@@ -386,11 +386,9 @@
         <span class="k">if</span> <span class="n">packet</span><span class="o">.</span><span class="n">noecho</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">ac_type</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="n">action_type</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_handle</span><span class="p">(</span><span class="n">data</span><span class="p">)(</span><span class="n">ec</span><span class="o">.</span><span class="n">Echo</span><span class="o">.</span><span class="n">resolve</span><span class="p">)(</span>
-            <span class="n">action_type</span><span class="o">=</span><span class="n">ac_type</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span>
-        <span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;action_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="n">action_type</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_handle</span><span class="p">(</span><span class="n">data</span><span class="p">)(</span><span class="n">ec</span><span class="o">.</span><span class="n">Echo</span><span class="o">.</span><span class="n">resolve</span><span class="p">)(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="EchoRequireCtx">
