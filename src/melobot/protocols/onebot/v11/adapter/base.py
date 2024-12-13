@@ -84,11 +84,9 @@ class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo], ValidateErrHandleabl
         if packet.noecho:
             return None
 
-        ac_type = packet.action_type
         data = packet.data
-        return await self.validate_handle(data)(ec.Echo.resolve)(
-            action_type=ac_type, **data
-        )
+        data["action_type"] = packet.action_type
+        return await self.validate_handle(data)(ec.Echo.resolve)(**data)
 
 
 class EchoRequireCtx(Context[bool]):

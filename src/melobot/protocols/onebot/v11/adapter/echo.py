@@ -39,8 +39,7 @@ class Echo(RootEcho):
 
     @classmethod
     def resolve(cls, **kwds: Any) -> Echo:
-        action_type = kwds.pop("action_type")
-        match action_type:
+        match kwds["action_type"]:
             case "send_private_msg" | "send_group_msg" | "send_msg":
                 return SendMsgEcho(**kwds)
             case "send_private_forward_msg" | "send_group_forward_msg":
