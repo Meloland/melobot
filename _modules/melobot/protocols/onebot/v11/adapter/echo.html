@@ -351,50 +351,50 @@
 
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Echo</span><span class="p">:</span>
-        <span class="k">match</span> <span class="n">kwds</span><span class="p">[</span><span class="s2">&quot;action_type&quot;</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Echo</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;action_type&quot;</span><span class="p">]:</span>
             <span class="k">case</span> <span class="s2">&quot;send_private_msg&quot;</span> <span class="o">|</span> <span class="s2">&quot;send_group_msg&quot;</span> <span class="o">|</span> <span class="s2">&quot;send_msg&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">SendMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">SendMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;send_private_forward_msg&quot;</span> <span class="o">|</span> <span class="s2">&quot;send_group_forward_msg&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">SendForwardMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">SendForwardMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_msg&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_forward_msg&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetForwardMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetForwardMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_login_info&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetLoginInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetLoginInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_stranger_info&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetStrangerInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetStrangerInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_friend_list&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetFriendListEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetFriendListEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_group_info&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetGroupInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetGroupInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_group_list&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetGroupListEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetGroupListEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_group_member_info&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetGroupMemberInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetGroupMemberInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_group_member_list&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetGroupMemberListEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetGroupMemberListEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_group_honor_info&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetGroupHonorInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetGroupHonorInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_cookies&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetCookiesEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetCookiesEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_csrf_token&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetCsrfTokenEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetCsrfTokenEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_credentials&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetCredentialsEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetCredentialsEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_record&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetRecordEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetRecordEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_image&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetImageEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetImageEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;can_send_image&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">CanSendImageEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">CanSendImageEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;can_send_record&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">CanSendRecordEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">CanSendRecordEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_status&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetStatusEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetStatusEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;get_version_info&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">GetVersionInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">GetVersionInfoEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span> <span class="p">(</span>
                 <span class="s2">&quot;delete_msg&quot;</span>
                 <span class="o">|</span> <span class="s2">&quot;send_like&quot;</span>
@@ -413,9 +413,9 @@
                 <span class="o">|</span> <span class="s2">&quot;set_restart&quot;</span>
                 <span class="o">|</span> <span class="s2">&quot;clean_cache&quot;</span>
             <span class="p">):</span>
-                <span class="k">return</span> <span class="n">EmptyEcho</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">EmptyEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Echo</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span></div>
+                <span class="k">return</span> <span class="n">Echo</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span></div>
 
 
 
