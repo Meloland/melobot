@@ -20,7 +20,7 @@ readme = "README.md"
 license = {text = "BSD"}
 keywords = ["melobot", "bot framework", "asyncio", "coroutine", "concurrency"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",

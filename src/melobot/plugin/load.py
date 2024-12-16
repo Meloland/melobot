@@ -14,9 +14,7 @@ from .._imp import Importer
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginAutoGenError, PluginLoadError
 from ..utils import singleton
-
-# REMOVE: 3.0.0 (LegacyPlugin)
-from .base import LegacyPlugin, Plugin, PluginPlanner
+from .base import Plugin, PluginPlanner
 from .ipc import AsyncShare, SyncShare
 
 
@@ -184,23 +182,12 @@ class PluginInitHelper:
                         p_shares = p_planner.shares
                         p_funcs = p_planner.funcs
                         break
-
-                    # REMOVE: 3.0.0
-                    if (
-                        isinstance(val, type)
-                        and issubclass(val, LegacyPlugin)
-                        and val is not LegacyPlugin
-                    ):
-                        p_planner = PluginPlanner.__from_legacy__(val())
-                        p_shares = p_planner.shares
-                        p_funcs = p_planner.funcs
-                        break
-                    # REMOVE END ##########
                 else:
                     raise PluginAutoGenError(
                         f"插件的 __plugin__.py 未实例化 {PluginPlanner.__name__} 类，"
                         f"无法解析。对应插件：{p_dir}"
                     )
+
                 for share in p_shares:
                     if share.name in p_conflicts:
                         raise PluginAutoGenError(
@@ -246,23 +233,13 @@ class PluginLoader:
         self, p_name: str, entry: ModuleType | None, p_planner: PluginPlanner | None
     ) -> tuple[Plugin, bool]:
         if p_planner is None:
+
             if not hasattr(entry, P_PLANNER_ATTR):
                 for k in dir(entry):
                     val = getattr(entry, k)
                     if isinstance(val, PluginPlanner):
                         setattr(entry, P_PLANNER_ATTR, val)
                         break
-                    # REMOVE: 3.0.0
-                    if (
-                        isinstance(val, type)
-                        and issubclass(val, LegacyPlugin)
-                        and val is not LegacyPlugin
-                    ):
-                        setattr(
-                            entry, P_PLANNER_ATTR, PluginPlanner.__from_legacy__(val())
-                        )
-                        break
-                    # REMOVE END ########
 
                 else:
                     entry = cast(ModuleType, entry)
@@ -277,11 +254,6 @@ class PluginLoader:
                     )
 
             p_planner = getattr(entry, P_PLANNER_ATTR)
-
-        # REMOVE: 3.0.0
-        if isinstance(p_planner, LegacyPlugin):
-            p_planner = PluginPlanner.__from_legacy__(p_planner)
-        # REMOVE END ########
 
         p_planner = cast(PluginPlanner, p_planner)
         if p_planner._built:
@@ -298,8 +270,7 @@ class PluginLoader:
         logger = LoggerCtx().get()
         _plugin_repr = repr(plugin)
 
-        # REMOVE: 3.0.0
-        if isinstance(plugin, (PluginPlanner, LegacyPlugin)):
+        if isinstance(plugin, PluginPlanner):
             p_name = f"_DynamicPlugin_0x{id(plugin):0x}"
             return self._build_plugin(p_name, entry=None, p_planner=plugin)
 

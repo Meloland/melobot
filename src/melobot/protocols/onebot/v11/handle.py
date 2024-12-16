@@ -7,7 +7,7 @@ from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
 from melobot.session import Rule, Session, enter_session
-from melobot.typ import AsyncCallable, HandleLevel, LogicMode, deprecated
+from melobot.typ import AsyncCallable, HandleLevel, LogicMode
 from melobot.utils import get_obj_name
 
 from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
@@ -29,23 +29,6 @@ def GetParseArgs() -> ParseArgs:  # pylint: disable=invalid-name
     :return: 解析参数
     """
     return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
-
-
-# REMOVE: 3.0.0
-@deprecated(
-    "将于 melobot v3.0.0 移除，使用 melobot.protocols.onebot.v11.handle.GetParseArgs 代替"
-)
-def Args() -> ParseArgs:  # pylint: disable=invalid-name
-    """获取解析参数，与 :func:`~.v11.handle.GetParseArgs` 等价
-
-    .. admonition:: 重要提示
-        :class: caution
-
-        已弃用。将于 `v3.0.0` 移除，使用 :func:`~.v11.handle.GetParseArgs` 代替
-
-    :return: 解析参数
-    """
-    return GetParseArgs()
 
 
 FlowDecorator = Callable[[AsyncCallable[..., bool | None]], Flow]

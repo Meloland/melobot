@@ -5,22 +5,14 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from typing_extensions import Iterable, final, overload
+from typing_extensions import final, overload
 
 from .._hook import HookBus
 from ..ctx import BotCtx
 from ..exceptions import PluginLoadError
 from ..handle.base import EventHandler
 from ..handle.process import Flow
-from ..typ import (
-    AsyncCallable,
-    Callable,
-    P,
-    SingletonBetterABCMeta,
-    T,
-    abstractattr,
-    deprecate_warn,
-)
+from ..typ import AsyncCallable, Callable, P, T
 from ..utils import to_async
 from .ipc import AsyncShare, SyncShare
 
@@ -76,36 +68,6 @@ class PluginPlanner:
         self._hook_bus = HookBus[PluginLifeSpan](PluginLifeSpan)
         self._built: bool = False
         self._plugin: Plugin
-
-    # REMOVE: 3.0.0
-    @classmethod
-    def __from_legacy__(cls, legacy: LegacyPlugin) -> PluginPlanner:
-        deprecate_warn(
-            "继承 melobot.plugin.Plugin 类声明插件的方式已弃用，将在 3.0.0 移除。"
-            "实例化 melobot.plugin.PluginPlanner 类来代替。"
-            f"触发此警告的插件是：{legacy.__class__.__module__}.{legacy.__class__.__name__}"
-        )
-        planner = PluginPlanner(
-            legacy.version,
-            list(legacy.flows),
-            list(legacy.shares),
-            list(legacy.funcs),
-            info=PluginInfo(
-                legacy.version,
-                f"{legacy.desc}\n{legacy.docs}" if legacy.desc != "" else "",
-                None,
-                legacy.keywords,
-                legacy.url,
-                legacy.author,
-            ),
-        )
-        if not hasattr(legacy, "__hook_bus__"):
-            bus = HookBus[PluginLifeSpan](PluginLifeSpan)
-            planner._hook_bus = bus
-            legacy.__class__.__hook_bus__ = bus
-        else:
-            planner._hook_bus = legacy.__class__.__hook_bus__
-        return planner
 
     @final
     def on(
@@ -226,46 +188,3 @@ class Plugin:
         self.shares = planner.shares
         self.funcs = planner.funcs
         self.handlers = list(EventHandler(self, f) for f in self.planner.flows)
-
-
-# REMOVE: 3.0.0
-class LegacyPlugin(metaclass=SingletonBetterABCMeta):
-    """旧版插件类
-
-    .. admonition:: 重要提示
-        :class: caution
-
-        已弃用使用该类声明插件，将于 `v3.0.0` 移除。请使用 :class:`.PluginPlanner` 代替。
-    """
-
-    version: str = abstractattr()
-    shares: Iterable[SyncShare | AsyncShare] = ()
-    funcs: Iterable[Callable] = ()
-    flows: Iterable[Flow] = ()
-    desc: str = ""
-    docs: str = ""
-    keywords: list[str] = []
-    url: str = ""
-    author: str = ""
-
-    __hook_bus__: HookBus[PluginLifeSpan]
-
-    @classmethod
-    @final
-    def on(
-        cls, *periods: PluginLifeSpan
-    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """注册一个 hook
-
-        :param periods: 要绑定的 hook 类型
-        :return: 装饰器
-        """
-        if not hasattr(cls, "__hook_bus__"):
-            cls.__hook_bus__ = HookBus[PluginLifeSpan](PluginLifeSpan)
-
-        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
-            for type in periods:
-                cls.__hook_bus__.register(type, func)
-            return func
-
-        return wrapped
