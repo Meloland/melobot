@@ -1,0 +1,117 @@
+name: 问题报告
+description: 向我们发送问题报告
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees:
+  - aicorein
+
+body:
+  - type: markdown
+    id: announcement
+    attributes:
+      value: |
+        感谢您填写问题报告。您的问题报告越详细，相关修复工作将越顺利地进行。
+
+        请先阅读以下注意事项。否则您的 issue 可能会被直接关闭：
+        - 我已按照 melobot 文档的教程操作，依然存在问题
+        - 我已使用最新的发布版本，依然存在问题
+        - 我已在 issue 页面搜索过，没有重复问题存在
+        - 开发者没有义务 100% 为您修复任何错误/问题，是否修复，以何种形式进行，何时完成均不做担保。
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 请确认您已阅读以上注意事项，并勾选下方的确认框。
+      description: 如果您不知道如何有效、精准地表述，请先阅读[《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)
+      options:
+        - label: "我已经仔细阅读并同意上述内容"
+          required: true
+        - label: "我知道如何有效、精准地表述问题所在"
+          required: true
+
+  - type: dropdown
+    id: sys
+    attributes:
+      label: 系统环境
+      description: 在何种系统中运行
+      options:
+        - Windows
+        - MacOS
+        - Linux
+        - 其它（请在“问题描述”板块说明）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: arch
+    attributes:
+      label: 运行架构
+      description: 在何种架构下运行
+      options:
+        - x64
+        - x86
+        - arm
+        - arm64
+        - 其它（请在“问题描述”板块说明）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: python-impl
+    attributes:
+      label: Python 实现
+      description: 在何种 Python 实现中运行（如果您不清楚，请选择“我不知道”）
+      options:
+        - CPython
+        - PyPy
+        - 其他
+        - 我不知道
+    validations:
+      required: true
+
+  - type: textarea
+    id: python-ver
+    attributes:
+      label: Python 版本
+      description: 在何种 Python 版本中运行（至少 x.y.z 三位版本号，如果使用非 CPython 实现，附加实现项目名称）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: protocols
+    attributes:
+      description: 是否和具体的协议支持有关
+      options:
+        - 无
+        - 内置 OneBot 协议
+        - 三方协议（请在“问题描述”板块说明）
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-desc
+    attributes:
+      label: 问题描述
+      description: 详细的问题描述（可以附加图片、截屏，尽量避免使用不清晰的拍屏）
+    validations:
+      required: true
+
+  - type: textarea
+    id: expect
+    attributes:
+      label: 预期结果
+      description: 预期行为应该是什么
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 简单的复现代码或相关代码链接（可选，文本块自动渲染为 python 代码块）
+      render: python
+
+  - type: textarea
+    id: log
+    attributes:
+      label: DEBUG 级别日志记录（如果问题无需日志诊断，则可选）
+      render: shell
