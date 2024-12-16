@@ -38,50 +38,50 @@ class Echo(RootEcho):
         return self._model.status == "failed"
 
     @classmethod
-    def resolve(cls, **kwds: Any) -> Echo:
-        match kwds["action_type"]:
+    def resolve(cls, raw: dict[str, Any]) -> Echo:
+        match raw["action_type"]:
             case "send_private_msg" | "send_group_msg" | "send_msg":
-                return SendMsgEcho(**kwds)
+                return SendMsgEcho(**raw)
             case "send_private_forward_msg" | "send_group_forward_msg":
-                return SendForwardMsgEcho(**kwds)
+                return SendForwardMsgEcho(**raw)
             case "get_msg":
-                return GetMsgEcho(**kwds)
+                return GetMsgEcho(**raw)
             case "get_forward_msg":
-                return GetForwardMsgEcho(**kwds)
+                return GetForwardMsgEcho(**raw)
             case "get_login_info":
-                return GetLoginInfoEcho(**kwds)
+                return GetLoginInfoEcho(**raw)
             case "get_stranger_info":
-                return GetStrangerInfoEcho(**kwds)
+                return GetStrangerInfoEcho(**raw)
             case "get_friend_list":
-                return GetFriendListEcho(**kwds)
+                return GetFriendListEcho(**raw)
             case "get_group_info":
-                return GetGroupInfoEcho(**kwds)
+                return GetGroupInfoEcho(**raw)
             case "get_group_list":
-                return GetGroupListEcho(**kwds)
+                return GetGroupListEcho(**raw)
             case "get_group_member_info":
-                return GetGroupMemberInfoEcho(**kwds)
+                return GetGroupMemberInfoEcho(**raw)
             case "get_group_member_list":
-                return GetGroupMemberListEcho(**kwds)
+                return GetGroupMemberListEcho(**raw)
             case "get_group_honor_info":
-                return GetGroupHonorInfoEcho(**kwds)
+                return GetGroupHonorInfoEcho(**raw)
             case "get_cookies":
-                return GetCookiesEcho(**kwds)
+                return GetCookiesEcho(**raw)
             case "get_csrf_token":
-                return GetCsrfTokenEcho(**kwds)
+                return GetCsrfTokenEcho(**raw)
             case "get_credentials":
-                return GetCredentialsEcho(**kwds)
+                return GetCredentialsEcho(**raw)
             case "get_record":
-                return GetRecordEcho(**kwds)
+                return GetRecordEcho(**raw)
             case "get_image":
-                return GetImageEcho(**kwds)
+                return GetImageEcho(**raw)
             case "can_send_image":
-                return CanSendImageEcho(**kwds)
+                return CanSendImageEcho(**raw)
             case "can_send_record":
-                return CanSendRecordEcho(**kwds)
+                return CanSendRecordEcho(**raw)
             case "get_status":
-                return GetStatusEcho(**kwds)
+                return GetStatusEcho(**raw)
             case "get_version_info":
-                return GetVersionInfoEcho(**kwds)
+                return GetVersionInfoEcho(**raw)
             case (
                 "delete_msg"
                 | "send_like"
@@ -100,9 +100,9 @@ class Echo(RootEcho):
                 | "set_restart"
                 | "clean_cache"
             ):
-                return EmptyEcho(**kwds)
+                return EmptyEcho(**raw)
             case _:
-                return Echo(**kwds)
+                return Echo(**raw)
 
 
 class EmptyEcho(Echo):
