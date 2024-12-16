@@ -77,14 +77,18 @@ body:
     validations:
       required: true
 
-  - type: dropdown
+  - type: checkboxes
     id: protocols
     attributes:
+      label: 使用的协议
       description: 是否和具体的协议支持有关
       options:
-        - 无
-        - 内置 OneBot 协议
-        - 三方协议（请在“问题描述”板块说明）
+        - label: 无
+          required: false
+        - label: OneBot 协议（内置）
+          required: false
+        - label: 三方协议（请在“问题描述”板块说明）
+          required: false
     validations:
       required: true
 
