@@ -5,6 +5,7 @@
 
 from http import HTTPStatus
 from io import StringIO
+from math import isclose
 from random import randint, choice
 from typing import Optional
 
@@ -259,7 +260,7 @@ class TestCallableDispatch:
         begin = aio.get_event_loop().time()
         await aio.sleep(5)
         end = self.timestamps[0]
-        assert end - begin <= 5.01
+        assert isclose(end - begin, 5.01, abs_tol=0.01)
 
     # may not meaningful, just refer `test_call_later` is also OK.
     async def test_call_at(self) -> None:
@@ -275,7 +276,7 @@ class TestCallableDispatch:
         begin = aio.get_event_loop().time()
         await async_later(self.afoo(), 5)
         end = self.timestamps[0]
-        assert end - begin <= 5.01
+        assert isclose(end - begin, 5.01, abs_tol=0.01)
 
     # just refer `test_async_later`.
     async def test_async_at(self) -> None:
@@ -291,6 +292,10 @@ class TestCallableDispatch:
         await aio.gather(t, self.shut_task(t, 5))
         i = 1
         while i < len(self.timestamps):
-            assert self.timestamps[i] - self.timestamps[i - 1] <= 1.01
+            assert isclose(
+                self.timestamps[i] - self.timestamps[i - 1],
+                1.01,
+                abs_tol=0.01
+            )
             i += 1
         assert t.done()
