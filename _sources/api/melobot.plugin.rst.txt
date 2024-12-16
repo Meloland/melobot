@@ -11,13 +11,6 @@ melobot.plugin
     :members:
     :exclude-members: version, desc, docs, keywords, url, author
 
-.. autoclass:: melobot.plugin.Plugin
-    :members:
-    
-.. autoclass:: melobot.plugin.LegacyPlugin
-    :members:
-    :exclude-members: __init__
-
 .. autoclass:: melobot.plugin.PluginLifeSpan
     :members:
 

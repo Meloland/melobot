@@ -6,7 +6,7 @@ melobot.session
 
 .. autoclass:: melobot.session.Session
     :members:
-    :exclude-members: __init__, __lshift__, to_state, on_state, work, rest, suspend, wakeup, expire, get, enter_ctx
+    :exclude-members: __init__, is_state, get, enter
 
 .. autoclass:: melobot.session.SessionStore
     :members:

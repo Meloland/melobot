@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.onebot.v11.handle - melobot 3.0.0rc21</title>
+        <title>melobot.protocols.onebot.v11.handle - melobot 3.0.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">melobot 3.0.0rc21</div></a>
+      <a href="../../../../../index.html"><div class="brand">melobot 3.0.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0rc21</span>
+  <span class="sidebar-brand-text">melobot 3.0.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -309,7 +309,7 @@
 <span class="kn">from</span> <span class="nn">melobot.di</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">inject_deps</span>
 <span class="kn">from</span> <span class="nn">melobot.handle</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">get_event</span><span class="p">,</span> <span class="n">no_deps_node</span>
 <span class="kn">from</span> <span class="nn">melobot.session</span> <span class="kn">import</span> <span class="n">Rule</span><span class="p">,</span> <span class="n">Session</span><span class="p">,</span> <span class="n">enter_session</span>
-<span class="kn">from</span> <span class="nn">melobot.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">HandleLevel</span><span class="p">,</span> <span class="n">LogicMode</span><span class="p">,</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">melobot.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">HandleLevel</span><span class="p">,</span> <span class="n">LogicMode</span>
 <span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">get_obj_name</span>
 
 <span class="kn">from</span> <span class="nn">.adapter.event</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
@@ -333,26 +333,6 @@
 <span class="sd">    :return: 解析参数</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">ParseArgs</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">ParseArgsCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
-
-
-
-<span class="c1"># REMOVE: 3.0.0</span>
-<div class="viewcode-block" id="Args">
-<a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.Args">[文档]</a>
-<span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="s2">&quot;将于 melobot v3.0.0 移除，使用 melobot.protocols.onebot.v11.handle.GetParseArgs 代替&quot;</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">Args</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ParseArgs</span><span class="p">:</span>  <span class="c1"># pylint: disable=invalid-name</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取解析参数，与 :func:`~.v11.handle.GetParseArgs` 等价</span>
-
-<span class="sd">    .. admonition:: 重要提示</span>
-<span class="sd">        :class: caution</span>
-
-<span class="sd">        已弃用。将于 `v3.0.0` 移除，使用 :func:`~.v11.handle.GetParseArgs` 代替</span>
-
-<span class="sd">    :return: 解析参数</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">GetParseArgs</span><span class="p">()</span></div>
 
 
 
@@ -695,7 +675,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=1bbad22a"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=cd91d057"></script>
     <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/scripts/furo.js?v=5fa4622c"></script>
