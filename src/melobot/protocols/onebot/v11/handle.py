@@ -1,11 +1,14 @@
+from contextlib import _AsyncGeneratorContextManager
 from functools import wraps
-from typing import Callable, cast
+
+from typing_extensions import Callable, cast
 
 from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
-from melobot.typ import AsyncCallable, HandleLevel, LogicMode, deprecated
-from melobot.utils import singleton
+from melobot.session import Rule, Session, enter_session
+from melobot.typ import AsyncCallable, HandleLevel, LogicMode
+from melobot.utils import get_obj_name
 
 from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
 from .utils import check, match
@@ -13,7 +16,6 @@ from .utils.abc import Checker, Matcher, ParseArgs, Parser
 from .utils.parse import CmdArgFormatter, CmdParser
 
 
-@singleton
 class ParseArgsCtx(Context[ParseArgs | None]):
     def __init__(self) -> None:
         super().__init__(
@@ -29,20 +31,17 @@ def GetParseArgs() -> ParseArgs:  # pylint: disable=invalid-name
     return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
 
 
-@deprecated(
-    "将于 melobot v3.0.0 移除，使用 melobot.protocols.onebot.v11.handle.GetParseArgs 代替"
-)
-def Args() -> ParseArgs:  # pylint: disable=invalid-name
-    """获取解析参数，与 :func:`~.v11.handle.GetParseArgs` 等价
-
-    已弃用。将于 `v3.0.0` 移除，使用 :func:`~.v11.handle.GetParseArgs` 代替
-
-    :return: 解析参数
-    """
-    return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
-
-
 FlowDecorator = Callable[[AsyncCallable[..., bool | None]], Flow]
+
+_DefaultRule = Rule[MessageEvent].new(lambda e1, e2: e1.scope == e2.scope)
+
+
+def msg_session() -> _AsyncGeneratorContextManager[Session]:
+    """消息事件的会话上下文管理器
+
+    展开一个传统意义上的消息会话上下文，这与其他 bot 开发框架中的“会话”语义等价
+    """
+    return enter_session(_DefaultRule)
 
 
 def on_event(
@@ -63,7 +62,7 @@ def on_event(
         func = inject_deps(func)
 
         @wraps(func)
-        async def _node() -> bool | None:
+        async def wrapped() -> bool | None:
             event = cast(Event, get_event())
             status = await _checker.check(event)
             if not status:
@@ -83,14 +82,14 @@ def on_event(
                     p_args = parse_args
 
             event.spread = not block
-            with ParseArgsCtx().in_ctx(p_args):
+            with ParseArgsCtx().unfold(p_args):
                 return await func()
 
-        n = no_deps_node(_node)
-        n.name = func.__name__ if hasattr(func, "__name__") else "<anonymous callable>"
+        n = no_deps_node(wrapped)
+        n.name = get_obj_name(func, otype="callable")
         return Flow(
             f"OneBotV11Flow[{n.name}]",
-            [n],
+            (n,),
             priority=priority,
             temp=temp,
         )

@@ -14,7 +14,6 @@ from inspect import currentframe
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from logging import Logger as _Logger
 from logging import _srcfile as _LOGGING_SRC_FILE
-from typing import Any, Callable, Generator, Literal, Optional
 
 import colorlog
 import rich.console
@@ -23,6 +22,7 @@ from better_exceptions import ExceptionFormatter
 from rich.highlighter import Highlighter, ReprHighlighter
 from rich.style import Style
 from rich.text import Text
+from typing_extensions import Any, Callable, Generator, Literal, Optional
 
 from ..typ import BetterABC, T, VoidType, abstractmethod
 from ..utils import singleton
@@ -102,11 +102,17 @@ class _NoErrFilter(logging.Filter):
 
 class _MeloLogFilter(logging.Filter):
     def __init__(
-        self, name: str = "", red_error: bool = True, legacy: bool = False
+        self,
+        name: str = "",
+        yellow_warn: bool = True,
+        red_error: bool = True,
+        legacy: bool = False,
     ) -> None:
         super().__init__(name)
         self._obj: Any = VoidType.VOID
+        self._yellow_style = Style(color="yellow")
         self._red_style = Style(color="red")
+        self._enable_yellow_warn = yellow_warn
         self._enable_red_error = red_error
         self._legacy = legacy
 
@@ -135,7 +141,9 @@ class _MeloLogFilter(logging.Filter):
         return True
 
     def _fill_msg_and_obj(self, msg: str, record: logging.LogRecord) -> None:
+        yellow_style = self._yellow_style
         red_style = self._red_style
+        yellow_warn = self._enable_yellow_warn
         red_error = self._enable_red_error
 
         if self._legacy:
@@ -155,12 +163,17 @@ class _MeloLogFilter(logging.Filter):
 
         if red_error and record.levelno >= ERROR:
             record.colored_msg_str, record.msg_str = _get_rich_repr(msg, red_style)
+        elif yellow_warn and record.levelno >= WARNING:
+            record.colored_msg_str, record.msg_str = _get_rich_repr(msg, yellow_style)
         else:
             record.colored_msg_str, record.msg_str = _get_rich_repr(msg)
 
         if self._obj is VoidType.VOID:
             record.colored_obj, record.obj = "", ""
         elif red_error and record.levelno >= ERROR:
+            record.legacy_obj = record.obj = _get_rich_object(self._obj, no_color=True)[1]
+            record.colored_obj = ""
+        elif yellow_warn and record.levelno >= WARNING:
             record.legacy_obj = record.obj = _get_rich_object(self._obj, no_color=True)[1]
             record.colored_obj = ""
         else:
@@ -327,6 +340,7 @@ class Logger(_Logger, GenericLogger):
         to_dir: str | None = None,
         add_tag: bool = False,
         legacy: bool = False,
+        yellow_warn: bool = True,
         red_error: bool = True,
         two_stream: bool = False,
     ) -> None:
@@ -339,6 +353,10 @@ class Logger(_Logger, GenericLogger):
         :param to_dir: 保存日志文件的目录，为空则不保存文件
         :param add_tag: 记录日志时是否标识日志器名称
         :param legacy: 记录日志时是否使用传统样式（不对日志内容进行自动高亮，而是使用日志等级的五色）
+        :param yellow_warn:
+            记录 `LogLevel.WARN` 级别时，是否将日志内容着色为黄色。
+            `legacy` 选项为 `True` 时此参数无效
+
         :param red_error:
             记录 `LogLevel.ERROR` 及以上级别时，是否将日志内容着色为红色。
             `legacy` 选项为 `True` 时此参数无效
@@ -354,7 +372,7 @@ class Logger(_Logger, GenericLogger):
         super().__init__(name, LogLevel.DEBUG)
         self._handler_arr: list[logging.Handler] = []
         self._no_tag = not add_tag
-        self._filter = _MeloLogFilter(name, red_error, legacy)
+        self._filter = _MeloLogFilter(name, yellow_warn, red_error, legacy)
 
         if to_console:
             con_handler = self._add_console_handler()

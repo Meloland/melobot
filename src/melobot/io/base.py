@@ -2,16 +2,15 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
-from typing import Any, Callable, Generic
 
-from typing_extensions import LiteralString, Self, TypeVar
+from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
 
-from .._hook import HookBus
-from ..typ import AsyncCallable, BetterABC, P, abstractmethod
+from .._hook import Hookable
+from ..typ import BetterABC, abstractmethod
 from ..utils import get_id
 
 
-@dataclass(frozen=True)
+@dataclass
 class _Packet:
     time: float = field(default_factory=lambda: time.time_ns() / 1e9)
     id: str = field(default_factory=get_id)
@@ -19,7 +18,7 @@ class _Packet:
     data: Any = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class InPacket(_Packet):
     """输入包基类（数据类）
 
@@ -30,7 +29,7 @@ class InPacket(_Packet):
     """
 
 
-@dataclass(frozen=True)
+@dataclass
 class OutPacket(_Packet):
     """输出包基类（数据类）
 
@@ -41,7 +40,7 @@ class OutPacket(_Packet):
     """
 
 
-@dataclass(frozen=True)
+@dataclass
 class EchoPacket(_Packet):
     """回应包基类（数据类）
 
@@ -74,13 +73,15 @@ class SourceLifeSpan(Enum):
     STOPPED = "sto"
 
 
-class AbstractSource(BetterABC):
+class AbstractSource(BetterABC, Hookable[SourceLifeSpan]):
     """抽象源基类"""
 
     def __init__(self, protocol: LiteralString) -> None:
-        self.protocol = protocol
+        Hookable.__init__(
+            self, SourceLifeSpan, tag=f"{protocol}/{self.__class__.__name__}"
+        )
 
-        self._life_bus = HookBus[SourceLifeSpan](SourceLifeSpan)
+        self.protocol = protocol
 
     @abstractmethod
     async def open(self) -> None:
@@ -102,7 +103,7 @@ class AbstractSource(BetterABC):
             return self
 
         await self.open()
-        await self._life_bus.emit(SourceLifeSpan.STARTED)
+        await self._hook_bus.emit(SourceLifeSpan.STARTED)
         return self
 
     async def __aexit__(
@@ -117,24 +118,8 @@ class AbstractSource(BetterABC):
         try:
             await self.close()
         finally:
-            await self._life_bus.emit(SourceLifeSpan.STOPPED, wait=True)
+            await self._hook_bus.emit(SourceLifeSpan.STOPPED, True)
         return None
-
-    def on(
-        self, *periods: SourceLifeSpan
-    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """生成注册源生命周期回调的装饰器
-
-        :param periods: 要绑定的生命周期
-        :return: 装饰器
-        """
-
-        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
-            for type in periods:
-                self._life_bus.register(type, func)
-            return func
-
-        return wrapped
 
 
 class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):

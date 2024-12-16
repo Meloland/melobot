@@ -1,9 +1,9 @@
-from typing import Callable, Generic
+from typing_extensions import Callable, Generic
 
 from ..di import inject_deps
 from ..exceptions import PluginIpcError
-from ..typ import AsyncCallable, T
-from ..utils import AttrsReprable, Locatable, RWContext
+from ..typ import AsyncCallable, AttrsReprable, Locatable, T
+from ..utils import RWContext
 
 
 class AsyncShare(Generic[T], Locatable, AttrsReprable):

@@ -4,10 +4,11 @@ from asyncio import Lock
 from collections import deque
 from dataclasses import dataclass
 from functools import wraps
-from inspect import Parameter, isawaitable, signature
+from inspect import Parameter, isawaitable, signature, unwrap
 from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
-from typing import (
+
+from typing_extensions import (
     TYPE_CHECKING,
     Annotated,
     Any,
@@ -31,7 +32,7 @@ from .typ import (
     is_subhint,
     is_type,
 )
-from .utils import to_async
+from .utils import get_obj_name, to_async
 
 if TYPE_CHECKING:
     from .adapter.base import Adapter
@@ -122,23 +123,39 @@ class Depends:
         return val
 
 
+def _adapter_get(hint: Any) -> "Adapter | None":
+    ctx = EventBuildInfoCtx()
+    try:
+        return ctx.get().adapter
+    except ctx.lookup_exc_cls:
+        return BotCtx().get().get_adapter(hint)
+
+
+def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
+    val = LoggerCtx().get()
+    if not is_type(val, hint):
+        val = data.getter()
+    return val
+
+
 class AutoDepends(Depends):
     def __init__(self, func: Callable, name: str, hint: Any) -> None:
         self.hint = hint
         self.func = func
+        self.func_name = get_obj_name(func, otype="callable")
         self.arg_name = name
 
         if get_origin(hint) is Annotated:
             args = get_args(hint)
-            if not len(args) == 2:
+            if not len(args):
                 raise DependInitError(
-                    "可依赖注入的函数若使用 Annotated 注解，必须附加一个元数据，且最多只能有一个"
+                    "可依赖注入的函数若使用 Annotated 注解，必须附加元数据"
                 )
-            self.metadata = args[1]
+            self.metadatas = args
         else:
-            self.metadata = None
+            self.metadatas = ()
 
-        self.orig_getter: Callable[[], Any] | AsyncCallable[[], Any]
+        self.orig_getter: Callable[[], Any] | AsyncCallable[[], Any] | None = None
 
         if is_subhint(hint, FlowCtx().get_event_type()):
             self.orig_getter = FlowCtx().get_event
@@ -147,7 +164,7 @@ class AutoDepends(Depends):
             self.orig_getter = BotCtx().get
 
         elif is_subhint(hint, EventBuildInfoCtx().get_adapter_type()):
-            self.orig_getter = lambda h=hint: AutoDepends._adapter_get(h)  # type: ignore[misc]
+            self.orig_getter = cast(Callable[[], Any], lambda h=hint: _adapter_get(h))
 
         elif is_subhint(hint, LoggerCtx().get_type()):
             self.orig_getter = LoggerCtx().get
@@ -158,56 +175,69 @@ class AutoDepends(Depends):
         elif is_subhint(hint, SessionCtx().get_store_type()):
             self.orig_getter = SessionCtx().get_store
 
-        elif isinstance(self.metadata, CustomLogger):
-            self.orig_getter = LoggerCtx().get
-
         elif is_subhint(hint, SessionCtx().get_rule_type() | None):
             self.orig_getter = lambda: SessionCtx().get().rule
 
-        else:
+        for data in self.metadatas:
+            if isinstance(data, CustomLogger):
+                self.orig_getter = cast(
+                    Callable[[], Any], lambda h=hint, d=data: _custom_logger_get(h, d)
+                )
+                break
+
+        if self.orig_getter is None:
             raise DependInitError(
-                f"函数 {func.__qualname__} 的参数 {name} 提供的类型注解 {hint} 无法用于注入任何依赖，请检查是否有误"
+                f"函数 {self.func_name} 的参数 {name} 提供的类型注解"
+                f" {hint} 无法用于注入任何依赖，请检查是否有误"
             )
+
+        for data in self.metadatas:
+            if isinstance(data, Reflect):
+                self.orig_getter = cast(
+                    Callable[[], Any],
+                    lambda g=self.orig_getter: Reflection(cast(Callable[[], Any], g)),
+                )
+                break
 
         super().__init__(self.orig_getter, sub_getter=None, cache=False, recursive=False)
 
-    @staticmethod
-    def _adapter_get(hint: Any) -> "Adapter | None":
-        ctx = EventBuildInfoCtx()
-        try:
-            return ctx.get().adapter
-        except ctx.lookup_exc_cls:
-            return BotCtx().get().get_adapter(hint)
-
-    def _get_unmatch_exc(self, real_type: Any) -> DependNotMatched:
+    def _unmatch_exc(self, real_type: Any) -> DependNotMatched:
         return DependNotMatched(
-            f"函数 {self.func.__qualname__} 的参数 {self.arg_name} "
-            f"与注解 {self.hint} 不匹配",
-            self.func.__qualname__,
+            f"函数 {self.func_name} 的参数 {self.arg_name} " f"与注解 {self.hint} 不匹配",
+            self.func_name,
             self.arg_name,
             real_type,
             self.hint,
         )
 
+    def _match_check(self, val: Any) -> None:
+        for data in self.metadatas:
+            if isinstance(data, Exclude):
+                if any(isinstance(val, t) for t in data.types):
+                    raise self._unmatch_exc(type(val))
+
+        for data in self.metadatas:
+            if isinstance(data, CustomLogger):
+                return
+
+        if not is_type(val, self.hint):
+            raise self._unmatch_exc(type(val))
+
     async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
         val = await super().fulfill(dep_scope)
 
-        if isinstance(self.metadata, Exclude):
-            if any(isinstance(val, t) for t in self.metadata.types):
-                raise self._get_unmatch_exc(type(val))
+        if isinstance(val, Reflection):
+            inner_val = val.__obj_getter__()
+            if isawaitable(inner_val):
+                raise AttributeError(
+                    f"异步依赖项不能通过 {Reflect.__name__} 创建反射依赖"
+                )
 
-        elif isinstance(self.metadata, CustomLogger):
-            if not is_type(val, self.hint):
-                return self.metadata.getter()
+            self._match_check(inner_val)
             return val
 
-        elif is_subhint(self.hint, LoggerCtx().get_type()):
-            return val
-
-        if is_type(val, self.hint):
-            return val
-
-        raise self._get_unmatch_exc(type(val))
+        self._match_check(val)
+        return val
 
 
 @dataclass
@@ -238,38 +268,85 @@ class CustomLogger:
     getter: Callable[[], Any]
 
 
+@dataclass
+class Reflect:
+    """数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理
+
+    这适用于希望依赖会随着上下文改变，而动态变化的情况。例如动态引用会话流程中的事件对象
+
+    .. code:: python
+
+        # 注入一个依赖时进一步包装为反射依赖
+        event_proxy = Annotated[Event, Reflect()]
+        # 就像使用 event 一样使用 event_proxy
+        event_proxy.attr_xxx
+        event_proxy.method_xxx()
+
+        # 不过 event_proxy 不是完美的代理
+        # 因此 isinstance 类似的操作，使用 __origin__ 获取原始对象
+        isinstance(event_proxy.__origin__, SomeEventType)
+        # 或者是作为运行逻辑未知的函数的参数
+        dont_know_what_this_do(event_proxy.__origin__)
+    """
+
+
+class Reflection:
+    def __init__(self, getter: Callable[[], Any]) -> None:
+        super().__setattr__("__obj_getter__", getter)
+
+    @property
+    def __origin__(self) -> Any:
+        return self.__obj_getter__()
+
+    def __getattr__(self, name: str) -> Any:
+        getter = self.__obj_getter__
+        if name == "__obj_getter__":
+            return getter
+        if name.startswith("_"):
+            raise AttributeError(f"在反射对象上，不允许访问名称以 _ 开头的属性：{name}")
+
+        return getattr(getter(), name)
+
+    def __setattr__(self, name: str, value: Any) -> Any:
+        getter = self.__obj_getter__
+        if name == "__obj_getter__":
+            return getter
+        if name.startswith("_"):
+            raise AttributeError(f"在反射对象上，不允许修改名称以 _ 开头的属性：{name}")
+
+        return setattr(getter(), name, value)
+
+
 def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
     try:
         sign = signature(func)
     except ValueError as e:
-        if (
-            str(e).startswith("no signature found for builtin")
-            and version_info.major >= 3
-            and version_info.minor <= 10
-        ):
+        tip = "no signature found for builtin"
+        if str(e).startswith(tip) and version_info <= (3, 10):
             raise DependInitError(
                 f"内建函数 {func} 在 python <= 3.10 的版本中，无法进行依赖注入"
             ) from None
         raise
 
-    ds = deque(func.__defaults__) if func.__defaults__ is not None else deque()
-    kwds = func.__kwdefaults__ if func.__kwdefaults__ is not None else {}
-    vals: list[Any] = []
-    _empty = Parameter.empty
+    empty = Parameter.empty
+    origin_f = unwrap(func, stop=lambda f: hasattr(f, "__signature__"))
+    ds = deque(origin_f.__defaults__) if origin_f.__defaults__ is not None else deque()
+    kwds = origin_f.__kwdefaults__ if origin_f.__kwdefaults__ is not None else {}
+    nargs: list[Any] = []
 
     for name, param in sign.parameters.items():
         if param.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
             continue
 
-        if param.default is not _empty:
+        if param.default is not empty:
             if name in kwds:
                 pass
             else:
                 ds.popleft()
-                vals.append(param.default)
+                nargs.append(param.default)
             continue
 
-        if param.annotation is _empty:
+        if param.annotation is empty:
             continue
 
         try:
@@ -285,10 +362,10 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
         if param.kind is Parameter.KEYWORD_ONLY:
             kwds[name] = dep
         else:
-            vals.append(dep)
+            nargs.append(dep)
 
-    func.__defaults__ = tuple(vals) if len(vals) else None
-    func.__kwdefaults__ = kwds if len(kwds) else None  # type: ignore[assignment]
+    origin_f.__defaults__ = tuple(nargs) if len(nargs) else None
+    origin_f.__kwdefaults__ = kwds if len(kwds) else None  # type: ignore[assignment]
 
 
 def _get_bound_args(
@@ -299,16 +376,17 @@ def _get_bound_args(
     try:
         bind = sign.bind(*args, **kwargs)
     except TypeError as e:
+        fname = get_obj_name(func, otype="callable")
         raise DependBindError(
-            f"解析依赖时失败。匹配函数 {func.__qualname__} 的参数时发生错误：{e}。"
-            "这可能是因为传参有误，或提供了错误的类型注解"
+            f"依赖注入匹配失败。匹配函数 {fname} 的参数时发生错误：{e}。"
+            "这可能是因为传参个数不匹配，或提供了错误的类型注解"
         ) from None
 
     bind.apply_defaults()
     return list(bind.args), bind.kwargs
 
 
-class DependsHook(BetterABC, Generic[T]):
+class DependsHook(Depends, BetterABC, Generic[T]):
     """依赖钩子
 
     包装一个依赖项，依赖满足后内部的 hook 将会执行
@@ -320,15 +398,25 @@ class DependsHook(BetterABC, Generic[T]):
         cache: bool = False,
         recursive: bool = False,
     ) -> None:
-        self.__inner_depends__ = Depends(func, cache=cache, recursive=recursive)
+        super().__init__(func, cache=cache, recursive=recursive)
 
     @abstractmethod
-    async def deps_callback(self, val: T) -> None: ...
+    async def deps_callback(self, val: T) -> None:
+        """所有依赖钩子子类必须实现该抽象方法
+
+        :param val: 依赖项被满足后的值
+        """
+        raise NotImplementedError
+
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
+        val = await super().fulfill(dep_scope)
+        await self.deps_callback(val)
+        return val
 
 
 def inject_deps(
-    injectee: Callable[P, T] | AsyncCallable[P, T], manual_arg: bool = False
-) -> AsyncCallable[P, T]:
+    injectee: Callable[..., T] | AsyncCallable[..., T], manual_arg: bool = False
+) -> AsyncCallable[..., T]:
     """依赖注入标记装饰器，标记当前对象需要被依赖注入
 
     可以标记的对象类别有：
@@ -338,16 +426,9 @@ def inject_deps(
     :param manual_arg: 当前对象标记需要依赖注入后，是否还可以给某些参数手动传参
     :return: 异步可调用对象，但保留原始参数和返回值签名
     """
-    if hasattr(injectee, "__wrapped__"):
-        name = (
-            injectee.__qualname__
-            if hasattr(injectee, "__qualname__")
-            else "<anonymous callable>"
-        )
-        raise DependInitError(f"函数 {name} 无法进行依赖注入，在依赖注入前它不能被装饰")
 
     @wraps(injectee)
-    async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def di_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         _args, _kwargs = _get_bound_args(injectee, *args, **kwargs)
         dep_scope: dict[Depends, Any] = {}
 
@@ -356,18 +437,10 @@ def inject_deps(
             if isinstance(elem, Depends):
                 _args[idx] = await elem.fulfill(dep_scope)
 
-            if isinstance(elem, DependsHook):
-                val = await elem.__inner_depends__.fulfill(dep_scope)
-                await elem.deps_callback(val)
-
         for idx, k in enumerate(_kwargs.keys()):
             elem = _kwargs[k]
             if isinstance(elem, Depends):
                 _kwargs[k] = await elem.fulfill(dep_scope)
-
-            if isinstance(elem, DependsHook):
-                val = await elem.__inner_depends__.fulfill(dep_scope)
-                await elem.deps_callback(val)
 
         ret = injectee(*_args, **_kwargs)  # type: ignore[arg-type]
         if isawaitable(ret):
@@ -376,9 +449,9 @@ def inject_deps(
 
     if isinstance(injectee, (FunctionType, BuiltinFunctionType)):
         _init_auto_deps(injectee, manual_arg)
-        return wrapped
+        return di_wrapped
     if isinstance(injectee, LambdaType):
-        return wrapped
+        return di_wrapped
 
     raise DependInitError(
         f"{injectee} 对象不属于以下类别中的任何一种："

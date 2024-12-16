@@ -20,25 +20,31 @@ async def test_empty():
 
 async def test_other():
     assert isinstance(
-        echo.Echo.resolve(**ec(message_id=123), action_type="send_msg"), echo.SendMsgEcho
+        echo.Echo.resolve({**ec(message_id=123), "action_type": "send_msg"}),
+        echo.SendMsgEcho,
     )
     assert isinstance(
         echo.Echo.resolve(
-            **ec(message_id=123, forward_id="abc"), action_type="send_private_forward_msg"
+            {
+                **ec(message_id=123, forward_id="abc"),
+                "action_type": "send_private_forward_msg",
+            }
         ),
         echo.SendForwardMsgEcho,
     )
 
     assert echo.Echo.resolve(
-        **ec(
-            time=123,
-            message_type="private",
-            message_id=123,
-            real_id=456,
-            sender={"user_id": 789, "nickname": "melody", "sex": "male", "age": 18},
-            message="123&#91;45[CQ:node,user_id=10001000,nickname=某人,content=&#91;CQ:face&#44;id=123&#93;哈喽～]12345",
-        ),
-        action_type="get_msg",
+        {
+            **ec(
+                time=123,
+                message_type="private",
+                message_id=123,
+                real_id=456,
+                sender={"user_id": 789, "nickname": "melody", "sex": "male", "age": 18},
+                message="123&#91;45[CQ:node,user_id=10001000,nickname=某人,content=&#91;CQ:face&#44;id=123&#93;哈喽～]12345",
+            ),
+            "action_type": "get_msg",
+        }
     ).data["message"][0].data == {"text": "123[45"}
 
     assert not (

@@ -65,12 +65,12 @@ class HttpIO(BaseIO):
         try:
             raw = json.loads(data.decode())
             if (
-                self._life_bus.check_after(SourceLifeSpan.STARTED)
+                self._hook_bus.get_evoke_time(SourceLifeSpan.STARTED) != -1
                 and raw.get("post_type") == "meta_event"
                 and raw.get("meta_event_type") == "lifecycle"
                 and raw.get("sub_type") == "connect"
             ):
-                await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
+                await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
             self.logger.generic_obj(
                 "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
             )
@@ -196,6 +196,6 @@ class HttpIO(BaseIO):
         if packet.echo_id is None:
             return EchoPacket(noecho=True)
 
-        fut: Future[EchoPacket] = Future()
+        fut: Future[EchoPacket] = asyncio.get_running_loop().create_future()
         self._echo_table[packet.echo_id] = (packet.action_type, fut)
         return await fut

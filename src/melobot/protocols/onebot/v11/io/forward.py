@@ -6,9 +6,10 @@ from asyncio import Future, Lock
 from itertools import count
 
 import websockets
+from websockets.asyncio.client import ClientConnection
 from websockets.exceptions import ConnectionClosed
 
-from melobot.exceptions import IOError
+from melobot.exceptions import SourceError
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
@@ -27,10 +28,10 @@ class ForwardWebSocketIO(BaseIO):
     ) -> None:
         super().__init__(cd_time)
         self.url = url
-        self.conn: websockets.client.WebSocketClientProtocol
+        self.conn: ClientConnection
         self.access_token = access_token
         self.max_retry: int = max_retry
-        self.retry_delay: float = retry_delay if retry_delay > 0 else 0
+        self.retry_delay: float = retry_delay if retry_delay > 0 else 0.5
 
         self._in_buf: asyncio.Queue[InPacket] = asyncio.Queue()
         self._out_buf: asyncio.Queue[OutPacket] = asyncio.Queue()
@@ -123,18 +124,15 @@ class ForwardWebSocketIO(BaseIO):
                 headers = {"Authorization": f"Bearer {self.access_token}"}
 
             retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
-            first_try, ok_flag = True, False
-            # mypy's bullshit: Item "range" of "range | Iterator[int]" has no attribute "__next__"
-            for _ in retry_iter:  # type: ignore[union-attr]
-                if first_try:
-                    first_try = False
-                else:
-                    await asyncio.sleep(self.retry_delay)
-
+            for _ in retry_iter:
                 try:
-                    self.conn = await websockets.connect(self.url, extra_headers=headers)
-                    ok_flag = True
+                    self.conn = await websockets.connect(
+                        self.url, additional_headers=headers
+                    )
                     break
+
+                except asyncio.CancelledError:
+                    raise
 
                 except BaseException as e:
                     self.logger.warning(
@@ -143,8 +141,12 @@ class ForwardWebSocketIO(BaseIO):
                     if "403" in str(e):
                         self.logger.warning("403 错误可能是 access_token 未配置或无效")
 
-            if not ok_flag:
-                raise IOError("重试已达最大次数，已放弃建立连接")
+                await asyncio.sleep(self.retry_delay)
+
+            else:
+                raise SourceError(
+                    "OneBot v11 正向 WebSocket IO 源重试已达最大次数，已放弃建立连接"
+                )
 
             self._tasks.append(asyncio.create_task(self._input_loop()))
             self._tasks.append(asyncio.create_task(self._output_loop()))
@@ -153,7 +155,7 @@ class ForwardWebSocketIO(BaseIO):
 
             if self._restart_flag.is_set():
                 self._restart_flag.clear()
-                await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
+                await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
 
     def opened(self) -> bool:
         return self._opened.is_set()
@@ -188,6 +190,6 @@ class ForwardWebSocketIO(BaseIO):
         if packet.echo_id is None:
             return EchoPacket(noecho=True)
 
-        fut: Future[EchoPacket] = Future()
+        fut: Future[EchoPacket] = asyncio.get_running_loop().create_future()
         self._echo_table[packet.echo_id] = (packet.action_type, fut)
         return await fut

@@ -3,15 +3,26 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 from functools import wraps
-from typing import Any, Awaitable, Callable, Protocol, Sequence, cast
 
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
 from beartype.door import is_subhint
-from typing_extensions import ParamSpec, TypeGuard, TypeVar
+from typing_extensions import (
+    Any,
+    Awaitable,
+    Callable,
+    ParamSpec,
+    Protocol,
+    Self,
+    Sequence,
+    TypeGuard,
+    TypeVar,
+    cast,
+)
 
 __all__ = (
     "T",
+    "T_co",
     "P",
     "AsyncCallable",
     "is_type",
@@ -19,9 +30,15 @@ __all__ = (
     "HandleLevel",
     "LogicMode",
     "BetterABCMeta",
+    "BetterABCMeta",
     "BetterABC",
+    "SingletonMeta",
+    "SingletonBetterABCMeta",
     "abstractattr",
     "abstractmethod",
+    "Markable",
+    "AttrsReprable",
+    "Locatable",
     "VoidType",
 )
 
@@ -225,7 +242,7 @@ def abstractattr(obj: Callable[[Any], T] | None = None) -> T:
 
     与 `abstractproperty` 相比更灵活，`abstractattr` 不关心你以何种形式定义属性。只要子类在实例化后，该属性存在，即认为合法。
 
-    但注意它必须与 :class:`BetterABC` 或 :class:`BetterABCMeta` 配合使用
+    但注意它必须与 :class:`BetterABC` 或 :class:`BetterABCMeta` 或 :class:`.SingletonBetterABCMeta` 配合使用
 
     这意味着可以在类层级、实例层级定义属性，或使用 `property` 定义属性：
 
@@ -298,6 +315,133 @@ class BetterABC(metaclass=BetterABCMeta):
     __slots__ = ()
 
 
+class SingletonMeta(type):
+    """单例元类
+
+    相比单例装饰器，可以自动保证所有子类都为单例
+    """
+
+    __instances__: dict[type, Any] = {}
+
+    def __call__(cls: type[T], *args: Any, **kwargs: Any) -> T:
+        if cls not in SingletonMeta.__instances__:
+            SingletonMeta.__instances__[cls] = cast(
+                T, super(SingletonMeta, cls).__call__(*args, **kwargs)  # type: ignore[misc]
+            )
+        return cast(T, SingletonMeta.__instances__[cls])
+
+
+class SingletonBetterABCMeta(BetterABCMeta):
+    """单例抽象元类
+
+    相比普通的抽象元类，还可以自动保证所有子类都为单例
+    """
+
+    __instances__: dict[type, Any] = {}
+
+    def __call__(cls: type[T], *args: Any, **kwargs: Any) -> T:
+        mcls = SingletonBetterABCMeta
+        if cls not in mcls.__instances__:
+            mcls.__instances__[cls] = BetterABCMeta.__call__(cls, *args, **kwargs)
+        return cast(T, mcls.__instances__[cls])
+
+
+class Markable:
+    """可标记对象
+
+    无需直接实例化，而是用作接口在其他类中继承
+    """
+
+    def __init__(self) -> None:
+        self._flags: dict[str, dict[str, Any]] = {}
+
+    def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
+        """在 `namespace` 命名空间中设置 `flag_name` 标记，值为 `val`
+
+        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
+
+        :param namespace: 命名空间
+        :param flag_name: 标记名
+        :param val: 标记值
+        """
+        self._flags.setdefault(namespace, {})
+
+        if flag_name in self._flags[namespace].keys():
+            raise ValueError(
+                f"标记失败。对象的命名空间 {namespace} 中已存在名为 {flag_name} 的标记"
+            )
+
+        self._flags[namespace][flag_name] = val
+
+    def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
+        """检查 `namespace` 命名空间中 `flag_name` 标记值是否为 `val`
+
+        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
+
+        :param namespace: 命名空间
+        :param flag_name: 标记名
+        :param val: 标记值
+        :return: 是否通过检查
+        """
+        if self._flags.get(namespace) is None:
+            return False
+        if flag_name not in self._flags[namespace].keys():
+            return False
+        flag = self._flags[namespace][flag_name]
+
+        if val is None:
+            return flag is None
+        return cast(bool, flag == val)
+
+
+class AttrsReprable:
+    def __repr__(self) -> str:
+        attrs = ", ".join(
+            f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
+        )
+        return f"{self.__class__.__name__}({attrs})"
+
+
+class Locatable:
+    def __new__(cls, *_args: Any, **_kwargs: Any) -> Self:
+        obj = super().__new__(cls)
+        obj.__obj_location__ = obj._init_location()  # type: ignore[attr-defined]
+        return obj
+
+    def __init__(self) -> None:
+        self.__obj_location__: tuple[str, str, int]
+
+    @staticmethod
+    def _init_location() -> tuple[str, str, int]:
+        frame = inspect.currentframe()
+        while frame:
+            if frame.f_code.co_name == "<module>":
+                return (
+                    frame.f_globals["__name__"],
+                    frame.f_globals["__file__"],
+                    frame.f_lineno,
+                )
+            frame = frame.f_back
+
+        return (
+            "<unknown module>",
+            "<unknown file>",
+            -1,
+        )
+
+    @property
+    def __obj_module__(self) -> str:
+        return self.__obj_location__[0]
+
+    @property
+    def __obj_file__(self) -> str:
+        return self.__obj_location__[1]
+
+    @property
+    def __obj_line__(self) -> int:
+        return self.__obj_location__[2]
+
+
 class VoidType(Enum):
     """空类型，需要区别于 `None` 时使用
 
@@ -311,19 +455,28 @@ class VoidType(Enum):
     VOID = type("_VOID", (), {})
 
 
+def deprecate_warn(msg: str) -> None:
+    # pylint: disable=cyclic-import
+    from .ctx import LoggerCtx
+
+    if logger := LoggerCtx().try_get():
+        logger.warning(msg)
+    warnings.simplefilter("always", DeprecationWarning)
+    warnings.warn(msg, category=DeprecationWarning, stacklevel=1)
+    warnings.simplefilter("default", DeprecationWarning)
+
+
 def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
 
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
 
         @wraps(func)
-        def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-            warnings.warn(
-                f"调用了弃用函数 {func.__name__}: {msg}",
-                category=DeprecationWarning,
-                stacklevel=2,
+        def deprecate_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+            deprecate_warn(
+                f"使用了弃用函数/方法 {func.__module__}.{func.__qualname__}: {msg}"
             )
             return func(*args, **kwargs)
 
-        return wrapped
+        return deprecate_wrapped
 
     return decorator

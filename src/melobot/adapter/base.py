@@ -5,21 +5,23 @@ from asyncio import create_task
 from contextlib import AsyncExitStack, _GeneratorContextManager, asynccontextmanager
 from enum import Enum
 from os import PathLike
-from typing import (
+
+from typing_extensions import (
     TYPE_CHECKING,
     AsyncGenerator,
     Callable,
     Generic,
     Iterable,
+    LiteralString,
     NoReturn,
+    Self,
     Sequence,
+    TypeVar,
     cast,
     final,
 )
 
-from typing_extensions import LiteralString, Self, TypeVar
-
-from .._hook import HookBus
+from .._hook import Hookable
 from ..ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
@@ -95,8 +97,8 @@ EchoFactoryT = TypeVar("EchoFactoryT", bound=AbstractEchoFactory)
 class AdapterLifeSpan(Enum):
     """适配器生命周期阶段的枚举"""
 
-    BEFORE_EVENT = "be"
-    BEFORE_ACTION = "ba"
+    BEFORE_EVENT_HANDLE = "beh"
+    BEFORE_ACTION_EXEC = "bae"
     STARTED = "sta"
     STOPPED = "sto"
 
@@ -111,6 +113,7 @@ class Adapter(
         InSourceT,
         OutSourceT,
     ],
+    Hookable[AdapterLifeSpan],
 ):
     """适配器基类
 
@@ -127,9 +130,9 @@ class Adapter(
         output_factory: OutputFactoryT,
         echo_factory: EchoFactoryT,
     ) -> None:
-        super().__init__()
-        self.protocol = protocol
+        Hookable.__init__(self, AdapterLifeSpan, tag=protocol)
 
+        self.protocol = protocol
         self.in_srcs: list[InSourceT] = []
         self.out_srcs: list[OutSourceT] = []
         self.dispatcher: "Dispatcher"
@@ -138,22 +141,15 @@ class Adapter(
         self._echo_factory = echo_factory
 
         self._inited = False
-        self._life_bus = HookBus[AdapterLifeSpan](AdapterLifeSpan)
 
-    @final
     def on(
         self, *periods: AdapterLifeSpan
     ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """生成注册适配器生命周期回调的装饰器
-
-        :param periods: 要绑定的生命周期阶段
-
-        :return: 装饰器
-        """
+        groups = (AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC)
 
         def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
             for type in periods:
-                self._life_bus.register(type, func)
+                self._hook_bus.register(type, func, once=type not in groups)
             return func
 
         return wrapped
@@ -183,9 +179,9 @@ class Adapter(
             try:
                 packet = await src.input()
                 event = await self._event_factory.create(packet)
-                with _EVENT_BUILD_INFO_CTX.in_ctx(EventBuildInfo(self, src)):
-                    await self._life_bus.emit(
-                        AdapterLifeSpan.BEFORE_EVENT, wait=True, args=(event,)
+                with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
+                    await self._hook_bus.emit(
+                        AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,)
                     )
                     asyncio.create_task(self.dispatcher.broadcast(event))
             except Exception:
@@ -218,22 +214,22 @@ class Adapter(
                     create_task(self.__adapter_input_loop__(src))
 
                 self._inited = True
-                await self._life_bus.emit(AdapterLifeSpan.STARTED)
+                await self._hook_bus.emit(AdapterLifeSpan.STARTED)
                 yield self
 
         finally:
             if self._inited:
-                await self._life_bus.emit(AdapterLifeSpan.STOPPED, wait=True)
+                await self._hook_bus.emit(AdapterLifeSpan.STOPPED, True)
 
     @final
     def filter_out(
         self, filter: Callable[[OutSourceT], bool]
-    ) -> _GeneratorContextManager[None]:
+    ) -> _GeneratorContextManager[Callable[[OutSourceT], bool]]:
         """上下文管理器，提供由 `filter` 控制输出的输出上下文
 
         :param filter: 过滤函数，为 `True` 时允许该输出源输出
         """
-        return _OUT_SRC_FILTER_CTX.in_ctx(filter)
+        return _OUT_SRC_FILTER_CTX.unfold(filter)
 
     async def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
         """输出行为，并返回各个输出源返回的 :class:`.ActionHandle` 组成的元组
@@ -260,8 +256,8 @@ class Adapter(
         else:
             osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
 
-        await self._life_bus.emit(
-            AdapterLifeSpan.BEFORE_ACTION, wait=True, args=(action,)
+        await self._hook_bus.emit(
+            AdapterLifeSpan.BEFORE_ACTION_EXEC, True, args=(action,)
         )
         return tuple(
             ActionHandle(action, osrc, self._output_factory, self._echo_factory)
@@ -269,7 +265,7 @@ class Adapter(
         )
 
     @abstractmethod
-    async def send_text(self, text: str) -> tuple[ActionHandle, ...]:
+    async def __send_text__(self, text: str) -> tuple[ActionHandle, ...]:
         """输出文本
 
         抽象方法。所有适配器子类应该实现此方法
@@ -279,7 +275,7 @@ class Adapter(
         """
         raise NotImplementedError
 
-    async def send_media(
+    async def __send_media__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -296,11 +292,11 @@ class Adapter(
         :param mimetype: 多媒体内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot media: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_image(
+    async def __send_image__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -317,11 +313,11 @@ class Adapter(
         :param mimetype: 图像内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot image: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_audio(
+    async def __send_audio__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -338,11 +334,11 @@ class Adapter(
         :param mimetype: 音频内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot audio: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_voice(
+    async def __send_voice__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -359,11 +355,11 @@ class Adapter(
         :param mimetype: 语音内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot voice: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_video(
+    async def __send_video__(
         self,
         name: str,
         raw: bytes | None = None,
@@ -380,11 +376,11 @@ class Adapter(
         :param mimetype: 视频内容的 mimetype，为空则根据 `name` 自动检测
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot video: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def send_file(
+    async def __send_file__(
         self, name: str, path: str | PathLike[str]
     ) -> tuple[ActionHandle, ...]:
         """输出文件
@@ -395,9 +391,9 @@ class Adapter(
         :param path: 文件路径
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(f"[melobot file: {name} at {path}]")
+        return await self.__send_text__(f"[melobot file: {name} at {path}]")
 
-    async def send_refer(
+    async def __send_refer__(
         self, event: Event, contents: Sequence[Content] | None = None
     ) -> tuple[ActionHandle, ...]:
         """输出对过往事件的引用
@@ -408,11 +404,11 @@ class Adapter(
         :param contents: 附加的通用内容序列
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(
+        return await self.__send_text__(
             f"[melobot refer: {event.__class__.__name__}({event.id})]"
         )
 
-    async def send_resource(self, name: str, url: str) -> tuple[ActionHandle, ...]:
+    async def __send_resource__(self, name: str, url: str) -> tuple[ActionHandle, ...]:
         """输出网络资源
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -421,4 +417,4 @@ class Adapter(
         :param url: 网络资源的 url
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.send_text(f"[melobot resource: {name} at {url}]")
+        return await self.__send_text__(f"[melobot resource: {name} at {url}]")

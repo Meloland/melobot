@@ -11,7 +11,7 @@ melobot API
 
 - :class:`.MetaInfo`
 - :class:`.Bot`, :func:`.get_bot`
-- :class:`.Plugin`, :class:`.AsyncShare`, :class:`.SyncShare`
+- :class:`.PluginPlanner`, :class:`.PluginInfo`, :class:`.PluginLifeSpan`, :class:`.AsyncShare`, :class:`.SyncShare`
 - :class:`~melobot.adapter.base.Adapter`, :class:`~melobot.adapter.model.Event`, :class:`~melobot.adapter.model.Action`, :class:`~melobot.adapter.model.Echo`
 - :func:`.send_text`, :func:`.send_image`
 - :class:`.Flow`, :class:`.FlowStore`, :func:`.node`, :func:`.rewind`, :func:`.stop`

@@ -33,9 +33,10 @@ f: Callable = ...
 
 同样的思路，melobot 中提出了 {class}`.AsyncCallable` 类型。它用于许多接口的类型注解，有以下特性：
 
-{class}`.AsyncCallable`\[{data}`.P`, {data}`.T`\] {math}`\iff` {external:class}`~collections.abc.Callable`\[{data}`.P`, {external:class}`~collections.abc.Awaitable`\[{data}`.T`\]\]
+{class}`.AsyncCallable`\[{data}`.P`, {data}`.T`\] {math}`\iff`
+{external:class}`~collections.abc.Callable`\[{data}`.P`, {external:class}`~collections.abc.Awaitable`\[{data}`.T`\]\]
 
-其中 P 为 {external:class}`~typing.ParamSpec` 泛型，T 为普通的无约束泛型。
+其中 P 为 {external:class}`~typing.ParamSpec` 类型变量，T 为普通的无约束类型变量。
 
 典型的异步可调用对象包括：
 
@@ -74,3 +75,7 @@ f = to_async(lambda: _any_coro_f(1, 2, 3))
 
 aprint = to_async(print)
 ```
+
+{func}`.to_async` 只是将原对象包裹在一个异步函数中，从而满足异步可调用的接口。
+
+**即：{func}`.to_async` 不做接口兼容外的处理，因此也就不会提供并发/并行的能力。**

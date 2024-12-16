@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from melobot._cli import pinit, run
+from melobot._cli import dev, pinit, run
 
 parser = argparse.ArgumentParser(prog="mb-cli", description="melobot 命令行工具")
 sub_parsers = parser.add_subparsers()
@@ -19,8 +19,15 @@ run_parser = sub_parsers.add_parser(
 run_parser.add_argument("entry_file", help="bot 程序入口 .py 文件路径")
 run_parser.set_defaults(_cmd_handler=run.main)
 
+dev_parser = sub_parsers.add_parser(
+    "dev", help="以开发模式运行 melobot bot 主程序，支持重启与自动重载"
+)
+dev_parser.add_argument("entry_file", help="bot 程序入口 .py 文件路径")
+dev_parser.add_argument("--watch", nargs="*", default=["."], help="需要监测的文件路径")
+dev_parser.set_defaults(_cmd_handler=dev.main)
+
 args = parser.parse_args()
 if len(sys.argv) > 1:
-    args._cmd_handler(args)  # pylint: disable=protected-access
+    args._cmd_handler(args)
 else:
     print("无命令参数，mb-cli 已结束运行，使用 -h 命令参数获取帮助信息")

@@ -5,20 +5,7 @@ import json
 import re
 import warnings
 from collections.abc import Mapping
-from functools import partial
 from itertools import chain, zip_longest
-from typing import (
-    Annotated,
-    Any,
-    Generic,
-    Literal,
-    Match,
-    TypeAlias,
-    cast,
-    final,
-    get_args,
-    overload,
-)
 
 from beartype.door import is_subhint
 from pydantic import (
@@ -30,19 +17,32 @@ from pydantic import (
     UrlConstraints,
     create_model,
 )
-from typing_extensions import NotRequired, Self, TypedDict, TypeVar
+from typing_extensions import (
+    Annotated,
+    Any,
+    Generic,
+    Literal,
+    Match,
+    NotRequired,
+    Self,
+    TypeAlias,
+    TypedDict,
+    TypeVar,
+    cast,
+    final,
+    get_args,
+    overload,
+)
 
 from melobot.adapter import content as mbcontent
-
-from ..const import T, V
 
 MediaUrl: TypeAlias = Annotated[
     AnyUrl, UrlConstraints(allowed_schemes=["http", "https", "file", "base64"])
 ]
 
 
-_SegTypeT = TypeVar("_SegTypeT", bound=str, default=Any)
-_SegDataT = TypeVar("_SegDataT", bound=Mapping[str, Any], default=Any)
+SegTypeT = TypeVar("SegTypeT", bound=str, default=Any)
+SegDataT = TypeVar("SegDataT", bound=Mapping[str, Any], default=Any)
 
 
 def cq_filter_text(s: str) -> str:
@@ -267,15 +267,17 @@ def contents_to_segs(contents: list[mbcontent.Content]) -> list[Segment]:
     return segments
 
 
-class Segment(Generic[_SegTypeT, _SegDataT]):
+TypeT = TypeVar("TypeT", bound=str, default=Any)
+DataT = TypeVar("DataT", bound=Mapping[str, Any], default=Any)
+
+
+class Segment(Generic[SegTypeT, SegDataT]):
 
     class Model(BaseModel):
         type: str
         data: dict
 
-    __dynamic_segments__: dict[str, type[Segment]] = {}
-
-    def __init__(self, seg_type: _SegTypeT, **seg_data: Any) -> None:
+    def __init__(self, seg_type: SegTypeT, **seg_data: Any) -> None:
         self.raw = {"type": seg_type, "data": seg_data}
         self._model = self.Model(
             type=seg_type,
@@ -285,8 +287,12 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
     @classmethod
     @final
     def add_type(
-        cls, seg_type_hint: type[T], seg_data_hint: type[V]
-    ) -> type[_CustomSegment[T, V]]:  # type: ignore[type-var]
+        cls, seg_type_hint: type[TypeT], seg_data_hint: type[DataT]
+    ) -> type[_CustomSegInterface[TypeT, DataT]]:  # type: ignore[type-var]
+        if cls is not Segment:
+            raise ValueError(
+                f"只能使用 {Segment.__name__} 类的 {Segment.add_type.__name__} 方法"
+            )
         if not is_subhint(seg_type_hint, Literal):
             raise ValueError("新消息段的类型标注必须为 Literal")
         if not is_subhint(seg_data_hint, TypedDict):
@@ -301,22 +307,12 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
         type_classname = f"{stand_name}Segment"
         type_dataname = f"_{stand_name}Data"
 
-        if type_classname in cls.__dynamic_segments__:
-            raise ValueError(f"类型为 {type_name} 的自定义消息段类型已经存在")
-
-        def __custom_seg_cls_init__(self: type, **data: Any) -> None:
-            setattr(
-                self,
-                "_model",
-                getattr(self, "Model")(
-                    type=getattr(self, "SegTypeVal"),
-                    data=data,
-                ),
-            )
+        if type_classname in {subcls.__name__ for subcls in cls.__subclasses__()}:
+            raise ValueError(f"类型为 {type_name} 的消息段类型已经存在")
 
         seg_cls = type(
             type_classname,
-            (Segment,),
+            (_CustomSegInterface,),
             {
                 "Model": create_model(
                     type_dataname,
@@ -328,35 +324,32 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
         )
         setattr(
             seg_cls,
-            "__init__",
-            partial(__custom_seg_cls_init__, seg_cls),
+            Segment.resolve.__name__,
+            lambda _, seg_data: seg_cls(**seg_data),
         )
-        cls.__dynamic_segments__[type_classname] = seg_cls
-        return cast(type[_CustomSegment[T, V]], seg_cls)  # type: ignore[type-var]
+        return cast(type[_CustomSegInterface], seg_cls)
 
     @property
-    def type(self) -> _SegTypeT:
-        return cast(_SegTypeT, self._model.type)
+    def type(self) -> SegTypeT:
+        return cast(SegTypeT, self._model.type)
 
     @property
-    def data(self) -> _SegDataT:
-        return cast(_SegDataT, self._model.data)
+    def data(self) -> SegDataT:
+        return cast(SegDataT, self._model.data)
 
     @classmethod
     def resolve(cls, seg_type: Any, seg_data: Any) -> Segment:
-        cls_name = f"{seg_type.capitalize()}Segment"
-        cls_map = {subcls.__name__: subcls for subcls in cls.__subclasses__()}
+        cls_name = f"{seg_type.lower().capitalize()}Segment"
+        cls_map = {
+            subcls.__name__: subcls
+            for subcls in cls.__subclasses__() + _CustomSegInterface.__subclasses__()
+        }
         if cls_name in cls_map:
             return cls_map[cls_name].resolve(seg_type, seg_data)
-        if cls_name in cls.__dynamic_segments__:
-            return cast(
-                Self,
-                cls.__dynamic_segments__[cls_name].resolve(seg_type, seg_data),
-            )
         return cls(seg_type, **seg_data)
 
     @classmethod
-    def resolve_cq(cls, cq_str: str) -> list[Segment]:
+    def __resolve_cq__(cls, cq_str: str) -> list[Segment]:
         dicts = _cq_to_dicts(cq_str)
         segs = [cls.resolve(dic["type"], dic["data"]) for dic in dicts]
         return segs
@@ -377,10 +370,11 @@ class Segment(Generic[_SegTypeT, _SegDataT]):
         return json.dumps(self.to_dict(force_str), ensure_ascii=False)
 
 
-class _CustomSegment(Segment[_SegTypeT, _SegDataT]):
-    def __init__(  # pylint: disable=super-init-not-called,unused-argument
-        self, **data: Any
-    ) -> None: ...
+class _CustomSegInterface(Segment[TypeT, DataT]):
+    SegTypeVal: TypeT
+
+    def __init__(self, **seg_data: DataT) -> None:
+        super().__init__(self.__class__.SegTypeVal, **seg_data)
 
 
 class _TextData(TypedDict):

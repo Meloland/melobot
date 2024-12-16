@@ -15,7 +15,7 @@ class BaseIO(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
     # pylint: disable=duplicate-code
     def __init__(self, cd_time: float) -> None:
         super().__init__(PROTOCOL_IDENTIFIER)
-        self.cd_time = cd_time
+        self.cd_time = cd_time if cd_time > 0 else 0.01
 
     @property
     def logger(self) -> GenericLogger:

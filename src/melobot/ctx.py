@@ -2,11 +2,11 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
+
+from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
-from .typ import T
-from .utils import singleton
+from .typ import SingletonMeta, T
 
 if TYPE_CHECKING:
     from .adapter import model
@@ -19,10 +19,11 @@ if TYPE_CHECKING:
     from .session.option import Rule
 
 
-class Context(Generic[T]):
+class Context(Generic[T], metaclass=SingletonMeta):
     """上下文对象，本质是对 :class:`contextvars.ContextVar` 操作的封装
 
-    可以继承该基类，实现自己的上下文对象
+    继承该基类，可以实现自己的上下文对象。
+    任何时候不应该直接实例化该类，而是应该继承实现子类，再使用子类
     """
 
     def __init__(
@@ -37,6 +38,11 @@ class Context(Generic[T]):
         :param lookup_exc_cls: 当试图获取上下文值失败时，抛出的异常
         :param lookup_exc_tip: 当试图获取上下文值失败时，抛出异常的附加说明
         """
+        if self.__class__ is Context:
+            raise TypeError(
+                f"任何时候都不应该直接实例化 {Context.__name__}，而应该实现子类"
+            )
+
         self.__storage__ = ContextVar[T](ctx_name)
         self.lookup_exc_cls = lookup_exc_cls
         self.lookup_exc_tip = lookup_exc_tip
@@ -74,16 +80,16 @@ class Context(Generic[T]):
         self.__storage__.reset(token)
 
     @contextmanager
-    def in_ctx(self, obj: T) -> Generator[None, None, None]:
-        """上下文管理器，展开一个上下文值为 `obj` 的上下文环境
+    def unfold(self, obj: T) -> Generator[T, None, None]:
+        """展开一个上下文值为 `obj` 的上下文环境，返回上下文管理器
 
-        退出上下文管理器作用域后自动清理
+        上下文管理器可 `yield` 上下文值，退出上下文管理器作用域后自动清理
 
         :param obj: 上下文值
         """
         token = self.add(obj)
         try:
-            yield
+            yield obj
         finally:
             self.remove(token)
 
@@ -91,7 +97,6 @@ class Context(Generic[T]):
 _OutSrcFilterType = Callable[["OutSourceT"], bool]
 
 
-@singleton
 class OutSrcFilterCtx(Context[_OutSrcFilterType]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_OUT_SRC_FILTER", AdapterError)
@@ -103,7 +108,6 @@ class EventBuildInfo:
     in_src: "AbstractInSource"
 
 
-@singleton
 class EventBuildInfoCtx(Context[EventBuildInfo]):
     def __init__(self) -> None:
         super().__init__(
@@ -165,7 +169,6 @@ class FlowStatus:
     store: FlowStore = field(default_factory=FlowStore)
 
 
-@singleton
 class FlowCtx(Context[FlowStatus]):
     def __init__(self) -> None:
         super().__init__(
@@ -202,7 +205,6 @@ class FlowCtx(Context[FlowStatus]):
         return FlowStore
 
 
-@singleton
 class BotCtx(Context["Bot"]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_BOT", BotError, "此时未初始化 bot 实例，无法获取")
@@ -213,7 +215,6 @@ class BotCtx(Context["Bot"]):
         return Bot
 
 
-@singleton
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
         super().__init__(
@@ -236,7 +237,6 @@ class SessionCtx(Context["Session"]):
         return Rule
 
 
-@singleton
 class LoggerCtx(Context["GenericLogger"]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_LOGGER", LogError, "此时未初始化 logger 实例，无法获取")
@@ -247,7 +247,6 @@ class LoggerCtx(Context["GenericLogger"]):
         return GenericLogger
 
 
-@singleton
 class ActionManualSignalCtx(Context[bool]):
     def __init__(self) -> None:
-        super().__init__("MELOBOT_ACTION_AUTO_SIGNAL", AdapterError)
+        super().__init__("MELOBOT_ACTION_MANUAL_SIGNAL", AdapterError)

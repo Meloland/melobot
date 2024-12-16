@@ -58,10 +58,24 @@ from melobot.protocols.onebot.v11 import Adapter, on_message, EchoRequireCtx
 
 @on_message(...)
 async def _(adapter: Adapter):
-    with EchoRequireCtx().in_ctx(True):
+    with EchoRequireCtx().unfold(True):
         # 全部都会等待
         await adapter.send("我一定先被看到")
         await adapter.send("我一定是第二条消息")
+```
+
+一整个函数都需要等待时，可以使用 {func}`.unfold_ctx` 装饰器：
+
+```python
+from melobot.protocols.onebot.v11 import Adapter, on_message, EchoRequireCtx
+from melobot.utils import unfold_ctx
+
+@on_message(...)
+@unfold_ctx(lambda: EchoRequireCtx().unfold(True))
+async def _(adapter: Adapter):
+    # 全部都会等待
+    await adapter.send("我一定先被看到")
+    await adapter.send("我一定是第二条消息")
 ```
 
 ```{admonition} 提示
@@ -96,11 +110,11 @@ class MyAction(Action):
 action = MyAction(123456)
 
 # 通过 adapter 的通用 action 输出方法输出
-await = adapter.call_output(action)
+await adapter.call_output(action)
 
 # 需要等待时，这样设置：
 action.set_echo(True)
-await = adapter.call_output(action)
+handles = await adapter.call_output(action)
 ```
 
 实际上，适配器所有行为操作，都是先在内部构建 {class}`~.v11.adapter.action.Action` 对象，再通过 {meth}`~.v11.Adapter.call_output` 输出。

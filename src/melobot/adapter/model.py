@@ -5,7 +5,8 @@ from asyncio import create_task
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from time import time_ns
-from typing import (
+
+from typing_extensions import (
     TYPE_CHECKING,
     Any,
     Awaitable,
@@ -14,21 +15,23 @@ from typing import (
     Generic,
     Hashable,
     Literal,
+    LiteralString,
+    Self,
     Sequence,
+    TypeVar,
     cast,
 )
 
-from typing_extensions import LiteralString, Self, TypeVar
-
 from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
 from ..exceptions import AdapterError
+from ..io.base import AbstractOutSource
 from ..log.base import LogLevel
-from ..typ import T
-from ..utils import AttrsReprable, get_id, to_coro
+from ..typ import AttrsReprable, T
+from ..utils import get_id, to_coro
 from .content import Content
 
 if TYPE_CHECKING:
-    from .base import AbstractEchoFactory, AbstractOutputFactory, AbstractOutSource
+    from .base import AbstractEchoFactory, AbstractOutputFactory
 
 
 class Event(AttrsReprable):
@@ -135,20 +138,21 @@ class ActionHandle(Generic[ActionRetT]):
 
     :ivar Action action: 操作包含的行为对象
     :ivar typing.Literal["PENDING", "EXECUTING", "FINISHED"] status: 操作的状态。分别对应：未执行、执行中、执行完成
+    :ivar AbstractOutSource out_src: 执行操作的输出源对象
     """
 
     def __init__(
         self,
         action: Action,
-        out_src: "AbstractOutSource",
+        out_src: AbstractOutSource,
         output_factory: "AbstractOutputFactory",
         echo_factory: "AbstractEchoFactory",
     ) -> None:
         self.action = action
         self.status: Literal["PENDING", "EXECUTING", "FINISHED"] = "PENDING"
+        self.out_src = out_src
 
         self._echo: ActionRetT
-        self._out_src = out_src
         self._output_factory = output_factory
         self._echo_factory = echo_factory
         self._done = asyncio.Event()
@@ -167,13 +171,15 @@ class ActionHandle(Generic[ActionRetT]):
     async def _execute(self) -> None:
         try:
             output_packet = await self._output_factory.create(self.action)
-            echo_packet = await self._out_src.output(output_packet)
+            echo_packet = await self.out_src.output(output_packet)
             self._echo = cast(ActionRetT, await self._echo_factory.create(echo_packet))
             self.status = "FINISHED"
             self._done.set()
         except Exception:
             logger = LoggerCtx().get()
-            logger.exception(f"{self.action} 执行时出现异常")
+            logger.exception(
+                f"{self.__class__.__module__}.{self.action.__class__.__qualname__} 执行时出现异常"
+            )
             logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
 
     def execute(self) -> Self:
@@ -211,7 +217,7 @@ class ActionChain:
             self._chain[-1].next = step
         self._chain.append(step)
 
-    def in_ctx(self, ctx: Context[T], val: T) -> Self:
+    def unfold(self, ctx: Context[T], val: T) -> Self:
         """指定链后续的步骤中在 `ctx` 类别的上下文中执行，上下文值为 `val`
 
         :param ctx: 上下文类别
@@ -257,7 +263,7 @@ class ActionChain:
 
     async def _start(self, step: _ChainStep) -> None:
         if isinstance(step, _ChainCtxStep):
-            with step.ctx_var.in_ctx(step.ctx_val):
+            with step.ctx_var.unfold(step.ctx_val):
                 if step.next:
                     await self._start(step.next)
             return
@@ -278,5 +284,5 @@ def open_chain() -> Generator[ActionChain, None, None]:
 
     :yield: 行为链对象
     """
-    with ActionManualSignalCtx().in_ctx(True):
+    with ActionManualSignalCtx().unfold(True):
         yield ActionChain()

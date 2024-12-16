@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing_extensions import Sequence
 
 from ..adapter.base import Adapter
 from ..io.base import AbstractInSource, AbstractOutSource

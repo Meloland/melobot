@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 from asyncio import Condition, Lock
 from contextlib import _AsyncGeneratorContextManager, asynccontextmanager
-from typing import Any, AsyncGenerator, cast
+
+from typing_extensions import Any, AsyncGenerator
 
 from ..adapter.model import Event
 from ..ctx import FlowCtx, SessionCtx
@@ -15,13 +16,16 @@ from .option import Rule
 _SESSION_CTX = SessionCtx()
 
 
-class SessionStateError(BotException):
-    def __init__(self, meth: str | None = None, text: str | None = None) -> None:
-        if text is not None:
-            super().__init__(text)
-            return
+class SessionError(BotException): ...
 
-        super().__init__(f"当前会话状态不支持的操作：{meth}")
+
+class SessionStateFailed(SessionError):
+    def __init__(self, cur_state: str, meth: str) -> None:
+        self.cur_state = cur_state
+        super().__init__(f"当前会话状态 {cur_state} 不支持的操作：{meth}")
+
+
+class SessionRuleLacked(SessionError): ...
 
 
 class SessionState:
@@ -29,72 +33,79 @@ class SessionState:
         self.session = session
 
     async def work(self, event: Event) -> None:
-        raise SessionStateError(meth=SessionState.work.__name__)
+        raise SessionStateFailed(self.__class__.__name__, SessionState.work.__name__)
 
     async def rest(self) -> None:
-        raise SessionStateError(meth=SessionState.rest.__name__)
+        raise SessionStateFailed(self.__class__.__name__, SessionState.rest.__name__)
 
     async def suspend(self, timeout: float | None) -> bool:
-        raise SessionStateError(meth=SessionState.suspend.__name__)
+        raise SessionStateFailed(self.__class__.__name__, SessionState.suspend.__name__)
 
     async def wakeup(self, event: Event) -> None:
-        raise SessionStateError(meth=SessionState.wakeup.__name__)
+        raise SessionStateFailed(self.__class__.__name__, SessionState.wakeup.__name__)
 
     async def expire(self) -> None:
-        raise SessionStateError(meth=SessionState.expire.__name__)
+        raise SessionStateFailed(self.__class__.__name__, SessionState.expire.__name__)
 
 
 class SpareSessionState(SessionState):
     async def work(self, event: Event) -> None:
         self.session.event = event
-        self.session.to_state(WorkingSessionState)
+        self.session.__to_state__(WorkingSessionState)
 
 
 class WorkingSessionState(SessionState):
     async def rest(self) -> None:
         if self.session.rule is None:
-            raise SessionStateError(text="缺少会话规则，会话无法从“运行态”转为“空闲态”")
+            raise SessionRuleLacked("缺少会话规则，会话无法从“运行态”转为“空闲态”")
 
         cond = self.session.refresh_cond
+        self.session.__to_state__(SpareSessionState)
         async with cond:
             cond.notify()
-        self.session.to_state(SpareSessionState)
 
     async def suspend(self, timeout: float | None) -> bool:
         if self.session.rule is None:
-            raise SessionStateError(text="缺少会话规则，会话无法从“运行态”转为“挂起态”")
+            raise SessionRuleLacked("缺少会话规则，会话无法从“运行态”转为“挂起态”")
 
         cond = self.session.refresh_cond
+        self.session.__to_state__(SuspendSessionState)
         async with cond:
             cond.notify()
-        self.session.to_state(SuspendSessionState)
 
         async with self.session.wakeup_cond:
             if timeout is None:
                 await self.session.wakeup_cond.wait()
                 return True
+
             try:
                 await asyncio.wait_for(self.session.wakeup_cond.wait(), timeout=timeout)
                 return True
+
             except asyncio.TimeoutError:
+                if self.session.is_state(WorkingSessionState):
+                    return True
+                self.session.__to_state__(WorkingSessionState)
                 return False
 
     async def expire(self) -> None:
+        self.session.__to_state__(ExpireSessionState)
         if self.session.rule is not None:
             cond = self.session.refresh_cond
             async with cond:
                 cond.notify()
-        self.session.to_state(ExpireSessionState)
 
 
 class SuspendSessionState(SessionState):
 
     async def wakeup(self, event: Event) -> None:
+        if self.session.is_state(WorkingSessionState):
+            return
         self.session.event = event
         cond = self.session.wakeup_cond
+        self.session.__to_state__(WorkingSessionState)
         async with cond:
             cond.notify()
-        self.session.to_state(WorkingSessionState)
 
 
 class ExpireSessionState(SessionState): ...
@@ -125,25 +136,28 @@ class Session:
 
         self._state: SessionState = WorkingSessionState(self)
 
-    def to_state(self, state_class: type[SessionState]) -> None:
+    def __to_state__(self, state_class: type[SessionState]) -> None:
         self._state = state_class(self)
 
-    def on_state(self, state_class: type[SessionState]) -> bool:
+    def is_state(self, state_class: type[SessionState]) -> bool:
         return isinstance(self._state, state_class)
 
-    async def work(self, event: Event) -> None:
+    def mark_expire(self) -> None:
+        self.keep = False
+
+    async def __work__(self, event: Event) -> None:
         await self._state.work(event)
 
-    async def rest(self) -> None:
+    async def __rest__(self) -> None:
         await self._state.rest()
 
-    async def suspend(self, timeout: float | None = None) -> bool:
+    async def __suspend__(self, timeout: float | None = None) -> bool:
         return await self._state.suspend(timeout)
 
-    async def wakeup(self, event: Event) -> None:
+    async def __wakeup__(self, event: Event) -> None:
         await self._state.wakeup(event)
 
-    async def expire(self) -> None:
+    async def __expire__(self) -> None:
         await self._state.expire()
 
     @classmethod
@@ -162,55 +176,60 @@ class Session:
             cls.__instance_locks__.setdefault(rule, Lock())
 
         async with cls.__instance_locks__[rule]:
-            _set = cls.__instances__.setdefault(rule, set())
+            try:
+                _set = cls.__instances__.setdefault(rule, set())
 
-            suspends = filter(lambda s: s.on_state(SuspendSessionState), _set)
-            for session in suspends:
-                if await rule.compare(session.event, event):
-                    await session.wakeup(event)
-                    return None
-
-            spares = filter(lambda s: s.on_state(SpareSessionState), _set)
-            for session in spares:
-                if await rule.compare(session.event, event):
-                    await session.work(event)
-                    session.keep = keep
-                    return session
-
-            workings = filter(lambda s: s.on_state(WorkingSessionState), _set)
-            expires = list(filter(lambda s: s.on_state(ExpireSessionState), _set))
-            for session in workings:
-                if not await rule.compare(session.event, event):
-                    continue
-
-                if not wait:
-                    if nowait_cb is not None:
-                        await nowait_cb()
-                    return None
-
-                cond = session.refresh_cond
-                async with cond:
-                    await cond.wait()
-                    if session.on_state(ExpireSessionState):
-                        expires.append(session)
-                    elif session.on_state(SuspendSessionState):
-                        await session.wakeup(event)
+                suspends = filter(lambda s: s.is_state(SuspendSessionState), _set)
+                for session in suspends:
+                    if await rule.compare(session.event, event):
+                        await session.__wakeup__(event)
                         return None
-                    else:
-                        await session.work(event)
+
+                spares = filter(lambda s: s.is_state(SpareSessionState), _set)
+                for session in spares:
+                    if await rule.compare(session.event, event):
+                        await session.__work__(event)
                         session.keep = keep
                         return session
 
-            for session in expires:
-                Session.__instances__[cast(Rule, session.rule)].remove(session)
+                workings = filter(lambda s: s.is_state(WorkingSessionState), _set)
+                for session in workings:
+                    if not await rule.compare(session.event, event):
+                        continue
 
-            session = Session(event, rule=rule, keep=keep)
-            Session.__instances__[rule].add(session)
-            return session
+                    if not wait:
+                        if nowait_cb is not None:
+                            await nowait_cb()
+                        return None
+
+                    cond = session.refresh_cond
+                    async with cond:
+                        await cond.wait()
+
+                        if session.is_state(ExpireSessionState):
+                            pass
+
+                        elif session.is_state(SuspendSessionState):
+                            await session.__wakeup__(event)
+                            return None
+
+                        else:
+                            await session.__work__(event)
+                            session.keep = keep
+                            return session
+
+                session = Session(event, rule=rule, keep=keep)
+                Session.__instances__[rule].add(session)
+                return session
+
+            finally:
+                expires = tuple(filter(lambda s: s.is_state(ExpireSessionState), _set))
+                for session in expires:
+                    Session.__instances__[rule].remove(session)
 
     @classmethod
     @asynccontextmanager
-    async def enter_ctx(
+    async def enter(
         cls,
         rule: Rule,
         wait: bool = True,
@@ -227,17 +246,17 @@ class Session:
         if session is None:
             await stop()
 
-        with _SESSION_CTX.in_ctx(session):
+        with _SESSION_CTX.unfold(session):
             try:
                 yield session
             except asyncio.CancelledError:
-                if session.on_state(SuspendSessionState):
-                    await session.wakeup(session.event)
+                if session.is_state(SuspendSessionState):
+                    await session.__wakeup__(session.event)
             finally:
                 if session.keep:
-                    await session.rest()
+                    await session.__rest__()
                 else:
-                    await session.expire()
+                    await session.__expire__()
 
 
 async def suspend(timeout: float | None = None) -> bool:
@@ -246,7 +265,7 @@ async def suspend(timeout: float | None = None) -> bool:
     :param timeout: 挂起后再唤醒的超时时间, 为空则永不超时
     :return: 如果为 `False` 则表明唤醒超时
     """
-    return await SessionCtx().get().suspend(timeout)
+    return await _SESSION_CTX.get().__suspend__(timeout)
 
 
 def enter_session(
@@ -263,4 +282,4 @@ def enter_session(
     :param keep: 会话在退出会话上下文后是否继续保持
     :yield: 会话对象
     """
-    return Session.enter_ctx(rule, wait, nowait_cb, keep)
+    return Session.enter(rule, wait, nowait_cb, keep)

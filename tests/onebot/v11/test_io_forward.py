@@ -71,7 +71,7 @@ class MockWebsocket:
 
 
 async def test_forward_ws(monkeypatch) -> None:
-    with LoggerCtx().in_ctx(Logger()):
+    with LoggerCtx().unfold(Logger()):
         monkeypatch.setattr(websockets, "connect", MockWebsocket.get)
         io = ForwardWebSocketIO("ws://example.com", max_retry=3, retry_delay=1)
         async with io:

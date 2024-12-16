@@ -1,19 +1,19 @@
 from dataclasses import dataclass, field
 
 from melobot.io import EchoPacket as RootEchoPak
-from melobot.io import InPacket as RootInPack
+from melobot.io import InPacket as RootInPak
 from melobot.io import OutPacket as RootOutPak
 
 from ..const import PROTOCOL_IDENTIFIER
 
 
-@dataclass(frozen=True, kw_only=True)
-class InPacket(RootInPack):
+@dataclass(kw_only=True)
+class InPacket(RootInPak):
     data: dict
     protocol: str = PROTOCOL_IDENTIFIER
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class OutPacket(RootOutPak):
     data: str
     action_type: str
@@ -22,7 +22,7 @@ class OutPacket(RootOutPak):
     protocol: str = PROTOCOL_IDENTIFIER
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class EchoPacket(RootEchoPak):
     action_type: str = ""
     data: dict = field(default_factory=dict)

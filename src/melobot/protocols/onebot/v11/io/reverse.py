@@ -4,11 +4,12 @@ import http
 import json
 import time
 from asyncio import Future
-from typing import Callable
 
 import websockets
 import websockets.server
 from websockets import ConnectionClosed
+from websockets.asyncio.server import Server, ServerConnection
+from websockets.http11 import Request, Response
 
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
@@ -24,8 +25,8 @@ class ReverseWebSocketIO(BaseIO):
         super().__init__(cd_time)
         self.host = host
         self.port = port
-        self.conn: websockets.server.WebSocketServerProtocol
-        self.server: websockets.server.WebSocketServer
+        self.conn: ServerConnection
+        self.server: Server
         self.access_token = access_token
 
         self._in_buf: asyncio.Queue[InPacket] = asyncio.Queue()
@@ -40,25 +41,17 @@ class ReverseWebSocketIO(BaseIO):
         self._lock = asyncio.Lock()
         self._restart_flag = asyncio.Event()
 
-    async def _req_check(
-        self, _: str, headers: websockets.HeadersLike
-    ) -> tuple[http.HTTPStatus, websockets.HeadersLike, bytes] | None:
-        _headers = dict(headers)
-
-        resp_403: Callable[[str], tuple[http.HTTPStatus, list, bytes]] = lambda x: (
-            http.HTTPStatus.FORBIDDEN,
-            [],
-            x.encode(),
-        )
+    async def _req_check(self, conn: ServerConnection, req: Request) -> Response | None:
+        _headers = dict(req.headers)
         reconn_refused = "Already accepted the unique connection\n"
         auth_failed = "Authorization failed\n"
 
         if self._conn_requested:
-            return resp_403(reconn_refused)
+            return conn.respond(http.HTTPStatus.FORBIDDEN, reconn_refused)
 
         async with self._req_lock:
             if self._conn_requested:
-                return resp_403(reconn_refused)
+                return conn.respond(http.HTTPStatus.FORBIDDEN, reconn_refused)
 
             if (
                 self.access_token is not None
@@ -66,12 +59,12 @@ class ReverseWebSocketIO(BaseIO):
                 and _headers.get("Authorization") != f"Bearer {self.access_token}"
             ):
                 self.logger.warning("OneBot 实现端的 access_token 不匹配，拒绝连接")
-                return resp_403(auth_failed)
+                return conn.respond(http.HTTPStatus.FORBIDDEN, auth_failed)
 
             self._conn_requested = True
             return None
 
-    async def _input_loop(self, ws: websockets.server.WebSocketServerProtocol) -> None:
+    async def _input_loop(self, ws: ServerConnection) -> None:
         # pylint: disable=duplicate-code
         self.conn = ws
         self._opened.set()
@@ -79,7 +72,7 @@ class ReverseWebSocketIO(BaseIO):
 
         if self._restart_flag.is_set():
             self._restart_flag.clear()
-            await self._life_bus.emit(SourceLifeSpan.RESTARTED, wait=False)
+            await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
 
         while True:
             try:
@@ -192,6 +185,6 @@ class ReverseWebSocketIO(BaseIO):
         if packet.echo_id is None:
             return EchoPacket(noecho=True)
 
-        fut: Future[EchoPacket] = Future()
+        fut: Future[EchoPacket] = asyncio.get_running_loop().create_future()
         self._echo_table[packet.echo_id] = (packet.action_type, fut)
         return await fut

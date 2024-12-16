@@ -6,6 +6,11 @@ melobot.di
 
 .. autoclass:: melobot.di.Depends
     :members:
+    :exclude-members: fulfill
+
+.. autoclass:: melobot.di.DependsHook
+    :members:
+    :exclude-members: fulfill
 
 .. autofunction:: melobot.di.inject_deps
 
@@ -19,5 +24,9 @@ melobot.di
     :exclude-members: __init__
 
 .. autoclass:: melobot.di.CustomLogger
+    :members:
+    :exclude-members: __init__
+
+.. autoclass:: melobot.di.Reflect
     :members:
     :exclude-members: __init__

@@ -2,6 +2,7 @@ import logging
 import sys
 
 import better_exceptions
+from typing_extensions import Any
 
 better_exceptions.SUPPORTS_COLOR = True
 better_exceptions.color.SUPPORTS_COLOR = True
@@ -12,7 +13,7 @@ better_exceptions.formatter.ENCODING = sys.stdout.encoding
 # 直接 hook，而不是让它使用环境变量触发
 sys.excepthook = better_exceptions.excepthook
 # 取消它的猴子补丁
-logging._loggerClass = (  # type:ignore[attr-defined] # pylint: disable=protected-access
+logging._loggerClass = (  # type:ignore[attr-defined]
     logging.Logger
 )
 
@@ -20,9 +21,17 @@ logging._loggerClass = (  # type:ignore[attr-defined] # pylint: disable=protecte
 class BotException(Exception):
     """bot 异常基类"""
 
-    def __init__(self, obj: object = ""):
-        super().__init__(self, obj)
-        self.err = str(obj)
+    def __init__(self, *args: object):
+        super().__init__(self, args)
+        if not len(args):
+            self.err = ""
+        elif len(args) == 1:
+            self.err = str(args[0])
+        else:
+            self.err = str(args)
+        self.pretty_err = (
+            f"[{self.__class__.__module__}.{self.__class__.__qualname__}] {self.err}"
+        )
 
     def __str__(self) -> str:
         return self.err
@@ -36,12 +45,20 @@ class BotError(BotException):
     """melobot bot 异常"""
 
 
-class IOError(BotException):
-    """melobot 输入输出源异常"""
+class SourceError(BotException):
+    """melobot 源异常"""
 
 
 class PluginError(BotException):
     """melobot 插件异常"""
+
+
+class PluginAutoGenError(PluginError):
+    """melobot 插件自动生成异常"""
+
+
+class PluginLoadError(PluginError):
+    """melobot 插件加载异常"""
 
 
 class PluginIpcError(PluginError):
@@ -80,5 +97,11 @@ class DependBindError(DependError):
     """melobot 依赖注入项值绑定失败"""
 
 
-class DynamicImpError(BotException):
+class DynamicImpError(BotException, ImportError):
     """melobot 动态导入组件异常"""
+
+    def __init__(
+        self, *args: Any, name: str | None = None, path: str | None = None
+    ) -> None:
+        BotException.__init__(self, *args)
+        ImportError.__init__(self, *args, name=name, path=path)

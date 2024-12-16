@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any, Callable, Coroutine
 
-from typing_extensions import Self
+from typing_extensions import Any, Callable, Coroutine, Self
 
 from melobot.exceptions import BotException
 from melobot.typ import AsyncCallable, BetterABC, LogicMode, abstractmethod

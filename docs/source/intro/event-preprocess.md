@@ -137,7 +137,7 @@ grp_c2 = checker_ft.get_group(GroupRole.ADMIN)
 final_checker = priv_c | grp_c1 | grp_c2
 ```
 
-其他高级特性：自定义检查成功回调，自定义检查失败回调等，请参考 [内置检查器与检查器工厂](onebot_v11_check) 中各种对象的参数。
+其他高级特性：自定义检查失败回调等，请参考 [内置检查器与检查器工厂](onebot_v11_check) 中各种对象的参数。
 
 除了这些接口，melobot 内部其实也有一种隐式检查，这就是**基于依赖注入的区分调用**：
 
@@ -193,6 +193,8 @@ class FreqGuard(Checker):
         super().__init__()
         self.freq = 0
 
+    # 因为确定检查器只在 on_message 中使用，所以传入的事件必为消息事件
+    # 否则需要指定为对应的更宽泛的事件类型
     async def check(self, event: MessageEvent) -> bool:
         if event.sender.user_id != 10001 or self.freq >= 10:
             return False
@@ -376,14 +378,14 @@ fmtters = [Fmtter(...), None, Fmtter(...)]
 ```python
 from melobot.utils import to_async
 
-nothing = to_async(lambda *_: None)
+do_nothing = to_async(lambda *_: None)
 
 fmtters = [
     Fmtter(
         ..., 
-        convert_fail=nothing, 
-        validate_fail=nothing, 
-        arg_lack=nothing
+        convert_fail=do_nothing, 
+        validate_fail=do_nothing, 
+        arg_lack=do_nothing
     ),
     ...
 ]
@@ -396,7 +398,7 @@ from melobot import send_text
 from melobot.protocols.onebot.v11.utils import FormatInfo
 
 async def convert_fail(self, info: FormatInfo) -> None:
-    e_class = info.exc.__class__.__qualname__
+    e_class = f"{info.exc.__class__.__module__}.{info.exc.__class__.__qualname__}"
     src = repr(info.src) if isinstance(info.src, str) else info.src
 
     tip = f"第 {info.idx + 1} 个参数"

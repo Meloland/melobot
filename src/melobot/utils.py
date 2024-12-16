@@ -5,12 +5,61 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
-from typing import Any, AsyncGenerator, Awaitable, Callable, Coroutine, TypeVar, cast
 
-from typing_extensions import Self
+from typing_extensions import (
+    Any,
+    AsyncContextManager,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    ContextManager,
+    Coroutine,
+    Literal,
+    TypeVar,
+    cast,
+)
 
 from .exceptions import ValidateError
 from .typ import AsyncCallable, P, T
+
+
+def get_obj_name(
+    obj: Any,
+    otype: Literal["callable", "class", "object"] | str = "object",
+    default: str = "<anonymous %s>",
+) -> str:
+    """获取一个对象的限定名称或名称，这适用于一些类型较宽的参数。
+
+    无法获取有效名称时，产生一个 `default % otype` 字符串
+
+    例如某处接受一个 `Callable` 类型的参数，对于一般函数来说，使用
+    `__qualname__` 或 `__name__` 可获得名称，但某些可调用对象这些值可能为 `None`
+    或不存在。使用此方法可保证一定返回字符串
+
+    .. code:: python
+
+        def _(a: Callable) -> None:
+            valid_str: str = get_obj_name(a, otype="callable")
+
+        def _(a: type) -> None:
+            valid_str: str = get_obj_name(a, otype="class")
+
+        def _(a: Any) -> None:
+            valid_str: str = get_obj_name(a, otype="type of a, only for str concat")
+
+
+    :param obj: 对象
+    :param otype: 预期的对象类型
+    :param default: 无法获取任何有效名称时的默认字符串
+    :return: 对象名称或默认字符串
+    """
+    if hasattr(obj, "__qualname__"):
+        return cast(str, obj.__qualname__)
+
+    if hasattr(obj, "__name__"):
+        return cast(str, obj.__name__)
+
+    return default % otype
 
 
 def singleton(cls: Callable[P, T]) -> Callable[P, T]:
@@ -28,102 +77,6 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
         return obj_map[cls]
 
     return wrapped
-
-
-class Markable:
-    """可标记对象
-
-    无需直接实例化，而是用作接口在其他类中继承
-    """
-
-    def __init__(self) -> None:
-        self._flags: dict[str, dict[str, Any]] = {}
-
-    def flag_mark(self, namespace: str, flag_name: str, val: Any = None) -> None:
-        """在 `namespace` 命名空间中设置 `flag_name` 标记，值为 `val`
-
-        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
-
-        :param namespace: 命名空间
-        :param flag_name: 标记名
-        :param val: 标记值
-        """
-        self._flags.setdefault(namespace, {})
-
-        if flag_name in self._flags[namespace].keys():
-            raise ValueError(
-                f"标记失败。对象的命名空间 {namespace} 中已存在名为 {flag_name} 的标记"
-            )
-
-        self._flags[namespace][flag_name] = val
-
-    def flag_check(self, namespace: str, flag_name: str, val: Any = None) -> bool:
-        """检查 `namespace` 命名空间中 `flag_name` 标记值是否为 `val`
-
-        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象
-
-        :param namespace: 命名空间
-        :param flag_name: 标记名
-        :param val: 标记值
-        :return: 是否通过检查
-        """
-        if self._flags.get(namespace) is None:
-            return False
-        if flag_name not in self._flags[namespace].keys():
-            return False
-        flag = self._flags[namespace][flag_name]
-
-        if val is None:
-            return flag is None
-        return cast(bool, flag == val)
-
-
-class AttrsReprable:
-    def __repr__(self) -> str:
-        attrs = ", ".join(
-            f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
-        )
-        return f"{self.__class__.__name__}({attrs})"
-
-
-class Locatable:
-    def __new__(cls, *_args: Any, **_kwargs: Any) -> Self:
-        obj = super().__new__(cls)
-        obj.__obj_location__ = obj._init_location()  # type: ignore[attr-defined]
-        return obj
-
-    def __init__(self) -> None:
-        self.__obj_location__: tuple[str, str, int]
-
-    @staticmethod
-    def _init_location() -> tuple[str, str, int]:
-        frame = inspect.currentframe()
-        while frame:
-            if frame.f_code.co_name == "<module>":
-                return (
-                    frame.f_globals["__name__"],
-                    frame.f_globals["__file__"],
-                    frame.f_lineno,
-                )
-            frame = frame.f_back
-
-        return (
-            "<unknown module>",
-            "<unknown file>",
-            -1,
-        )
-
-    @property
-    def __obj_module__(self) -> str:
-        return self.__obj_location__[0]
-
-    @property
-    def __obj_file__(self) -> str:
-        return self.__obj_location__[1]
-
-    @property
-    def __obj_line__(self) -> int:
-        return self.__obj_location__[2]
 
 
 class RWContext:
@@ -296,13 +249,75 @@ def to_coro(
     """
     if inspect.iscoroutine(obj):
         return obj
-    return to_async(obj)(*args, **kwargs)
+    return to_async(obj)(*args, **kwargs)  # type: ignore[arg-type]
 
 
-CbRetT = TypeVar("CbRetT")
-FirstCbRetT = TypeVar("FirstCbRetT")
-SecondCbRetT = TypeVar("SecondCbRetT")
-OriginRetT = TypeVar("OriginRetT")
+CbRetT = TypeVar("CbRetT", default=Any)
+FirstCbRetT = TypeVar("FirstCbRetT", default=Any)
+SecondCbRetT = TypeVar("SecondCbRetT", default=Any)
+OriginRetT = TypeVar("OriginRetT", default=Any)
+
+
+def if_not(
+    condition: Callable[[], Any] | AsyncCallable[[], Any] | bool,
+    reject: AsyncCallable[[], None],
+    give_up: bool = False,
+) -> Callable[[AsyncCallable[P, T]], AsyncCallable[P, T | None]]:
+    """条件判断装饰器
+
+    :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）
+    :param reject: 当条件为 `False` 时，执行的回调
+    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数
+    """
+
+    def deco_func(func: AsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
+
+        @wraps(func)
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> T | None:
+            if not isinstance(condition, bool):
+                ret = condition()
+                status = bool(await ret if inspect.isawaitable(ret) else ret)
+            else:
+                status = condition
+
+            if not status:
+                await reject()
+
+            if status or not give_up:
+                return await func(*args, **kwargs)
+            return None
+
+        return wrapped_func
+
+    return deco_func
+
+
+def unfold_ctx(
+    getter: Callable[[], ContextManager | AsyncContextManager],
+) -> Callable[[AsyncCallable[P, T]], AsyncCallable[P, T]]:
+    """上下文装饰器
+
+    展开一个上下文，供被装饰函数使用。
+    但注意此装饰器不支持获取上下文管理器 `yield` 的值
+
+    :param getter: 上下文管理器获取方法
+    """
+
+    def deco_func(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
+
+        @wraps(func)
+        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> T:
+            manager = getter()
+            if isinstance(manager, ContextManager):
+                with manager:
+                    return await func(*args, **kwargs)
+            else:
+                async with manager:
+                    return await func(*args, **kwargs)
+
+        return wrapped_func
+
+    return deco_func
 
 
 def lock(
@@ -518,7 +533,7 @@ def speedlimit(
         # 分离出来定义，方便 result_set 调用形成递归。主要逻辑通过 Future 实现，有利于避免竞争问题。
         nonlocal called_num, min_start
         passed_time = time.perf_counter() - min_start
-        res_fut: Any = asyncio.Future()
+        res_fut: Any = asyncio.get_running_loop().create_future()
 
         if passed_time <= duration:
             if called_num < limit:
@@ -617,7 +632,7 @@ def async_later(callback: Coroutine[Any, Any, T], delay: float) -> asyncio.Futur
         except asyncio.CancelledError:
             callback.close()
 
-    fut: asyncio.Future[T] = asyncio.Future()
+    fut: asyncio.Future[T] = asyncio.get_running_loop().create_future()
     asyncio.create_task(async_cb(fut))
     return fut
 

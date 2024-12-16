@@ -6,6 +6,7 @@ melobot.io
 
 .. autoclass:: melobot.io.AbstractSource
     :members:
+    :inherited-members:
 
 .. autoclass:: melobot.io.AbstractInSource
     :members:

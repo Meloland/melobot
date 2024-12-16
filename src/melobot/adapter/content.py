@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import mimetypes
-from typing import Hashable, Sequence
 
-from typing_extensions import TypeVar
+from typing_extensions import Hashable, Sequence, TypeVar
 
 
 class Content:
     """通用内容基类"""
 
 
-ContentT = TypeVar("ContentT", bound=Content, default=Content)
+ContentT = TypeVar("ContentT", bound=Content)
 
 
 class TextContent(Content):
