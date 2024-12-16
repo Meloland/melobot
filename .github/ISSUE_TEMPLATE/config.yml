@@ -3,6 +3,3 @@ contact_links:
   - name: melobot 文档
     url: https://docs.melobot.org
     about: 查阅 melobot 文档与教程
-  - name: 安全漏洞报告
-    url: https://github.com/Meloland/melobot/security/advisories/new
-    about: 通过 Github 平台私密地报告安全漏洞
