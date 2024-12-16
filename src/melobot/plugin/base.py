@@ -111,7 +111,7 @@ class PluginPlanner:
         elif callable(obj):
             self.funcs.append(obj)
         else:
-            raise PluginLoadError(f"插件无法使用并使用 {type(obj)} 类型的对象")
+            raise PluginLoadError(f"插件无法使用 {type(obj)} 类型的对象")
         return obj
 
     @final
