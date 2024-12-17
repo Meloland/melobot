@@ -9,7 +9,8 @@ from math import isclose
 from random import randint, choice
 from typing import Optional
 
-from melobot.log import Logger, LogLevel
+from melobot.ctx import LoggerCtx
+from melobot.log import Logger
 from melobot.utils import *
 
 from tests.base import *
@@ -28,49 +29,42 @@ async def test_singleton() -> None:
     assert a is b and b.sign == a.sign
 
 
-class TestMarkable:
-    MARK = Markable()
-
-    async def test_marking(self) -> None:
-        self.MARK.flag_mark('ChlorideP', 'NyaAble', True)
-        try:
-            self.MARK.flag_mark("Meloland", 'aicorein', 2 ** randint(5, 11))
-            self.MARK.flag_mark("Meloland", 'aicorein', 'kawaii dev desu.')
-        except Exception as e:
-            assert isinstance(e, ValueError)
-            Logger().log(LogLevel.INFO, "Expected ValueError Triggered.")
-
-    async def test_checkout(self) -> None:
-        assert self.MARK.flag_check('ChlorideP', 'NyaAble', 1)
-
-
-class TestAttrsReprable:
-    class MelobotOfficialGroup(AttrsReprable):
-        def __init__(self) -> None:
-            # lazy to initialize other members.
-            self.members = ['ChlorideP', ...]
-            self.gid = 535705163
-            self.cur_len = 32
-            self.topics = ('bots', 'melobot', 'MelodyEcho')
-
-    def test_repr(self) -> None:
-        mbgroup = self.MelobotOfficialGroup()
-        assert f'gid={mbgroup.gid}' in repr(mbgroup)
-
-
-# Locatable seems doesn't need testing,
-# since the object suffix validation may not clear.
-
-# class TestLocatable:
-#     pass
-
-
 # make sure the 2 readers below always get different results.
 _ESTHER_EGGS = [
     'PedroDelMar', 'ElapsingDreams', 'ShimakazeProject',
     'MelorenAe', 'aiCoreIn', 'MelodyEcho',
     'SnowyKami', 'LiteeCiallo', 'DislinkSforza'
 ]
+
+
+class TestTriggerCondition:
+    RET_STR = HTTPStatus.PRECONDITION_REQUIRED
+
+    # just a if-else trigger model
+    # way better than RA2(
+    async def rejection(self) -> None:
+        pass
+
+    # like trigger 0: [obj2] delayed init Power logic
+    async def allow_powr_hint(self) -> bool:
+        await aio.sleep(6)
+        # sleep(6)
+        return False  # i.e. the current value of a local var.
+
+    # like trigger 1: [Stage2.Power] init with power hint
+    async def test_condition_deco(self) -> None:
+        @if_not(condition=self.allow_powr_hint, reject=self.rejection, give_up=True)
+        async def hint_powr() -> None:
+            TestTriggerCondition.RET_STR = HTTPStatus.OK
+            # just leave out details not relative.
+
+        await hint_powr()
+        assert TestTriggerCondition.RET_STR == HTTPStatus.PRECONDITION_REQUIRED
+
+
+# TODO: `unfold_ctx` decorator testing.
+async def test_ctx_unfolding() -> None:
+    ...
 
 
 class TestRWContext:
