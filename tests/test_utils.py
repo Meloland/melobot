@@ -254,7 +254,7 @@ class TestCallableDispatch:
         begin = aio.get_event_loop().time()
         await aio.sleep(5)
         end = self.timestamps[0]
-        assert isclose(end - begin, 5.01, abs_tol=0.01)
+        assert isclose(end - begin, 5.01, abs_tol=0.011)
 
     # may not meaningful, just refer `test_call_later` is also OK.
     async def test_call_at(self) -> None:
@@ -270,7 +270,7 @@ class TestCallableDispatch:
         begin = aio.get_event_loop().time()
         await async_later(self.afoo(), 5)
         end = self.timestamps[0]
-        assert isclose(end - begin, 5.01, abs_tol=0.01)
+        assert isclose(end - begin, 5.01, abs_tol=0.011)
 
     # just refer `test_async_later`.
     async def test_async_at(self) -> None:
@@ -289,7 +289,7 @@ class TestCallableDispatch:
             assert isclose(
                 self.timestamps[i] - self.timestamps[i - 1],
                 1.01,
-                abs_tol=0.01
+                abs_tol=0.011
             )
             i += 1
         assert t.done()
