@@ -3,16 +3,10 @@
 # @Time   : 2024/08/26 20:53:04
 # @Author : Kariko Lin
 
-from http import HTTPStatus
-from io import StringIO
-from math import isclose
-from random import randint, choice
-from typing import Optional
+from enum import Enum
+from random import choice, randint
 
-from melobot.ctx import LoggerCtx
-from melobot.log import Logger
 from melobot.utils import *
-
 from tests.base import *
 
 
@@ -29,164 +23,237 @@ async def test_singleton() -> None:
     assert a is b and b.sign == a.sign
 
 
-# make sure the 2 readers below always get different results.
-_ESTHER_EGGS = [
-    'PedroDelMar', 'ElapsingDreams', 'ShimakazeProject',
-    'MelorenAe', 'aiCoreIn', 'MelodyEcho',
-    'SnowyKami', 'LiteeCiallo', 'DislinkSforza'
+# Interesting names :)
+# Try to search them in some places
+ESTHER_EGGS = [
+    "PedroDelMar",
+    "ElapsingDreams",
+    "ShimakazeProject",
+    "MelorenAe",
+    "aiCoreIn",
+    "MelodyEcho",
+    "SnowyKami",
+    "LiteeCiallo",
+    "DislinkSforza",
 ]
 
 
-class TestTriggerCondition:
-    RET_STR = HTTPStatus.PRECONDITION_REQUIRED
+class TestRwc:
+    RWC = RWContext(10)
+    EGGS = ESTHER_EGGS.copy()
+    BUF = EGGS.copy()
+    READING_FLAGS = [False for _ in range(len(EGGS))]
+    ASYNC_READED = False
 
-    # just a if-else trigger model
-    # way better than RA2(
-    async def rejection(self) -> None:
-        pass
+    @classmethod
+    async def write(cls) -> None:
+        async with cls.RWC.write():
+            i = randint(0, len(TestRwc.EGGS) - 1)
+            val = cls.BUF[i]
+            if val == "":
+                raise ValueError("写写冲突")
 
-    # like trigger 0: [obj2] delayed init Power logic
-    async def allow_powr_hint(self) -> bool:
-        await aio.sleep(6)
-        # sleep(6)
-        return False  # i.e. the current value of a local var.
+            cls.BUF[i] = ""
+            await aio.sleep(0.01)
+            cls.BUF[i] = val
 
-    # like trigger 1: [Stage2.Power] init with power hint
-    async def test_condition_deco(self) -> None:
-        @if_not(condition=self.allow_powr_hint, reject=self.rejection, give_up=True)
-        async def hint_powr() -> None:
-            TestTriggerCondition.RET_STR = HTTPStatus.OK
-            # just leave out details not relative.
+    @classmethod
+    async def read(cls) -> None:
+        async with cls.RWC.read():
+            i = randint(0, len(TestRwc.EGGS))
+            val = cls.BUF[i]
+            if val == "":
+                raise ValueError("读写冲突")
+            if cls.READING_FLAGS[i]:
+                cls.ASYNC_READED = True
 
-        await hint_powr()
-        assert TestTriggerCondition.RET_STR == HTTPStatus.PRECONDITION_REQUIRED
+            cls.READING_FLAGS[i] = True
+            await aio.sleep(0.01)
+            cls.READING_FLAGS[i] = False
 
+    @classmethod
+    async def test_rwcontrol(cls) -> None:
+        # Ensure concurrent reading be encountered in task seqs
+        r_seq = [cls.read() for _ in range(5)]
 
-# TODO: `unfold_ctx` decorator testing.
-async def test_ctx_unfolding() -> None:
-    ...
+        # Avoid GC complaint that caused by unclosed coroutine
+        getters = [cls.read, cls.write]
+        rw_seq = [getters[choice([0, 1])]() for _ in range(50)]
 
-
-class TestRWContext:
-    SHARED_BUFFER = [''] * 10
-    RW_CONTROL = RWContext(10)
-
-    esther_eggs = _ESTHER_EGGS + ['...']
-
-    async def write_randomized(self) -> int:
-        async with self.RW_CONTROL.write():
-            idx = randint(0, 9)
-            if self.SHARED_BUFFER[idx]:
-                return HTTPStatus.INSUFFICIENT_STORAGE
-            self.SHARED_BUFFER[idx] = choice(self.esther_eggs)
-        return HTTPStatus.OK
-
-    async def read_raw(self) -> str:
-        async with self.RW_CONTROL.read():
-            i = randint(0, 9)
-            data = self.SHARED_BUFFER[i]
-            if self.SHARED_BUFFER[i]:
-                self.SHARED_BUFFER[i] = ''
-        return data
-
-    async def read_parsed(self) -> Optional[str]:
-        async with self.RW_CONTROL.read():
-            k = randint(0, 9)
-            data = self.SHARED_BUFFER[k]
-            if self.SHARED_BUFFER[k]:
-                self.SHARED_BUFFER[k] = ''
-        if not data or data == '...':
-            return None
-        buffer, word_cnt = '', 0
-        for i in data:
-            if i.islower() or i.isdigit():
-                buffer += i
-                continue
-            word_cnt += 1
-            if word_cnt > 1:
-                break
-            buffer += i
-        return buffer
-
-    async def test_rwcontrol(self) -> None:
-        rwseq = [choice([
-            self.write_randomized(),
-            self.read_parsed(),
-            self.read_raw()
-        ]) for _ in range(50)]
-        rets: list[int | Optional[str]] = await aio.gather(*rwseq)
-        for i in rets:
-            if isinstance(i, int):
-                continue
-            assert (
-                i in self.esther_eggs  # read_raw
-                or i is None  # read_parsed read empty cell.
-                or len([j for j in i if j.isupper()]) <= 1)
+        idx = choice(range(0, len(r_seq) + len(rw_seq) - 1))
+        seq = rw_seq[:idx] + r_seq + rw_seq[idx:]
+        await aio.wait(map(lambda c: aio.create_task(c), seq))
+        assert cls.ASYNC_READED
 
 
-# no need, since `get_id()` always use it.
-# just check out the usages of `get_id()`, for the exception possibility.
+async def test_get_id() -> None:
+    n = 100000
+    ids = [get_id() for _ in range(n)]
+    assert n - len(set(ids)) <= 1
 
-# class TestSnowFlakeIdWorker:
-#     ...
+
+class TestAsyncInterfaceAdapter:
+    async def f1() -> None: ...
+
+    def f2() -> int:
+        return 1
+
+    async def f3() -> int:
+        return 1
+
+    @classmethod
+    def f4(cls) -> Coroutine[None, None, int]:
+        return cls.f3()
+
+    f5 = lambda: TestAsyncInterfaceAdapter.f3()
+
+    async def f6(x: int, y: int) -> int:
+        return x + y
+
+    @classmethod
+    async def test_to_async(cls) -> None:
+        assert to_async(cls.f1) is cls.f1
+
+        ret = await to_async(cls.f2)()
+        assert ret == 1
+
+        ret = await to_async(cls.f3)()
+        assert ret == 1
+
+        ret = await to_async(cls.f4)()
+        assert ret == 1
+
+        ret = await to_async(cls.f5)()
+        assert ret == 1
+
+    @classmethod
+    async def test_to_coro(cls) -> None:
+        coro = cls.f1()
+        assert to_coro(coro) is coro
+        coro.close()
+
+        ret = await to_coro(cls.f2)
+        assert ret == 1
+
+        ret = await to_coro(cls.f3)
+        assert ret == 1
+
+        ret = await to_coro(cls.f4)
+        assert ret == 1
+
+        ret = await to_coro(cls.f5)
+        assert ret == 1
+
+        ret = await to_coro(cls.f6, 1, y=2)
+        assert ret == 3
+
+
+class TestIfNot:
+    REJECTED = False
+    RET = 0
+
+    @classmethod
+    def restore(cls) -> None:
+        cls.REJECTED = False
+        cls.RET = 0
+
+    @classmethod
+    async def reject(cls) -> None:
+        cls.REJECTED = True
+
+    @staticmethod
+    async def get_cond() -> bool:
+        return False
+
+    @classmethod
+    async def test_if_not(cls) -> None:
+        async def func() -> None:
+            cls.RET = 1
+
+        f1 = if_not(condition=cls.get_cond, reject=cls.reject, give_up=True)(func)
+        await f1()
+        assert cls.REJECTED
+        assert cls.RET == 0
+
+        cls.restore()
+
+        f2 = if_not(condition=cls.get_cond, reject=cls.reject, give_up=False)(func)
+        await f2()
+        assert cls.REJECTED
+        assert cls.RET == 1
+
+
+class TestUnfoldCtx:
+    VAL = 0
+
+    class SyncCtx:
+        def __enter__(self) -> None:
+            TestUnfoldCtx.VAL = 1
+
+        def __exit__(self, *_, **__) -> None:
+            TestUnfoldCtx.VAL = 0
+
+    class AsyncCtx:
+        async def __aenter__(self) -> None:
+            TestUnfoldCtx.VAL = 1
+
+        async def __aexit__(self, *_, **__) -> None:
+            TestUnfoldCtx.VAL = 0
+
+    @classmethod
+    async def test_unfold_ctx(cls) -> None:
+        async def func() -> None:
+            assert cls.VAL == 1
+
+        f = unfold_ctx(cls.SyncCtx)(func)
+        await f()
+        assert cls.VAL == 0
+        f = unfold_ctx(cls.AsyncCtx)(func)
+        await f()
+        assert cls.VAL == 0
+
+
+class Status(Enum):
+    TOO_MANY_REQUESTS = 1
+    REQUEST_TIMEOUT = 2
+    EXPECTATION_FAILED = 3
+    OK = 4
 
 
 class TestAsyncUtils:
     NYA = ""
 
     async def lock_callback(self) -> int:
-        return HTTPStatus.TOO_MANY_REQUESTS
+        return Status.TOO_MANY_REQUESTS
 
     async def time_callback(self) -> int:
-        return HTTPStatus.REQUEST_TIMEOUT
+        return Status.REQUEST_TIMEOUT
 
     async def cd_callback(self, timeout: float) -> int:
-        return HTTPStatus.TOO_MANY_REQUESTS
+        return Status.TOO_MANY_REQUESTS
 
     async def test_lock(self) -> None:
         @lock(self.lock_callback)
         async def gen_ini_string() -> int:  # using NYA
             if not TestAsyncUtils.NYA:
-                TestAsyncUtils.NYA += f'[{choice(_ESTHER_EGGS)}]\n'
+                TestAsyncUtils.NYA += f"[{choice(ESTHER_EGGS)}]\n"
             await aio.sleep(0)
-            TestAsyncUtils.NYA += f'clsid = {get_id()}'
-            return HTTPStatus.OK
+            TestAsyncUtils.NYA += f"clsid = {get_id()}"
+            return Status.OK
 
-        coropool = [gen_ini_string() for _ in _ESTHER_EGGS]
+        coropool = [gen_ini_string() for _ in ESTHER_EGGS]
         rets = await aio.gather(*coropool)
-        assert rets.count(HTTPStatus.OK) == 1
-
-    async def test_to_async(self) -> None:
-        @to_async
-        def read_ini_string(buffer: StringIO) -> dict[str, dict[str, str]]:
-            ret: dict[str, dict[str, str]] = {}
-            while (i := buffer.readline()):
-                if not i:
-                    break
-                i = i.strip()
-                if i.startswith('['):
-                    left, right = i.index('['), i.index(']')
-                    decl = i[left + 1:right]
-                    ret[decl] = {}
-                elif '=' in i:
-                    key, val = i.split('=', 1)
-                    ret[decl][key.strip()] = val.strip()
-                else:
-                    continue
-            return ret
-
-        dic = await read_ini_string(StringIO(TestAsyncUtils.NYA))
-        assert len(dic) == 1
+        assert rets.count(Status.OK) == 1
 
     async def test_cooldown(self) -> None:
         @cooldown(cd_callback=self.cd_callback, interval=3)
         async def sendmsg() -> int:
-            print(f"I'm searching {choice(_ESTHER_EGGS)} in melobot group.")
-            return HTTPStatus.OK
+            # print(f"I'm searching {choice(ESTHER_EGGS)} in melobot group.")
+            return Status.OK
 
         pool = [sendmsg() for _ in range(5)]
         rets = await aio.gather(*pool)
-        assert rets.count(HTTPStatus.TOO_MANY_REQUESTS) > 0
+        assert rets.count(Status.TOO_MANY_REQUESTS) > 0
 
     async def test_semaphore(self) -> None:
         tickets = 10
@@ -195,101 +262,98 @@ class TestAsyncUtils:
         async def buyticket() -> int:
             nonlocal tickets
             if tickets <= 0:
-                return HTTPStatus.EXPECTATION_FAILED
+                return Status.EXPECTATION_FAILED
             tickets -= 1
-            return HTTPStatus.OK
+            return Status.OK
 
         pool = [buyticket() for _ in range(11)]
         rets = await aio.gather(*pool)
-        assert not tickets and HTTPStatus.EXPECTATION_FAILED in rets
+        assert not tickets and Status.EXPECTATION_FAILED in rets
 
     async def test_timelimit(self) -> None:
-        @timelimit(self.time_callback, timeout=5)
+        @timelimit(self.time_callback, timeout=0.25)
         async def foo() -> int:
-            await aio.sleep(10)
-            return HTTPStatus.OK
+            await aio.sleep(0.5)
+            return Status.OK
 
         ret = await foo()
-        assert (await foo()) == HTTPStatus.REQUEST_TIMEOUT
+        assert (await foo()) == Status.REQUEST_TIMEOUT
 
     async def test_speedlimit(self) -> None:
-        """In my opinion, just name it 'chancelimit'. """
+        """In my opinion, just name it 'chancelimit'."""
+
         @speedlimit(self.lock_callback, limit=1, duration=5)
         async def foo() -> int:
             await aio.sleep(0)
-            return HTTPStatus.OK
+            return Status.OK
 
         pool = [foo() for _ in range(10)]
         rets = await aio.gather(*pool)
-        assert rets.count(HTTPStatus.OK) <= 1
+        assert rets.count(Status.OK) <= 1
+
+
+class TimeGetter:
+    def __get__(self, *_, **__) -> float:
+        return aio.get_event_loop().time()
 
 
 class TestCallableDispatch:
-    timestamps: list[float] = []
+    # Use a descriptor as dynamic class var
+    time = TimeGetter()
+    TEST_ATTR = "__only_for_test__"
 
-    def foo(self) -> None:
-        self.timestamps.append(aio.get_event_loop().time())
+    @staticmethod
+    def foo(e: aio.Event) -> None:
+        e.set()
 
-    async def afoo(self) -> None:
+    @staticmethod
+    async def afoo(e: aio.Event) -> None:
         await aio.sleep(0)
-        self.timestamps.append(aio.get_event_loop().time())
+        e.set()
 
-    async def shut_task(
-        self, task: aio.Task, delay: Optional[float] = None
-    ) -> None:
-        if delay is not None:
-            await aio.sleep(delay)
-        task.cancel()
+    @classmethod
+    async def abar(cls, obj: Any) -> None:
+        if not hasattr(obj, cls.TEST_ATTR):
+            setattr(obj, cls.TEST_ATTR, 0)
+        setattr(obj, cls.TEST_ATTR, getattr(obj, cls.TEST_ATTR) + 1)
 
-    # mutable static member of a class may got affected
-    #   both by object access (self.) and static access,
-    # while hashable (like `str`) would be affected only by static access.
+    @classmethod
+    async def test_call_later(cls) -> None:
+        e = aio.Event()
+        call_later(lambda: cls.foo(e), 0.1)
+        begin = cls.time
+        await e.wait()
+        assert cls.time - begin <= 0.2
 
-    # So to avoid messing up timestamps collection,
-    # `self.timestamps.clear()` is set in the beginning of each test.
+    @classmethod
+    async def test_call_at(cls) -> None:
+        e = aio.Event()
+        call_at(lambda: cls.foo(e), cls.time + 0.1)
+        begin = cls.time
+        await e.wait()
+        assert cls.time - begin <= 0.2
 
-    async def test_call_later(self) -> None:
-        self.timestamps.clear()
-        a = call_later(self.foo, 5)
-        begin = aio.get_event_loop().time()
-        await aio.sleep(5)
-        end = self.timestamps[0]
-        assert isclose(end - begin, 5.01, abs_tol=0.011)
+    @classmethod
+    async def test_async_later(cls) -> None:
+        e = aio.Event()
+        await async_later(cls.afoo(e), 0.1)
+        begin = cls.time
+        await e.wait()
+        assert cls.time - begin <= 0.1
 
-    # may not meaningful, just refer `test_call_later` is also OK.
-    async def test_call_at(self) -> None:
-        self.timestamps.clear()
-        begin = aio.get_event_loop().time()
-        a = call_at(self.foo, begin + 1)
-        await aio.sleep(1)
-        end = self.timestamps[0]
-        assert end - begin < 0.1
+    @classmethod
+    async def test_async_at(cls) -> None:
+        e = aio.Event()
+        await async_at(cls.afoo(e), cls.time + 0.1)
+        begin = cls.time
+        await e.wait()
+        assert cls.time - begin <= 0.1
 
-    async def test_async_later(self) -> None:
-        self.timestamps.clear()
-        begin = aio.get_event_loop().time()
-        await async_later(self.afoo(), 5)
-        end = self.timestamps[0]
-        assert isclose(end - begin, 5.01, abs_tol=0.011)
-
-    # just refer `test_async_later`.
-    async def test_async_at(self) -> None:
-        self.timestamps.clear()
-        begin = aio.get_event_loop().time()
-        await async_at(self.afoo(), begin + 1)
-        end = self.timestamps[0]
-        assert end - begin < 0.1
-
-    async def test_async_interval(self) -> None:
-        self.timestamps.clear()
-        t = async_interval(self.afoo, 1)
-        await aio.gather(t, self.shut_task(t, 5))
-        i = 1
-        while i < len(self.timestamps):
-            assert isclose(
-                self.timestamps[i] - self.timestamps[i - 1],
-                1.01,
-                abs_tol=0.011
-            )
-            i += 1
-        assert t.done()
+    @classmethod
+    async def test_async_interval(cls) -> None:
+        obj = type("__XXX", (object,), {})()
+        t = async_interval(lambda: cls.abar(obj), 0.1)
+        await aio.sleep(0.5)
+        t.cancel()
+        await t
+        assert getattr(obj, cls.TEST_ATTR) >= 3
