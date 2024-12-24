@@ -1,13 +1,21 @@
 import sys
 import zipimport
-from importlib._bootstrap_external import PathFinder as _PathFinder
-from importlib._bootstrap_external import (
-    _get_supported_file_loaders,
-    _NamespaceLoader,
-    _NamespacePath,
+
+if sys.version_info < (3, 11):
+    from importlib._bootstrap_external import _NamespaceLoader
+else:
+    from importlib.machinery import NamespaceLoader as _NamespaceLoader
+
+from importlib.abc import FileLoader, Loader, MetaPathFinder
+from importlib.machinery import (
+    BYTECODE_SUFFIXES,
+    EXTENSION_SUFFIXES,
+    SOURCE_SUFFIXES,
+    ExtensionFileLoader,
+    ModuleSpec,
 )
-from importlib.abc import Loader, MetaPathFinder
-from importlib.machinery import ModuleSpec, all_suffixes
+from importlib.machinery import PathFinder as _PathFinder
+from importlib.machinery import SourceFileLoader, SourcelessFileLoader, all_suffixes
 from importlib.util import module_from_spec, spec_from_file_location
 from os import PathLike
 from pathlib import Path
@@ -21,6 +29,13 @@ from .utils import singleton
 ALL_EXTS = tuple(all_suffixes())
 EMPTY_PKG_TAG = "__melobot_namespace_pkg__"
 ZIP_MODULE_TAG = "__melobot_zip_module__"
+
+
+def _get_file_loaders() -> list[tuple[type[Loader], list[str]]]:
+    extensions = (ExtensionFileLoader, EXTENSION_SUFFIXES)
+    source = (SourceFileLoader, SOURCE_SUFFIXES)
+    bytecode = (SourcelessFileLoader, BYTECODE_SUFFIXES)
+    return [extensions, source, bytecode]
 
 
 class _NestedQuickExit(BaseException): ...
@@ -93,8 +108,13 @@ class SpecFinder(MetaPathFinder):
                 # 没有 __init__.py 的包最后查找，spec 设置为与内置导入兼容的命名空间包格式
                 if dir_path.exists() and dir_path.is_dir():
                     dir_path_str = str(dir_path.resolve())
-                    submod_locs = _NamespacePath(
-                        fullname, [dir_path_str], _PathFinder()._get_spec
+                    loader = cast(
+                        Loader,
+                        _NamespaceLoader(
+                            fullname,
+                            [dir_path_str],
+                            _PathFinder._get_spec,  # type: ignore[attr-defined]
+                        ),
                     )
                     spec = spec_from_file_location(
                         fullname,
@@ -106,9 +126,9 @@ class SpecFinder(MetaPathFinder):
                             load_cache,
                             pre_sys_len,
                             pre_cache_len,
-                            _NamespaceLoader(fullname, [dir_path_str], submod_locs),
+                            loader,
                         ),
-                        submodule_search_locations=submod_locs,
+                        submodule_search_locations=loader._path,  # type: ignore[attr-defined]
                     )
                     assert spec is not None
                     spec.has_location = False
@@ -196,7 +216,7 @@ class ModuleLoader(Loader):
         inner_loader: Loader | None = None,
     ) -> None:
         super().__init__()
-        # 避免在 self.__getattr__() 运行反射时重名
+        # 避免在 self.__getattr__() 反射时重名
         self.melobot_cacher = ModuleCacher()
         self.melobot_fullname = fullname
         self.melobot_fp = fp
@@ -209,9 +229,10 @@ class ModuleLoader(Loader):
         if inner_loader is not None:
             return
 
-        for loader_class, suffixes in _get_supported_file_loaders():
+        for loader_cls, suffixes in _get_file_loaders():
             if str(fp).endswith(tuple(suffixes)):
-                loader = loader_class(fullname, str(fp))  # pylint: disable=not-callable
+                loader_cls = cast(type[FileLoader], loader_cls)
+                loader = loader_cls(fullname, str(fp))  # pylint: disable=not-callable
                 self.melobot_inner_loader = loader
                 break
 
