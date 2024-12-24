@@ -1,0 +1,34 @@
+fail_fast: true
+repos:
+  # - repo: local
+  #   hooks:
+  #     - id: check-filenames
+  #       name: Check Python Filenames
+  #       entry: python ./.pre-commit/check_filename.py
+  #       language: python
+  #       files: \.py$
+
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        args: [--config=./pyproject.toml]
+
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.0
+    hooks:
+      - id: mypy
+        args: ["--config-file=./pyproject.toml"]
+        exclude: '^(tests/|scripts/|docs/)'
+
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
