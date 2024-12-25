@@ -5,7 +5,7 @@
 groups = ["default", "cli", "dev", "docs", "lint", "manage", "measure", "onebot", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:d0d56e171de74d62ce8d5e0e1983e9c6accfdfb0162a53e420935dad5a2295bd"
+content_hash = "sha256:010ff24f56bc69de150bd319607ddadf6ca7bab85e7d0cd5fb9cee9c59b1cdfb"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -284,7 +284,7 @@ name = "cfgv"
 version = "3.4.0"
 requires_python = ">=3.8"
 summary = "Validate configuration and produce human readable error messages."
-groups = ["dev"]
+groups = ["manage"]
 files = [
     {file = "cfgv-3.4.0-py2.py3-none-any.whl", hash = "sha256:b7265b1f29fd3316bfcd2b330d63d024f2bfd8bcb8b0272f8e19a504856c48f9"},
     {file = "cfgv-3.4.0.tar.gz", hash = "sha256:e52591d4c5f5dead8e0f673fb16db7949d2cfb3f7da4582893288f0ded8fe560"},
@@ -417,7 +417,7 @@ files = [
 name = "distlib"
 version = "0.3.9"
 summary = "Distribution utilities"
-groups = ["dev"]
+groups = ["manage"]
 files = [
     {file = "distlib-0.3.9-py2.py3-none-any.whl", hash = "sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87"},
     {file = "distlib-0.3.9.tar.gz", hash = "sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403"},
@@ -451,7 +451,7 @@ name = "filelock"
 version = "3.16.1"
 requires_python = ">=3.8"
 summary = "A platform independent file lock."
-groups = ["dev"]
+groups = ["manage"]
 files = [
     {file = "filelock-3.16.1-py3-none-any.whl", hash = "sha256:2082e5703d51fbf98ea75855d9d5527e33d8ff23099bec374a134febee6946b0"},
     {file = "filelock-3.16.1.tar.gz", hash = "sha256:c249fbfcd5db47e5e2d6d62198e565475ee65e4831e2561c8e313fa7eb961435"},
@@ -566,7 +566,7 @@ name = "identify"
 version = "2.6.3"
 requires_python = ">=3.9"
 summary = "File identification library for Python"
-groups = ["dev"]
+groups = ["manage"]
 files = [
     {file = "identify-2.6.3-py2.py3-none-any.whl", hash = "sha256:9edba65473324c2ea9684b1f944fe3191db3345e50b6d04571d10ed164f8d7bd"},
     {file = "identify-2.6.3.tar.gz", hash = "sha256:62f5dae9b5fef52c84cc188514e9ea4f3f636b1d8799ab5ebc475471f9e47a02"},
@@ -885,7 +885,7 @@ name = "nodeenv"
 version = "1.9.1"
 requires_python = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*"
 summary = "Node.js virtual environment builder"
-groups = ["dev"]
+groups = ["manage"]
 files = [
     {file = "nodeenv-1.9.1-py2.py3-none-any.whl", hash = "sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9"},
     {file = "nodeenv-1.9.1.tar.gz", hash = "sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f"},
@@ -929,7 +929,7 @@ name = "platformdirs"
 version = "4.3.6"
 requires_python = ">=3.8"
 summary = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
-groups = ["dev", "lint"]
+groups = ["lint", "manage"]
 files = [
     {file = "platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb"},
     {file = "platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907"},
@@ -951,7 +951,7 @@ name = "pre-commit"
 version = "4.0.1"
 requires_python = ">=3.9"
 summary = "A framework for managing and maintaining multi-language pre-commit hooks."
-groups = ["dev"]
+groups = ["manage"]
 dependencies = [
     "cfgv>=2.0.0",
     "identify>=1.0.0",
@@ -1241,7 +1241,7 @@ name = "pyyaml"
 version = "6.0.2"
 requires_python = ">=3.8"
 summary = "YAML parser and emitter for Python"
-groups = ["dev", "docs"]
+groups = ["docs", "manage"]
 files = [
     {file = "PyYAML-6.0.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:0a9a2848a5b7feac301353437eb7d5957887edbf81d56e903999a75a3d743086"},
     {file = "PyYAML-6.0.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:29717114e51c84ddfba879543fb232a6ed60086602313ca38cce623c1d62cfbf"},
@@ -1532,7 +1532,7 @@ name = "virtualenv"
 version = "20.28.0"
 requires_python = ">=3.8"
 summary = "Virtual Python Environment builder"
-groups = ["dev"]
+groups = ["manage"]
 dependencies = [
     "distlib<1,>=0.3.7",
     "filelock<4,>=3.12.2",
