@@ -18,3 +18,5 @@ pydeps.png
 .pdm-python
 .pdm-build
 .pdm.toml
+
+.DS_Store
