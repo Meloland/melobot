@@ -377,7 +377,7 @@
 <span class="sd">    :return: 布尔值</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">_is_type</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">hint</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="n">_DEFAULT_BEARTYPE_CONF</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ret</span></div>
+    <span class="k">return</span> <span class="n">ret</span>  <span class="c1"># type: ignore[no-any-return]</span></div>
 
 
 
