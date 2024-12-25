@@ -70,7 +70,7 @@ def is_type(obj: T, hint: type[Any]) -> TypeGuard[T]:
     :return: 布尔值
     """
     ret = _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
-    return ret
+    return ret  # type: ignore[no-any-return]
 
 
 class HandleLevel(float, Enum):
