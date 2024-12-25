@@ -516,7 +516,7 @@
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">_ChainCtxStep</span><span class="p">(</span><span class="n">_ChainStep</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">_ChainCtxStep</span><span class="p">(</span><span class="n">_ChainStep</span><span class="p">):</span>  <span class="c1"># type: ignore[override]</span>
     <span class="n">ctx_var</span><span class="p">:</span> <span class="n">Context</span>
     <span class="n">ctx_val</span><span class="p">:</span> <span class="n">Any</span>
     <span class="n">coros</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Coroutine</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
