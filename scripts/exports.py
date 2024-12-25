@@ -22,12 +22,6 @@ def get_nega_groups(*groups: str | None) -> str:
 
 
 def main() -> None:
-    ret = os.system(f"pdm export -o requirements.txt --without {get_nega_groups()}")
-    if ret == 0:
-        print("已刷新项目的 requirements.txt")
-    else:
-        print("未能完成刷新项目的 requirements.txt 的任务")
-
     ret = os.system(
         f"pdm export -o tests/requirements.txt --without {get_nega_groups('test', 'onebot')}"
     )
@@ -43,11 +37,3 @@ def main() -> None:
         print("已刷新项目文档构建的 requirements.txt")
     else:
         print("未能完成刷新项目文档构建的 requirements.txt 的任务")
-
-    ret = os.system(
-        f"pdm export -o onebot_requirements.txt --without {get_nega_groups('onebot')}"
-    )
-    if ret == 0:
-        print("已刷新 protocols.onebot 的 requirements.txt")
-    else:
-        print("未能完成刷新 protocols.onebot 的 requirements.txt 的任务")

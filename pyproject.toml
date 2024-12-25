@@ -91,8 +91,8 @@ trace = {shell = "viztracer"}
 deps = {shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"}
 docs = {call = "docs.make:main"}
 
-_requires = {call = "scripts.exports:main"}
-post_install.composite = ["_requires"]
+_deps_export = {call = "scripts.exports:main"}
+post_install.composite = ["_deps_export"]
 
 [tool.pdm.dev-dependencies]
 test = [

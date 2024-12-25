@@ -5,7 +5,6 @@
 [pep8]: https://peps.python.org/pep-0008/
 [code-of-conduct]: CODE_OF_CONDUCT.md
 [pdm]: https://pdm-project.org/latest/#installation
-[requirements]: requirements.txt
 [pep484]: https://peps.python.org/pep-0484/
 
 Hi there! We're thrilled that you'd like to contribute to this project. Your help is essential for keeping it great.
@@ -21,7 +20,7 @@ We'd also love PRs. If you're thinking of a large PR, we advise opening up an is
 ## Submitting a pull request
 
 1. [Fork][fork] and clone the repository.
-2. Use [pdm][pdm] Configure and install the dependencies: `pdm install`, or simply use [requirements.txt][requirements] install dependencies.
+2. Use [pdm][pdm] Configure and install the dependencies: `pdm install`.
 3. Make sure the tests pass on your machine: `pdm run test` or `pytest -c pytest.ini`
 4. Create a new branch: `git checkout -b your-branch-name`.
 5. Make your change, add tests, and make sure the tests still pass.
@@ -60,7 +59,7 @@ Work in Progress pull requests are also welcome to get feedback early on, or if 
 ## 提交拉取请求
 
 1. [Fork][fork] 并克隆存储库
-2. 使用 [pdm][pdm] 配置并安装依赖项：`pdm install`，或直接使用 [requirements.txt][requirements] 安装依赖
+2. 使用 [pdm][pdm] 配置并安装依赖项：`pdm install`
 3. 确保测试在您的机器上通过：`pdm run test` 或 `pytest -c pytest.ini`
 4. 创建新分支：`git checkout -b your-branch-name`
 5. 进行更改，添加测试，并确保测试仍然通过
