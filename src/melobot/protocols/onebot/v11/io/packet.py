@@ -8,13 +8,13 @@ from ..const import PROTOCOL_IDENTIFIER
 
 
 @dataclass(kw_only=True)
-class InPacket(RootInPak):
+class InPacket(RootInPak):  # type: ignore[override]
     data: dict
     protocol: str = PROTOCOL_IDENTIFIER
 
 
 @dataclass(kw_only=True)
-class OutPacket(RootOutPak):
+class OutPacket(RootOutPak):  # type: ignore[override]
     data: str
     action_type: str
     action_params: dict
@@ -23,7 +23,7 @@ class OutPacket(RootOutPak):
 
 
 @dataclass(kw_only=True)
-class EchoPacket(RootEchoPak):
+class EchoPacket(RootEchoPak):  # type: ignore[override]
     action_type: str = ""
     data: dict = field(default_factory=dict)
     protocol: str = PROTOCOL_IDENTIFIER

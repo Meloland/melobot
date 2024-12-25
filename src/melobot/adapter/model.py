@@ -199,7 +199,7 @@ class _ChainStep:
 
 
 @dataclass(kw_only=True)
-class _ChainCtxStep(_ChainStep):
+class _ChainCtxStep(_ChainStep):  # type: ignore[override]
     ctx_var: Context
     ctx_val: Any
     coros: Sequence[Coroutine] = field(default_factory=tuple)
