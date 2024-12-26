@@ -145,13 +145,11 @@ pdm build
 
 ### 贡献者
 
-[![][contrib-image_iks]][contrib-link_iks]
+<a href="https://github.com/Meloland/melobot/graphs/contributors">
+  <img src="docs/source/_static/contributors.svg">
+</a>
 
 > 感谢每一位贡献者的付出，melobot 因你们而变得更好 ow<
-
-[contrib-image_iks]: https://contrib.rocks/image?repo=Meloland/melobot
-
-[contrib-link_iks]: https://github.com/Meloland/melobot/graphs/contributors
 
 ### 星标历史
 
