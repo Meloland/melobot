@@ -1,0 +1,19 @@
+name: Generate contributors svg
+
+on:
+  schedule:
+    - cron: '0 1 * * 0' # At 01:00 on Sunday.
+
+  push:
+    branches:
+      - main
+
+jobs:
+  gen_contributors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wow-actions/contributors-list@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          round: true
+          svgPath: docs/source/_static/contributors.svg
