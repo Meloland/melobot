@@ -4,10 +4,22 @@ on:
   push:
     branches:
       main
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'scripts/**'
+      - '.github/workflows/make_doc.yml'
+      - 'README.md'
 
   pull_request:
     branches:
       main
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'scripts/**'
+      - '.github/workflows/make_doc.yml'
+      - 'README.md'
 
 jobs:
   build_doc:

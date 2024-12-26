@@ -4,10 +4,22 @@ on:
   push:
     branches:
       main
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/pytest.yml'
+      - 'pytest.ini'
 
   pull_request:
     branches:
       main
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/pytest.yml'
+      - 'pytest.ini'
 
 jobs:
   run_tests:
