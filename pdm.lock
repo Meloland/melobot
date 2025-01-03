@@ -1149,7 +1149,7 @@ files = [
 
 [[package]]
 name = "pydeps"
-version = "2.0.1"
+version = "3.0.0"
 requires_python = ">=3.8"
 summary = "Display module dependencies"
 groups = ["measure"]
@@ -1157,8 +1157,8 @@ dependencies = [
     "stdlib-list",
 ]
 files = [
-    {file = "pydeps-2.0.1-py3-none-any.whl", hash = "sha256:9e3589fff8ac2fc17d672c8132c8b7fab921d30fbb6b37b61bea2c9fc4f84901"},
-    {file = "pydeps-2.0.1.tar.gz", hash = "sha256:6f898ab683ef7c47b14c9cc86bf28b15adebc466cb343c784da4090b2573c704"},
+    {file = "pydeps-3.0.0-py3-none-any.whl", hash = "sha256:2e887681883cb09e8e0d72f6f209ba7d7d33f86039349779f529e81b59694c73"},
+    {file = "pydeps-3.0.0.tar.gz", hash = "sha256:a0cd1966c45b57fa560071e4249c164644a97dda735fd78aabf012dbefa8895d"},
 ]
 
 [[package]]
@@ -1228,7 +1228,7 @@ files = [
 
 [[package]]
 name = "pytest-asyncio"
-version = "0.25.0"
+version = "0.25.1"
 requires_python = ">=3.9"
 summary = "Pytest support for asyncio"
 groups = ["test"]
@@ -1236,8 +1236,8 @@ dependencies = [
     "pytest<9,>=8.2",
 ]
 files = [
-    {file = "pytest_asyncio-0.25.0-py3-none-any.whl", hash = "sha256:db5432d18eac6b7e28b46dcd9b69921b55c3b1086e85febfe04e70b18d9e81b3"},
-    {file = "pytest_asyncio-0.25.0.tar.gz", hash = "sha256:8c0610303c9e0442a5db8604505fc0f545456ba1528824842b37b4a626cbf609"},
+    {file = "pytest_asyncio-0.25.1-py3-none-any.whl", hash = "sha256:c84878849ec63ff2ca509423616e071ef9cd8cc93c053aa33b5b8fb70a990671"},
+    {file = "pytest_asyncio-0.25.1.tar.gz", hash = "sha256:79be8a72384b0c917677e00daa711e07db15259f4d23203c59012bcd989d4aee"},
 ]
 
 [[package]]
