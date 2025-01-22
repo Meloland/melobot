@@ -11,7 +11,7 @@ from ..ctx import FlowCtx, SessionCtx
 from ..exceptions import BotException
 from ..handle.process import stop
 from ..typ import AsyncCallable
-from .option import Rule
+from .option import CompareInfo, Rule
 
 _SESSION_CTX = SessionCtx()
 
@@ -181,20 +181,26 @@ class Session:
 
                 suspends = filter(lambda s: s.is_state(SuspendSessionState), _set)
                 for session in suspends:
-                    if await rule.compare(session.event, event):
+                    if await rule.compare_with(
+                        CompareInfo(session, session.event, event)
+                    ):
                         await session.__wakeup__(event)
                         return None
 
                 spares = filter(lambda s: s.is_state(SpareSessionState), _set)
                 for session in spares:
-                    if await rule.compare(session.event, event):
+                    if await rule.compare_with(
+                        CompareInfo(session, session.event, event)
+                    ):
                         await session.__work__(event)
                         session.keep = keep
                         return session
 
                 workings = filter(lambda s: s.is_state(WorkingSessionState), _set)
                 for session in workings:
-                    if not await rule.compare(session.event, event):
+                    if not await rule.compare_with(
+                        CompareInfo(session, session.event, event)
+                    ):
                         continue
 
                     if not wait:
