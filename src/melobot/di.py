@@ -123,12 +123,15 @@ class Depends:
         return val
 
 
-def _adapter_get(hint: Any) -> "Adapter | None":
+def _adapter_get(hint: Any) -> "Adapter":
     ctx = EventBuildInfoCtx()
     try:
         return ctx.get().adapter
-    except ctx.lookup_exc_cls:
-        return BotCtx().get().get_adapter(hint)
+    except ctx.lookup_exc_cls as e:
+        adapter = BotCtx().get().get_adapter(hint)
+        if adapter is None:
+            raise e
+        return adapter
 
 
 def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
