@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.io.base - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,20 +300,20 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.io.base 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">TracebackType</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TracebackType</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">LiteralString</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">LiteralString</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span>
 
-<span class="kn">from</span> <span class="nn">.._hook</span> <span class="kn">import</span> <span class="n">Hookable</span>
-<span class="kn">from</span> <span class="nn">..typ</span> <span class="kn">import</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">get_id</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._hook</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hookable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_id</span>
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">_Packet</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Packet</span><span class="p">:</span>
     <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">)</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">get_id</span><span class="p">)</span>
     <span class="n">protocol</span><span class="p">:</span> <span class="n">LiteralString</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -323,7 +323,7 @@
 <div class="viewcode-block" id="InPacket">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.InPacket">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">InPacket</span><span class="p">(</span><span class="n">_Packet</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InPacket</span><span class="p">(</span><span class="n">_Packet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;输入包基类（数据类）</span>
 
 <span class="sd">    :ivar float time: 时间戳</span>
@@ -337,7 +337,7 @@
 <div class="viewcode-block" id="OutPacket">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.OutPacket">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">OutPacket</span><span class="p">(</span><span class="n">_Packet</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutPacket</span><span class="p">(</span><span class="n">_Packet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;输出包基类（数据类）</span>
 
 <span class="sd">    :ivar float time: 时间戳</span>
@@ -351,7 +351,7 @@
 <div class="viewcode-block" id="EchoPacket">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.EchoPacket">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">EchoPacket</span><span class="p">(</span><span class="n">_Packet</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EchoPacket</span><span class="p">(</span><span class="n">_Packet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;回应包基类（数据类）</span>
 
 <span class="sd">    :ivar float time: 时间戳</span>
@@ -378,7 +378,7 @@
 
 <div class="viewcode-block" id="SourceLifeSpan">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.SourceLifeSpan">[文档]</a>
-<span class="k">class</span> <span class="nc">SourceLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SourceLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;源生命周期阶段的枚举&quot;&quot;&quot;</span>
 
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;sta&quot;</span>
@@ -389,12 +389,12 @@
 
 <div class="viewcode-block" id="AbstractSource">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractSource">[文档]</a>
-<span class="k">class</span> <span class="nc">AbstractSource</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Hookable</span><span class="p">[</span><span class="n">SourceLifeSpan</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractSource</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Hookable</span><span class="p">[</span><span class="n">SourceLifeSpan</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象源基类&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AbstractSource.__init__">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractSource.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">LiteralString</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">LiteralString</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">Hookable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">SourceLifeSpan</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
@@ -405,7 +405,7 @@
 <div class="viewcode-block" id="AbstractSource.open">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractSource.open">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;源打开方法&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -413,7 +413,7 @@
 <div class="viewcode-block" id="AbstractSource.opened">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractSource.opened">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;源是否已打开&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -421,12 +421,12 @@
 <div class="viewcode-block" id="AbstractSource.close">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractSource.close">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;源关闭方法&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">opened</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span>
 
@@ -434,7 +434,7 @@
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">SourceLifeSpan</span><span class="o">.</span><span class="n">STARTED</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__aexit__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aexit__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">exc_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">exc_val</span><span class="p">:</span> <span class="ne">BaseException</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -453,25 +453,25 @@
 
 <div class="viewcode-block" id="AbstractInSource">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractInSource">[文档]</a>
-<span class="k">class</span> <span class="nc">AbstractInSource</span><span class="p">(</span><span class="n">AbstractSource</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">InPacketT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractInSource</span><span class="p">(</span><span class="n">AbstractSource</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">InPacketT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象输入源基类&quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="AbstractInSource.input">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractInSource.input">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InPacketT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InPacketT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;源输入方法</span>
 
 <span class="sd">        :return: 返回 :class:`.InPacket` 对象</span>
@@ -486,25 +486,25 @@
 
 <div class="viewcode-block" id="AbstractOutSource">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractOutSource">[文档]</a>
-<span class="k">class</span> <span class="nc">AbstractOutSource</span><span class="p">(</span><span class="n">AbstractSource</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">OutPacketT</span><span class="p">,</span> <span class="n">EchoPacketT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractOutSource</span><span class="p">(</span><span class="n">AbstractSource</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">OutPacketT</span><span class="p">,</span> <span class="n">EchoPacketT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象输出源基类&quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="AbstractOutSource.output">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractOutSource.output">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">OutPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoPacketT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">OutPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoPacketT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;源输出方法</span>
 
 <span class="sd">        :return: 返回 :class:`.OutPacket` 对象</span>
@@ -521,29 +521,29 @@
 
 <div class="viewcode-block" id="AbstractIOSource">
 <a class="viewcode-back" href="../../../api/melobot.io.html#melobot.io.AbstractIOSource">[文档]</a>
-<span class="k">class</span> <span class="nc">AbstractIOSource</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractIOSource</span><span class="p">(</span>
     <span class="n">AbstractInSource</span><span class="p">[</span><span class="n">InPacketT</span><span class="p">],</span> <span class="n">AbstractOutSource</span><span class="p">[</span><span class="n">OutPacketT</span><span class="p">,</span> <span class="n">EchoPacketT</span><span class="p">],</span> <span class="n">BetterABC</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象输入输出源基类&quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InPacketT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InPacketT</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">OutPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoPacketT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">OutPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoPacketT</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 

@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.protocols.onebot.v11.adapter.echo - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,28 +300,28 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.adapter.echo 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">from</span> <span class="nn">melobot.adapter.model</span> <span class="kn">import</span> <span class="n">Echo</span> <span class="k">as</span> <span class="n">RootEcho</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Echo</span> <span class="k">as</span> <span class="n">RootEcho</span>
 
-<span class="kn">from</span> <span class="nn">..const</span> <span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span>
-<span class="kn">from</span> <span class="nn">.event</span> <span class="kn">import</span> <span class="n">_GroupMessageSender</span><span class="p">,</span> <span class="n">_MessageSender</span>
-<span class="kn">from</span> <span class="nn">.segment</span> <span class="kn">import</span> <span class="n">NodeSegment</span><span class="p">,</span> <span class="n">Segment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..const</span><span class="w"> </span><span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">_GroupMessageSender</span><span class="p">,</span> <span class="n">_MessageSender</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeSegment</span><span class="p">,</span> <span class="n">Segment</span>
 
 
 <div class="viewcode-block" id="Echo">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.Echo">[文档]</a>
-<span class="k">class</span> <span class="nc">Echo</span><span class="p">(</span><span class="n">RootEcho</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Echo</span><span class="p">(</span><span class="n">RootEcho</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="s2">&quot;async&quot;</span><span class="p">,</span> <span class="s2">&quot;failed&quot;</span><span class="p">]</span>
         <span class="n">retcode</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">kv_pairs</span>
 
@@ -334,24 +334,24 @@
 
 <div class="viewcode-block" id="Echo.is_ok">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.Echo.is_ok">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;ok&quot;</span></div>
 
 
 <div class="viewcode-block" id="Echo.is_async">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.Echo.is_async">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_async</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_async</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;async&quot;</span></div>
 
 
 <div class="viewcode-block" id="Echo.is_failed">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.Echo.is_failed">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;failed&quot;</span></div>
 
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Echo</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Echo</span><span class="p">:</span>
         <span class="k">match</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;action_type&quot;</span><span class="p">]:</span>
             <span class="k">case</span> <span class="s2">&quot;send_private_msg&quot;</span> <span class="o">|</span> <span class="s2">&quot;send_group_msg&quot;</span> <span class="o">|</span> <span class="s2">&quot;send_msg&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">SendMsgEcho</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
@@ -421,68 +421,68 @@
 
 <div class="viewcode-block" id="EmptyEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.EmptyEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">EmptyEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmptyEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_SendMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_SendMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">message_id</span><span class="p">:</span> <span class="nb">int</span>
 
 
 <div class="viewcode-block" id="SendMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.SendMsgEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">SendMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SendMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_SendMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_SendMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_SendForwardMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_SendForwardMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">message_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">forward_id</span><span class="p">:</span> <span class="nb">str</span>
 
 
 <div class="viewcode-block" id="SendForwardMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.SendForwardMsgEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">SendForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SendForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_SendForwardMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_SendForwardMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">time</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">message_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;private&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]</span>
     <span class="n">message_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">real_id</span><span class="p">:</span> <span class="nb">int</span>
 
 
-<span class="k">class</span> <span class="nc">_GetMsgEchoDataInterface</span><span class="p">(</span><span class="n">_GetMsgEchoData</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetMsgEchoDataInterface</span><span class="p">(</span><span class="n">_GetMsgEchoData</span><span class="p">):</span>
     <span class="n">sender</span><span class="p">:</span> <span class="n">_MessageSender</span> <span class="o">|</span> <span class="n">_GroupMessageSender</span>
     <span class="n">message</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="GetMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetMsgEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetMsgEchoDataInterface</span> <span class="o">|</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -506,23 +506,23 @@
 
 
 
-<span class="k">class</span> <span class="nc">_GetForwardMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetForwardMsgEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span> <span class="o">...</span>
 
 
-<span class="k">class</span> <span class="nc">_GetForwardMsgEchoDataInterface</span><span class="p">(</span><span class="n">_GetForwardMsgEchoData</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetForwardMsgEchoDataInterface</span><span class="p">(</span><span class="n">_GetForwardMsgEchoData</span><span class="p">):</span>
     <span class="n">message</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">NodeSegment</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="GetForwardMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetForwardMsgEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetForwardMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetForwardMsgEchoDataInterface</span> <span class="o">|</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -539,23 +539,23 @@
 
 
 
-<span class="k">class</span> <span class="nc">_GetLoginInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetLoginInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span>
 
 
 <div class="viewcode-block" id="GetLoginInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetLoginInfoEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetLoginInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetLoginInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetLoginInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetLoginInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetStrangerInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetStrangerInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">sex</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">,</span> <span class="s2">&quot;female&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">]</span>
@@ -564,16 +564,16 @@
 
 <div class="viewcode-block" id="GetStrangerInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetStrangerInfoEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetStrangerInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetStrangerInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetStrangerInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetStrangerInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetFriendListEchoElem</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetFriendListEchoElem</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">remark</span><span class="p">:</span> <span class="nb">str</span>
@@ -581,16 +581,16 @@
 
 <div class="viewcode-block" id="GetFriendListEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetFriendListEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetFriendListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetFriendListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetFriendListEchoElem</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetFriendListEchoElem</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetGroupInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetGroupInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">member_count</span><span class="p">:</span> <span class="nb">int</span>
@@ -599,9 +599,9 @@
 
 <div class="viewcode-block" id="GetGroupInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupInfoEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
@@ -610,16 +610,16 @@
 
 <div class="viewcode-block" id="GetGroupListEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupListEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetGroupMemberInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetGroupMemberInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span>
@@ -639,9 +639,9 @@
 
 <div class="viewcode-block" id="GetGroupMemberInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupMemberInfoEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupMemberInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupMemberInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupMemberInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
@@ -650,30 +650,30 @@
 
 <div class="viewcode-block" id="GetGroupMemberListEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupMemberListEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupMemberListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupMemberInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupMemberInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_CurrentTalkativeData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_CurrentTalkativeData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">avatar</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">day_count</span><span class="p">:</span> <span class="nb">int</span>
 
 
-<span class="k">class</span> <span class="nc">_OtherListData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_OtherListData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">avatar</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
 
 
-<span class="k">class</span> <span class="nc">_GetGroupHonorInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetGroupHonorInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">current_talkative</span><span class="p">:</span> <span class="n">_CurrentTalkativeData</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">talkative_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_OtherListData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
@@ -685,134 +685,134 @@
 
 <div class="viewcode-block" id="GetGroupHonorInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupHonorInfoEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupHonorInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupHonorInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupHonorInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupHonorInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetCookiesEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetCookiesEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">cookies</span><span class="p">:</span> <span class="nb">str</span>
 
 
 <div class="viewcode-block" id="GetCookiesEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetCookiesEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetCookiesEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCookiesEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetCookiesEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetCookiesEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetCsrfTokenEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetCsrfTokenEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">token</span><span class="p">:</span> <span class="nb">int</span>
 
 
 <div class="viewcode-block" id="GetCsrfTokenEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetCsrfTokenEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetCsrfTokenEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCsrfTokenEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetCsrfTokenEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetCsrfTokenEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetCredentialsEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetCredentialsEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">cookies</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">csrf_token</span><span class="p">:</span> <span class="nb">int</span>
 
 
 <div class="viewcode-block" id="GetCredentialsEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetCredentialsEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetCredentialsEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCredentialsEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetCredentialsEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetCredentialsEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetRecordEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetRecordEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span>
 
 
 <div class="viewcode-block" id="GetRecordEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetRecordEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetImageEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetImageEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span>
 
 
 <div class="viewcode-block" id="GetImageEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetImageEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetImageEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_GetImageEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_CanSendImageEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_CanSendImageEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">yes</span><span class="p">:</span> <span class="nb">bool</span>
 
 
 <div class="viewcode-block" id="CanSendImageEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.CanSendImageEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">CanSendImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CanSendImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendImageEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendImageEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_CanSendRecordEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_CanSendRecordEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">yes</span><span class="p">:</span> <span class="nb">bool</span>
 
 
 <div class="viewcode-block" id="CanSendRecordEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.CanSendRecordEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">CanSendRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CanSendRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">_GetStatusEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetStatusEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">online</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">good</span><span class="p">:</span> <span class="nb">bool</span>
 
 
 <div class="viewcode-block" id="GetStatusEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetStatusEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetStatusEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetStatusEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetStatusEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GetStatusEcho</span><span class="o">.</span><span class="n">Model</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">kv_pairs</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -826,7 +826,7 @@
 
 
 
-<span class="k">class</span> <span class="nc">_GetVersionInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GetVersionInfoEchoData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">app_version</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">protocol_version</span><span class="p">:</span> <span class="nb">str</span>
@@ -834,12 +834,12 @@
 
 <div class="viewcode-block" id="GetVersionInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetVersionInfoEcho">[文档]</a>
-<span class="k">class</span> <span class="nc">GetVersionInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetVersionInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetVersionInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GetVersionInfoEcho</span><span class="o">.</span><span class="n">Model</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">kv_pairs</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

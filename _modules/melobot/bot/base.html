@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.bot.base - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,20 +300,20 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.bot.base 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio.tasks</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">AsyncExitStack</span><span class="p">,</span> <span class="n">ExitStack</span><span class="p">,</span> <span class="n">asynccontextmanager</span><span class="p">,</span> <span class="n">contextmanager</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio.tasks</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncExitStack</span><span class="p">,</span> <span class="n">ExitStack</span><span class="p">,</span> <span class="n">asynccontextmanager</span><span class="p">,</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleType</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">AsyncGenerator</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -324,24 +324,24 @@
     <span class="n">NoReturn</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">.._hook</span> <span class="kn">import</span> <span class="n">Hookable</span>
-<span class="kn">from</span> <span class="nn">.._meta</span> <span class="kn">import</span> <span class="n">MetaInfo</span>
-<span class="kn">from</span> <span class="nn">..adapter.base</span> <span class="kn">import</span> <span class="n">Adapter</span>
-<span class="kn">from</span> <span class="nn">..ctx</span> <span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span>
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">BotError</span>
-<span class="kn">from</span> <span class="nn">..io.base</span> <span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">AbstractIOSource</span><span class="p">,</span> <span class="n">AbstractOutSource</span>
-<span class="kn">from</span> <span class="nn">..log.base</span> <span class="kn">import</span> <span class="n">GenericLogger</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">NullLogger</span>
-<span class="kn">from</span> <span class="nn">..plugin.base</span> <span class="kn">import</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">PluginLifeSpan</span><span class="p">,</span> <span class="n">PluginPlanner</span>
-<span class="kn">from</span> <span class="nn">..plugin.ipc</span> <span class="kn">import</span> <span class="n">AsyncShare</span><span class="p">,</span> <span class="n">IPCManager</span><span class="p">,</span> <span class="n">SyncShare</span>
-<span class="kn">from</span> <span class="nn">..plugin.load</span> <span class="kn">import</span> <span class="n">PluginLoader</span>
-<span class="kn">from</span> <span class="nn">..protocols.base</span> <span class="kn">import</span> <span class="n">ProtocolStack</span>
-<span class="kn">from</span> <span class="nn">..typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">P</span>
-<span class="kn">from</span> <span class="nn">.dispatch</span> <span class="kn">import</span> <span class="n">Dispatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._hook</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hookable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaInfo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..io.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">AbstractIOSource</span><span class="p">,</span> <span class="n">AbstractOutSource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericLogger</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">NullLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..plugin.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">PluginLifeSpan</span><span class="p">,</span> <span class="n">PluginPlanner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..plugin.ipc</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncShare</span><span class="p">,</span> <span class="n">IPCManager</span><span class="p">,</span> <span class="n">SyncShare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..plugin.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginLoader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..protocols.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtocolStack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">P</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dispatcher</span>
 
 
 <div class="viewcode-block" id="BotLifeSpan">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.BotLifeSpan">[文档]</a>
-<span class="k">class</span> <span class="nc">BotLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BotLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;bot 生命周期阶段的枚举&quot;&quot;&quot;</span>
 
     <span class="n">LOADED</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span>
@@ -352,7 +352,7 @@
 
 
 
-<span class="k">class</span> <span class="nc">BotExitSignal</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BotExitSignal</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">NORMAL_STOP</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">RESTART</span> <span class="o">=</span> <span class="mi">2</span>
@@ -366,7 +366,7 @@
 <span class="n">_LOGGER_CTX</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_start_log</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_start_log</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">MetaInfo</span><span class="o">.</span><span class="n">logo</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -378,7 +378,7 @@
 
 <div class="viewcode-block" id="Bot">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot">[文档]</a>
-<span class="k">class</span> <span class="nc">Bot</span><span class="p">(</span><span class="n">Hookable</span><span class="p">[</span><span class="n">BotLifeSpan</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Bot</span><span class="p">(</span><span class="n">Hookable</span><span class="p">[</span><span class="n">BotLifeSpan</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;bot 类</span>
 
 <span class="sd">    :ivar str name: bot 对象的名称</span>
@@ -387,7 +387,7 @@
 
     <span class="n">__instances__</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Bot</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;melobot&quot;</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;melobot&quot;</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">Bot</span><span class="o">.</span><span class="n">__instances__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;命名为 </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 的 bot 实例已存在，请改名避免冲突&quot;</span><span class="p">)</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
@@ -396,7 +396,7 @@
 
 <div class="viewcode-block" id="Bot.__init__">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;melobot&quot;</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -438,23 +438,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_rip_signal</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Bot(name=&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;)&#39;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获得当前 bot 运行时的事件循环对象&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
 
     <span class="nd">@contextmanager</span>
-    <span class="k">def</span> <span class="nf">_common_sync_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">ExitStack</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_common_sync_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">ExitStack</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">_BOT_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
             <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">_LOGGER_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">))</span>
             <span class="k">yield</span> <span class="n">stack</span>
 
     <span class="nd">@asynccontextmanager</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_common_async_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">AsyncExitStack</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_common_async_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">AsyncExitStack</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">_BOT_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
             <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">_LOGGER_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">))</span>
@@ -462,7 +462,7 @@
 
 <div class="viewcode-block" id="Bot.add_input">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.add_input">[文档]</a>
-    <span class="k">def</span> <span class="nf">add_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">AbstractInSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">AbstractInSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定输入源</span>
 
 <span class="sd">        :param src: 输入源</span>
@@ -477,7 +477,7 @@
 
 <div class="viewcode-block" id="Bot.add_output">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.add_output">[文档]</a>
-    <span class="k">def</span> <span class="nf">add_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">AbstractOutSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">AbstractOutSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定输出源</span>
 
 <span class="sd">        :param src: 输出源</span>
@@ -492,7 +492,7 @@
 
 <div class="viewcode-block" id="Bot.add_io">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.add_io">[文档]</a>
-    <span class="k">def</span> <span class="nf">add_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">AbstractIOSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">AbstractIOSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定输入输出源</span>
 
 <span class="sd">        :param src: 输入输出源</span>
@@ -505,7 +505,7 @@
 
 <div class="viewcode-block" id="Bot.add_adapter">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.add_adapter">[文档]</a>
-    <span class="k">def</span> <span class="nf">add_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定适配器</span>
 
 <span class="sd">        :param adapter: 适配器对象</span>
@@ -524,7 +524,7 @@
 
 <div class="viewcode-block" id="Bot.add_protocol">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.add_protocol">[文档]</a>
-    <span class="k">def</span> <span class="nf">add_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pstack</span><span class="p">:</span> <span class="n">ProtocolStack</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pstack</span><span class="p">:</span> <span class="n">ProtocolStack</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;绑定完整的协议栈，这包含了一组协同工作的输入源、输出源和适配器</span>
 
 <span class="sd">        :param pstack: 协议栈对象</span>
@@ -539,7 +539,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_core_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_core_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_start_log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">srcs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_srcs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -577,7 +577,7 @@
 
 <div class="viewcode-block" id="Bot.load_plugin">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugin">[文档]</a>
-    <span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugin</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">plugin</span><span class="p">:</span> <span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">PluginPlanner</span><span class="p">,</span>
         <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -619,7 +619,7 @@
 
 <div class="viewcode-block" id="Bot.load_plugins">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugins">[文档]</a>
-    <span class="k">def</span> <span class="nf">load_plugins</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">plugins</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">PluginPlanner</span><span class="p">],</span>
         <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -635,7 +635,7 @@
 
 <div class="viewcode-block" id="Bot.load_plugins_dir">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugins_dir">[文档]</a>
-    <span class="k">def</span> <span class="nf">load_plugins_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`load_plugin` 行为类似，但是参数变为插件目录的父目录，本方法可以加载单个目录下的多个插件</span>
 
 <span class="sd">        :param pdir: 插件所在父目录的路径</span>
@@ -654,7 +654,7 @@
 
 <div class="viewcode-block" id="Bot.load_plugins_dirs">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugins_dirs">[文档]</a>
-    <span class="k">def</span> <span class="nf">load_plugins_dirs</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins_dirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">pdirs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`load_plugins_dir` 行为类似，但是参数变为可迭代对象，每个元素为包含插件目录的父目录。</span>
@@ -669,7 +669,7 @@
 
 <div class="viewcode-block" id="Bot.core_run">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.core_run">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">core_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">core_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的方法，可以在异步事件循环中自由地使用</span>
 
 <span class="sd">        若使用此方法，则需要自行管理异步事件循环</span>
@@ -719,7 +719,7 @@
 
 <div class="viewcode-block" id="Bot.run">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.run">[文档]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况</span>
 
 <span class="sd">        :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级</span>
@@ -730,14 +730,14 @@
 <div class="viewcode-block" id="Bot.start">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.start">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">bots</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">bots</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;安全地同时运行多个 bot 的阻塞方法</span>
 
 <span class="sd">        :param bots: 要运行的 bot 对象</span>
 <span class="sd">        :param debug: 参见 :func:`run` 同名参数</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">bots_run</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">bots_run</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="n">bots</span><span class="p">:</span>
                 <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">core_run</span><span class="p">()))</span>
@@ -751,7 +751,7 @@
 
 <div class="viewcode-block" id="Bot.close">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.close">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;停止并关闭当前 bot&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BotError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 未在运行中，不能停止运行&quot;</span><span class="p">)</span>
@@ -762,7 +762,7 @@
 
 <div class="viewcode-block" id="Bot.restart">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.restart">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;重启当前 bot，需要通过模块运行模式启动 bot 主脚本：</span>
 
 <span class="sd">        .. code:: shell</span>
@@ -780,7 +780,7 @@
 
 <div class="viewcode-block" id="Bot.get_adapter">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.get_adapter">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_adapter</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_adapter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="nb">type</span><span class="p">:</span> <span class="n">LiteralString</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Adapter</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Adapter</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -810,7 +810,7 @@
 
 <div class="viewcode-block" id="Bot.get_adapters">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.get_adapters">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_adapters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_adapters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Adapter</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">Adapter</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取一组适配器</span>
@@ -825,7 +825,7 @@
 
 <div class="viewcode-block" id="Bot.get_plugins">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.get_plugins">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取所有绑定的插件的名称</span>
 
 <span class="sd">        :return: 所绑定的插件的名称列表</span>
@@ -835,7 +835,7 @@
 
 <div class="viewcode-block" id="Bot.get_share">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.get_share">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_share</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">share</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SyncShare</span> <span class="o">|</span> <span class="n">AsyncShare</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_share</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">share</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SyncShare</span> <span class="o">|</span> <span class="n">AsyncShare</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取绑定的插件中的共享对象</span>
 
 <span class="sd">        :param plugin: 插件名称</span>
@@ -846,33 +846,33 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">on_loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;给 bot 注册 :obj:`.BotLifeSpan.LOADED` 阶段 hook 的装饰器&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">LOADED</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">on_reloaded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_reloaded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;给 bot 注册 :obj:`.BotLifeSpan.RELOADED` 阶段 hook 的装饰器&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">RELOADED</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">on_started</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_started</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;给 bot 注册 :obj:`.BotLifeSpan.STARTED` 阶段 hook 的装饰器&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STARTED</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;给 bot 注册 :obj:`.BotLifeSpan.CLOSE` 阶段 hook 的装饰器&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">on_stopped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_stopped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;给 bot 注册 :obj:`.BotLifeSpan.STOPPED` 阶段 hook 的装饰器&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">)</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_safe_run</span><span class="p">(</span><span class="n">main</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_safe_run</span><span class="p">(</span><span class="n">main</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop_policy</span><span class="p">()</span><span class="o">.</span><span class="n">set_event_loop</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
@@ -900,7 +900,7 @@
             <span class="n">loop</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">alive_signal_guard</span><span class="p">(</span><span class="n">main_coro</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">alive_signal_guard</span><span class="p">(</span><span class="n">main_coro</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">main_coro</span><span class="p">)</span>
 
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
@@ -911,7 +911,7 @@
         <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.45</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_cancel_all_tasks</span><span class="p">(</span><span class="n">loop</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cancel_all_tasks</span><span class="p">(</span><span class="n">loop</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">to_cancel</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">all_tasks</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">to_cancel</span><span class="p">:</span>
         <span class="k">return</span>

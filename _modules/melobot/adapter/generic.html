@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.adapter.generic - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,20 +300,20 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.adapter.generic 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
-<span class="kn">from</span> <span class="nn">..ctx</span> <span class="kn">import</span> <span class="n">EventBuildInfoCtx</span>
-<span class="kn">from</span> <span class="nn">.content</span> <span class="kn">import</span> <span class="n">Content</span>
-<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">Event</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventBuildInfoCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.content</span><span class="w"> </span><span class="kn">import</span> <span class="n">Content</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">Event</span>
 
 <span class="n">_CTX</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="send_text">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_text">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;通用文本输出方法&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
 
@@ -321,7 +321,7 @@
 
 <div class="viewcode-block" id="send_media">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_media">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_media</span><span class="p">(</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_media</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -334,7 +334,7 @@
 
 <div class="viewcode-block" id="send_image">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_image">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_image</span><span class="p">(</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_image</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -347,7 +347,7 @@
 
 <div class="viewcode-block" id="send_audio">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_audio">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_audio</span><span class="p">(</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_audio</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -360,7 +360,7 @@
 
 <div class="viewcode-block" id="send_voice">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_voice">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_voice</span><span class="p">(</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_voice</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -373,7 +373,7 @@
 
 <div class="viewcode-block" id="send_video">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_video">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_video</span><span class="p">(</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_video</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -386,7 +386,7 @@
 
 <div class="viewcode-block" id="send_file">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_file">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;通用文件输出方法&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_file__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
@@ -394,7 +394,7 @@
 
 <div class="viewcode-block" id="send_refer">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_refer">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_refer</span><span class="p">(</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_refer</span><span class="p">(</span>
     <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;通用过往事件引用输出方法&quot;&quot;&quot;</span>
@@ -404,7 +404,7 @@
 
 <div class="viewcode-block" id="send_resource">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.generic.send_resource">[文档]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_resource</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_resource</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;通用其他资源输出方法&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">__send_resource__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span></div>
 

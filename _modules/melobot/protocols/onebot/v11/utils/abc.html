@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.protocols.onebot.v11.utils.abc - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,51 +300,51 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.utils.abc 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">,</span> <span class="n">Self</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">,</span> <span class="n">Self</span>
 
-<span class="kn">from</span> <span class="nn">melobot.exceptions</span> <span class="kn">import</span> <span class="n">BotException</span>
-<span class="kn">from</span> <span class="nn">melobot.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">LogicMode</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">to_async</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">LogicMode</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_async</span>
 
-<span class="kn">from</span> <span class="nn">..adapter.event</span> <span class="kn">import</span> <span class="n">Event</span>
-
-
-<span class="k">class</span> <span class="nc">UtilsError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span> <span class="o">...</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
 
 
-<span class="k">class</span> <span class="nc">Cloneable</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UtilsError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span> <span class="o">...</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Cloneable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Checker">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.Checker">[文档]</a>
-<span class="k">class</span> <span class="nc">Checker</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Cloneable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Checker</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Cloneable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;检查器基类&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span>
 
-    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Checker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Checker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Checker</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;联合检查器定义时出现了非检查器对象，其值为：</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WrappedChecker</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Checker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Checker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Checker</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;联合检查器定义时出现了非检查器对象，其值为：</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WrappedChecker</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">WrappedChecker</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Checker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Checker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedChecker</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Checker</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;联合检查器定义时出现了非检查器对象，其值为：</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WrappedChecker</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">XOR</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
@@ -352,7 +352,7 @@
 <div class="viewcode-block" id="Checker.check">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.Checker.check">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;检查器检查方法</span>
 
 <span class="sd">        任何检查器应该实现此抽象方法。</span>
@@ -366,30 +366,30 @@
 <div class="viewcode-block" id="Checker.new">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.Checker.new">[文档]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Checker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">new</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Checker</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">CustomChecker</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">class</span> <span class="nc">CustomChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="WrappedChecker">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.WrappedChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">WrappedChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WrappedChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;合并检查器</span>
 
 <span class="sd">    在两个 :class:`Checker` 对象间使用 | &amp; ^ ~ 运算符即可返回合并检查器。</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="n">LogicMode</span><span class="p">,</span>
         <span class="n">checker1</span><span class="p">:</span> <span class="n">Checker</span><span class="p">,</span>
@@ -407,11 +407,11 @@
 
 <div class="viewcode-block" id="WrappedChecker.set_fail_cb">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.WrappedChecker.set_fail_cb">[文档]</a>
-    <span class="k">def</span> <span class="nf">set_fail_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_fail_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">c2_check</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>  <span class="c1"># type: ignore[union-attr]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -429,26 +429,26 @@
 
 <div class="viewcode-block" id="Matcher">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.Matcher">[文档]</a>
-<span class="k">class</span> <span class="nc">Matcher</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Cloneable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Matcher</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Cloneable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;匹配器基类&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Matcher</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Matcher</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Matcher</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;联合匹配器定义时出现了非匹配器对象，其值为：</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WrappedMatcher</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Matcher</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Matcher</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Matcher</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;联合匹配器定义时出现了非匹配器对象，其值为：</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WrappedMatcher</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">WrappedMatcher</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Matcher</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Matcher</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedMatcher</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Matcher</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UtilsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;联合匹配器定义时出现了非匹配器对象，其值为：</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WrappedMatcher</span><span class="p">(</span><span class="n">LogicMode</span><span class="o">.</span><span class="n">XOR</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
@@ -456,7 +456,7 @@
 <div class="viewcode-block" id="Matcher.match">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.Matcher.match">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;匹配器匹配方法</span>
 
 <span class="sd">        任何匹配器应该实现此抽象方法。</span>
@@ -471,13 +471,13 @@
 
 <div class="viewcode-block" id="WrappedMatcher">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.WrappedMatcher">[文档]</a>
-<span class="k">class</span> <span class="nc">WrappedMatcher</span><span class="p">(</span><span class="n">Matcher</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WrappedMatcher</span><span class="p">(</span><span class="n">Matcher</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;合并匹配器</span>
 
 <span class="sd">    在两个 :class:`Matcher` 对象间使用 | &amp; ^ ~ 运算符即可返回合并匹配器</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="n">LogicMode</span><span class="p">,</span>
         <span class="n">matcher1</span><span class="p">:</span> <span class="n">Matcher</span><span class="p">,</span>
@@ -493,7 +493,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="o">=</span> <span class="n">matcher1</span><span class="p">,</span> <span class="n">matcher2</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">m2_match</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">m2</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>  <span class="c1"># type: ignore[union-attr]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -508,7 +508,7 @@
 <div class="viewcode-block" id="ParseArgs">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ParseArgs</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParseArgs</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;解析参数&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -518,19 +518,19 @@
 
 <div class="viewcode-block" id="Parser">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.Parser">[文档]</a>
-<span class="k">class</span> <span class="nc">Parser</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Parser</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;解析器基类</span>
 
 <span class="sd">    解析器一般用作从消息文本中按规则批量提取参数</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Parser.parse">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.Parser.parse">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseArgs</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseArgs</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;解析方法</span>
 
 <span class="sd">        任何解析器应该实现此抽象方法</span>

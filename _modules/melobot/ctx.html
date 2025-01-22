@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.ctx - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,30 +300,30 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.ctx 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
-<span class="kn">from</span> <span class="nn">contextvars</span> <span class="kn">import</span> <span class="n">ContextVar</span><span class="p">,</span> <span class="n">Token</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextvars</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextVar</span><span class="p">,</span> <span class="n">Token</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">AdapterError</span><span class="p">,</span> <span class="n">BotError</span><span class="p">,</span> <span class="n">FlowError</span><span class="p">,</span> <span class="n">LogError</span><span class="p">,</span> <span class="n">SessionError</span>
-<span class="kn">from</span> <span class="nn">.typ</span> <span class="kn">import</span> <span class="n">SingletonMeta</span><span class="p">,</span> <span class="n">T</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdapterError</span><span class="p">,</span> <span class="n">BotError</span><span class="p">,</span> <span class="n">FlowError</span><span class="p">,</span> <span class="n">LogError</span><span class="p">,</span> <span class="n">SessionError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingletonMeta</span><span class="p">,</span> <span class="n">T</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.adapter</span> <span class="kn">import</span> <span class="n">model</span>
-    <span class="kn">from</span> <span class="nn">.adapter.base</span> <span class="kn">import</span> <span class="n">Adapter</span>
-    <span class="kn">from</span> <span class="nn">.bot.base</span> <span class="kn">import</span> <span class="n">Bot</span>
-    <span class="kn">from</span> <span class="nn">.handle.process</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">FlowNode</span>
-    <span class="kn">from</span> <span class="nn">.io.base</span> <span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">OutSourceT</span>
-    <span class="kn">from</span> <span class="nn">.log.base</span> <span class="kn">import</span> <span class="n">GenericLogger</span>
-    <span class="kn">from</span> <span class="nn">.session.base</span> <span class="kn">import</span> <span class="n">Session</span><span class="p">,</span> <span class="n">SessionStore</span>
-    <span class="kn">from</span> <span class="nn">.session.option</span> <span class="kn">import</span> <span class="n">Rule</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">model</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.adapter.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.bot.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.handle.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">FlowNode</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.io.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">OutSourceT</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericLogger</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.session.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span><span class="p">,</span> <span class="n">SessionStore</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.session.option</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rule</span>
 
 
 <div class="viewcode-block" id="Context">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context">[文档]</a>
-<span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">SingletonMeta</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Context</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">SingletonMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;上下文对象，本质是对 :class:`contextvars.ContextVar` 操作的封装</span>
 
 <span class="sd">    继承该基类，可以实现自己的上下文对象。</span>
@@ -332,7 +332,7 @@
 
 <div class="viewcode-block" id="Context.__init__">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">lookup_exc_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span>
@@ -356,7 +356,7 @@
 
 <div class="viewcode-block" id="Context.get">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context.get">[文档]</a>
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;在当前上下文中，获取本上下文对象的上下文值</span>
 
 <span class="sd">        :return: 上下文对象的上下文值</span>
@@ -364,12 +364,12 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__storage__</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_exc_cls</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup_exc_tip</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span></div>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_exc_cls</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup_exc_tip</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="Context.try_get">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context.try_get">[文档]</a>
-    <span class="k">def</span> <span class="nf">try_get</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">try_get</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`get` 类似，但不存在上下文对象时返回 `None`</span>
 
 <span class="sd">        :return: 上下文对象的上下文值</span>
@@ -379,7 +379,7 @@
 
 <div class="viewcode-block" id="Context.add">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context.add">[文档]</a>
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;在当前上下文中，添加一个上下文值</span>
 
 <span class="sd">        :param ctx: 上下文值</span>
@@ -390,7 +390,7 @@
 
 <div class="viewcode-block" id="Context.remove">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context.remove">[文档]</a>
-    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="n">Token</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="n">Token</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;移除当前上下文中的上下文值</span>
 
 <span class="sd">        :param token: 添加时返回的 :class:`contextvars.Token` 对象</span>
@@ -401,7 +401,7 @@
 <div class="viewcode-block" id="Context.unfold">
 <a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.Context.unfold">[文档]</a>
     <span class="nd">@contextmanager</span>
-    <span class="k">def</span> <span class="nf">unfold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unfold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;展开一个上下文值为 `obj` 的上下文环境，返回上下文管理器</span>
 
 <span class="sd">        上下文管理器可 `yield` 上下文值，退出上下文管理器作用域后自动清理</span>
@@ -420,34 +420,34 @@
 <span class="n">_OutSrcFilterType</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;OutSourceT&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">OutSrcFilterCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">_OutSrcFilterType</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutSrcFilterCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">_OutSrcFilterType</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_OUT_SRC_FILTER&quot;</span><span class="p">,</span> <span class="n">AdapterError</span><span class="p">)</span>
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">EventBuildInfo</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EventBuildInfo</span><span class="p">:</span>
     <span class="n">adapter</span><span class="p">:</span> <span class="s2">&quot;Adapter&quot;</span>
     <span class="n">in_src</span><span class="p">:</span> <span class="s2">&quot;AbstractInSource&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">EventBuildInfoCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">EventBuildInfo</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EventBuildInfoCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">EventBuildInfo</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;MELOBOT_EVENT_BUILD_INFO&quot;</span><span class="p">,</span>
             <span class="n">AdapterError</span><span class="p">,</span>
             <span class="s2">&quot;此时不在活动的事件处理流中，无法获取适配器与输入源的上下文信息&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_adapter_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Adapter&quot;</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">.adapter.base</span> <span class="kn">import</span> <span class="n">Adapter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Adapter&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.adapter.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span>
 
         <span class="k">return</span> <span class="n">Adapter</span>
 
 
 <div class="viewcode-block" id="FlowRecordStage">
 <a class="viewcode-back" href="../../api/melobot.handle.html#melobot.ctx.FlowRecordStage">[文档]</a>
-<span class="k">class</span> <span class="nc">FlowRecordStage</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowRecordStage</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;流记录阶段的枚举&quot;&quot;&quot;</span>
 
     <span class="n">FLOW_START</span> <span class="o">=</span> <span class="s2">&quot;fs&quot;</span>
@@ -468,7 +468,7 @@
 <div class="viewcode-block" id="FlowRecord">
 <a class="viewcode-back" href="../../api/melobot.handle.html#melobot.ctx.FlowRecord">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">FlowRecord</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowRecord</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;流记录&quot;&quot;&quot;</span>
 
     <span class="n">stage</span><span class="p">:</span> <span class="n">FlowRecordStage</span>
@@ -479,20 +479,20 @@
 
 
 
-<span class="k">class</span> <span class="nc">FlowRecords</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">FlowRecord</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">:</span> <span class="n">FlowRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowRecords</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">FlowRecord</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">:</span> <span class="n">FlowRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="FlowStore">
 <a class="viewcode-back" href="../../api/melobot.handle.html#melobot.ctx.FlowStore">[文档]</a>
-<span class="k">class</span> <span class="nc">FlowStore</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowStore</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;流存储，将会在流运行前初始化，运行结束后销毁&quot;&quot;&quot;</span></div>
 
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">FlowStatus</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowStatus</span><span class="p">:</span>
     <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;model.Event&quot;</span>
     <span class="n">flow</span><span class="p">:</span> <span class="s2">&quot;Flow&quot;</span>
     <span class="n">node</span><span class="p">:</span> <span class="s2">&quot;FlowNode&quot;</span>
@@ -501,21 +501,21 @@
     <span class="n">store</span><span class="p">:</span> <span class="n">FlowStore</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FlowStore</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">FlowCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">FlowStatus</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">FlowStatus</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;MELOBOT_FLOW&quot;</span><span class="p">,</span>
             <span class="n">FlowError</span><span class="p">,</span>
             <span class="s2">&quot;此时不在活动的事件处理流中，无法获取处理流信息&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;model.Event&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;model.Event&quot;</span><span class="p">:</span>
         <span class="n">session</span> <span class="o">=</span> <span class="n">SessionCtx</span><span class="p">()</span><span class="o">.</span><span class="n">try_get</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">event</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">event</span>
 
-    <span class="k">def</span> <span class="nf">try_get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;model.Event&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">try_get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;model.Event&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="n">session</span> <span class="o">=</span> <span class="n">SessionCtx</span><span class="p">()</span><span class="o">.</span><span class="n">try_get</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">event</span>
@@ -525,62 +525,62 @@
             <span class="k">return</span> <span class="n">status</span><span class="o">.</span><span class="n">event</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">get_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;model.Event&quot;</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">.adapter.model</span> <span class="kn">import</span> <span class="n">Event</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;model.Event&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.adapter.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
 
         <span class="k">return</span> <span class="n">Event</span>
 
-    <span class="k">def</span> <span class="nf">get_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowStore</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowStore</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">store</span>
 
-    <span class="k">def</span> <span class="nf">get_store_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">FlowStore</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_store_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">FlowStore</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">FlowStore</span>
 
 
-<span class="k">class</span> <span class="nc">BotCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;Bot&quot;</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BotCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;Bot&quot;</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_BOT&quot;</span><span class="p">,</span> <span class="n">BotError</span><span class="p">,</span> <span class="s2">&quot;此时未初始化 bot 实例，无法获取&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Bot&quot;</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">.bot.base</span> <span class="kn">import</span> <span class="n">Bot</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Bot&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.bot.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span>
 
         <span class="k">return</span> <span class="n">Bot</span>
 
 
-<span class="k">class</span> <span class="nc">SessionCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;Session&quot;</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SessionCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;Session&quot;</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;MELOBOT_SESSION&quot;</span><span class="p">,</span>
             <span class="n">SessionError</span><span class="p">,</span>
             <span class="s2">&quot;此时不在活动的事件处理流中，无法获取会话信息&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SessionStore&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SessionStore&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">store</span>
 
-    <span class="k">def</span> <span class="nf">get_store_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;SessionStore&quot;</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">.session.base</span> <span class="kn">import</span> <span class="n">SessionStore</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_store_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;SessionStore&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.session.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionStore</span>
 
         <span class="k">return</span> <span class="n">SessionStore</span>
 
-    <span class="k">def</span> <span class="nf">get_rule_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Rule&quot;</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">.session.option</span> <span class="kn">import</span> <span class="n">Rule</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rule_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Rule&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.session.option</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rule</span>
 
         <span class="k">return</span> <span class="n">Rule</span>
 
 
-<span class="k">class</span> <span class="nc">LoggerCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;GenericLogger&quot;</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoggerCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;GenericLogger&quot;</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_LOGGER&quot;</span><span class="p">,</span> <span class="n">LogError</span><span class="p">,</span> <span class="s2">&quot;此时未初始化 logger 实例，无法获取&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;GenericLogger&quot;</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">.log.base</span> <span class="kn">import</span> <span class="n">GenericLogger</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;GenericLogger&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericLogger</span>
 
         <span class="k">return</span> <span class="n">GenericLogger</span>
 
 
-<span class="k">class</span> <span class="nc">ActionManualSignalCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActionManualSignalCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_ACTION_MANUAL_SIGNAL&quot;</span><span class="p">,</span> <span class="n">AdapterError</span><span class="p">)</span>
 </pre></div>
         </article>

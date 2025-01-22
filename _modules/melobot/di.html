@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.di - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,17 +300,17 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.di 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">Lock</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">isawaitable</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">unwrap</span>
-<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">version_info</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">BuiltinFunctionType</span><span class="p">,</span> <span class="n">FunctionType</span><span class="p">,</span> <span class="n">LambdaType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Lock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">isawaitable</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">unwrap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">version_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">BuiltinFunctionType</span><span class="p">,</span> <span class="n">FunctionType</span><span class="p">,</span> <span class="n">LambdaType</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Annotated</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
@@ -322,9 +322,9 @@
     <span class="n">get_origin</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">.ctx</span> <span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">SessionCtx</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">DependBindError</span><span class="p">,</span> <span class="n">DependInitError</span>
-<span class="kn">from</span> <span class="nn">.typ</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">SessionCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DependBindError</span><span class="p">,</span> <span class="n">DependInitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typ</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AsyncCallable</span><span class="p">,</span>
     <span class="n">BetterABC</span><span class="p">,</span>
     <span class="n">P</span><span class="p">,</span>
@@ -334,14 +334,14 @@
     <span class="n">is_subhint</span><span class="p">,</span>
     <span class="n">is_type</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_obj_name</span><span class="p">,</span> <span class="n">to_async</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_obj_name</span><span class="p">,</span> <span class="n">to_async</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.adapter.base</span> <span class="kn">import</span> <span class="n">Adapter</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.adapter.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span>
 
 
-<span class="k">class</span> <span class="nc">DependNotMatched</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DependNotMatched</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">real_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -353,10 +353,10 @@
 
 <div class="viewcode-block" id="Depends">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.Depends">[文档]</a>
-<span class="k">class</span> <span class="nc">Depends</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Depends</span><span class="p">:</span>
 <div class="viewcode-block" id="Depends.__init__">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.Depends.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dep</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">Depends</span><span class="p">,</span>
         <span class="n">sub_getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -395,12 +395,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">VoidType</span><span class="o">.</span><span class="n">VOID</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">getter_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;getter=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">ref_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ref=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">ref_str</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">ref_str</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">getter_str</span><span class="si">}</span><span class="s2">)&quot;</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -415,7 +415,7 @@
                 <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">val</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">VoidType</span><span class="o">.</span><span class="n">VOID</span><span class="p">:</span>
@@ -431,7 +431,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_adapter_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Adapter | None&quot;</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_adapter_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Adapter | None&quot;</span><span class="p">:</span>
     <span class="n">ctx</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span>
@@ -439,15 +439,15 @@
         <span class="k">return</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_custom_logger_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">CustomLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_custom_logger_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">CustomLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
     <span class="n">val</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span>
         <span class="n">val</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">getter</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">val</span>
 
 
-<span class="k">class</span> <span class="nc">AutoDepends</span><span class="p">(</span><span class="n">Depends</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AutoDepends</span><span class="p">(</span><span class="n">Depends</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hint</span> <span class="o">=</span> <span class="n">hint</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="n">get_obj_name</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s2">&quot;callable&quot;</span><span class="p">)</span>
@@ -509,7 +509,7 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span><span class="p">,</span> <span class="n">sub_getter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_unmatch_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">real_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DependNotMatched</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_unmatch_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">real_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DependNotMatched</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">DependNotMatched</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;函数 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="si">}</span><span class="s2"> 的参数 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">arg_name</span><span class="si">}</span><span class="s2"> &quot;</span> <span class="sa">f</span><span class="s2">&quot;与注解 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="si">}</span><span class="s2"> 不匹配&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">,</span>
@@ -518,7 +518,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_match_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_match_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadatas</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Exclude</span><span class="p">):</span>
                 <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">types</span><span class="p">):</span>
@@ -531,7 +531,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">):</span>
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unmatch_exc</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Reflection</span><span class="p">):</span>
@@ -551,7 +551,7 @@
 <div class="viewcode-block" id="Exclude">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.Exclude">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Exclude</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Exclude</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;数据类。`types` 指定的类别会在依赖注入时被排除</span>
 
 <span class="sd">    .. code:: python</span>
@@ -568,7 +568,7 @@
 <div class="viewcode-block" id="CustomLogger">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.CustomLogger">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">CustomLogger</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomLogger</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;数据类。`getter` 参数会用于指定类别日志器不存在时的获取方法</span>
 
 <span class="sd">    .. code:: python</span>
@@ -585,7 +585,7 @@
 <div class="viewcode-block" id="Reflect">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.Reflect">[文档]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Reflect</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Reflect</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理</span>
 
 <span class="sd">    这适用于希望依赖会随着上下文改变，而动态变化的情况。例如动态引用会话流程中的事件对象</span>
@@ -607,15 +607,15 @@
 
 
 
-<span class="k">class</span> <span class="nc">Reflection</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Reflection</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="s2">&quot;__obj_getter__&quot;</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">__origin__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__origin__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_getter__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">getter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_getter__</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__obj_getter__&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">getter</span>
@@ -624,7 +624,7 @@
 
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">getter</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">getter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_getter__</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__obj_getter__&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">getter</span>
@@ -634,7 +634,7 @@
         <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">getter</span><span class="p">(),</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_init_auto_deps</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">allow_manual_arg</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_init_auto_deps</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">allow_manual_arg</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">sign</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -642,7 +642,7 @@
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version_info</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;内建函数 </span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2"> 在 python &lt;= 3.10 的版本中，无法进行依赖注入&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
         <span class="k">raise</span>
 
     <span class="n">empty</span> <span class="o">=</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span>
@@ -685,7 +685,7 @@
     <span class="n">origin_f</span><span class="o">.</span><span class="vm">__kwdefaults__</span> <span class="o">=</span> <span class="n">kwds</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># type: ignore[assignment]</span>
 
 
-<span class="k">def</span> <span class="nf">_get_bound_args</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_bound_args</span><span class="p">(</span>
     <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
     <span class="n">sign</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
@@ -697,7 +697,7 @@
         <span class="k">raise</span> <span class="n">DependBindError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;依赖注入匹配失败。匹配函数 </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> 的参数时发生错误：</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">。&quot;</span>
             <span class="s2">&quot;这可能是因为传参个数不匹配，或提供了错误的类型注解&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
     <span class="n">bind</span><span class="o">.</span><span class="n">apply_defaults</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">bind</span><span class="o">.</span><span class="n">args</span><span class="p">),</span> <span class="n">bind</span><span class="o">.</span><span class="n">kwargs</span>
@@ -705,7 +705,7 @@
 
 <div class="viewcode-block" id="DependsHook">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.DependsHook">[文档]</a>
-<span class="k">class</span> <span class="nc">DependsHook</span><span class="p">(</span><span class="n">Depends</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DependsHook</span><span class="p">(</span><span class="n">Depends</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;依赖钩子</span>
 
 <span class="sd">    包装一个依赖项，依赖满足后内部的 hook 将会执行</span>
@@ -713,7 +713,7 @@
 
 <div class="viewcode-block" id="DependsHook.__init__">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.DependsHook.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
         <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -725,7 +725,7 @@
 <div class="viewcode-block" id="DependsHook.deps_callback">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.DependsHook.deps_callback">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">deps_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">deps_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;所有依赖钩子子类必须实现该抽象方法</span>
 
 <span class="sd">        :param val: 依赖项被满足后的值</span>
@@ -733,7 +733,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">val</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_callback</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">val</span></div>
@@ -742,7 +742,7 @@
 
 <div class="viewcode-block" id="inject_deps">
 <a class="viewcode-back" href="../../api/melobot.di.html#melobot.di.inject_deps">[文档]</a>
-<span class="k">def</span> <span class="nf">inject_deps</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">inject_deps</span><span class="p">(</span>
     <span class="n">injectee</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">manual_arg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;依赖注入标记装饰器，标记当前对象需要被依赖注入</span>
@@ -756,7 +756,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">injectee</span><span class="p">)</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">di_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">di_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="n">_args</span><span class="p">,</span> <span class="n">_kwargs</span> <span class="o">=</span> <span class="n">_get_bound_args</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 

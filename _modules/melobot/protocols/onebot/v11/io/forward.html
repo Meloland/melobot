@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.protocols.onebot.v11.io.forward - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -301,30 +301,30 @@
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.io.forward 源代码</h1><div class="highlight"><pre>
 <span></span><span class="c1"># pylint: disable=duplicate-code</span>
-<span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">Future</span><span class="p">,</span> <span class="n">Lock</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Future</span><span class="p">,</span> <span class="n">Lock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
 
-<span class="kn">import</span> <span class="nn">websockets</span>
-<span class="kn">from</span> <span class="nn">websockets.asyncio.client</span> <span class="kn">import</span> <span class="n">ClientConnection</span>
-<span class="kn">from</span> <span class="nn">websockets.exceptions</span> <span class="kn">import</span> <span class="n">ConnectionClosed</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">websockets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">websockets.asyncio.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">websockets.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConnectionClosed</span>
 
-<span class="kn">from</span> <span class="nn">melobot.exceptions</span> <span class="kn">import</span> <span class="n">SourceError</span>
-<span class="kn">from</span> <span class="nn">melobot.io</span> <span class="kn">import</span> <span class="n">SourceLifeSpan</span>
-<span class="kn">from</span> <span class="nn">melobot.log</span> <span class="kn">import</span> <span class="n">LogLevel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SourceError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">SourceLifeSpan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseIO</span>
-<span class="kn">from</span> <span class="nn">.packet</span> <span class="kn">import</span> <span class="n">EchoPacket</span><span class="p">,</span> <span class="n">InPacket</span><span class="p">,</span> <span class="n">OutPacket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.packet</span><span class="w"> </span><span class="kn">import</span> <span class="n">EchoPacket</span><span class="p">,</span> <span class="n">InPacket</span><span class="p">,</span> <span class="n">OutPacket</span>
 
 
 <div class="viewcode-block" id="ForwardWebSocketIO">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.ForwardWebSocketIO">[文档]</a>
-<span class="k">class</span> <span class="nc">ForwardWebSocketIO</span><span class="p">(</span><span class="n">BaseIO</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ForwardWebSocketIO</span><span class="p">(</span><span class="n">BaseIO</span><span class="p">):</span>
 <div class="viewcode-block" id="ForwardWebSocketIO.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.ForwardWebSocketIO.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">max_retry</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
@@ -350,7 +350,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_restart_flag</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_input_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_input_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># pylint: disable=duplicate-code</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -397,7 +397,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;异常点局部变量&quot;</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;异常点的上报数据&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_output_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_output_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opened</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
@@ -418,7 +418,7 @@
                     <span class="s2">&quot;异常点的发送数据&quot;</span><span class="p">,</span> <span class="n">out_packet</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span>
                 <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">opened</span><span class="p">():</span>
             <span class="k">return</span>
 
@@ -466,11 +466,11 @@
 
 <div class="viewcode-block" id="ForwardWebSocketIO.opened">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.ForwardWebSocketIO.opened">[文档]</a>
-    <span class="k">def</span> <span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">opened</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opened</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">opened</span><span class="p">():</span>
             <span class="k">return</span>
 
@@ -492,10 +492,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart_flag</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">())</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InPacket</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InPacket</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_buf</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">OutPacket</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoPacket</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">OutPacket</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoPacket</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out_buf</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">packet</span><span class="o">.</span><span class="n">echo_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">EchoPacket</span><span class="p">(</span><span class="n">noecho</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

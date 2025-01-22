@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.protocols.onebot.v11.adapter.action - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,23 +300,23 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.adapter.action 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypedDict</span>
 
-<span class="kn">from</span> <span class="nn">melobot.adapter.model</span> <span class="kn">import</span> <span class="n">Action</span> <span class="k">as</span> <span class="n">RootAction</span>
-<span class="kn">from</span> <span class="nn">melobot.handle</span> <span class="kn">import</span> <span class="n">try_get_event</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Action</span> <span class="k">as</span> <span class="n">RootAction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.handle</span><span class="w"> </span><span class="kn">import</span> <span class="n">try_get_event</span>
 
-<span class="kn">from</span> <span class="nn">..const</span> <span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span>
-<span class="kn">from</span> <span class="nn">.segment</span> <span class="kn">import</span> <span class="n">NodeSegment</span><span class="p">,</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">TextSegment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..const</span><span class="w"> </span><span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeSegment</span><span class="p">,</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">TextSegment</span>
 
 
 <div class="viewcode-block" id="Action">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.Action">[文档]</a>
-<span class="k">class</span> <span class="nc">Action</span><span class="p">(</span><span class="n">RootAction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Action</span><span class="p">(</span><span class="n">RootAction</span><span class="p">):</span>
 <div class="viewcode-block" id="Action.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.Action.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">:</span> <span class="nb">int</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">protocol</span><span class="o">=</span><span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">trigger</span><span class="o">=</span><span class="n">try_get_event</span><span class="p">())</span>
@@ -328,13 +328,13 @@
 
 <div class="viewcode-block" id="Action.set_echo">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.Action.set_echo">[文档]</a>
-    <span class="k">def</span> <span class="nf">set_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">need_echo</span> <span class="o">=</span> <span class="n">status</span></div>
 
 
 <div class="viewcode-block" id="Action.extract">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.Action.extract">[文档]</a>
-    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
             <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
@@ -346,13 +346,13 @@
 
 <div class="viewcode-block" id="Action.flatten">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.Action.flatten">[文档]</a>
-    <span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extract</span><span class="p">(),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">def</span> <span class="nf">msgs_to_dicts</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">msgs_to_dicts</span><span class="p">(</span>
     <span class="n">msgs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Segment</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msgs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -369,10 +369,10 @@
 
 <div class="viewcode-block" id="SendMsgAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SendMsgAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SendMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SendMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SendMsgAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SendMsgAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">msgs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Segment</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -401,10 +401,10 @@
 
 <div class="viewcode-block" id="SendForwardMsgAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SendForwardMsgAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SendForwardMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SendForwardMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SendForwardMsgAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SendForwardMsgAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">msgs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">NodeSegment</span><span class="p">]</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -424,10 +424,10 @@
 
 <div class="viewcode-block" id="DeleteMsgAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.DeleteMsgAction">[文档]</a>
-<span class="k">class</span> <span class="nc">DeleteMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeleteMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="DeleteMsgAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.DeleteMsgAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;delete_msg&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;message_id&quot;</span><span class="p">:</span> <span class="n">msg_id</span><span class="p">,</span>
@@ -439,10 +439,10 @@
 
 <div class="viewcode-block" id="GetMsgAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetMsgAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetMsgAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetMsgAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_msg&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message_id&quot;</span><span class="p">:</span> <span class="n">msg_id</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -452,10 +452,10 @@
 
 <div class="viewcode-block" id="GetForwardMsgAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetForwardMsgAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetForwardMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetForwardMsgAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetForwardMsgAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetForwardMsgAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forward_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forward_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_forward_msg&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">forward_id</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -465,10 +465,10 @@
 
 <div class="viewcode-block" id="SendLikeAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SendLikeAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SendLikeAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SendLikeAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SendLikeAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SendLikeAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;send_like&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s2">&quot;times&quot;</span><span class="p">:</span> <span class="n">times</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -478,10 +478,10 @@
 
 <div class="viewcode-block" id="SetGroupKickAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupKickAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupKickAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupKickAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupKickAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupKickAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">later_reject</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">later_reject</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_kick&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span>
@@ -495,10 +495,10 @@
 
 <div class="viewcode-block" id="SetGroupBanAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupBanAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupBanAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupBanAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupBanAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupBanAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_ban&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span>
@@ -512,11 +512,11 @@
 
 <div class="viewcode-block" id="SetGroupAnonymousBanAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAnonymousBanAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupAnonymousBanAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupAnonymousBanAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 
 <div class="viewcode-block" id="SetGroupAnonymousBanAction.AnonymousDict">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAnonymousBanAction.AnonymousDict">[文档]</a>
-    <span class="k">class</span> <span class="nc">AnonymousDict</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">AnonymousDict</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">flag</span><span class="p">:</span> <span class="nb">str</span></div>
@@ -524,7 +524,7 @@
 
 <div class="viewcode-block" id="SetGroupAnonymousBanAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAnonymousBanAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">anonymous</span><span class="p">:</span> <span class="n">AnonymousDict</span><span class="p">,</span>
@@ -545,10 +545,10 @@
 
 <div class="viewcode-block" id="SetGroupWholeBanAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupWholeBanAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupWholeBanAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupWholeBanAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupWholeBanAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupWholeBanAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_whole_ban&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;enable&quot;</span><span class="p">:</span> <span class="n">enable</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -558,10 +558,10 @@
 
 <div class="viewcode-block" id="SetGroupAdminAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAdminAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupAdminAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupAdminAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupAdminAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAdminAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_admin&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s2">&quot;enable&quot;</span><span class="p">:</span> <span class="n">enable</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -571,10 +571,10 @@
 
 <div class="viewcode-block" id="SetGroupAnonymousAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAnonymousAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupAnonymousAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupAnonymousAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupAnonymousAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAnonymousAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_anonymous&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;enable&quot;</span><span class="p">:</span> <span class="n">enable</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -584,10 +584,10 @@
 
 <div class="viewcode-block" id="SetGroupCardAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupCardAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupCardAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupCardAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupCardAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupCardAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_card&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s2">&quot;card&quot;</span><span class="p">:</span> <span class="n">card</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -597,10 +597,10 @@
 
 <div class="viewcode-block" id="SetGroupNameAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupNameAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupNameAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupNameAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupNameAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupNameAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_name&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -610,10 +610,10 @@
 
 <div class="viewcode-block" id="SetGroupLeaveAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupLeaveAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupLeaveAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupLeaveAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupLeaveAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupLeaveAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">is_dismiss</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">is_dismiss</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_leave&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;is_dismiss&quot;</span><span class="p">:</span> <span class="n">is_dismiss</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -623,10 +623,10 @@
 
 <div class="viewcode-block" id="SetGroupSpecialTitleAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupSpecialTitleAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupSpecialTitleAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupSpecialTitleAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupSpecialTitleAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupSpecialTitleAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_group_special_title&quot;</span>
@@ -643,10 +643,10 @@
 
 <div class="viewcode-block" id="SetFriendAddRequestAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetFriendAddRequestAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetFriendAddRequestAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetFriendAddRequestAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetFriendAddRequestAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetFriendAddRequestAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_flag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">approve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">remark</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_flag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">approve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">remark</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_friend_add_request&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;flag&quot;</span><span class="p">:</span> <span class="n">add_flag</span><span class="p">,</span> <span class="s2">&quot;approve&quot;</span><span class="p">:</span> <span class="n">approve</span><span class="p">,</span> <span class="s2">&quot;remark&quot;</span><span class="p">:</span> <span class="n">remark</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -656,10 +656,10 @@
 
 <div class="viewcode-block" id="SetGroupAddRequestAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAddRequestAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetGroupAddRequestAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetGroupAddRequestAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetGroupAddRequestAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetGroupAddRequestAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">add_flag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">add_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;invite&quot;</span><span class="p">],</span>
@@ -681,10 +681,10 @@
 
 <div class="viewcode-block" id="GetLoginInfoAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetLoginInfoAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetLoginInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetLoginInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetLoginInfoAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetLoginInfoAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_login_info&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -694,10 +694,10 @@
 
 <div class="viewcode-block" id="GetStrangerInfoAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetStrangerInfoAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetStrangerInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetStrangerInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetStrangerInfoAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetStrangerInfoAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_stranger_info&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s2">&quot;no_cache&quot;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -707,10 +707,10 @@
 
 <div class="viewcode-block" id="GetFriendlistAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetFriendlistAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetFriendlistAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetFriendlistAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetFriendlistAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetFriendlistAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_friend_list&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -720,10 +720,10 @@
 
 <div class="viewcode-block" id="GetGroupInfoAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupInfoAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetGroupInfoAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupInfoAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_group_info&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;no_cache&quot;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -733,10 +733,10 @@
 
 <div class="viewcode-block" id="GetGrouplistAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGrouplistAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGrouplistAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGrouplistAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetGrouplistAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGrouplistAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_group_list&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -746,10 +746,10 @@
 
 <div class="viewcode-block" id="GetGroupMemberInfoAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupMemberInfoAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupMemberInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetGroupMemberInfoAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupMemberInfoAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_group_member_info&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s2">&quot;no_cache&quot;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -759,10 +759,10 @@
 
 <div class="viewcode-block" id="GetGroupMemberlistAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupMemberlistAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupMemberlistAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberlistAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetGroupMemberlistAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupMemberlistAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_group_member_list&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -772,10 +772,10 @@
 
 <div class="viewcode-block" id="GetGroupHonorInfoAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupHonorInfoAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetGroupHonorInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupHonorInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetGroupHonorInfoAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetGroupHonorInfoAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
@@ -791,10 +791,10 @@
 
 <div class="viewcode-block" id="GetCookiesAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetCookiesAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetCookiesAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCookiesAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetCookiesAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetCookiesAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_cookies&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -804,10 +804,10 @@
 
 <div class="viewcode-block" id="GetCsrfTokenAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetCsrfTokenAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetCsrfTokenAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCsrfTokenAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetCsrfTokenAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetCsrfTokenAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_csrf_token&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -817,10 +817,10 @@
 
 <div class="viewcode-block" id="GetCredentialsAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetCredentialsAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetCredentialsAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCredentialsAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetCredentialsAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetCredentialsAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_credentials&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -830,10 +830,10 @@
 
 <div class="viewcode-block" id="GetRecordAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetRecordAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetRecordAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetRecordAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetRecordAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetRecordAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_record&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file</span><span class="p">,</span> <span class="s2">&quot;out_format&quot;</span><span class="p">:</span> <span class="n">out_format</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -843,10 +843,10 @@
 
 <div class="viewcode-block" id="GetImageAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetImageAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetImageAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetImageAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetImageAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetImageAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_image&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -856,10 +856,10 @@
 
 <div class="viewcode-block" id="CanSendImageAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.CanSendImageAction">[文档]</a>
-<span class="k">class</span> <span class="nc">CanSendImageAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CanSendImageAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="CanSendImageAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.CanSendImageAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;can_send_image&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -869,10 +869,10 @@
 
 <div class="viewcode-block" id="CanSendRecordAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.CanSendRecordAction">[文档]</a>
-<span class="k">class</span> <span class="nc">CanSendRecordAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CanSendRecordAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="CanSendRecordAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.CanSendRecordAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;can_send_record&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -882,10 +882,10 @@
 
 <div class="viewcode-block" id="GetStatusAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetStatusAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetStatusAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetStatusAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetStatusAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetStatusAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_status&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -895,10 +895,10 @@
 
 <div class="viewcode-block" id="GetVersionInfoAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetVersionInfoAction">[文档]</a>
-<span class="k">class</span> <span class="nc">GetVersionInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetVersionInfoAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="GetVersionInfoAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.GetVersionInfoAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;get_version_info&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -908,10 +908,10 @@
 
 <div class="viewcode-block" id="SetRestartAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetRestartAction">[文档]</a>
-<span class="k">class</span> <span class="nc">SetRestartAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SetRestartAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="SetRestartAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.SetRestartAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;set_restart&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;delay&quot;</span><span class="p">:</span> <span class="n">delay</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
@@ -921,10 +921,10 @@
 
 <div class="viewcode-block" id="CleanCacheAction">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.CleanCacheAction">[文档]</a>
-<span class="k">class</span> <span class="nc">CleanCacheAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CleanCacheAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
 <div class="viewcode-block" id="CleanCacheAction.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.action.CleanCacheAction.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;clean_cache&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>

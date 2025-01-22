@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.protocols.onebot.v11.utils.check - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,20 +300,20 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.utils.check 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">from</span> <span class="nn">melobot.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span>
 
-<span class="kn">from</span> <span class="nn">..adapter.event</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">GroupMessageEvent</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">PrivateMessageEvent</span>
-<span class="kn">from</span> <span class="nn">..adapter.segment</span> <span class="kn">import</span> <span class="n">AtSegment</span>
-<span class="kn">from</span> <span class="nn">.abc</span> <span class="kn">import</span> <span class="n">Checker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">GroupMessageEvent</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">PrivateMessageEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtSegment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checker</span>
 
 
 <div class="viewcode-block" id="LevelRole">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.LevelRole">[文档]</a>
-<span class="k">class</span> <span class="nc">LevelRole</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LevelRole</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;用户权限等级枚举&quot;&quot;&quot;</span>
 
     <span class="n">OWNER</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span>
@@ -326,7 +326,7 @@
 
 <div class="viewcode-block" id="GroupRole">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.GroupRole">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupRole</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupRole</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;群权限等级枚举&quot;&quot;&quot;</span>
 
     <span class="n">OWNER</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span>
@@ -337,7 +337,7 @@
 
 <div class="viewcode-block" id="MsgChecker">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">MsgChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MsgChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;消息事件分级权限检查器</span>
 
 <span class="sd">    主要分 主人、超级用户、白名单用户、普通用户、黑名单用户 五级</span>
@@ -345,7 +345,7 @@
 
 <div class="viewcode-block" id="MsgChecker.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgChecker.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -372,7 +372,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span> <span class="o">=</span> <span class="n">black_users</span> <span class="k">if</span> <span class="n">black_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获得事件对应的登记&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_role</span><span class="p">,</span> <span class="n">LevelRole</span><span class="p">):</span>
@@ -396,7 +396,7 @@
             <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">ADMIN</span>
         <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">MEMBER</span>
 
-    <span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">e_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_level</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e_level</span><span class="p">,</span> <span class="n">LevelRole</span><span class="p">):</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">BLACK</span> <span class="o">&lt;</span> <span class="n">e_level</span> <span class="ow">and</span> <span class="n">e_level</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_role</span>
@@ -406,7 +406,7 @@
 
 <div class="viewcode-block" id="MsgChecker.check">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgChecker.check">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">):</span>
             <span class="n">status</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
@@ -421,7 +421,7 @@
 
 <div class="viewcode-block" id="GroupMsgChecker">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.GroupMsgChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupMsgChecker</span><span class="p">(</span><span class="n">MsgChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupMsgChecker</span><span class="p">(</span><span class="n">MsgChecker</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;群聊消息事件分级权限检查器</span>
 
 <span class="sd">    基本功能与 :class:`MsgChecker` 一致。但增加了白名单机制，</span>
@@ -432,7 +432,7 @@
 
 <div class="viewcode-block" id="GroupMsgChecker.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.GroupMsgChecker.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -456,7 +456,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span> <span class="o">=</span> <span class="n">white_groups</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">PrivateMessageEvent</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -470,7 +470,7 @@
 
 <div class="viewcode-block" id="PrivateMsgChecker">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.PrivateMsgChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">PrivateMsgChecker</span><span class="p">(</span><span class="n">MsgChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PrivateMsgChecker</span><span class="p">(</span><span class="n">MsgChecker</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;私聊消息事件分级权限检查器</span>
 
 <span class="sd">    基本功能与 :class:`MsgChecker` 一致。</span>
@@ -480,7 +480,7 @@
 
 <div class="viewcode-block" id="PrivateMsgChecker.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.PrivateMsgChecker.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -501,7 +501,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">super_users</span><span class="p">,</span> <span class="n">white_users</span><span class="p">,</span> <span class="n">black_users</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_private</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -511,7 +511,7 @@
 
 <div class="viewcode-block" id="MsgCheckerFactory">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgCheckerFactory">[文档]</a>
-<span class="k">class</span> <span class="nc">MsgCheckerFactory</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MsgCheckerFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;消息事件分级权限检查器的工厂</span>
 
 <span class="sd">    预先存储检查依据（各等级数据），指定检查等级后，可返回一个 :class:`MsgChecker` 类的对象</span>
@@ -519,7 +519,7 @@
 
 <div class="viewcode-block" id="MsgCheckerFactory.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgCheckerFactory.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -548,7 +548,7 @@
 
 <div class="viewcode-block" id="MsgCheckerFactory.get_base">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgCheckerFactory.get_base">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_base</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_base</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -571,7 +571,7 @@
 
 <div class="viewcode-block" id="MsgCheckerFactory.get_group">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgCheckerFactory.get_group">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_group</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_group</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -595,7 +595,7 @@
 
 <div class="viewcode-block" id="MsgCheckerFactory.get_private">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgCheckerFactory.get_private">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_private</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_private</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -620,12 +620,12 @@
 
 <div class="viewcode-block" id="AtMsgChecker">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.AtMsgChecker">[文档]</a>
-<span class="k">class</span> <span class="nc">AtMsgChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AtMsgChecker</span><span class="p">(</span><span class="n">Checker</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;艾特消息事件检查器&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AtMsgChecker.__init__">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.AtMsgChecker.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">qid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -641,7 +641,7 @@
 
 <div class="viewcode-block" id="AtMsgChecker.check">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.AtMsgChecker.check">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
 

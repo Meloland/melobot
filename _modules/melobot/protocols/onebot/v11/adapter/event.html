@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.protocols.onebot.v11.adapter.event - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,27 +300,27 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.adapter.event 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">from</span> <span class="nn">melobot.adapter</span> <span class="kn">import</span> <span class="n">content</span>
-<span class="kn">from</span> <span class="nn">melobot.adapter.model</span> <span class="kn">import</span> <span class="n">Event</span> <span class="k">as</span> <span class="n">RootEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">content</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span> <span class="k">as</span> <span class="n">RootEvent</span>
 
-<span class="kn">from</span> <span class="nn">..const</span> <span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span>
-<span class="kn">from</span> <span class="nn">.segment</span> <span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">TextSegment</span><span class="p">,</span> <span class="n">segs_to_contents</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..const</span><span class="w"> </span><span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">TextSegment</span><span class="p">,</span> <span class="n">segs_to_contents</span>
 
 
 <div class="viewcode-block" id="Event">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event">[文档]</a>
-<span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">RootEvent</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Event</span><span class="p">(</span><span class="n">RootEvent</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="n">time</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">self_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
         <span class="c1">#: 时间戳</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">:</span> <span class="nb">int</span>
@@ -336,7 +336,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">event_data</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Event</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Event</span><span class="p">:</span>
         <span class="n">cls_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Event</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">,</span>
             <span class="s2">&quot;notice&quot;</span><span class="p">:</span> <span class="n">NoticeEvent</span><span class="p">,</span>
@@ -349,25 +349,25 @@
 
 <div class="viewcode-block" id="Event.is_message">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event.is_message">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span> <span class="o">==</span> <span class="s2">&quot;message&quot;</span></div>
 
 
 <div class="viewcode-block" id="Event.is_notice">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event.is_notice">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_notice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_notice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span> <span class="o">==</span> <span class="s2">&quot;notice&quot;</span></div>
 
 
 <div class="viewcode-block" id="Event.is_request">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event.is_request">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_request</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_request</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span> <span class="o">==</span> <span class="s2">&quot;request&quot;</span></div>
 
 
 <div class="viewcode-block" id="Event.is_meta">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event.is_meta">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span> <span class="o">==</span> <span class="s2">&quot;meta_event&quot;</span></div>
 </div>
 
@@ -375,8 +375,8 @@
 
 <div class="viewcode-block" id="MessageEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">MessageEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MessageEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span>
         <span class="n">message_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;private&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="p">(</span>
@@ -390,7 +390,7 @@
         <span class="n">raw_message</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">font</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -432,7 +432,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">font</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MessageEvent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MessageEvent</span><span class="p">:</span>
         <span class="n">cls_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">MessageEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;private&quot;</span><span class="p">:</span> <span class="n">PrivateMessageEvent</span><span class="p">,</span>
             <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="n">GroupMessageEvent</span><span class="p">,</span>
@@ -442,20 +442,20 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">seg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">TextSegment</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">textlines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">textlines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">seg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">TextSegment</span><span class="p">)</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="MessageEvent.get_segments">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_segments">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">seg</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="nb">type</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">seg</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="nb">type</span><span class="p">)]</span></div>
@@ -463,77 +463,77 @@
 
 <div class="viewcode-block" id="MessageEvent.get_datas">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_datas">[文档]</a>
-    <span class="k">def</span> <span class="nf">get_datas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_datas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
         <span class="n">segs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_segments</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">seg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">segs</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_private">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_private">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_private</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_private</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为私聊消息（注意群临时会话属于该类别）&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_type</span> <span class="o">==</span> <span class="s2">&quot;private&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_private_temp</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_friend">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_friend">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_friend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_friend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为好友消息&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_private</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;friend&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group_temp">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_group_temp">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为群临时会话（属于私聊的一种）&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_private</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_private_other">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_private_other">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_private_other</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_private_other</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为其他私聊类型消息&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_private</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;other&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_private_temp">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_private_temp">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_private_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_private_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为临时会话（属于私聊的一种）&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;temp_source&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_group">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为群消息（正常群消息、群匿名消息、群自身消息、群系统消息属于该类型）&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_type</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group_normal">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_group_normal">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为正常群消息&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;normal&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group_self">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_group_self">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_self</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_self</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为群自身消息（即 bot 自己群中发的消息）&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;group_self&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group_anonymous">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_group_anonymous">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_anonymous</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_anonymous</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为匿名群消息&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;anonymous&quot;</span></div>
 
 
 <div class="viewcode-block" id="MessageEvent.is_group_notice">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_group_notice">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_notice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_notice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否为群中的\&quot;系统消息\&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_group</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;notice&quot;</span></div>
 </div>
@@ -542,15 +542,15 @@
 
 <div class="viewcode-block" id="_MessageSender">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MessageSender">[文档]</a>
-<span class="k">class</span> <span class="nc">_MessageSender</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_MessageSender</span><span class="p">:</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">nickname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">sex</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">,</span> <span class="s2">&quot;female&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">sender_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">sender_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">sender_data</span><span class="p">)</span>
 
         <span class="c1">#: 发送者 ID</span>
@@ -564,7 +564,7 @@
 
 <div class="viewcode-block" id="_MessageSender.is_group_owner">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MessageSender.is_group_owner">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_owner</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_owner</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;判断是否为群主，若不是或不是群类型消息，返回 False&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_GroupMessageSender</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -577,7 +577,7 @@
 
 <div class="viewcode-block" id="_MessageSender.is_group_admin">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MessageSender.is_group_admin">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_admin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_admin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;判断是否为群管理（包含群主），若不是或不是群类型消息，返回 False&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_GroupMessageSender</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -591,7 +591,7 @@
 
 <div class="viewcode-block" id="_MessageSender.is_group_member_only">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MessageSender.is_group_member_only">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_member_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_member_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;判断是否只是群员（注意只是群员，不包括群主、管理和匿名），若不是或不是群类型消息，返回 False&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_GroupMessageSender</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -606,13 +606,13 @@
 
 <div class="viewcode-block" id="PrivateMessageEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.PrivateMessageEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">PrivateMessageEvent</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PrivateMessageEvent</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">MessageEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">MessageEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">message_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;private&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;friend&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="s2">&quot;other&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="c1">#: 消息发送者</span>
@@ -630,14 +630,14 @@
 
 <div class="viewcode-block" id="_MessageAnonymous">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MessageAnonymous">[文档]</a>
-<span class="k">class</span> <span class="nc">_MessageAnonymous</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_MessageAnonymous</span><span class="p">:</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">flag</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">anonymous_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">anonymous_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">anonymous_data</span><span class="p">)</span>
 
         <span class="c1">#: 匿名信息的 id</span>
@@ -651,16 +651,16 @@
 
 <div class="viewcode-block" id="_GroupMessageSender">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._GroupMessageSender">[文档]</a>
-<span class="k">class</span> <span class="nc">_GroupMessageSender</span><span class="p">(</span><span class="n">_MessageSender</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GroupMessageSender</span><span class="p">(</span><span class="n">_MessageSender</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">_MessageSender</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">_MessageSender</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">card</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">area</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="s2">&quot;member&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">sender_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">sender_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">_GroupMessageSender</span><span class="o">.</span><span class="n">Model</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">sender_data</span><span class="p">)</span>
 
@@ -679,14 +679,14 @@
 
 <div class="viewcode-block" id="GroupMessageEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupMessageEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupMessageEvent</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupMessageEvent</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">MessageEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">MessageEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">message_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="s2">&quot;anonymous&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;group_self&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="c1">#: 消息发送者</span>
@@ -712,13 +712,13 @@
 
 <div class="viewcode-block" id="MetaEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MetaEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">MetaEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MetaEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;meta_event&quot;</span><span class="p">]</span>
         <span class="n">meta_event_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lifecycle&quot;</span><span class="p">,</span> <span class="s2">&quot;heartbeat&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">MetaEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -728,7 +728,7 @@
         <span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MetaEvent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MetaEvent</span><span class="p">:</span>
         <span class="n">cls_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">MetaEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;lifecycle&quot;</span><span class="p">:</span> <span class="n">LifeCycleMetaEvent</span><span class="p">,</span>
             <span class="s2">&quot;heartbeat&quot;</span><span class="p">:</span> <span class="n">HeartBeatMetaEvent</span><span class="p">,</span>
@@ -739,13 +739,13 @@
 
 <div class="viewcode-block" id="MetaEvent.is_lifecycle">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MetaEvent.is_lifecycle">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_lifecycle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_lifecycle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_event_type</span> <span class="o">==</span> <span class="s2">&quot;lifecycle&quot;</span></div>
 
 
 <div class="viewcode-block" id="MetaEvent.is_heartbeat">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MetaEvent.is_heartbeat">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_heartbeat</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_heartbeat</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_event_type</span> <span class="o">==</span> <span class="s2">&quot;heartbeat&quot;</span></div>
 </div>
 
@@ -753,13 +753,13 @@
 
 <div class="viewcode-block" id="LifeCycleMetaEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.LifeCycleMetaEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">LifeCycleMetaEvent</span><span class="p">(</span><span class="n">MetaEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LifeCycleMetaEvent</span><span class="p">(</span><span class="n">MetaEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">MetaEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">MetaEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">meta_event_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lifecycle&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;enable&quot;</span><span class="p">,</span> <span class="s2">&quot;disable&quot;</span><span class="p">,</span> <span class="s2">&quot;connect&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">LifeCycleMetaEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -772,19 +772,19 @@
 
 <div class="viewcode-block" id="LifeCycleMetaEvent.is_enable">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.LifeCycleMetaEvent.is_enable">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_enable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_enable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;enable&quot;</span></div>
 
 
 <div class="viewcode-block" id="LifeCycleMetaEvent.is_disable">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.LifeCycleMetaEvent.is_disable">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_disable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_disable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;disable&quot;</span></div>
 
 
 <div class="viewcode-block" id="LifeCycleMetaEvent.is_connect">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.LifeCycleMetaEvent.is_connect">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;connect&quot;</span></div>
 </div>
 
@@ -792,13 +792,13 @@
 
 <div class="viewcode-block" id="_MetaHeartBeatStatus">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MetaHeartBeatStatus">[文档]</a>
-<span class="k">class</span> <span class="nc">_MetaHeartBeatStatus</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_MetaHeartBeatStatus</span><span class="p">:</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="n">online</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span>
         <span class="n">good</span><span class="p">:</span> <span class="nb">bool</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">status_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">status_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">status_data</span><span class="p">)</span>
 
         <span class="c1">#: 心跳元事件在线状态</span>
@@ -812,13 +812,13 @@
 
 <div class="viewcode-block" id="HeartBeatMetaEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.HeartBeatMetaEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">HeartBeatMetaEvent</span><span class="p">(</span><span class="n">MetaEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeartBeatMetaEvent</span><span class="p">(</span><span class="n">MetaEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">MetaEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">MetaEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">meta_event_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;heartbeat&quot;</span><span class="p">]</span>
         <span class="n">interval</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">HeartBeatMetaEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -834,9 +834,9 @@
 
 <div class="viewcode-block" id="NoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">NoticeEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoticeEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;notice&quot;</span><span class="p">]</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="p">(</span>
             <span class="n">Literal</span><span class="p">[</span>
@@ -853,7 +853,7 @@
             <span class="o">|</span> <span class="nb">str</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -874,7 +874,7 @@
         <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">notice_type</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NoticeEvent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NoticeEvent</span><span class="p">:</span>
         <span class="n">cls_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">NoticeEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;group_upload&quot;</span><span class="p">:</span> <span class="n">GroupUploadNoticeEvent</span><span class="p">,</span>
             <span class="s2">&quot;group_admin&quot;</span><span class="p">:</span> <span class="n">GroupAdminNoticeEvent</span><span class="p">,</span>
@@ -894,63 +894,63 @@
 
 <div class="viewcode-block" id="NoticeEvent.is_group_upload">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_upload">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是群文件上传通知事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;group_upload&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_group_admin">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_admin">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_admin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_admin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是群管理员变动通知事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;group_admin&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_group_decrease">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_decrease">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_decrease</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_decrease</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是群成员减少通知事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;group_decrease&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_group_increase">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_increase">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_increase</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_increase</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是群成员增加通知事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;group_increase&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_group_ban">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_ban">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_ban</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_ban</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是群禁言通知事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;group_ban&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_friend_add">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_friend_add">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_friend_add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_friend_add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是好友添加事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;friend_add&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_group_recall">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_recall">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group_recall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group_recall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是群消息撤回事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;group_recall&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_friend_recall">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_friend_recall">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_friend_recall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_friend_recall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是私聊消息撤回事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;friend_recall&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoticeEvent.is_notify">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_notify">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;是否是 notify 类型通知事件&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span> <span class="o">==</span> <span class="s2">&quot;notify&quot;</span></div>
 </div>
@@ -959,15 +959,15 @@
 
 <div class="viewcode-block" id="_GroupUploadFile">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._GroupUploadFile">[文档]</a>
-<span class="k">class</span> <span class="nc">_GroupUploadFile</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GroupUploadFile</span><span class="p">:</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">size</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">busid</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">file_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">file_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">file_data</span><span class="p">)</span>
 
         <span class="c1">#: 群文件 id</span>
@@ -983,14 +983,14 @@
 
 <div class="viewcode-block" id="GroupUploadNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupUploadNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupUploadNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupUploadNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group_upload&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupUploadNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1008,15 +1008,15 @@
 
 <div class="viewcode-block" id="GroupAdminNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupAdminNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupAdminNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupAdminNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group_admin&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;set&quot;</span><span class="p">,</span> <span class="s2">&quot;unset&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupAdminNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1032,13 +1032,13 @@
 
 <div class="viewcode-block" id="GroupAdminNoticeEvent.is_set">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupAdminNoticeEvent.is_set">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;set&quot;</span></div>
 
 
 <div class="viewcode-block" id="GroupAdminNoticeEvent.is_unset">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupAdminNoticeEvent.is_unset">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_unset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_unset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;unset&quot;</span></div>
 </div>
 
@@ -1046,16 +1046,16 @@
 
 <div class="viewcode-block" id="GroupDecreaseNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupDecreaseNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupDecreaseNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupDecreaseNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group_decrease&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;kick&quot;</span><span class="p">,</span> <span class="s2">&quot;leave&quot;</span><span class="p">,</span> <span class="s2">&quot;kick_me&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">operator_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupDecreaseNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1073,19 +1073,19 @@
 
 <div class="viewcode-block" id="GroupDecreaseNoticeEvent.is_kick">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupDecreaseNoticeEvent.is_kick">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_kick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_kick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;kick&quot;</span></div>
 
 
 <div class="viewcode-block" id="GroupDecreaseNoticeEvent.is_kick_me">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupDecreaseNoticeEvent.is_kick_me">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_kick_me</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_kick_me</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;kick_me&quot;</span></div>
 
 
 <div class="viewcode-block" id="GroupDecreaseNoticeEvent.is_leave">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupDecreaseNoticeEvent.is_leave">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_leave</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_leave</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;leave&quot;</span></div>
 </div>
 
@@ -1093,16 +1093,16 @@
 
 <div class="viewcode-block" id="GroupIncreaseNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupIncreaseNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupIncreaseNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupIncreaseNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group_increase&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;invite&quot;</span><span class="p">,</span> <span class="s2">&quot;approve&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">operator_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupIncreaseNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1120,13 +1120,13 @@
 
 <div class="viewcode-block" id="GroupIncreaseNoticeEvent.is_invite">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupIncreaseNoticeEvent.is_invite">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_invite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_invite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;invite&quot;</span></div>
 
 
 <div class="viewcode-block" id="GroupIncreaseNoticeEvent.is_approve">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupIncreaseNoticeEvent.is_approve">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_approve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_approve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;approve&quot;</span></div>
 </div>
 
@@ -1134,9 +1134,9 @@
 
 <div class="viewcode-block" id="GroupBanNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupBanNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupBanNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupBanNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group_ban&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ban&quot;</span><span class="p">,</span> <span class="s2">&quot;lift_ban&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
@@ -1144,7 +1144,7 @@
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupBanNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1164,13 +1164,13 @@
 
 <div class="viewcode-block" id="GroupBanNoticeEvent.is_ban">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupBanNoticeEvent.is_ban">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_ban</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_ban</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;ban&quot;</span></div>
 
 
 <div class="viewcode-block" id="GroupBanNoticeEvent.is_lift_ban">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupBanNoticeEvent.is_lift_ban">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_lift_ban</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_lift_ban</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;lift_ban&quot;</span></div>
 </div>
 
@@ -1178,13 +1178,13 @@
 
 <div class="viewcode-block" id="FriendAddNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.FriendAddNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">FriendAddNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FriendAddNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;friend_add&quot;</span><span class="p">]</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">FriendAddNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1198,16 +1198,16 @@
 
 <div class="viewcode-block" id="GroupRecallNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupRecallNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupRecallNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupRecallNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group_recall&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">operator_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">message_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupRecallNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1227,14 +1227,14 @@
 
 <div class="viewcode-block" id="FriendRecallNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.FriendRecallNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">FriendRecallNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FriendRecallNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;friend_recall&quot;</span><span class="p">]</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">message_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">FriendRecallNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1250,13 +1250,13 @@
 
 <div class="viewcode-block" id="NotifyNoticeEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NotifyNoticeEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">NotifyNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NotifyNoticeEvent</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">notice_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;notify&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;poke&quot;</span><span class="p">,</span> <span class="s2">&quot;lucky_king&quot;</span><span class="p">,</span> <span class="s2">&quot;honor&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">NotifyNoticeEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1267,7 +1267,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;poke&quot;</span><span class="p">,</span> <span class="s2">&quot;lucky_king&quot;</span><span class="p">,</span> <span class="s2">&quot;honor&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">sub_type</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NotifyNoticeEvent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NotifyNoticeEvent</span><span class="p">:</span>
         <span class="n">cls_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">NotifyNoticeEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;poke&quot;</span><span class="p">:</span> <span class="n">PokeNotifyEvent</span><span class="p">,</span>
             <span class="s2">&quot;lucky_king&quot;</span><span class="p">:</span> <span class="n">LuckyKingNotifyEvent</span><span class="p">,</span>
@@ -1279,19 +1279,19 @@
 
 <div class="viewcode-block" id="NotifyNoticeEvent.is_poke">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NotifyNoticeEvent.is_poke">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_poke</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_poke</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;poke&quot;</span></div>
 
 
 <div class="viewcode-block" id="NotifyNoticeEvent.is_lucky_king">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NotifyNoticeEvent.is_lucky_king">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_lucky_king</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_lucky_king</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;lucky_king&quot;</span></div>
 
 
 <div class="viewcode-block" id="NotifyNoticeEvent.is_honor">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NotifyNoticeEvent.is_honor">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_honor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_honor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;honor&quot;</span></div>
 </div>
 
@@ -1299,15 +1299,15 @@
 
 <div class="viewcode-block" id="PokeNotifyEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.PokeNotifyEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">PokeNotifyEvent</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PokeNotifyEvent</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;poke&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">target_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">PokeNotifyEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1324,15 +1324,15 @@
 
 <div class="viewcode-block" id="LuckyKingNotifyEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.LuckyKingNotifyEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">LuckyKingNotifyEvent</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LuckyKingNotifyEvent</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lucky_king&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">target_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">LuckyKingNotifyEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1350,15 +1350,15 @@
 
 <div class="viewcode-block" id="HonorNotifyEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.HonorNotifyEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">HonorNotifyEvent</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HonorNotifyEvent</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">NotifyNoticeEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;honor&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">honor_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;talkative&quot;</span><span class="p">,</span> <span class="s2">&quot;performer&quot;</span><span class="p">,</span> <span class="s2">&quot;emotion&quot;</span><span class="p">]</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">HonorNotifyEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1376,19 +1376,19 @@
 
 <div class="viewcode-block" id="HonorNotifyEvent.is_talkative">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.HonorNotifyEvent.is_talkative">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_talkative</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_talkative</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">honor_type</span> <span class="o">==</span> <span class="s2">&quot;talkative&quot;</span></div>
 
 
 <div class="viewcode-block" id="HonorNotifyEvent.is_performer">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.HonorNotifyEvent.is_performer">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_performer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_performer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">honor_type</span> <span class="o">==</span> <span class="s2">&quot;performer&quot;</span></div>
 
 
 <div class="viewcode-block" id="HonorNotifyEvent.is_emotion">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.HonorNotifyEvent.is_emotion">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_emotion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_emotion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">honor_type</span> <span class="o">==</span> <span class="s2">&quot;emotion&quot;</span></div>
 </div>
 
@@ -1396,13 +1396,13 @@
 
 <div class="viewcode-block" id="RequestEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.RequestEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">RequestEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RequestEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span>
         <span class="n">request_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;friend&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">RequestEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1410,7 +1410,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">request_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;friend&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">request_type</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RequestEvent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RequestEvent</span><span class="p">:</span>
         <span class="n">cls_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">RequestEvent</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;friend&quot;</span><span class="p">:</span> <span class="n">FriendRequestEvent</span><span class="p">,</span>
             <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="n">GroupRequestEvent</span><span class="p">,</span>
@@ -1421,13 +1421,13 @@
 
 <div class="viewcode-block" id="RequestEvent.is_friend">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.RequestEvent.is_friend">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_friend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_friend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_type</span> <span class="o">==</span> <span class="s2">&quot;friend&quot;</span></div>
 
 
 <div class="viewcode-block" id="RequestEvent.is_group">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.RequestEvent.is_group">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_type</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span></div>
 </div>
 
@@ -1435,15 +1435,15 @@
 
 <div class="viewcode-block" id="FriendRequestEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.FriendRequestEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">FriendRequestEvent</span><span class="p">(</span><span class="n">RequestEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FriendRequestEvent</span><span class="p">(</span><span class="n">RequestEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">RequestEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">RequestEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">request_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;friend&quot;</span><span class="p">]</span>
         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">flag</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">FriendRequestEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1461,9 +1461,9 @@
 
 <div class="viewcode-block" id="GroupRequestEvent">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent">[文档]</a>
-<span class="k">class</span> <span class="nc">GroupRequestEvent</span><span class="p">(</span><span class="n">RequestEvent</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupRequestEvent</span><span class="p">(</span><span class="n">RequestEvent</span><span class="p">):</span>
 
-    <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">RequestEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">RequestEvent</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">request_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">]</span>
         <span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;invite&quot;</span><span class="p">]</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span>
@@ -1471,7 +1471,7 @@
         <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">flag</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">GroupRequestEvent</span><span class="o">.</span><span class="n">Model</span>
@@ -1490,13 +1490,13 @@
 
 <div class="viewcode-block" id="GroupRequestEvent.is_add">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent.is_add">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;add&quot;</span></div>
 
 
 <div class="viewcode-block" id="GroupRequestEvent.is_invite">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent.is_invite">[文档]</a>
-    <span class="k">def</span> <span class="nf">is_invite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_invite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;invite&quot;</span></div>
 </div>
 

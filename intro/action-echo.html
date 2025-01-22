@@ -15,7 +15,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>OneBot 行为操作 - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -356,10 +356,10 @@
 </div>
 <p>关于回应对象，更多请参考 API 文档中的内容：<a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-echo"><span class="std std-ref">OneBot v11 回应</span></a></p>
 <p>当然，有时候你可能有大量的行为操作需要等待，那这时可以使用更方便的上下文管理器：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">EchoRequireCtx</span><span class="p">()</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
         <span class="c1"># 全部都会等待</span>
         <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定先被看到&quot;</span><span class="p">)</span>
@@ -367,12 +367,12 @@
 </pre></div>
 </div>
 <p>一整个函数都需要等待时，可以使用 <a class="reference internal" href="../api/melobot.utils.html#melobot.utils.unfold_ctx" title="melobot.utils.unfold_ctx"><code class="xref py py-func docutils literal notranslate"><span class="pre">unfold_ctx()</span></code></a> 装饰器：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
-<span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">unfold_ctx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">unfold_ctx</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="nd">@unfold_ctx</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">EchoRequireCtx</span><span class="p">()</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
     <span class="c1"># 全部都会等待</span>
     <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定先被看到&quot;</span><span class="p">)</span>
     <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定是第二条消息&quot;</span><span class="p">)</span>
@@ -392,14 +392,14 @@
 <section id="id2">
 <h2>自定义行为<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>和自定义消息段类似，有时候我们总是会需要自定义的 OneBot 行为类型的。一般这样构造：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.action</span> <span class="kn">import</span> <span class="n">Action</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.action</span><span class="w"> </span><span class="kn">import</span> <span class="n">Action</span>
 
 <span class="c1"># 临时构造一个自定义行为</span>
 <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;action_type&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123456</span><span class="p">})</span>
 
 <span class="c1"># 继承并构造一个新的 Action 类</span>
-<span class="k">class</span> <span class="nc">MyAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param1</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param1</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;action_type&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123456</span><span class="p">})</span>
 
 <span class="n">action</span> <span class="o">=</span> <span class="n">MyAction</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span>

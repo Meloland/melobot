@@ -15,7 +15,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>异步可调用 - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -314,17 +314,17 @@
 <h1>异步可调用<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p>在正式开始我们的教程之前，需要简单讲一讲关于“异步可调用”的概念。</p>
 <p>首先关于“可调用”或“可调用对象”，大家在过去的 Python 开发中，应该有所接触。可调用对象代指任何能被调用的东西，像是一种接口，都能使用 <code class="docutils literal notranslate"><span class="pre">()</span></code> 来触发调用行为：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="o">...</span>
 <span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
 
 <span class="n">bar1</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">:</span> <span class="o">...</span>
 
-<span class="k">def</span> <span class="nf">bar2</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bar2</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="o">...</span>
 
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="n">bar3</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">bar2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">arg1</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># 它们都是可调用对象，因此可以：</span>
@@ -343,17 +343,17 @@
 <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference internal" href="../api/melobot.typ.html#melobot.typ.P" title="melobot.typ.P"><code class="xref py py-data docutils literal notranslate"><span class="pre">P</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Awaitable</span></code></a>[<a class="reference internal" href="../api/melobot.typ.html#melobot.typ.T" title="melobot.typ.T"><code class="xref py py-data docutils literal notranslate"><span class="pre">T</span></code></a>]]</p>
 <p>其中 P 为 <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ParamSpec" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamSpec</span></code></a> 类型变量，T 为普通的无约束类型变量。</p>
 <p>典型的异步可调用对象包括：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__await__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__await__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="o">...</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_any_coro_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_any_coro_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="o">...</span>
 <span class="n">bar1</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">:</span> <span class="n">_any_coro_f</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">)</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">bar2</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">bar2</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="o">...</span>
 
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="n">bar3</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">bar2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">arg1</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># 它们都是异步可调用对象，因此可以：</span>
@@ -366,11 +366,11 @@
 <p>在 melobot 中，也提供了装饰器 <a class="reference internal" href="../api/melobot.utils.html#melobot.utils.to_async" title="melobot.utils.to_async"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_async()</span></code></a> 转换可调用为异步可调用：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 在一般函数上装饰，转换为异步可调用</span>
 <span class="nd">@to_async</span>
-<span class="k">def</span> <span class="nf">sync_func</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sync_func</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
     <span class="o">...</span>
 
 <span class="c1"># 直接调用，适用于各种可调用对象：</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_any_coro_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_any_coro_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="o">...</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_any_coro_f</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
 <span class="n">aprint</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>

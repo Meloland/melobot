@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.exceptions - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,11 +300,11 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.exceptions 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
-<span class="kn">import</span> <span class="nn">better_exceptions</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">better_exceptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="n">better_exceptions</span><span class="o">.</span><span class="n">SUPPORTS_COLOR</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">better_exceptions</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">SUPPORTS_COLOR</span> <span class="o">=</span> <span class="kc">True</span>
@@ -322,10 +322,10 @@
 
 <div class="viewcode-block" id="BotException">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.BotException">[文档]</a>
-<span class="k">class</span> <span class="nc">BotException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BotException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;bot 异常基类&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">err</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -337,122 +337,122 @@
             <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">err</span></div>
 
 
 
 <div class="viewcode-block" id="ValidateError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.ValidateError">[文档]</a>
-<span class="k">class</span> <span class="nc">ValidateError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidateError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;:py:mod:`melobot.utils` 函数参数验证异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="BotError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.BotError">[文档]</a>
-<span class="k">class</span> <span class="nc">BotError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BotError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot bot 异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="SourceError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.SourceError">[文档]</a>
-<span class="k">class</span> <span class="nc">SourceError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SourceError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 源异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="PluginError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.PluginError">[文档]</a>
-<span class="k">class</span> <span class="nc">PluginError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PluginError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 插件异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="PluginAutoGenError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.PluginAutoGenError">[文档]</a>
-<span class="k">class</span> <span class="nc">PluginAutoGenError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PluginAutoGenError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 插件自动生成异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="PluginLoadError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.PluginLoadError">[文档]</a>
-<span class="k">class</span> <span class="nc">PluginLoadError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PluginLoadError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 插件加载异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="PluginIpcError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.PluginIpcError">[文档]</a>
-<span class="k">class</span> <span class="nc">PluginIpcError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PluginIpcError</span><span class="p">(</span><span class="n">PluginError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 插件间通信异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="SessionError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.SessionError">[文档]</a>
-<span class="k">class</span> <span class="nc">SessionError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SessionError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 会话异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="FlowError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.FlowError">[文档]</a>
-<span class="k">class</span> <span class="nc">FlowError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 处理流异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="LogError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.LogError">[文档]</a>
-<span class="k">class</span> <span class="nc">LogError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 日志器异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="HookError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.HookError">[文档]</a>
-<span class="k">class</span> <span class="nc">HookError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HookError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 生命周期组件异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="AdapterError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.AdapterError">[文档]</a>
-<span class="k">class</span> <span class="nc">AdapterError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AdapterError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 适配器异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="DependError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.DependError">[文档]</a>
-<span class="k">class</span> <span class="nc">DependError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DependError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 依赖注入异常&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="DependInitError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.DependInitError">[文档]</a>
-<span class="k">class</span> <span class="nc">DependInitError</span><span class="p">(</span><span class="n">DependError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DependInitError</span><span class="p">(</span><span class="n">DependError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 依赖注入项初始化失败&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="DependBindError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.DependBindError">[文档]</a>
-<span class="k">class</span> <span class="nc">DependBindError</span><span class="p">(</span><span class="n">DependError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DependBindError</span><span class="p">(</span><span class="n">DependError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 依赖注入项值绑定失败&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="DynamicImpError">
 <a class="viewcode-back" href="../../api/melobot.exceptions.html#melobot.exceptions.DynamicImpError">[文档]</a>
-<span class="k">class</span> <span class="nc">DynamicImpError</span><span class="p">(</span><span class="n">BotException</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DynamicImpError</span><span class="p">(</span><span class="n">BotException</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 动态导入组件异常&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">BotException</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>

@@ -15,7 +15,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>OneBot 事件处理 - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -324,10 +324,10 @@
 <li><p>绑定一个元事件的处理方法：<a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_meta" title="melobot.protocols.onebot.v11.handle.on_meta"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_meta()</span></code></a></p></li>
 </ul>
 <p>这些绑定方法的参数很多，你可以先简单浏览。关于这些方法的使用，后续会详细讲解。现在让我们先学习一些基础知识。绑定方法的使用都一样，直接用作装饰器即可：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_start_match</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_start_match</span>
 
 <span class="nd">@on_start_match</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">func</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># func 就是事件处理方法，可以是同步或异步函数，无返回值</span>
     <span class="c1"># func 的内容就是事件处理的逻辑</span>
     <span class="o">...</span>
@@ -340,20 +340,20 @@
 <h2>获取 OneBot 事件对象<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>现在我们已经学会绑定事件处理方法了。如果事件处理方法，能<strong>获得触发事件的一些信息，基于这些信息做针对性处理</strong>就更好了。</p>
 <p>通过类型注解驱动的依赖注入，即可方便地在处理方法中获得触发的事件。例如使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent" title="melobot.protocols.onebot.v11.adapter.event.MessageEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageEvent</span></code></a> 注解参数，melobot 将知道你需要一个消息事件作为 event 参数的值：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span>
-<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_message</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">func1</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">func1</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
 <p>或者使用通用接口获取：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span>
-<span class="kn">from</span> <span class="nn">melobot.handle</span> <span class="kn">import</span> <span class="n">get_event</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.handle</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_event</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">func1</span><span class="p">():</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">func1</span><span class="p">():</span>
     <span class="n">e</span> <span class="o">=</span> <span class="n">get_event</span><span class="p">()</span>
     <span class="o">...</span>
 </pre></div>
@@ -368,14 +368,14 @@
 <section id="id3">
 <h2>基于事件信息的处理<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>通过事件对象提供的信息，可以实现更有趣的处理逻辑：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_start_match</span>
-<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span>
-<span class="kn">from</span> <span class="nn">melobot</span> <span class="kn">import</span> <span class="n">send_text</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_start_match</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">send_text</span>
 
 <span class="n">OWNER_QID</span> <span class="o">=</span> <span class="mi">10001</span>
 
 <span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">say_hi</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">say_hi</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># 如果消息不来源于机器人主人，则不做任何处理</span>
     <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">user_id</span> <span class="o">!=</span> <span class="n">OWNER_QID</span><span class="p">:</span>
         <span class="k">return</span>
@@ -404,12 +404,12 @@
 <p>如果你不知道，消息段对象是消息内容的表示方式之一，建议先浏览：<a class="reference internal" href="../ob_refer/msg.html"><span class="doc std std-doc">消息内容的数据结构</span></a></p>
 </div>
 <p>需要哪种类型的消息段，就传递哪种消息段的 <code class="docutils literal notranslate"><span class="pre">type</span></code> 作为参数：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span>
-<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.segment</span> <span class="kn">import</span> <span class="n">ImageSegment</span>
-<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageSegment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_message</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">):</span>
     <span class="c1"># 获取当前这条消息所有的图片（image 是图片消息段的类型名）</span>
     <span class="n">images</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_segments</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
     <span class="c1"># 或传递消息段类型来获取</span>
@@ -430,11 +430,11 @@
 <p>此链接也包含了每种消息段的 type 标识，及 data 字段拥有的参数。</p>
 </div>
 <p>如果只需要 data 字段的某一参数，使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_datas" title="melobot.protocols.onebot.v11.adapter.event.MessageEvent.get_datas"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_datas()</span></code></a> 即可：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11.adapter.event</span> <span class="kn">import</span> <span class="n">MessageEvent</span>
-<span class="kn">from</span> <span class="nn">melobot.protocols.onebot.v11</span> <span class="kn">import</span> <span class="n">on_message</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_message</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">):</span>
     <span class="c1"># 获取当前这条消息，所有图片的 url</span>
     <span class="n">img_urls</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_datas</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;url&quot;</span><span class="p">)</span>
     <span class="c1"># 类似的方法</span>

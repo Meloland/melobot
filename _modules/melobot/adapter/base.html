@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.adapter.base - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,15 +300,15 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.adapter.base 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">create_task</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">AsyncExitStack</span><span class="p">,</span> <span class="n">_GeneratorContextManager</span><span class="p">,</span> <span class="n">asynccontextmanager</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncExitStack</span><span class="p">,</span> <span class="n">_GeneratorContextManager</span><span class="p">,</span> <span class="n">asynccontextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">AsyncGenerator</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -323,10 +323,10 @@
     <span class="n">final</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">.._hook</span> <span class="kn">import</span> <span class="n">Hookable</span>
-<span class="kn">from</span> <span class="nn">..ctx</span> <span class="kn">import</span> <span class="n">EventBuildInfo</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">AdapterError</span>
-<span class="kn">from</span> <span class="nn">..io.base</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._hook</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hookable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventBuildInfo</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdapterError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..io.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AbstractInSource</span><span class="p">,</span>
     <span class="n">AbstractOutSource</span><span class="p">,</span>
     <span class="n">EchoPacketT</span><span class="p">,</span>
@@ -335,13 +335,13 @@
     <span class="n">OutPacketT</span><span class="p">,</span>
     <span class="n">OutSourceT</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..log.base</span> <span class="kn">import</span> <span class="n">LogLevel</span>
-<span class="kn">from</span> <span class="nn">..typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">.content</span> <span class="kn">import</span> <span class="n">Content</span>
-<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">EventT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.content</span><span class="w"> </span><span class="kn">import</span> <span class="n">Content</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">EventT</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..bot.dispatch</span> <span class="kn">import</span> <span class="n">Dispatcher</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..bot.dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dispatcher</span>
 
 
 <span class="n">_EVENT_BUILD_INFO_CTX</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
@@ -350,13 +350,13 @@
 
 <div class="viewcode-block" id="AbstractEventFactory">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEventFactory">[文档]</a>
-<span class="k">class</span> <span class="nc">AbstractEventFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">InPacketT</span><span class="p">,</span> <span class="n">EventT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractEventFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">InPacketT</span><span class="p">,</span> <span class="n">EventT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象事件工厂类&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AbstractEventFactory.create">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEventFactory.create">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">InPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EventT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">InPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EventT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;将 :class:`.InPacket` 对象转换为 :class:`.Event` 对象的方法</span>
 
 <span class="sd">        :param packet: 输入包</span>
@@ -372,13 +372,13 @@
 
 <div class="viewcode-block" id="AbstractOutputFactory">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractOutputFactory">[文档]</a>
-<span class="k">class</span> <span class="nc">AbstractOutputFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">OutPacketT</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractOutputFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">OutPacketT</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象输出工厂类&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AbstractOutputFactory.create">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractOutputFactory.create">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OutPacketT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OutPacketT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;将 :class:`.Action` 对象转换为 :class:`.OutPacket` 对象的方法</span>
 
 <span class="sd">        :param packet: 行为</span>
@@ -394,13 +394,13 @@
 
 <div class="viewcode-block" id="AbstractEchoFactory">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEchoFactory">[文档]</a>
-<span class="k">class</span> <span class="nc">AbstractEchoFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">EchoPacketT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractEchoFactory</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">EchoPacketT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象回应工厂类&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AbstractEchoFactory.create">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AbstractEchoFactory.create">[文档]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">EchoPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoT</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packet</span><span class="p">:</span> <span class="n">EchoPacketT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EchoT</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;将 :class:`.EchoPacket` 对象转换为 :class:`.Echo` 对象的方法</span>
 
 <span class="sd">        :param packet: 回应包</span>
@@ -416,7 +416,7 @@
 
 <div class="viewcode-block" id="AdapterLifeSpan">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.AdapterLifeSpan">[文档]</a>
-<span class="k">class</span> <span class="nc">AdapterLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AdapterLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;适配器生命周期阶段的枚举&quot;&quot;&quot;</span>
 
     <span class="n">BEFORE_EVENT_HANDLE</span> <span class="o">=</span> <span class="s2">&quot;beh&quot;</span>
@@ -428,7 +428,7 @@
 
 <div class="viewcode-block" id="Adapter">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter">[文档]</a>
-<span class="k">class</span> <span class="nc">Adapter</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Adapter</span><span class="p">(</span>
     <span class="n">BetterABC</span><span class="p">,</span>
     <span class="n">Generic</span><span class="p">[</span>
         <span class="n">EventFactoryT</span><span class="p">,</span>
@@ -448,7 +448,7 @@
     <span class="c1"># pylint: disable=duplicate-code</span>
     <span class="c1"># pylint: disable=unused-argument</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">protocol</span><span class="p">:</span> <span class="n">LiteralString</span><span class="p">,</span>
         <span class="n">event_factory</span><span class="p">:</span> <span class="n">EventFactoryT</span><span class="p">,</span>
@@ -469,12 +469,12 @@
 
 <div class="viewcode-block" id="Adapter.on">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.on">[文档]</a>
-    <span class="k">def</span> <span class="nf">on</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">periods</span><span class="p">:</span> <span class="n">AdapterLifeSpan</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION_EXEC</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapped</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
             <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">periods</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">once</span><span class="o">=</span><span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
@@ -485,7 +485,7 @@
 <div class="viewcode-block" id="Adapter.get_isrcs">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.get_isrcs">[文档]</a>
     <span class="nd">@final</span>
-    <span class="k">def</span> <span class="nf">get_isrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">InSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">InSourceT</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_isrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">InSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">InSourceT</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取与当前适配器匹配的所有输入源</span>
 
 <span class="sd">        :param filter: 过滤函数，为 `True` 时保留输入源</span>
@@ -497,7 +497,7 @@
 <div class="viewcode-block" id="Adapter.get_osrcs">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.get_osrcs">[文档]</a>
     <span class="nd">@final</span>
-    <span class="k">def</span> <span class="nf">get_osrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OutSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_osrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OutSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获取与当前适配器匹配的所有输出源</span>
 
 <span class="sd">        :param filter: 过滤函数，为 `True` 时保留输出源</span>
@@ -507,7 +507,7 @@
 
 
     <span class="nd">@final</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__adapter_input_loop__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">InSourceT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__adapter_input_loop__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">InSourceT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -524,7 +524,7 @@
 
     <span class="nd">@asynccontextmanager</span>
     <span class="nd">@final</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__adapter_launch__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__adapter_launch__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AdapterError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;适配器 </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 已在运行，不能重复启动&quot;</span><span class="p">)</span>
 
@@ -558,7 +558,7 @@
 <div class="viewcode-block" id="Adapter.filter_out">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.filter_out">[文档]</a>
     <span class="nd">@final</span>
-    <span class="k">def</span> <span class="nf">filter_out</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_out</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OutSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_GeneratorContextManager</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">OutSourceT</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;上下文管理器，提供由 `filter` 控制输出的输出上下文</span>
@@ -570,7 +570,7 @@
 
 <div class="viewcode-block" id="Adapter.call_output">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.call_output">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">call_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">call_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出行为，并返回各个输出源返回的 :class:`.ActionHandle` 组成的元组</span>
 
 <span class="sd">        适配器开发者的适配器子类可以重写此方法，以实现自定义功能</span>
@@ -605,7 +605,7 @@
 
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_text__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_text__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文本</span>
 
 <span class="sd">        抽象方法。所有适配器子类应该实现此方法</span>
@@ -615,7 +615,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_media__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_media__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -636,7 +636,7 @@
             <span class="sa">f</span><span class="s2">&quot;[melobot media: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_image__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_image__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -657,7 +657,7 @@
             <span class="sa">f</span><span class="s2">&quot;[melobot image: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_audio__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_audio__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -678,7 +678,7 @@
             <span class="sa">f</span><span class="s2">&quot;[melobot audio: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_voice__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_voice__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -699,7 +699,7 @@
             <span class="sa">f</span><span class="s2">&quot;[melobot voice: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_video__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_video__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -720,7 +720,7 @@
             <span class="sa">f</span><span class="s2">&quot;[melobot video: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_file__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_file__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文件</span>
@@ -733,7 +733,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot file: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_refer__</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_refer__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出对过往事件的引用</span>
@@ -748,7 +748,7 @@
             <span class="sa">f</span><span class="s2">&quot;[melobot refer: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)]&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__send_resource__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_resource__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出网络资源</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>

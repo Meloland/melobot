@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.typ - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,16 +300,16 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.typ 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
 
-<span class="kn">from</span> <span class="nn">beartype</span> <span class="kn">import</span> <span class="n">BeartypeConf</span> <span class="k">as</span> <span class="n">_BeartypeConf</span>
-<span class="kn">from</span> <span class="nn">beartype.door</span> <span class="kn">import</span> <span class="n">is_bearable</span> <span class="k">as</span> <span class="n">_is_type</span>
-<span class="kn">from</span> <span class="nn">beartype.door</span> <span class="kn">import</span> <span class="n">is_subhint</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">beartype</span><span class="w"> </span><span class="kn">import</span> <span class="n">BeartypeConf</span> <span class="k">as</span> <span class="n">_BeartypeConf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">beartype.door</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_bearable</span> <span class="k">as</span> <span class="n">_is_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">beartype.door</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_subhint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Awaitable</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -354,13 +354,13 @@
 
 <div class="viewcode-block" id="AsyncCallable">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.AsyncCallable">[文档]</a>
-<span class="k">class</span> <span class="nc">AsyncCallable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T_co</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AsyncCallable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T_co</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;用法：AsyncCallable[P, T]</span>
 
 <span class="sd">    是该类型的等价形式：Callable[P, Awaitable[T]]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_co</span><span class="p">]:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_co</span><span class="p">]:</span> <span class="o">...</span></div>
 
 
 
@@ -369,7 +369,7 @@
 
 <div class="viewcode-block" id="is_type">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.is_type">[文档]</a>
-<span class="k">def</span> <span class="nf">is_type</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_type</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;检查 `obj` 是否是类型注解 `hint` 所表示的类型</span>
 
 <span class="sd">    :param obj: 任意对象</span>
@@ -383,7 +383,7 @@
 
 <div class="viewcode-block" id="HandleLevel">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.HandleLevel">[文档]</a>
-<span class="k">class</span> <span class="nc">HandleLevel</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleLevel</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;事件处理流优先级枚举类型&quot;&quot;&quot;</span>
 
     <span class="n">MAX</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span>
@@ -398,7 +398,7 @@
 
 <div class="viewcode-block" id="LogicMode">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.LogicMode">[文档]</a>
-<span class="k">class</span> <span class="nc">LogicMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogicMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;逻辑模式枚举类型&quot;&quot;&quot;</span>
 
     <span class="n">AND</span> <span class="o">=</span> <span class="mi">1</span>
@@ -409,7 +409,7 @@
 <div class="viewcode-block" id="LogicMode.calc">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.LogicMode.calc">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;将两个值使用指定逻辑模式运算</span>
 
 <span class="sd">        :param logic: 逻辑模式</span>
@@ -429,7 +429,7 @@
 <div class="viewcode-block" id="LogicMode.short_calc">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.LogicMode.short_calc">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">short_calc</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">short_calc</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">v2</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`calc` 功能类似，但运算支持短路</span>
@@ -451,7 +451,7 @@
 <div class="viewcode-block" id="LogicMode.async_short_calc">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.LogicMode.async_short_calc">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">async_short_calc</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_short_calc</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">v2</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`short_calc` 功能类似，但运算支持异步</span>
@@ -476,7 +476,7 @@
 <div class="viewcode-block" id="LogicMode.seq_calc">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.LogicMode.seq_calc">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">seq_calc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seq_calc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;使用指定的逻辑模式，对值序列进行运算</span>
 
 <span class="sd">        .. code:: python</span>
@@ -508,7 +508,7 @@
 <div class="viewcode-block" id="LogicMode.short_seq_calc">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.LogicMode.short_seq_calc">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">short_seq_calc</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">short_seq_calc</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">getters</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`seq_calc` 功能类似，但运算支持短路</span>
@@ -537,7 +537,7 @@
 <div class="viewcode-block" id="LogicMode.async_short_seq_calc">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.LogicMode.async_short_seq_calc">[文档]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">async_short_seq_calc</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_short_seq_calc</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">logic</span><span class="p">:</span> <span class="s2">&quot;LogicMode&quot;</span><span class="p">,</span> <span class="n">getters</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`short_seq_calc` 功能类似，但运算支持异步</span>
@@ -559,7 +559,7 @@
                 <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
 
-                <span class="k">async</span> <span class="k">def</span> <span class="nf">res_getter</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">res_getter</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">res</span>
 
                 <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">async_short_calc</span><span class="p">(</span><span class="n">logic</span><span class="p">,</span> <span class="n">res_getter</span><span class="p">,</span> <span class="n">getters</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
@@ -571,7 +571,7 @@
 
 <div class="viewcode-block" id="abstractattr">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.abstractattr">[文档]</a>
-<span class="k">def</span> <span class="nf">abstractattr</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">abstractattr</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;抽象属性</span>
 
 <span class="sd">    与 `abstractproperty` 相比更灵活，`abstractattr` 不关心你以何种形式定义属性。只要子类在实例化后，该属性存在，即认为合法。</span>
@@ -618,12 +618,12 @@
 
 <div class="viewcode-block" id="BetterABCMeta">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.BetterABCMeta">[文档]</a>
-<span class="k">class</span> <span class="nc">BetterABCMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BetterABCMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;更好的抽象元类，兼容 `ABCMeta` 的所有功能，但是额外支持 :func:`abstractattr`&quot;&quot;&quot;</span>
 
-    <span class="k">class</span> <span class="nc">DummyAttribute</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">DummyAttribute</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="n">instance</span> <span class="o">=</span> <span class="n">ABCMeta</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">lack_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
@@ -649,7 +649,7 @@
 
 <div class="viewcode-block" id="BetterABC">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.BetterABC">[文档]</a>
-<span class="k">class</span> <span class="nc">BetterABC</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">BetterABCMeta</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BetterABC</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">BetterABCMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;更好的抽象类，兼容 `ABC` 的所有功能，但是额外支持 :func:`abstractattr`&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span></div>
@@ -658,7 +658,7 @@
 
 <div class="viewcode-block" id="SingletonMeta">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.SingletonMeta">[文档]</a>
-<span class="k">class</span> <span class="nc">SingletonMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SingletonMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;单例元类</span>
 
 <span class="sd">    相比单例装饰器，可以自动保证所有子类都为单例</span>
@@ -666,7 +666,7 @@
 
     <span class="n">__instances__</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SingletonMeta</span><span class="o">.</span><span class="n">__instances__</span><span class="p">:</span>
             <span class="n">SingletonMeta</span><span class="o">.</span><span class="n">__instances__</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
                 <span class="n">T</span><span class="p">,</span> <span class="nb">super</span><span class="p">(</span><span class="n">SingletonMeta</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore[misc]</span>
@@ -677,7 +677,7 @@
 
 <div class="viewcode-block" id="SingletonBetterABCMeta">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.SingletonBetterABCMeta">[文档]</a>
-<span class="k">class</span> <span class="nc">SingletonBetterABCMeta</span><span class="p">(</span><span class="n">BetterABCMeta</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SingletonBetterABCMeta</span><span class="p">(</span><span class="n">BetterABCMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;单例抽象元类</span>
 
 <span class="sd">    相比普通的抽象元类，还可以自动保证所有子类都为单例</span>
@@ -685,7 +685,7 @@
 
     <span class="n">__instances__</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="n">mcls</span> <span class="o">=</span> <span class="n">SingletonBetterABCMeta</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mcls</span><span class="o">.</span><span class="n">__instances__</span><span class="p">:</span>
             <span class="n">mcls</span><span class="o">.</span><span class="n">__instances__</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">BetterABCMeta</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -695,18 +695,18 @@
 
 <div class="viewcode-block" id="Markable">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.Markable">[文档]</a>
-<span class="k">class</span> <span class="nc">Markable</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Markable</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;可标记对象</span>
 
 <span class="sd">    无需直接实例化，而是用作接口在其他类中继承</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="Markable.flag_mark">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.Markable.flag_mark">[文档]</a>
-    <span class="k">def</span> <span class="nf">flag_mark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flag_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag_mark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flag_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;在 `namespace` 命名空间中设置 `flag_name` 标记，值为 `val`</span>
 
 <span class="sd">        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象</span>
@@ -727,7 +727,7 @@
 
 <div class="viewcode-block" id="Markable.flag_check">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.Markable.flag_check">[文档]</a>
-    <span class="k">def</span> <span class="nf">flag_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flag_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flag_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;检查 `namespace` 命名空间中 `flag_name` 标记值是否为 `val`</span>
 
 <span class="sd">        注：不同的对象并不共享 `namespace`，`namespace` 只适用于单个对象</span>
@@ -750,25 +750,25 @@
 
 
 
-<span class="k">class</span> <span class="nc">AttrsReprable</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AttrsReprable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">attrs</span><span class="si">}</span><span class="s2">)&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">Locatable</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Locatable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">__obj_location__</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">_init_location</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="k">return</span> <span class="n">obj</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__obj_location__</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_init_location</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_location</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
         <span class="k">while</span> <span class="n">frame</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span> <span class="o">==</span> <span class="s2">&quot;&lt;module&gt;&quot;</span><span class="p">:</span>
@@ -786,21 +786,21 @@
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">__obj_module__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__obj_module__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_location__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">__obj_file__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__obj_file__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_location__</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">__obj_line__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__obj_line__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_location__</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="VoidType">
 <a class="viewcode-back" href="../../api/melobot.typ.html#melobot.typ.VoidType">[文档]</a>
-<span class="k">class</span> <span class="nc">VoidType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VoidType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;空类型，需要区别于 `None` 时使用</span>
 
 <span class="sd">    .. code:: python</span>
@@ -814,9 +814,9 @@
 
 
 
-<span class="k">def</span> <span class="nf">deprecate_warn</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">deprecate_warn</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># pylint: disable=cyclic-import</span>
-    <span class="kn">from</span> <span class="nn">.ctx</span> <span class="kn">import</span> <span class="n">LoggerCtx</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggerCtx</span>
 
     <span class="k">if</span> <span class="n">logger</span> <span class="o">:=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">try_get</span><span class="p">():</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -825,12 +825,12 @@
     <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">deprecated</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">deprecated</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
 
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">deprecate_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">deprecate_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
             <span class="n">deprecate_warn</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;使用了弃用函数/方法 </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>

@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.utils - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,15 +300,15 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.utils 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">asynccontextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">AsyncContextManager</span><span class="p">,</span>
     <span class="n">AsyncGenerator</span><span class="p">,</span>
@@ -321,13 +321,13 @@
     <span class="n">cast</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ValidateError</span>
-<span class="kn">from</span> <span class="nn">.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidateError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span>
 
 
 <div class="viewcode-block" id="get_obj_name">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.get_obj_name">[文档]</a>
-<span class="k">def</span> <span class="nf">get_obj_name</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_obj_name</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">otype</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;callable&quot;</span><span class="p">,</span> <span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
     <span class="n">default</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;anonymous </span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span>
@@ -369,7 +369,7 @@
 
 <div class="viewcode-block" id="singleton">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.singleton">[文档]</a>
-<span class="k">def</span> <span class="nf">singleton</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">singleton</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;单例装饰器</span>
 
 <span class="sd">    :param cls: 需要被单例化的可调用对象</span>
@@ -378,7 +378,7 @@
     <span class="n">obj_map</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obj_map</span><span class="p">:</span>
             <span class="n">obj_map</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">obj_map</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span>
@@ -389,7 +389,7 @@
 
 <div class="viewcode-block" id="RWContext">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.RWContext">[文档]</a>
-<span class="k">class</span> <span class="nc">RWContext</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RWContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;异步读写上下文</span>
 
 <span class="sd">    提供异步安全的读写上下文。在读取时可以多读，同时读写互斥。</span>
@@ -409,7 +409,7 @@
 
 <div class="viewcode-block" id="RWContext.__init__">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.RWContext.__init__">[文档]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化异步读写上下文</span>
 
 <span class="sd">        :param read_limit: 读取的数量限制，为空则不限制</span>
@@ -423,7 +423,7 @@
 <div class="viewcode-block" id="RWContext.read">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.RWContext.read">[文档]</a>
     <span class="nd">@asynccontextmanager</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;上下文管理器，展开一个关于该对象的安全异步读上下文&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_semaphore</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
@@ -447,7 +447,7 @@
 <div class="viewcode-block" id="RWContext.write">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.RWContext.write">[文档]</a>
     <span class="nd">@asynccontextmanager</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;上下文管理器，展开一个关于该对象的安全异步写上下文&quot;&quot;&quot;</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
@@ -458,8 +458,8 @@
 
 
 
-<span class="k">class</span> <span class="nc">SnowFlakeIdWorker</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datacenter_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">worker_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sequence</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SnowFlakeIdWorker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datacenter_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">worker_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sequence</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_worker_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">^</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_datacenter_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">^</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">worker_id_shift</span> <span class="o">=</span> <span class="mi">12</span>
@@ -477,10 +477,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">=</span> <span class="n">sequence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">_gen_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_gen_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_timestamp</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span><span class="p">:</span>
@@ -500,7 +500,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">new_id</span>
 
-    <span class="k">def</span> <span class="nf">get_b64_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trim_pad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_b64_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trim_pad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s2">&quot;little&quot;</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
@@ -508,7 +508,7 @@
             <span class="nb">id</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">id</span>
 
-    <span class="k">def</span> <span class="nf">_until_next_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_until_next_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_timestamp</span><span class="p">()</span>
         <span class="k">while</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">last_time</span><span class="p">:</span>
             <span class="n">timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_timestamp</span><span class="p">()</span>
@@ -520,7 +520,7 @@
 
 <div class="viewcode-block" id="get_id">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.get_id">[文档]</a>
-<span class="k">def</span> <span class="nf">get_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;从 melobot 内部 id 获取器获得一个 id 值，不保证线程安全。算法使用雪花算法</span>
 
 <span class="sd">    :return: id 值</span>
@@ -531,7 +531,7 @@
 
 <div class="viewcode-block" id="to_async">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.to_async">[文档]</a>
-<span class="k">def</span> <span class="nf">to_async</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_async</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;异步包装函数</span>
@@ -544,7 +544,7 @@
     <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">obj</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">async_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -561,7 +561,7 @@
 
 <div class="viewcode-block" id="to_coro">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.to_coro">[文档]</a>
-<span class="k">def</span> <span class="nf">to_coro</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_coro</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
@@ -589,7 +589,7 @@
 
 <div class="viewcode-block" id="if_not">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.if_not">[文档]</a>
-<span class="k">def</span> <span class="nf">if_not</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">if_not</span><span class="p">(</span>
     <span class="n">condition</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">reject</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">give_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -601,10 +601,10 @@
 <span class="sd">    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="n">condition</span><span class="p">()</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="k">await</span> <span class="n">ret</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="k">else</span> <span class="n">ret</span><span class="p">)</span>
@@ -626,7 +626,7 @@
 
 <div class="viewcode-block" id="unfold_ctx">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.unfold_ctx">[文档]</a>
-<span class="k">def</span> <span class="nf">unfold_ctx</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">unfold_ctx</span><span class="p">(</span>
     <span class="n">getter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">ContextManager</span> <span class="o">|</span> <span class="n">AsyncContextManager</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;上下文装饰器</span>
@@ -637,10 +637,10 @@
 <span class="sd">    :param getter: 上下文管理器获取方法</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
             <span class="n">manager</span> <span class="o">=</span> <span class="n">getter</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">manager</span><span class="p">:</span>
@@ -657,7 +657,7 @@
 
 <div class="viewcode-block" id="lock">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.lock">[文档]</a>
-<span class="k">def</span> <span class="nf">lock</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lock</span><span class="p">(</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">CbRetT</span> <span class="o">|</span> <span class="n">OriginRetT</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;锁装饰器</span>
@@ -674,12 +674,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">alock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">CbRetT</span> <span class="o">|</span> <span class="n">OriginRetT</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CbRetT</span> <span class="o">|</span> <span class="n">OriginRetT</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CbRetT</span> <span class="o">|</span> <span class="n">OriginRetT</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">alock</span><span class="p">:</span>
@@ -693,7 +693,7 @@
 
 <div class="viewcode-block" id="cooldown">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.cooldown">[文档]</a>
-<span class="k">def</span> <span class="nf">cooldown</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cooldown</span><span class="p">(</span>
     <span class="n">busy_callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">FirstCbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">cd_callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="n">SecondCbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
@@ -722,12 +722,12 @@
     <span class="n">alock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
     <span class="n">pre_finish_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">interval</span> <span class="o">-</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">FirstCbRetT</span> <span class="o">|</span> <span class="n">SecondCbRetT</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span>
             <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">FirstCbRetT</span> <span class="o">|</span> <span class="n">SecondCbRetT</span><span class="p">:</span>
             <span class="k">nonlocal</span> <span class="n">pre_finish_t</span>
@@ -758,7 +758,7 @@
 
 <div class="viewcode-block" id="semaphore">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.semaphore">[文档]</a>
-<span class="k">def</span> <span class="nf">semaphore</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">semaphore</span><span class="p">(</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;信号量装饰器</span>
@@ -776,12 +776,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">a_semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">a_semaphore</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">a_semaphore</span><span class="p">:</span>
@@ -795,7 +795,7 @@
 
 <div class="viewcode-block" id="timelimit">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.timelimit">[文档]</a>
-<span class="k">def</span> <span class="nf">timelimit</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">timelimit</span><span class="p">(</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;时间限制装饰器</span>
@@ -812,17 +812,17 @@
 <span class="sd">    :param timeout: 超时时间</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">async_guard</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">timeout</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="s2">&quot;timelimit 所装饰的任务已超时&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+                    <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="s2">&quot;timelimit 所装饰的任务已超时&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">wrapped_func</span>
@@ -833,7 +833,7 @@
 
 <div class="viewcode-block" id="speedlimit">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.speedlimit">[文档]</a>
-<span class="k">def</span> <span class="nf">speedlimit</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">speedlimit</span><span class="p">(</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CbRetT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
     <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
@@ -859,12 +859,12 @@
     <span class="k">if</span> <span class="n">duration</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ValidateError</span><span class="p">(</span><span class="s2">&quot;speedlimit 装饰器的 duration 参数必须 &gt; 0&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">deco_func</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="n">CbRetT</span><span class="p">:</span>
             <span class="n">fut</span> <span class="o">=</span> <span class="n">_wrapped_func</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">fut</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">CbRetT</span> <span class="o">|</span> <span class="n">OriginRetT</span> <span class="o">|</span> <span class="ne">Exception</span><span class="p">],</span> <span class="n">fut</span><span class="p">)</span>
             <span class="n">fut_ret</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fut</span>
@@ -874,7 +874,7 @@
 
         <span class="k">return</span> <span class="n">wrapped_func</span>
 
-    <span class="k">def</span> <span class="nf">_wrapped_func</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrapped_func</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
         <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>
@@ -903,7 +903,7 @@
 
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">result_set</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">result_set</span><span class="p">(</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
         <span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">,</span>
         <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -934,7 +934,7 @@
 
 <div class="viewcode-block" id="call_later">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.call_later">[文档]</a>
-<span class="k">def</span> <span class="nf">call_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimerHandle</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">call_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimerHandle</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;同步函数延迟调度</span>
 
 <span class="sd">    在指定的 `delay` 后调度一个 `callback` 执行。`callback` 应该是同步方法。</span>
@@ -949,7 +949,7 @@
 
 <div class="viewcode-block" id="call_at">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.call_at">[文档]</a>
-<span class="k">def</span> <span class="nf">call_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimerHandle</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">call_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimerHandle</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;同步函数指定时间调度</span>
 
 <span class="sd">    在指定的时间戳调度一个 `callback` 执行。`callback` 应该是同步方法。`timestamp` &lt;= 当前时刻回调立即执行</span>
@@ -968,7 +968,7 @@
 
 <div class="viewcode-block" id="async_later">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.async_later">[文档]</a>
-<span class="k">def</span> <span class="nf">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数延迟调度（可自主选择是否等待）</span>
 
 <span class="sd">    在指定的 `delay` 后调度一个 `callback` 执行。`callback` 是协程。</span>
@@ -982,7 +982,7 @@
 <span class="sd">    :return: :class:`asyncio.Future` 对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">async_cb</span><span class="p">(</span><span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_cb</span><span class="p">(</span><span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
             <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">callback</span>
@@ -998,7 +998,7 @@
 
 <div class="viewcode-block" id="async_at">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.async_at">[文档]</a>
-<span class="k">def</span> <span class="nf">async_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">async_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数指定时间调度（可自主选择是否等待）</span>
 
 <span class="sd">    在指定的时间戳调度一个 `callback` 执行。`callback` 是协程。</span>
@@ -1020,7 +1020,7 @@
 
 <div class="viewcode-block" id="async_interval">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.async_interval">[文档]</a>
-<span class="k">def</span> <span class="nf">async_interval</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">async_interval</span><span class="p">(</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数间隔调度（类似 JavaScript 的 setInterval）</span>
@@ -1034,7 +1034,7 @@
 <span class="sd">    :return: :class:`asyncio.Task` 对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">interval_cb</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">interval_cb</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">coro</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
@@ -1048,7 +1048,7 @@
 
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">async_guard</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_guard</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;在使用异步可调用对象时，提供用户友好的验证&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ValidateError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2"> 不是异步可调用对象（返回 Awaitable 的可调用对象）&quot;</span><span class="p">)</span>

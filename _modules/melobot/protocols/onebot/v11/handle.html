@@ -14,7 +14,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>melobot.protocols.onebot.v11.handle - melobot 3.0.0</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -300,26 +300,26 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.handle 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">_AsyncGeneratorContextManager</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">_AsyncGeneratorContextManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">from</span> <span class="nn">melobot.ctx</span> <span class="kn">import</span> <span class="n">Context</span>
-<span class="kn">from</span> <span class="nn">melobot.di</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">inject_deps</span>
-<span class="kn">from</span> <span class="nn">melobot.handle</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">get_event</span><span class="p">,</span> <span class="n">no_deps_node</span>
-<span class="kn">from</span> <span class="nn">melobot.session</span> <span class="kn">import</span> <span class="n">Rule</span><span class="p">,</span> <span class="n">Session</span><span class="p">,</span> <span class="n">enter_session</span>
-<span class="kn">from</span> <span class="nn">melobot.typ</span> <span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">HandleLevel</span><span class="p">,</span> <span class="n">LogicMode</span>
-<span class="kn">from</span> <span class="nn">melobot.utils</span> <span class="kn">import</span> <span class="n">get_obj_name</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.di</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">inject_deps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.handle</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">get_event</span><span class="p">,</span> <span class="n">no_deps_node</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rule</span><span class="p">,</span> <span class="n">Session</span><span class="p">,</span> <span class="n">enter_session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">HandleLevel</span><span class="p">,</span> <span class="n">LogicMode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_obj_name</span>
 
-<span class="kn">from</span> <span class="nn">.adapter.event</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check</span><span class="p">,</span> <span class="n">match</span>
-<span class="kn">from</span> <span class="nn">.utils.abc</span> <span class="kn">import</span> <span class="n">Checker</span><span class="p">,</span> <span class="n">Matcher</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">,</span> <span class="n">Parser</span>
-<span class="kn">from</span> <span class="nn">.utils.parse</span> <span class="kn">import</span> <span class="n">CmdArgFormatter</span><span class="p">,</span> <span class="n">CmdParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check</span><span class="p">,</span> <span class="n">match</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checker</span><span class="p">,</span> <span class="n">Matcher</span><span class="p">,</span> <span class="n">ParseArgs</span><span class="p">,</span> <span class="n">Parser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">CmdArgFormatter</span><span class="p">,</span> <span class="n">CmdParser</span>
 
 
-<span class="k">class</span> <span class="nc">ParseArgsCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">ParseArgs</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParseArgsCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">ParseArgs</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;ONEBOT_V11_PARSE_ARGS&quot;</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">,</span> <span class="s2">&quot;当前上下文中不存在解析参数&quot;</span>
         <span class="p">)</span>
@@ -327,7 +327,7 @@
 
 <div class="viewcode-block" id="GetParseArgs">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.GetParseArgs">[文档]</a>
-<span class="k">def</span> <span class="nf">GetParseArgs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ParseArgs</span><span class="p">:</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">GetParseArgs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ParseArgs</span><span class="p">:</span>  <span class="c1"># pylint: disable=invalid-name</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取解析参数</span>
 
 <span class="sd">    :return: 解析参数</span>
@@ -343,7 +343,7 @@
 
 <div class="viewcode-block" id="msg_session">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.msg_session">[文档]</a>
-<span class="k">def</span> <span class="nf">msg_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">_AsyncGeneratorContextManager</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">msg_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">_AsyncGeneratorContextManager</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;消息事件的会话上下文管理器</span>
 
 <span class="sd">    展开一个传统意义上的消息会话上下文，这与其他 bot 开发框架中的“会话”语义等价</span>
@@ -354,7 +354,7 @@
 
 <div class="viewcode-block" id="on_event">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_event">[文档]</a>
-<span class="k">def</span> <span class="nf">on_event</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">matcher</span><span class="p">:</span> <span class="n">Matcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser</span><span class="p">:</span> <span class="n">Parser</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -363,7 +363,7 @@
     <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">flow_getter</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flow_getter</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">Checker</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">checker</span><span class="p">):</span>
             <span class="n">_checker</span> <span class="o">=</span> <span class="n">Checker</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -372,7 +372,7 @@
         <span class="n">func</span> <span class="o">=</span> <span class="n">inject_deps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">wrapped</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">get_event</span><span class="p">())</span>
             <span class="n">status</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_checker</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
@@ -408,7 +408,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_checker_join</span><span class="p">(</span><span class="o">*</span><span class="n">checkers</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Checker</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_checker_join</span><span class="p">(</span><span class="o">*</span><span class="n">checkers</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Checker</span><span class="p">:</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">checkers</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -425,7 +425,7 @@
 
 <div class="viewcode-block" id="on_message">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_message">[文档]</a>
-<span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_message</span><span class="p">(</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">matcher</span><span class="p">:</span> <span class="n">Matcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser</span><span class="p">:</span> <span class="n">Parser</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -446,7 +446,7 @@
 
 <div class="viewcode-block" id="on_at_qq">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_at_qq">[文档]</a>
-<span class="k">def</span> <span class="nf">on_at_qq</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_at_qq</span><span class="p">(</span>
     <span class="n">qid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">matcher</span><span class="p">:</span> <span class="n">Matcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -468,7 +468,7 @@
 
 <div class="viewcode-block" id="on_command">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_command">[文档]</a>
-<span class="k">def</span> <span class="nf">on_command</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_command</span><span class="p">(</span>
     <span class="n">cmd_start</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">cmd_sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">targets</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -492,7 +492,7 @@
 
 <div class="viewcode-block" id="on_start_match">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_start_match">[文档]</a>
-<span class="k">def</span> <span class="nf">on_start_match</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_start_match</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -509,7 +509,7 @@
 
 <div class="viewcode-block" id="on_contain_match">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_contain_match">[文档]</a>
-<span class="k">def</span> <span class="nf">on_contain_match</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_contain_match</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -526,7 +526,7 @@
 
 <div class="viewcode-block" id="on_full_match">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_full_match">[文档]</a>
-<span class="k">def</span> <span class="nf">on_full_match</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_full_match</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -543,7 +543,7 @@
 
 <div class="viewcode-block" id="on_end_match">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_end_match">[文档]</a>
-<span class="k">def</span> <span class="nf">on_end_match</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_end_match</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -560,7 +560,7 @@
 
 <div class="viewcode-block" id="on_regex_match">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_regex_match">[文档]</a>
-<span class="k">def</span> <span class="nf">on_regex_match</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_regex_match</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">logic_mode</span><span class="p">:</span> <span class="n">LogicMode</span> <span class="o">=</span> <span class="n">LogicMode</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MessageEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -577,7 +577,7 @@
 
 <div class="viewcode-block" id="on_request">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_request">[文档]</a>
-<span class="k">def</span> <span class="nf">on_request</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_request</span><span class="p">(</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">RequestEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">matcher</span><span class="p">:</span> <span class="n">Matcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser</span><span class="p">:</span> <span class="n">Parser</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -598,7 +598,7 @@
 
 <div class="viewcode-block" id="on_notice">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_notice">[文档]</a>
-<span class="k">def</span> <span class="nf">on_notice</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_notice</span><span class="p">(</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NoticeEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">matcher</span><span class="p">:</span> <span class="n">Matcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser</span><span class="p">:</span> <span class="n">Parser</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -619,7 +619,7 @@
 
 <div class="viewcode-block" id="on_meta">
 <a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_meta">[文档]</a>
-<span class="k">def</span> <span class="nf">on_meta</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_meta</span><span class="p">(</span>
     <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">matcher</span><span class="p">:</span> <span class="n">Matcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser</span><span class="p">:</span> <span class="n">Parser</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
