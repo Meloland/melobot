@@ -431,12 +431,15 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_adapter_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Adapter | None&quot;</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_adapter_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Adapter&quot;</span><span class="p">:</span>
     <span class="n">ctx</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">adapter</span>
-    <span class="k">except</span> <span class="n">ctx</span><span class="o">.</span><span class="n">lookup_exc_cls</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ctx</span><span class="o">.</span><span class="n">lookup_exc_cls</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">adapter</span> <span class="o">=</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adapter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="n">adapter</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_custom_logger_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">CustomLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
