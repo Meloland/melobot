@@ -1,4 +1,3 @@
-from contextlib import _AsyncGeneratorContextManager
 from functools import wraps
 
 from typing_extensions import Callable, cast
@@ -6,7 +5,7 @@ from typing_extensions import Callable, cast
 from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
-from melobot.session import Rule, Session, enter_session
+from melobot.session import Rule
 from melobot.typ import AsyncCallable, HandleLevel, LogicMode
 from melobot.utils import get_obj_name
 
@@ -33,15 +32,15 @@ def GetParseArgs() -> ParseArgs:  # pylint: disable=invalid-name
 
 FlowDecorator = Callable[[AsyncCallable[..., bool | None]], Flow]
 
-_DefaultRule = Rule[MessageEvent].new(lambda e1, e2: e1.scope == e2.scope)
 
+class DefaultRule(Rule[MessageEvent]):
+    """传统的会话规则（只针对消息事件）
 
-def msg_session() -> _AsyncGeneratorContextManager[Session]:
-    """消息事件的会话上下文管理器
-
-    展开一个传统意义上的消息会话上下文，这与其他 bot 开发框架中的“会话”语义等价
+    两消息事件如果在同一发送渠道，且由同一人发送，则在同一会话中
     """
-    return enter_session(_DefaultRule)
+
+    async def compare(self, e1: MessageEvent, e2: MessageEvent) -> bool:
+        return e1.scope == e2.scope
 
 
 def on_event(
