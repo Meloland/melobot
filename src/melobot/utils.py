@@ -610,45 +610,42 @@ def call_at(callback: Callable[[], None], timestamp: float) -> asyncio.TimerHand
     return loop.call_later(timestamp - time.time_ns() / 1e9, callback)
 
 
-def async_later(callback: Coroutine[Any, Any, T], delay: float) -> asyncio.Future[T]:
+def async_later(callback: Coroutine[Any, Any, T], delay: float) -> asyncio.Task[T]:
     """异步函数延迟调度（可自主选择是否等待）
 
     在指定的 `delay` 后调度一个 `callback` 执行。`callback` 是协程。
 
-    返回一个 :class:`asyncio.Future` 对象，你可以选择等待或不等待。等待 :class:`asyncio.Future` 即是等待 `callback` 的返回值。
+    返回一个 :class:`asyncio.Task` 对象，等待 :class:`asyncio.Task` 即是等待 `callback` 的返回值。
 
-    注意：如果 `callback` 未完成就被取消，需要捕获 :class:`asyncio.CancelledError`。
-
-    :param callback: 异步函数（可有返回值）
+    :param callback: 协程（可有返回值）
     :param delay: 多长时间后调度
-    :return: :class:`asyncio.Future` 对象
+    :return: :class:`asyncio.Task` 对象
     """
 
-    async def async_cb(fut: asyncio.Future) -> None:
+    async def _later_task() -> T:
         try:
             await asyncio.sleep(delay)
             res = await callback
-            fut.set_result(res)
+            return res
         except asyncio.CancelledError:
             callback.close()
+            raise
 
-    fut: asyncio.Future[T] = asyncio.get_running_loop().create_future()
-    asyncio.create_task(async_cb(fut))
-    return fut
+    return asyncio.create_task(_later_task())
 
 
-def async_at(callback: Coroutine[Any, Any, T], timestamp: float) -> asyncio.Future[T]:
+def async_at(callback: Coroutine[Any, Any, T], timestamp: float) -> asyncio.Task[T]:
     """异步函数指定时间调度（可自主选择是否等待）
 
     在指定的时间戳调度一个 `callback` 执行。`callback` 是协程。
 
-    返回一个 :class:`asyncio.Future` 对象，你可以选择等待或不等待。等待 :class:`asyncio.Future` 即是等待 `callback` 的返回值。
+    返回一个 :class:`asyncio.Task` 对象，等待 :class:`asyncio.Task` 即是等待 `callback` 的返回值。
 
     注意：如果 `callback` 未完成就被取消，需要捕获 :class:`asyncio.CancelledError`。
 
-    :param callback: 异步函数（可有返回值）
+    :param callback: 协程（可有返回值）
     :param timestamp: 在什么时刻调度
-    :return: :class:`asyncio.Future` 对象
+    :return: :class:`asyncio.Task` 对象
     """
     if timestamp <= time.time_ns() / 1e9:
         return async_later(callback, 0)
@@ -670,7 +667,7 @@ def async_interval(
     :return: :class:`asyncio.Task` 对象
     """
 
-    async def interval_cb() -> None:
+    async def _interval_task() -> None:
         try:
             while True:
                 coro = callback()
@@ -678,8 +675,9 @@ def async_interval(
                 await coro
         except asyncio.CancelledError:
             coro.close()
+            raise
 
-    t = asyncio.create_task(interval_cb())
+    t = asyncio.create_task(_interval_task())
     return t
 
 
