@@ -968,48 +968,45 @@
 
 <div class="viewcode-block" id="async_later">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.async_later">[文档]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数延迟调度（可自主选择是否等待）</span>
 
 <span class="sd">    在指定的 `delay` 后调度一个 `callback` 执行。`callback` 是协程。</span>
 
-<span class="sd">    返回一个 :class:`asyncio.Future` 对象，你可以选择等待或不等待。等待 :class:`asyncio.Future` 即是等待 `callback` 的返回值。</span>
+<span class="sd">    返回一个 :class:`asyncio.Task` 对象，等待 :class:`asyncio.Task` 即是等待 `callback` 的返回值。</span>
 
-<span class="sd">    注意：如果 `callback` 未完成就被取消，需要捕获 :class:`asyncio.CancelledError`。</span>
-
-<span class="sd">    :param callback: 异步函数（可有返回值）</span>
+<span class="sd">    :param callback: 协程（可有返回值）</span>
 <span class="sd">    :param delay: 多长时间后调度</span>
-<span class="sd">    :return: :class:`asyncio.Future` 对象</span>
+<span class="sd">    :return: :class:`asyncio.Task` 对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_cb</span><span class="p">(</span><span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_later_task</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
             <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">callback</span>
-            <span class="n">fut</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">res</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="n">callback</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">raise</span>
 
-    <span class="n">fut</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span>
-    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">async_cb</span><span class="p">(</span><span class="n">fut</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">fut</span></div>
+    <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">_later_task</span><span class="p">())</span></div>
 
 
 
 <div class="viewcode-block" id="async_at">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.async_at">[文档]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">async_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">async_at</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Coroutine</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;异步函数指定时间调度（可自主选择是否等待）</span>
 
 <span class="sd">    在指定的时间戳调度一个 `callback` 执行。`callback` 是协程。</span>
 
-<span class="sd">    返回一个 :class:`asyncio.Future` 对象，你可以选择等待或不等待。等待 :class:`asyncio.Future` 即是等待 `callback` 的返回值。</span>
+<span class="sd">    返回一个 :class:`asyncio.Task` 对象，等待 :class:`asyncio.Task` 即是等待 `callback` 的返回值。</span>
 
 <span class="sd">    注意：如果 `callback` 未完成就被取消，需要捕获 :class:`asyncio.CancelledError`。</span>
 
-<span class="sd">    :param callback: 异步函数（可有返回值）</span>
+<span class="sd">    :param callback: 协程（可有返回值）</span>
 <span class="sd">    :param timestamp: 在什么时刻调度</span>
-<span class="sd">    :return: :class:`asyncio.Future` 对象</span>
+<span class="sd">    :return: :class:`asyncio.Task` 对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">timestamp</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">async_later</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -1034,7 +1031,7 @@
 <span class="sd">    :return: :class:`asyncio.Task` 对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">interval_cb</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_interval_task</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">coro</span> <span class="o">=</span> <span class="n">callback</span><span class="p">()</span>
@@ -1042,8 +1039,9 @@
                 <span class="k">await</span> <span class="n">coro</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="n">coro</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">raise</span>
 
-    <span class="n">t</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">interval_cb</span><span class="p">())</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">_interval_task</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">t</span></div>
 
 

@@ -300,7 +300,9 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.protocols.onebot.v11.utils.check 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
 
@@ -331,8 +333,43 @@
 
     <span class="n">OWNER</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span>
     <span class="n">ADMIN</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
-    <span class="n">MEMBER</span> <span class="o">=</span> <span class="mi">1</span></div>
+    <span class="n">MEMBER</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">NOT_IN_GROUP</span> <span class="o">=</span> <span class="mi">0</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_level_role</span><span class="p">(</span><span class="n">checker</span><span class="p">:</span> <span class="n">MsgChecker</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LevelRole</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得消息事件对应的分级权限等级</span>
+
+<span class="sd">    :param event: 消息事件</span>
+<span class="sd">    :return: 分级权限等级</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qid</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">user_id</span>
+
+    <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">checker</span><span class="o">.</span><span class="n">black_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">BLACK</span>
+    <span class="k">if</span> <span class="n">qid</span> <span class="o">==</span> <span class="n">checker</span><span class="o">.</span><span class="n">owner</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span>
+    <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">checker</span><span class="o">.</span><span class="n">su_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">SU</span>
+    <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">checker</span><span class="o">.</span><span class="n">white_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">WHITE</span>
+    <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">NORMAL</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_group_role</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GroupRole</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获得消息事件对应的群权限等级</span>
+
+<span class="sd">    :param event: 消息事件</span>
+<span class="sd">    :return: 群权限等级</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_group</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">GroupRole</span><span class="p">,</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">NOT_IN_GROUP</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_owner</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">OWNER</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_admin</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">ADMIN</span>
+    <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">MEMBER</span>
 
 
 <div class="viewcode-block" id="MsgChecker">
@@ -376,25 +413,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;获得事件对应的登记&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_role</span><span class="p">,</span> <span class="n">LevelRole</span><span class="p">):</span>
-            <span class="n">qid</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">user_id</span>
-
-            <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">BLACK</span>
-            <span class="k">if</span> <span class="n">qid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span>
-            <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">SU</span>
-            <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">WHITE</span>
-            <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">NORMAL</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_group</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">GroupRole</span><span class="p">,</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">MEMBER</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_owner</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">OWNER</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_admin</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">ADMIN</span>
-        <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">MEMBER</span>
+            <span class="k">return</span> <span class="n">get_level_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_group_role</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">e_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_level</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
