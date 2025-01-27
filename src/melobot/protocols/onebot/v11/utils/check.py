@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 
 from typing_extensions import Literal, Optional, cast
@@ -25,6 +27,41 @@ class GroupRole(int, Enum):
     OWNER = 1 << 2
     ADMIN = 1 << 1
     MEMBER = 1
+    NOT_IN_GROUP = 0
+
+
+def get_level_role(checker: MsgChecker, event: MessageEvent) -> LevelRole:
+    """获得消息事件对应的分级权限等级
+
+    :param event: 消息事件
+    :return: 分级权限等级
+    """
+    qid = event.user_id
+
+    if qid in checker.black_list:
+        return LevelRole.BLACK
+    if qid == checker.owner:
+        return LevelRole.OWNER
+    if qid in checker.su_list:
+        return LevelRole.SU
+    if qid in checker.white_list:
+        return LevelRole.WHITE
+    return LevelRole.NORMAL
+
+
+def get_group_role(event: MessageEvent) -> GroupRole:
+    """获得消息事件对应的群权限等级
+
+    :param event: 消息事件
+    :return: 群权限等级
+    """
+    if not event.is_group():
+        return cast(GroupRole, GroupRole.NOT_IN_GROUP)
+    if event.sender.is_group_owner():
+        return GroupRole.OWNER
+    if event.sender.is_group_admin():
+        return GroupRole.ADMIN
+    return GroupRole.MEMBER
 
 
 class MsgChecker(Checker):
@@ -63,25 +100,8 @@ class MsgChecker(Checker):
         """获得事件对应的登记"""
 
         if isinstance(self.check_role, LevelRole):
-            qid = event.user_id
-
-            if qid in self.black_list:
-                return LevelRole.BLACK
-            if qid == self.owner:
-                return LevelRole.OWNER
-            if qid in self.su_list:
-                return LevelRole.SU
-            if qid in self.white_list:
-                return LevelRole.WHITE
-            return LevelRole.NORMAL
-
-        if not event.is_group():
-            return cast(GroupRole, GroupRole.MEMBER >> 1)
-        if event.sender.is_group_owner():
-            return GroupRole.OWNER
-        if event.sender.is_group_admin():
-            return GroupRole.ADMIN
-        return GroupRole.MEMBER
+            return get_level_role(self, event)
+        return get_group_role(event)
 
     def _check(self, event: MessageEvent) -> bool:
         e_level = self._get_level(event)
