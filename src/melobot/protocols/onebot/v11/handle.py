@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Sequence
 
 from typing_extensions import Callable, cast
 
@@ -30,9 +31,6 @@ def GetParseArgs() -> ParseArgs:  # pylint: disable=invalid-name
     return cast(ParseArgs, Depends(ParseArgsCtx().get, recursive=False))
 
 
-FlowDecorator = Callable[[AsyncCallable[..., bool | None]], Flow]
-
-
 class DefaultRule(Rule[MessageEvent]):
     """传统的会话规则（只针对消息事件）
 
@@ -43,22 +41,35 @@ class DefaultRule(Rule[MessageEvent]):
         return e1.scope == e2.scope
 
 
-def on_event(
-    checker: Checker | None | Callable[[Event], bool] = None,
-    matcher: Matcher | None = None,
-    parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
-    block: bool = False,
-    temp: bool = False,
-) -> FlowDecorator:
+class FlowDecorator:
+    def __init__(
+        self,
+        checker: Checker | None | Callable[[Event], bool] = None,
+        matcher: Matcher | None = None,
+        parser: Parser | None = None,
+        priority: HandleLevel = HandleLevel.NORMAL,
+        block: bool = False,
+        temp: bool = False,
+        decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    ) -> None:
+        self.checker = checker
+        self.matcher = matcher
+        self.parser = parser
+        self.priority = priority
+        self.block = block
+        self.temp = temp
+        self.decos = decos
 
-    def flow_getter(func: AsyncCallable[..., bool | None]) -> Flow:
-        if not isinstance(checker, Checker) and callable(checker):
-            _checker = Checker.new(checker)
+    def __call__(self, func: AsyncCallable[..., bool | None]) -> Flow:
+        if not isinstance(self.checker, Checker) and callable(self.checker):
+            _checker = Checker.new(self.checker)
         else:
-            _checker = cast(Checker, checker)
+            _checker = cast(Checker, self.checker)
 
         func = inject_deps(func)
+        if self.decos is not None:
+            for deco in reversed(self.decos):
+                func = deco(func)
 
         @wraps(func)
         async def wrapped() -> bool | None:
@@ -69,31 +80,41 @@ def on_event(
 
             p_args: ParseArgs | None = None
             if isinstance(event, MessageEvent):
-                if matcher:
-                    status = await matcher.match(event.text)
+                if self.matcher:
+                    status = await self.matcher.match(event.text)
                     if not status:
                         return None
 
-                if parser:
-                    parse_args = await parser.parse(event.text)
+                if self.parser:
+                    parse_args = await self.parser.parse(event.text)
                     if parse_args is None:
                         return None
                     p_args = parse_args
 
-            event.spread = not block
+            event.spread = not self.block
             with ParseArgsCtx().unfold(p_args):
-                return await func()
+                return await cast(AsyncCallable[..., bool | None], func)()
 
         n = no_deps_node(wrapped)
         n.name = get_obj_name(func, otype="callable")
         return Flow(
             f"OneBotV11Flow[{n.name}]",
             (n,),
-            priority=priority,
-            temp=temp,
+            priority=self.priority,
+            temp=self.temp,
         )
 
-    return flow_getter
+
+def on_event(
+    checker: Checker | None | Callable[[Event], bool] = None,
+    matcher: Matcher | None = None,
+    parser: Parser | None = None,
+    priority: HandleLevel = HandleLevel.NORMAL,
+    block: bool = False,
+    temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
+) -> FlowDecorator:
+    return FlowDecorator(checker, matcher, parser, priority, block, temp, decos)
 
 
 def _checker_join(*checkers: Checker | None | Callable[[Event], bool]) -> Checker:
@@ -118,6 +139,7 @@ def on_message(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_event(
         _checker_join(lambda e: e.is_message(), checker),  # type: ignore[arg-type]
@@ -126,6 +148,7 @@ def on_message(
         priority,
         block,
         temp,
+        decos,
     )
 
 
@@ -137,6 +160,7 @@ def on_at_qq(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_message(
         _checker_join(check.AtMsgChecker(qid if qid else "all"), checker),  # type: ignore[arg-type]
@@ -145,6 +169,7 @@ def on_at_qq(
         priority,
         block,
         temp,
+        decos,
     )
 
 
@@ -158,6 +183,7 @@ def on_command(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_message(
         checker,
@@ -166,6 +192,7 @@ def on_command(
         priority,
         block,
         temp,
+        decos,
     )
 
 
@@ -177,9 +204,16 @@ def on_start_match(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_message(
-        checker, match.StartMatcher(target, logic_mode), parser, priority, block, temp
+        checker,
+        match.StartMatcher(target, logic_mode),
+        parser,
+        priority,
+        block,
+        temp,
+        decos,
     )
 
 
@@ -191,9 +225,16 @@ def on_contain_match(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_message(
-        checker, match.ContainMatcher(target, logic_mode), parser, priority, block, temp
+        checker,
+        match.ContainMatcher(target, logic_mode),
+        parser,
+        priority,
+        block,
+        temp,
+        decos,
     )
 
 
@@ -205,9 +246,16 @@ def on_full_match(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_message(
-        checker, match.FullMatcher(target, logic_mode), parser, priority, block, temp
+        checker,
+        match.FullMatcher(target, logic_mode),
+        parser,
+        priority,
+        block,
+        temp,
+        decos,
     )
 
 
@@ -219,9 +267,16 @@ def on_end_match(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_message(
-        checker, match.EndMatcher(target, logic_mode), parser, priority, block, temp
+        checker,
+        match.EndMatcher(target, logic_mode),
+        parser,
+        priority,
+        block,
+        temp,
+        decos,
     )
 
 
@@ -233,9 +288,16 @@ def on_regex_match(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_message(
-        checker, match.RegexMatcher(target, logic_mode), parser, priority, block, temp
+        checker,
+        match.RegexMatcher(target, logic_mode),
+        parser,
+        priority,
+        block,
+        temp,
+        decos,
     )
 
 
@@ -246,6 +308,7 @@ def on_request(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_event(
         _checker_join(lambda e: e.is_request(), checker),  # type: ignore[arg-type]
@@ -254,6 +317,7 @@ def on_request(
         priority,
         block,
         temp,
+        decos,
     )
 
 
@@ -264,6 +328,7 @@ def on_notice(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_event(
         _checker_join(lambda e: e.is_notice(), checker),  # type: ignore[arg-type]
@@ -272,6 +337,7 @@ def on_notice(
         priority,
         block,
         temp,
+        decos,
     )
 
 
@@ -282,6 +348,7 @@ def on_meta(
     priority: HandleLevel = HandleLevel.NORMAL,
     block: bool = False,
     temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
 ) -> FlowDecorator:
     return on_event(
         _checker_join(lambda e: e.is_meta(), checker),  # type: ignore[arg-type]
@@ -290,4 +357,5 @@ def on_meta(
         priority,
         block,
         temp,
+        decos,
     )
