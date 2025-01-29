@@ -114,6 +114,9 @@ class ExpireSessionState(SessionState): ...
 class SessionStore(dict[str, Any]):
     """会话存储，生命周期伴随会话对象"""
 
+    def set(self, key: str, value: Any) -> None:
+        self[key] = value
+
 
 class Session:
     """会话
