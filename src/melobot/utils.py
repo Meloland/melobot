@@ -256,35 +256,41 @@ CbRetT = TypeVar("CbRetT", default=Any)
 FirstCbRetT = TypeVar("FirstCbRetT", default=Any)
 SecondCbRetT = TypeVar("SecondCbRetT", default=Any)
 OriginRetT = TypeVar("OriginRetT", default=Any)
+CondT = TypeVar("CondT", default=Any)
 
 
 def if_not(
-    condition: Callable[[], Any] | AsyncCallable[[], Any] | bool,
+    condition: Callable[[], CondT] | AsyncCallable[[], CondT] | CondT,
     reject: AsyncCallable[[], None],
     give_up: bool = False,
+    accept: AsyncCallable[[CondT], None] | None = None,
 ) -> Callable[[AsyncCallable[P, T]], AsyncCallable[P, T | None]]:
     """条件判断装饰器
 
     :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）
     :param reject: 当条件为 `False` 时，执行的回调
     :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数
+    :param accept: 当条件为 `True` 时，执行的回调
     """
 
     def deco_func(func: AsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
 
         @wraps(func)
         async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> T | None:
-            if not isinstance(condition, bool):
-                ret = condition()
-                status = bool(await ret if inspect.isawaitable(ret) else ret)
+            if not callable(condition):
+                cond = condition
             else:
-                status = condition
+                obj = condition()
+                cond = await obj if inspect.isawaitable(obj) else obj
 
-            if not status:
-                await reject()
+            if not cond:
+                await async_guard(reject)
 
-            if status or not give_up:
-                return await func(*args, **kwargs)
+            if cond or not give_up:
+                if accept is not None:
+                    await async_guard(accept, cond)
+
+                return await async_guard(func, *args, **kwargs)
             return None
 
         return wrapped_func
@@ -310,10 +316,10 @@ def unfold_ctx(
             manager = getter()
             if isinstance(manager, ContextManager):
                 with manager:
-                    return await func(*args, **kwargs)
+                    return await async_guard(func, *args, **kwargs)
             else:
                 async with manager:
-                    return await func(*args, **kwargs)
+                    return await async_guard(func, *args, **kwargs)
 
         return wrapped_func
 
@@ -690,5 +696,5 @@ async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) ->
     if inspect.isawaitable(await_obj):
         return await await_obj
     raise ValidateError(
-        f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}"
+        f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}，因此可能是同步函数"
     )
