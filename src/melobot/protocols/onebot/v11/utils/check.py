@@ -6,7 +6,7 @@ from typing_extensions import Literal, Optional, cast
 
 from melobot.typ import AsyncCallable
 
-from ..adapter.event import Event, GroupMessageEvent, MessageEvent, PrivateMessageEvent
+from ..adapter.event import Event, GroupMessageEvent, MessageEvent
 from ..adapter.segment import AtSegment
 from .abc import Checker
 
@@ -112,10 +112,11 @@ class MsgChecker(Checker):
         return status
 
     async def check(self, event: Event) -> bool:
-        if not isinstance(event, MessageEvent):
+        # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
+        if not event.is_message():
             status = False
         else:
-            status = self._check(event)
+            status = self._check(cast(MessageEvent, event))
 
         if not status and self.fail_cb is not None:
             await self.fail_cb()
@@ -155,7 +156,8 @@ class GroupMsgChecker(MsgChecker):
         self.white_group_list = white_groups if white_groups is not None else []
 
     def _check(self, event: MessageEvent) -> bool:
-        if isinstance(event, PrivateMessageEvent):
+        # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
+        if event.is_private():
             return False
         if len(self.white_group_list) == 0:
             return False
@@ -311,9 +313,11 @@ class AtMsgChecker(Checker):
         self.qid = qid
 
     async def check(self, event: Event) -> bool:
-        if not isinstance(event, MessageEvent):
+        # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
+        if not event.is_message():
             return False
 
+        event = cast(MessageEvent, event)
         qids = [seg.data["qq"] for seg in event.message if isinstance(seg, AtSegment)]
         if self.qid is None:
             return len(qids) > 0
