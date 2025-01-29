@@ -6,7 +6,7 @@ from typing_extensions import Callable, cast
 from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
-from melobot.session import Rule
+from melobot.session import Rule, enter_session
 from melobot.typ import AsyncCallable, HandleLevel, LogicMode
 from melobot.utils import get_obj_name
 
@@ -51,6 +51,7 @@ class FlowDecorator:
         block: bool = False,
         temp: bool = False,
         decos: Sequence[Callable[[Callable], Callable]] | None = None,
+        rule: Rule[Event] | None = None,
     ) -> None:
         self.checker = checker
         self.matcher = matcher
@@ -59,6 +60,7 @@ class FlowDecorator:
         self.block = block
         self.temp = temp
         self.decos = decos
+        self.rule = rule
 
     def __call__(self, func: AsyncCallable[..., bool | None]) -> Flow:
         if not isinstance(self.checker, Checker) and callable(self.checker):
@@ -92,8 +94,13 @@ class FlowDecorator:
                     p_args = parse_args
 
             event.spread = not self.block
+            afunc = cast(AsyncCallable[..., bool | None], func)
+
             with ParseArgsCtx().unfold(p_args):
-                return await cast(AsyncCallable[..., bool | None], func)()
+                if self.rule is not None:
+                    async with enter_session(self.rule):
+                        return await afunc()
+                return await afunc()
 
         n = no_deps_node(wrapped)
         n.name = get_obj_name(func, otype="callable")
@@ -113,8 +120,9 @@ def on_event(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | None = None,
 ) -> FlowDecorator:
-    return FlowDecorator(checker, matcher, parser, priority, block, temp, decos)
+    return FlowDecorator(checker, matcher, parser, priority, block, temp, decos, rule)
 
 
 def _checker_join(*checkers: Checker | None | Callable[[Event], bool]) -> Checker:
@@ -140,7 +148,13 @@ def on_message(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
+    if legacy_session:
+        rule = DefaultRule()
+    else:
+        rule = None
+
     return on_event(
         _checker_join(lambda e: e.is_message(), checker),  # type: ignore[arg-type]
         matcher,
@@ -149,6 +163,7 @@ def on_message(
         block,
         temp,
         decos,
+        cast(Rule[Event], rule),
     )
 
 
@@ -161,6 +176,7 @@ def on_at_qq(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
     return on_message(
         _checker_join(check.AtMsgChecker(qid if qid else "all"), checker),  # type: ignore[arg-type]
@@ -170,6 +186,7 @@ def on_at_qq(
         block,
         temp,
         decos,
+        legacy_session,
     )
 
 
@@ -184,6 +201,7 @@ def on_command(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
     return on_message(
         checker,
@@ -193,6 +211,7 @@ def on_command(
         block,
         temp,
         decos,
+        legacy_session,
     )
 
 
@@ -205,6 +224,7 @@ def on_start_match(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
     return on_message(
         checker,
@@ -214,6 +234,7 @@ def on_start_match(
         block,
         temp,
         decos,
+        legacy_session,
     )
 
 
@@ -226,6 +247,7 @@ def on_contain_match(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
     return on_message(
         checker,
@@ -235,6 +257,7 @@ def on_contain_match(
         block,
         temp,
         decos,
+        legacy_session,
     )
 
 
@@ -247,6 +270,7 @@ def on_full_match(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
     return on_message(
         checker,
@@ -256,6 +280,7 @@ def on_full_match(
         block,
         temp,
         decos,
+        legacy_session,
     )
 
 
@@ -268,6 +293,7 @@ def on_end_match(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
     return on_message(
         checker,
@@ -277,6 +303,7 @@ def on_end_match(
         block,
         temp,
         decos,
+        legacy_session,
     )
 
 
@@ -289,6 +316,7 @@ def on_regex_match(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    legacy_session: bool = False,
 ) -> FlowDecorator:
     return on_message(
         checker,
@@ -298,6 +326,7 @@ def on_regex_match(
         block,
         temp,
         decos,
+        legacy_session,
     )
 
 
@@ -309,6 +338,7 @@ def on_request(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | None = None,
 ) -> FlowDecorator:
     return on_event(
         _checker_join(lambda e: e.is_request(), checker),  # type: ignore[arg-type]
@@ -318,6 +348,7 @@ def on_request(
         block,
         temp,
         decos,
+        rule,
     )
 
 
@@ -329,6 +360,7 @@ def on_notice(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | None = None,
 ) -> FlowDecorator:
     return on_event(
         _checker_join(lambda e: e.is_notice(), checker),  # type: ignore[arg-type]
@@ -338,6 +370,7 @@ def on_notice(
         block,
         temp,
         decos,
+        rule,
     )
 
 
@@ -349,6 +382,7 @@ def on_meta(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | None = None,
 ) -> FlowDecorator:
     return on_event(
         _checker_join(lambda e: e.is_meta(), checker),  # type: ignore[arg-type]
@@ -358,4 +392,5 @@ def on_meta(
         block,
         temp,
         decos,
+        rule,
     )
