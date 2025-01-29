@@ -585,37 +585,43 @@
 <span class="n">FirstCbRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FirstCbRetT&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
 <span class="n">SecondCbRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;SecondCbRetT&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
 <span class="n">OriginRetT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;OriginRetT&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
+<span class="n">CondT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CondT&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="if_not">
 <a class="viewcode-back" href="../../api/melobot.utils.html#melobot.utils.if_not">[文档]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">if_not</span><span class="p">(</span>
-    <span class="n">condition</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">condition</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">CondT</span><span class="p">]</span> <span class="o">|</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="n">CondT</span><span class="p">]</span> <span class="o">|</span> <span class="n">CondT</span><span class="p">,</span>
     <span class="n">reject</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">give_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">accept</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="n">CondT</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;条件判断装饰器</span>
 
 <span class="sd">    :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）</span>
 <span class="sd">    :param reject: 当条件为 `False` 时，执行的回调</span>
 <span class="sd">    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数</span>
+<span class="sd">    :param accept: 当条件为 `True` 时，执行的回调</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">deco_func</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-                <span class="n">ret</span> <span class="o">=</span> <span class="n">condition</span><span class="p">()</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="k">await</span> <span class="n">ret</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="k">else</span> <span class="n">ret</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">condition</span><span class="p">):</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="n">condition</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="n">condition</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">condition</span><span class="p">()</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="k">await</span> <span class="n">obj</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">else</span> <span class="n">obj</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
-                <span class="k">await</span> <span class="n">reject</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cond</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">reject</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">status</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">give_up</span><span class="p">:</span>
-                <span class="k">return</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cond</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">give_up</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">accept</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">accept</span><span class="p">,</span> <span class="n">cond</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">wrapped_func</span>
@@ -644,10 +650,10 @@
             <span class="n">manager</span> <span class="o">=</span> <span class="n">getter</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">manager</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">async</span> <span class="k">with</span> <span class="n">manager</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">await</span> <span class="n">async_guard</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">wrapped_func</span>
 
@@ -1055,7 +1061,7 @@
     <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">await_obj</span><span class="p">):</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">await_obj</span>
     <span class="k">raise</span> <span class="n">ValidateError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2"> 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：</span><span class="si">{</span><span class="n">await_obj</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2"> 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：</span><span class="si">{</span><span class="n">await_obj</span><span class="si">}</span><span class="s2">，因此可能是同步函数&quot;</span>
     <span class="p">)</span>
 </pre></div>
         </article>

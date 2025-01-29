@@ -416,7 +416,13 @@
 <div class="viewcode-block" id="SessionStore">
 <a class="viewcode-back" href="../../../api/melobot.session.html#melobot.session.SessionStore">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SessionStore</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;会话存储，生命周期伴随会话对象&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;会话存储，生命周期伴随会话对象&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SessionStore.set">
+<a class="viewcode-back" href="../../../api/melobot.session.html#melobot.session.SessionStore.set">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+</div>
 
 
 
