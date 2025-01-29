@@ -355,5 +355,8 @@ class TestCallableDispatch:
         t = async_interval(lambda: cls.abar(obj), 0.1)
         await aio.sleep(0.5)
         t.cancel()
-        await t
+        try:
+            await t
+        except asyncio.CancelledError:
+            pass
         assert getattr(obj, cls.TEST_ATTR) >= 3
