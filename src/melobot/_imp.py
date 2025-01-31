@@ -86,9 +86,7 @@ class SpecFinder(MetaPathFinder):
 
                 # 再次是 zip 文件导入
                 if entry_path.suffix == ".zip" and entry_path.exists():
-                    zip_importer = zipimport.zipimporter(  # pylint: disable=no-member
-                        str(entry_path)
-                    )
+                    zip_importer = zipimport.zipimporter(str(entry_path))
                     spec = zip_importer.find_spec(fullname, target)
                     if spec is not None:
                         assert spec.origin is not None and spec.origin != ""
