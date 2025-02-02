@@ -58,12 +58,12 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
     obj_map = {}
 
     @wraps(cls)
-    def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    def singleton_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         if cls not in obj_map:
             obj_map[cls] = cls(*args, **kwargs)
         return obj_map[cls]
 
-    return wrapped
+    return singleton_wrapped
 
 
 class RWContext:

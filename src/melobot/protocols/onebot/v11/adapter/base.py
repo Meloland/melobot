@@ -43,10 +43,10 @@ class ValidateHandleMixin:
         self, data: dict[str, Any]
     ) -> Callable[[Callable[P, T]], AsyncCallable[P, T]]:
 
-        def wrapper(func: Callable[P, T]) -> AsyncCallable[P, T]:
+        def validate_handle_wrapper(func: Callable[P, T]) -> AsyncCallable[P, T]:
 
             @wraps(func)
-            async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+            async def validate_handle_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
                 try:
                     return func(*args, **kwargs)
 
@@ -60,9 +60,9 @@ class ValidateHandleMixin:
 
                 return func(*args, **kwargs)
 
-            return wrapped
+            return validate_handle_wrapped
 
-        return wrapper
+        return validate_handle_wrapper
 
 
 class EventFactory(AbstractEventFactory[InPacket, ev.Event], ValidateHandleMixin):
@@ -108,7 +108,7 @@ class Adapter(
         [AsyncCallable[[dict[str, Any], Exception], None]],
         AsyncCallable[[dict[str, Any], Exception], None],
     ]:
-        def wrapper(
+        def when_validate_error_wrapper(
             func: AsyncCallable[[dict[str, Any], Exception], None]
         ) -> AsyncCallable[[dict[str, Any], Exception], None]:
             if validate_type == "event":
@@ -119,7 +119,7 @@ class Adapter(
                 raise AdapterError("无效的验证类型，合法值是 'event', 'echo' 之一")
             return func
 
-        return wrapper
+        return when_validate_error_wrapper
 
     async def call_output(self, action: ac.Action) -> tuple[ActionHandle, ...]:
         """输出行为的底层方法
@@ -134,14 +134,14 @@ class Adapter(
     def with_echo(
         self, func: AsyncCallable[P, tuple[ActionHandle[EchoT | None], ...]]
     ) -> AsyncCallable[P, tuple[ActionHandle[EchoT], ...]]:
-        async def wrapped_api(
+        async def with_echo_wrapped(
             *args: P.args, **kwargs: P.kwargs
         ) -> tuple[ActionHandle[EchoT], ...]:
             with EchoRequireCtx().unfold(True):
                 handles = await func(*args, **kwargs)
             return cast(tuple[ActionHandle[EchoT], ...], handles)
 
-        return wrapped_api
+        return with_echo_wrapped
 
     async def __send_text__(
         self, text: str

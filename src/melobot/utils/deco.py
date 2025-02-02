@@ -37,10 +37,10 @@ def if_not(
     :param accept: 当条件为 `True` 时，执行的回调
     """
 
-    def deco_func(func: AsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
+    def if_not_wrapper(func: AsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
 
         @wraps(func)
-        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> T | None:
+        async def if_not_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | None:
             if not callable(condition):
                 cond = condition
             else:
@@ -57,9 +57,9 @@ def if_not(
                 return await async_guard(func, *args, **kwargs)
             return None
 
-        return wrapped_func
+        return if_not_wrapped
 
-    return deco_func
+    return if_not_wrapper
 
 
 def unfold_ctx(
@@ -73,10 +73,10 @@ def unfold_ctx(
     :param getter: 上下文管理器获取方法
     """
 
-    def deco_func(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
+    def unfold_ctx_wrapper(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
 
         @wraps(func)
-        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> T:
+        async def unfold_ctx_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
             try:
                 manager = getter()
             except Exception as e:
@@ -95,9 +95,9 @@ def unfold_ctx(
                     f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它返回了无效的上下文管理器"
                 )
 
-        return wrapped_func
+        return unfold_ctx_wrapped
 
-    return deco_func
+    return unfold_ctx_wrapper
 
 
 def lock(
@@ -117,20 +117,20 @@ def lock(
     """
     alock = asyncio.Lock()
 
-    def deco_func(
+    def lock_wrapper(
         func: AsyncCallable[P, OriginRetT]
     ) -> AsyncCallable[P, CbRetT | OriginRetT]:
 
         @wraps(func)
-        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> CbRetT | OriginRetT:
+        async def lock_wrapped(*args: P.args, **kwargs: P.kwargs) -> CbRetT | OriginRetT:
             if callback is not None and alock.locked():
                 return await async_guard(callback)
             async with alock:
                 return await async_guard(func, *args, **kwargs)
 
-        return wrapped_func
+        return lock_wrapped
 
-    return deco_func
+    return lock_wrapper
 
 
 def cooldown(
@@ -162,12 +162,12 @@ def cooldown(
     alock = asyncio.Lock()
     pre_finish_t = time.perf_counter() - interval - 1
 
-    def deco_func(
+    def cooldown_wrapper(
         func: AsyncCallable[P, OriginRetT]
     ) -> AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT]:
 
         @wraps(func)
-        async def wrapped_func(
+        async def cooldown_wrapped(
             *args: P.args, **kwargs: P.kwargs
         ) -> OriginRetT | FirstCbRetT | SecondCbRetT:
             nonlocal pre_finish_t
@@ -190,9 +190,9 @@ def cooldown(
                 pre_finish_t = time.perf_counter()
                 return ret
 
-        return wrapped_func
+        return cooldown_wrapped
 
-    return deco_func
+    return cooldown_wrapper
 
 
 def semaphore(
@@ -213,20 +213,22 @@ def semaphore(
     """
     a_semaphore = asyncio.Semaphore(value)
 
-    def deco_func(
+    def semaphore_wrapper(
         func: AsyncCallable[P, OriginRetT]
     ) -> AsyncCallable[P, OriginRetT | CbRetT]:
 
         @wraps(func)
-        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> OriginRetT | CbRetT:
+        async def semaphore_wrapped(
+            *args: P.args, **kwargs: P.kwargs
+        ) -> OriginRetT | CbRetT:
             if callback is not None and a_semaphore.locked():
                 return await async_guard(callback)
             async with a_semaphore:
                 return await async_guard(func, *args, **kwargs)
 
-        return wrapped_func
+        return semaphore_wrapped
 
-    return deco_func
+    return semaphore_wrapper
 
 
 def timelimit(
@@ -246,12 +248,14 @@ def timelimit(
     :param timeout: 超时时间
     """
 
-    def deco_func(
+    def timelimit_wrapper(
         func: AsyncCallable[P, OriginRetT]
     ) -> AsyncCallable[P, OriginRetT | CbRetT]:
 
         @wraps(func)
-        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> OriginRetT | CbRetT:
+        async def timelimit_wrapped(
+            *args: P.args, **kwargs: P.kwargs
+        ) -> OriginRetT | CbRetT:
             try:
                 return await asyncio.wait_for(async_guard(func, *args, **kwargs), timeout)
             except asyncio.TimeoutError:
@@ -259,9 +263,9 @@ def timelimit(
                     raise TimeoutError("timelimit 所装饰的任务已超时") from None
                 return await async_guard(callback)
 
-        return wrapped_func
+        return timelimit_wrapped
 
-    return deco_func
+    return timelimit_wrapper
 
 
 def speedlimit(
@@ -290,22 +294,24 @@ def speedlimit(
     if duration <= 0:
         raise ValidateError("speedlimit 装饰器的 duration 参数必须 > 0")
 
-    def deco_func(
+    def speedlimit_wrapper(
         func: AsyncCallable[P, OriginRetT]
     ) -> AsyncCallable[P, OriginRetT | CbRetT]:
 
         @wraps(func)
-        async def wrapped_func(*args: P.args, **kwargs: P.kwargs) -> OriginRetT | CbRetT:
-            fut = _wrapped_func(func, *args, **kwargs)
+        async def speedlimit_wrapped(
+            *args: P.args, **kwargs: P.kwargs
+        ) -> OriginRetT | CbRetT:
+            fut = _speedlimit_wrapped(func, *args, **kwargs)
             fut = cast(asyncio.Future[CbRetT | OriginRetT | Exception], fut)
             fut_ret = await fut
             if isinstance(fut_ret, Exception):
                 raise fut_ret
             return fut_ret
 
-        return wrapped_func
+        return speedlimit_wrapped
 
-    def _wrapped_func(
+    def _speedlimit_wrapped(
         func: AsyncCallable[P, T],
         *args: P.args,
         **kwargs: P.kwargs,
@@ -318,23 +324,29 @@ def speedlimit(
         if passed_time <= duration:
             if called_num < limit:
                 called_num += 1
-                asyncio.create_task(result_set(func, res_fut, -1, *args, **kwargs))
+                asyncio.create_task(
+                    _speedlimit_set_result(func, res_fut, -1, *args, **kwargs)
+                )
 
             elif callback is not None:
-                asyncio.create_task(result_set(callback, res_fut, -1))
+                asyncio.create_task(_speedlimit_set_result(callback, res_fut, -1))
 
             else:
                 asyncio.create_task(
-                    result_set(func, res_fut, duration - passed_time, *args, **kwargs)
+                    _speedlimit_set_result(
+                        func, res_fut, duration - passed_time, *args, **kwargs
+                    )
                 )
         else:
             called_num, min_start = 0, time.perf_counter()
             called_num += 1
-            asyncio.create_task(result_set(func, res_fut, -1, *args, **kwargs))
+            asyncio.create_task(
+                _speedlimit_set_result(func, res_fut, -1, *args, **kwargs)
+            )
 
         return cast(asyncio.Future, res_fut)
 
-    async def result_set(
+    async def _speedlimit_set_result(
         func: AsyncCallable[P, T],
         fut: asyncio.Future,
         delay: float,
@@ -349,7 +361,7 @@ def speedlimit(
         try:
             if delay > 0:
                 await asyncio.sleep(delay)
-                res = await _wrapped_func(func, *args, **kwargs)
+                res = await _speedlimit_wrapped(func, *args, **kwargs)
                 fut.set_result(res)
                 return
 
@@ -359,4 +371,4 @@ def speedlimit(
         except Exception as e:
             fut.set_result(e)
 
-    return deco_func
+    return speedlimit_wrapper

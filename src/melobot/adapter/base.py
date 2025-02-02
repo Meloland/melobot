@@ -149,12 +149,12 @@ class Adapter(
     ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
         groups = (AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC)
 
-        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
+        def hook_register_wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
             for type in periods:
                 self._hook_bus.register(type, func, once=type not in groups)
             return func
 
-        return wrapped
+        return hook_register_wrapped
 
     @final
     def get_isrcs(self, filter: Callable[[InSourceT], bool]) -> set[InSourceT]:

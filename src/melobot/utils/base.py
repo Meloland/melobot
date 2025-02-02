@@ -33,7 +33,7 @@ def to_async(
     if inspect.iscoroutinefunction(obj):
         return obj
 
-    async def async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def to_async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         if not inspect.isawaitable(obj):
             ret = obj(*args, **kwargs)
         else:
@@ -43,8 +43,8 @@ def to_async(
         return ret
 
     if not inspect.isawaitable(obj):
-        async_wrapped = wraps(obj)(async_wrapped)
-    return async_wrapped
+        to_async_wrapped = wraps(obj)(to_async_wrapped)
+    return to_async_wrapped
 
 
 def to_coro(

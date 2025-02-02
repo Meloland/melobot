@@ -437,7 +437,7 @@ def inject_deps(
     """
 
     @wraps(injectee)
-    async def di_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def inject_deps_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         _args, _kwargs = _get_bound_args(injectee, *args, **kwargs)
         dep_scope: dict[Depends, Any] = {}
 
@@ -458,9 +458,9 @@ def inject_deps(
 
     if isinstance(injectee, (FunctionType, BuiltinFunctionType)):
         _init_auto_deps(injectee, manual_arg)
-        return di_wrapped
+        return inject_deps_wrapped
     if isinstance(injectee, LambdaType):
-        return di_wrapped
+        return inject_deps_wrapped
 
     raise DependInitError(
         f"{injectee} 对象不属于以下类别中的任何一种："

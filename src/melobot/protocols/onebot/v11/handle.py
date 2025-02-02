@@ -102,7 +102,9 @@ class FlowDecorator:
                     return await func()
             return await func()
 
-    async def wrapped(self, func: AsyncCallable[..., bool | None]) -> bool | None:
+    async def ob11_flow_wrapped(
+        self, func: AsyncCallable[..., bool | None]
+    ) -> bool | None:
         if self._invalid:
             self._flow.dismiss()
             return None
@@ -132,7 +134,7 @@ class FlowDecorator:
             for deco in reversed(self.decos):
                 func = deco(func)
 
-        n = no_deps_node(wraps(func)(partial(self.wrapped, func)))
+        n = no_deps_node(wraps(func)(partial(self.ob11_flow_wrapped, func)))
         n.name = get_obj_name(func, otype="callable")
         self._flow = Flow(f"OneBotV11Flow[{n.name}]", (n,), priority=self.priority)
         return self._flow

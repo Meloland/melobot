@@ -75,12 +75,14 @@ class PluginPlanner:
         :return: 装饰器
         """
 
-        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
+        def plugin_hook_register_wrapped(
+            func: AsyncCallable[P, None]
+        ) -> AsyncCallable[P, None]:
             for type in periods:
                 self._hook_bus.register(type, func)
             return func
 
-        return wrapped
+        return plugin_hook_register_wrapped
 
     @overload
     def use(self, obj: Flow) -> Flow: ...
