@@ -3,9 +3,9 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing_extensions import Any, Literal, Mapping, TypedDict, cast
 
-from melobot.adapter.model import Echo as RootEcho
+from melobot.adapter import Echo as RootEcho
 
-from ..const import PROTOCOL_IDENTIFIER
+from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER
 from .event import _GroupMessageSender, _MessageSender
 from .segment import NodeSegment, Segment
 
@@ -19,7 +19,10 @@ class Echo(RootEcho):
 
     def __init__(self, **kv_pairs: Any) -> None:
         self._model = self.Model(**kv_pairs)
-        self.raw = kv_pairs
+
+        _dic = kv_pairs.copy()
+        self.action_type: str = _dic.pop(ACTION_TYPE_KEY_NAME)
+        self.raw = _dic
 
         super().__init__(
             protocol=PROTOCOL_IDENTIFIER,
@@ -39,7 +42,7 @@ class Echo(RootEcho):
 
     @classmethod
     def resolve(cls, raw: dict[str, Any]) -> Echo:
-        match raw["action_type"]:
+        match raw[ACTION_TYPE_KEY_NAME]:
             case "send_private_msg" | "send_group_msg" | "send_msg":
                 return SendMsgEcho(**raw)
             case "send_private_forward_msg" | "send_group_forward_msg":

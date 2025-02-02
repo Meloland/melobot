@@ -59,7 +59,7 @@ h = handle.on_start_match(
 
 
 @h
-async def test_this(
+async def _flow(
     bot: Bot,
     event: MessageEvent,
     logger: GenericLogger,
@@ -100,7 +100,7 @@ async def test_adapter_base():
     mbot = Bot("test_handle")
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
-    mbot.load_plugin(PluginPlanner("1.0.0", flows=[test_this]))
+    mbot.load_plugin(PluginPlanner("1.0.0", flows=[_flow]))
     create_task(mbot.core_run())
     await mbot._rip_signal.wait()
     await _SUCCESS_SIGNAL.wait()

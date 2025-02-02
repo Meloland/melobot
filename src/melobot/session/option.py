@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing_extensions import TYPE_CHECKING, Any, Callable, Generic, final
 
 from ..adapter.model import EventT
-from ..typ import BetterABC
+from ..typ.cls import BetterABC
 
 if TYPE_CHECKING:
     from .base import Session

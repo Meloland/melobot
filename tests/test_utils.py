@@ -3,8 +3,11 @@
 # @Time   : 2024/08/26 20:53:04
 # @Author : Kariko Lin
 
+import asyncio
 from enum import Enum
 from random import choice, randint
+
+from typing_extensions import Any, Coroutine
 
 from melobot.utils import *
 from tests.base import *

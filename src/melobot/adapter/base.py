@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from abc import abstractmethod
 from asyncio import create_task
 from contextlib import AsyncExitStack, _GeneratorContextManager, asynccontextmanager
 from enum import Enum
@@ -22,7 +23,7 @@ from typing_extensions import (
 )
 
 from .._hook import Hookable
-from ..ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
+from ..ctx import EventOrigin, FlowCtx, LoggerCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
     AbstractInSource,
@@ -34,7 +35,8 @@ from ..io.base import (
     OutSourceT,
 )
 from ..log.base import LogLevel
-from ..typ import AsyncCallable, BetterABC, P, abstractmethod
+from ..typ.base import AsyncCallable, P
+from ..typ.cls import BetterABC
 from .content import Content
 from .model import ActionHandle, ActionT, EchoT, Event, EventT
 
@@ -42,8 +44,8 @@ if TYPE_CHECKING:
     from ..bot.dispatch import Dispatcher
 
 
-_EVENT_BUILD_INFO_CTX = EventBuildInfoCtx()
 _OUT_SRC_FILTER_CTX = OutSrcFilterCtx()
+_FLOW_CTX = FlowCtx()
 
 
 class AbstractEventFactory(BetterABC, Generic[InPacketT, EventT]):
@@ -178,12 +180,12 @@ class Adapter(
         while True:
             try:
                 packet = await src.input()
-                event = await self._event_factory.create(packet)
-                with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
-                    await self._hook_bus.emit(
-                        AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,)
-                    )
-                    asyncio.create_task(self.dispatcher.broadcast(event))
+                event: Event = await self._event_factory.create(packet)
+                EventOrigin.set_origin(event, EventOrigin(self, src))
+                await self._hook_bus.emit(
+                    AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,)
+                )
+                self.dispatcher.broadcast(event)
             except Exception:
                 logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
                 logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
@@ -244,8 +246,9 @@ class Adapter(
         osrcs: Iterable[OutSourceT]
         filter = _OUT_SRC_FILTER_CTX.try_get()
         cur_isrc: AbstractInSource | None
-        if info := _EVENT_BUILD_INFO_CTX.try_get():
-            cur_isrc = info.in_src
+
+        if event := _FLOW_CTX.try_get_event():
+            cur_isrc = EventOrigin.get_origin(event).in_src
         else:
             cur_isrc = None
 

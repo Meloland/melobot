@@ -20,7 +20,7 @@ from .packet import EchoPacket, InPacket, OutPacket
 
 class ReverseWebSocketIO(BaseIO):
     def __init__(
-        self, host: str, port: int, cd_time: float = 0.2, access_token: str | None = None
+        self, host: str, port: int, cd_time: float = 0, access_token: str | None = None
     ) -> None:
         super().__init__(cd_time)
         self.host = host

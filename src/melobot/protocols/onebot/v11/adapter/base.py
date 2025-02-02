@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 from functools import wraps
 from os import PathLike
@@ -8,18 +10,18 @@ from melobot.adapter import (
     AbstractEchoFactory,
     AbstractEventFactory,
     AbstractOutputFactory,
+    ActionHandle,
 )
 from melobot.adapter import Adapter as RootAdapter
+from melobot.adapter import Content, EchoT
 from melobot.adapter import content as mc
-from melobot.adapter.content import Content
-from melobot.adapter.model import ActionHandle, EchoT
 from melobot.ctx import Context
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
-from melobot.typ import AsyncCallable
+from melobot.typ.base import AsyncCallable
 from melobot.utils import to_coro
 
-from ..const import PROTOCOL_IDENTIFIER, P, T
+from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER, P, T
 from ..io.base import BaseIO
 from ..io.packet import EchoPacket, InPacket, OutPacket
 from . import action as ac
@@ -27,15 +29,15 @@ from . import echo as ec
 from . import event as ev
 from . import segment as se
 
-_ValidateErrHandler = AsyncCallable[[dict[str, Any], Exception], None]
+_ValidateHandler = AsyncCallable[[dict[str, Any], Exception], None]
 
 
-class ValidateErrHandleable:
+class ValidateHandleMixin:
     def __init__(self) -> None:
-        self.err_handlers: list[_ValidateErrHandler] = []
+        self.validate_handlers: list[_ValidateHandler] = []
 
-    def add_validate_handler(self, callback: _ValidateErrHandler) -> None:
-        self.err_handlers.append(callback)
+    def add_validate_handler(self, callback: _ValidateHandler) -> None:
+        self.validate_handlers.append(callback)
 
     def validate_handle(
         self, data: dict[str, Any]
@@ -51,7 +53,7 @@ class ValidateErrHandleable:
                 except Exception as e:
                     tasks = tuple(
                         asyncio.create_task(to_coro(cb(data, e)))
-                        for cb in self.err_handlers
+                        for cb in self.validate_handlers
                     )
                     if len(tasks):
                         await asyncio.wait(tasks)
@@ -63,7 +65,7 @@ class ValidateErrHandleable:
         return wrapper
 
 
-class EventFactory(AbstractEventFactory[InPacket, ev.Event], ValidateErrHandleable):
+class EventFactory(AbstractEventFactory[InPacket, ev.Event], ValidateHandleMixin):
     async def create(self, packet: InPacket) -> ev.Event:
         data = packet.data
         return await self.validate_handle(data)(ev.Event.resolve)(data)
@@ -79,13 +81,13 @@ class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):
         )
 
 
-class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo], ValidateErrHandleable):
+class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo], ValidateHandleMixin):
     async def create(self, packet: EchoPacket) -> ec.Echo | None:
         if packet.noecho:
             return None
 
         data = packet.data
-        data["action_type"] = packet.action_type
+        data[ACTION_TYPE_KEY_NAME] = packet.action_type
         return await self.validate_handle(data)(ec.Echo.resolve)(data)
 
 

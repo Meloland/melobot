@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoReturn
 
-from .typ import T
+from .typ.base import T
 
 __version__ = "3.0.0"
 

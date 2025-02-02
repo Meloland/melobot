@@ -27,13 +27,14 @@ from .._meta import MetaInfo
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotError
+from ..handle.base import Flow
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
 from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
-from ..typ import AsyncCallable, P
+from ..typ.base import AsyncCallable, P
 from .dispatch import Dispatcher
 
 
@@ -122,7 +123,6 @@ class Bot(Hookable[BotLifeSpan]):
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
         self._dispatcher = Dispatcher()
-        self._tasks: list[asyncio.Task] = []
 
         self._inited = False
         self._running = False
@@ -273,11 +273,7 @@ class Bot(Hookable[BotLifeSpan]):
                 return self
 
             self._plugins[p.name] = p
-
-            if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
-                asyncio.create_task(self._dispatcher.add(*p.handlers))
-            else:
-                self._dispatcher.add_nowait(*p.handlers)
+            self._dispatcher.add(*p.init_flows)
 
             for share in p.shares:
                 self.ipc_manager.add(p.name, share)
@@ -354,8 +350,8 @@ class Bot(Hookable[BotLifeSpan]):
                 for p in self._plugins.values():
                     await p.hook_bus.emit(PluginLifeSpan.INITED)
 
-                timed_task = asyncio.create_task(self._dispatcher.timed_gc())
-                self._tasks.append(timed_task)
+                self._dispatcher.start()
+
                 ts = tuple(
                     asyncio.create_task(
                         stack.enter_async_context(adapter.__adapter_launch__())
@@ -370,9 +366,6 @@ class Bot(Hookable[BotLifeSpan]):
 
         finally:
             async with self._common_async_ctx() as stack:
-                for t in self._tasks:
-                    t.cancel()
-
                 await self._hook_bus.emit(BotLifeSpan.STOPPED, True)
                 self.logger.info(f"{self} 已安全停止运行")
                 self._running = False
@@ -480,6 +473,13 @@ class Bot(Hookable[BotLifeSpan]):
         :return: 共享对象
         """
         return self.ipc_manager.get(plugin, share)
+
+    def add_flows(self, *flows: Flow) -> None:
+        """添加处理流
+
+        :param flows: 流对象
+        """
+        self._dispatcher.add(*flows)
 
     @property
     def on_loaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:

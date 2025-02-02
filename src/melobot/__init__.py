@@ -8,4 +8,4 @@ from .handle import Flow, FlowStore, node, rewind, stop
 from .log import GenericLogger, Logger, LogLevel, get_logger
 from .plugin import AsyncShare, PluginInfo, PluginLifeSpan, PluginPlanner, SyncShare
 from .session import Rule, SessionStore, enter_session, suspend
-from .typ import HandleLevel, LogicMode
+from .typ._enum import LogicMode

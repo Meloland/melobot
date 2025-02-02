@@ -1,6 +1,7 @@
+from abc import abstractmethod
+
 from melobot.io import AbstractIOSource
 from melobot.log import GenericLogger, get_logger
-from melobot.typ import abstractmethod
 
 from ..const import PROTOCOL_IDENTIFIER
 from .packet import EchoPacket, InPacket, OutPacket
@@ -15,7 +16,7 @@ class BaseIO(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
     # pylint: disable=duplicate-code
     def __init__(self, cd_time: float) -> None:
         super().__init__(PROTOCOL_IDENTIFIER)
-        self.cd_time = cd_time if cd_time > 0 else 0.01
+        self.cd_time = cd_time if cd_time >= 0 else 0
 
     @property
     def logger(self) -> GenericLogger:

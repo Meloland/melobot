@@ -1,18 +1,28 @@
+from asyncio import Future
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
 
-from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Union
+from typing_extensions import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generator,
+    Generic,
+    Self,
+    Union,
+    cast,
+)
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
-from .typ import SingletonMeta, T
+from .typ.base import T
+from .typ.cls import SingletonMeta
 
 if TYPE_CHECKING:
-    from .adapter import model
-    from .adapter.base import Adapter
+    from .adapter import Adapter, model
     from .bot.base import Bot
-    from .handle.process import Flow, FlowNode
+    from .handle.base import Flow, FlowNode
     from .io.base import AbstractInSource, OutSourceT
     from .log.base import GenericLogger
     from .session.base import Session, SessionStore
@@ -102,26 +112,6 @@ class OutSrcFilterCtx(Context[_OutSrcFilterType]):
         super().__init__("MELOBOT_OUT_SRC_FILTER", AdapterError)
 
 
-@dataclass
-class EventBuildInfo:
-    adapter: "Adapter"
-    in_src: "AbstractInSource"
-
-
-class EventBuildInfoCtx(Context[EventBuildInfo]):
-    def __init__(self) -> None:
-        super().__init__(
-            "MELOBOT_EVENT_BUILD_INFO",
-            AdapterError,
-            "此时不在活动的事件处理流中，无法获取适配器与输入源的上下文信息",
-        )
-
-    def get_adapter_type(self) -> type["Adapter"]:
-        from .adapter.base import Adapter
-
-        return Adapter
-
-
 class FlowRecordStage(Enum):
     """流记录阶段的枚举"""
 
@@ -161,10 +151,10 @@ class FlowStore(dict[str, Any]):
 
 @dataclass
 class FlowStatus:
-    event: "model.Event"
     flow: "Flow"
     node: "FlowNode"
     next_valid: bool
+    completion: "EventCompletion"
     records: FlowRecords = field(default_factory=FlowRecords)
     store: FlowStore = field(default_factory=FlowStore)
 
@@ -181,7 +171,7 @@ class FlowCtx(Context[FlowStatus]):
         session = SessionCtx().try_get()
         if session is not None:
             return session.event
-        return self.get().event
+        return self.get().completion.event
 
     def try_get_event(self) -> Union["model.Event", None]:
         session = SessionCtx().try_get()
@@ -190,13 +180,19 @@ class FlowCtx(Context[FlowStatus]):
 
         status = self.try_get()
         if status is not None:
-            return status.event
+            return status.completion.event
         return None
 
     def get_event_type(self) -> type["model.Event"]:
         from .adapter.model import Event
 
         return Event
+
+    def get_records(self) -> tuple[FlowRecord, ...]:
+        return tuple(self.get().records)
+
+    def get_completion(self) -> "EventCompletion":
+        return self.get().completion
 
     def get_store(self) -> FlowStore:
         return self.get().store
@@ -226,6 +222,11 @@ class SessionCtx(Context["Session"]):
     def get_store(self) -> "SessionStore":
         return self.get().store
 
+    def get_session_type(self) -> type["Session"]:
+        from .session.base import Session
+
+        return Session
+
     def get_store_type(self) -> type["SessionStore"]:
         from .session.base import SessionStore
 
@@ -245,6 +246,38 @@ class LoggerCtx(Context["GenericLogger"]):
         from .log.base import GenericLogger
 
         return GenericLogger
+
+
+class EventOrigin:
+    _FLAG_KEYS = (object(), object())
+
+    def __init__(self, adapter: "Adapter", in_src: "AbstractInSource") -> None:
+        self.adapter = adapter
+        self.in_src = in_src
+
+    @classmethod
+    def set_origin(cls, event: "model.Event", origin: "EventOrigin") -> None:
+        event.flag_set(cls._FLAG_KEYS[0], cls._FLAG_KEYS[1], origin)
+
+    @classmethod
+    def get_origin(cls, event: "model.Event") -> Self:
+        origin = event.flag_get(cls._FLAG_KEYS[0], cls._FLAG_KEYS[1])
+        return cast(Self, origin)
+
+
+# 不使用 dataclass，不用重写任何方法就可哈希
+class EventCompletion:
+    def __init__(
+        self,
+        event: "model.Event",
+        completed: Future[None],
+        owner_flow: "Flow",
+        under_session: bool = False,
+    ) -> None:
+        self.event = event
+        self.completed = completed
+        self.owner_flow = owner_flow
+        self.under_session = under_session
 
 
 class ActionManualSignalCtx(Context[bool]):

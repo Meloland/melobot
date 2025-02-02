@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from asyncio import Lock
 from collections import deque
 from dataclasses import dataclass
@@ -20,18 +21,11 @@ from typing_extensions import (
     get_origin,
 )
 
-from .ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
+from .ctx import BotCtx, EventOrigin, FlowCtx, LoggerCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
-from .typ import (
-    AsyncCallable,
-    BetterABC,
-    P,
-    T,
-    VoidType,
-    abstractmethod,
-    is_subhint,
-    is_type,
-)
+from .typ._enum import VoidType
+from .typ.base import AsyncCallable, P, T, is_subhint, is_type
+from .typ.cls import BetterABC
 from .utils import get_obj_name, to_async
 
 if TYPE_CHECKING:
@@ -123,24 +117,6 @@ class Depends:
         return val
 
 
-def _adapter_get(hint: Any) -> "Adapter":
-    ctx = EventBuildInfoCtx()
-    try:
-        return ctx.get().adapter
-    except ctx.lookup_exc_cls as e:
-        adapter = BotCtx().get().get_adapter(hint)
-        if adapter is None:
-            raise e
-        return adapter
-
-
-def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
-    val = LoggerCtx().get()
-    if not is_type(val, hint):
-        val = data.getter()
-    return val
-
-
 class AutoDepends(Depends):
     def __init__(self, func: Callable, name: str, hint: Any) -> None:
         self.hint = hint
@@ -166,14 +142,19 @@ class AutoDepends(Depends):
         elif is_subhint(hint, BotCtx().get_type()):
             self.orig_getter = BotCtx().get
 
-        elif is_subhint(hint, EventBuildInfoCtx().get_adapter_type()):
-            self.orig_getter = cast(Callable[[], Any], lambda h=hint: _adapter_get(h))
+        elif is_subhint(hint, _get_adapter_type()):
+            self.orig_getter = cast(
+                Callable[[], Any], lambda d=self, h=hint: _adapter_get(d, h)
+            )
 
         elif is_subhint(hint, LoggerCtx().get_type()):
             self.orig_getter = LoggerCtx().get
 
         elif is_subhint(hint, FlowCtx().get_store_type()):
             self.orig_getter = FlowCtx().get_store
+
+        elif is_subhint(hint, SessionCtx().get_session_type()):
+            self.orig_getter = SessionCtx().get
 
         elif is_subhint(hint, SessionCtx().get_store_type()):
             self.orig_getter = SessionCtx().get_store
@@ -230,7 +211,7 @@ class AutoDepends(Depends):
         val = await super().fulfill(dep_scope)
 
         if isinstance(val, Reflection):
-            inner_val = val.__obj_getter__()
+            inner_val = val.__origin__
             if isawaitable(inner_val):
                 raise AttributeError(
                     f"异步依赖项不能通过 {Reflect.__name__} 创建反射依赖"
@@ -241,6 +222,31 @@ class AutoDepends(Depends):
 
         self._match_check(val)
         return val
+
+
+def _get_adapter_type() -> type["Adapter"]:
+    from .adapter.base import Adapter
+
+    return Adapter
+
+
+def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
+    flow_ctx = FlowCtx()
+    try:
+        event = flow_ctx.get_event()
+        return EventOrigin.get_origin(event).adapter
+    except flow_ctx.lookup_exc_cls:
+        adapter = BotCtx().get().get_adapter(hint)
+        if adapter is None:
+            raise deps._unmatch_exc(VoidType) from None
+        return adapter
+
+
+def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
+    val = LoggerCtx().get()
+    if not is_type(val, hint):
+        val = data.getter()
+    return val
 
 
 @dataclass

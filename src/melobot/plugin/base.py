@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from typing_extensions import final, overload
+from typing_extensions import Callable, final, overload
 
 from .._hook import HookBus
-from ..ctx import BotCtx
 from ..exceptions import PluginLoadError
-from ..handle.base import EventHandler
-from ..handle.process import Flow
-from ..typ import AsyncCallable, Callable, P, T
-from ..utils import to_async
+from ..handle.base import Flow
+from ..typ.base import AsyncCallable, P, T
 from .ipc import AsyncShare, SyncShare
 
 
@@ -59,7 +55,7 @@ class PluginPlanner:
         :param info: 插件信息
         """
         self.version = version
-        self.flows = [] if flows is None else flows
+        self.init_flows = [] if flows is None else flows
         self.shares = [] if shares is None else shares
         self.funcs = [] if funcs is None else funcs
         self.info = PluginInfo() if info is None else info
@@ -105,7 +101,7 @@ class PluginPlanner:
         :return: 被绑定的组件本身
         """
         if isinstance(obj, Flow):
-            self.flows.append(obj)
+            self.init_flows.append(obj)
         elif isinstance(obj, (SyncShare, AsyncShare)):
             self.shares.append(obj)
         elif callable(obj):
@@ -123,61 +119,6 @@ class PluginPlanner:
             self._built = True
         return self._plugin
 
-    @final
-    def add_flow(self, *flows: Flow) -> None:
-        """在运行期为指定的插件添加一批处理流
-
-        在 :obj:`.PluginLifeSpan.INITED` 及其之后的阶段可以使用
-
-        注意：不会立即生效，通常会在下一次事件处理前生效。
-        因此返回时不代表已经添加了处理流，只是增添了添加处理流的任务
-
-        :param flows: 处理流
-        """
-        try:
-            self._plugin
-        except AttributeError as e:
-            raise PluginLoadError("插件尚未创建，此时无法运行此方法") from e
-
-        hs = tuple(EventHandler(self._plugin, f) for f in flows)
-
-        async def _add() -> None:
-            await BotCtx().get()._dispatcher.add(
-                *hs, callback=to_async(lambda: self._plugin.handlers.extend(hs))
-            )
-
-        asyncio.create_task(_add())
-
-    @final
-    def remove_flow(self, *flows: Flow) -> None:
-        """在运行期为指定的插件移除一批处理流
-
-        如果插件没有启用对应的处理流，不会发出异常，而是忽略
-
-        在 :obj:`.PluginLifeSpan.INITED` 及其之后的阶段可以使用
-
-        注意：不会立即生效，通常会在下一次事件处理前生效。
-        因此返回时不代表已经移除了处理流，只是增添了移除处理流的任务
-
-        :param flows: 处理流
-        """
-        try:
-            self._plugin
-        except AttributeError as e:
-            raise PluginLoadError("插件尚未创建，此时无法运行此方法") from e
-
-        hs = tuple(filter(lambda x: x.flow in flows, self._plugin.handlers))
-
-        async def _del() -> None:
-            await BotCtx().get()._dispatcher.remove(*hs, callback=_after_del)
-
-        async def _after_del() -> None:
-            self._plugin.handlers = list(
-                filter(lambda x: x not in hs, self._plugin.handlers)
-            )
-
-        asyncio.create_task(_del())
-
 
 class Plugin:
     def __init__(self, planner: PluginPlanner) -> None:
@@ -187,4 +128,4 @@ class Plugin:
 
         self.shares = planner.shares
         self.funcs = planner.funcs
-        self.handlers = list(EventHandler(self, f) for f in self.planner.flows)
+        self.init_flows = planner.init_flows

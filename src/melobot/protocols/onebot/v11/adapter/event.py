@@ -3,8 +3,8 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing_extensions import Any, Literal, Sequence, cast
 
+from melobot.adapter import Event as RootEvent
 from melobot.adapter import content
-from melobot.adapter.model import Event as RootEvent
 
 from ..const import PROTOCOL_IDENTIFIER
 from .segment import Segment, TextSegment, segs_to_contents
@@ -21,7 +21,7 @@ class Event(RootEvent):
         #: 时间戳
         self.time: int
 
-        super().__init__(self._model.time, protocol=PROTOCOL_IDENTIFIER)
+        super().__init__(PROTOCOL_IDENTIFIER, self._model.time)
         #: 机器人自己的 qq 号
         self.self_id: int = self._model.self_id
         #: 事件类型

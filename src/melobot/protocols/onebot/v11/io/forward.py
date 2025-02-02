@@ -23,7 +23,7 @@ class ForwardWebSocketIO(BaseIO):
         url: str,
         max_retry: int = -1,
         retry_delay: float = 4.0,
-        cd_time: float = 0.2,
+        cd_time: float = 0,
         access_token: str | None = None,
     ) -> None:
         super().__init__(cd_time)

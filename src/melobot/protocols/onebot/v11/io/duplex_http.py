@@ -25,7 +25,7 @@ class HttpIO(BaseIO):
         serve_port: int,
         secret: str | None = None,
         access_token: str | None = None,
-        cd_time: float = 0.2,
+        cd_time: float = 0,
     ) -> None:
         super().__init__(cd_time)
         self.onebot_url = f"http://{onebot_host}:{onebot_port}"

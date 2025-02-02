@@ -69,6 +69,15 @@ class SessionError(BotException):
     """melobot 会话异常"""
 
 
+class SessionStateFailed(SessionError):
+    def __init__(self, cur_state: str, meth: str) -> None:
+        self.cur_state = cur_state
+        super().__init__(f"当前会话状态 {cur_state} 不支持的操作：{meth}")
+
+
+class SessionRuleLacked(SessionError): ...
+
+
 class FlowError(BotException):
     """melobot 处理流异常"""
 

@@ -7,7 +7,7 @@ from typing_extensions import Any, Callable, Generic, TypeVar
 from .ctx import LoggerCtx
 from .di import inject_deps
 from .log.base import LogLevel
-from .typ import AsyncCallable, P
+from .typ.base import AsyncCallable, P
 
 HookEnumT = TypeVar("HookEnumT", bound=Enum)
 

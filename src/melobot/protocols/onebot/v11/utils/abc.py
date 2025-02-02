@@ -1,26 +1,21 @@
 from __future__ import annotations
 
-from copy import deepcopy
+from abc import abstractmethod
 from dataclasses import dataclass
 
-from typing_extensions import Any, Callable, Coroutine, Self
+from typing_extensions import Any, Callable, Coroutine
 
 from melobot.exceptions import BotException
-from melobot.typ import AsyncCallable, BetterABC, LogicMode, abstractmethod
+from melobot.typ import AsyncCallable, BetterABC, LogicMode
 from melobot.utils import to_async
 
 from ..adapter.event import Event
 
 
-class UtilsError(BotException): ...
+class OneBotV11UtilsError(BotException): ...
 
 
-class Cloneable:
-    def copy(self) -> Self:
-        return deepcopy(self)
-
-
-class Checker(BetterABC, Cloneable):
+class Checker(BetterABC):
     """检查器基类"""
 
     def __init__(self, fail_cb: AsyncCallable[[], None] | None = None) -> None:
@@ -29,12 +24,16 @@ class Checker(BetterABC, Cloneable):
 
     def __and__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise OneBotV11UtilsError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
         return WrappedChecker(LogicMode.AND, self, other)
 
     def __or__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise OneBotV11UtilsError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
         return WrappedChecker(LogicMode.OR, self, other)
 
     def __invert__(self) -> WrappedChecker:
@@ -42,7 +41,9 @@ class Checker(BetterABC, Cloneable):
 
     def __xor__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilsError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            raise OneBotV11UtilsError(
+                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
+            )
         return WrappedChecker(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -110,7 +111,7 @@ class WrappedChecker(Checker):
         return status
 
 
-class Matcher(BetterABC, Cloneable):
+class Matcher(BetterABC):
     """匹配器基类"""
 
     def __init__(self) -> None:
@@ -118,12 +119,16 @@ class Matcher(BetterABC, Cloneable):
 
     def __and__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilsError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise OneBotV11UtilsError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilsError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise OneBotV11UtilsError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> WrappedMatcher:
@@ -131,7 +136,9 @@ class Matcher(BetterABC, Cloneable):
 
     def __xor__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilsError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            raise OneBotV11UtilsError(
+                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
+            )
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod

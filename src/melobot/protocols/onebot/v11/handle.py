@@ -1,13 +1,13 @@
-from functools import wraps
-from typing import Sequence
+from asyncio import Lock
+from functools import partial, wraps
 
-from typing_extensions import Callable, cast
+from typing_extensions import Callable, Sequence, cast
 
 from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
 from melobot.session import Rule, enter_session
-from melobot.typ import AsyncCallable, HandleLevel, LogicMode
+from melobot.typ import AsyncCallable, LogicMode
 from melobot.utils import get_obj_name
 
 from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
@@ -47,76 +47,102 @@ class FlowDecorator:
         checker: Checker | None | Callable[[Event], bool] = None,
         matcher: Matcher | None = None,
         parser: Parser | None = None,
-        priority: HandleLevel = HandleLevel.NORMAL,
+        priority: int = 0,
         block: bool = False,
         temp: bool = False,
         decos: Sequence[Callable[[Callable], Callable]] | None = None,
         rule: Rule[Event] | None = None,
     ) -> None:
-        self.checker = checker
+        self.checker: Checker | None
+        if callable(checker):
+            self.checker = Checker.new(checker)
+        else:
+            self.checker = checker
+
         self.matcher = matcher
         self.parser = parser
         self.priority = priority
         self.block = block
-        self.temp = temp
         self.decos = decos
         self.rule = rule
 
-    def __call__(self, func: AsyncCallable[..., bool | None]) -> Flow:
-        if not isinstance(self.checker, Checker) and callable(self.checker):
-            _checker = Checker.new(self.checker)
-        else:
-            _checker = cast(Checker, self.checker)
+        self._temp = temp
+        self._invalid = False
+        self._lock = Lock()
+        self._flow: Flow
 
+    async def _pre_process(self, event: Event) -> tuple[bool, ParseArgs | None]:
+        if self.checker:
+            status = await self.checker.check(event)
+            if not status:
+                return (False, None)
+
+        args: ParseArgs | None = None
+        if isinstance(event, MessageEvent):
+            if self.matcher:
+                status = await self.matcher.match(event.text)
+                if not status:
+                    return (False, None)
+
+            if self.parser:
+                args = await self.parser.parse(event.text)
+                if args:
+                    return (True, args)
+                return (False, None)
+
+        return (True, None)
+
+    async def _process(
+        self, func: AsyncCallable[..., bool | None], event: Event, args: ParseArgs | None
+    ) -> bool | None:
+        event.spread = not self.block
+        with ParseArgsCtx().unfold(args):
+            if self.rule is not None:
+                async with enter_session(self.rule):
+                    return await func()
+            return await func()
+
+    async def wrapped(self, func: AsyncCallable[..., bool | None]) -> bool | None:
+        if self._invalid:
+            self._flow.dismiss()
+            return None
+
+        event = cast(Event, get_event())
+        if not self._temp:
+            passed, args = await self._pre_process(event)
+            if not passed:
+                return None
+            return await self._process(func, event, args)
+
+        async with self._lock:
+            if self._invalid:
+                self._flow.dismiss()
+                return None
+
+            passed, args = await self._pre_process(event)
+            if not passed:
+                return None
+            self._invalid = True
+
+        return await self._process(func, event, args)
+
+    def __call__(self, func: AsyncCallable[..., bool | None]) -> Flow:
         func = inject_deps(func)
         if self.decos is not None:
             for deco in reversed(self.decos):
                 func = deco(func)
 
-        @wraps(func)
-        async def wrapped() -> bool | None:
-            event = cast(Event, get_event())
-            status = await _checker.check(event)
-            if not status:
-                return None
-
-            p_args: ParseArgs | None = None
-            if isinstance(event, MessageEvent):
-                if self.matcher:
-                    status = await self.matcher.match(event.text)
-                    if not status:
-                        return None
-
-                if self.parser:
-                    parse_args = await self.parser.parse(event.text)
-                    if parse_args is None:
-                        return None
-                    p_args = parse_args
-
-            event.spread = not self.block
-            afunc = cast(AsyncCallable[..., bool | None], func)
-
-            with ParseArgsCtx().unfold(p_args):
-                if self.rule is not None:
-                    async with enter_session(self.rule):
-                        return await afunc()
-                return await afunc()
-
-        n = no_deps_node(wrapped)
+        n = no_deps_node(wraps(func)(partial(self.wrapped, func)))
         n.name = get_obj_name(func, otype="callable")
-        return Flow(
-            f"OneBotV11Flow[{n.name}]",
-            (n,),
-            priority=self.priority,
-            temp=self.temp,
-        )
+        self._flow = Flow(f"OneBotV11Flow[{n.name}]", (n,), priority=self.priority)
+        return self._flow
 
 
 def on_event(
     checker: Checker | None | Callable[[Event], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -144,7 +170,7 @@ def on_message(
     checker: Checker | None | Callable[[MessageEvent], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -172,7 +198,7 @@ def on_at_qq(
     checker: Checker | None | Callable[[MessageEvent], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -197,7 +223,7 @@ def on_command(
     fmtters: list[CmdArgFormatter | None] | None = None,
     checker: Checker | None | Callable[[MessageEvent], bool] = None,
     matcher: Matcher | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -220,7 +246,7 @@ def on_start_match(
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[MessageEvent], bool] | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -243,7 +269,7 @@ def on_contain_match(
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[MessageEvent], bool] | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -266,7 +292,7 @@ def on_full_match(
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[MessageEvent], bool] | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -289,7 +315,7 @@ def on_end_match(
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[MessageEvent], bool] | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -312,7 +338,7 @@ def on_regex_match(
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[MessageEvent], bool] | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -334,7 +360,7 @@ def on_request(
     checker: Checker | None | Callable[[RequestEvent], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -356,7 +382,7 @@ def on_notice(
     checker: Checker | None | Callable[[NoticeEvent], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
@@ -378,7 +404,7 @@ def on_meta(
     checker: Checker | None | Callable[[MetaEvent], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
-    priority: HandleLevel = HandleLevel.NORMAL,
+    priority: int = 0,
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,

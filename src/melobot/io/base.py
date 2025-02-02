@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import time
+from abc import abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
@@ -6,20 +9,12 @@ from types import TracebackType
 from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
 
 from .._hook import Hookable
-from ..typ import BetterABC, abstractmethod
+from ..typ.cls import BetterABC
 from ..utils import get_id
 
 
 @dataclass
-class _Packet:
-    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
-    id: str = field(default_factory=get_id)
-    protocol: LiteralString | None = None
-    data: Any = None
-
-
-@dataclass
-class InPacket(_Packet):
+class InPacket:
     """输入包基类（数据类）
 
     :ivar float time: 时间戳
@@ -28,9 +23,14 @@ class InPacket(_Packet):
     :ivar Any data: 附加的数据
     """
 
+    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
+    id: str = field(default_factory=get_id)
+    protocol: LiteralString | None = None
+    data: Any = None
+
 
 @dataclass
-class OutPacket(_Packet):
+class OutPacket:
     """输出包基类（数据类）
 
     :ivar float time: 时间戳
@@ -39,9 +39,14 @@ class OutPacket(_Packet):
     :ivar Any data: 附加的数据
     """
 
+    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
+    id: str = field(default_factory=get_id)
+    protocol: LiteralString | None = None
+    data: Any = None
+
 
 @dataclass
-class EchoPacket(_Packet):
+class EchoPacket:
     """回应包基类（数据类）
 
     :ivar float time: 时间戳
@@ -54,6 +59,10 @@ class EchoPacket(_Packet):
     :ivar bool noecho: 是否并无回应产生
     """
 
+    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
+    id: str = field(default_factory=get_id)
+    protocol: LiteralString | None = None
+    data: Any = None
     ok: bool = True
     status: int = 0
     prompt: str = ""

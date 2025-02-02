@@ -2,7 +2,7 @@ from typing_extensions import Sequence
 
 from ..adapter.base import Adapter
 from ..io.base import AbstractInSource, AbstractOutSource
-from ..typ import BetterABC, abstractattr
+from ..typ.cls import BetterABC, abstractattr
 
 
 class ProtocolStack(BetterABC):

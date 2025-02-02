@@ -1,7 +1,8 @@
 from ..adapter.model import Event as _Event
+from ..ctx import BotCtx as _BotCtx
 from ..ctx import FlowCtx as _FlowCtx
 from ..ctx import FlowRecord, FlowRecordStage, FlowStore
-from .process import (
+from .base import (
     Flow,
     FlowNode,
     block,
@@ -15,12 +16,20 @@ from .process import (
 )
 
 
+def add_flows(*flows: Flow) -> None:
+    """添加一组处理流到当前 bot 中
+
+    :param flows: 处理流
+    """
+    return _BotCtx().get().add_flows(*flows)
+
+
 def get_flow_records() -> tuple[FlowRecord, ...]:
     """获取当前上下文中的流记录
 
     :return: 流记录
     """
-    return tuple(_FlowCtx().get().records)
+    return _FlowCtx().get_records()
 
 
 def get_flow_store() -> FlowStore:
