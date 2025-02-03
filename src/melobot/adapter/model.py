@@ -26,8 +26,8 @@ from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
 from ..exceptions import AdapterError
 from ..io.base import AbstractOutSource
 from ..log.base import LogLevel
+from ..mixin import AttrReprMixin, FlagMixin
 from ..typ.base import T
-from ..typ.mixin import AttrReprMixin, FlagMixin
 from ..utils.base import to_coro
 from ..utils.common import get_id
 from .content import Content

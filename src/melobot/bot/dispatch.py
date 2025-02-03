@@ -4,20 +4,15 @@ import asyncio
 from asyncio import Queue, Task, get_running_loop
 
 from ..adapter.base import Event
-from ..ctx import LoggerCtx
 from ..handle.base import Flow
-from ..log.base import GenericLogger
+from ..mixin import LogMixin
 
 
-class Dispatcher:
+class Dispatcher(LogMixin):
     def __init__(self) -> None:
         self.first_chan: EventChannel | None = None
 
         self._pending_chans: list[EventChannel] = []
-
-    @property
-    def logger(self) -> GenericLogger:
-        return LoggerCtx().get()
 
     def _arrange_chan(self, chan: EventChannel) -> None:
         try:

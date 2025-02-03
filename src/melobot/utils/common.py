@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import time
+import warnings
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
@@ -64,6 +65,33 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
         return obj_map[cls]
 
     return singleton_wrapped
+
+
+def deprecate_warn(msg: str) -> None:
+    # pylint: disable=cyclic-import
+    from ..ctx import LoggerCtx
+
+    if logger := LoggerCtx().try_get():
+        logger.warning(msg)
+    warnings.simplefilter("always", DeprecationWarning)
+    warnings.warn(msg, category=DeprecationWarning, stacklevel=1)
+    warnings.simplefilter("default", DeprecationWarning)
+
+
+def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
+
+    def deprecated_wrapper(func: Callable[P, T]) -> Callable[P, T]:
+
+        @wraps(func)
+        def deprecated_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+            deprecate_warn(
+                f"使用了弃用函数/方法 {func.__module__}.{func.__qualname__}: {msg}"
+            )
+            return func(*args, **kwargs)
+
+        return deprecated_wrapped
+
+    return deprecated_wrapper
 
 
 class RWContext:

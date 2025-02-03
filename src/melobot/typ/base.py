@@ -1,29 +1,9 @@
-import warnings
-from functools import wraps
-
 from beartype import BeartypeConf as _BeartypeConf
 from beartype.door import is_bearable as _is_type
 from beartype.door import is_subhint
-from typing_extensions import (
-    Any,
-    Awaitable,
-    Callable,
-    ParamSpec,
-    Protocol,
-    TypeIs,
-    TypeVar,
-)
+from typing_extensions import Any, Awaitable, ParamSpec, Protocol, TypeIs, TypeVar
 
-__all__ = (
-    "AsyncCallable",
-    "P",
-    "T",
-    "T_co",
-    "is_type",
-    "is_subhint",
-    "deprecated",
-    "deprecate_warn",
-)
+__all__ = ("AsyncCallable", "P", "T", "T_co", "is_type", "is_subhint")
 
 #: 泛型 T，无约束
 T = TypeVar("T", default=Any)
@@ -67,30 +47,3 @@ def is_type(obj: T, hint: type[Any]) -> TypeIs[T]:
     """
     ret = _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
     return ret  # type: ignore[no-any-return]
-
-
-def deprecate_warn(msg: str) -> None:
-    # pylint: disable=cyclic-import
-    from ..ctx import LoggerCtx
-
-    if logger := LoggerCtx().try_get():
-        logger.warning(msg)
-    warnings.simplefilter("always", DeprecationWarning)
-    warnings.warn(msg, category=DeprecationWarning, stacklevel=1)
-    warnings.simplefilter("default", DeprecationWarning)
-
-
-def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
-
-    def deprecated_wrapper(func: Callable[P, T]) -> Callable[P, T]:
-
-        @wraps(func)
-        def deprecated_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-            deprecate_warn(
-                f"使用了弃用函数/方法 {func.__module__}.{func.__qualname__}: {msg}"
-            )
-            return func(*args, **kwargs)
-
-        return deprecated_wrapped
-
-    return deprecated_wrapper

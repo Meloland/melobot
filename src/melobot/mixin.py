@@ -1,7 +1,19 @@
 import inspect
 from asyncio import Future, get_running_loop
 
-from typing_extensions import Any, Self, cast
+from typing_extensions import Any, Callable, Generic, Self, cast
+
+from ._hook import HookBus, HookEnumT
+from .ctx import LoggerCtx
+from .log.base import GenericLogger
+from .typ.base import AsyncCallable, P, SyncOrAsyncCallable
+from .utils.base import to_async
+
+
+class LogMixin:
+    @property
+    def logger(self) -> GenericLogger:
+        return LoggerCtx().get()
 
 
 class FlagMixin:
@@ -199,3 +211,34 @@ class LocateMixin:
     @property
     def __obj_line__(self) -> int:
         return self.__obj_location__[2]
+
+
+class HookMixin(Generic[HookEnumT]):
+    def __init__(self, hook_type: type[HookEnumT], hook_tag: str | None = None):
+        super().__init__()
+        self._hook_bus = HookBus[HookEnumT](hook_type, hook_tag)
+        self.__repeatable_hook_types__: set[HookEnumT] = set()
+
+    def __mark_repeatable_hooks__(self, *types: HookEnumT) -> None:
+        for t in types:
+            self.__repeatable_hook_types__.add(t)
+
+    def on(
+        self, *periods: HookEnumT
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """注册一个 hook
+
+        :param periods: 要绑定的 hook 类型
+        :return: 装饰器
+        """
+
+        def hook_register_wrapped(
+            func: SyncOrAsyncCallable[P, None]
+        ) -> AsyncCallable[P, None]:
+            f = to_async(func)
+            for type in periods:
+                once = type not in self.__repeatable_hook_types__
+                self._hook_bus.register(type, func, once)
+            return f
+
+        return hook_register_wrapped

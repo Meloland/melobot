@@ -14,11 +14,11 @@ from websockets.http11 import Request, Response
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
-from .base import BaseIO
+from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
 
 
-class ReverseWebSocketIO(BaseIO):
+class ReverseWebSocketIO(BaseIOSource):
     def __init__(
         self, host: str, port: int, cd_time: float = 0, access_token: str | None = None
     ) -> None:

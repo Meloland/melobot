@@ -13,11 +13,11 @@ from melobot.exceptions import SourceError
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
-from .base import BaseIO
+from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
 
 
-class ForwardWebSocketIO(BaseIO):
+class ForwardWebSocketIO(BaseIOSource):
     def __init__(
         self,
         url: str,

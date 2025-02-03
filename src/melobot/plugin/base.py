@@ -6,11 +6,10 @@ from pathlib import Path
 
 from typing_extensions import Callable, final, overload
 
-from .._hook import HookBus
 from ..exceptions import PluginLoadError
 from ..handle.base import Flow
-from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
-from ..utils.base import to_async
+from ..mixin import HookMixin
+from ..typ.base import P, T
 from .ipc import AsyncShare, SyncShare
 
 
@@ -32,7 +31,7 @@ class PluginInfo:
     author: str = ""
 
 
-class PluginPlanner:
+class PluginPlanner(HookMixin[PluginLifeSpan]):
     """插件管理器类
 
     用于声明一个插件，并为插件添加功能
@@ -55,6 +54,7 @@ class PluginPlanner:
         :param funcs: 导出函数列表。可以先指定为空，后续使用 :meth:`use` 绑定
         :param info: 插件信息
         """
+        super().__init__(hook_type=PluginLifeSpan)
         self.version = version
         self.init_flows = [] if flows is None else flows
         self.shares = [] if shares is None else shares
@@ -62,29 +62,17 @@ class PluginPlanner:
         self.info = PluginInfo() if info is None else info
 
         self._pname: str = ""
-        self._hook_bus = HookBus[PluginLifeSpan](PluginLifeSpan)
         self._built: bool = False
         self._plugin: Plugin
 
     @final
-    def on(
-        self, *periods: PluginLifeSpan
-    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """注册一个 hook
-
-        :param periods: 要绑定的 hook 类型
-        :return: 装饰器
-        """
-
-        def plugin_hook_register_wrapped(
-            func: SyncOrAsyncCallable[P, None]
-        ) -> AsyncCallable[P, None]:
-            f = to_async(func)
-            for type in periods:
-                self._hook_bus.register(type, f)
-            return f
-
-        return plugin_hook_register_wrapped
+    def __p_build__(self, name: str) -> Plugin:
+        if not self._built:
+            self._pname = name
+            self._hook_bus.set_tag(name)
+            self._plugin = Plugin(self)
+            self._built = True
+        return self._plugin
 
     @overload
     def use(self, obj: Flow) -> Flow: ...
@@ -113,15 +101,6 @@ class PluginPlanner:
         else:
             raise PluginLoadError(f"插件无法使用 {type(obj)} 类型的对象")
         return obj
-
-    @final
-    def __p_build__(self, name: str) -> Plugin:
-        if not self._built:
-            self._pname = name
-            self._hook_bus.set_tag(name)
-            self._plugin = Plugin(self)
-            self._built = True
-        return self._plugin
 
 
 class Plugin:

@@ -22,7 +22,6 @@ from typing_extensions import (
     final,
 )
 
-from .._hook import Hookable
 from ..ctx import EventOrigin, FlowCtx, LoggerCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
@@ -35,9 +34,8 @@ from ..io.base import (
     OutSourceT,
 )
 from ..log.base import LogLevel
-from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
+from ..mixin import HookMixin
 from ..typ.cls import BetterABC
-from ..utils.base import to_async
 from .content import Content
 from .model import ActionHandle, ActionT, EchoT, Event, EventT
 
@@ -107,7 +105,7 @@ class AdapterLifeSpan(Enum):
 
 
 class Adapter(
-    BetterABC,
+    HookMixin[AdapterLifeSpan],
     Generic[
         EventFactoryT,
         OutputFactoryT,
@@ -116,7 +114,7 @@ class Adapter(
         InSourceT,
         OutSourceT,
     ],
-    Hookable[AdapterLifeSpan],
+    BetterABC,
 ):
     """适配器基类
 
@@ -133,7 +131,7 @@ class Adapter(
         output_factory: OutputFactoryT,
         echo_factory: EchoFactoryT,
     ) -> None:
-        Hookable.__init__(self, AdapterLifeSpan, tag=protocol)
+        super().__init__(hook_type=AdapterLifeSpan, hook_tag=protocol)
 
         self.protocol = protocol
         self.in_srcs: list[InSourceT] = []
@@ -144,21 +142,9 @@ class Adapter(
         self._echo_factory = echo_factory
 
         self._inited = False
-
-    def on(
-        self, *periods: AdapterLifeSpan
-    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        groups = (AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC)
-
-        def hook_register_wrapped(
-            func: SyncOrAsyncCallable[P, None]
-        ) -> AsyncCallable[P, None]:
-            f = to_async(func)
-            for type in periods:
-                self._hook_bus.register(type, f, once=type not in groups)
-            return f
-
-        return hook_register_wrapped
+        self.__mark_repeatable_hooks__(
+            AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC
+        )
 
     @final
     def get_isrcs(self, filter: Callable[[InSourceT], bool]) -> set[InSourceT]:

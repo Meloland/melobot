@@ -2,13 +2,13 @@ import asyncio
 import time
 from enum import Enum
 
-from typing_extensions import Any, Callable, Generic, TypeVar
+from typing_extensions import Any, Generic, TypeVar
 
 from .ctx import LoggerCtx
 from .di import inject_deps
 from .log.base import LogLevel
-from .typ.base import AsyncCallable, P, SyncOrAsyncCallable
-from .utils.base import to_async
+from .typ.base import AsyncCallable, SyncOrAsyncCallable
+from .utils import to_async
 
 HookEnumT = TypeVar("HookEnumT", bound=Enum)
 
@@ -92,28 +92,3 @@ class HookBus(Generic[HookEnumT]):
         )
         if wait and len(tasks):
             await asyncio.wait(tasks)
-
-
-class Hookable(Generic[HookEnumT]):
-    def __init__(self, hook_type: type[HookEnumT], tag: str | None = None):
-        super().__init__()
-        self._hook_bus = HookBus[HookEnumT](hook_type, tag)
-
-    def on(
-        self, *periods: HookEnumT
-    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """注册一个 hook
-
-        :param periods: 要绑定的 hook 类型
-        :return: 装饰器
-        """
-
-        def hook_register_wrapped(
-            func: SyncOrAsyncCallable[P, None]
-        ) -> AsyncCallable[P, None]:
-            f = to_async(func)
-            for type in periods:
-                self._hook_bus.register(type, func)
-            return f
-
-        return hook_register_wrapped

@@ -21,7 +21,7 @@ from melobot.typ import AsyncCallable, SyncOrAsyncCallable
 from melobot.utils import to_async, to_coro
 
 from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER, P, T
-from ..io.base import BaseIO
+from ..io.base import BaseIOSource
 from ..io.packet import EchoPacket, InPacket, OutPacket
 from . import action as ac
 from . import echo as ec
@@ -87,7 +87,9 @@ class EchoRequireCtx(Context[bool]):
 
 
 class Adapter(
-    RootAdapter[EventFactory, OutputFactory, EchoFactory, ac.Action, BaseIO, BaseIO]
+    RootAdapter[
+        EventFactory, OutputFactory, EchoFactory, ac.Action, BaseIOSource, BaseIOSource
+    ]
 ):
     def __init__(self) -> None:
         super().__init__(

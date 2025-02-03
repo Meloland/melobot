@@ -8,7 +8,7 @@ from types import TracebackType
 
 from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
 
-from .._hook import Hookable
+from ..mixin import HookMixin, LogMixin
 from ..typ.cls import BetterABC
 from ..utils.common import get_id
 
@@ -82,12 +82,12 @@ class SourceLifeSpan(Enum):
     STOPPED = "sto"
 
 
-class AbstractSource(BetterABC, Hookable[SourceLifeSpan]):
+class AbstractSource(HookMixin[SourceLifeSpan], LogMixin, BetterABC):
     """抽象源基类"""
 
     def __init__(self, protocol: LiteralString) -> None:
-        Hookable.__init__(
-            self, SourceLifeSpan, tag=f"{protocol}/{self.__class__.__name__}"
+        super().__init__(
+            hook_type=SourceLifeSpan, hook_tag=f"{protocol}/{self.__class__.__name__}"
         )
 
         self.protocol = protocol
@@ -131,7 +131,7 @@ class AbstractSource(BetterABC, Hookable[SourceLifeSpan]):
         return None
 
 
-class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
+class AbstractInSource(AbstractSource, Generic[InPacketT], BetterABC):
     """抽象输入源基类"""
 
     @abstractmethod
@@ -158,7 +158,7 @@ class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
 InSourceT = TypeVar("InSourceT", bound=AbstractInSource)
 
 
-class AbstractOutSource(AbstractSource, BetterABC, Generic[OutPacketT, EchoPacketT]):
+class AbstractOutSource(AbstractSource, Generic[OutPacketT, EchoPacketT], BetterABC):
     """抽象输出源基类"""
 
     @abstractmethod

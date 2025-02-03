@@ -22,7 +22,6 @@ from typing_extensions import (
     NoReturn,
 )
 
-from .._hook import Hookable
 from .._meta import MetaInfo
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
@@ -30,6 +29,7 @@ from ..exceptions import BotError
 from ..handle.base import Flow
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
+from ..mixin import HookMixin
 from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
@@ -72,7 +72,7 @@ def _start_log(logger: GenericLogger) -> None:
     logger.info("=" * 40)
 
 
-class Bot(Hookable[BotLifeSpan]):
+class Bot(HookMixin[BotLifeSpan]):
     """bot 类
 
     :ivar str name: bot 对象的名称
@@ -104,7 +104,7 @@ class Bot(Hookable[BotLifeSpan]):
             可使用 melobot 内置的 :class:`.Logger`，或经过 :func:`.logger_patch` 修补的日志器
         :param enable_log: 是否启用日志功能
         """
-        Hookable.__init__(self, BotLifeSpan, tag=name)
+        super().__init__(hook_type=BotLifeSpan, hook_tag=name)
 
         self.name = name
         self.logger: GenericLogger

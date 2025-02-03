@@ -9,10 +9,11 @@ from typing_extensions import Iterable, NoReturn, Sequence
 from ..adapter.base import Event
 from ..ctx import BotCtx, EventCompletion, FlowCtx, FlowRecord, FlowRecords
 from ..ctx import FlowRecordStage as RecordStage
-from ..ctx import FlowStatus, FlowStore, LoggerCtx
+from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
-from ..log import GenericLogger, LogLevel
+from ..log import LogLevel
+from ..mixin import LogMixin
 from ..typ.base import AsyncCallable, SyncOrAsyncCallable
 from ..utils.base import to_async
 from ..utils.common import get_obj_name
@@ -96,7 +97,7 @@ class NodeInfo:
         return NodeInfo(self.nexts, self.in_deg, self.out_deg)
 
 
-class Flow:
+class Flow(LogMixin):
     """处理流
 
     :ivar str name: 处理流的标识
@@ -140,10 +141,6 @@ class Flow:
         else:
             output += ")"
         return output
-
-    @property
-    def logger(self) -> GenericLogger:
-        return LoggerCtx().get()
 
     @property
     def starts(self) -> tuple[FlowNode, ...]:

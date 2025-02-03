@@ -7,7 +7,7 @@ from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11 import handle
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.adapter.event import MessageEvent
-from melobot.protocols.onebot.v11.io.base import BaseIO
+from melobot.protocols.onebot.v11.io.base import BaseIOSource
 from melobot.protocols.onebot.v11.io.packet import EchoPacket, InPacket, OutPacket
 from melobot.protocols.onebot.v11.utils import (
     CmdParser,
@@ -70,7 +70,7 @@ async def _flow(
     _SUCCESS_SIGNAL.set()
 
 
-class TempIO(BaseIO):
+class TempIO(BaseIOSource):
     def __init__(self) -> None:
         super().__init__(1)
         self.queue = Queue()

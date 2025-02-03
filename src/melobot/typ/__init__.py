@@ -7,4 +7,3 @@ from .cls import (
     SingletonMeta,
     abstractattr,
 )
-from .mixin import AttrReprMixin, FlagMixin, LocateMixin

@@ -2,8 +2,8 @@ from typing_extensions import Callable, Generic
 
 from ..di import inject_deps
 from ..exceptions import PluginIpcError
+from ..mixin import AttrReprMixin, LocateMixin
 from ..typ.base import AsyncCallable, T
-from ..typ.mixin import AttrReprMixin, LocateMixin
 from ..utils.common import RWContext
 
 

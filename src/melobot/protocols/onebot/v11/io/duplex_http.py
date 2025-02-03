@@ -12,11 +12,11 @@ import aiohttp.web
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
-from .base import BaseIO
+from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
 
 
-class HttpIO(BaseIO):
+class HttpIO(BaseIOSource):
     def __init__(
         self,
         onebot_host: str,
