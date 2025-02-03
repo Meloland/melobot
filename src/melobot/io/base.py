@@ -10,7 +10,7 @@ from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
 
 from .._hook import Hookable
 from ..typ.cls import BetterABC
-from ..utils import get_id
+from ..utils.common import get_id
 
 
 @dataclass

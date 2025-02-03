@@ -6,7 +6,8 @@ from typing_extensions import Any, Callable, Iterator, Optional
 
 from melobot.exceptions import BotException
 from melobot.log import get_logger
-from melobot.typ import AsyncCallable, VoidType
+from melobot.typ import SyncOrAsyncCallable, VoidType
+from melobot.utils import to_async
 
 from .abc import ParseArgs, Parser
 
@@ -69,9 +70,9 @@ class CmdArgFormatter:
         src_expect: Optional[str] = None,
         default: Any = VoidType.VOID,
         default_replace_flag: Optional[str] = None,
-        convert_fail: Optional[AsyncCallable[[FormatInfo], None]] = None,
-        validate_fail: Optional[AsyncCallable[[FormatInfo], None]] = None,
-        arg_lack: Optional[AsyncCallable[[FormatInfo], None]] = None,
+        convert_fail: Optional[SyncOrAsyncCallable[[FormatInfo], None]] = None,
+        validate_fail: Optional[SyncOrAsyncCallable[[FormatInfo], None]] = None,
+        arg_lack: Optional[SyncOrAsyncCallable[[FormatInfo], None]] = None,
     ) -> None:
         """初始化一个命令参数格式化器
 
@@ -97,9 +98,11 @@ class CmdArgFormatter:
                 "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
             )
 
-        self.convert_fail = convert_fail
-        self.validate_fail = validate_fail
-        self.arg_lack = arg_lack
+        self.convert_fail = to_async(convert_fail) if convert_fail is not None else None
+        self.validate_fail = (
+            to_async(validate_fail) if validate_fail is not None else None
+        )
+        self.arg_lack = to_async(arg_lack) if arg_lack is not None else None
 
     def _get_val(self, args: ParseArgs, idx: int) -> Any:
         if self.default is VoidType.VOID:

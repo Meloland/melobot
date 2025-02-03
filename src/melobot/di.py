@@ -24,9 +24,10 @@ from typing_extensions import (
 from .ctx import BotCtx, EventOrigin, FlowCtx, LoggerCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
 from .typ._enum import VoidType
-from .typ.base import AsyncCallable, P, T, is_subhint, is_type
+from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, is_subhint, is_type
 from .typ.cls import BetterABC
-from .utils import get_obj_name, to_async
+from .utils.base import to_async
+from .utils.common import get_obj_name
 
 if TYPE_CHECKING:
     from .adapter.base import Adapter
@@ -43,11 +44,11 @@ class DependNotMatched(BaseException):
         self.hint = hint
 
 
-class Depends:
+class Depends(Generic[T]):
     def __init__(
         self,
-        dep: Callable[[], Any] | AsyncCallable[[], Any] | Depends,
-        sub_getter: Callable[[Any], Any] | AsyncCallable[[Any], Any] | None = None,
+        dep: SyncOrAsyncCallable[[], T] | Depends[T],
+        sub_getter: SyncOrAsyncCallable[[T], T] | None = None,
         cache: bool = False,
         recursive: bool = True,
     ) -> None:
@@ -59,8 +60,8 @@ class Depends:
         :param recursive: 是否启用递归满足（默认启用，如果当前依赖来源中存在依赖项，会被递归满足；关闭可节约性能）
         """
         super().__init__()
-        self.ref: Depends | None
-        self.getter: AsyncCallable[[], Any] | None
+        self.ref: Depends[T] | None
+        self.getter: AsyncCallable[[], T] | None
 
         if isinstance(dep, Depends):
             self.ref = dep
@@ -87,22 +88,22 @@ class Depends:
         ref_str = f"ref={self.ref}" if self.ref is not None else ""
         return f"{self.__class__.__name__}({ref_str if ref_str != '' else getter_str})"
 
-    async def _get(self, dep_scope: dict[Depends, Any]) -> Any:
+    async def _get(self, dep_scope: dict[Depends, Any]) -> T:
+        val: T | VoidType
+
         if self.getter is not None:
             val = await self.getter()
         else:
-            ref = cast(Depends, self.ref)
+            ref = cast(Depends[T], self.ref)
             val = dep_scope.get(ref, VoidType.VOID)
             if val is VoidType.VOID:
                 val = await ref.fulfill(dep_scope)
 
         if self.sub_getter is not None:
-            val = self.sub_getter(val)
-            if isawaitable(val):
-                val = await val
+            val = await self.sub_getter(val)
         return val
 
-    async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> T:
         if self._lock is None:
             val = await self._get(dep_scope)
         elif self._cached is not VoidType.VOID:
@@ -134,7 +135,7 @@ class AutoDepends(Depends):
         else:
             self.metadatas = ()
 
-        self.orig_getter: Callable[[], Any] | AsyncCallable[[], Any] | None = None
+        self.orig_getter: SyncOrAsyncCallable[[], Any] | None = None
 
         if is_subhint(hint, FlowCtx().get_event_type()):
             self.orig_getter = FlowCtx().get_event
@@ -392,7 +393,7 @@ def _get_bound_args(
     return list(bind.args), bind.kwargs
 
 
-class DependsHook(Depends, BetterABC, Generic[T]):
+class DependsHook(Depends[T], BetterABC):
     """依赖钩子
 
     包装一个依赖项，依赖满足后内部的 hook 将会执行
@@ -400,11 +401,11 @@ class DependsHook(Depends, BetterABC, Generic[T]):
 
     def __init__(
         self,
-        func: Callable[P, T] | AsyncCallable[P, T],
+        dep: SyncOrAsyncCallable[[], T],
         cache: bool = False,
         recursive: bool = False,
     ) -> None:
-        super().__init__(func, cache=cache, recursive=recursive)
+        super().__init__(dep, cache=cache, recursive=recursive)
 
     @abstractmethod
     async def deps_callback(self, val: T) -> None:
@@ -414,14 +415,14 @@ class DependsHook(Depends, BetterABC, Generic[T]):
         """
         raise NotImplementedError
 
-    async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> T:
         val = await super().fulfill(dep_scope)
         await self.deps_callback(val)
         return val
 
 
 def inject_deps(
-    injectee: Callable[..., T] | AsyncCallable[..., T], manual_arg: bool = False
+    injectee: SyncOrAsyncCallable[..., T], manual_arg: bool = False
 ) -> AsyncCallable[..., T]:
     """依赖注入标记装饰器，标记当前对象需要被依赖注入
 

@@ -13,18 +13,19 @@ from ..ctx import FlowStatus, FlowStore, LoggerCtx
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
 from ..log import GenericLogger, LogLevel
-from ..typ.base import AsyncCallable
-from ..utils import get_obj_name
+from ..typ.base import AsyncCallable, SyncOrAsyncCallable
+from ..utils.base import to_async
+from ..utils.common import get_obj_name
 
 _FLOW_CTX = FlowCtx()
 
 
-def node(func: AsyncCallable[..., bool | None]) -> FlowNode:
+def node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
     """处理结点装饰器，将当前异步可调用对象装饰为一个处理结点"""
     return FlowNode(func)
 
 
-def no_deps_node(func: AsyncCallable[..., bool | None]) -> FlowNode:
+def no_deps_node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
     """与 :func:`node` 类似，但是不自动为结点标记依赖注入。
 
     需要后续使用 :func:`.inject_deps` 手动标记依赖注入，
@@ -37,11 +38,11 @@ class FlowNode:
     """处理流结点"""
 
     def __init__(
-        self, func: AsyncCallable[..., bool | None], no_deps: bool = False
+        self, func: SyncOrAsyncCallable[..., bool | None], no_deps: bool = False
     ) -> None:
         self.name = get_obj_name(func, otype="callable")
         self.processor: AsyncCallable[..., bool | None] = (
-            func if no_deps else inject_deps(func)
+            to_async(func) if no_deps else inject_deps(func)
         )
 
     def __repr__(self) -> str:

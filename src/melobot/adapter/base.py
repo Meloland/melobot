@@ -35,8 +35,9 @@ from ..io.base import (
     OutSourceT,
 )
 from ..log.base import LogLevel
-from ..typ.base import AsyncCallable, P
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from ..typ.cls import BetterABC
+from ..utils.base import to_async
 from .content import Content
 from .model import ActionHandle, ActionT, EchoT, Event, EventT
 
@@ -146,13 +147,16 @@ class Adapter(
 
     def on(
         self, *periods: AdapterLifeSpan
-    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         groups = (AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC)
 
-        def hook_register_wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
+        def hook_register_wrapped(
+            func: SyncOrAsyncCallable[P, None]
+        ) -> AsyncCallable[P, None]:
+            f = to_async(func)
             for type in periods:
-                self._hook_bus.register(type, func, once=type not in groups)
-            return func
+                self._hook_bus.register(type, f, once=type not in groups)
+            return f
 
         return hook_register_wrapped
 

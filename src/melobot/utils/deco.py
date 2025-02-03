@@ -3,32 +3,19 @@ import inspect
 import time
 from functools import wraps
 
-from typing_extensions import (
-    Any,
-    AsyncContextManager,
-    Callable,
-    ContextManager,
-    TypeVar,
-    cast,
-)
+from typing_extensions import Any, AsyncContextManager, Callable, ContextManager, cast
 
 from ..exceptions import ValidateError
-from ..typ.base import AsyncCallable, P, T
-from .base import async_guard
-
-CbRetT = TypeVar("CbRetT", default=Any)
-FirstCbRetT = TypeVar("FirstCbRetT", default=Any)
-SecondCbRetT = TypeVar("SecondCbRetT", default=Any)
-OriginRetT = TypeVar("OriginRetT", default=Any)
-CondT = TypeVar("CondT", default=Any)
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, U, V
+from .base import to_async
 
 
 def if_not(
-    condition: Callable[[], CondT] | AsyncCallable[[], CondT] | CondT,
-    reject: AsyncCallable[[], None],
+    condition: SyncOrAsyncCallable[[], U] | U,
+    reject: SyncOrAsyncCallable[[], None],
     give_up: bool = False,
-    accept: AsyncCallable[[CondT], None] | None = None,
-) -> Callable[[AsyncCallable[P, T]], AsyncCallable[P, T | None]]:
+    accept: SyncOrAsyncCallable[[U], None] | None = None,
+) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | None]]:
     """条件判断装饰器
 
     :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）
@@ -36,25 +23,29 @@ def if_not(
     :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数
     :param accept: 当条件为 `True` 时，执行的回调
     """
+    _condition = to_async(condition) if callable(condition) else condition
+    _reject = to_async(reject)
+    _accept = to_async(accept) if accept is not None else accept
 
-    def if_not_wrapper(func: AsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
+    def if_not_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
+        _func = to_async(func)
 
         @wraps(func)
         async def if_not_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | None:
-            if not callable(condition):
-                cond = condition
+            if not callable(_condition):
+                cond = _condition
             else:
-                obj = condition()
+                obj = _condition()
                 cond = await obj if inspect.isawaitable(obj) else obj
 
             if not cond:
-                await async_guard(reject)
+                await _reject()
 
             if cond or not give_up:
-                if accept is not None:
-                    await async_guard(accept, cond)
+                if _accept is not None:
+                    await _accept(cond)
 
-                return await async_guard(func, *args, **kwargs)
+                return await _func(*args, **kwargs)
             return None
 
         return if_not_wrapped
@@ -63,22 +54,25 @@ def if_not(
 
 
 def unfold_ctx(
-    getter: Callable[[], ContextManager | AsyncContextManager],
-) -> Callable[[AsyncCallable[P, T]], AsyncCallable[P, T]]:
+    getter: SyncOrAsyncCallable[[], ContextManager | AsyncContextManager],
+) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T]]:
     """上下文装饰器
 
     展开一个上下文，供被装饰函数使用。
     但注意此装饰器不支持获取上下文管理器 `yield` 的值
 
-    :param getter: 上下文管理器获取方法
+    :param getter: 上下文管理器或上下文管理器获取方法
     """
 
-    def unfold_ctx_wrapper(func: AsyncCallable[P, T]) -> AsyncCallable[P, T]:
+    _getter = to_async(getter)
+
+    def unfold_ctx_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T]:
+        _func = to_async(func)
 
         @wraps(func)
         async def unfold_ctx_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
             try:
-                manager = getter()
+                manager = await _getter()
             except Exception as e:
                 raise ValidateError(
                     f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它获取上下文管理器失败：{e}"
@@ -86,10 +80,10 @@ def unfold_ctx(
 
             if isinstance(manager, ContextManager):
                 with manager:
-                    return await async_guard(func, *args, **kwargs)
+                    return await _func(*args, **kwargs)
             elif isinstance(manager, AsyncContextManager):
                 async with manager:
-                    return await async_guard(func, *args, **kwargs)
+                    return await _func(*args, **kwargs)
             else:
                 raise ValidateError(
                     f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它返回了无效的上下文管理器"
@@ -101,8 +95,8 @@ def unfold_ctx(
 
 
 def lock(
-    callback: AsyncCallable[[], CbRetT] | None = None
-) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, CbRetT | OriginRetT]]:
+    callback: SyncOrAsyncCallable[[], U] | None = None
+) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | U]]:
     """锁装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数加锁。
@@ -116,17 +110,17 @@ def lock(
     :param callback: 获取锁冲突时的回调
     """
     alock = asyncio.Lock()
+    _callback = to_async(callback) if callback is not None else None
 
-    def lock_wrapper(
-        func: AsyncCallable[P, OriginRetT]
-    ) -> AsyncCallable[P, CbRetT | OriginRetT]:
+    def lock_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | U]:
+        _func = to_async(func)
 
         @wraps(func)
-        async def lock_wrapped(*args: P.args, **kwargs: P.kwargs) -> CbRetT | OriginRetT:
-            if callback is not None and alock.locked():
-                return await async_guard(callback)
+        async def lock_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | U:
+            if _callback is not None and alock.locked():
+                return await _callback()
             async with alock:
-                return await async_guard(func, *args, **kwargs)
+                return await _func(*args, **kwargs)
 
         return lock_wrapped
 
@@ -134,13 +128,10 @@ def lock(
 
 
 def cooldown(
-    busy_callback: AsyncCallable[[], FirstCbRetT] | None = None,
-    cd_callback: AsyncCallable[[float], SecondCbRetT] | None = None,
+    busy_callback: SyncOrAsyncCallable[[], U] | None = None,
+    cd_callback: SyncOrAsyncCallable[[float], V] | None = None,
     interval: float = 5,
-) -> Callable[
-    [AsyncCallable[P, OriginRetT]],
-    AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT],
-]:
+) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | U | V]]:
     """冷却装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加 cd 时间。
@@ -162,31 +153,31 @@ def cooldown(
     alock = asyncio.Lock()
     pre_finish_t = time.perf_counter() - interval - 1
 
-    def cooldown_wrapper(
-        func: AsyncCallable[P, OriginRetT]
-    ) -> AsyncCallable[P, OriginRetT | FirstCbRetT | SecondCbRetT]:
+    _busy_callback = to_async(busy_callback) if busy_callback is not None else None
+    _cd_callback = to_async(cd_callback) if cd_callback is not None else None
+
+    def cooldown_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | U | V]:
+        _func = to_async(func)
 
         @wraps(func)
-        async def cooldown_wrapped(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRetT | FirstCbRetT | SecondCbRetT:
+        async def cooldown_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | U | V:
             nonlocal pre_finish_t
-            if busy_callback is not None and alock.locked():
-                return await async_guard(busy_callback)
+            if _busy_callback is not None and alock.locked():
+                return await _busy_callback()
 
             async with alock:
                 duration = time.perf_counter() - pre_finish_t
                 if duration > interval:
-                    ret = await async_guard(func, *args, **kwargs)
+                    ret = await _func(*args, **kwargs)
                     pre_finish_t = time.perf_counter()
                     return ret
 
                 remain_t = interval - duration
-                if cd_callback is not None:
-                    return await async_guard(cd_callback, remain_t)
+                if _cd_callback is not None:
+                    return await _cd_callback(remain_t)
 
                 await asyncio.sleep(remain_t)
-                ret = await async_guard(func, *args, **kwargs)
+                ret = await _func(*args, **kwargs)
                 pre_finish_t = time.perf_counter()
                 return ret
 
@@ -196,8 +187,8 @@ def cooldown(
 
 
 def semaphore(
-    callback: AsyncCallable[[], CbRetT] | None = None, value: int = -1
-) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
+    callback: SyncOrAsyncCallable[[], U] | None = None, value: int = -1
+) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | U]]:
     """信号量装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加信号量控制。
@@ -212,19 +203,17 @@ def semaphore(
     :param value: 信号量阈值
     """
     a_semaphore = asyncio.Semaphore(value)
+    _callback = to_async(callback) if callback is not None else None
 
-    def semaphore_wrapper(
-        func: AsyncCallable[P, OriginRetT]
-    ) -> AsyncCallable[P, OriginRetT | CbRetT]:
+    def semaphore_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | U]:
+        _func = to_async(func)
 
         @wraps(func)
-        async def semaphore_wrapped(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRetT | CbRetT:
-            if callback is not None and a_semaphore.locked():
-                return await async_guard(callback)
+        async def semaphore_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | U:
+            if _callback is not None and a_semaphore.locked():
+                return await _callback()
             async with a_semaphore:
-                return await async_guard(func, *args, **kwargs)
+                return await _func(*args, **kwargs)
 
         return semaphore_wrapped
 
@@ -232,8 +221,8 @@ def semaphore(
 
 
 def timelimit(
-    callback: AsyncCallable[[], CbRetT] | None = None, timeout: float = 5
-) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
+    callback: SyncOrAsyncCallable[[], U] | None = None, timeout: float = 5
+) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | U]]:
     """时间限制装饰器
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加超时控制。
@@ -247,21 +236,19 @@ def timelimit(
     :param callback: 超时时的回调
     :param timeout: 超时时间
     """
+    _callback = to_async(callback) if callback is not None else None
 
-    def timelimit_wrapper(
-        func: AsyncCallable[P, OriginRetT]
-    ) -> AsyncCallable[P, OriginRetT | CbRetT]:
+    def timelimit_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | U]:
+        _func = to_async(func)
 
         @wraps(func)
-        async def timelimit_wrapped(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRetT | CbRetT:
+        async def timelimit_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | U:
             try:
-                return await asyncio.wait_for(async_guard(func, *args, **kwargs), timeout)
+                return await asyncio.wait_for(_func(*args, **kwargs), timeout)
             except asyncio.TimeoutError:
-                if callback is None:
+                if _callback is None:
                     raise TimeoutError("timelimit 所装饰的任务已超时") from None
-                return await async_guard(callback)
+                return await _callback()
 
         return timelimit_wrapped
 
@@ -269,10 +256,10 @@ def timelimit(
 
 
 def speedlimit(
-    callback: AsyncCallable[[], CbRetT] | None = None,
+    callback: SyncOrAsyncCallable[[], U] | None = None,
     limit: int = 60,
     duration: int = 60,
-) -> Callable[[AsyncCallable[P, OriginRetT]], AsyncCallable[P, OriginRetT | CbRetT]]:
+) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | U]]:
     """流量/速率限制装饰器（使用固定窗口算法）
 
     本方法作为异步函数的装饰器使用，可以为被装饰函数添加流量控制：`duration` 秒内只允许 `limit` 次调用。
@@ -294,16 +281,15 @@ def speedlimit(
     if duration <= 0:
         raise ValidateError("speedlimit 装饰器的 duration 参数必须 > 0")
 
-    def speedlimit_wrapper(
-        func: AsyncCallable[P, OriginRetT]
-    ) -> AsyncCallable[P, OriginRetT | CbRetT]:
+    _callback = to_async(callback) if callback is not None else None
+
+    def speedlimit_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | U]:
+        _func = to_async(func)
 
         @wraps(func)
-        async def speedlimit_wrapped(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> OriginRetT | CbRetT:
-            fut = _speedlimit_wrapped(func, *args, **kwargs)
-            fut = cast(asyncio.Future[CbRetT | OriginRetT | Exception], fut)
+        async def speedlimit_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | U:
+            fut = _speedlimit_wrapped(_func, *args, **kwargs)
+            fut = cast(asyncio.Future[T | U | Exception], fut)
             fut_ret = await fut
             if isinstance(fut_ret, Exception):
                 raise fut_ret
@@ -328,8 +314,8 @@ def speedlimit(
                     _speedlimit_set_result(func, res_fut, -1, *args, **kwargs)
                 )
 
-            elif callback is not None:
-                asyncio.create_task(_speedlimit_set_result(callback, res_fut, -1))
+            elif _callback is not None:
+                asyncio.create_task(_speedlimit_set_result(_callback, res_fut, -1))
 
             else:
                 asyncio.create_task(
@@ -365,7 +351,7 @@ def speedlimit(
                 fut.set_result(res)
                 return
 
-            res = await async_guard(func, *args, **kwargs)
+            res = await func(*args, **kwargs)
             fut.set_result(res)
 
         except Exception as e:

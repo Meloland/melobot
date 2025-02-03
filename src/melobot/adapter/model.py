@@ -28,7 +28,8 @@ from ..io.base import AbstractOutSource
 from ..log.base import LogLevel
 from ..typ.base import T
 from ..typ.mixin import AttrReprMixin, FlagMixin
-from ..utils import get_id, to_coro
+from ..utils.base import to_coro
+from ..utils.common import get_id
 from .content import Content
 
 if TYPE_CHECKING:

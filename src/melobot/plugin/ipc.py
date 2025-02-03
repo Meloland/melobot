@@ -4,7 +4,7 @@ from ..di import inject_deps
 from ..exceptions import PluginIpcError
 from ..typ.base import AsyncCallable, T
 from ..typ.mixin import AttrReprMixin, LocateMixin
-from ..utils import RWContext
+from ..utils.common import RWContext
 
 
 class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):

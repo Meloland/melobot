@@ -17,8 +17,8 @@ from melobot.adapter import content as mc
 from melobot.ctx import Context
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
-from melobot.typ.base import AsyncCallable
-from melobot.utils import to_coro
+from melobot.typ import AsyncCallable, SyncOrAsyncCallable
+from melobot.utils import to_async, to_coro
 
 from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER, P, T
 from ..io.base import BaseIO
@@ -95,19 +95,20 @@ class Adapter(
         )
 
     def when_validate_error(self, validate_type: Literal["event", "echo"]) -> Callable[
-        [AsyncCallable[[dict[str, Any], Exception], None]],
+        [SyncOrAsyncCallable[[dict[str, Any], Exception], None]],
         AsyncCallable[[dict[str, Any], Exception], None],
     ]:
         def when_validate_error_wrapper(
-            func: AsyncCallable[[dict[str, Any], Exception], None]
+            func: SyncOrAsyncCallable[[dict[str, Any], Exception], None]
         ) -> AsyncCallable[[dict[str, Any], Exception], None]:
+            f = to_async(func)
             if validate_type == "event":
-                self._event_factory.add_validate_handler(func)
+                self._event_factory.add_validate_handler(f)
             elif validate_type == "echo":
-                self._echo_factory.add_validate_handler(func)
+                self._echo_factory.add_validate_handler(f)
             else:
                 raise AdapterError("无效的验证类型，合法值是 'event', 'echo' 之一")
-            return func
+            return f
 
         return when_validate_error_wrapper
 

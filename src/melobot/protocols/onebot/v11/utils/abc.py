@@ -7,7 +7,8 @@ from functools import partial
 from typing_extensions import Any, Callable, Coroutine
 
 from melobot.exceptions import BotException
-from melobot.typ import AsyncCallable, BetterABC, LogicMode
+from melobot.typ import BetterABC, LogicMode, SyncOrAsyncCallable
+from melobot.utils import to_async
 
 from ..adapter.event import Event
 
@@ -18,9 +19,9 @@ class OneBotV11UtilsError(BotException): ...
 class Checker(BetterABC):
     """检查器基类"""
 
-    def __init__(self, fail_cb: AsyncCallable[[], None] | None = None) -> None:
+    def __init__(self, fail_cb: SyncOrAsyncCallable[[], None] | None = None) -> None:
         super().__init__()
-        self.fail_cb = fail_cb
+        self.fail_cb = to_async(fail_cb) if fail_cb is not None else None
 
     def __and__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
@@ -93,8 +94,8 @@ class WrappedChecker(Checker):
         self.mode = mode
         self.c1, self.c2 = checker1, checker2
 
-    def set_fail_cb(self, fail_cb: AsyncCallable[[], None] | None) -> None:
-        self.fail_cb = fail_cb
+    def set_fail_cb(self, fail_cb: SyncOrAsyncCallable[[], None] | None) -> None:
+        self.fail_cb = to_async(fail_cb) if fail_cb is not None else None
 
     async def check(self, event: Event) -> bool:
         c2_check: Callable[[], Coroutine[Any, Any, bool]] | None = (

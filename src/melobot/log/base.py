@@ -28,7 +28,7 @@ from typing_extensions import Any, Callable, Generator, Literal, Optional
 from ..typ._enum import VoidType
 from ..typ.base import T
 from ..typ.cls import BetterABC
-from ..utils import singleton
+from ..utils.common import singleton
 
 _CONSOLE_IO = io.StringIO()
 _CONSOLE = rich.console.Console(file=_CONSOLE_IO, record=True, color_system="256")

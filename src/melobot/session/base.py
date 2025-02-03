@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 from asyncio import Condition, Future, Lock
 from contextlib import _AsyncGeneratorContextManager, asynccontextmanager
 
@@ -10,7 +11,7 @@ from ..adapter.model import Event
 from ..ctx import FlowCtx, SessionCtx
 from ..exceptions import SessionRuleLacked, SessionStateFailed
 from ..handle.base import EventCompletion, stop
-from ..typ.base import AsyncCallable
+from ..typ.base import SyncOrAsyncCallable
 from .option import CompareInfo, Rule
 
 _SESSION_CTX = SessionCtx()
@@ -191,7 +192,7 @@ class Session:
         completion: EventCompletion,
         rule: Rule | None = None,
         wait: bool = True,
-        nowait_cb: AsyncCallable[[], None] | None = None,
+        nowait_cb: SyncOrAsyncCallable[[], None] | None = None,
         keep: bool = False,
         auto_complete: bool = True,
     ) -> Session | None:
@@ -237,7 +238,9 @@ class Session:
 
                     if not wait:
                         if nowait_cb is not None:
-                            await nowait_cb()
+                            ret = nowait_cb()
+                            if inspect.isawaitable(ret):
+                                await ret
                         completion.completed.set_result(None)
                         return None
 
@@ -279,7 +282,7 @@ class Session:
         cls,
         rule: Rule,
         wait: bool = True,
-        nowait_cb: AsyncCallable[[], None] | None = None,
+        nowait_cb: SyncOrAsyncCallable[[], None] | None = None,
         keep: bool = False,
         auto_complete: bool = True,
     ) -> AsyncGenerator[Session, None]:
@@ -323,7 +326,7 @@ async def suspend(timeout: float | None = None) -> bool:
 def enter_session(
     rule: Rule,
     wait: bool = True,
-    nowait_cb: AsyncCallable[[], None] | None = None,
+    nowait_cb: SyncOrAsyncCallable[[], None] | None = None,
     keep: bool = False,
 ) -> _AsyncGeneratorContextManager[Session]:
     """上下文管理器，提供一个会话上下文，在此上下文中可使用会话的高级特性

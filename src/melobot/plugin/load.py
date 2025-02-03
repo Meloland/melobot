@@ -13,7 +13,7 @@ from typing_extensions import Any, Callable, Iterable, cast
 from .._imp import Importer
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginAutoGenError, PluginLoadError
-from ..utils import singleton
+from ..utils.common import singleton
 from .base import Plugin, PluginPlanner
 from .ipc import AsyncShare, SyncShare
 

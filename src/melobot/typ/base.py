@@ -27,6 +27,10 @@ __all__ = (
 
 #: 泛型 T，无约束
 T = TypeVar("T", default=Any)
+#: 泛型 T，无约束
+U = TypeVar("U", default=Any)
+#: 泛型 T，无约束
+V = TypeVar("V", default=Any)
 #: 泛型 T_co，协变无约束
 T_co = TypeVar("T_co", covariant=True, default=Any)
 #: :obj:`~typing.ParamSpec` 泛型 P，无约束
@@ -40,6 +44,15 @@ class AsyncCallable(Protocol[P, T_co]):
     """
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Awaitable[T_co]: ...
+
+
+class SyncOrAsyncCallable(Protocol[P, T_co]):
+    """用法：SyncOrAsyncCallable[P, T]
+
+    是该类型的等价形式：Callable[P, T | Awaitable[T]]
+    """
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co | Awaitable[T_co]: ...
 
 
 _DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)

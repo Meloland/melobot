@@ -34,7 +34,7 @@ from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
-from ..typ.base import AsyncCallable, P
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from .dispatch import Dispatcher
 
 
@@ -483,27 +483,37 @@ class Bot(Hookable[BotLifeSpan]):
         self._dispatcher.add(*flows)
 
     @property
-    def on_loaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_loaded(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.LOADED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.LOADED)
 
     @property
-    def on_reloaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_reloaded(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.RELOADED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.RELOADED)
 
     @property
-    def on_started(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_started(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.STARTED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STARTED)
 
     @property
-    def on_close(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_close(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.CLOSE` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.CLOSE)
 
     @property
-    def on_stopped(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_stopped(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.STOPPED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STOPPED)
 

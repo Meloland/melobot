@@ -7,7 +7,7 @@ from melobot.ctx import Context
 from melobot.di import Depends, inject_deps
 from melobot.handle import Flow, get_event, no_deps_node
 from melobot.session import Rule, enter_session
-from melobot.typ import AsyncCallable, LogicMode
+from melobot.typ import AsyncCallable, LogicMode, SyncOrAsyncCallable
 from melobot.utils import get_obj_name
 
 from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
@@ -128,7 +128,7 @@ class FlowDecorator:
 
         return await self._process(func, event, args)
 
-    def __call__(self, func: AsyncCallable[..., bool | None]) -> Flow:
+    def __call__(self, func: SyncOrAsyncCallable[..., bool | None]) -> Flow:
         func = inject_deps(func)
         if self.decos is not None:
             for deco in reversed(self.decos):

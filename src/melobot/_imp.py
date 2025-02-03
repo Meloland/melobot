@@ -24,7 +24,7 @@ from types import ModuleType
 from typing_extensions import Any, Sequence, cast
 
 from .exceptions import DynamicImpError
-from .utils import singleton
+from .utils.common import singleton
 
 ALL_EXTS = tuple(all_suffixes())
 EMPTY_PKG_TAG = "__melobot_namespace_pkg__"

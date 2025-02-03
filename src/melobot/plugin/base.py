@@ -9,7 +9,8 @@ from typing_extensions import Callable, final, overload
 from .._hook import HookBus
 from ..exceptions import PluginLoadError
 from ..handle.base import Flow
-from ..typ.base import AsyncCallable, P, T
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
+from ..utils.base import to_async
 from .ipc import AsyncShare, SyncShare
 
 
@@ -68,7 +69,7 @@ class PluginPlanner:
     @final
     def on(
         self, *periods: PluginLifeSpan
-    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """注册一个 hook
 
         :param periods: 要绑定的 hook 类型
@@ -76,11 +77,12 @@ class PluginPlanner:
         """
 
         def plugin_hook_register_wrapped(
-            func: AsyncCallable[P, None]
+            func: SyncOrAsyncCallable[P, None]
         ) -> AsyncCallable[P, None]:
+            f = to_async(func)
             for type in periods:
-                self._hook_bus.register(type, func)
-            return func
+                self._hook_bus.register(type, f)
+            return f
 
         return plugin_hook_register_wrapped
 

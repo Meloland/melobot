@@ -4,24 +4,11 @@ from functools import wraps
 from typing_extensions import Any, Awaitable, Callable, Coroutine
 
 from ..exceptions import ValidateError
-from ..typ.base import AsyncCallable, P, T
-
-
-async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) -> T:
-    """在使用异步可调用对象时，提供用户友好的验证"""
-    if not callable(func):
-        raise ValidateError(f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）")
-
-    await_obj = func(*args, **kwargs)
-    if inspect.isawaitable(await_obj):
-        return await await_obj
-    raise ValidateError(
-        f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}，因此可能是同步函数"
-    )
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
 
 
 def to_async(
-    obj: Callable[P, T] | AsyncCallable[P, T] | Awaitable[T]
+    obj: SyncOrAsyncCallable[P, T] | Awaitable[T]
 ) -> Callable[P, Coroutine[Any, Any, T]]:
     """异步包装函数
 
@@ -48,9 +35,7 @@ def to_async(
 
 
 def to_coro(
-    obj: Callable[P, T] | AsyncCallable[P, T] | Awaitable[T],
-    *args: Any,
-    **kwargs: Any,
+    obj: SyncOrAsyncCallable[P, T] | Awaitable[T], *args: Any, **kwargs: Any
 ) -> Coroutine[Any, Any, T]:
     """协程包装函数
 
@@ -64,3 +49,16 @@ def to_coro(
     if inspect.iscoroutine(obj):
         return obj
     return to_async(obj)(*args, **kwargs)  # type: ignore[arg-type]
+
+
+async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) -> T:
+    """在使用异步可调用对象时，提供用户友好的验证"""
+    if not callable(func):
+        raise ValidateError(f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）")
+
+    await_obj = func(*args, **kwargs)
+    if inspect.isawaitable(await_obj):
+        return await await_obj
+    raise ValidateError(
+        f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}，因此可能是同步函数"
+    )
