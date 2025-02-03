@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import dataclass
+from functools import partial
 
 from typing_extensions import Any, Callable, Coroutine
 
 from melobot.exceptions import BotException
 from melobot.typ import AsyncCallable, BetterABC, LogicMode
-from melobot.utils import to_async
 
 from ..adapter.event import Event
 
@@ -97,13 +97,11 @@ class WrappedChecker(Checker):
         self.fail_cb = fail_cb
 
     async def check(self, event: Event) -> bool:
-        c2_check: Callable[[], Coroutine[Any, Any, bool | None]] = (
-            (lambda: self.c2.check(event))  # type: ignore[union-attr]
-            if self.c2 is not None
-            else to_async(lambda: None)  # type: ignore[misc,arg-type]
+        c2_check: Callable[[], Coroutine[Any, Any, bool]] | None = (
+            partial(self.c2.check, event) if self.c2 is not None else None
         )
         status = await LogicMode.async_short_calc(
-            self.mode, lambda: self.c1.check(event), c2_check
+            self.mode, partial(self.c1.check, event), c2_check
         )
 
         if not status and self.fail_cb is not None:
@@ -176,13 +174,11 @@ class WrappedMatcher(Matcher):
         self.m1, self.m2 = matcher1, matcher2
 
     async def match(self, text: str) -> bool:
-        m2_match: Callable[[], Coroutine[Any, Any, bool | None]] = (
-            (lambda: self.m2.match(text))  # type: ignore[union-attr]
-            if self.m2 is not None
-            else to_async(lambda: None)  # type: ignore[misc,arg-type]
+        m2_match: Callable[[], Coroutine[Any, Any, bool]] | None = (
+            partial(self.m2.match, text) if self.m2 is not None else None
         )
         return await LogicMode.async_short_calc(
-            self.mode, lambda: self.m1.match(text), m2_match
+            self.mode, partial(self.m1.match, text), m2_match
         )
 
 

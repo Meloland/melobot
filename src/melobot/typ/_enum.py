@@ -45,7 +45,7 @@ class LogicMode(Enum):
 
     @classmethod
     def short_calc(
-        cls, logic: "LogicMode", v1: Callable[[], Any], v2: Callable[[], Any]
+        cls, logic: "LogicMode", v1: Callable[[], Any], v2: Callable[[], Any] | None
     ) -> bool:
         """与 :func:`calc` 功能类似，但运算支持短路
 
@@ -64,7 +64,10 @@ class LogicMode(Enum):
 
     @classmethod
     async def async_short_calc(
-        cls, logic: "LogicMode", v1: AsyncCallable[[], Any], v2: AsyncCallable[[], Any]
+        cls,
+        logic: "LogicMode",
+        v1: AsyncCallable[[], Any],
+        v2: AsyncCallable[[], Any] | None,
     ) -> bool:
         """与 :func:`short_calc` 功能类似，但运算支持异步
 

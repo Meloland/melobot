@@ -31,6 +31,12 @@ class Echo(RootEcho):
             data=self._model.data,
         )
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(status={self._model.status},"
+            f" retcode={self._model.retcode}, action_type={self.action_type})"
+        )
+
     def is_ok(self) -> bool:
         return self._model.status == "ok"
 

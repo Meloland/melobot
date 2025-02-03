@@ -85,7 +85,7 @@ class TestRwc:
 
         idx = choice(range(0, len(r_seq) + len(rw_seq) - 1))
         seq = rw_seq[:idx] + r_seq + rw_seq[idx:]
-        await aio.wait(map(lambda c: aio.create_task(c), seq))
+        await aio.wait(map(aio.create_task, seq))
         assert cls.ASYNC_READED
 
 

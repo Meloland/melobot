@@ -4,7 +4,7 @@ from abc import abstractmethod
 from asyncio import Lock
 from collections import deque
 from dataclasses import dataclass
-from functools import wraps
+from functools import partial, wraps
 from inspect import Parameter, isawaitable, signature, unwrap
 from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
@@ -143,9 +143,7 @@ class AutoDepends(Depends):
             self.orig_getter = BotCtx().get
 
         elif is_subhint(hint, _get_adapter_type()):
-            self.orig_getter = cast(
-                Callable[[], Any], lambda d=self, h=hint: _adapter_get(d, h)
-            )
+            self.orig_getter = cast(Callable[[], Any], partial(_adapter_get, self, hint))
 
         elif is_subhint(hint, LoggerCtx().get_type()):
             self.orig_getter = LoggerCtx().get
@@ -160,12 +158,12 @@ class AutoDepends(Depends):
             self.orig_getter = SessionCtx().get_store
 
         elif is_subhint(hint, SessionCtx().get_rule_type() | None):
-            self.orig_getter = lambda: SessionCtx().get().rule
+            self.orig_getter = SessionCtx().get_rule
 
         for data in self.metadatas:
             if isinstance(data, CustomLogger):
                 self.orig_getter = cast(
-                    Callable[[], Any], lambda h=hint, d=data: _custom_logger_get(h, d)
+                    Callable[[], Any], partial(_custom_logger_get, hint, data)
                 )
                 break
 
@@ -178,8 +176,7 @@ class AutoDepends(Depends):
         for data in self.metadatas:
             if isinstance(data, Reflect):
                 self.orig_getter = cast(
-                    Callable[[], Any],
-                    lambda g=self.orig_getter: Reflection(cast(Callable[[], Any], g)),
+                    Callable[[], Any], partial(Reflection, self.orig_getter)
                 )
                 break
 
@@ -271,7 +268,7 @@ class CustomLogger:
 
         # 如果 bot 设置的 logger 是 MyLogger 类型，则成功依赖注入
         # 否则使用 getter 获取一个日志器
-        NewLoggerHint = Annotated[MyLogger, CustomLogger(getter=lambda: MyLogger())]
+        NewLoggerHint = Annotated[MyLogger, CustomLogger(getter=MyLogger)]
     """
 
     getter: Callable[[], Any]

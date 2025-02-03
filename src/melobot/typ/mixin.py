@@ -160,8 +160,8 @@ class AttrReprMixin:
         attrs = ", ".join(
             f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
         )
-        if len(attrs) >= 80:
-            attrs = attrs[:80] + "..."
+        if len(attrs) >= 100:
+            attrs = attrs[:100] + "..."
         return f"{self.__class__.__name__}({attrs})"
 
 

@@ -41,7 +41,7 @@ class PluginInitHelper:
     def _get_init_py_str() -> str:
         return re.sub(
             r"_VAR(\d+)",
-            lambda match: f"_{int(time()):#x}{match.group(1)}",
+            lambda matched: f"_{int(time()):#x}{matched.group(1)}",
             PluginInitHelper._BASE_INIT_PY_STR,
         )
 

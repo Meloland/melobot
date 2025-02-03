@@ -101,5 +101,4 @@ def async_interval(
             coro.close()
             raise
 
-    t = asyncio.create_task(_interval_task())
-    return t
+    return asyncio.create_task(_interval_task())

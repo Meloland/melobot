@@ -25,5 +25,5 @@ def get_rule() -> Rule:
     :return: 会话规则
     """
     rule = _SessionCtx().get().rule
-    assert rule is not None
+    assert rule is not None, "预期之外的会话规则为空"
     return rule

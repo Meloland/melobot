@@ -173,7 +173,8 @@ class ReverseWebSocketIO(BaseIO):
 
             for t in self._tasks:
                 t.cancel()
-            await asyncio.wait(self._tasks)
+            if len(self._tasks):
+                await asyncio.wait(self._tasks)
             self._tasks.clear()
             self.logger.info("OneBot v11 反向 WebSocket IO 源的服务已停止运行")
 

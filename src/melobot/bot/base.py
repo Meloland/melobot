@@ -390,7 +390,8 @@ class Bot(Hookable[BotLifeSpan]):
             for bot in bots:
                 tasks.append(asyncio.create_task(bot.core_run()))
             try:
-                await asyncio.wait(tasks)
+                if len(tasks):
+                    await asyncio.wait(tasks)
             except asyncio.CancelledError:
                 pass
 

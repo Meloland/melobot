@@ -236,7 +236,8 @@ class ActionChain:
         _handles = await handles
         for handle in _handles:
             handle.execute()
-        await asyncio.wait(map(lambda h: create_task(to_coro(h)), _handles))
+        if len(_handles):
+            await asyncio.wait(map(create_task, map(to_coro, _handles)))
 
     def add(
         self,

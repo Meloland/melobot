@@ -182,7 +182,8 @@ class HttpIO(BaseIO):
             await self.client_session.close()
             for t in self._tasks:
                 t.cancel()
-            await asyncio.wait(self._tasks)
+            if len(self._tasks):
+                await asyncio.wait(self._tasks)
             self._tasks.clear()
 
             self._opened.clear()

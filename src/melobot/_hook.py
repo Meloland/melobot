@@ -85,10 +85,10 @@ class HookBus(Generic[HookEnumT]):
             msg = f"开始 hook: {msg}"
         logger.debug(msg)
 
-        tasks = [
+        tasks = tuple(
             asyncio.create_task(runner.run(*args, **kwargs))
             for runner in self._hooks[hook_type]
-        ]
+        )
         if wait and len(tasks):
             await asyncio.wait(tasks)
 

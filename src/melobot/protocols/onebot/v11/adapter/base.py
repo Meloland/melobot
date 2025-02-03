@@ -44,10 +44,14 @@ class ValidateHandleMixin:
         try:
             return func(data)
         except Exception as e:
-            tasks = tuple(
-                asyncio.create_task(to_coro(cb(data, e))) for cb in self.validate_handlers
+            tasks = map(
+                asyncio.create_task,
+                map(
+                    to_coro,
+                    (cb(data, e) for cb in self.validate_handlers),
+                ),
             )
-            if len(tasks):
+            if len(self.validate_handlers):
                 await asyncio.wait(tasks)
         return func(data)
 
