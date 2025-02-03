@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-from functools import wraps
 from os import PathLike
 
 from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence, cast
@@ -39,36 +38,23 @@ class ValidateHandleMixin:
     def add_validate_handler(self, callback: _ValidateHandler) -> None:
         self.validate_handlers.append(callback)
 
-    def validate_handle(
-        self, data: dict[str, Any]
-    ) -> Callable[[Callable[P, T]], AsyncCallable[P, T]]:
-
-        def validate_handle_wrapper(func: Callable[P, T]) -> AsyncCallable[P, T]:
-
-            @wraps(func)
-            async def validate_handle_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-                try:
-                    return func(*args, **kwargs)
-
-                except Exception as e:
-                    tasks = tuple(
-                        asyncio.create_task(to_coro(cb(data, e)))
-                        for cb in self.validate_handlers
-                    )
-                    if len(tasks):
-                        await asyncio.wait(tasks)
-
-                return func(*args, **kwargs)
-
-            return validate_handle_wrapped
-
-        return validate_handle_wrapper
+    async def validate_handle(
+        self, data: dict[str, Any], func: Callable[[dict[str, Any]], T]
+    ) -> T:
+        try:
+            return func(data)
+        except Exception as e:
+            tasks = tuple(
+                asyncio.create_task(to_coro(cb(data, e))) for cb in self.validate_handlers
+            )
+            if len(tasks):
+                await asyncio.wait(tasks)
+        return func(data)
 
 
 class EventFactory(AbstractEventFactory[InPacket, ev.Event], ValidateHandleMixin):
     async def create(self, packet: InPacket) -> ev.Event:
-        data = packet.data
-        return await self.validate_handle(data)(ev.Event.resolve)(data)
+        return await self.validate_handle(packet.data, ev.Event.resolve)
 
 
 class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):
@@ -88,7 +74,7 @@ class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo], ValidateHandleMixin)
 
         data = packet.data
         data[ACTION_TYPE_KEY_NAME] = packet.action_type
-        return await self.validate_handle(data)(ec.Echo.resolve)(data)
+        return await self.validate_handle(data, ec.Echo.resolve)
 
 
 class EchoRequireCtx(Context[bool]):
