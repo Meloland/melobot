@@ -1,5 +1,6 @@
 import asyncio
 import time
+from asyncio import Task
 from enum import Enum
 
 from typing_extensions import Any, Generic, TypeVar
@@ -8,7 +9,7 @@ from .ctx import LoggerCtx
 from .di import inject_deps
 from .log.base import LogLevel
 from .typ.base import AsyncCallable, SyncOrAsyncCallable
-from .utils import to_async
+from .utils import to_async, to_sync
 
 HookEnumT = TypeVar("HookEnumT", bound=Enum)
 
@@ -73,6 +74,7 @@ class HookBus(Generic[HookEnumT]):
         *,
         args: tuple | None = None,
         kwargs: dict[str, Any] | None = None,
+        callback: SyncOrAsyncCallable[[Task[None] | None], None] | None = None,
     ) -> None:
         self._stamps[hook_type] = time.time_ns() / 1e9
         args = args if args is not None else ()
@@ -90,5 +92,14 @@ class HookBus(Generic[HookEnumT]):
             asyncio.create_task(runner.run(*args, **kwargs))
             for runner in self._hooks[hook_type]
         )
+
+        if callback is not None:
+            if len(tasks):
+                for t in tasks:
+                    t.add_done_callback(to_sync(callback))
+            else:
+                to_sync(callback)(None)
+                return
+
         if wait and len(tasks):
             await asyncio.wait(tasks)

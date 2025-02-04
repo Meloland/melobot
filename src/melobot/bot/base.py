@@ -273,8 +273,6 @@ class Bot(HookMixin[BotLifeSpan]):
                 return self
 
             self._plugins[p.name] = p
-            self._dispatcher.add(*p.init_flows)
-
             for share in p.shares:
                 self.ipc_manager.add(p.name, share)
             for func in p.funcs:
@@ -282,7 +280,12 @@ class Bot(HookMixin[BotLifeSpan]):
             self.logger.info(f"成功加载插件：{p.name}")
 
             if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
-                asyncio.create_task(p.hook_bus.emit(PluginLifeSpan.INITED))
+                asyncio.create_task(
+                    p.hook_bus.emit(
+                        PluginLifeSpan.INITED,
+                        callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
+                    )
+                )
             return self
 
     def load_plugins(
@@ -348,7 +351,10 @@ class Bot(HookMixin[BotLifeSpan]):
                     await self._hook_bus.emit(BotLifeSpan.RELOADED)
 
                 for p in self._plugins.values():
-                    await p.hook_bus.emit(PluginLifeSpan.INITED)
+                    await p.hook_bus.emit(
+                        PluginLifeSpan.INITED,
+                        callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
+                    )
 
                 self._dispatcher.start()
 
@@ -480,6 +486,8 @@ class Bot(HookMixin[BotLifeSpan]):
 
         :param flows: 流对象
         """
+        if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) == -1:
+            raise BotError(f"只有在 {BotLifeSpan.STARTED} 生命周期后才能动态添加处理流")
         self._dispatcher.add(*flows)
 
     @property

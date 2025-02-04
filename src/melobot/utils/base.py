@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 from functools import wraps
 
@@ -62,3 +63,28 @@ async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) ->
     raise ValidateError(
         f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}，因此可能是同步函数"
     )
+
+
+def to_sync(obj: SyncOrAsyncCallable[P, Any] | Awaitable[Any]) -> Callable[P, None]:
+    """同步包装函数
+
+    将一个可调用对象或可等待对象装饰为同步函数，但同步函数无法异步等待，包装后无法获取返回值
+
+    因此仅用于接口兼容，如果提供了异步可调用对象，需要自行捕获内部可能的异常
+
+    :param obj: 需要转换的可调用对象或可等待对象
+    :return: 同步函数
+    """
+
+    def to_sync_wrapped(*args: P.args, **kwargs: P.kwargs) -> None:
+        if inspect.isawaitable(obj):
+            asyncio.create_task(to_coro(obj))
+            return
+
+        res = obj(*args, **kwargs)
+        if inspect.isawaitable(res):
+            asyncio.create_task(to_coro(res))
+
+    if not inspect.isawaitable(obj):
+        to_sync_wrapped = wraps(obj)(to_sync_wrapped)
+    return to_sync_wrapped
