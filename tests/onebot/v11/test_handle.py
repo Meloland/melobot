@@ -2,19 +2,15 @@ import asyncio
 from asyncio import Queue, create_task
 
 from melobot.bot import Bot
+from melobot.handle import GetParseArgs, on_start_match
 from melobot.log import GenericLogger
 from melobot.plugin import PluginPlanner
-from melobot.protocols.onebot.v11 import handle
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.adapter.event import MessageEvent
 from melobot.protocols.onebot.v11.io.base import BaseIOSource
 from melobot.protocols.onebot.v11.io.packet import EchoPacket, InPacket, OutPacket
-from melobot.protocols.onebot.v11.utils import (
-    CmdParser,
-    GroupMsgChecker,
-    LevelRole,
-    ParseArgs,
-)
+from melobot.protocols.onebot.v11.utils import GroupMsgChecker, LevelRole
+from melobot.utils.parse import CmdArgs, CmdParser
 from tests.base import *
 
 _GRUOP_EVENT_DICT = {
@@ -44,7 +40,7 @@ _GRUOP_EVENT_DICT = {
 }
 
 
-h = handle.on_start_match(
+h = on_start_match(
     ["123", "456"],
     checker=GroupMsgChecker(
         role=LevelRole.WHITE,
@@ -63,7 +59,7 @@ async def _flow(
     bot: Bot,
     event: MessageEvent,
     logger: GenericLogger,
-    args: ParseArgs = handle.GetParseArgs(),
+    args: CmdArgs = GetParseArgs(),
 ) -> None:
     logger.info(args)
     await bot.close()
