@@ -134,8 +134,8 @@ class Adapter(
         super().__init__(hook_type=AdapterLifeSpan, hook_tag=protocol)
 
         self.protocol = protocol
-        self.in_srcs: list[InSourceT] = []
-        self.out_srcs: list[OutSourceT] = []
+        self.in_srcs: set[InSourceT] = set()
+        self.out_srcs: set[OutSourceT] = set()
         self.dispatcher: "Dispatcher"
         self._event_factory = event_factory
         self._output_factory = output_factory
@@ -247,7 +247,7 @@ class Adapter(
         elif isinstance(cur_isrc, AbstractOutSource):
             osrcs = (cast(OutSourceT, cur_isrc),)
         else:
-            osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
+            osrcs = self.out_srcs if len(self.out_srcs) else ()
 
         await self._hook_bus.emit(
             AdapterLifeSpan.BEFORE_ACTION_EXEC, True, args=(action,)

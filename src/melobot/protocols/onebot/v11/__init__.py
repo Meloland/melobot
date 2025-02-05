@@ -29,19 +29,16 @@ from .utils import *
 
 
 class OneBotV11Protocol(ProtocolStack):
-    def __init__(self, *srcs: BaseInSource | BaseOutSource | BaseIOSource) -> None:
+    def __init__(self, *srcs: BaseSource) -> None:
         super().__init__()
         self.adapter = Adapter()
-        self.inputs = []
-        self.outputs = []
+        self.inputs = set()
+        self.outputs = set()
 
         for src in srcs:
-            if isinstance(src, BaseInSource):
-                self.inputs.append(src)
-            elif isinstance(src, BaseOutSource):
-                self.outputs.append(src)
-            elif isinstance(src, BaseIOSource):
-                self.inputs.append(src)
-                self.outputs.append(src)
-            else:
+            if not isinstance(src, BaseSource):
                 raise TypeError(f"不支持的 OneBot v11 源类型: {type(src)}")
+            if isinstance(src, BaseInSource):
+                self.inputs.add(src)
+            if isinstance(src, BaseOutSource):
+                self.outputs.add(src)

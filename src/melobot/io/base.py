@@ -9,7 +9,7 @@ from types import TracebackType
 from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
 
 from ..mixin import HookMixin, LogMixin
-from ..typ.cls import BetterABC
+from ..typ.cls import BetterABC, abstractattr
 from ..utils.common import get_id
 
 
@@ -85,12 +85,12 @@ class SourceLifeSpan(Enum):
 class AbstractSource(HookMixin[SourceLifeSpan], LogMixin, BetterABC):
     """抽象源基类"""
 
-    def __init__(self, protocol: LiteralString) -> None:
+    def __init__(self) -> None:
         super().__init__(
-            hook_type=SourceLifeSpan, hook_tag=f"{protocol}/{self.__class__.__name__}"
+            hook_type=SourceLifeSpan,
+            hook_tag=f"{self.__class__.__module__}.{self.__class__.__name__}",
         )
-
-        self.protocol = protocol
+        self.protocol: LiteralString = abstractattr()
 
     @abstractmethod
     async def open(self) -> None:
@@ -131,7 +131,7 @@ class AbstractSource(HookMixin[SourceLifeSpan], LogMixin, BetterABC):
         return None
 
 
-class AbstractInSource(AbstractSource, Generic[InPacketT], BetterABC):
+class AbstractInSource(AbstractSource, Generic[InPacketT]):
     """抽象输入源基类"""
 
     @abstractmethod
@@ -158,7 +158,7 @@ class AbstractInSource(AbstractSource, Generic[InPacketT], BetterABC):
 InSourceT = TypeVar("InSourceT", bound=AbstractInSource)
 
 
-class AbstractOutSource(AbstractSource, Generic[OutPacketT, EchoPacketT], BetterABC):
+class AbstractOutSource(AbstractSource, Generic[OutPacketT, EchoPacketT]):
     """抽象输出源基类"""
 
     @abstractmethod
@@ -188,7 +188,7 @@ InOrOutSourceT = TypeVar("InOrOutSourceT", bound=AbstractInSource | AbstractOutS
 
 
 class AbstractIOSource(
-    AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT], BetterABC
+    AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT]
 ):
     """抽象输入输出源基类"""
 

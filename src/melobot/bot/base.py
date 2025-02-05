@@ -118,8 +118,8 @@ class Bot(HookMixin[BotLifeSpan]):
         self.adapters: dict[str, Adapter] = {}
         self.ipc_manager = IPCManager()
 
-        self._in_srcs: dict[str, list[AbstractInSource]] = {}
-        self._out_srcs: dict[str, list[AbstractOutSource]] = {}
+        self._in_srcs: dict[str, set[AbstractInSource]] = {}
+        self._out_srcs: dict[str, set[AbstractOutSource]] = {}
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
         self._dispatcher = Dispatcher()
@@ -159,7 +159,7 @@ class Bot(HookMixin[BotLifeSpan]):
         if self._inited:
             raise BotError(f"{self} 已不在初始化期，无法再绑定输入源")
 
-        self._in_srcs.setdefault(src.protocol, []).append(src)
+        self._in_srcs.setdefault(src.protocol, set()).add(src)
         return self
 
     def add_output(self, src: AbstractOutSource) -> Bot:
@@ -171,7 +171,7 @@ class Bot(HookMixin[BotLifeSpan]):
         if self._inited:
             raise BotError(f"{self} 已不在初始化期，无法再绑定输出源")
 
-        self._out_srcs.setdefault(src.protocol, []).append(src)
+        self._out_srcs.setdefault(src.protocol, set()).add(src)
         return self
 
     def add_io(self, src: AbstractIOSource) -> Bot:
@@ -221,7 +221,7 @@ class Bot(HookMixin[BotLifeSpan]):
             for isrc in srcs:
                 adapter = self.adapters.get(protocol)
                 if adapter is not None:
-                    adapter.in_srcs.append(isrc)
+                    adapter.in_srcs.add(isrc)
                 else:
                     self.logger.warning(
                         f"输入源 {isrc.__class__.__name__} 没有对应的适配器"
@@ -231,7 +231,7 @@ class Bot(HookMixin[BotLifeSpan]):
             for osrc in outsrcs:
                 adapter = self.adapters.get(protocol)
                 if adapter is not None:
-                    adapter.out_srcs.append(osrc)
+                    adapter.out_srcs.add(osrc)
                 else:
                     self.logger.warning(
                         f"输出源 {osrc.__class__.__name__} 没有对应的适配器"
