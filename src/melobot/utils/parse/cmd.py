@@ -272,6 +272,7 @@ class CmdParser(Parser):
         """
         super().__init__()
         self.targets = targets if isinstance(targets, list) else [targets]
+        assert len(self.targets) >= 1, "命令解析器至少需要一个目标命令名"
         self.fmtters = fmtters
 
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
@@ -282,7 +283,7 @@ class CmdParser(Parser):
         self.cmd_sep: list[str]
         self.start_regex: re.Pattern[str]
         self.sep_regex: re.Pattern[str]
-        self.arg_tag = tag
+        self.arg_tag = tag if tag is not None else self.targets[0]
 
         if self.ban_regex.findall(f"{''.join(cmd_start)}{''.join(cmd_sep)}"):
             raise CmdParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
