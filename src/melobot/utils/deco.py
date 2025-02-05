@@ -5,7 +5,7 @@ from functools import wraps
 
 from typing_extensions import Any, AsyncContextManager, Callable, ContextManager, cast
 
-from ..exceptions import ValidateError
+from ..exceptions import UtilValidateError
 from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, U, V
 from .base import to_async
 
@@ -74,7 +74,7 @@ def unfold_ctx(
             try:
                 manager = await _getter()
             except Exception as e:
-                raise ValidateError(
+                raise UtilValidateError(
                     f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它获取上下文管理器失败：{e}"
                 ) from e
 
@@ -85,7 +85,7 @@ def unfold_ctx(
                 async with manager:
                     return await _func(*args, **kwargs)
             else:
-                raise ValidateError(
+                raise UtilValidateError(
                     f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它返回了无效的上下文管理器"
                 )
 
@@ -277,9 +277,9 @@ def speedlimit(
     called_num = 0
     min_start = time.perf_counter()
     if limit <= 0:
-        raise ValidateError("speedlimit 装饰器的 limit 参数必须 > 0")
+        raise UtilValidateError("speedlimit 装饰器的 limit 参数必须 > 0")
     if duration <= 0:
-        raise ValidateError("speedlimit 装饰器的 duration 参数必须 > 0")
+        raise UtilValidateError("speedlimit 装饰器的 duration 参数必须 > 0")
 
     _callback = to_async(callback) if callback is not None else None
 

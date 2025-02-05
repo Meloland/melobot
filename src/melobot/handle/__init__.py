@@ -14,6 +14,18 @@ from .base import (
     rewind,
     stop,
 )
+from .register import (
+    FlowDecorator,
+    GetParseArgs,
+    on_command,
+    on_contain_match,
+    on_end_match,
+    on_event,
+    on_full_match,
+    on_regex_match,
+    on_start_match,
+    on_text,
+)
 
 
 def add_flows(*flows: Flow) -> None:

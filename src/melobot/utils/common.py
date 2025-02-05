@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import asyncio
 import base64
+import importlib
 import time
 import warnings
 from contextlib import asynccontextmanager
@@ -92,6 +95,36 @@ def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
         return deprecated_wrapped
 
     return deprecated_wrapper
+
+
+class DeprecatedLoader:
+    __warned_caches__: set[tuple[str, str, str]] = set()
+
+    def __init__(self, mod_name: str, obj_pairs: dict[str, tuple[str, str, str]]) -> None:
+        self.__depre_mod_name__ = mod_name
+        self.__deprecations__ = obj_pairs
+
+    def get(self, name: str) -> Any:
+        if name not in self.__deprecations__:
+            raise AttributeError(
+                f"module {self.__depre_mod_name__!r} has no attribute {name!r}"
+            )
+
+        location, varname, ver = self.__deprecations__[name]
+        if (location, varname, ver) not in self.__class__.__warned_caches__:
+            deprecate_warn(
+                f"{self.__depre_mod_name__}.{name} 现以弃用，"
+                f"将于 {ver} 版本移除，使用 {location}.{varname} 代替"
+            )
+            self.__class__.__warned_caches__.add((location, varname, ver))
+        return getattr(importlib.import_module(location), varname)
+
+    @staticmethod
+    def merge(name: str, *loaders: DeprecatedLoader) -> DeprecatedLoader:
+        dic: dict[str, tuple[str, str, str]] = {}
+        for loader in loaders:
+            dic |= loader.__deprecations__
+        return DeprecatedLoader(name, dic)
 
 
 class RWContext:

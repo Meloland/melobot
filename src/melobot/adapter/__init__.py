@@ -16,5 +16,6 @@ from .model import (
     EchoT,
     Event,
     EventT,
+    TextEvent,
     open_chain,
 )

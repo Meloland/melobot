@@ -4,7 +4,7 @@ from functools import wraps
 
 from typing_extensions import Any, Awaitable, Callable, Coroutine
 
-from ..exceptions import ValidateError
+from ..exceptions import UtilValidateError
 from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
 
 
@@ -55,12 +55,14 @@ def to_coro(
 async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) -> T:
     """在使用异步可调用对象时，提供用户友好的验证"""
     if not callable(func):
-        raise ValidateError(f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）")
+        raise UtilValidateError(
+            f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）"
+        )
 
     await_obj = func(*args, **kwargs)
     if inspect.isawaitable(await_obj):
         return await await_obj
-    raise ValidateError(
+    raise UtilValidateError(
         f"{func} 应该是异步函数，或其他异步可调用对象（返回 Awaitable 的可调用对象）。但它返回了：{await_obj}，因此可能是同步函数"
     )
 

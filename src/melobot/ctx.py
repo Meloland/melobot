@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from .log.base import GenericLogger
     from .session.base import Session, SessionStore
     from .session.option import Rule
+    from .utils.parse import AbstractParseArgs
 
 
 class Context(Generic[T], metaclass=SingletonMeta):

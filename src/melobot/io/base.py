@@ -85,12 +85,13 @@ class SourceLifeSpan(Enum):
 class AbstractSource(HookMixin[SourceLifeSpan], LogMixin, BetterABC):
     """抽象源基类"""
 
+    protocol: LiteralString = abstractattr()
+
     def __init__(self) -> None:
         super().__init__(
             hook_type=SourceLifeSpan,
             hook_tag=f"{self.__class__.__module__}.{self.__class__.__name__}",
         )
-        self.protocol: LiteralString = abstractattr()
 
     @abstractmethod
     async def open(self) -> None:

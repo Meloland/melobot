@@ -37,7 +37,11 @@ class BotException(Exception):
         return self.err
 
 
-class ValidateError(BotException):
+class UtilError(BotException):
+    """melobot.utils 异常"""
+
+
+class UtilValidateError(UtilError):
     """:py:mod:`melobot.utils` 函数参数验证异常"""
 
 

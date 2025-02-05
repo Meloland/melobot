@@ -28,6 +28,7 @@ from ..io.base import AbstractOutSource
 from ..log.base import LogLevel
 from ..mixin import AttrReprMixin, FlagMixin
 from ..typ.base import T
+from ..typ.cls import abstractattr
 from ..utils.base import to_coro
 from ..utils.common import get_id
 from .content import Content
@@ -66,6 +67,16 @@ class Event(AttrReprMixin, FlagMixin):
 
 
 EventT = TypeVar("EventT", bound=Event)
+
+
+class TextEvent(Event):
+    """文本事件类
+
+    :ivar str text: 文本内容
+    """
+
+    text: str = abstractattr()
+    textlines: list[str] = abstractattr()
 
 
 class Action(AttrReprMixin, FlagMixin):

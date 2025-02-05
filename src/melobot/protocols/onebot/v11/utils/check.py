@@ -5,10 +5,10 @@ from enum import Enum
 from typing_extensions import Literal, Optional, cast
 
 from melobot.typ import SyncOrAsyncCallable
+from melobot.utils.check import Checker
 
 from ..adapter.event import Event, GroupMessageEvent, MessageEvent
 from ..adapter.segment import AtSegment
-from .abc import Checker
 
 
 class LevelRole(int, Enum):
@@ -64,7 +64,7 @@ def get_group_role(event: MessageEvent) -> GroupRole:
     return GroupRole.MEMBER
 
 
-class MsgChecker(Checker):
+class MsgChecker(Checker[Event]):
     """消息事件分级权限检查器
 
     主要分 主人、超级用户、白名单用户、普通用户、黑名单用户 五级

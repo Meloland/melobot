@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing_extensions import Any, Literal, Sequence, cast
 
 from melobot.adapter import Event as RootEvent
+from melobot.adapter import TextEvent as RootTextEvent
 from melobot.adapter import content
 
 from ..const import PROTOCOL_IDENTIFIER
@@ -59,7 +60,7 @@ class Event(RootEvent):
         return self.post_type == "meta_event"
 
 
-class MessageEvent(Event):
+class MessageEvent(RootTextEvent, Event):
     class Model(Event.Model):
         post_type: Literal["message"]
         message_type: Literal["private", "group"] | str
@@ -115,6 +116,15 @@ class MessageEvent(Event):
         #: 消息字体
         self.font: int = self._model.font
 
+        #: 消息内容
+        self.text = "".join(
+            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
+        )
+        #: 消息内容行
+        self.textlines = "\n".join(
+            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
+        ).split("\n")
+
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}(text={self.text!r},"
@@ -130,18 +140,6 @@ class MessageEvent(Event):
         if (mtype := event_data.get("message_type")) in cls_map:
             return cls_map[mtype](**event_data)
         return cls(**event_data)
-
-    @property
-    def text(self) -> str:
-        return "".join(
-            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
-        )
-
-    @property
-    def textlines(self) -> str:
-        return "\n".join(
-            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
-        )
 
     def get_segments(self, type: type[Segment] | str) -> list[Segment]:
         if isinstance(type, str):
