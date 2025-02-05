@@ -70,14 +70,14 @@ def singleton(cls: Callable[P, T]) -> Callable[P, T]:
     return singleton_wrapped
 
 
-def deprecate_warn(msg: str) -> None:
+def deprecate_warn(msg: str, stacklevel: int = 2) -> None:
     # pylint: disable=cyclic-import
     from ..ctx import LoggerCtx
 
     if logger := LoggerCtx().try_get():
         logger.warning(msg)
     warnings.simplefilter("always", DeprecationWarning)
-    warnings.warn(msg, category=DeprecationWarning, stacklevel=1)
+    warnings.warn(msg, category=DeprecationWarning, stacklevel=stacklevel)
     warnings.simplefilter("default", DeprecationWarning)
 
 
@@ -88,7 +88,8 @@ def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
         @wraps(func)
         def deprecated_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
             deprecate_warn(
-                f"使用了弃用函数/方法 {func.__module__}.{func.__qualname__}: {msg}"
+                f"使用了弃用函数/方法 {func.__module__}.{func.__qualname__}: {msg}",
+                stacklevel=3,
             )
             return func(*args, **kwargs)
 
@@ -98,8 +99,6 @@ def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
 
 
 class DeprecatedLoader:
-    __warned_caches__: set[tuple[str, str, str]] = set()
-
     def __init__(self, mod_name: str, obj_pairs: dict[str, tuple[str, str, str]]) -> None:
         self.__depre_mod_name__ = mod_name
         self.__deprecations__ = obj_pairs
@@ -109,14 +108,12 @@ class DeprecatedLoader:
             raise AttributeError(
                 f"module {self.__depre_mod_name__!r} has no attribute {name!r}"
             )
-
         location, varname, ver = self.__deprecations__[name]
-        if (location, varname, ver) not in self.__class__.__warned_caches__:
-            deprecate_warn(
-                f"{self.__depre_mod_name__}.{name} 现以弃用，"
-                f"将于 {ver} 版本移除，使用 {location}.{varname} 代替"
-            )
-            self.__class__.__warned_caches__.add((location, varname, ver))
+        deprecate_warn(
+            f"{self.__depre_mod_name__}.{name} 现以弃用，"
+            f"将于 {ver} 版本移除，使用 {location}.{varname} 代替",
+            stacklevel=4,
+        )
         return getattr(importlib.import_module(location), varname)
 
     @staticmethod
