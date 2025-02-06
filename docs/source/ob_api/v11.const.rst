@@ -12,6 +12,10 @@ v11 协议常量
 
     OneBot v11 协议版本
 
+.. data:: melobot.protocols.onebot.v11.PROTOCOL_SUPPORT_AUTHOR
+
+    OneBot v11 协议支持模块的作者
+
 .. data:: melobot.protocols.onebot.v11.PROTOCOL_IDENTIFIER
 
     OneBot v11 协议 melobot 侧实现的唯一标识

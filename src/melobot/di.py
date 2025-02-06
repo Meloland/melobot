@@ -21,7 +21,7 @@ from typing_extensions import (
     get_origin,
 )
 
-from .ctx import BotCtx, EventOrigin, FlowCtx, LoggerCtx, SessionCtx
+from .ctx import BotCtx, EventOrigin, FlowCtx, LoggerCtx, ParseArgsCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
 from .typ._enum import VoidType
 from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, is_subhint, is_type
@@ -158,8 +158,11 @@ class AutoDepends(Depends):
         elif is_subhint(hint, SessionCtx().get_store_type()):
             self.orig_getter = SessionCtx().get_store
 
-        elif is_subhint(hint, SessionCtx().get_rule_type() | None):
+        elif is_subhint(hint, SessionCtx().get_rule_type()):
             self.orig_getter = SessionCtx().get_rule
+
+        elif is_subhint(hint, ParseArgsCtx().get_args_type()):
+            self.orig_getter = ParseArgsCtx().get
 
         for data in self.metadatas:
             if isinstance(data, CustomLogger):

@@ -1,6 +1,6 @@
 from ..ctx import SessionCtx as _SessionCtx
 from .base import Session, SessionStore, enter_session, suspend
-from .option import DefaultRule, Rule
+from .option import CompareInfo, DefaultRule, Rule
 
 
 def get_session() -> Session:

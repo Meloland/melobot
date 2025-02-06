@@ -108,6 +108,13 @@ class WrappedChecker(Checker[EventT]):
 
 
 def checker_join(*checkers: Checker | None | Callable[[Any], bool]) -> Checker:
+    """合并检查器
+
+    相比于使用 | & ^ ~ 运算符，此函数可以接受一个检查器序列，并返回一个合并检查器。
+    检查器序列可以为检查器对象，检查函数或空值
+
+    :return: 合并后的检查器对象
+    """
     checker: Checker | None = None
     for c in checkers:
         if c is None:

@@ -289,3 +289,13 @@ class EventCompletion:
 class ActionManualSignalCtx(Context[bool]):
     def __init__(self) -> None:
         super().__init__("MELOBOT_ACTION_MANUAL_SIGNAL", AdapterError)
+
+
+class ParseArgsCtx(Context["AbstractParseArgs"]):
+    def __init__(self) -> None:
+        super().__init__("MELOBOT_PARSE_ARGS", LookupError, "当前上下文中不存在解析参数")
+
+    def get_args_type(self) -> type["AbstractParseArgs"]:
+        from .utils.parse import AbstractParseArgs
+
+        return AbstractParseArgs

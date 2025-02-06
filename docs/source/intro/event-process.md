@@ -6,8 +6,15 @@
 
 本文档将这些方法称为“绑定方法”，同时将绑定方法绑定的函数称为：“处理方法”或“处理函数”。
 
-- 绑定一个任意事件的处理方法：{func}`~.v11.handle.on_event`
-- 绑定一个消息事件的处理方法：{func}`~.v11.handle.on_message`、{func}`~.v11.handle.on_at_qq`、{func}`~.v11.handle.on_command`、{func}`~.v11.handle.on_start_match`、{func}`~.v11.handle.on_contain_match`、{func}`~.v11.handle.on_full_match`、{func}`~.v11.handle.on_end_match`、{func}`~.v11.handle.on_regex_match`
+协议独立的绑定方法有：
+
+- 绑定一个来自任意协议的，任意事件的处理方法：{func}`~melobot.handle.on_event`
+- 绑定一个来自任意协议的，任意文本事件的处理方法：{func}`~melobot.handle.on_text`, {func}`~melobot.handle.on_command`、{func}`~melobot.handle.on_start_match`、{func}`~melobot.handle.on_contain_match`、{func}`~melobot.handle.on_full_match`、{func}`~melobot.handle.on_end_match`、{func}`~melobot.handle.on_regex_match`
+
+OneBot v11 协议特有的绑定方法有：
+
+- 绑定一个任意 OneBot v11 事件的处理方法：{func}`~.v11.handle.on_event`
+- 绑定一个消息事件的处理方法：{func}`~.v11.handle.on_message`、{func}`~.v11.handle.on_at_qq`、
 - 绑定一个请求事件的处理方法：{func}`~.v11.handle.on_request`
 - 绑定一个通知事件的处理方法：{func}`~.v11.handle.on_notice`
 - 绑定一个元事件的处理方法：{func}`~.v11.handle.on_meta`
@@ -15,7 +22,7 @@
 这些绑定方法的参数很多，你可以先简单浏览。关于这些方法的使用，后续会详细讲解。现在让我们先学习一些基础知识。绑定方法的使用都一样，直接用作装饰器即可：
 
 ```python
-from melobot.protocols.onebot.v11 import on_start_match
+from melobot.handle import on_start_match
 
 @on_start_match(...)
 async def func() -> None:
@@ -35,8 +42,7 @@ async def func() -> None:
 通过类型注解驱动的依赖注入，即可方便地在处理方法中获得触发的事件。例如使用 {class}`.MessageEvent` 注解参数，melobot 将知道你需要一个消息事件作为 event 参数的值：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
-from melobot.protocols.onebot.v11 import on_message
+from melobot.protocols.onebot.v11 import MessageEvent, on_message
 
 @on_message(...)
 async def func1(event: MessageEvent):
@@ -55,7 +61,7 @@ async def func1():
     ...
 ```
 
-需要注意的是，通用接口返回值将标注为事件基类型 {class}`~melobot.adapter.model.Event`，这可能不是你想要的，因此可以自行添加标注：
+需要注意的是，通用接口返回值将标注为 melobot 的事件基类型 {class}`~melobot.adapter.model.Event`，这可能不是你想要的，因此可以自行添加标注：
 
 ```python
 e: MessageEvent = get_event()
@@ -65,13 +71,58 @@ e: MessageEvent = get_event()
 
 这些事件也有着各自的属性和方法，API 文档中也已说明。
 
+## 通用绑定函数与依赖注入
+
+另外，通用的绑定方法，依然可以使用协议特定的事件进行注入：
+
+```python
+from melobot.handle import on_event
+from melobot.protocols.onebot.v11 import MessageEvent
+
+# 此通用接口支持任意事件类型，因此可以接收到 MessageEvent 这种子类型
+@on_event(...)
+async def func(event: MessageEvent) -> None:
+    # 依赖注入会有类型担保，由于标注了 MessageEvent 类型，
+    # 因此 event 如果不是 MessageEvent 子类型，则不会进入处理方法
+    # 由此实现了智能的类型收窄
+    ...
+```
+
+同理，对于上面提到的，通用的文本事件的绑定接口，由于 {class}`.MessageEvent` 是文本事件基类 {class}`.TextEvent` 的子类，因此这样也是可以的：
+
+```python
+from melobot.handle import on_start_match
+from melobot.protocols.onebot.v11 import MessageEvent
+
+# 此接口首先限制必须为 TextEvent
+@on_start_match(...)
+async def func(event: MessageEvent) -> None:
+    # 随后注解将其收窄到 MessageEvent 类型
+    ...
+```
+
+但这样显然就不太可以了：
+
+```python
+from melobot.handle import on_start_match
+from melobot.protocols.onebot.v11 import NoticeEvent
+
+# 此接口首先限制必须为 TextEvent
+@on_start_match(...)
+async def func(event: NoticeEvent) -> None:
+    # NoticeEvent 不是 TextEvent 子类，
+    # 还没到依赖注入类型收窄，NoticeEvent 就过不了 on_start_match 这一关
+    ...
+```
+
+注意：OneBot v11 协议中，只有 {class}`.MessageEvent` 是 {class}`.TextEvent` 的子类。
+
 ## 基于事件信息的处理
 
 通过事件对象提供的信息，可以实现更有趣的处理逻辑：
 
 ```{code} python
-from melobot.protocols.onebot.v11 import on_start_match
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
+from melobot.protocols.onebot.v11 import on_start_match, MessageEvent
 from melobot import send_text
 
 OWNER_QID = 10001
@@ -111,9 +162,7 @@ async def say_hi(e: MessageEvent) -> None:
 需要哪种类型的消息段，就传递哪种消息段的 `type` 作为参数：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
-from melobot.protocols.onebot.v11.adapter.segment import ImageSegment
-from melobot.protocols.onebot.v11 import on_message
+from melobot.protocols.onebot.v11 import MessageEvent, ImageSegment, on_message
 
 @on_message(...)
 async def _(e: MessageEvent):
@@ -143,8 +192,7 @@ for img in e.get_segments("image"):
 如果只需要 data 字段的某一参数，使用 {meth}`~.MessageEvent.get_datas` 即可：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
-from melobot.protocols.onebot.v11 import on_message
+from melobot.protocols.onebot.v11 import MessageEvent, on_message
 
 @on_message(...)
 async def _(e: MessageEvent):

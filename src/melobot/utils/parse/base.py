@@ -6,9 +6,16 @@ from ...typ.cls import BetterABC, abstractattr
 
 
 class AbstractParseArgs:
-    """解析参数抽象类"""
+    """解析参数抽象类
+
+    子类需要把以下属性按 :func:`.abstractattr` 的要求实现
+    """
 
     vals: Any = abstractattr()
+    """解析值
+
+       :meta hide-value:
+    """
 
 
 class Parser(BetterABC):

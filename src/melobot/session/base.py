@@ -328,6 +328,7 @@ def enter_session(
     wait: bool = True,
     nowait_cb: SyncOrAsyncCallable[[], None] | None = None,
     keep: bool = False,
+    auto_complete: bool = True,
 ) -> _AsyncGeneratorContextManager[Session]:
     """上下文管理器，提供一个会话上下文，在此上下文中可使用会话的高级特性
 
@@ -335,6 +336,7 @@ def enter_session(
     :param wait: 当出现会话冲突时，是否需要等待
     :param nowait_cb: 指定了 `wait=False` 后，会话冲突时执行的回调
     :param keep: 会话在退出会话上下文后是否继续保持
+    :param auto_complete: 当前会话挂起后，事件是否自动向更低优先级传播
     :yield: 会话对象
     """
-    return Session.enter(rule, wait, nowait_cb, keep)
+    return Session.enter(rule, wait, nowait_cb, keep, auto_complete)

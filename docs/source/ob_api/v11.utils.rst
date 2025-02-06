@@ -3,20 +3,18 @@ v11.utils
 
 .. _onebot_v11_check:
 
-v11 检查（验证）器
+检查/验证
 --------------------
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.abc.Checker
-    :exclude-members: __init__
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.abc.WrappedChecker
-    :exclude-members: __init__, check
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.LevelRole
     :exclude-members: __new__
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.GroupRole
     :exclude-members: __new__
+
+.. autofunction:: melobot.protocols.onebot.v11.utils.get_level_role
+    
+.. autofunction:: melobot.protocols.onebot.v11.utils.get_group_role
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.MsgChecker
 
@@ -27,45 +25,3 @@ v11 检查（验证）器
 .. autoclass:: melobot.protocols.onebot.v11.utils.MsgCheckerFactory
 
 .. autoclass:: melobot.protocols.onebot.v11.utils.AtMsgChecker
-
-.. _onebot_v11_match:
-
-v11 匹配器
---------------
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.abc.Matcher
-    :exclude-members: __init__
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.abc.WrappedMatcher
-    :exclude-members: __init__, match
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.StartMatcher
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.ContainMatcher
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.EndMatcher
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.FullMatcher
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.RegexMatcher
-
-.. _onebot_v11_parse:
-
-v11 解析器
---------------
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.abc.Parser
-    :exclude-members: __init__
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.abc.ParseArgs
-    :exclude-members: __init__
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.CmdParser
-    :exclude-members: format
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.CmdArgFormatter
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.FormatInfo
-    :exclude-members: __init__
-
-.. autoclass:: melobot.protocols.onebot.v11.utils.CmdParserFactory

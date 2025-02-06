@@ -14,12 +14,21 @@ melobot.session
 .. autoclass:: melobot.session.Rule
     :members:
 
+.. autoclass:: melobot.session.CompareInfo
+    :members:
+    :exclude-members: __init__
+
+.. autoclass:: melobot.session.DefaultRule
+    :members:
+
 .. autofunction:: melobot.session.enter_session
 
 会话状态
 -----------------
 
 .. autofunction:: melobot.session.suspend
+
+.. autofunction:: melobot.session.get_session
 
 .. autofunction:: melobot.session.get_rule
 

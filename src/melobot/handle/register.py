@@ -4,7 +4,7 @@ from functools import partial, wraps
 from typing_extensions import Callable, Sequence, cast
 
 from ..adapter.model import Event, TextEvent
-from ..ctx import Context, FlowCtx
+from ..ctx import FlowCtx, ParseArgsCtx
 from ..di import Depends, inject_deps
 from ..session.base import enter_session
 from ..session.option import DefaultRule, Rule
@@ -22,11 +22,6 @@ from ..utils.match import (
 )
 from ..utils.parse import AbstractParseArgs, CmdArgFormatter, CmdParser, Parser
 from .base import Flow, no_deps_node
-
-
-class ParseArgsCtx(Context[AbstractParseArgs | None]):
-    def __init__(self) -> None:
-        super().__init__("MELOBOT_PARSE_ARGS", LookupError, "当前上下文中不存在解析参数")
 
 
 def GetParseArgs() -> AbstractParseArgs:  # pylint: disable=invalid-name
@@ -95,11 +90,20 @@ class FlowDecorator:
         args: AbstractParseArgs | None,
     ) -> bool | None:
         event.spread = not self.block
-        with ParseArgsCtx().unfold(args):
+        parse_args_ctx = ParseArgsCtx()
+        if args is not None:
+            args_token = parse_args_ctx.add(args)
+        else:
+            args_token = None
+
+        try:
             if self.rule is not None:
                 async with enter_session(self.rule):
                     return await func()
             return await func()
+        finally:
+            if args_token:
+                parse_args_ctx.remove(args_token)
 
     async def auto_flow_wrapped(
         self, func: AsyncCallable[..., bool | None]

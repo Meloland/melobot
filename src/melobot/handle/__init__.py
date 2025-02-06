@@ -28,14 +28,6 @@ from .register import (
 )
 
 
-def add_flows(*flows: Flow) -> None:
-    """添加一组处理流到当前 bot 中
-
-    :param flows: 处理流
-    """
-    return _BotCtx().get().add_flows(*flows)
-
-
 def get_flow_records() -> tuple[FlowRecord, ...]:
     """获取当前上下文中的流记录
 
