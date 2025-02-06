@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.io - melobot 3.0.0</title>
+        <title>melobot.io - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,9 +252,11 @@
 <li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.exceptions.html">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
@@ -265,6 +267,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -317,17 +320,19 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.AbstractSource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Hookable</span></code>[<a class="reference internal" href="#melobot.io.SourceLifeSpan" title="melobot.io.base.SourceLifeSpan"><code class="xref py py-class docutils literal notranslate"><span class="pre">SourceLifeSpan</span></code></a>]</p>
+<dd><p>基类：<a class="reference internal" href="melobot.mixin.html#melobot.mixin.HookMixin" title="melobot.mixin.HookMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">HookMixin</span></code></a>[<a class="reference internal" href="#melobot.io.SourceLifeSpan" title="melobot.io.base.SourceLifeSpan"><code class="xref py py-class docutils literal notranslate"><span class="pre">SourceLifeSpan</span></code></a>], <a class="reference internal" href="melobot.mixin.html#melobot.mixin.LogMixin" title="melobot.mixin.LogMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogMixin</span></code></a>, <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.cls.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a></p>
 <p>抽象源基类</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.AbstractSource.protocol">
+<span class="sig-name descname"><span class="pre">protocol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LiteralString</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;melobot.typ.cls.BetterABCMeta.DummyAttribute</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#melobot.io.AbstractSource.protocol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.io.AbstractSource.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LiteralString</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractSource.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractSource.__init__" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>protocol</strong> (<em>LiteralString</em>)</p>
-</dd>
-<dt class="field-even">返回类型<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -365,9 +370,14 @@
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="melobot.io.AbstractSource.logger">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.base.GenericLogger"><span class="pre">GenericLogger</span></a></em><a class="headerlink" href="#melobot.io.AbstractSource.logger" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.io.AbstractSource.on">
-<span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HookEnumT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#melobot.io.AbstractSource.on" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HookEnumT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#melobot.io.AbstractSource.on" title="Link to this definition">¶</a></dt>
 <dd><p>注册一个 hook</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -377,7 +387,7 @@
 <dd class="field-even"><p>装饰器</p>
 </dd>
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]], <a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><em>SyncOrAsyncCallable</em></a>[~P, None]], <a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -387,7 +397,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.AbstractInSource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractInSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractInSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractInSource" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractSource" title="melobot.io.base.AbstractSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractSource</span></code></a>, <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InPacketT</span></code>]</p>
+<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractSource" title="melobot.io.base.AbstractSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractSource</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InPacketT</span></code>]</p>
 <p>抽象输入源基类</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.io.AbstractInSource.input">
@@ -408,7 +418,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.AbstractOutSource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractOutSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractOutSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractOutSource" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractSource" title="melobot.io.base.AbstractSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractSource</span></code></a>, <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">OutPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoPacketT</span></code>]</p>
+<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractSource" title="melobot.io.base.AbstractSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractSource</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">OutPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoPacketT</span></code>]</p>
 <p>抽象输出源基类</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.io.AbstractOutSource.output">
@@ -432,7 +442,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.AbstractIOSource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">AbstractIOSource</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#AbstractIOSource"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.AbstractIOSource" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractInSource" title="melobot.io.base.AbstractInSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractInSource</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InPacketT</span></code>], <a class="reference internal" href="#melobot.io.AbstractOutSource" title="melobot.io.base.AbstractOutSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOutSource</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">OutPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoPacketT</span></code>], <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a></p>
+<dd><p>基类：<a class="reference internal" href="#melobot.io.AbstractInSource" title="melobot.io.base.AbstractInSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractInSource</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InPacketT</span></code>], <a class="reference internal" href="#melobot.io.AbstractOutSource" title="melobot.io.base.AbstractOutSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOutSource</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">OutPacketT</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoPacketT</span></code>]</p>
 <p>抽象输入输出源基类</p>
 </dd></dl>
 
@@ -464,7 +474,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.InPacket">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">InPacket</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#InPacket"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.InPacket" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">_Packet</span></code></p>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>输入包基类（数据类）</p>
 <dl class="field-list simple">
 <dt class="field-odd">变量<span class="colon">:</span></dt>
@@ -476,12 +486,32 @@
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.InPacket.time">
+<span class="sig-name descname"><span class="pre">time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><span class="pre">float</span></a></em><a class="headerlink" href="#melobot.io.InPacket.time" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.InPacket.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.io.InPacket.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.InPacket.protocol">
+<span class="sig-name descname"><span class="pre">protocol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LiteralString</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#melobot.io.InPacket.protocol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.InPacket.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#melobot.io.InPacket.data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.OutPacket">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">OutPacket</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#OutPacket"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.OutPacket" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">_Packet</span></code></p>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>输出包基类（数据类）</p>
 <dl class="field-list simple">
 <dt class="field-odd">变量<span class="colon">:</span></dt>
@@ -493,12 +523,32 @@
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.OutPacket.time">
+<span class="sig-name descname"><span class="pre">time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><span class="pre">float</span></a></em><a class="headerlink" href="#melobot.io.OutPacket.time" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.OutPacket.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.io.OutPacket.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.OutPacket.protocol">
+<span class="sig-name descname"><span class="pre">protocol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LiteralString</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#melobot.io.OutPacket.protocol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.OutPacket.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#melobot.io.OutPacket.data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.io.EchoPacket">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">EchoPacket</span></span><a class="reference internal" href="../_modules/melobot/io/base.html#EchoPacket"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.io.EchoPacket" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">_Packet</span></code></p>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>回应包基类（数据类）</p>
 <dl class="field-list simple">
 <dt class="field-odd">变量<span class="colon">:</span></dt>
@@ -514,6 +564,71 @@
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.EchoPacket.time">
+<span class="sig-name descname"><span class="pre">time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><span class="pre">float</span></a></em><a class="headerlink" href="#melobot.io.EchoPacket.time" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.EchoPacket.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.io.EchoPacket.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.EchoPacket.protocol">
+<span class="sig-name descname"><span class="pre">protocol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LiteralString</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#melobot.io.EchoPacket.protocol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.io.EchoPacket.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#melobot.io.EchoPacket.data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="id3">
+<h2>泛型<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.io.InPacketT">
+<span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">InPacketT</span></span><a class="headerlink" href="#melobot.io.InPacketT" title="Link to this definition">¶</a></dt>
+<dd><p>输入包泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.io.OutPacketT">
+<span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">OutPacketT</span></span><a class="headerlink" href="#melobot.io.OutPacketT" title="Link to this definition">¶</a></dt>
+<dd><p>输出包泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.io.EchoPacketT">
+<span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">EchoPacketT</span></span><a class="headerlink" href="#melobot.io.EchoPacketT" title="Link to this definition">¶</a></dt>
+<dd><p>回应包泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.io.InSourceT">
+<span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">InSourceT</span></span><a class="headerlink" href="#melobot.io.InSourceT" title="Link to this definition">¶</a></dt>
+<dd><p>输入源泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.io.OutSourceT">
+<span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">OutSourceT</span></span><a class="headerlink" href="#melobot.io.OutSourceT" title="Link to this definition">¶</a></dt>
+<dd><p>输出源泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.io.InOrOutSourceT">
+<span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">InOrOutSourceT</span></span><a class="headerlink" href="#melobot.io.InOrOutSourceT" title="Link to this definition">¶</a></dt>
+<dd><p>输入或输出源泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.io.IOSourceT">
+<span class="sig-prename descclassname"><span class="pre">melobot.io.</span></span><span class="sig-name descname"><span class="pre">IOSourceT</span></span><a class="headerlink" href="#melobot.io.IOSourceT" title="Link to this definition">¶</a></dt>
+<dd><p>输入输出源泛型</p>
 </dd></dl>
 
 </section>
@@ -584,10 +699,12 @@
 <li><a class="reference internal" href="#">melobot.io</a><ul>
 <li><a class="reference internal" href="#id1">输入输出层部件</a><ul>
 <li><a class="reference internal" href="#melobot.io.AbstractSource"><code class="docutils literal notranslate"><span class="pre">AbstractSource</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.AbstractSource.protocol"><code class="docutils literal notranslate"><span class="pre">AbstractSource.protocol</span></code></a></li>
 <li><a class="reference internal" href="#melobot.io.AbstractSource.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractSource.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.io.AbstractSource.open"><code class="docutils literal notranslate"><span class="pre">AbstractSource.open()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.io.AbstractSource.opened"><code class="docutils literal notranslate"><span class="pre">AbstractSource.opened()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.io.AbstractSource.close"><code class="docutils literal notranslate"><span class="pre">AbstractSource.close()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.AbstractSource.logger"><code class="docutils literal notranslate"><span class="pre">AbstractSource.logger</span></code></a></li>
 <li><a class="reference internal" href="#melobot.io.AbstractSource.on"><code class="docutils literal notranslate"><span class="pre">AbstractSource.on()</span></code></a></li>
 </ul>
 </li>
@@ -609,9 +726,37 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#id2">输入输出包基类</a><ul>
-<li><a class="reference internal" href="#melobot.io.InPacket"><code class="docutils literal notranslate"><span class="pre">InPacket</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.OutPacket"><code class="docutils literal notranslate"><span class="pre">OutPacket</span></code></a></li>
-<li><a class="reference internal" href="#melobot.io.EchoPacket"><code class="docutils literal notranslate"><span class="pre">EchoPacket</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.InPacket"><code class="docutils literal notranslate"><span class="pre">InPacket</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.InPacket.time"><code class="docutils literal notranslate"><span class="pre">InPacket.time</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.InPacket.id"><code class="docutils literal notranslate"><span class="pre">InPacket.id</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.InPacket.protocol"><code class="docutils literal notranslate"><span class="pre">InPacket.protocol</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.InPacket.data"><code class="docutils literal notranslate"><span class="pre">InPacket.data</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.io.OutPacket"><code class="docutils literal notranslate"><span class="pre">OutPacket</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.OutPacket.time"><code class="docutils literal notranslate"><span class="pre">OutPacket.time</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.OutPacket.id"><code class="docutils literal notranslate"><span class="pre">OutPacket.id</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.OutPacket.protocol"><code class="docutils literal notranslate"><span class="pre">OutPacket.protocol</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.OutPacket.data"><code class="docutils literal notranslate"><span class="pre">OutPacket.data</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#melobot.io.EchoPacket"><code class="docutils literal notranslate"><span class="pre">EchoPacket</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.io.EchoPacket.time"><code class="docutils literal notranslate"><span class="pre">EchoPacket.time</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.EchoPacket.id"><code class="docutils literal notranslate"><span class="pre">EchoPacket.id</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.EchoPacket.protocol"><code class="docutils literal notranslate"><span class="pre">EchoPacket.protocol</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.EchoPacket.data"><code class="docutils literal notranslate"><span class="pre">EchoPacket.data</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">泛型</a><ul>
+<li><a class="reference internal" href="#melobot.io.InPacketT"><code class="docutils literal notranslate"><span class="pre">melobot.io.InPacketT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.OutPacketT"><code class="docutils literal notranslate"><span class="pre">melobot.io.OutPacketT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.EchoPacketT"><code class="docutils literal notranslate"><span class="pre">melobot.io.EchoPacketT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.InSourceT"><code class="docutils literal notranslate"><span class="pre">melobot.io.InSourceT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.OutSourceT"><code class="docutils literal notranslate"><span class="pre">melobot.io.OutSourceT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.InOrOutSourceT"><code class="docutils literal notranslate"><span class="pre">melobot.io.InOrOutSourceT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.io.IOSourceT"><code class="docutils literal notranslate"><span class="pre">melobot.io.IOSourceT</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -625,7 +770,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

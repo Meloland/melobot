@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OneBot 事件预处理 - melobot 3.0.0</title>
+        <title>OneBot 事件预处理 - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,9 +252,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
@@ -265,6 +267,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -314,20 +317,22 @@
 <h1>OneBot 事件预处理<a class="headerlink" href="#onebot" title="Link to this heading">¶</a></h1>
 <section id="id1">
 <h2>预处理简介<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>melobot 的 OneBot 支持中提供了一些常用的工具，用来在事件处理前进行一些特定的操作。</p>
-<p>这些操作一般称为预处理。以下是内置的预处理支持。</p>
+<p>melobot core 以及 melobot 的 OneBot 支持中提供了一些常用的工具，用来在事件处理前进行一些特定的操作。这些操作一般称为预处理。以下是内置的预处理流程。</p>
 </section>
 <section id="id2">
 <h2>检查（校验）<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>检查当前事件是否满足某些条件，如果满足则通过检查。</p>
+<p>OneBot 协议支持部分提供了一些额外的检查组件，melobot core 组件只提供了抽象接口。</p>
 </section>
 <section id="id3">
 <h2>匹配<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>检查当前消息事件的消息内容，是否满足某些匹配条件。例如：以 <code class="docutils literal notranslate"><span class="pre">xxx</span></code> 起始，包含 <code class="docutils literal notranslate"><span class="pre">xxx</span></code> 或可以通过指定的正则表达式匹配等。</p>
+<p>OneBot 协议支持部分没有提供额外的匹配组件，主要依靠来自 melobot core 的匹配组件。</p>
 </section>
 <section id="id4">
 <h2>解析<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p>对当前消息事件的消息内容进行解析，并返回一个包含解析结果的 <a class="reference internal" href="../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.abc.ParseArgs" title="melobot.protocols.onebot.v11.utils.abc.ParseArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseArgs</span></code></a> 对象。</p>
+<p>对当前消息事件的消息内容进行解析，并返回一个包含解析结果的 <code class="xref py py-class docutils literal notranslate"><span class="pre">ParseArgs</span></code> 对象。</p>
+<p>OneBot 协议支持部分没有提供额外的解析组件，主要依靠来自 melobot core 的解析组件。</p>
 <div class="attention admonition">
 <p class="admonition-title">重要提示</p>
 <p>内置的所有预处理支持，<strong>都不是异步安全的</strong>。</p>
@@ -413,7 +418,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

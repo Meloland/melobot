@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.adapter.base - melobot 3.0.0</title>
+        <title>melobot.adapter.base - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -251,9 +251,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.io.html">v11.io</a></li>
@@ -264,6 +266,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -303,6 +306,7 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_task</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncExitStack</span><span class="p">,</span> <span class="n">_GeneratorContextManager</span><span class="p">,</span> <span class="n">asynccontextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
@@ -323,8 +327,7 @@
     <span class="n">final</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.._hook</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hookable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventBuildInfo</span><span class="p">,</span> <span class="n">EventBuildInfoCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventOrigin</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdapterError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..io.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AbstractInSource</span><span class="p">,</span>
@@ -336,7 +339,8 @@
     <span class="n">OutSourceT</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">HookMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.cls</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetterABC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.content</span><span class="w"> </span><span class="kn">import</span> <span class="n">Content</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">EventT</span>
 
@@ -344,8 +348,8 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">..bot.dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dispatcher</span>
 
 
-<span class="n">_EVENT_BUILD_INFO_CTX</span> <span class="o">=</span> <span class="n">EventBuildInfoCtx</span><span class="p">()</span>
 <span class="n">_OUT_SRC_FILTER_CTX</span> <span class="o">=</span> <span class="n">OutSrcFilterCtx</span><span class="p">()</span>
+<span class="n">_FLOW_CTX</span> <span class="o">=</span> <span class="n">FlowCtx</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="AbstractEventFactory">
@@ -429,7 +433,7 @@
 <div class="viewcode-block" id="Adapter">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Adapter</span><span class="p">(</span>
-    <span class="n">BetterABC</span><span class="p">,</span>
+    <span class="n">HookMixin</span><span class="p">[</span><span class="n">AdapterLifeSpan</span><span class="p">],</span>
     <span class="n">Generic</span><span class="p">[</span>
         <span class="n">EventFactoryT</span><span class="p">,</span>
         <span class="n">OutputFactoryT</span><span class="p">,</span>
@@ -438,7 +442,7 @@
         <span class="n">InSourceT</span><span class="p">,</span>
         <span class="n">OutSourceT</span><span class="p">,</span>
     <span class="p">],</span>
-    <span class="n">Hookable</span><span class="p">[</span><span class="n">AdapterLifeSpan</span><span class="p">],</span>
+    <span class="n">BetterABC</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;适配器基类</span>
 
@@ -455,32 +459,20 @@
         <span class="n">output_factory</span><span class="p">:</span> <span class="n">OutputFactoryT</span><span class="p">,</span>
         <span class="n">echo_factory</span><span class="p">:</span> <span class="n">EchoFactoryT</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">Hookable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AdapterLifeSpan</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">protocol</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hook_type</span><span class="o">=</span><span class="n">AdapterLifeSpan</span><span class="p">,</span> <span class="n">hook_tag</span><span class="o">=</span><span class="n">protocol</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">protocol</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">in_srcs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">InSourceT</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_srcs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">InSourceT</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="p">:</span> <span class="s2">&quot;Dispatcher&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span> <span class="o">=</span> <span class="n">event_factory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_output_factory</span> <span class="o">=</span> <span class="n">output_factory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_echo_factory</span> <span class="o">=</span> <span class="n">echo_factory</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_inited</span> <span class="o">=</span> <span class="kc">False</span>
-
-<div class="viewcode-block" id="Adapter.on">
-<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.on">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">on</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">periods</span><span class="p">:</span> <span class="n">AdapterLifeSpan</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-        <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION_EXEC</span><span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">wrapped</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">periods</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">once</span><span class="o">=</span><span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">func</span>
-
-        <span class="k">return</span> <span class="n">wrapped</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">__mark_repeatable_hooks__</span><span class="p">(</span>
+            <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION_EXEC</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="Adapter.get_isrcs">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.get_isrcs">[文档]</a>
@@ -512,12 +504,12 @@
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">packet</span> <span class="o">=</span> <span class="k">await</span> <span class="n">src</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
-                <span class="n">event</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
-                <span class="k">with</span> <span class="n">_EVENT_BUILD_INFO_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">EventBuildInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">)):</span>
-                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
-                        <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,)</span>
-                    <span class="p">)</span>
-                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+                <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+                <span class="n">EventOrigin</span><span class="o">.</span><span class="n">set_origin</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">EventOrigin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">))</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                    <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;适配器 </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 处理输入与分发事件时发生异常&quot;</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;异常点局部变量：&quot;</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
@@ -583,8 +575,9 @@
         <span class="n">osrcs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]</span>
         <span class="nb">filter</span> <span class="o">=</span> <span class="n">_OUT_SRC_FILTER_CTX</span><span class="o">.</span><span class="n">try_get</span><span class="p">()</span>
         <span class="n">cur_isrc</span><span class="p">:</span> <span class="n">AbstractInSource</span> <span class="o">|</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">info</span> <span class="o">:=</span> <span class="n">_EVENT_BUILD_INFO_CTX</span><span class="o">.</span><span class="n">try_get</span><span class="p">():</span>
-            <span class="n">cur_isrc</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">in_src</span>
+
+        <span class="k">if</span> <span class="n">event</span> <span class="o">:=</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">try_get_event</span><span class="p">():</span>
+            <span class="n">cur_isrc</span> <span class="o">=</span> <span class="n">EventOrigin</span><span class="o">.</span><span class="n">get_origin</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="o">.</span><span class="n">in_src</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cur_isrc</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -593,7 +586,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cur_isrc</span><span class="p">,</span> <span class="n">AbstractOutSource</span><span class="p">):</span>
             <span class="n">osrcs</span> <span class="o">=</span> <span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">OutSourceT</span><span class="p">,</span> <span class="n">cur_isrc</span><span class="p">),)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">osrcs</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">)</span> <span class="k">else</span> <span class="p">()</span>
+            <span class="n">osrcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">)</span> <span class="k">else</span> <span class="p">()</span>
 
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
             <span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION_EXEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">action</span><span class="p">,)</span>
@@ -798,7 +791,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../../../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -20,6 +20,32 @@ melobot.handle
 
 .. autofunction:: melobot.handle.no_deps_node
 
+流装饰器
+----------
+
+流装饰相关的组件，可以将一个普通函数装饰为一个处理流。
+
+这些组件，在 melobot 的教程中，早期我们称它们为“事件绑定方法”或“事件绑定函数”。
+
+.. autoclass:: melobot.handle.FlowDecorator
+    :exclude-members: auto_flow_wrapped
+
+.. autofunction:: melobot.handle.on_event
+
+.. autofunction:: melobot.handle.on_text
+
+.. autofunction:: melobot.handle.on_start_match
+
+.. autofunction:: melobot.handle.on_contain_match
+
+.. autofunction:: melobot.handle.on_end_match
+
+.. autofunction:: melobot.handle.on_full_match
+
+.. autofunction:: melobot.handle.on_regex_match
+
+.. autofunction:: melobot.handle.on_command
+
 处理流控制
 -------------
 
@@ -55,3 +81,8 @@ melobot.handle
 .. autofunction:: melobot.handle.get_event
 
 .. autofunction:: melobot.handle.try_get_event
+
+弃用项，临时存在
+----------------
+
+.. autofunction:: melobot.handle.GetParseArgs

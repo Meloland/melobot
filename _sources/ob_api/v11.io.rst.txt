@@ -1,11 +1,23 @@
 v11.io
 ======
 
-v11 输出输出层
-----------------
+v11 输出输出层抽象类
+--------------------
 
-.. autoclass:: melobot.protocols.onebot.v11.io.BaseIO
-    :exclude-members: __init__, open, opened, close, input, output, logger
+.. autoclass:: melobot.protocols.onebot.v11.io.BaseSource
+    :exclude-members: __init__, open, opened, close
+
+.. autoclass:: melobot.protocols.onebot.v11.io.BaseInSource
+    :exclude-members: __init__, open, opened, close, input
+
+.. autoclass:: melobot.protocols.onebot.v11.io.BaseOutSource
+    :exclude-members: __init__, open, opened, close, output
+
+.. autoclass:: melobot.protocols.onebot.v11.io.BaseIOSource
+    :exclude-members: __init__, open, opened, close, input, output
+
+v11 输出输出层实现类
+--------------------
 
 .. autoclass:: melobot.protocols.onebot.v11.io.ForwardWebSocketIO
     :exclude-members: open, close, input, output

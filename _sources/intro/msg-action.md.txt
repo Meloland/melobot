@@ -33,8 +33,7 @@ async def _(adapter: Adapter):
 如果要发送多媒体内容，则只能使用适配器的 {meth}`~.v11.Adapter.send` 接口。首先构造**消息段对象**，然后传入 {meth}`~.v11.Adapter.send` 作为参数。例如：
 
 ```python
-from melobot.protocols.onebot.v11 import Adapter, on_message
-from melobot.protocols.onebot.v11.adapter.segment import ImageSegment
+from melobot.protocols.onebot.v11 import Adapter, on_message, ImageSegment
 
 @on_message(...)
 async def _(adapter: Adapter):
@@ -65,8 +64,7 @@ async def _(adapter: Adapter):
 单条消息中，自然可能有多种类型的消息段同时存在。此时这样处理：
 
 ```python
-from melobot.protocols.onebot.v11 import Adapter, on_message
-from melobot.protocols.onebot.v11.adapter.segment import ImageSegment, TextSegment
+from melobot.protocols.onebot.v11 import Adapter, on_message, ImageSegment, TextSegment
 
 @on_message(...)
 async def _():
@@ -140,7 +138,7 @@ async def _(adapter: Adapter):
 除使用消息段对象外，也可以使用**CQ 字符串**直接表示单条消息的所有消息内容。但只能从消息段对象生成 cq 字符串：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.segment import ImageSegment
+from melobot.protocols.onebot.v11 import ImageSegment
 
 img_cq: str = ImageSegment(file="https://example.com/test.jpg").to_cq()
 ```
@@ -162,7 +160,7 @@ CQ 字符串存在注入攻击的安全隐患。因此 melobot 不提供将 cq �
 构造转发消息段：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.segment import ForwardSegment
+from melobot.protocols.onebot.v11 import ForwardSegment
 
 # forward_id 是转发 id，可通过消息事件的 get_datas("forward", "id") 获得
 seg = ForwardSegment(forward_id)
@@ -175,16 +173,20 @@ seg = ForwardSegment(forward_id)
 构造合并转发结点：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.segment import NodeSegment
+from melobot.protocols.onebot.v11 import NodeSegment, NodeReferSegment
 
 # 这里的 msg_id 是已存在的消息的 id，可通过消息事件的 id 获得
 refer_node = NodeSegment(id=msg_id)
+
+# 等价的从子类构造形式，拥有更好的语义：
+refer_node = NodeReferSegment(id=msg_id)
 ```
 
 构造合并转发自定义结点：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.segment import NodeSegment
+from melobot.protocols.onebot.v11 import NodeSegment, NodeGocqCustomSegment, \
+    NodeStdCustomSegment
 
 # content 是消息内容，与上述消息段发送方法（例如 send, send_custom）的第一参数相同
 # 后续参数是在转发消息中显示的，发送人昵称 和 发送人的qq号（int 类型）
@@ -201,6 +203,14 @@ node3 = NodeSegment(
     name="melobot instance",
     uin=10001
 )
+
+# 以上方法是按照 go-cq 风格构造的，如果需要使用 onebot v11 标准规定的格式：
+node4 = NodeSegment(content=..., name=..., uin=..., use_std=True)
+
+# 等价的从子类构造 go-cq 风格的：（参数名稍有不同，可自行查阅 API 文档）
+node5 = NodeGocqCustomSegment(...)
+# 等价的从子类构造 标准 风格的：（参数名稍有不同，可自行查阅 API 文档）
+node6 = NodeStdCustomSegment(...)
 ```
 
 将消息结点组成列表，就是一条转发消息的等价表达了，使用 {meth}`~.v11.Adapter.send_forward` 来发送它：

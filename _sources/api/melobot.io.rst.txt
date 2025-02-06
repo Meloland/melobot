@@ -37,3 +37,34 @@ melobot.io
 .. autoclass:: melobot.io.EchoPacket
     :members:
     :exclude-members: __init__, ok, status, prompt, noecho
+
+泛型
+------
+
+.. data:: melobot.io.InPacketT
+
+    输入包泛型
+
+.. data:: melobot.io.OutPacketT
+
+    输出包泛型
+
+.. data:: melobot.io.EchoPacketT
+
+    回应包泛型
+
+.. data:: melobot.io.InSourceT
+
+    输入源泛型
+
+.. data:: melobot.io.OutSourceT
+
+    输出源泛型
+
+.. data:: melobot.io.InOrOutSourceT
+
+    输入或输出源泛型
+
+.. data:: melobot.io.IOSourceT
+
+    输入输出源泛型

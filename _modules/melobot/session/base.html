@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.session.base - melobot 3.0.0</title>
+        <title>melobot.session.base - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -251,9 +251,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.io.html">v11.io</a></li>
@@ -264,6 +266,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -303,38 +306,27 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Condition</span><span class="p">,</span> <span class="n">Lock</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Condition</span><span class="p">,</span> <span class="n">Future</span><span class="p">,</span> <span class="n">Lock</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">_AsyncGeneratorContextManager</span><span class="p">,</span> <span class="n">asynccontextmanager</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AsyncGenerator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">SessionCtx</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..handle.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">stop</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionRuleLacked</span><span class="p">,</span> <span class="n">SessionStateFailed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..handle.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventCompletion</span><span class="p">,</span> <span class="n">stop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncOrAsyncCallable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.option</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompareInfo</span><span class="p">,</span> <span class="n">Rule</span>
 
 <span class="n">_SESSION_CTX</span> <span class="o">=</span> <span class="n">SessionCtx</span><span class="p">()</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">SessionError</span><span class="p">(</span><span class="n">BotException</span><span class="p">):</span> <span class="o">...</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">SessionStateFailed</span><span class="p">(</span><span class="n">SessionError</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meth</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cur_state</span> <span class="o">=</span> <span class="n">cur_state</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;当前会话状态 </span><span class="si">{</span><span class="n">cur_state</span><span class="si">}</span><span class="s2"> 不支持的操作：</span><span class="si">{</span><span class="n">meth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">SessionRuleLacked</span><span class="p">(</span><span class="n">SessionError</span><span class="p">):</span> <span class="o">...</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SessionState</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="s2">&quot;Session&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">SessionStateFailed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">SessionState</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -343,7 +335,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">suspend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">SessionStateFailed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">SessionState</span><span class="o">.</span><span class="n">suspend</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wakeup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wakeup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">SessionStateFailed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">SessionState</span><span class="o">.</span><span class="n">wakeup</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">expire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -351,8 +343,9 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SpareSessionState</span><span class="p">(</span><span class="n">SessionState</span><span class="p">):</span>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">event</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_completions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">completion</span><span class="o">.</span><span class="n">event</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__to_state__</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">)</span>
 
 
@@ -361,31 +354,33 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">SessionRuleLacked</span><span class="p">(</span><span class="s2">&quot;缺少会话规则，会话无法从“运行态”转为“空闲态”&quot;</span><span class="p">)</span>
 
-        <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">refresh_cond</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_refresh_cond</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__to_state__</span><span class="p">(</span><span class="n">SpareSessionState</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">cond</span><span class="p">:</span>
             <span class="n">cond</span><span class="o">.</span><span class="n">notify</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">suspend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">set_completed</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">SessionRuleLacked</span><span class="p">(</span><span class="s2">&quot;缺少会话规则，会话无法从“运行态”转为“挂起态”&quot;</span><span class="p">)</span>
 
-        <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">refresh_cond</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_refresh_cond</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__to_state__</span><span class="p">(</span><span class="n">SuspendSessionState</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">cond</span><span class="p">:</span>
             <span class="n">cond</span><span class="o">.</span><span class="n">notify</span><span class="p">()</span>
 
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">wakeup_cond</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_wakeup_cond</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">wakeup_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_wakeup_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">wakeup_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_wakeup_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
             <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">):</span>
                     <span class="k">return</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__to_state__</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -393,18 +388,23 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">expire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__to_state__</span><span class="p">(</span><span class="n">ExpireSessionState</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">refresh_cond</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_refresh_cond</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">cond</span><span class="p">:</span>
                 <span class="n">cond</span><span class="o">.</span><span class="n">notify</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">set_completed</span><span class="p">()</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspendSessionState</span><span class="p">(</span><span class="n">SessionState</span><span class="p">):</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wakeup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wakeup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">):</span>
             <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">event</span>
-        <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">wakeup_cond</span>
+
+        <span class="k">if</span> <span class="n">completion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_completions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">completion</span><span class="o">.</span><span class="n">event</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_wakeup_cond</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">__to_state__</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">cond</span><span class="p">:</span>
             <span class="n">cond</span><span class="o">.</span><span class="n">notify</span><span class="p">()</span>
@@ -439,30 +439,62 @@
     <span class="n">__instance_locks__</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Rule</span><span class="p">,</span> <span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">__cls_lock__</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">first_completion</span><span class="p">:</span> <span class="n">EventCompletion</span><span class="p">,</span>
+        <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">auto_complete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">:</span> <span class="n">SessionStore</span> <span class="o">=</span> <span class="n">SessionStore</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">first_completion</span><span class="o">.</span><span class="n">event</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rule</span> <span class="o">=</span> <span class="n">rule</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_cond</span> <span class="o">=</span> <span class="n">Condition</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wakeup_cond</span> <span class="o">=</span> <span class="n">Condition</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">keep</span> <span class="o">=</span> <span class="n">keep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_complete</span> <span class="o">=</span> <span class="n">auto_complete</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_completions</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">EventCompletion</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_completions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">first_completion</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cond</span> <span class="o">=</span> <span class="n">Condition</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wakeup_cond</span> <span class="o">=</span> <span class="n">Condition</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keep</span> <span class="o">=</span> <span class="n">keep</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">:</span> <span class="n">SessionState</span> <span class="o">=</span> <span class="n">WorkingSessionState</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Session.stop_keep">
+<a class="viewcode-back" href="../../../api/melobot.session.html#melobot.session.Session.stop_keep">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop_keep</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keep</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Session.set_completed">
+<a class="viewcode-back" href="../../../api/melobot.session.html#melobot.session.Session.set_completed">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_completed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_completions</span><span class="p">:</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_completions</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">comps</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">event</span> <span class="ow">is</span> <span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_completions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">comps</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_completions</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Session.get_incompletions">
+<a class="viewcode-back" href="../../../api/melobot.session.html#melobot.session.Session.get_incompletions">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_incompletions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Event</span><span class="p">,</span> <span class="n">Future</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">completed</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_completions</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
+        <span class="p">]</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__to_state__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">SessionState</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">state_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">SessionState</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__is_state__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">SessionState</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">,</span> <span class="n">state_class</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Session.mark_expire">
-<a class="viewcode-back" href="../../../api/melobot.session.html#melobot.session.Session.mark_expire">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">mark_expire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">keep</span> <span class="o">=</span> <span class="kc">False</span></div>
-
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__work__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">work</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__work__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">work</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__rest__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">rest</span><span class="p">()</span>
@@ -470,8 +502,8 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__suspend__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__wakeup__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">wakeup</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__wakeup__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">wakeup</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__expire__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">expire</span><span class="p">()</span>
@@ -479,14 +511,21 @@
     <span class="nd">@classmethod</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span>
+        <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span><span class="p">,</span>
         <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">nowait_cb</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nowait_cb</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">auto_complete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">completion</span><span class="o">.</span><span class="n">event</span>
         <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Session</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">rule</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="n">keep</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Session</span><span class="p">(</span>
+                <span class="n">rule</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">first_completion</span><span class="o">=</span><span class="n">completion</span><span class="p">,</span>
+                <span class="n">keep</span><span class="o">=</span><span class="n">keep</span><span class="p">,</span>
+                <span class="n">auto_complete</span><span class="o">=</span><span class="n">auto_complete</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">async</span> <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__cls_lock__</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__instance_locks__</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">Lock</span><span class="p">())</span>
@@ -495,24 +534,24 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">_set</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instances__</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
 
-                <span class="n">suspends</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">SuspendSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">)</span>
+                <span class="n">suspends</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">SuspendSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">suspends</span><span class="p">:</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">rule</span><span class="o">.</span><span class="n">compare_with</span><span class="p">(</span>
                         <span class="n">CompareInfo</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
                     <span class="p">):</span>
-                        <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__wakeup__</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                        <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__wakeup__</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
                         <span class="k">return</span> <span class="kc">None</span>
 
-                <span class="n">spares</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">SpareSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">)</span>
+                <span class="n">spares</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">SpareSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">spares</span><span class="p">:</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">rule</span><span class="o">.</span><span class="n">compare_with</span><span class="p">(</span>
                         <span class="n">CompareInfo</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
                     <span class="p">):</span>
-                        <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__work__</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-                        <span class="n">session</span><span class="o">.</span><span class="n">keep</span> <span class="o">=</span> <span class="n">keep</span>
+                        <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__work__</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+                        <span class="n">session</span><span class="o">.</span><span class="n">_keep</span> <span class="o">=</span> <span class="n">keep</span>
                         <span class="k">return</span> <span class="n">session</span>
 
-                <span class="n">workings</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">)</span>
+                <span class="n">workings</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">WorkingSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">workings</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">rule</span><span class="o">.</span><span class="n">compare_with</span><span class="p">(</span>
                         <span class="n">CompareInfo</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
@@ -521,31 +560,41 @@
 
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">wait</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">nowait_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="k">await</span> <span class="n">nowait_cb</span><span class="p">()</span>
+                            <span class="n">ret</span> <span class="o">=</span> <span class="n">nowait_cb</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">ret</span><span class="p">):</span>
+                                <span class="k">await</span> <span class="n">ret</span>
+                        <span class="n">completion</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                         <span class="k">return</span> <span class="kc">None</span>
 
-                    <span class="n">cond</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">refresh_cond</span>
+                    <span class="n">cond</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">_refresh_cond</span>
                     <span class="k">async</span> <span class="k">with</span> <span class="n">cond</span><span class="p">:</span>
                         <span class="k">await</span> <span class="n">cond</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
-                        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">ExpireSessionState</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">ExpireSessionState</span><span class="p">):</span>
                             <span class="k">pass</span>
 
-                        <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">SuspendSessionState</span><span class="p">):</span>
-                            <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__wakeup__</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">SuspendSessionState</span><span class="p">):</span>
+                            <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__wakeup__</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
                             <span class="k">return</span> <span class="kc">None</span>
 
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__work__</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-                            <span class="n">session</span><span class="o">.</span><span class="n">keep</span> <span class="o">=</span> <span class="n">keep</span>
+                            <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__work__</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+                            <span class="n">session</span><span class="o">.</span><span class="n">_keep</span> <span class="o">=</span> <span class="n">keep</span>
                             <span class="k">return</span> <span class="n">session</span>
 
-                <span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">rule</span><span class="o">=</span><span class="n">rule</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="n">keep</span><span class="p">)</span>
+                <span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span>
+                    <span class="n">rule</span><span class="o">=</span><span class="n">rule</span><span class="p">,</span>
+                    <span class="n">first_completion</span><span class="o">=</span><span class="n">completion</span><span class="p">,</span>
+                    <span class="n">keep</span><span class="o">=</span><span class="n">keep</span><span class="p">,</span>
+                    <span class="n">auto_complete</span><span class="o">=</span><span class="n">auto_complete</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="n">Session</span><span class="o">.</span><span class="n">__instances__</span><span class="p">[</span><span class="n">rule</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">session</span>
 
             <span class="k">finally</span><span class="p">:</span>
-                <span class="n">expires</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">ExpireSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">))</span>
+                <span class="n">expires</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">ExpireSessionState</span><span class="p">),</span> <span class="n">_set</span><span class="p">)</span>
+                <span class="p">)</span>
                 <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">expires</span><span class="p">:</span>
                     <span class="n">Session</span><span class="o">.</span><span class="n">__instances__</span><span class="p">[</span><span class="n">rule</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
 
@@ -555,15 +604,21 @@
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">,</span>
         <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">nowait_cb</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nowait_cb</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">auto_complete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">Session</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="n">flow_ctx</span> <span class="o">=</span> <span class="n">FlowCtx</span><span class="p">()</span>
+        <span class="n">completion</span> <span class="o">=</span> <span class="n">flow_ctx</span><span class="o">.</span><span class="n">get_completion</span><span class="p">()</span>
+        <span class="n">completion</span><span class="o">.</span><span class="n">under_session</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="n">session</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">FlowCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_event</span><span class="p">(),</span>
+            <span class="n">completion</span><span class="p">,</span>
             <span class="n">rule</span><span class="o">=</span><span class="n">rule</span><span class="p">,</span>
             <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span>
             <span class="n">nowait_cb</span><span class="o">=</span><span class="n">nowait_cb</span><span class="p">,</span>
             <span class="n">keep</span><span class="o">=</span><span class="n">keep</span><span class="p">,</span>
+            <span class="n">auto_complete</span><span class="o">=</span><span class="n">auto_complete</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">stop</span><span class="p">()</span>
@@ -572,10 +627,10 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">session</span>
             <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">is_state</span><span class="p">(</span><span class="n">SuspendSessionState</span><span class="p">):</span>
-                    <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__wakeup__</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">__is_state__</span><span class="p">(</span><span class="n">SuspendSessionState</span><span class="p">):</span>
+                    <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__wakeup__</span><span class="p">(</span><span class="n">completion</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">finally</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">keep</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">_keep</span><span class="p">:</span>
                     <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__rest__</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">__expire__</span><span class="p">()</span></div>
@@ -599,8 +654,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">enter_session</span><span class="p">(</span>
     <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">,</span>
     <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">nowait_cb</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">nowait_cb</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">auto_complete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_AsyncGeneratorContextManager</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;上下文管理器，提供一个会话上下文，在此上下文中可使用会话的高级特性</span>
 
@@ -608,9 +664,10 @@
 <span class="sd">    :param wait: 当出现会话冲突时，是否需要等待</span>
 <span class="sd">    :param nowait_cb: 指定了 `wait=False` 后，会话冲突时执行的回调</span>
 <span class="sd">    :param keep: 会话在退出会话上下文后是否继续保持</span>
+<span class="sd">    :param auto_complete: 当前会话挂起后，事件是否自动向更低优先级传播</span>
 <span class="sd">    :yield: 会话对象</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Session</span><span class="o">.</span><span class="n">enter</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">wait</span><span class="p">,</span> <span class="n">nowait_cb</span><span class="p">,</span> <span class="n">keep</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Session</span><span class="o">.</span><span class="n">enter</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">wait</span><span class="p">,</span> <span class="n">nowait_cb</span><span class="p">,</span> <span class="n">keep</span><span class="p">,</span> <span class="n">auto_complete</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -651,7 +708,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../../../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -12,20 +12,14 @@ protocols.onebot API
     
     - 目前只支持 OneBot v11，以下所有 API 均为 v11 的 API
 
-以下组件可从 `melobot.protocols.onebot.v11` 命名空间直接导入：
-
-- :data:`.PROTOCOL_IDENTIFIER`
-- :class:`~.v11.adapter.base.Adapter`, :class:`.EchoRequireCtx`
-- :class:`.ForwardWebSocketIO`, :class:`.ReverseWebSocketIO`, :class:`.HttpIO`
-- :class:`~.adapter.event.Event`, :class:`~.adapter.segment.Segment`, :class:`~.adapter.action.Action`, :class:`~.adapter.echo.Echo`
-- :func:`.on_event`, :func:`.on_message`, :func:`.on_start_match`, :func:`.on_contain_match`, :func:`.on_full_match`, :func:`.on_end_match`, :func:`.on_regex_match`, :func:`.on_command`, :func:`.on_at_qq`, :func:`.on_notice`, :func:`.on_request`, :func:`.on_meta`, :func:`.msg_session`
-- :class:`.LevelRole`, :class:`.GroupRole`, :class:`.ParseArgs`
+所有公开的组件都可以从 `melobot.protocols.onebot.v11` 直接导入。
 
 各模块 API 文档索引：
 
 .. toctree::
     :maxdepth: 1
 
+    v11
     v11.const
     v11.adapter
     v11.io

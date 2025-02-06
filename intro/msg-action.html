@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OneBot 消息操作 - melobot 3.0.0</title>
+        <title>OneBot 消息操作 - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,9 +252,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
@@ -265,6 +267,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -337,8 +340,7 @@
 </pre></div>
 </div>
 <p>如果要发送多媒体内容，则只能使用适配器的 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 接口。首先构造<strong>消息段对象</strong>，然后传入 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 作为参数。例如：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageSegment</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">ImageSegment</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
@@ -364,8 +366,7 @@
 </div>
 <p>其他消息段参考：<a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-segment"><span class="std std-ref">消息段对象</span></a></p>
 <p>单条消息中，自然可能有多种类型的消息段同时存在。此时这样处理：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageSegment</span><span class="p">,</span> <span class="n">TextSegment</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">ImageSegment</span><span class="p">,</span> <span class="n">TextSegment</span>
 
 <span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">():</span>
@@ -431,7 +432,7 @@
 <section id="cq">
 <h2>获取 CQ 字符串<a class="headerlink" href="#cq" title="Link to this heading">¶</a></h2>
 <p>除使用消息段对象外，也可以使用<strong>CQ 字符串</strong>直接表示单条消息的所有消息内容。但只能从消息段对象生成 cq 字符串：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageSegment</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageSegment</span>
 
 <span class="n">img_cq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ImageSegment</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;https://example.com/test.jpg&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_cq</span><span class="p">()</span>
 </pre></div>
@@ -450,7 +451,7 @@
 <section id="id6">
 <h3>转发消息段构造<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <p>构造转发消息段：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForwardSegment</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForwardSegment</span>
 
 <span class="c1"># forward_id 是转发 id，可通过消息事件的 get_datas(&quot;forward&quot;, &quot;id&quot;) 获得</span>
 <span class="n">seg</span> <span class="o">=</span> <span class="n">ForwardSegment</span><span class="p">(</span><span class="n">forward_id</span><span class="p">)</span>
@@ -461,14 +462,18 @@
 <section id="id7">
 <h3>消息结点构造<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <p>构造合并转发结点：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeSegment</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeSegment</span><span class="p">,</span> <span class="n">NodeReferSegment</span>
 
 <span class="c1"># 这里的 msg_id 是已存在的消息的 id，可通过消息事件的 id 获得</span>
 <span class="n">refer_node</span> <span class="o">=</span> <span class="n">NodeSegment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">)</span>
+
+<span class="c1"># 等价的从子类构造形式，拥有更好的语义：</span>
+<span class="n">refer_node</span> <span class="o">=</span> <span class="n">NodeReferSegment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>构造合并转发自定义结点：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeSegment</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeSegment</span><span class="p">,</span> <span class="n">NodeGocqCustomSegment</span><span class="p">,</span> \
+    <span class="n">NodeStdCustomSegment</span>
 
 <span class="c1"># content 是消息内容，与上述消息段发送方法（例如 send, send_custom）的第一参数相同</span>
 <span class="c1"># 后续参数是在转发消息中显示的，发送人昵称 和 发送人的qq号（int 类型）</span>
@@ -485,6 +490,14 @@
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;melobot instance&quot;</span><span class="p">,</span>
     <span class="n">uin</span><span class="o">=</span><span class="mi">10001</span>
 <span class="p">)</span>
+
+<span class="c1"># 以上方法是按照 go-cq 风格构造的，如果需要使用 onebot v11 标准规定的格式：</span>
+<span class="n">node4</span> <span class="o">=</span> <span class="n">NodeSegment</span><span class="p">(</span><span class="n">content</span><span class="o">=...</span><span class="p">,</span> <span class="n">name</span><span class="o">=...</span><span class="p">,</span> <span class="n">uin</span><span class="o">=...</span><span class="p">,</span> <span class="n">use_std</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># 等价的从子类构造 go-cq 风格的：（参数名稍有不同，可自行查阅 API 文档）</span>
+<span class="n">node5</span> <span class="o">=</span> <span class="n">NodeGocqCustomSegment</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="c1"># 等价的从子类构造 标准 风格的：（参数名稍有不同，可自行查阅 API 文档）</span>
+<span class="n">node6</span> <span class="o">=</span> <span class="n">NodeStdCustomSegment</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>将消息结点组成列表，就是一条转发消息的等价表达了，使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send_forward" title="melobot.protocols.onebot.v11.Adapter.send_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_forward()</span></code></a> 来发送它：</p>
@@ -604,7 +617,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

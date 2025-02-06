@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.adapter.model - melobot 3.0.0</title>
+        <title>melobot.adapter.model - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -251,9 +251,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_api/v11.io.html">v11.io</a></li>
@@ -264,6 +266,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -328,34 +331,39 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdapterError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..io.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractOutSource</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrsReprable</span><span class="p">,</span> <span class="n">T</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_id</span><span class="p">,</span> <span class="n">to_coro</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrReprMixin</span><span class="p">,</span> <span class="n">FlagMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">T</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.cls</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractattr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_coro</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_id</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.content</span><span class="w"> </span><span class="kn">import</span> <span class="n">Content</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractEchoFactory</span><span class="p">,</span> <span class="n">AbstractOutputFactory</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractEchoFactory</span><span class="p">,</span> <span class="n">AbstractOutputFactory</span><span class="p">,</span> <span class="n">Adapter</span>
 
 
 <div class="viewcode-block" id="Event">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Event">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Event</span><span class="p">(</span><span class="n">AttrsReprable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Event</span><span class="p">(</span><span class="n">AttrReprMixin</span><span class="p">,</span> <span class="n">FlagMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;事件基类</span>
 
+<span class="sd">    :ivar typing.LiteralString protocol: 遵循的协议，为空则协议无关</span>
 <span class="sd">    :ivar float time: 时间戳</span>
 <span class="sd">    :ivar str id: id 标识</span>
-<span class="sd">    :ivar typing.LiteralString | None protocol: 遵循的协议，为空则协议无关</span>
-<span class="sd">    :ivar typing.Sequence[Content] contents: 附加的通用内容序列</span>
 <span class="sd">    :ivar typing.Hashable | None scope: 所在的域，可空</span>
+<span class="sd">    :ivar typing.Sequence[Content] contents: 附加的通用内容序列</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">protocol</span><span class="p">:</span> <span class="n">LiteralString</span><span class="p">,</span>
         <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">protocol</span><span class="p">:</span> <span class="n">LiteralString</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">scope</span><span class="p">:</span> <span class="n">Hashable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span> <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="n">time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">get_id</span><span class="p">()</span> <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">protocol</span>
@@ -369,9 +377,22 @@
 <span class="n">EventT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;EventT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Event</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="TextEvent">
+<a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.TextEvent">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TextEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;文本事件类</span>
+
+<span class="sd">    :ivar str text: 文本内容</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">abstractattr</span><span class="p">()</span>
+    <span class="n">textlines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">abstractattr</span><span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="Action">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Action">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Action</span><span class="p">(</span><span class="n">AttrsReprable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Action</span><span class="p">(</span><span class="n">AttrReprMixin</span><span class="p">,</span> <span class="n">FlagMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;行为基类</span>
 
 <span class="sd">    :ivar float time: 时间戳</span>
@@ -391,6 +412,7 @@
         <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">trigger</span><span class="p">:</span> <span class="n">Event</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span> <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="n">time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">get_id</span><span class="p">()</span> <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">protocol</span>
@@ -402,7 +424,7 @@
 
 <div class="viewcode-block" id="Echo">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Echo">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Echo</span><span class="p">(</span><span class="n">AttrsReprable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Echo</span><span class="p">(</span><span class="n">AttrReprMixin</span><span class="p">,</span> <span class="n">FlagMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;回应基类</span>
 
 <span class="sd">    :ivar float time: 时间戳</span>
@@ -426,6 +448,7 @@
         <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e9</span> <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="n">time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">get_id</span><span class="p">()</span> <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">protocol</span>
@@ -553,7 +576,8 @@
         <span class="n">_handles</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handles</span>
         <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">_handles</span><span class="p">:</span>
             <span class="n">handle</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">h</span><span class="p">:</span> <span class="n">create_task</span><span class="p">(</span><span class="n">to_coro</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="n">_handles</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_handles</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">create_task</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">to_coro</span><span class="p">,</span> <span class="n">_handles</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="ActionChain.add">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.ActionChain.add">[文档]</a>
@@ -660,7 +684,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../../../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

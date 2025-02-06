@@ -1,0 +1,5 @@
+v11
+===
+
+.. autoclass:: melobot.protocols.onebot.v11.OneBotV11Protocol
+    :members:

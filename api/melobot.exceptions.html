@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.exceptions - melobot 3.0.0</title>
+        <title>melobot.exceptions - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,9 +252,11 @@
 <li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
@@ -265,6 +267,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -320,9 +323,16 @@
 </dd></dl>
 
 <dl class="py exception">
-<dt class="sig sig-object py" id="melobot.exceptions.ValidateError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.exceptions.</span></span><span class="sig-name descname"><span class="pre">ValidateError</span></span><a class="reference internal" href="../_modules/melobot/exceptions.html#ValidateError"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.exceptions.ValidateError" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="melobot.exceptions.UtilError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.exceptions.</span></span><span class="sig-name descname"><span class="pre">UtilError</span></span><a class="reference internal" href="../_modules/melobot/exceptions.html#UtilError"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.exceptions.UtilError" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference internal" href="#melobot.exceptions.BotException" title="melobot.exceptions.BotException"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotException</span></code></a></p>
+<p>melobot.utils 异常</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="melobot.exceptions.UtilValidateError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.exceptions.</span></span><span class="sig-name descname"><span class="pre">UtilValidateError</span></span><a class="reference internal" href="../_modules/melobot/exceptions.html#UtilValidateError"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.exceptions.UtilValidateError" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.exceptions.UtilError" title="melobot.exceptions.UtilError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UtilError</span></code></a></p>
 <p><code class="xref py py-mod docutils literal notranslate"><span class="pre">melobot.utils</span></code> 函数参数验证异常</p>
 </dd></dl>
 
@@ -373,6 +383,18 @@
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionError</span></span><a class="reference internal" href="../_modules/melobot/exceptions.html#SessionError"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.exceptions.SessionError" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference internal" href="#melobot.exceptions.BotException" title="melobot.exceptions.BotException"><code class="xref py py-class docutils literal notranslate"><span class="pre">BotException</span></code></a></p>
 <p>melobot 会话异常</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="melobot.exceptions.SessionStateFailed">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionStateFailed</span></span><a class="reference internal" href="../_modules/melobot/exceptions.html#SessionStateFailed"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.exceptions.SessionStateFailed" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.exceptions.SessionError" title="melobot.exceptions.SessionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="melobot.exceptions.SessionRuleLacked">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.exceptions.</span></span><span class="sig-name descname"><span class="pre">SessionRuleLacked</span></span><a class="reference internal" href="../_modules/melobot/exceptions.html#SessionRuleLacked"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.exceptions.SessionRuleLacked" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.exceptions.SessionError" title="melobot.exceptions.SessionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionError</span></code></a></p>
 </dd></dl>
 
 <dl class="py exception">
@@ -497,7 +519,8 @@
             <ul>
 <li><a class="reference internal" href="#">melobot.exceptions</a><ul>
 <li><a class="reference internal" href="#melobot.exceptions.BotException"><code class="docutils literal notranslate"><span class="pre">BotException</span></code></a></li>
-<li><a class="reference internal" href="#melobot.exceptions.ValidateError"><code class="docutils literal notranslate"><span class="pre">ValidateError</span></code></a></li>
+<li><a class="reference internal" href="#melobot.exceptions.UtilError"><code class="docutils literal notranslate"><span class="pre">UtilError</span></code></a></li>
+<li><a class="reference internal" href="#melobot.exceptions.UtilValidateError"><code class="docutils literal notranslate"><span class="pre">UtilValidateError</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.BotError"><code class="docutils literal notranslate"><span class="pre">BotError</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.SourceError"><code class="docutils literal notranslate"><span class="pre">SourceError</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.PluginError"><code class="docutils literal notranslate"><span class="pre">PluginError</span></code></a></li>
@@ -505,6 +528,8 @@
 <li><a class="reference internal" href="#melobot.exceptions.PluginLoadError"><code class="docutils literal notranslate"><span class="pre">PluginLoadError</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.PluginIpcError"><code class="docutils literal notranslate"><span class="pre">PluginIpcError</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.SessionError"><code class="docutils literal notranslate"><span class="pre">SessionError</span></code></a></li>
+<li><a class="reference internal" href="#melobot.exceptions.SessionStateFailed"><code class="docutils literal notranslate"><span class="pre">SessionStateFailed</span></code></a></li>
+<li><a class="reference internal" href="#melobot.exceptions.SessionRuleLacked"><code class="docutils literal notranslate"><span class="pre">SessionRuleLacked</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.FlowError"><code class="docutils literal notranslate"><span class="pre">FlowError</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.LogError"><code class="docutils literal notranslate"><span class="pre">LogError</span></code></a></li>
 <li><a class="reference internal" href="#melobot.exceptions.HookError"><code class="docutils literal notranslate"><span class="pre">HookError</span></code></a></li>
@@ -524,7 +549,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

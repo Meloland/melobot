@@ -1,0 +1,686 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="melobot 历史版本" href="melobot-prev.html" /><link rel="prev" title="v11.utils" href="ob_api/v11.utils.html" />
+        <link rel="canonical" href="/melobot/update-log.html" />
+
+    <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
+    <link rel="shortcut icon" href="_static/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="melobot" />
+    <link rel="manifest" href="_static/site.webmanifest" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>更新日志 - melobot 3.1.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">melobot 3.1.0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">起步</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="intro/index.html">开始使用</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 开始使用</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro/async-callable.html">异步可调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/event-process.html">OneBot 事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/msg-action.html">OneBot 消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/action-echo.html">OneBot 行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro/event-preprocess.html">OneBot 事件预处理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">相关知识</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="ob_refer/index.html">OneBot 相关</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of OneBot 相关</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="ob_refer/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_refer/impl.html">OneBot 协议实现端类型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_refer/event-action.html">OneBot 事件、行为和回应</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">melobot API</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of melobot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.html">melobot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.bot.html">melobot.bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.protocol.html">melobot.protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.log.html">melobot.log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.utils.html">melobot.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.mixin.html">melobot.mixin</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="ob_api/v11.html">v11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_api/v11.const.html">v11.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_api/v11.adapter.html">v11.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_api/v11.io.html">v11.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_api/v11.handle.html">v11.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ob_api/v11.utils.html">v11.utils</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">更多</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">更新日志</a></li>
+<li class="toctree-l1"><a class="reference internal" href="melobot-prev.html">melobot 历史版本</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/update-log.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/update-log.md" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <!-- 
+附快速提取 commit 链接的函数：
+def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
+-->
+<section id="id1">
+<h1>更新日志<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="v3-1-0">
+<h2>v3.1.0<a class="headerlink" href="#v3-1-0" title="Link to this heading">¶</a></h2>
+<section id="id2">
+<h3>⏩变更<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] 改进了内部事件分发机制，现在所有情况下的事件处理都不再阻塞分发。原始的处理流优先级枚举 <code class="docutils literal notranslate"><span class="pre">HandleLevel</span></code> 已移除，现在通过 int 值定义优先级，默认处理流优先级为 0 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2aaa72">e2aaa72</a>)</p></li>
+<li><p>[core] <a class="reference internal" href="api/melobot.utils.html#melobot.utils.async_later" title="melobot.utils.async_later"><code class="xref py py-func docutils literal notranslate"><span class="pre">async_later()</span></code></a> 和 <a class="reference internal" href="api/melobot.utils.html#melobot.utils.async_at" title="melobot.utils.async_at"><code class="xref py py-func docutils literal notranslate"><span class="pre">async_at()</span></code></a> 现在返回 <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code></a> 而不是 <a class="reference external" href="https://docs.python.org/3/library/asyncio-future.html#asyncio.Future" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/3b7bea2">3b7bea2</a>)</p></li>
+<li><p>[core] 现在插件的 <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginLifeSpan.INITED" title="melobot.plugin.PluginLifeSpan.INITED"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PluginLifeSpan.INITED</span></code></a> 生命周期钩子结束前，该插件所有处理流不会生效。避免通过此钩子运行异步初始化，初始化未完成处理流就先启动的不合理现象。如果需要避免额外的等待，请在钩子函数内使用 <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task" title="（在 Python v3.13）"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_task()</span></code></a> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/ca06a05">ca06a05</a>)</p></li>
+<li><p>[All] 绝大多数只支持 <a class="reference internal" href="api/melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.AsyncCallable"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncCallable</span></code></a> 参数的接口，现在变更为支持 <a class="reference internal" href="api/melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.SyncOrAsyncCallable"><code class="xref py py-class docutils literal notranslate"><span class="pre">SyncOrAsyncCallable</span></code></a>，参数可接受同步或异步的可调用对象 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/b6c7f24">b6c7f24</a>)</p></li>
+<li><p>[All] 为避免依赖注入出现问题，现在不能在 <code class="docutils literal notranslate"><span class="pre">on_xxx</span></code> 函数下方使用装饰器 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/9ba2265">9ba2265</a>)，必须通过 <code class="docutils literal notranslate"><span class="pre">decos</span></code> 参数：</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 现在不能再使用以下形式：</span>
+<span class="nd">@on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="nd">@aaa</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="nd">@bbb</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">():</span> <span class="o">...</span>
+
+<span class="c1"># 需要换为：</span>
+<span class="nd">@on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">decos</span><span class="o">=</span><span class="p">[</span><span class="n">aaa</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">bbb</span><span class="p">(</span><span class="o">...</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">():</span> <span class="o">...</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>[OneBot] 移除了有严重问题而无法修复的 <code class="docutils literal notranslate"><span class="pre">msg_session</span></code> 函数 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/1a372de">1a372de</a>)，推荐使用 <a class="reference internal" href="api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a> 或 <code class="docutils literal notranslate"><span class="pre">legacy_session</span></code> 参数或 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 参数替代：</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 原始用法</span>
+<span class="k">with</span> <span class="n">msg_session</span><span class="p">():</span> <span class="o">...</span>
+
+<span class="c1"># 现在的替代方法：</span>
+
+<span class="n">_RULE</span> <span class="o">=</span> <span class="n">DefaultRule</span><span class="p">()</span>
+<span class="c1"># 注意不要直接在 enter_session 中初始化</span>
+<span class="c1"># 这样会导致每次生成一个新的 rule</span>
+<span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">_RULE</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="c1"># 或者</span>
+
+<span class="c1"># 对于 on_xxx 接口，如有 legacy_session 参数，</span>
+<span class="c1"># 置为 True 实现类似 msg_session 效果</span>
+<span class="nd">@on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">legacy_session</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">():</span>
+    <span class="c1"># 注意进入会话在所有 decos 装饰器之前</span>
+    <span class="c1"># 如果这个顺序不符合你的需求，还是建议在 decos 中使用 unfold_ctx(enter_session(...))</span>
+    <span class="o">...</span>
+
+<span class="c1"># 或者</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span> <span class="o">...</span>
+<span class="c1"># 对于 on_xxx 接口，如有 rule 参数</span>
+<span class="c1"># 可以直接在这里初始化规则，并提供</span>
+<span class="nd">@on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">rule</span><span class="o">=</span><span class="n">MyRule</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">():</span>
+    <span class="c1"># 注意进入会话在所有 decos 装饰器之前</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>[OneBot] 部分 api 已并入 melobot core。尝试按原样导入并使用这些 api 依然可以工作，但会发出弃用警告。兼容原样导入的行为将在 <code class="docutils literal notranslate"><span class="pre">3.1.1</span></code> 移除 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/841eddd">841eddd</a>)，请及时迁移。我们强烈建议您重新阅读一遍 <a class="reference internal" href="intro/event-preprocess.html"><span class="doc std std-doc">相关使用方法</span></a> 来了解<strong>新 api 的使用技巧</strong>。以下是变动的 api：</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 原始位置 (onebot 模块是 melobot.protocols.onebot) -&gt; 新位置</span>
+onebot.v11.utils.Checker<span class="w">           </span>-&gt;<span class="w">  </span>melobot.utils.check.Checker
+
+onebot.v11.utils.Matcher<span class="w">           </span>-&gt;<span class="w">  </span>melobot.utils.match.Matcher
+onebot.v11.utils.StartMatcher<span class="w">      </span>-&gt;<span class="w">  </span>melobot.utils.match.StartMatcher
+onebot.v11.utils.ContainMatcher<span class="w">    </span>-&gt;<span class="w">  </span>melobot.utils.match.ContainMatcher
+onebot.v11.utils.EndMatcher<span class="w">        </span>-&gt;<span class="w">  </span>melobot.utils.match.EndMatcher
+onebot.v11.utils.FullMatcher<span class="w">       </span>-&gt;<span class="w">  </span>melobot.utils.match.FullMatcher
+onebot.v11.utils.RegexMatcher<span class="w">      </span>-&gt;<span class="w">  </span>melobot.utils.match.RegexMatcher
+
+onebot.v11.utils.Parser<span class="w">            </span>-&gt;<span class="w">  </span>melobot.utils.parse.Parser
+onebot.v11.utils.ParseArgs<span class="w">         </span>-&gt;<span class="w">  </span>melobot.utils.parse.CmdArgs
+onebot.v11.utils.CmdParser<span class="w">         </span>-&gt;<span class="w">  </span>melobot.utils.parse.CmdParser
+onebot.v11.utils.CmdParserFactory<span class="w">  </span>-&gt;<span class="w">  </span>melobot.utils.parse.CmdParserFactory
+onebot.v11.utils.CmdArgFormatter<span class="w">   </span>-&gt;<span class="w">  </span>melobot.utils.parse.CmdArgFormatter
+onebot.v11.utils.FormatInfo<span class="w">        </span>-&gt;<span class="w">  </span>melobot.utils.parse.CmdArgFormatInfo
+
+onebot.v11.handle.on_start_match<span class="w">   </span>-&gt;<span class="w">  </span>melobot.handle.on_start_match
+onebot.v11.handle.on_contain_match<span class="w"> </span>-&gt;<span class="w">  </span>melobot.handle.on_contain_match
+onebot.v11.handle.on_end_match<span class="w">     </span>-&gt;<span class="w">  </span>melobot.handle.on_end_match
+onebot.v11.handle.on_full_match<span class="w">    </span>-&gt;<span class="w">  </span>melobot.handle.on_full_match
+onebot.v11.handle.on_regex_match<span class="w">   </span>-&gt;<span class="w">  </span>melobot.handle.on_regex_match
+onebot.v11.handle.on_command<span class="w">       </span>-&gt;<span class="w">  </span>melobot.handle.on_command
+
+<span class="c1"># 特别注意，此 api 原本用作默认值，表示需要一个解析参数。但现在只需要注解类型即可</span>
+<span class="c1"># 但此 api 依然可以使用，但下一版本直接删除，在整个项目中将完全不存在</span>
+onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w">  </span>melobot.handle.GetParseArgs
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>[OneBot] 除以上变更的 api 外，其余 onebot 协议支持部分的公开接口可以从 <code class="docutils literal notranslate"><span class="pre">melobot.protocols.onebot.v11</span></code> 直接导入 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2aaa72">e2aaa72</a>)</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>✨ 新增<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] <a class="reference internal" href="api/melobot.session.html#melobot.session.Rule" title="melobot.session.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a> 现在支持两种抽象方法 <a class="reference internal" href="api/melobot.session.html#melobot.session.Rule.compare" title="melobot.session.Rule.compare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare()</span></code></a> 与 <a class="reference internal" href="api/melobot.session.html#melobot.session.Rule.compare_with" title="melobot.session.Rule.compare_with"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare_with()</span></code></a> （提供更有用的对比信息），二选一实现即可 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/ef173c6">ef173c6</a>)</p></li>
+<li><p>[core] <a class="reference internal" href="api/melobot.session.html#melobot.session.SessionStore" title="melobot.session.SessionStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionStore</span></code></a> 现在可以使用 set 方法设置值，方便链式调用 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/36b555e">36b555e</a>)</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 等价于 store[key] = value</span>
+<span class="n">store</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>[core] 现在会话可以被直接依赖注入，或在当前上下文通过 <a class="reference internal" href="api/melobot.session.html#melobot.session.get_session" title="melobot.session.get_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_session()</span></code></a> 获取 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2aaa72">e2aaa72</a>)。例如：</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span><span class="p">,</span> <span class="n">get_session</span>
+
+<span class="nd">@on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="c1"># 或者</span>
+
+<span class="nd">@on_xxx</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># 获取当前上下文中的会话对象</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">get_session</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>[core] 新增接口兼容装饰器函数 <a class="reference internal" href="api/melobot.utils.html#melobot.utils.to_sync" title="melobot.utils.to_sync"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_sync()</span></code></a>，非常不常用。极少数需要兼容同步接口时使用 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/ca06a05">ca06a05</a>)</p></li>
+<li><p>[core] <a class="reference internal" href="api/melobot.utils.html#melobot.utils.if_not" title="melobot.utils.if_not"><code class="xref py py-func docutils literal notranslate"><span class="pre">if_not()</span></code></a> 现在支持新参数 <code class="docutils literal notranslate"><span class="pre">accept</span></code>，作为条件为真时执行的回调 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/d89d62e">d89d62e</a>)</p></li>
+<li><p>[core] 新增了跨协议的 <code class="docutils literal notranslate"><span class="pre">on_xxx</span></code> 方法：<a class="reference internal" href="api/melobot.handle.html#melobot.handle.on_event" title="melobot.handle.on_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_event()</span></code></a>（用于绑定任意协议的任意事件处理方法） 和 <a class="reference internal" href="api/melobot.handle.html#melobot.handle.on_text" title="melobot.handle.on_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_text()</span></code></a>（用于绑定任意文本事件处理方法）(<a class="reference external" href="https://github.com/Meloland/melobot/commit/841eddd">841eddd</a>)</p></li>
+<li><p>[core] 现在 <a class="reference internal" href="api/melobot.utils.html#melobot.utils.parse.CmdParser" title="melobot.utils.parse.CmdParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">CmdParser</span></code></a> 支持初始化参数 <code class="docutils literal notranslate"><span class="pre">tag</span></code> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/a7a183e">a7a183e</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/9fdde3b">9fdde3b</a>)，该值会传递给解析参数，用于标识：</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">CmdParser</span><span class="p">(</span><span class="n">cmd_start</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">cmd_sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span> <span class="s2">&quot;回显&quot;</span><span class="p">],</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="k">await</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;.回显 hi&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;回显&quot;</span>
+    <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;bar&quot;</span>
+
+<span class="c1"># 不指定 tag 时，自动设置为 targets 第一元素，或 targets 本身（如果为字符串）</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">CmdParser</span><span class="p">(</span><span class="n">cmd_start</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">cmd_sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span> <span class="s2">&quot;回显&quot;</span><span class="p">])</span>
+<span class="n">args</span> <span class="o">=</span> <span class="k">await</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;.回显 你好呀&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;回显&quot;</span>
+    <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;echo&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>[core] 新增了用于合并检查器序列的函数 <a class="reference internal" href="api/melobot.utils.html#melobot.utils.check.checker_join" title="melobot.utils.check.checker_join"><code class="xref py py-func docutils literal notranslate"><span class="pre">checker_join()</span></code></a>。相比于使用 | &amp; ^ ~ 运算符，此函数可以接受检查器序列，并返回一个合并检查器。检查器序列可以为检查器对象，检查函数或空值 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/841eddd">841eddd</a>)</p></li>
+<li><p>[core] 现在支持动态增加、删除处理流，以及变更处理流的优先级 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2aaa72">e2aaa72</a>)。例如：</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 在 BotLifeSpan.STARTED 生命周期之后，可以动态的增加处理流：</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">add_flows</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># 在任何时候拿到处理流对象后，可以移除该处理流</span>
+<span class="c1"># 如果在某处理流内部移除此处理流，依然不影响本次处理过程</span>
+<span class="n">flow</span><span class="o">.</span><span class="n">dismiss</span><span class="p">()</span>
+
+<span class="c1"># 在任何时候拿到处理流对象后，可以更新优先级</span>
+<span class="c1"># 如果在某处理流内部更新此处理流优先级，依然不影响本次处理过程</span>
+<span class="n">flow</span><span class="o">.</span><span class="n">update_priority</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>[core] 新增了一些 mixin 类，主要提供给协议支持的开发者，参考文档中的 <a class="reference internal" href="api/melobot.mixin.html"><span class="doc std std-doc">melobot.mixin</span></a> 部分。插件与 bot 开发者无需关心 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2aaa72">e2aaa72</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/6f8253e">6f8253e</a>)</p></li>
+<li><p>[All] 多数 <code class="docutils literal notranslate"><span class="pre">on_xxx</span></code> 接口提供了新参数 <code class="docutils literal notranslate"><span class="pre">rule</span></code>，用于在内部自动展开会话 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/52a1e7b">52a1e7b</a>)。先前已有示例，此处不再演示。</p></li>
+<li><p>[OneBot] 新增 <a class="reference internal" href="ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.get_group_role" title="melobot.protocols.onebot.v11.utils.get_group_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_group_role()</span></code></a> 和 <a class="reference internal" href="ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.get_level_role" title="melobot.protocols.onebot.v11.utils.get_level_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_level_role()</span></code></a> 用于获取权限等级 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/65d447e">65d447e</a>)</p></li>
+<li><p>[OneBot] 新增 <a class="reference internal" href="ob_api/v11.html#melobot.protocols.onebot.v11.OneBotV11Protocol" title="melobot.protocols.onebot.v11.OneBotV11Protocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">OneBotV11Protocol</span></code></a> 协议栈对象，启动代码现在更为简洁 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/6f8253e">6f8253e</a>)，例如：</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForwardWebSocketIO</span><span class="p">,</span> <span class="n">OneBotV11Protocol</span>
+
+<span class="n">bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">()</span>
+<span class="c1"># 无需再手动添加适配器</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">add_protocol</span><span class="p">(</span><span class="n">OneBotV11Protocol</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="o">...</span><span class="p">)))</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>👍修复<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] 通过依赖注入获取适配器时，返回值可能为空的错误 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/1c7d170">1c7d170</a>)</p></li>
+<li><p>[core] 更改部分内置数据结构为集合，避免重复添加元素导致未定义行为 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/7ec9709">7ec9709</a>)</p></li>
+<li><p>[All] 小幅度提升异步任务创建的性能，修复一些异步任务序列为空可能导致的错误，以及更好的异常提示 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/33c1c68">33c1c68</a>)</p></li>
+<li><p>[OneBot] 优化了 event, action 和 echo 对象的 repr 显示。在调试时或错误日志中，repr 不再显示为超长字符串 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/33c1c68">33c1c68</a>)</p></li>
+<li><p>[OneBot] 现在使用更安全的校验。意外传递反射依赖项到 checker 不再会导致校验默认通过 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/dcf782f">dcf782f</a>)</p></li>
+<li><p>[OneBot] 小幅度提升了 event 与 echo 验证错误时的回调的执行性能 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/4af5422">4af5422</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="v3-0-0">
+<h2>v3.0.0<a class="headerlink" href="#v3-0-0" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h3>⚠️特别：<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 bot 开发框架，与 v2 完全不兼容。</strong></p></li>
+<li><p>v3 文档教程：<a class="reference external" href="https://docs.melobot.org">melobot docs</a></p></li>
+</ul>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特色</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>实用接口</p></td>
+<td><p>封装高频使用的异步逻辑，使业务开发更简洁</p></td>
+</tr>
+<tr class="row-odd"><td><p>插件管理</p></td>
+<td><p>低耦合度、无序的插件加载与通信</p></td>
+</tr>
+<tr class="row-even"><td><p>处理流设计</p></td>
+<td><p>可自由组合“处理中间件”为处理流，提升了各组件的复用率</p></td>
+</tr>
+<tr class="row-odd"><td><p>热插拔/重启</p></td>
+<td><p>处理流支持动态热插拔，支持 bot 级别的重启</p></td>
+</tr>
+<tr class="row-even"><td><p>会话支持</p></td>
+<td><p>可在处理流中自动传递的、可自定义的会话上下文</p></td>
+</tr>
+<tr class="row-odd"><td><p>协议支持</p></td>
+<td><p>所有协议被描述为 IO 过程，因此支持各类协议</p></td>
+</tr>
+<tr class="row-even"><td><p>跨平台</p></td>
+<td><p>更简洁的跨平台接口，便捷实现跨平台插件开发</p></td>
+</tr>
+<tr class="row-odd"><td><p>跨协议 IO</p></td>
+<td><p>支持多个协议实现端同时输入，自由输出到指定协议实现端</p></td>
+</tr>
+<tr class="row-even"><td><p>日志支持</p></td>
+<td><p>日志记录兼容标准库和绝大多数日志框架，可自行选择</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>对比上一预发布版本 <code class="docutils literal notranslate"><span class="pre">3.0.0rc21</span></code>，主要有：</p>
+</section>
+<section id="id6">
+<h3>⏩变更<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] 移除计划移除的 api 和组件（移除了方法 <code class="docutils literal notranslate"><span class="pre">Args</span></code>, <code class="docutils literal notranslate"><span class="pre">Context.in_ctx</span></code> 与传统插件类 <code class="docutils literal notranslate"><span class="pre">Plugin</span></code>）(<a class="reference external" href="https://github.com/Meloland/melobot/commit/ec518f5">ec518f5</a>)</p></li>
+<li><p>[core] 改进了 io 层的 packet 限制，现在所有 packet 不再是 <code class="docutils literal notranslate"><span class="pre">frozen</span></code> 的 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/88eeb85">88eeb85</a>)</p></li>
+<li><p>[core] 改进了 adapter 层的组件，现在钩子 <code class="docutils literal notranslate"><span class="pre">BEFORE_EVENT</span></code> 重命名为 <code class="docutils literal notranslate"><span class="pre">BEFORE_EVENT_CREATE</span></code>，钩子 <code class="docutils literal notranslate"><span class="pre">BEFORE_ACTION</span></code> 重命名为 <code class="docutils literal notranslate"><span class="pre">BEFORE_ACTION_EXEC</span></code> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/d50d3a3">d50d3a3</a>)</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>✨ 新增<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] 内置日志器添加 <code class="docutils literal notranslate"><span class="pre">yellow_warn</span></code> 参数，可在智能着色模式下强制警告消息为醒目的黄色 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/0dae81d">0dae81d</a>)</p></li>
+<li><p>[core] 现在使用 <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 声明插件及各种插件功能 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/4508081">4508081</a>)</p></li>
+<li><p>[core] <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 现在支持使用 <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 装饰器来收集各种插件组件（处理流、共享对象与导出函数）(<a class="reference external" href="https://github.com/Meloland/melobot/commit/ecec685">ecec685</a>)</p></li>
+<li><p>[OneBot] 添加了用于处理 OneBot v11 实体（事件、动作与回应）数据模型验证异常的 OneBot v11 适配器接口 <code class="xref py py-meth docutils literal notranslate"><span class="pre">when_validate_error()</span></code> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/4bddb6a">4bddb6a</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/0589f3a">0589f3a</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/a4d35b3">a4d35b3</a>)</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>👍修复<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[OneBot] 自定义消息段类型创建和解析 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/3026543">3026543</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/51f7cbe">51f7cbe</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/f006ee0">f006ee0</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/819489f">819489f</a>)</p></li>
+<li><p>[OneBot] 正向 websocket IO 源忽略 bot 停止信号 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/da0e3df">da0e3df</a>)</p></li>
+<li><p>[All] 项目各处类型注解的改进 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/1bd8760">1bd8760</a>)</p></li>
+<li><p>[All] 文档与内置异常提示更正</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>♥️新贡献者<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Asankilp">&#64;Asankilp</a> 首次提交 <a class="reference external" href="https://github.com/Meloland/melobot/pull/14">#14</a></p></li>
+<li><p><a class="reference external" href="https://github.com/NingmengLemon">&#64;NingmengLemon</a> 首次提交 <a class="reference external" href="https://github.com/Meloland/melobot/pull/15">#15</a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="melobot-prev.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">melobot 历史版本</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="ob_api/v11.utils.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">v11.utils</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, contributors of this doc
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Meloland/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">更新日志</a><ul>
+<li><a class="reference internal" href="#v3-1-0">v3.1.0</a><ul>
+<li><a class="reference internal" href="#id2">⏩变更</a></li>
+<li><a class="reference internal" href="#id3">✨ 新增</a></li>
+<li><a class="reference internal" href="#id4">👍修复</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#v3-0-0">v3.0.0</a><ul>
+<li><a class="reference internal" href="#id5">⚠️特别：</a></li>
+<li><a class="reference internal" href="#id6">⏩变更</a></li>
+<li><a class="reference internal" href="#id7">✨ 新增</a></li>
+<li><a class="reference internal" href="#id8">👍修复</a></li>
+<li><a class="reference internal" href="#id9">♥️新贡献者</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=52d344cd"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

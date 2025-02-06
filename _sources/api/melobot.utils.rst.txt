@@ -1,6 +1,9 @@
 melobot.utils
 =============
 
+基础工具
+----------
+
 .. autofunction:: melobot.utils.get_obj_name
 
 .. autofunction:: melobot.utils.singleton
@@ -13,6 +16,8 @@ melobot.utils
 .. autofunction:: melobot.utils.to_async
 
 .. autofunction:: melobot.utils.to_coro
+
+.. autofunction:: melobot.utils.to_sync
 
 .. autofunction:: melobot.utils.if_not
 
@@ -37,3 +42,68 @@ melobot.utils
 .. autofunction:: melobot.utils.async_at
 
 .. autofunction:: melobot.utils.async_interval
+
+检查/验证
+-----------
+
+.. autoclass:: melobot.utils.check.Checker
+    :exclude-members: __init__
+
+.. autoclass:: melobot.utils.check.WrappedChecker
+    :exclude-members: __init__, check
+
+基础检查/验证工具
+------------------
+
+.. autofunction:: melobot.utils.check.checker_join
+
+.. _melobot_match:
+
+匹配
+------
+
+.. autoclass:: melobot.utils.match.Matcher
+    :exclude-members: __init__
+
+.. autoclass:: melobot.utils.match.WrappedMatcher
+    :exclude-members: __init__, match
+
+基础匹配工具
+-------------
+
+.. autoclass:: melobot.utils.match.StartMatcher
+
+.. autoclass:: melobot.utils.match.ContainMatcher
+
+.. autoclass:: melobot.utils.match.EndMatcher
+
+.. autoclass:: melobot.utils.match.FullMatcher
+
+.. autoclass:: melobot.utils.match.RegexMatcher
+
+.. _melobot_parse:
+
+解析
+-------
+
+.. autoclass:: melobot.utils.parse.Parser
+    :exclude-members: __init__
+
+.. autoclass:: melobot.utils.parse.AbstractParseArgs
+    :exclude-members: __init__
+
+基础解析工具
+-------------
+
+.. autoclass:: melobot.utils.parse.CmdParser
+    :exclude-members: format
+
+.. autoclass:: melobot.utils.parse.CmdArgs
+    :exclude-members: __init__, vals
+
+.. autoclass:: melobot.utils.parse.CmdParserFactory
+
+.. autoclass:: melobot.utils.parse.CmdArgFormatter
+
+.. autoclass:: melobot.utils.parse.CmdArgFormatInfo
+    :exclude-members: __init__

@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>开始创建机器人 - melobot 3.0.0</title>
+        <title>开始创建机器人 - melobot 3.1.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.0.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.0.0</span>
+  <span class="sidebar-brand-text">melobot 3.1.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,9 +252,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of protocols.onebot API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
@@ -265,6 +267,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">更多</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../update-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
 </ul>
 
@@ -315,6 +318,7 @@
 <section id="id2">
 <h2>预先配置<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>我们先从最简单的 OneBot v11 协议开始学习如何搭建一个机器人，并以此学习 melobot 的基本特性。</p>
+<p>虽然你可能不需要使用 OneBot v11 协议，但也可以简单浏览这部分教程，从而理解一些 melobot 中的基本概念。在后续部分，我们会拓展教程到协议通用领域。</p>
 <p>首先需要一个“OneBot 实现程序”作为“前端”，完成与 qq 服务器的通信过程。请自行配置 OneBot 协议实现。</p>
 <div class="note admonition">
 <p class="admonition-title">相关知识</p>
@@ -328,8 +332,8 @@
 <section id="demo">
 <h2>一个 demo<a class="headerlink" href="#demo" title="Link to this heading">¶</a></h2>
 <p>先来运行一段 demo 代码：（稍后我们会讲解其中的细节）</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">PluginPlanner</span><span class="p">,</span> <span class="n">send_text</span>
-<span class="linenos"> 2</span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">ForwardWebSocketIO</span><span class="p">,</span> <span class="n">on_start_match</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">PluginPlanner</span><span class="p">,</span> <span class="n">on_start_match</span><span class="p">,</span> <span class="n">send_text</span>
+<span class="linenos"> 2</span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForwardWebSocketIO</span><span class="p">,</span> <span class="n">OneBotV11Protocol</span>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
 <span class="linenos"> 5</span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -340,18 +344,17 @@
 <span class="linenos">10</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 <span class="linenos">11</span>    <span class="p">(</span>
 <span class="linenos">12</span>        <span class="n">Bot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<span class="linenos">13</span>        <span class="o">.</span><span class="n">add_io</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">))</span>
-<span class="linenos">14</span>        <span class="o">.</span><span class="n">add_adapter</span><span class="p">(</span><span class="n">Adapter</span><span class="p">())</span>
-<span class="linenos">15</span>        <span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">test_plugin</span><span class="p">)</span>
-<span class="linenos">16</span>        <span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="linenos">17</span>    <span class="p">)</span>
+<span class="linenos">13</span>        <span class="o">.</span><span class="n">add_protocol</span><span class="p">(</span><span class="n">OneBotV11Protocol</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">)))</span>
+<span class="linenos">14</span>        <span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">test_plugin</span><span class="p">)</span>
+<span class="linenos">15</span>        <span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="linenos">16</span>    <span class="p">)</span>
 </pre></div>
 </div>
 <p>运行后，在机器人加入的任何一个群聊中，或与机器人的私聊中，输入以 <code class="docutils literal notranslate"><span class="pre">.sayhi</span></code> 起始的消息，即可回复：<code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">melobot!</span></code>。</p>
 </section>
 <section id="id3">
 <h2>demo 讲解<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>首先使用装饰器 <a class="reference internal" href="../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_start_match" title="melobot.protocols.onebot.v11.handle.on_start_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>，即可在本插件上添加一个<strong>字符串起始匹配的，消息事件处理方法</strong>。</p>
+<p>首先使用装饰器 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.on_start_match" title="melobot.handle.on_start_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_start_match()</span></code></a>，即可在本插件上添加一个<strong>字符串起始匹配的，消息事件处理方法</strong>。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;Hello, melobot!&quot;</span><span class="p">)</span>
@@ -367,15 +370,13 @@
 <p>接下来开始按以下步骤创建、初始化和启动一个 bot：</p>
 <ol class="arabic simple">
 <li><p>通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot" title="melobot.bot.Bot"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bot</span></code></a> 创建一个 bot；</p></li>
-<li><p>通过 <a class="reference internal" href="../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.ForwardWebSocketIO" title="melobot.protocols.onebot.v11.io.ForwardWebSocketIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardWebSocketIO</span></code></a> 添加一个 OneBot v11 协议的输入输出源；</p></li>
-<li><p>通过 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter" title="melobot.protocols.onebot.v11.Adapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">v11.Adapter</span></code></a> 添加 OneBot v11 协议的适配器；</p></li>
+<li><p>通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_protocol" title="melobot.bot.Bot.add_protocol"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_protocol()</span></code></a> 添加 OneBot v11 相关的协议栈支持，此处需要提供一个输入输出源；</p></li>
 <li><p>通过 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 创建并加载插件</p></li>
 <li><p>启动 bot</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span>
     <span class="n">Bot</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">add_io</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">))</span>
-    <span class="o">.</span><span class="n">add_adapter</span><span class="p">(</span><span class="n">Adapter</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">add_protocol</span><span class="p">(</span><span class="n">OneBotV11Protocol</span><span class="p">(</span><span class="n">ForwardWebSocketIO</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">)))</span>
     <span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">test_plugin</span><span class="p">)</span>
     <span class="o">.</span><span class="n">run</span><span class="p">()</span>
 <span class="p">)</span>
@@ -466,7 +467,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=cd91d057"></script>
+</div><script src="../_static/documentation_options.js?v=52d344cd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
