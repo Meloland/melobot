@@ -15,13 +15,12 @@
 
 有些时候，我们需要事件满足某些条件，才决定处理它。这就是检查器需要做的事。
 
-内置支持基于两种权限等级的检查：{class}`.LevelRole` 和 {class}`.GroupRole`。
+OneBot 协议组件，内置支持基于两种权限等级的检查：{class}`.LevelRole` 和 {class}`.GroupRole`。
 
 {class}`.LevelRole` 总共分为五级权限（OWNER > SUPER > WHITE > NORMAL > BLACK）。使用例子如下所示：
 
 ```python
-from melobot.protocols.onebot.v11 import on_message
-from melobot.protocols.onebot.v11.utils import MsgChecker, LevelRole
+from melobot.protocols.onebot.v11 import on_message, MsgChecker, LevelRole
 
 # 这些整型值都代表 qq 号
 OWNER = 10001
@@ -71,7 +70,7 @@ async def _():
 频繁地传入各个等级包含的 id 很不方便，因此可以使用工厂类 {class}`.MsgCheckerFactory`：
 
 ```python
-from melobot.protocols.onebot.v11.utils import MsgCheckerFactory
+from melobot.protocols.onebot.v11 import MsgCheckerFactory
 
 checker_ft = MsgCheckerFactory(
     role=LevelRole.OWNER, 
@@ -93,8 +92,7 @@ priv_checker: PrivateMsgChecker = checker_ft.get_private(role=LevelRole.WHITE)
 {class}`.GroupRole` 分为三种：（OWNER、ADMIN、MEMBER）。使用例子如下：
 
 ```python
-from melobot.protocols.onebot.v11 import on_message
-from melobot.protocols.onebot.v11.utils import MsgChecker, GroupRole
+from melobot.protocols.onebot.v11 import on_message, MsgChecker, GroupRole
 
 # 与刚才的 LevelRole 类似，但此时其他参数传递无效
 @on_message(checker=MsgChecker(role=GroupRole.OWNER))
@@ -118,7 +116,7 @@ async def _():
 此外，检查器之间也支持逻辑或与非，及逻辑异或运算，利用这一特性可以构建精巧的检查逻辑：
 
 ```python
-from melobot.protocols.onebot.v11.utils import MsgCheckerFactory, LevelRole, GroupRole
+from melobot.protocols.onebot.v11 import MsgCheckerFactory, LevelRole, GroupRole
 
 # 构建一个常用的检查逻辑：
 # 私聊只有 SUPER 级别可以使用；在群聊白名单的群中，成员白名单中的成员或任何群管可以使用
@@ -139,11 +137,11 @@ final_checker = priv_c | grp_c1 | grp_c2
 
 其他高级特性：自定义检查失败回调等，请参考 [内置检查器与检查器工厂](onebot_v11_check) 中各种对象的参数。
 
-除了这些接口，melobot 内部其实也有一种隐式检查，这就是**基于依赖注入的区分调用**：
+除了这些接口，先前教程中提到的“基于依赖注入的类型收窄”，实际上就是一种内部隐式检查：
 
 ```python
-from melobot.protocols.onebot.v11 import on_message, on_event
-from melobot.protocols.onebot.v11.adapter.event import GroupMessageEvent, PrivateMessageEvent
+from melobot.protocols.onebot.v11 import on_message, on_event, GroupMessageEvent, \
+    PrivateMessageEvent
 
 @on_message(...)
 async def msg_handle1(ev: GroupMessageEvent):
@@ -155,8 +153,7 @@ async def msg_handle2(ev: PrivateMessageEvent):
     # 只有触发事件属于 私聊消息事件 时，才会进入这个处理方法
     ...
 
-from melobot.protocols.onebot.v11 import on_event
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
+from melobot.protocols.onebot.v11 import on_event, MessageEvent
 from melobot.log import Logger as MeloLogger
 
 @on_event(...)
@@ -181,14 +178,13 @@ async def owner_only_echo():
     ...
 ```
 
-或者使用更高级的方法（实现子类），这适用于更复杂的需求，例如检查/验证时需要保存某些状态信息：
+或者使用更高级的方法（实现 melobot core 的抽象类），这适用于更复杂的需求，例如检查/验证时需要保存某些状态信息：
 
 ```python
-from melobot.protocols.onebot.v11 import on_message
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
-from melobot.protocols.onebot.v11.utils import Checker
+from melobot.utils.check import Checker
+from melobot.protocols.onebot.v11 import on_message, MessageEvent
 
-class FreqGuard(Checker):
+class FreqGuard(Checker[MessageEvent]):
     def __init__(self) -> None:
         super().__init__()
         self.freq = 0
@@ -210,15 +206,17 @@ async def _():
 
 ## 匹配
 
-匹配只对消息事件的文本内容生效。只有在匹配通过后，才能运行后续操作。其他事件绑定方法无法指定匹配。
+匹配只对文本事件 {class}`.TextEvent` 生效，所以在 OneBot 协议中就只对 {class}`.MessageEvent` 有效。只有在匹配通过后，才能运行后续操作。其他事件绑定方法无法指定匹配。
 
-常用的几个事件绑定接口，就是内置了匹配的流程：{func}`~.v11.handle.on_command`、{func}`~.v11.handle.on_start_match`、{func}`~.v11.handle.on_contain_match`、{func}`~.v11.handle.on_full_match`、{func}`~.v11.handle.on_end_match`、{func}`~.v11.handle.on_regex_match`。
+常用的几个通用事件绑定方法，就是内置了匹配的流程：{func}`~melobot.handle.on_command`、{func}`~melobot.handle.on_start_match`、{func}`~melobot.handle.on_contain_match`、{func}`~melobot.handle.on_full_match`、{func}`~melobot.handle.on_end_match`、{func}`~melobot.handle.on_regex_match`。
 
-对应的匹配器可查看文档：[内置匹配器](onebot_v11_match)。你也可以自定义匹配器：
+melobot core 预置的匹配器可查看文档：[内置匹配器](melobot_match)，OneBot 协议支持没有实现更多匹配器类型。
+
+你也可以自定义匹配器：
 
 ```python
+from melobot.utils.match import Matcher
 from melobot.protocols.onebot.v11 import on_message
-from melobot.protocols.onebot.v11.utils import Matcher
 
 class StartEndMatch(Matcher):
     def __init__(self, start: str, end: str) -> None:
@@ -233,11 +231,11 @@ async def _():
     ...
 ```
 
-其他高级特性：自定义匹配成功回调，自定义匹配失败回调等，请参考 [内置匹配器](onebot_v11_match) 中各种对象的参数。
+其他高级特性：自定义匹配失败回调等，请参考 [内置匹配器](melobot_match) 中各种对象的参数。
 
 ## 解析
 
-解析只对消息事件的文本内容生效。解析完成后将会生成一个 {class}`.ParseArgs` 对象。其他事件绑定方法无法指定解析。
+解析只对文本事件 {class}`.TextEvent` 生效，所以在 OneBot 协议中就只对 {class}`.MessageEvent` 有效。解析完成后将会生成一个 {class}`.AbstractParseArgs` 对象。其他事件绑定方法无法指定解析。
 
 想象一个典型的使用案例，你需要：
 
@@ -245,16 +243,15 @@ async def _():
 - 匹配到“天气”指令的处理方法
 - 传递参数列表 `["杭州", "7"]` 给处理方法，实现具体的逻辑。
 
-显然，自己编写指令解析是比较费劲的。可以使用 {class}`.CmdParser`，并利用 {func}`~.v11.handle.GetParseArgs` 获取解析参数：
+显然，自己编写指令解析是比较费劲的。可以使用 melobot core 内置的命令解析器 {class}`.CmdParser`，并利用依赖注入获取解析参数：
 
 ```python
-from melobot.protocols.onebot.v11 import on_message, ParseArgs
-from melobot.protocols.onebot.v11.utils import CmdParser
-from melobot.protocols.onebot.v11.handle import GetParseArgs
+from melobot.utils.parse import CmdParser, CmdArgs
+from melobot.protocols.onebot.v11 import on_message
 
 @on_message(parser=CmdParser(cmd_start='.', cmd_sep=' ', targets='天气'))
-# 使用 GetParseArgs 进行依赖注入
-async def _(args: ParseArgs = GetParseArgs()):
+# 使用 CmdArgs 进行依赖注入，它实际上是 AbstractParseArgs 的子类型
+async def _(args: CmdArgs):
     assert args.name == "天气"
     assert args.vals == ["杭州", "7"]
 ```
@@ -262,16 +259,15 @@ async def _(args: ParseArgs = GetParseArgs()):
 需要多个指令起始符，多个指令间隔符，多个匹配的目标？这些也同样支持：
 
 ```python
-from melobot.protocols.onebot.v11 import on_message, ParseArgs
-from melobot.protocols.onebot.v11.utils import CmdParser
-from melobot.protocols.onebot.v11.handle import GetParseArgs
+from melobot.utils.parse import CmdParser, CmdArgs
+from melobot.protocols.onebot.v11 import on_message
 
 @on_message(parser=CmdParser(
     cmd_start=[".", "~"], 
     cmd_sep=[" ", "#"], 
     targets=["天气", "weather"]
 ))
-async def _(args: ParseArgs = GetParseArgs()):
+async def _(args: CmdArgs):
     ...
 ```
 
@@ -290,7 +286,7 @@ async def _(args: ParseArgs = GetParseArgs()):
     cmd_sep=[" ", "#"], 
     targets=["功能1", "功能2", "功能3"]
 ))
-async def _(args: ParseArgs = GetParseArgs()):
+async def _(args: CmdArgs):
     match args.name:
         case "功能1":
             func1(args.vals)
@@ -304,14 +300,40 @@ async def _(args: ParseArgs = GetParseArgs()):
 
 同理也可以实现子命令支持，这里不再演示。
 
+另外，为了方便识别出一组有不同 `name` 的解析参数，实际上都是同一个解析器解析出的结果，可以使用 `tag` 参数：
+
+```python
+@on_message(parser=CmdParser(
+    cmd_start=".", 
+    cmd_sep=" ", 
+    targets=["echo", "回显"],
+    tag="bar"
+))
+async def _(args: CmdArgs):
+    # 如果文本内容为：".回显 hi"
+    assert args.name == "回显"
+    assert args.tag == "bar"
+
+# 不指定 tag 时，自动设置为 targets 第一元素，或 targets 本身（如果为字符串）
+@on_message(parser=CmdParser(
+    cmd_start=".", 
+    cmd_sep=" ", 
+    targets=["echo", "回显"]
+))
+async def _(args: CmdArgs):
+    # 如果文本内容为：".回显 你好呀"
+    assert args.name == "回显"
+    assert args.tag == "echo"
+```
+
 使用 {func}`.on_message` 手动给定 {class}`.CmdParser` 还是略显麻烦。一般的情景，更建议使用 {func}`.on_command`：
 
 ```python
-from melobot.protocols.onebot.v11 import on_command, ParseArgs
-from melobot.protocols.onebot.v11.handle import GetParseArgs
+from melobot.handle import on_command
+from melobot.utils.parse import CmdArgs
 
 @on_command(cmd_start=[".", "~"], cmd_sep=[" ", "#"], targets=["天气", "weather"])
-async def _(args: ParseArgs = GetParseArgs()):
+async def _(args: CmdArgs):
     ...
 ```
 
@@ -324,9 +346,9 @@ async def _(args: ParseArgs = GetParseArgs()):
 下面是一个例子。这个 `add` 指令，接受两个浮点数，且第二参数可以有默认值：
 
 ```python
-from melobot.protocols.onebot.v11 import on_command, ParseArgs
-from melobot.protocols.onebot.v11.handle import GetParseArgs
-from melobot.protocols.onebot.v11.utils import CmdArgFormatter as Fmtter
+from melobot.handle import on_command
+from melobot.utils.parse import CmdArgs
+from melobot.utils.parse import CmdArgFormatter as Fmtter
 
 @on_command(
     cmd_start=".",
@@ -353,7 +375,7 @@ from melobot.protocols.onebot.v11.utils import CmdArgFormatter as Fmtter
         ),
     ],
 )
-async def _(args: ParseArgs = GetParseArgs()):
+async def _(args: CmdArgs):
     pass
 ```
 
@@ -376,9 +398,7 @@ fmtters = [Fmtter(...), None, Fmtter(...)]
 此外，你还可以自定义“参数转换失败”、“参数验证失败”、“参数缺少”时的回调。比如直接静默，而不是在日志提示：
 
 ```python
-from melobot.utils import to_async
-
-do_nothing = to_async(lambda *_: None)
+do_nothing = lambda *_: None
 
 fmtters = [
     Fmtter(
@@ -391,11 +411,11 @@ fmtters = [
 ]
 ```
 
-或者利用回调函数 {class}`.FormatInfo` 参数提供的信息，给用户回复提示：
+或者利用回调函数 {class}`.CmdArgFormatInfo` 参数提供的信息，给用户回复提示：
 
 ```python
 from melobot import send_text
-from melobot.protocols.onebot.v11.utils import FormatInfo
+from melobot.utils.parse import CmdArgFormatInfo
 
 async def convert_fail(self, info: FormatInfo) -> None:
     e_class = f"{info.exc.__class__.__module__}.{info.exc.__class__.__qualname__}"
@@ -451,19 +471,41 @@ fmtters = [
 
 ## 自定义解析器
 
-使用内置的抽象类来自定义解析器：
+实现 melobot core 内置的抽象类来自定义解析器：
 
 ```python
+from melobot.utils.parse import Parser
 from melobot.protocols.onebot.v11 import on_message
-from melobot.protocols.onebot.v11.utils import Parser
 
 class MyParser(Parser):
-    async def parse(text: str) -> ParseArgs | None:
+    async def parse(text: str) -> AbstractParseArgs | None:
         # 返回 None 代表没有有效的解析结果
         ...
 
 @on_message(parser=MyParser())
-async def _():
+async def _(args: AbstractParseArgs):
+    ...
+```
+
+```python
+from melobot.utils.parse import Parser, AbstractParseArgs
+from dataclasses import dataclass
+
+# 还可以进一步子类化 AbstractParseArgs 提供信息更丰富的解析参数：
+@dataclass
+class MyCmdArgs(AbstractParseArgs):
+    name: str
+    tag: str | None
+    vals: list[Any]
+
+class MyCmdParser(Parser):
+    async def parse(text: str) -> MyCmdArgs | None:
+        ...
+
+# 是不是感觉很熟悉？
+# 实际上，内置的 CmdParser，就是像上面这样实现的 :)
+@on_message(parser=MyCmdParser())
+async def _(args: MyCmdArgs):
     ...
 ```
 
@@ -471,7 +513,7 @@ async def _():
 
 本篇主要说明了预处理机制中的检查、匹配和解析。
 
-消息事件绑定方法，检查、匹配和解析可以同时指定。顺序是：先检查，再匹配，最后解析。其他事件绑定方法，只能指定检查。
+对于文本事件的绑定方法，检查、匹配和解析可以同时指定。顺序是：先检查，再匹配，最后解析。而其他事件绑定方法，只能指定检查。
 
 再次提醒，所有内置预处理机制，**均不是异步安全的**。若需要异步安全，请实现自定义类。
 

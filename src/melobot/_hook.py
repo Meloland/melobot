@@ -1,13 +1,15 @@
 import asyncio
 import time
+from asyncio import Task
 from enum import Enum
 
-from typing_extensions import Any, Callable, Generic, TypeVar
+from typing_extensions import Any, Generic, TypeVar
 
 from .ctx import LoggerCtx
 from .di import inject_deps
 from .log.base import LogLevel
-from .typ import AsyncCallable, P
+from .typ.base import AsyncCallable, SyncOrAsyncCallable
+from .utils import to_async, to_sync
 
 HookEnumT = TypeVar("HookEnumT", bound=Enum)
 
@@ -55,10 +57,10 @@ class HookBus(Generic[HookEnumT]):
     def register(
         self,
         hook_type: HookEnumT,
-        hook_func: AsyncCallable[..., None],
+        hook_func: SyncOrAsyncCallable[..., None],
         once: bool = True,
     ) -> None:
-        runner = HookRunner(hook_type, hook_func, once)
+        runner = HookRunner(hook_type, to_async(hook_func), once)
         self._hooks[hook_type].append(runner)
 
     def get_evoke_time(self, hook_type: HookEnumT) -> float:
@@ -72,6 +74,7 @@ class HookBus(Generic[HookEnumT]):
         *,
         args: tuple | None = None,
         kwargs: dict[str, Any] | None = None,
+        callback: SyncOrAsyncCallable[[Task[None] | None], None] | None = None,
     ) -> None:
         self._stamps[hook_type] = time.time_ns() / 1e9
         args = args if args is not None else ()
@@ -85,31 +88,18 @@ class HookBus(Generic[HookEnumT]):
             msg = f"开始 hook: {msg}"
         logger.debug(msg)
 
-        tasks = [
+        tasks = tuple(
             asyncio.create_task(runner.run(*args, **kwargs))
             for runner in self._hooks[hook_type]
-        ]
+        )
+
+        if callback is not None:
+            if len(tasks):
+                for t in tasks:
+                    t.add_done_callback(to_sync(callback))
+            else:
+                to_sync(callback)(None)
+                return
+
         if wait and len(tasks):
             await asyncio.wait(tasks)
-
-
-class Hookable(Generic[HookEnumT]):
-    def __init__(self, hook_type: type[HookEnumT], tag: str | None = None):
-        super().__init__()
-        self._hook_bus = HookBus[HookEnumT](hook_type, tag)
-
-    def on(
-        self, *periods: HookEnumT
-    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """注册一个 hook
-
-        :param periods: 要绑定的 hook 类型
-        :return: 装饰器
-        """
-
-        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
-            for type in periods:
-                self._hook_bus.register(type, func)
-            return func
-
-        return wrapped

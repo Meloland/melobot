@@ -1,7 +1,8 @@
 from ..adapter.model import Event as _Event
+from ..ctx import BotCtx as _BotCtx
 from ..ctx import FlowCtx as _FlowCtx
 from ..ctx import FlowRecord, FlowRecordStage, FlowStore
-from .process import (
+from .base import (
     Flow,
     FlowNode,
     block,
@@ -13,6 +14,18 @@ from .process import (
     rewind,
     stop,
 )
+from .register import (
+    FlowDecorator,
+    GetParseArgs,
+    on_command,
+    on_contain_match,
+    on_end_match,
+    on_event,
+    on_full_match,
+    on_regex_match,
+    on_start_match,
+    on_text,
+)
 
 
 def get_flow_records() -> tuple[FlowRecord, ...]:
@@ -20,7 +33,7 @@ def get_flow_records() -> tuple[FlowRecord, ...]:
 
     :return: 流记录
     """
-    return tuple(_FlowCtx().get().records)
+    return _FlowCtx().get_records()
 
 
 def get_flow_store() -> FlowStore:

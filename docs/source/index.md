@@ -31,6 +31,7 @@ ob_api/index
 :caption: 更多
 :hidden:
 
+update-log
 melobot-prev
 ```
 

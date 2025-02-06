@@ -24,7 +24,7 @@ from types import ModuleType
 from typing_extensions import Any, Sequence, cast
 
 from .exceptions import DynamicImpError
-from .utils import singleton
+from .utils.common import singleton
 
 ALL_EXTS = tuple(all_suffixes())
 EMPTY_PKG_TAG = "__melobot_namespace_pkg__"
@@ -86,13 +86,17 @@ class SpecFinder(MetaPathFinder):
 
                 # 再次是 zip 文件导入
                 if entry_path.suffix == ".zip" and entry_path.exists():
-                    zip_importer = zipimport.zipimporter(  # pylint: disable=no-member
-                        str(entry_path)
-                    )
+                    zip_importer = zipimport.zipimporter(str(entry_path))
                     spec = zip_importer.find_spec(fullname, target)
                     if spec is not None:
-                        assert spec.origin is not None and spec.origin != ""
-                        assert spec.loader is not None
+                        assert spec.origin is not None and spec.origin != "", (
+                            f"zip file from {entry_path}, module named {fullname} from {target}, "
+                            "failed to get spec origin"
+                        )
+                        assert spec.loader is not None, (
+                            f"zip file from {entry_path}, module named {fullname} from {target}, "
+                            "spec has no loader"
+                        )
                         spec.loader = ModuleLoader(
                             fullname,
                             Path(spec.origin).resolve(),
@@ -130,7 +134,9 @@ class SpecFinder(MetaPathFinder):
                         ),
                         submodule_search_locations=loader._path,  # type: ignore[attr-defined]
                     )
-                    assert spec is not None
+                    assert (
+                        spec is not None
+                    ), f"package from {dir_path} without __init__.py create spec failed"
                     spec.has_location = False
                     spec.origin = None
                     setattr(spec, EMPTY_PKG_TAG, True)
@@ -341,7 +347,9 @@ class Importer:
             )
 
         mod = module_from_spec(spec)
-        assert spec.loader is not None
+        assert (
+            spec.loader is not None
+        ), f"module named {name} and path from {path} has no loader"
         spec.loader.exec_module(mod)
         return mod
 

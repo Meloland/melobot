@@ -2,8 +2,8 @@ from asyncio import Queue
 
 from melobot.ctx import LoggerCtx
 from melobot.log import Logger
-from melobot.protocols.onebot.v11.utils import CmdArgFormatter as Fmtter
-from melobot.protocols.onebot.v11.utils import CmdParserFactory
+from melobot.utils.parse import CmdArgFormatter as Fmtter
+from melobot.utils.parse import CmdParserFactory
 from tests.base import *
 
 _OUT_BUF = Queue()

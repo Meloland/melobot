@@ -8,6 +8,7 @@ import os
 import sys
 import traceback
 import types
+from abc import abstractmethod
 from contextlib import contextmanager
 from enum import Enum
 from inspect import currentframe
@@ -24,8 +25,10 @@ from rich.style import Style
 from rich.text import Text
 from typing_extensions import Any, Callable, Generator, Literal, Optional
 
-from ..typ import BetterABC, T, VoidType, abstractmethod
-from ..utils import singleton
+from ..typ._enum import VoidType
+from ..typ.base import T
+from ..typ.cls import BetterABC
+from ..utils.common import singleton
 
 _CONSOLE_IO = io.StringIO()
 _CONSOLE = rich.console.Console(file=_CONSOLE_IO, record=True, color_system="256")

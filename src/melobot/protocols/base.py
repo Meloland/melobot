@@ -1,8 +1,6 @@
-from typing_extensions import Sequence
-
 from ..adapter.base import Adapter
 from ..io.base import AbstractInSource, AbstractOutSource
-from ..typ import BetterABC, abstractattr
+from ..typ.cls import BetterABC, abstractattr
 
 
 class ProtocolStack(BetterABC):
@@ -11,13 +9,13 @@ class ProtocolStack(BetterABC):
     子类需要把以下属性按 :func:`.abstractattr` 的要求实现
     """
 
-    inputs: Sequence[AbstractInSource] = abstractattr()
+    inputs: set[AbstractInSource] = abstractattr()
     """该协议栈兼容的输入源序列
 
        :meta hide-value:
     """
 
-    outputs: Sequence[AbstractOutSource] = abstractattr()
+    outputs: set[AbstractOutSource] = abstractattr()
     """该协议栈兼容的输出源序列
 
        :meta hide-value:

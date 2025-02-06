@@ -1,11 +1,11 @@
-from melobot.protocols.onebot.v11.utils import (
+from melobot.typ import LogicMode
+from melobot.utils.match import (
     ContainMatcher,
     EndMatcher,
     FullMatcher,
     RegexMatcher,
     StartMatcher,
 )
-from melobot.typ import LogicMode
 from tests.base import *
 
 

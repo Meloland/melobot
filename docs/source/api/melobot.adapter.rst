@@ -28,6 +28,10 @@ melobot.adapter
     :members:
     :exclude-members: __init__
 
+.. autoclass:: melobot.adapter.TextEvent
+    :members:
+    :exclude-members: __init__
+
 .. autoclass:: melobot.adapter.Action
     :members:
     :exclude-members: __init__

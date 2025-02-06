@@ -4,11 +4,11 @@ from enum import Enum
 
 from typing_extensions import Literal, Optional, cast
 
-from melobot.typ import AsyncCallable
+from melobot.typ import SyncOrAsyncCallable
+from melobot.utils.check import Checker
 
 from ..adapter.event import Event, GroupMessageEvent, MessageEvent
 from ..adapter.segment import AtSegment
-from .abc import Checker
 
 
 class LevelRole(int, Enum):
@@ -64,7 +64,7 @@ def get_group_role(event: MessageEvent) -> GroupRole:
     return GroupRole.MEMBER
 
 
-class MsgChecker(Checker):
+class MsgChecker(Checker[Event]):
     """消息事件分级权限检查器
 
     主要分 主人、超级用户、白名单用户、普通用户、黑名单用户 五级
@@ -77,7 +77,7 @@ class MsgChecker(Checker):
         super_users: Optional[list[int]] = None,
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器
 
@@ -140,7 +140,7 @@ class GroupMsgChecker(MsgChecker):
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
         white_groups: Optional[list[int]] = None,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个群聊消息事件分级权限检查器
 
@@ -182,7 +182,7 @@ class PrivateMsgChecker(MsgChecker):
         super_users: Optional[list[int]] = None,
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个私聊消息事件分级权限检查器
 
@@ -215,7 +215,7 @@ class MsgCheckerFactory:
         white_users: Optional[list[int]] = None,
         black_users: Optional[list[int]] = None,
         white_groups: Optional[list[int]] = None,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器的工厂
 
@@ -237,7 +237,7 @@ class MsgCheckerFactory:
     def get_base(
         self,
         role: LevelRole | GroupRole,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> MsgChecker:
         """根据内部依据和给定等级，生成一个 :class:`MsgChecker` 对象
 
@@ -257,7 +257,7 @@ class MsgCheckerFactory:
     def get_group(
         self,
         role: LevelRole | GroupRole,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> GroupMsgChecker:
         """根据内部依据和给定等级，生成一个 :class:`GroupMsgChecker` 对象
 
@@ -278,7 +278,7 @@ class MsgCheckerFactory:
     def get_private(
         self,
         role: LevelRole,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> PrivateMsgChecker:
         """根据内部依据和给定等级，生成一个 :class:`PrivateMsgChecker` 对象
 
@@ -302,7 +302,7 @@ class AtMsgChecker(Checker):
     def __init__(
         self,
         qid: int | Literal["all"] | None = None,
-        fail_cb: Optional[AsyncCallable[[], None]] = None,
+        fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个艾特消息事件检查器
 

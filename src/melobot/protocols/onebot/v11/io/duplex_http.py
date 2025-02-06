@@ -12,11 +12,11 @@ import aiohttp.web
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
-from .base import BaseIO
+from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
 
 
-class HttpIO(BaseIO):
+class HttpIO(BaseIOSource):
     def __init__(
         self,
         onebot_host: str,
@@ -25,7 +25,7 @@ class HttpIO(BaseIO):
         serve_port: int,
         secret: str | None = None,
         access_token: str | None = None,
-        cd_time: float = 0.2,
+        cd_time: float = 0,
     ) -> None:
         super().__init__(cd_time)
         self.onebot_url = f"http://{onebot_host}:{onebot_port}"
@@ -182,7 +182,8 @@ class HttpIO(BaseIO):
             await self.client_session.close()
             for t in self._tasks:
                 t.cancel()
-            await asyncio.wait(self._tasks)
+            if len(self._tasks):
+                await asyncio.wait(self._tasks)
             self._tasks.clear()
 
             self._opened.clear()

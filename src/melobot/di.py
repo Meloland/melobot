@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from asyncio import Lock
 from collections import deque
 from dataclasses import dataclass
-from functools import wraps
+from functools import partial, wraps
 from inspect import Parameter, isawaitable, signature, unwrap
 from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
@@ -20,19 +21,13 @@ from typing_extensions import (
     get_origin,
 )
 
-from .ctx import BotCtx, EventBuildInfoCtx, FlowCtx, LoggerCtx, SessionCtx
+from .ctx import BotCtx, EventOrigin, FlowCtx, LoggerCtx, ParseArgsCtx, SessionCtx
 from .exceptions import DependBindError, DependInitError
-from .typ import (
-    AsyncCallable,
-    BetterABC,
-    P,
-    T,
-    VoidType,
-    abstractmethod,
-    is_subhint,
-    is_type,
-)
-from .utils import get_obj_name, to_async
+from .typ._enum import VoidType
+from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, is_subhint, is_type
+from .typ.cls import BetterABC
+from .utils.base import to_async
+from .utils.common import get_obj_name
 
 if TYPE_CHECKING:
     from .adapter.base import Adapter
@@ -49,11 +44,11 @@ class DependNotMatched(BaseException):
         self.hint = hint
 
 
-class Depends:
+class Depends(Generic[T]):
     def __init__(
         self,
-        dep: Callable[[], Any] | AsyncCallable[[], Any] | Depends,
-        sub_getter: Callable[[Any], Any] | AsyncCallable[[Any], Any] | None = None,
+        dep: SyncOrAsyncCallable[[], T] | Depends[T],
+        sub_getter: SyncOrAsyncCallable[[T], T] | None = None,
         cache: bool = False,
         recursive: bool = True,
     ) -> None:
@@ -65,8 +60,8 @@ class Depends:
         :param recursive: 是否启用递归满足（默认启用，如果当前依赖来源中存在依赖项，会被递归满足；关闭可节约性能）
         """
         super().__init__()
-        self.ref: Depends | None
-        self.getter: AsyncCallable[[], Any] | None
+        self.ref: Depends[T] | None
+        self.getter: AsyncCallable[[], T] | None
 
         if isinstance(dep, Depends):
             self.ref = dep
@@ -93,22 +88,22 @@ class Depends:
         ref_str = f"ref={self.ref}" if self.ref is not None else ""
         return f"{self.__class__.__name__}({ref_str if ref_str != '' else getter_str})"
 
-    async def _get(self, dep_scope: dict[Depends, Any]) -> Any:
+    async def _get(self, dep_scope: dict[Depends, Any]) -> T:
+        val: T | VoidType
+
         if self.getter is not None:
             val = await self.getter()
         else:
-            ref = cast(Depends, self.ref)
+            ref = cast(Depends[T], self.ref)
             val = dep_scope.get(ref, VoidType.VOID)
             if val is VoidType.VOID:
                 val = await ref.fulfill(dep_scope)
 
         if self.sub_getter is not None:
-            val = self.sub_getter(val)
-            if isawaitable(val):
-                val = await val
+            val = await self.sub_getter(val)
         return val
 
-    async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> T:
         if self._lock is None:
             val = await self._get(dep_scope)
         elif self._cached is not VoidType.VOID:
@@ -121,24 +116,6 @@ class Depends:
 
         dep_scope[self] = val
         return val
-
-
-def _adapter_get(hint: Any) -> "Adapter":
-    ctx = EventBuildInfoCtx()
-    try:
-        return ctx.get().adapter
-    except ctx.lookup_exc_cls as e:
-        adapter = BotCtx().get().get_adapter(hint)
-        if adapter is None:
-            raise e
-        return adapter
-
-
-def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
-    val = LoggerCtx().get()
-    if not is_type(val, hint):
-        val = data.getter()
-    return val
 
 
 class AutoDepends(Depends):
@@ -158,7 +135,7 @@ class AutoDepends(Depends):
         else:
             self.metadatas = ()
 
-        self.orig_getter: Callable[[], Any] | AsyncCallable[[], Any] | None = None
+        self.orig_getter: SyncOrAsyncCallable[[], Any] | None = None
 
         if is_subhint(hint, FlowCtx().get_event_type()):
             self.orig_getter = FlowCtx().get_event
@@ -166,8 +143,8 @@ class AutoDepends(Depends):
         elif is_subhint(hint, BotCtx().get_type()):
             self.orig_getter = BotCtx().get
 
-        elif is_subhint(hint, EventBuildInfoCtx().get_adapter_type()):
-            self.orig_getter = cast(Callable[[], Any], lambda h=hint: _adapter_get(h))
+        elif is_subhint(hint, _get_adapter_type()):
+            self.orig_getter = cast(Callable[[], Any], partial(_adapter_get, self, hint))
 
         elif is_subhint(hint, LoggerCtx().get_type()):
             self.orig_getter = LoggerCtx().get
@@ -175,16 +152,22 @@ class AutoDepends(Depends):
         elif is_subhint(hint, FlowCtx().get_store_type()):
             self.orig_getter = FlowCtx().get_store
 
+        elif is_subhint(hint, SessionCtx().get_session_type()):
+            self.orig_getter = SessionCtx().get
+
         elif is_subhint(hint, SessionCtx().get_store_type()):
             self.orig_getter = SessionCtx().get_store
 
-        elif is_subhint(hint, SessionCtx().get_rule_type() | None):
-            self.orig_getter = lambda: SessionCtx().get().rule
+        elif is_subhint(hint, SessionCtx().get_rule_type()):
+            self.orig_getter = SessionCtx().get_rule
+
+        elif is_subhint(hint, ParseArgsCtx().get_args_type()):
+            self.orig_getter = ParseArgsCtx().get
 
         for data in self.metadatas:
             if isinstance(data, CustomLogger):
                 self.orig_getter = cast(
-                    Callable[[], Any], lambda h=hint, d=data: _custom_logger_get(h, d)
+                    Callable[[], Any], partial(_custom_logger_get, hint, data)
                 )
                 break
 
@@ -197,8 +180,7 @@ class AutoDepends(Depends):
         for data in self.metadatas:
             if isinstance(data, Reflect):
                 self.orig_getter = cast(
-                    Callable[[], Any],
-                    lambda g=self.orig_getter: Reflection(cast(Callable[[], Any], g)),
+                    Callable[[], Any], partial(Reflection, self.orig_getter)
                 )
                 break
 
@@ -230,7 +212,7 @@ class AutoDepends(Depends):
         val = await super().fulfill(dep_scope)
 
         if isinstance(val, Reflection):
-            inner_val = val.__obj_getter__()
+            inner_val = val.__origin__
             if isawaitable(inner_val):
                 raise AttributeError(
                     f"异步依赖项不能通过 {Reflect.__name__} 创建反射依赖"
@@ -241,6 +223,31 @@ class AutoDepends(Depends):
 
         self._match_check(val)
         return val
+
+
+def _get_adapter_type() -> type["Adapter"]:
+    from .adapter.base import Adapter
+
+    return Adapter
+
+
+def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
+    flow_ctx = FlowCtx()
+    try:
+        event = flow_ctx.get_event()
+        return EventOrigin.get_origin(event).adapter
+    except flow_ctx.lookup_exc_cls:
+        adapter = BotCtx().get().get_adapter(hint)
+        if adapter is None:
+            raise deps._unmatch_exc(VoidType) from None
+        return adapter
+
+
+def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
+    val = LoggerCtx().get()
+    if not is_type(val, hint):
+        val = data.getter()
+    return val
 
 
 @dataclass
@@ -265,7 +272,7 @@ class CustomLogger:
 
         # 如果 bot 设置的 logger 是 MyLogger 类型，则成功依赖注入
         # 否则使用 getter 获取一个日志器
-        NewLoggerHint = Annotated[MyLogger, CustomLogger(getter=lambda: MyLogger())]
+        NewLoggerHint = Annotated[MyLogger, CustomLogger(getter=MyLogger)]
     """
 
     getter: Callable[[], Any]
@@ -389,7 +396,7 @@ def _get_bound_args(
     return list(bind.args), bind.kwargs
 
 
-class DependsHook(Depends, BetterABC, Generic[T]):
+class DependsHook(Depends[T], BetterABC):
     """依赖钩子
 
     包装一个依赖项，依赖满足后内部的 hook 将会执行
@@ -397,11 +404,11 @@ class DependsHook(Depends, BetterABC, Generic[T]):
 
     def __init__(
         self,
-        func: Callable[P, T] | AsyncCallable[P, T],
+        dep: SyncOrAsyncCallable[[], T],
         cache: bool = False,
         recursive: bool = False,
     ) -> None:
-        super().__init__(func, cache=cache, recursive=recursive)
+        super().__init__(dep, cache=cache, recursive=recursive)
 
     @abstractmethod
     async def deps_callback(self, val: T) -> None:
@@ -411,14 +418,14 @@ class DependsHook(Depends, BetterABC, Generic[T]):
         """
         raise NotImplementedError
 
-    async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> T:
         val = await super().fulfill(dep_scope)
         await self.deps_callback(val)
         return val
 
 
 def inject_deps(
-    injectee: Callable[..., T] | AsyncCallable[..., T], manual_arg: bool = False
+    injectee: SyncOrAsyncCallable[..., T], manual_arg: bool = False
 ) -> AsyncCallable[..., T]:
     """依赖注入标记装饰器，标记当前对象需要被依赖注入
 
@@ -431,7 +438,7 @@ def inject_deps(
     """
 
     @wraps(injectee)
-    async def di_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def inject_deps_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         _args, _kwargs = _get_bound_args(injectee, *args, **kwargs)
         dep_scope: dict[Depends, Any] = {}
 
@@ -452,9 +459,9 @@ def inject_deps(
 
     if isinstance(injectee, (FunctionType, BuiltinFunctionType)):
         _init_auto_deps(injectee, manual_arg)
-        return di_wrapped
+        return inject_deps_wrapped
     if isinstance(injectee, LambdaType):
-        return di_wrapped
+        return inject_deps_wrapped
 
     raise DependInitError(
         f"{injectee} 对象不属于以下类别中的任何一种："

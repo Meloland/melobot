@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from abc import abstractmethod
 from asyncio import create_task
 from contextlib import AsyncExitStack, _GeneratorContextManager, asynccontextmanager
 from enum import Enum
@@ -21,8 +22,7 @@ from typing_extensions import (
     final,
 )
 
-from .._hook import Hookable
-from ..ctx import EventBuildInfo, EventBuildInfoCtx, LoggerCtx, OutSrcFilterCtx
+from ..ctx import EventOrigin, FlowCtx, LoggerCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
     AbstractInSource,
@@ -34,7 +34,8 @@ from ..io.base import (
     OutSourceT,
 )
 from ..log.base import LogLevel
-from ..typ import AsyncCallable, BetterABC, P, abstractmethod
+from ..mixin import HookMixin
+from ..typ.cls import BetterABC
 from .content import Content
 from .model import ActionHandle, ActionT, EchoT, Event, EventT
 
@@ -42,8 +43,8 @@ if TYPE_CHECKING:
     from ..bot.dispatch import Dispatcher
 
 
-_EVENT_BUILD_INFO_CTX = EventBuildInfoCtx()
 _OUT_SRC_FILTER_CTX = OutSrcFilterCtx()
+_FLOW_CTX = FlowCtx()
 
 
 class AbstractEventFactory(BetterABC, Generic[InPacketT, EventT]):
@@ -104,7 +105,7 @@ class AdapterLifeSpan(Enum):
 
 
 class Adapter(
-    BetterABC,
+    HookMixin[AdapterLifeSpan],
     Generic[
         EventFactoryT,
         OutputFactoryT,
@@ -113,7 +114,7 @@ class Adapter(
         InSourceT,
         OutSourceT,
     ],
-    Hookable[AdapterLifeSpan],
+    BetterABC,
 ):
     """适配器基类
 
@@ -130,29 +131,20 @@ class Adapter(
         output_factory: OutputFactoryT,
         echo_factory: EchoFactoryT,
     ) -> None:
-        Hookable.__init__(self, AdapterLifeSpan, tag=protocol)
+        super().__init__(hook_type=AdapterLifeSpan, hook_tag=protocol)
 
         self.protocol = protocol
-        self.in_srcs: list[InSourceT] = []
-        self.out_srcs: list[OutSourceT] = []
+        self.in_srcs: set[InSourceT] = set()
+        self.out_srcs: set[OutSourceT] = set()
         self.dispatcher: "Dispatcher"
         self._event_factory = event_factory
         self._output_factory = output_factory
         self._echo_factory = echo_factory
 
         self._inited = False
-
-    def on(
-        self, *periods: AdapterLifeSpan
-    ) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
-        groups = (AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC)
-
-        def wrapped(func: AsyncCallable[P, None]) -> AsyncCallable[P, None]:
-            for type in periods:
-                self._hook_bus.register(type, func, once=type not in groups)
-            return func
-
-        return wrapped
+        self.__mark_repeatable_hooks__(
+            AdapterLifeSpan.BEFORE_EVENT_HANDLE, AdapterLifeSpan.BEFORE_ACTION_EXEC
+        )
 
     @final
     def get_isrcs(self, filter: Callable[[InSourceT], bool]) -> set[InSourceT]:
@@ -178,12 +170,12 @@ class Adapter(
         while True:
             try:
                 packet = await src.input()
-                event = await self._event_factory.create(packet)
-                with _EVENT_BUILD_INFO_CTX.unfold(EventBuildInfo(self, src)):
-                    await self._hook_bus.emit(
-                        AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,)
-                    )
-                    asyncio.create_task(self.dispatcher.broadcast(event))
+                event: Event = await self._event_factory.create(packet)
+                EventOrigin.set_origin(event, EventOrigin(self, src))
+                await self._hook_bus.emit(
+                    AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,)
+                )
+                self.dispatcher.broadcast(event)
             except Exception:
                 logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
                 logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
@@ -244,8 +236,9 @@ class Adapter(
         osrcs: Iterable[OutSourceT]
         filter = _OUT_SRC_FILTER_CTX.try_get()
         cur_isrc: AbstractInSource | None
-        if info := _EVENT_BUILD_INFO_CTX.try_get():
-            cur_isrc = info.in_src
+
+        if event := _FLOW_CTX.try_get_event():
+            cur_isrc = EventOrigin.get_origin(event).in_src
         else:
             cur_isrc = None
 
@@ -254,7 +247,7 @@ class Adapter(
         elif isinstance(cur_isrc, AbstractOutSource):
             osrcs = (cast(OutSourceT, cur_isrc),)
         else:
-            osrcs = (self.out_srcs[0],) if len(self.out_srcs) else ()
+            osrcs = self.out_srcs if len(self.out_srcs) else ()
 
         await self._hook_bus.emit(
             AdapterLifeSpan.BEFORE_ACTION_EXEC, True, args=(action,)

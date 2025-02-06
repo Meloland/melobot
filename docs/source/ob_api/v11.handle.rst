@@ -5,4 +5,3 @@ v11 处理流相关接口
 ---------------------
 
 .. automodule:: melobot.protocols.onebot.v11.handle
-    :exclude-members: ParseArgsCtx

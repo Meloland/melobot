@@ -3,8 +3,9 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing_extensions import Any, Literal, Sequence, cast
 
+from melobot.adapter import Event as RootEvent
+from melobot.adapter import TextEvent as RootTextEvent
 from melobot.adapter import content
-from melobot.adapter.model import Event as RootEvent
 
 from ..const import PROTOCOL_IDENTIFIER
 from .segment import Segment, TextSegment, segs_to_contents
@@ -21,7 +22,7 @@ class Event(RootEvent):
         #: 时间戳
         self.time: int
 
-        super().__init__(self._model.time, protocol=PROTOCOL_IDENTIFIER)
+        super().__init__(PROTOCOL_IDENTIFIER, self._model.time)
         #: 机器人自己的 qq 号
         self.self_id: int = self._model.self_id
         #: 事件类型
@@ -30,6 +31,9 @@ class Event(RootEvent):
         )
         #: 事件原始数据
         self.raw: dict[str, Any] = event_data
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(post_type={self.post_type})"
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> Event:
@@ -56,7 +60,7 @@ class Event(RootEvent):
         return self.post_type == "meta_event"
 
 
-class MessageEvent(Event):
+class MessageEvent(RootTextEvent, Event):
     class Model(Event.Model):
         post_type: Literal["message"]
         message_type: Literal["private", "group"] | str
@@ -112,6 +116,21 @@ class MessageEvent(Event):
         #: 消息字体
         self.font: int = self._model.font
 
+        #: 消息内容
+        self.text = "".join(
+            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
+        )
+        #: 消息内容行
+        self.textlines = "\n".join(
+            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
+        ).split("\n")
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(text={self.text!r},"
+            f" user_id={self.user_id}), sub_type={self.sub_type})"
+        )
+
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> MessageEvent:
         cls_map: dict[str, type[MessageEvent]] = {
@@ -121,18 +140,6 @@ class MessageEvent(Event):
         if (mtype := event_data.get("message_type")) in cls_map:
             return cls_map[mtype](**event_data)
         return cls(**event_data)
-
-    @property
-    def text(self) -> str:
-        return "".join(
-            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
-        )
-
-    @property
-    def textlines(self) -> str:
-        return "\n".join(
-            seg.data["text"] for seg in self.message if isinstance(seg, TextSegment)
-        )
 
     def get_segments(self, type: type[Segment] | str) -> list[Segment]:
         if isinstance(type, str):
@@ -329,6 +336,13 @@ class GroupMessageEvent(MessageEvent):
         #: 消息子类型
         self.sub_type: Literal["normal", "anonymous", "notice", "group_self"]
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(text={self.text!r},"
+            f" user_id={self.user_id}, group_id={self.group_id},"
+            f" sub_type={self.sub_type})"
+        )
+
 
 class MetaEvent(Event):
 
@@ -343,6 +357,14 @@ class MetaEvent(Event):
         #: 元事件类型
         self.meta_event_type: Literal["lifecycle", "heartbeat"] | str = (
             self._model.meta_event_type
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(meta_type={self.meta_event_type}"
+            + f", sub_type={self.sub_type})"
+            if hasattr(self, "sub_type")
+            else ")"
         )
 
     @classmethod
@@ -463,6 +485,14 @@ class NoticeEvent(Event):
             ]
             | str
         ) = self._model.notice_type
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(notice_type={self.notice_type}"
+            + f", sub_type={self.sub_type})"
+            if hasattr(self, "sub_type")
+            else ")"
+        )
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> NoticeEvent:
@@ -885,6 +915,14 @@ class RequestEvent(Event):
         self._model: RequestEvent.Model
         #: 请求事件类型
         self.request_type: Literal["friend", "group"] | str = self._model.request_type
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(request_type={self.request_type}"
+            + f", sub_type={self.sub_type})"
+            if hasattr(self, "sub_type")
+            else ")"
+        )
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> RequestEvent:

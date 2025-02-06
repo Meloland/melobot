@@ -3,8 +3,11 @@
 # @Time   : 2024/08/26 20:53:04
 # @Author : Kariko Lin
 
+import asyncio
 from enum import Enum
 from random import choice, randint
+
+from typing_extensions import Any, Coroutine
 
 from melobot.utils import *
 from tests.base import *
@@ -82,7 +85,7 @@ class TestRwc:
 
         idx = choice(range(0, len(r_seq) + len(rw_seq) - 1))
         seq = rw_seq[:idx] + r_seq + rw_seq[idx:]
-        await aio.wait(map(lambda c: aio.create_task(c), seq))
+        await aio.wait(map(aio.create_task, seq))
         assert cls.ASYNC_READED
 
 

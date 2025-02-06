@@ -1,4 +1,4 @@
-from melobot.handle.process import Flow, FlowNode
+from melobot.handle.base import Flow, FlowNode
 from tests.base import *
 
 

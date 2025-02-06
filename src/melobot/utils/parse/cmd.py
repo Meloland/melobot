@@ -1,20 +1,22 @@
 import re
+from dataclasses import dataclass
 from functools import lru_cache
 from types import TracebackType
 
 from typing_extensions import Any, Callable, Iterator, Optional
 
-from melobot.exceptions import BotException
+from melobot.exceptions import UtilError
 from melobot.log import get_logger
-from melobot.typ import AsyncCallable, VoidType
+from melobot.typ import SyncOrAsyncCallable, VoidType
+from melobot.utils import to_async
 
-from .abc import ParseArgs, Parser
-
-
-class ParseError(BotException): ...
+from .base import AbstractParseArgs, Parser
 
 
-class FormatError(BotException): ...
+class CmdParseError(UtilError): ...
+
+
+class FormatError(CmdParseError): ...
 
 
 class ArgValidateFailed(FormatError): ...
@@ -23,7 +25,14 @@ class ArgValidateFailed(FormatError): ...
 class ArgLackError(FormatError): ...
 
 
-class FormatInfo:
+@dataclass
+class CmdArgs(AbstractParseArgs):
+    name: str
+    tag: str | None
+    vals: list[Any]
+
+
+class CmdArgFormatInfo:
     """命令参数格式化信息对象
 
     用于在命令参数格式化异常时传递信息。
@@ -69,9 +78,9 @@ class CmdArgFormatter:
         src_expect: Optional[str] = None,
         default: Any = VoidType.VOID,
         default_replace_flag: Optional[str] = None,
-        convert_fail: Optional[AsyncCallable[[FormatInfo], None]] = None,
-        validate_fail: Optional[AsyncCallable[[FormatInfo], None]] = None,
-        arg_lack: Optional[AsyncCallable[[FormatInfo], None]] = None,
+        convert_fail: Optional[SyncOrAsyncCallable[[CmdArgFormatInfo], None]] = None,
+        validate_fail: Optional[SyncOrAsyncCallable[[CmdArgFormatInfo], None]] = None,
+        arg_lack: Optional[SyncOrAsyncCallable[[CmdArgFormatInfo], None]] = None,
     ) -> None:
         """初始化一个命令参数格式化器
 
@@ -93,15 +102,17 @@ class CmdArgFormatter:
         self.default = default
         self.default_replace_flag = default_replace_flag
         if self.default is VoidType.VOID and self.default_replace_flag is not None:
-            raise ParseError(
+            raise CmdParseError(
                 "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
             )
 
-        self.convert_fail = convert_fail
-        self.validate_fail = validate_fail
-        self.arg_lack = arg_lack
+        self.convert_fail = to_async(convert_fail) if convert_fail is not None else None
+        self.validate_fail = (
+            to_async(validate_fail) if validate_fail is not None else None
+        )
+        self.arg_lack = to_async(arg_lack) if arg_lack is not None else None
 
-    def _get_val(self, args: ParseArgs, idx: int) -> Any:
+    def _get_val(self, args: CmdArgs, idx: int) -> Any:
         if self.default is VoidType.VOID:
             if len(args.vals) < idx + 1:
                 raise ArgLackError
@@ -112,12 +123,7 @@ class CmdArgFormatter:
 
         return args.vals[idx]
 
-    async def format(
-        self,
-        group_id: str,
-        args: ParseArgs,
-        idx: int,
-    ) -> bool:
+    async def format(self, group_id: str, args: CmdArgs, idx: int) -> bool:
         # 格式化参数为对应类型的变量
         try:
             src = self._get_val(args, idx)
@@ -133,7 +139,7 @@ class CmdArgFormatter:
             return True
 
         except ArgValidateFailed as e:
-            info = FormatInfo(
+            info = CmdArgFormatInfo(
                 src, self.src_desc, self.src_expect, idx, e, e.__traceback__, group_id
             )
             if self.validate_fail:
@@ -143,7 +149,7 @@ class CmdArgFormatter:
             return False
 
         except ArgLackError as e:
-            info = FormatInfo(
+            info = CmdArgFormatInfo(
                 VoidType.VOID,
                 self.src_desc,
                 self.src_expect,
@@ -159,7 +165,7 @@ class CmdArgFormatter:
             return False
 
         except Exception as e:
-            info = FormatInfo(
+            info = CmdArgFormatInfo(
                 src, self.src_desc, self.src_expect, idx, e, e.__traceback__, group_id
             )
             if self.convert_fail:
@@ -168,7 +174,7 @@ class CmdArgFormatter:
                 await self._convert_fail_default(info)
             return False
 
-    async def _convert_fail_default(self, info: FormatInfo) -> None:
+    async def _convert_fail_default(self, info: CmdArgFormatInfo) -> None:
         e_class = f"{info.exc.__class__.__module__}.{info.exc.__class__.__qualname__}"
         src = repr(info.src) if isinstance(info.src, str) else info.src
 
@@ -184,7 +190,7 @@ class CmdArgFormatter:
         tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
         get_logger().warning(tip)
 
-    async def _validate_fail_default(self, info: FormatInfo) -> None:
+    async def _validate_fail_default(self, info: CmdArgFormatInfo) -> None:
         src = repr(info.src) if isinstance(info.src, str) else info.src
 
         tip = f"第 {info.idx + 1} 个参数"
@@ -198,7 +204,7 @@ class CmdArgFormatter:
         tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
         get_logger().warning(tip)
 
-    async def _arglack_default(self, info: FormatInfo) -> None:
+    async def _arglack_default(self, info: CmdArgFormatInfo) -> None:
         tip = f"第 {info.idx + 1} 个参数"
         tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
@@ -248,6 +254,7 @@ class CmdParser(Parser):
         cmd_sep: str | list[str],
         targets: str | list[str],
         fmtters: Optional[list[Optional[CmdArgFormatter]]] = None,
+        tag: str | None = None,
     ) -> None:
         """初始化一个命令解析器
 
@@ -261,9 +268,11 @@ class CmdParser(Parser):
         :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
         :param targets: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）
+        :param tag: 标签，此标签将被填充给本解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
         """
         super().__init__()
         self.targets = targets if isinstance(targets, list) else [targets]
+        assert len(self.targets) >= 1, "命令解析器至少需要一个目标命令名"
         self.fmtters = fmtters
 
         self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
@@ -274,9 +283,10 @@ class CmdParser(Parser):
         self.cmd_sep: list[str]
         self.start_regex: re.Pattern[str]
         self.sep_regex: re.Pattern[str]
+        self.arg_tag = tag if tag is not None else self.targets[0]
 
         if self.ban_regex.findall(f"{''.join(cmd_start)}{''.join(cmd_sep)}"):
-            raise ParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
+            raise CmdParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
 
         _regex = re.compile(
             r"([\`\-\=\~\!\@\#\$\%\^\&\*\(\)\_\+\[\]\{\}\|\:\,\.\/\<\>\?])"
@@ -288,12 +298,13 @@ class CmdParser(Parser):
             self.sep_regex = re.compile(rf"{'|'.join(self.cmd_sep)}")
             self.start_regex = re.compile(rf"{'|'.join(self.cmd_start)}")
         else:
-            raise ParseError("命令解析器起始符不能和间隔符重合")
+            raise CmdParseError("命令解析器起始符不能和间隔符重合")
 
-    async def parse(self, text: str) -> Optional[ParseArgs]:
+    async def parse(self, text: str) -> Optional[CmdArgs]:
         cmd_dict = _cmd_parse(text, self.start_regex, self.sep_regex)
         args_dict = {
-            cmd_name: ParseArgs(cmd_name, vals) for cmd_name, vals in cmd_dict.items()
+            cmd_name: CmdArgs(cmd_name, self.arg_tag, vals)
+            for cmd_name, vals in cmd_dict.items()
         }
 
         for group_id in self.targets:
@@ -342,10 +353,12 @@ class CmdParserFactory:
         self,
         targets: str | list[str],
         formatters: Optional[list[Optional[CmdArgFormatter]]] = None,
+        tag: str | None = None,
     ) -> CmdParser:
         """生成匹配指定命令名的命令解析器
 
         :param targets: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）
+        :param tag: 标签，此标签将被填充给解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
         """
-        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters)
+        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters, tag)

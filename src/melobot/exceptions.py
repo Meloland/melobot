@@ -37,7 +37,11 @@ class BotException(Exception):
         return self.err
 
 
-class ValidateError(BotException):
+class UtilError(BotException):
+    """melobot.utils 异常"""
+
+
+class UtilValidateError(UtilError):
     """:py:mod:`melobot.utils` 函数参数验证异常"""
 
 
@@ -67,6 +71,15 @@ class PluginIpcError(PluginError):
 
 class SessionError(BotException):
     """melobot 会话异常"""
+
+
+class SessionStateFailed(SessionError):
+    def __init__(self, cur_state: str, meth: str) -> None:
+        self.cur_state = cur_state
+        super().__init__(f"当前会话状态 {cur_state} 不支持的操作：{meth}")
+
+
+class SessionRuleLacked(SessionError): ...
 
 
 class FlowError(BotException):

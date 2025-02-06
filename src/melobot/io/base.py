@@ -1,25 +1,20 @@
+from __future__ import annotations
+
 import time
+from abc import abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
 
 from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
 
-from .._hook import Hookable
-from ..typ import BetterABC, abstractmethod
-from ..utils import get_id
+from ..mixin import HookMixin, LogMixin
+from ..typ.cls import BetterABC, abstractattr
+from ..utils.common import get_id
 
 
 @dataclass
-class _Packet:
-    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
-    id: str = field(default_factory=get_id)
-    protocol: LiteralString | None = None
-    data: Any = None
-
-
-@dataclass
-class InPacket(_Packet):
+class InPacket:
     """输入包基类（数据类）
 
     :ivar float time: 时间戳
@@ -28,9 +23,14 @@ class InPacket(_Packet):
     :ivar Any data: 附加的数据
     """
 
+    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
+    id: str = field(default_factory=get_id)
+    protocol: LiteralString | None = None
+    data: Any = None
+
 
 @dataclass
-class OutPacket(_Packet):
+class OutPacket:
     """输出包基类（数据类）
 
     :ivar float time: 时间戳
@@ -39,9 +39,14 @@ class OutPacket(_Packet):
     :ivar Any data: 附加的数据
     """
 
+    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
+    id: str = field(default_factory=get_id)
+    protocol: LiteralString | None = None
+    data: Any = None
+
 
 @dataclass
-class EchoPacket(_Packet):
+class EchoPacket:
     """回应包基类（数据类）
 
     :ivar float time: 时间戳
@@ -54,6 +59,10 @@ class EchoPacket(_Packet):
     :ivar bool noecho: 是否并无回应产生
     """
 
+    time: float = field(default_factory=lambda: time.time_ns() / 1e9)
+    id: str = field(default_factory=get_id)
+    protocol: LiteralString | None = None
+    data: Any = None
     ok: bool = True
     status: int = 0
     prompt: str = ""
@@ -73,15 +82,16 @@ class SourceLifeSpan(Enum):
     STOPPED = "sto"
 
 
-class AbstractSource(BetterABC, Hookable[SourceLifeSpan]):
+class AbstractSource(HookMixin[SourceLifeSpan], LogMixin, BetterABC):
     """抽象源基类"""
 
-    def __init__(self, protocol: LiteralString) -> None:
-        Hookable.__init__(
-            self, SourceLifeSpan, tag=f"{protocol}/{self.__class__.__name__}"
-        )
+    protocol: LiteralString = abstractattr()
 
-        self.protocol = protocol
+    def __init__(self) -> None:
+        super().__init__(
+            hook_type=SourceLifeSpan,
+            hook_tag=f"{self.__class__.__module__}.{self.__class__.__name__}",
+        )
 
     @abstractmethod
     async def open(self) -> None:
@@ -122,7 +132,7 @@ class AbstractSource(BetterABC, Hookable[SourceLifeSpan]):
         return None
 
 
-class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
+class AbstractInSource(AbstractSource, Generic[InPacketT]):
     """抽象输入源基类"""
 
     @abstractmethod
@@ -149,7 +159,7 @@ class AbstractInSource(AbstractSource, BetterABC, Generic[InPacketT]):
 InSourceT = TypeVar("InSourceT", bound=AbstractInSource)
 
 
-class AbstractOutSource(AbstractSource, BetterABC, Generic[OutPacketT, EchoPacketT]):
+class AbstractOutSource(AbstractSource, Generic[OutPacketT, EchoPacketT]):
     """抽象输出源基类"""
 
     @abstractmethod
@@ -179,7 +189,7 @@ InOrOutSourceT = TypeVar("InOrOutSourceT", bound=AbstractInSource | AbstractOutS
 
 
 class AbstractIOSource(
-    AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT], BetterABC
+    AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT]
 ):
     """抽象输入输出源基类"""
 

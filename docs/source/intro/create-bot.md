@@ -4,6 +4,8 @@
 
 我们先从最简单的 OneBot v11 协议开始学习如何搭建一个机器人，并以此学习 melobot 的基本特性。
 
+虽然你可能不需要使用 OneBot v11 协议，但也可以简单浏览这部分教程，从而理解一些 melobot 中的基本概念。在后续部分，我们会拓展教程到协议通用领域。
+
 首先需要一个“OneBot 实现程序”作为“前端”，完成与 qq 服务器的通信过程。请自行配置 OneBot 协议实现。
 
 ```{admonition} 相关知识
@@ -23,8 +25,8 @@
 ```{code} python
 :number-lines:
 
-from melobot import Bot, PluginPlanner, send_text
-from melobot.protocols.onebot.v11 import Adapter, ForwardWebSocketIO, on_start_match
+from melobot import Bot, PluginPlanner, on_start_match, send_text
+from melobot.protocols.onebot.v11 import ForwardWebSocketIO, OneBotV11Protocol
 
 @on_start_match(".sayhi")
 async def echo_hi() -> None:
@@ -35,11 +37,11 @@ test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 if __name__ == "__main__":
     (
         Bot(__name__)
-        .add_io(ForwardWebSocketIO("ws://127.0.0.1:8080"))
-        .add_adapter(Adapter())
+        .add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
         .load_plugin(test_plugin)
         .run()
     )
+
 ```
 
 运行后，在机器人加入的任何一个群聊中，或与机器人的私聊中，输入以 `.sayhi` 起始的消息，即可回复：`Hello, melobot!`。
@@ -67,16 +69,14 @@ test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 接下来开始按以下步骤创建、初始化和启动一个 bot：
 
 1. 通过 {class}`.Bot` 创建一个 bot；
-2. 通过 {class}`.ForwardWebSocketIO` 添加一个 OneBot v11 协议的输入输出源；
-3. 通过 {class}`.v11.Adapter` 添加 OneBot v11 协议的适配器；
-4. 通过 {meth}`.load_plugin` 创建并加载插件
+2. 通过 {meth}`~.Bot.add_protocol` 添加 OneBot v11 相关的协议栈支持，此处需要提供一个输入输出源；
+4. 通过 {meth}`~.Bot.load_plugin` 创建并加载插件
 5. 启动 bot
 
 ```python
 (
     Bot(__name__)
-    .add_io(ForwardWebSocketIO("ws://127.0.0.1:8080"))
-    .add_adapter(Adapter())
+    .add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
     .load_plugin(test_plugin)
     .run()
 )

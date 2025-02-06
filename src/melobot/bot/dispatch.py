@@ -1,117 +1,160 @@
+from __future__ import annotations
+
 import asyncio
+from asyncio import Queue, Task, get_running_loop
 
-from typing_extensions import Any, TypeVar
-
-from ..adapter.model import Event
-from ..handle.base import EventHandler
-from ..typ import AsyncCallable, HandleLevel
-from ..utils import RWContext
-
-KeyT = TypeVar("KeyT", bound=float, default=float)
-ValT = TypeVar("ValT", default=Any)
+from ..adapter.base import Event
+from ..handle.base import Flow
+from ..mixin import LogMixin
 
 
-class _KeyOrderDict(dict[KeyT, ValT]):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.update(*args, **kwargs)
-        self.__buf: list[tuple[KeyT, ValT]] = []
-
-    def __setitem__(self, key: KeyT, value: ValT) -> None:
-        if len(self) == 0:
-            return super().__setitem__(key, value)
-
-        if key <= next(reversed(self.items()))[0]:
-            return super().__setitem__(key, value)
-
-        cnt = 0
-        for k, _ in reversed(self.items()):
-            if key > k:
-                cnt += 1
-            else:
-                break
-
-        for _ in range(cnt):
-            self.__buf.append(self.popitem())
-        super().__setitem__(key, value)
-        while len(self.__buf):
-            super().__setitem__(*self.__buf.pop())
-
-        return None
-
-    def update(self, *args: Any, **kwargs: Any) -> None:
-        for k, v in dict(*args, **kwargs).items():
-            self[k] = v
-
-    def setdefault(self, key: KeyT, default: ValT) -> ValT:
-        if key not in self:
-            self[key] = default
-        return self[key]
-
-
-class Dispatcher:
+class Dispatcher(LogMixin):
     def __init__(self) -> None:
-        self.handlers: _KeyOrderDict[HandleLevel, set[EventHandler]] = _KeyOrderDict()
-        self.dispatch_ctrl = RWContext()
-        self.gc_interval = 5
+        self.first_chan: EventChannel | None = None
 
-    def add_nowait(self, *handlers: EventHandler) -> None:
-        for h in handlers:
-            self.handlers.setdefault(h.flow.priority, set()).add(h)
-            h.flow.on_priority_reset(
-                lambda new_prior, h=h: self._reset_hook(h, new_prior)
-            )
+        self._pending_chans: list[EventChannel] = []
 
-    async def add(
-        self, *handlers: EventHandler, callback: AsyncCallable[[], None] | None = None
-    ) -> None:
-        async with self.dispatch_ctrl.write():
-            self.add_nowait(*handlers)
-            if callback is not None:
-                await callback()
+    def _arrange_chan(self, chan: EventChannel) -> None:
+        try:
+            get_running_loop()
+            asyncio.create_task(chan.run())
+        except RuntimeError:
+            self._pending_chans.append(chan)
 
-    async def _remove(self, *handlers: EventHandler) -> None:
-        for h in handlers:
-            await h.expire()
-            h_set = self.handlers[h.flow.priority]
-            h_set.remove(h)
-            if len(h_set) == 0:
-                self.handlers.pop(h.flow.priority)
+    def add(self, *flows: Flow) -> None:
+        for f in flows:
+            lvl = f.priority
 
-    async def remove(
-        self, *handlers: EventHandler, callback: AsyncCallable[[], None] | None = None
-    ) -> None:
-        async with self.dispatch_ctrl.write():
-            await self._remove(*handlers)
-            if callback is not None:
-                await callback()
+            if self.first_chan is None:
+                self.first_chan = EventChannel(self, priority=lvl)
+                self.first_chan.flow_que.put_nowait(f)
 
-    async def _reset_hook(self, handler: EventHandler, new_prior: HandleLevel) -> None:
-        if handler.flow.priority == new_prior:
+            elif lvl == self.first_chan.priority:
+                self.first_chan.flow_que.put_nowait(f)
+
+            elif lvl > self.first_chan.priority:
+                chan = EventChannel(self, priority=lvl)
+                chan.set_next(self.first_chan)
+                self.first_chan = chan
+                chan.flow_que.put_nowait(f)
+
+            else:
+                chan = self.first_chan
+                while chan.next is not None and lvl <= chan.next.priority:
+                    chan = chan.next
+
+                if lvl == chan.priority:
+                    chan.flow_que.put_nowait(f)
+                else:
+                    new_chan = EventChannel(self, priority=lvl)
+                    chan_next = chan.next
+                    new_chan.set_pre(chan)
+                    new_chan.set_next(chan_next)
+                    new_chan.flow_que.put_nowait(f)
+
+            f._active = True
+
+    def remove(self, *flows: Flow) -> None:
+        for f in flows:
+            f._active = False
+
+    def update(self, priority: int, *flows: Flow) -> None:
+        self.remove(*flows)
+        for f in flows:
+            f.priority = priority
+        self.add(*flows)
+
+    def broadcast(self, event: Event) -> None:
+        if self.first_chan is not None:
+            self.first_chan.event_que.put_nowait(event)
+        else:
+            self.logger.warning(f"没有任何可用的事件处理流，事件 {event.id} 将被丢弃")
+
+    def start(self) -> None:
+        for chan in self._pending_chans:
+            asyncio.create_task(chan.run())
+        self._pending_chans.clear()
+
+
+class EventChannel:
+    def __init__(self, owner: Dispatcher, priority: int) -> None:
+        self.owner = owner
+        self.event_que: Queue[Event] = Queue()
+        self.flow_que: Queue[Flow] = Queue()
+        self.priority = priority
+
+        self.pre: EventChannel | None = None
+        self.next: EventChannel | None = None
+
+        self.owner._arrange_chan(self)
+
+    def set_pre(self, pre: EventChannel | None) -> None:
+        self.pre = pre
+        if self.pre is not None:
+            self.pre.next = self
+
+    def set_next(self, next: EventChannel | None) -> None:
+        self.next = next
+        if self.next is not None:
+            self.next.pre = self
+
+    async def run(self) -> None:
+        handle_tasks: list[Task] = []
+        events: list[Event] = []
+        valid_flows: list[Flow] = []
+
+        while True:
+            events.clear()
+            if self.event_que.qsize() == 0:
+                ev = await self.event_que.get()
+                events.append(ev)
+            for _ in range(self.event_que.qsize()):
+                events.append(self.event_que.get_nowait())
+
+            for ev in events:
+                ev.flag_set_default(self.owner, self.owner, set())
+                handle_tasks.clear()
+                valid_flows.clear()
+
+                if self.flow_que.qsize() == 0:
+                    self._dispose(*events)
+                    return
+
+                for _ in range(self.flow_que.qsize()):
+                    handled_fs: set[Flow] = ev.flag_get(self.owner, self.owner)
+                    f = self.flow_que.get_nowait()
+                    if f._active and f.priority == self.priority:
+                        if f not in handled_fs:
+                            handle_tasks.append(asyncio.create_task(f._handle(ev)))
+                            handled_fs.add(f)
+                        valid_flows.append(f)
+
+                for f in valid_flows:
+                    self.flow_que.put_nowait(f)
+                if len(valid_flows):
+                    coro = self._determine_spread(ev, handle_tasks)
+                    asyncio.create_task(coro)
+                else:
+                    self._dispose(*events)
+                    return
+
+    def _dispose(self, *events: Event) -> None:
+        if self.pre is not None:
+            self.pre.set_next(self.next)
+
+        if self.next is not None:
+            for ev in events:
+                self.next.event_que.put_nowait(ev)
+
+        if self is self.owner.first_chan:
+            self.owner.first_chan = self.next
+
+    async def _determine_spread(self, ev: Event, handle_tasks: list[Task]) -> None:
+        if not len(handle_tasks):
+            if self.next is not None:
+                self.next.event_que.put_nowait(ev)
             return
 
-        async with self.dispatch_ctrl.write():
-            old_prior = handler.flow.priority
-            if old_prior == new_prior:
-                return
-            h_set = self.handlers[old_prior]
-            h_set.remove(handler)
-            if len(h_set) == 0:
-                self.handlers.pop(old_prior)
-            self.handlers.setdefault(new_prior, set()).add(handler)
-
-    async def broadcast(self, event: Event) -> None:
-        async with self.dispatch_ctrl.read():
-            for h_set in self.handlers.values():
-                tasks = tuple(asyncio.create_task(h.handle(event)) for h in h_set)
-                await asyncio.wait(tasks)
-                if not event.spread:
-                    break
-
-    async def timed_gc(self) -> None:
-        while True:
-            await asyncio.sleep(self.gc_interval)
-            async with self.dispatch_ctrl.write():
-                hs = tuple(
-                    h for h_set in self.handlers.values() for h in h_set if h.invalid
-                )
-                await self._remove(*hs)
+        await asyncio.wait(handle_tasks)
+        if self.next is not None and ev.spread:
+            self.next.event_que.put_nowait(ev)

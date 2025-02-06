@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoReturn
 
-from .typ import T
+from .typ.base import T
 
-__version__ = "3.0.0"
+__version__ = "3.1.0"
 
 
 def _version_str_to_info(s: str) -> VersionInfo:

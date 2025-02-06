@@ -11,7 +11,7 @@
 
 ## 行为句柄
 
-当直接使用行为方法时，默认是尽快完成的。即不等待也不关心 OneBot 实现端是否成功完成了行为：
+当直接使用 OneBot 的行为方法时，默认是尽快完成的。即不等待也不关心 OneBot 实现端是否成功完成了行为：
 
 ```python
 # 发送消息而不等待，也不关心是否成功
@@ -64,7 +64,7 @@ async def _(adapter: Adapter):
         await adapter.send("我一定是第二条消息")
 ```
 
-一整个函数都需要等待时，可以使用 {func}`.unfold_ctx` 装饰器：
+一整个事件处理函数都需要等待时，可以使用 {func}`.unfold_ctx` 装饰器：
 
 ```python
 from melobot.protocols.onebot.v11 import Adapter, on_message, EchoRequireCtx
@@ -77,6 +77,12 @@ async def _(adapter: Adapter):
     await adapter.send("我一定先被看到")
     await adapter.send("我一定是第二条消息")
 ```
+
+注意：melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 {func}`.send_text`），都会返回行为句柄。
+
+但这里提及的 {meth}`~.v11.Adapter.with_echo` 以及 {class}`.EchoRequireCtx` 等操作，只对 OneBot 协议特有行为操作有效。
+
+**其他协议的行为句柄，是否需要类似的操作，取决于它们的实现。但不变的是：使用行为句柄，可以获知行为的执行情况。**
 
 ```{admonition} 提示
 :class: tip
@@ -97,7 +103,7 @@ async def _(adapter: Adapter):
 和自定义消息段类似，有时候我们总是会需要自定义的 OneBot 行为类型的。一般这样构造：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.action import Action
+from melobot.protocols.onebot.v11 import Action
 
 # 临时构造一个自定义行为
 action = Action(type="action_type", params={"param1": 123456})
@@ -117,9 +123,9 @@ action.set_echo(True)
 handles = await adapter.call_output(action)
 ```
 
-实际上，适配器所有行为操作，都是先在内部构建 {class}`~.v11.adapter.action.Action` 对象，再通过 {meth}`~.v11.Adapter.call_output` 输出。
+实际上，适配器所有行为操作，都是先在内部构建 {class}`~melobot.adapter.model.Action` 对象，再通过 {meth}`~melobot.adapter.base.Adapter.call_output` 输出。
 
-而所有内置行为对象，也可以在文档 [OneBot v11 行为类型](onebot_v11_action) 中找到。你完全可以手动构造，再使用 {meth}`~.v11.Adapter.call_output` 输出，这适用于更精细的控制需求。
+而所有 OneBot v11 的行为对象，也可以在文档 [OneBot v11 行为类型](onebot_v11_action) 中找到。你完全可以手动构造，再使用 {meth}`~.v11.Adapter.call_output` 输出，这适用于更精细的控制需求。
 
 ## 总结
 

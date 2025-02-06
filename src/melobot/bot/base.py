@@ -22,18 +22,19 @@ from typing_extensions import (
     NoReturn,
 )
 
-from .._hook import Hookable
 from .._meta import MetaInfo
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotError
+from ..handle.base import Flow
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger, Logger, NullLogger
+from ..mixin import HookMixin
 from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
-from ..typ import AsyncCallable, P
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from .dispatch import Dispatcher
 
 
@@ -71,7 +72,7 @@ def _start_log(logger: GenericLogger) -> None:
     logger.info("=" * 40)
 
 
-class Bot(Hookable[BotLifeSpan]):
+class Bot(HookMixin[BotLifeSpan]):
     """bot 类
 
     :ivar str name: bot 对象的名称
@@ -103,7 +104,7 @@ class Bot(Hookable[BotLifeSpan]):
             可使用 melobot 内置的 :class:`.Logger`，或经过 :func:`.logger_patch` 修补的日志器
         :param enable_log: 是否启用日志功能
         """
-        Hookable.__init__(self, BotLifeSpan, tag=name)
+        super().__init__(hook_type=BotLifeSpan, hook_tag=name)
 
         self.name = name
         self.logger: GenericLogger
@@ -117,12 +118,11 @@ class Bot(Hookable[BotLifeSpan]):
         self.adapters: dict[str, Adapter] = {}
         self.ipc_manager = IPCManager()
 
-        self._in_srcs: dict[str, list[AbstractInSource]] = {}
-        self._out_srcs: dict[str, list[AbstractOutSource]] = {}
+        self._in_srcs: dict[str, set[AbstractInSource]] = {}
+        self._out_srcs: dict[str, set[AbstractOutSource]] = {}
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
         self._dispatcher = Dispatcher()
-        self._tasks: list[asyncio.Task] = []
 
         self._inited = False
         self._running = False
@@ -159,7 +159,7 @@ class Bot(Hookable[BotLifeSpan]):
         if self._inited:
             raise BotError(f"{self} 已不在初始化期，无法再绑定输入源")
 
-        self._in_srcs.setdefault(src.protocol, []).append(src)
+        self._in_srcs.setdefault(src.protocol, set()).add(src)
         return self
 
     def add_output(self, src: AbstractOutSource) -> Bot:
@@ -171,7 +171,7 @@ class Bot(Hookable[BotLifeSpan]):
         if self._inited:
             raise BotError(f"{self} 已不在初始化期，无法再绑定输出源")
 
-        self._out_srcs.setdefault(src.protocol, []).append(src)
+        self._out_srcs.setdefault(src.protocol, set()).add(src)
         return self
 
     def add_io(self, src: AbstractIOSource) -> Bot:
@@ -221,7 +221,7 @@ class Bot(Hookable[BotLifeSpan]):
             for isrc in srcs:
                 adapter = self.adapters.get(protocol)
                 if adapter is not None:
-                    adapter.in_srcs.append(isrc)
+                    adapter.in_srcs.add(isrc)
                 else:
                     self.logger.warning(
                         f"输入源 {isrc.__class__.__name__} 没有对应的适配器"
@@ -231,7 +231,7 @@ class Bot(Hookable[BotLifeSpan]):
             for osrc in outsrcs:
                 adapter = self.adapters.get(protocol)
                 if adapter is not None:
-                    adapter.out_srcs.append(osrc)
+                    adapter.out_srcs.add(osrc)
                 else:
                     self.logger.warning(
                         f"输出源 {osrc.__class__.__name__} 没有对应的适配器"
@@ -273,12 +273,6 @@ class Bot(Hookable[BotLifeSpan]):
                 return self
 
             self._plugins[p.name] = p
-
-            if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
-                asyncio.create_task(self._dispatcher.add(*p.handlers))
-            else:
-                self._dispatcher.add_nowait(*p.handlers)
-
             for share in p.shares:
                 self.ipc_manager.add(p.name, share)
             for func in p.funcs:
@@ -286,7 +280,12 @@ class Bot(Hookable[BotLifeSpan]):
             self.logger.info(f"成功加载插件：{p.name}")
 
             if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
-                asyncio.create_task(p.hook_bus.emit(PluginLifeSpan.INITED))
+                asyncio.create_task(
+                    p.hook_bus.emit(
+                        PluginLifeSpan.INITED,
+                        callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
+                    )
+                )
             return self
 
     def load_plugins(
@@ -352,10 +351,13 @@ class Bot(Hookable[BotLifeSpan]):
                     await self._hook_bus.emit(BotLifeSpan.RELOADED)
 
                 for p in self._plugins.values():
-                    await p.hook_bus.emit(PluginLifeSpan.INITED)
+                    await p.hook_bus.emit(
+                        PluginLifeSpan.INITED,
+                        callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
+                    )
 
-                timed_task = asyncio.create_task(self._dispatcher.timed_gc())
-                self._tasks.append(timed_task)
+                self._dispatcher.start()
+
                 ts = tuple(
                     asyncio.create_task(
                         stack.enter_async_context(adapter.__adapter_launch__())
@@ -370,9 +372,6 @@ class Bot(Hookable[BotLifeSpan]):
 
         finally:
             async with self._common_async_ctx() as stack:
-                for t in self._tasks:
-                    t.cancel()
-
                 await self._hook_bus.emit(BotLifeSpan.STOPPED, True)
                 self.logger.info(f"{self} 已安全停止运行")
                 self._running = False
@@ -397,7 +396,8 @@ class Bot(Hookable[BotLifeSpan]):
             for bot in bots:
                 tasks.append(asyncio.create_task(bot.core_run()))
             try:
-                await asyncio.wait(tasks)
+                if len(tasks):
+                    await asyncio.wait(tasks)
             except asyncio.CancelledError:
                 pass
 
@@ -481,28 +481,47 @@ class Bot(Hookable[BotLifeSpan]):
         """
         return self.ipc_manager.get(plugin, share)
 
+    def add_flows(self, *flows: Flow) -> None:
+        """添加处理流
+
+        :param flows: 流对象
+        """
+        if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) == -1:
+            raise BotError(f"只有在 {BotLifeSpan.STARTED} 生命周期后才能动态添加处理流")
+        self._dispatcher.add(*flows)
+
     @property
-    def on_loaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_loaded(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.LOADED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.LOADED)
 
     @property
-    def on_reloaded(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_reloaded(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.RELOADED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.RELOADED)
 
     @property
-    def on_started(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_started(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.STARTED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STARTED)
 
     @property
-    def on_close(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_close(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.CLOSE` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.CLOSE)
 
     @property
-    def on_stopped(self) -> Callable[[AsyncCallable[P, None]], AsyncCallable[P, None]]:
+    def on_stopped(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.STOPPED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STOPPED)
 

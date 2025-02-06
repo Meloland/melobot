@@ -13,7 +13,7 @@ from typing_extensions import Any, Callable, Iterable, cast
 from .._imp import Importer
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import PluginAutoGenError, PluginLoadError
-from ..utils import singleton
+from ..utils.common import singleton
 from .base import Plugin, PluginPlanner
 from .ipc import AsyncShare, SyncShare
 
@@ -41,7 +41,7 @@ class PluginInitHelper:
     def _get_init_py_str() -> str:
         return re.sub(
             r"_VAR(\d+)",
-            lambda match: f"_{int(time()):#x}{match.group(1)}",
+            lambda matched: f"_{int(time()):#x}{matched.group(1)}",
             PluginInitHelper._BASE_INIT_PY_STR,
         )
 

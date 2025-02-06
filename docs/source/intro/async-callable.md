@@ -79,3 +79,8 @@ aprint = to_async(print)
 {func}`.to_async` 只是将原对象包裹在一个异步函数中，从而满足异步可调用的接口。
 
 **即：{func}`.to_async` 不做接口兼容外的处理，因此也就不会提供并发/并行的能力。**
+
+另外，有的接口支持 {class}`.SyncOrAsyncCallable` 类型的参数，这表明它是**同时支持同步可调用、异步可调用**的。{class}`.SyncOrAsyncCallable` 有以下特性：
+
+{class}`.SyncOrAsyncCallable`\[{data}`.P`, {data}`.T`\] {math}`\iff`
+{external:class}`~collections.abc.Callable`\[{data}`.P`, {external:class}`~collections.abc.Awaitable`\[{data}`.T` | {external:class}`~typing.Awaitable`\[{data}`.T`\]\]\]

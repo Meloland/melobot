@@ -15,10 +15,11 @@ melobot API
 - :class:`~melobot.adapter.base.Adapter`, :class:`~melobot.adapter.model.Event`, :class:`~melobot.adapter.model.Action`, :class:`~melobot.adapter.model.Echo`
 - :func:`.send_text`, :func:`.send_image`
 - :class:`.Flow`, :class:`.FlowStore`, :func:`.node`, :func:`.rewind`, :func:`.stop`
+- :class:`.FlowDecorator`, :func:`~melobot.handle.on_event`, :func:`.on_text`, :func:`.on_start_match`, :func:`.on_contain_match`, :func:`.on_full_match`, :func:`.on_end_match`, :func:`.on_regex_match`, :func:`.on_command`
 - :class:`.Depends`
-- :class:`.Rule`, :func:`.enter_session`, :class:`.SessionStore`, :func:`.suspend`
+- :class:`.Session`, :class:`.Rule`, :class:`.DefaultRule`, :func:`.enter_session`, :class:`.SessionStore`, :func:`.suspend`
 - :class:`.GenericLogger`, :class:`.Logger`, :class:`.LogLevel`, :func:`.get_logger`
-- :class:`.HandleLevel`, :class:`.LogicMode`
+- :class:`.LogicMode`
 - :class:`.Context`
 
 各模块 API 文档索引：
@@ -40,3 +41,4 @@ melobot API
     melobot.typ
     melobot.exceptions
     melobot.ctx
+    melobot.mixin

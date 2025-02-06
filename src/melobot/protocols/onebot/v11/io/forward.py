@@ -13,17 +13,17 @@ from melobot.exceptions import SourceError
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
-from .base import BaseIO
+from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
 
 
-class ForwardWebSocketIO(BaseIO):
+class ForwardWebSocketIO(BaseIOSource):
     def __init__(
         self,
         url: str,
         max_retry: int = -1,
         retry_delay: float = 4.0,
-        cd_time: float = 0.2,
+        cd_time: float = 0,
         access_token: str | None = None,
     ) -> None:
         super().__init__(cd_time)
@@ -175,7 +175,8 @@ class ForwardWebSocketIO(BaseIO):
 
             for t in self._tasks:
                 t.cancel()
-            await asyncio.wait(self._tasks)
+            if len(self._tasks):
+                await asyncio.wait(self._tasks)
             self._tasks.clear()
             self.logger.info("OneBot v11 正向 WebSocket IO 源已断开连接")
 

@@ -2,7 +2,7 @@ import json
 
 from typing_extensions import Any, Iterable, Literal, Optional, TypedDict
 
-from melobot.adapter.model import Action as RootAction
+from melobot.adapter import Action as RootAction
 from melobot.handle import try_get_event
 
 from ..const import PROTOCOL_IDENTIFIER
@@ -18,6 +18,9 @@ class Action(RootAction):
         self.type = type
         self.params = params
         self.need_echo = False
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(type={self.type}, echo={self.need_echo})"
 
     def set_echo(self, status: bool) -> None:
         self.need_echo = status
@@ -60,6 +63,7 @@ class SendMsgAction(Action):
         type = "send_msg"
         _msgs = msgs_to_dicts(msgs)
         if group_id is None:
+            assert user_id is not None, "group_id 为空时，user_id 必须为非空"
             params = {
                 "message_type": "private",
                 "user_id": user_id,

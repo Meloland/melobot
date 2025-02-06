@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 from typing_extensions import TYPE_CHECKING, Any, Callable, Generic, final
 
-from ..adapter.model import EventT
-from ..typ import BetterABC
+from ..adapter.model import Event, EventT
+from ..typ.cls import BetterABC
 
 if TYPE_CHECKING:
     from .base import Session
@@ -85,3 +85,13 @@ class _CustomRule(Rule[EventT]):
 
     async def compare(self, e1: EventT, e2: EventT) -> bool:
         return self.meth(e1, e2)
+
+
+class DefaultRule(Rule[Event]):
+    """传统的会话规则
+
+    判断事件的 `scope` 是否相同
+    """
+
+    async def compare(self, e1: Event, e2: Event) -> bool:
+        return e1.scope == e2.scope

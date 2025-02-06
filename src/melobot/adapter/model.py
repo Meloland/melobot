@@ -26,32 +26,37 @@ from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
 from ..exceptions import AdapterError
 from ..io.base import AbstractOutSource
 from ..log.base import LogLevel
-from ..typ import AttrsReprable, T
-from ..utils import get_id, to_coro
+from ..mixin import AttrReprMixin, FlagMixin
+from ..typ.base import T
+from ..typ.cls import abstractattr
+from ..utils.base import to_coro
+from ..utils.common import get_id
 from .content import Content
 
 if TYPE_CHECKING:
-    from .base import AbstractEchoFactory, AbstractOutputFactory
+    from .base import AbstractEchoFactory, AbstractOutputFactory, Adapter
 
 
-class Event(AttrsReprable):
+class Event(AttrReprMixin, FlagMixin):
     """事件基类
 
+    :ivar typing.LiteralString protocol: 遵循的协议，为空则协议无关
     :ivar float time: 时间戳
     :ivar str id: id 标识
-    :ivar typing.LiteralString | None protocol: 遵循的协议，为空则协议无关
-    :ivar typing.Sequence[Content] contents: 附加的通用内容序列
     :ivar typing.Hashable | None scope: 所在的域，可空
+    :ivar typing.Sequence[Content] contents: 附加的通用内容序列
     """
 
     def __init__(
         self,
+        protocol: LiteralString,
         time: float = -1,
         id: str = "",
-        protocol: LiteralString | None = None,
         scope: Hashable | None = None,
         contents: Sequence[Content] | None = None,
     ) -> None:
+        super().__init__()
+
         self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
@@ -64,7 +69,17 @@ class Event(AttrsReprable):
 EventT = TypeVar("EventT", bound=Event)
 
 
-class Action(AttrsReprable):
+class TextEvent(Event):
+    """文本事件类
+
+    :ivar str text: 文本内容
+    """
+
+    text: str = abstractattr()
+    textlines: list[str] = abstractattr()
+
+
+class Action(AttrReprMixin, FlagMixin):
     """行为基类
 
     :ivar float time: 时间戳
@@ -84,6 +99,7 @@ class Action(AttrsReprable):
         contents: Sequence[Content] | None = None,
         trigger: Event | None = None,
     ) -> None:
+        super().__init__()
         self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
@@ -92,7 +108,7 @@ class Action(AttrsReprable):
         self.trigger = trigger
 
 
-class Echo(AttrsReprable):
+class Echo(AttrReprMixin, FlagMixin):
     """回应基类
 
     :ivar float time: 时间戳
@@ -116,6 +132,7 @@ class Echo(AttrsReprable):
         prompt: str = "",
         data: Any = None,
     ) -> None:
+        super().__init__()
         self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
@@ -231,7 +248,8 @@ class ActionChain:
         _handles = await handles
         for handle in _handles:
             handle.execute()
-        await asyncio.wait(map(lambda h: create_task(to_coro(h)), _handles))
+        if len(_handles):
+            await asyncio.wait(map(create_task, map(to_coro, _handles)))
 
     def add(
         self,
