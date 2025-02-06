@@ -353,10 +353,12 @@ class CmdParserFactory:
         self,
         targets: str | list[str],
         formatters: Optional[list[Optional[CmdArgFormatter]]] = None,
+        tag: str | None = None,
     ) -> CmdParser:
         """生成匹配指定命令名的命令解析器
 
         :param targets: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）
+        :param tag: 标签，此标签将被填充给解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
         """
-        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters)
+        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters, tag)
