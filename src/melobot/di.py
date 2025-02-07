@@ -438,7 +438,7 @@ def inject_deps(
     """
 
     @wraps(injectee)
-    async def inject_deps_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def inject_deps_wrapped(*args: Any, **kwargs: Any) -> T:
         _args, _kwargs = _get_bound_args(injectee, *args, **kwargs)
         dep_scope: dict[Depends, Any] = {}
 
