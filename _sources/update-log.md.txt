@@ -5,6 +5,18 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.1.1
+
+### ⏩变更
+
+- [OneBot] 所有消息段内的 str 类型参数，现在不再进行除类型判断以外的校验。现在你必须自行验证这些字符串是否非空，以及是否符合特定格式（例如 url 格式）
+
+### 👍修复
+
+- [core] 异常日志过于冗杂，且输出过多敏感信息 ([0154d2e](https://github.com/Meloland/melobot/commit/0154d2e))
+
+- [OneBot] 部分消息段的初始化失败问题、{meth}`~.v11.adapter.segment.Segment.to_dict` 或 {meth}`~.v11.adapter.segment.Segment.to_json` 转换失败问题 ([#36](https://github.com/Meloland/melobot/issues/36) -> [f6b5a56](https://github.com/Meloland/melobot/commit/f6b5a56))
+
 ## v3.1.0
 
 ### ⏩变更
