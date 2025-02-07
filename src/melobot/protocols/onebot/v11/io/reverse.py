@@ -118,7 +118,6 @@ class ReverseWebSocketIO(BaseIOSource):
             except Exception:
                 self.logger.exception("OneBot v11 反向 WebSocket IO 源输入异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
-                self.logger.generic_obj("异常点的上报数据", raw, level=LogLevel.ERROR)
 
     async def _output_loop(self) -> None:
         while True:
@@ -137,9 +136,6 @@ class ReverseWebSocketIO(BaseIOSource):
             except Exception:
                 self.logger.exception("OneBot v11 反向 WebSocket IO 源输出异常")
                 self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
-                self.logger.generic_obj(
-                    "异常点的发送数据", out_packet.data, level=LogLevel.ERROR
-                )
 
     async def open(self) -> None:
         if self.opened():

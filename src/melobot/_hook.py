@@ -30,7 +30,11 @@ class HookRunner(Generic[HookEnumT]):
         except Exception:
             logger = LoggerCtx().get()
             logger.exception(f"{self.type} 类型的 hook 方法 {self.callback} 发生异常")
-            logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
+            logger.generic_obj(
+                "异常点局部变量：",
+                {"hook_runner": self, "args": args, "kwargs": kwargs},
+                level=LogLevel.ERROR,
+            )
 
     async def run(self, *args: Any, **kwargs: Any) -> None:
         if not self._valid:

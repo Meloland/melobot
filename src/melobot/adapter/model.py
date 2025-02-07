@@ -34,7 +34,7 @@ from ..utils.common import get_id
 from .content import Content
 
 if TYPE_CHECKING:
-    from .base import AbstractEchoFactory, AbstractOutputFactory, Adapter
+    from .base import AbstractEchoFactory, AbstractOutputFactory
 
 
 class Event(AttrReprMixin, FlagMixin):
@@ -194,10 +194,11 @@ class ActionHandle(Generic[ActionRetT]):
             self._done.set()
         except Exception:
             logger = LoggerCtx().get()
-            logger.exception(
-                f"{self.__class__.__module__}.{self.action.__class__.__qualname__} 执行时出现异常"
+            handle_name = (
+                f"{self.__class__.__module__}.{self.action.__class__.__qualname__}"
             )
-            logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            logger.exception(f"行为句柄 {handle_name} 执行时出现异常")
+            logger.generic_obj("异常点局部变量", self.__dict__, level=LogLevel.ERROR)
 
     def execute(self) -> Self:
         if self.status != "PENDING":

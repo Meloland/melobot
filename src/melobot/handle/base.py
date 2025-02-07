@@ -134,10 +134,13 @@ class Flow(LogMixin):
             raise FlowError(f"定义的处理流 {self.name} 中存在环路")
 
     def __repr__(self) -> str:
-        output = f"{self.__class__.__name__}(name={self.name}, nums={len(self.graph)}"
+        output = (
+            f"{self.__class__.__name__}(name={self.name}, active={self._active}"
+            f", pri={self.priority}, nums={len(self.graph)}"
+        )
 
         if len(self.graph):
-            output += f", starts=[{', '.join(repr(n) for n in self.starts)}])"
+            output += f", starts=[{', '.join(n.name for n in self.starts)}])"
         else:
             output += ")"
         return output
@@ -304,10 +307,12 @@ class Flow(LogMixin):
             except Exception:
                 self.logger.exception(f"事件处理流 {self.name} 发生异常")
                 self.logger.generic_obj(
-                    f"异常点 event {event.id}", event.__dict__, level=LogLevel.ERROR
+                    f"异常点 event {event.id}", event, level=LogLevel.ERROR
                 )
                 self.logger.generic_obj(
-                    "异常点局部变量：", locals(), level=LogLevel.ERROR
+                    "异常点局部变量：",
+                    {"completion": completion.__dict__, "cur_flow": self},
+                    level=LogLevel.ERROR,
                 )
 
             finally:

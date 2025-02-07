@@ -178,7 +178,15 @@ class Adapter(
                 self.dispatcher.broadcast(event)
             except Exception:
                 logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
-                logger.generic_obj("异常点局部变量：", locals(), level=LogLevel.ERROR)
+                logger.generic_obj(
+                    "异常点局部变量：",
+                    {
+                        "in_factory": self._event_factory,
+                        "dispatcher": self.dispatcher,
+                    }
+                    | locals(),
+                    level=LogLevel.ERROR,
+                )
 
     @asynccontextmanager
     @final

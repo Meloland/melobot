@@ -14,6 +14,16 @@ class Dispatcher(LogMixin):
 
         self._pending_chans: list[EventChannel] = []
 
+    def __repr__(self) -> str:
+        counts: dict[int, str] = {}
+        chan = self.first_chan
+        while chan is not None:
+            counts[chan.priority] = (
+                f"[flows:{chan.flow_que.qsize()}, events:{chan.event_que.qsize()}]"
+            )
+            chan = chan.next
+        return f"{self.__class__.__name__}({counts})"
+
     def _arrange_chan(self, chan: EventChannel) -> None:
         try:
             get_running_loop()
