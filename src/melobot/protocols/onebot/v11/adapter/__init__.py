@@ -104,7 +104,6 @@ from .segment import (
     ImageSendSegment,
     JsonSegment,
     LocationSegment,
-    MediaUrl,
     MusicCustomSegment,
     MusicPlatformSegment,
     MusicSegment,

@@ -8,15 +8,7 @@ from collections.abc import Mapping
 from itertools import chain, zip_longest
 
 from beartype.door import is_subhint
-from pydantic import (
-    AnyHttpUrl,
-    AnyUrl,
-    BaseModel,
-    Discriminator,
-    Tag,
-    UrlConstraints,
-    create_model,
-)
+from pydantic import BaseModel, Discriminator, Tag, create_model
 from typing_extensions import (
     Annotated,
     Any,
@@ -25,7 +17,6 @@ from typing_extensions import (
     Match,
     NotRequired,
     Self,
-    TypeAlias,
     TypedDict,
     TypeVar,
     cast,
@@ -35,11 +26,6 @@ from typing_extensions import (
 )
 
 from melobot.adapter import content as mbcontent
-
-MediaUrl: TypeAlias = Annotated[
-    AnyUrl, UrlConstraints(allowed_schemes=["http", "https", "file", "base64"])
-]
-
 
 SegTypeT = TypeVar("SegTypeT", bound=str, default=Any)
 SegDataT = TypeVar("SegDataT", bound=Mapping[str, Any], default=Any)
@@ -248,9 +234,7 @@ def contents_to_segs(contents: list[mbcontent.Content]) -> list[Segment]:
             if c.val:
                 segments.append(TextSegment(f"[OneBot v11 media: {c.name}]"))
             else:
-                segments.append(
-                    ShareSegment(url=MediaUrl(cast(str, c.url)), title=c.name)
-                )
+                segments.append(ShareSegment(url=cast(str, c.url), title=c.name))
 
         elif isinstance(c, mbcontent.FileContent):
             segments.append(TextSegment(repr(c)))
@@ -259,7 +243,7 @@ def contents_to_segs(contents: list[mbcontent.Content]) -> list[Segment]:
             segments.append(TextSegment(repr(c)))
 
         elif isinstance(c, mbcontent.ResourceContent):
-            segments.append(ShareSegment(url=MediaUrl(c.url), title=c.name))
+            segments.append(ShareSegment(url=c.url, title=c.name))
 
         else:
             continue
@@ -420,7 +404,7 @@ class FaceSegment(Segment[Literal["face"], _FaceData]):
 
 
 class _ImageSendData(TypedDict):
-    file: str | MediaUrl
+    file: str
     type: NotRequired[Literal["flash"]]
     cache: NotRequired[Literal[0, 1]]
     proxy: NotRequired[Literal[0, 1]]
@@ -430,7 +414,7 @@ class _ImageSendData(TypedDict):
 class _ImageRecvData(TypedDict):
     file: str
     type: NotRequired[Literal["flash"]]
-    url: MediaUrl
+    url: str
 
 
 class ImageSegment(Segment[Literal["image"], _ImageSendData | _ImageRecvData]):
@@ -443,7 +427,7 @@ class ImageSegment(Segment[Literal["image"], _ImageSendData | _ImageRecvData]):
     def __init__(
         self,
         *,
-        file: str | MediaUrl,
+        file: str,
         type: Literal["flash"] | None = None,
         cache: Literal[0, 1] | None = None,
         proxy: Literal[0, 1] | None = None,
@@ -452,7 +436,7 @@ class ImageSegment(Segment[Literal["image"], _ImageSendData | _ImageRecvData]):
 
     @overload
     def __init__(
-        self, *, file: str, url: MediaUrl, type: Literal["flash"] | None = None
+        self, *, file: str, url: str, type: Literal["flash"] | None = None
     ) -> None: ...
 
     def __init__(self, **kv_pairs: Any) -> None:
@@ -473,7 +457,7 @@ class ImageSendSegment(ImageSegment):
     def __init__(
         self,
         *,
-        file: str | MediaUrl,
+        file: str,
         type: Literal["flash"] | None = None,
         cache: Literal[0, 1] | None = None,
         proxy: Literal[0, 1] | None = None,
@@ -492,7 +476,7 @@ class ImageRecvSegment(ImageSegment):
         self,
         *,
         file: str,
-        url: MediaUrl,
+        url: str,
         type: Literal["flash"] | None = None,
         **kwargs: Any,
     ) -> None:
@@ -502,7 +486,7 @@ class ImageRecvSegment(ImageSegment):
 
 
 class _RecordSendData(TypedDict):
-    file: str | MediaUrl
+    file: str
     magic: NotRequired[Literal[0, 1]]
     cache: NotRequired[Literal[0, 1]]
     proxy: NotRequired[Literal[0, 1]]
@@ -512,7 +496,7 @@ class _RecordSendData(TypedDict):
 class _RecordRecvData(TypedDict):
     file: str
     magic: NotRequired[Literal[0, 1]]
-    url: MediaUrl
+    url: str
 
 
 class RecordSegment(Segment[Literal["record"], _RecordSendData | _RecordRecvData]):
@@ -525,7 +509,7 @@ class RecordSegment(Segment[Literal["record"], _RecordSendData | _RecordRecvData
     def __init__(
         self,
         *,
-        file: str | MediaUrl,
+        file: str,
         magic: Literal[0, 1] | None = None,
         cache: Literal[0, 1] | None = None,
         proxy: Literal[0, 1] | None = None,
@@ -534,7 +518,7 @@ class RecordSegment(Segment[Literal["record"], _RecordSendData | _RecordRecvData
 
     @overload
     def __init__(
-        self, *, file: str, url: MediaUrl, magic: Literal[0, 1] | None = None
+        self, *, file: str, url: str, magic: Literal[0, 1] | None = None
     ) -> None: ...
 
     def __init__(self, **kv_pairs: Any) -> None:
@@ -553,7 +537,7 @@ class RecordSendSegment(RecordSegment):
     def __init__(
         self,
         *,
-        file: str | MediaUrl,
+        file: str | str,
         magic: Literal[0, 1] | None = None,
         cache: Literal[0, 1] | None = None,
         proxy: Literal[0, 1] | None = None,
@@ -572,7 +556,7 @@ class RecordRecvSegment(RecordSegment):
         self,
         *,
         file: str,
-        url: MediaUrl,
+        url: str,
         magic: Literal[0, 1] | None = None,
         **kwargs: Any,
     ) -> None:
@@ -582,7 +566,7 @@ class RecordRecvSegment(RecordSegment):
 
 
 class _VideoSendData(TypedDict):
-    file: str | MediaUrl
+    file: str
     cache: NotRequired[Literal[0, 1]]
     proxy: NotRequired[Literal[0, 1]]
     timeout: NotRequired[int]
@@ -590,7 +574,7 @@ class _VideoSendData(TypedDict):
 
 class _VideoRecvData(TypedDict):
     file: str
-    url: MediaUrl
+    url: str
 
 
 class VideoSegment(Segment[Literal["video"], _VideoSendData | _VideoRecvData]):
@@ -603,14 +587,14 @@ class VideoSegment(Segment[Literal["video"], _VideoSendData | _VideoRecvData]):
     def __init__(
         self,
         *,
-        file: str | MediaUrl,
+        file: str,
         cache: Literal[0, 1] | None = None,
         proxy: Literal[0, 1] | None = None,
         timeout: int | None = None,
     ) -> None: ...
 
     @overload
-    def __init__(self, *, file: str, url: MediaUrl) -> None: ...
+    def __init__(self, *, file: str, url: str) -> None: ...
 
     def __init__(self, **kv_pairs: Any) -> None:
         super().__init__("video", **kv_pairs)
@@ -628,7 +612,7 @@ class VideoSendSegment(VideoSegment):
     def __init__(
         self,
         *,
-        file: str | MediaUrl,
+        file: str,
         cache: Literal[0, 1] | None = None,
         proxy: Literal[0, 1] | None = None,
         timeout: int | None = None,
@@ -640,7 +624,7 @@ class VideoSendSegment(VideoSegment):
 
 
 class VideoRecvSegment(VideoSegment):
-    def __init__(self, *, file: str, url: MediaUrl, **kwargs: Any) -> None:
+    def __init__(self, *, file: str, url: str, **kwargs: Any) -> None:
         super().__init__(file=file, url=url, **kwargs)
 
     data: _VideoRecvData
@@ -785,10 +769,10 @@ class AnonymousSegment(Segment[Literal["anonymous"], _AnonymousData]):
 
 
 class _ShareData(TypedDict):
-    url: AnyUrl
+    url: str
     title: str
     content: NotRequired[str]
-    image: NotRequired[AnyHttpUrl]
+    image: NotRequired[str]
 
 
 class ShareSegment(Segment[Literal["share"], _ShareData]):
@@ -799,10 +783,10 @@ class ShareSegment(Segment[Literal["share"], _ShareData]):
 
     def __init__(
         self,
-        url: AnyUrl,
+        url: str,
         title: str,
         content: str | None = None,
-        image: AnyHttpUrl | None = None,
+        image: str | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -897,11 +881,11 @@ class _MusicData(TypedDict):
 
 class _MusicCustomData(TypedDict):
     type: Literal["custom"]
-    url: AnyHttpUrl
-    audio: AnyHttpUrl
+    url: str
+    audio: str
     title: str
     content: NotRequired[str]
-    image: NotRequired[AnyHttpUrl]
+    image: NotRequired[str]
 
 
 class MusicSegment(Segment[Literal["music"], _MusicData | _MusicCustomData]):
@@ -918,11 +902,11 @@ class MusicSegment(Segment[Literal["music"], _MusicData | _MusicCustomData]):
         self,
         *,
         type: Literal["custom"],
-        url: AnyHttpUrl,
-        audio: AnyHttpUrl,
+        url: str,
+        audio: str,
         title: str,
         content: str | None = None,
-        image: AnyHttpUrl | None = None,
+        image: str | None = None,
     ) -> None: ...
 
     def __init__(self, **kv_pairs: Any) -> None:
@@ -951,11 +935,11 @@ class MusicCustomSegment(MusicSegment):
         self,
         *,
         type: Literal["custom"],
-        url: AnyHttpUrl,
-        audio: AnyHttpUrl,
+        url: str,
+        audio: str,
         title: str,
         content: str | None = None,
-        image: AnyHttpUrl | None = None,
+        image: str | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -1101,7 +1085,7 @@ class NodeSegment(
     def to_dict(self, force_str: bool = False) -> dict[str, Any]:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
-            dic = super().to_dict(force_str)
+            dic = super().to_dict(force_str=False)
 
         if "content" in self.data:
             dic["data"]["content"] = [
