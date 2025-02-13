@@ -19,8 +19,7 @@ from .packet import EchoPacket, InPacket, OutPacket
 class HttpIO(BaseIOSource):
     def __init__(
         self,
-        onebot_host: str,
-        onebot_port: int,
+        onebot_url: str,
         serve_host: str,
         serve_port: int,
         secret: str | None = None,
@@ -28,7 +27,7 @@ class HttpIO(BaseIOSource):
         cd_time: float = 0,
     ) -> None:
         super().__init__(cd_time)
-        self.onebot_url = f"http://{onebot_host}:{onebot_port}"
+        self.onebot_url = onebot_url
         self.host: str = serve_host
         self.port: int = serve_port
         self.serve_site: aiohttp.web.TCPSite
