@@ -78,7 +78,6 @@ class BaseIOSource(AbstractIOSource[InPacket, OutPacket, EchoPacket], BaseInSour
     :ivar float cd_time: 发送行为操作的冷却时间（防风控）
     """
 
-    # pylint: disable=duplicate-code
     def __init__(self, cd_time: float) -> None:
         super().__init__()
         self.cd_time = cd_time if cd_time >= 0 else 0

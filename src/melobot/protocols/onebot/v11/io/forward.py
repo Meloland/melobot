@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 import asyncio
 import json
 import time
@@ -44,7 +43,6 @@ class ForwardWebSocketIO(BaseIOSource):
         self._restart_flag = asyncio.Event()
 
     async def _input_loop(self) -> None:
-        # pylint: disable=duplicate-code
         while True:
             try:
                 await self._opened.wait()

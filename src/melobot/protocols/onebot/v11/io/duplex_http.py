@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 import asyncio
 import hmac
 import json
@@ -78,9 +77,7 @@ class HttpIO(BaseIOSource):
             self.logger.generic_obj("异常点的上报数据", raw, level=LogLevel.ERROR)
 
         finally:
-            return aiohttp.web.Response(  # pylint: disable=return-in-finally,lost-exception
-                status=204
-            )
+            return aiohttp.web.Response(status=204)
 
     async def _output_loop(self) -> None:
         while True:

@@ -78,7 +78,6 @@ class Rule(BetterABC, Generic[EventT]):
 
 
 class _CustomRule(Rule[EventT]):
-    # pylint: disable=abstract-method
     def __init__(self, meth: Callable[[EventT, EventT], bool]) -> None:
         super().__init__()
         self.meth = meth

@@ -83,8 +83,7 @@ isort = {shell = "isort src/melobot"}
 format = {shell = "black src/melobot"}
 check = {shell = "flake8 src/melobot"}
 analyse = {shell = "mypy src/melobot"}
-pylint = {shell = "pylint src/melobot"}
-all_lint = {composite = ["isort", "format", "check", "analyse", "pylint"]}
+all_lint = {composite = ["isort", "format", "check", "analyse"]}
 
 test = {shell = "pytest -c pytest.ini"}
 trace = {shell = "viztracer"}
@@ -102,7 +101,12 @@ measure = [
 ]
 test = ["pytest>=8.1.1", "pytest-asyncio>=0.24.0"]
 docs = ["sphinx>=7.3.7", "furo>=2024.1.29", "myst-parser>=2.0.0", "sphinx-copybutton>=0.5.2"]
-lint = ["black>=24.2.0", "isort>=5.13.2", "flake8>=7.0.0", "pylint>=3.2.6", "mypy>=1.11.1"]
+lint = [
+    "black>=24.2.0",
+    "isort>=5.13.2",
+    "flake8>=7.0.0",
+    "mypy>=1.11.1",
+]
 manage = [
     "toml>=0.10.2",
     "pre-commit>=4.0.1",

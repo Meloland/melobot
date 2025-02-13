@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 import asyncio
 import http
 import json
@@ -65,7 +64,6 @@ class ReverseWebSocketIO(BaseIOSource):
             return None
 
     async def _input_loop(self, ws: ServerConnection) -> None:
-        # pylint: disable=duplicate-code
         self.conn = ws
         self._opened.set()
         self.logger.info("实现端与 OneBot v11 反向 WebSocket IO 源建立了连接")

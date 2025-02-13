@@ -209,7 +209,7 @@ class _MessageSender:
             return False
 
         _self = cast(_GroupMessageSender, self)
-        return _self.role is not None and _self.role == "owner"  # pylint: disable=no-member
+        return _self.role is not None and _self.role == "owner"
 
     def is_group_admin(self) -> bool:
         """判断是否为群管理（包含群主），若不是或不是群类型消息，返回 False"""
@@ -217,10 +217,7 @@ class _MessageSender:
             return False
 
         _self = cast(_GroupMessageSender, self)
-        return _self.role is not None and _self.role in (  # pylint: disable=no-member
-            "owner",
-            "admin",
-        )
+        return _self.role is not None and _self.role in ("owner", "admin")
 
     def is_group_member_only(self) -> bool:
         """判断是否只是群员（注意只是群员，不包括群主、管理和匿名），若不是或不是群类型消息，返回 False"""
@@ -228,7 +225,7 @@ class _MessageSender:
             return False
 
         _self = cast(_GroupMessageSender, self)
-        return _self.role is not None and _self.role == "member"  # pylint: disable=no-member
+        return _self.role is not None and _self.role == "member"
 
 
 class PrivateMessageEvent(MessageEvent):

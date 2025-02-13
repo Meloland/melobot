@@ -219,8 +219,6 @@ class GenericLogger(BetterABC):
     即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.__init__`）
     """
 
-    # pylint: disable=duplicate-code
-
     @abstractmethod
     def debug(self, msg: object) -> None:
         """`debug` 级别日志"""
@@ -362,10 +360,7 @@ class Logger(_Logger, GenericLogger):
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“错误日志”到不同的文件
         """
-        if (
-            hasattr(self, "_built")
-            and self._built  # pylint: disable=access-member-before-definition
-        ):
+        if hasattr(self, "_built") and self._built:
             return
 
         super().__init__(name, LogLevel.DEBUG)

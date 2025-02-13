@@ -121,9 +121,6 @@ class Adapter(
     :ivar LiteralString protocol: 适配器所使用的协议
     """
 
-    # pylint: disable=duplicate-code
-    # pylint: disable=unused-argument
-
     def __init__(
         self,
         protocol: LiteralString,

@@ -242,7 +242,7 @@ class ModuleLoader(Loader):
         for loader_cls, suffixes in _get_file_loaders():
             if str(fp).endswith(tuple(suffixes)):
                 loader_cls = cast(type[FileLoader], loader_cls)
-                loader = loader_cls(fullname, str(fp))  # pylint: disable=not-callable
+                loader = loader_cls(fullname, str(fp))
                 self.melobot_inner_loader = loader
                 break
 

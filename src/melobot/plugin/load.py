@@ -137,7 +137,6 @@ class PluginInitHelper:
 
     @staticmethod
     def run_init(*plugin_dirs: str | PathLike[str], load_depth: int = 1) -> None:
-        # pylint: disable=cyclic-import
         from melobot.bot import Bot
 
         tmp_bot = Bot(enable_log=False)

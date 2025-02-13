@@ -123,7 +123,6 @@ class FlagMixin:
         :param use_id: 为 `True` 则使用 `is` 判断 `val`，否则调用 `==` 判断 `val`
         :return: 是否通过检查
         """
-        # pylint: disable=consider-iterating-dictionary
         if namespace not in self.__flag_mixin_flags__.keys():
             return False
         if flag not in self.__flag_mixin_flags__[namespace].keys():
