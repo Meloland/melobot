@@ -72,9 +72,7 @@ class BaseOutSource(AbstractOutSource[OutPacket, EchoPacket], BaseSource):
         raise NotImplementedError
 
 
-class BaseIOSource(
-    AbstractIOSource[InPacket, OutPacket, EchoPacket], BaseInSource, BaseOutSource
-):
+class BaseIOSource(AbstractIOSource[InPacket, OutPacket, EchoPacket], BaseInSource, BaseOutSource):
     """
 
     :ivar float cd_time: 发送行为操作的冷却时间（防风控）

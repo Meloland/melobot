@@ -70,9 +70,7 @@ class HttpIO(BaseIOSource):
                 and raw.get("sub_type") == "connect"
             ):
                 await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
-            self.logger.generic_obj(
-                "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
-            )
+            self.logger.generic_obj("收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG)
             await self._in_buf.put(InPacket(time=raw["time"], data=raw))
 
         except Exception:
@@ -80,8 +78,8 @@ class HttpIO(BaseIOSource):
             self.logger.generic_obj("异常点的上报数据", raw, level=LogLevel.ERROR)
 
         finally:
-            return (  # pylint: disable=return-in-finally,lost-exception
-                aiohttp.web.Response(status=204)
+            return aiohttp.web.Response(  # pylint: disable=return-in-finally,lost-exception
+                status=204
             )
 
     async def _output_loop(self) -> None:

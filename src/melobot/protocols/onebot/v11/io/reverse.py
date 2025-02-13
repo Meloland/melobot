@@ -77,9 +77,7 @@ class ReverseWebSocketIO(BaseIOSource):
         while True:
             try:
                 raw_str = await self.conn.recv()
-                self.logger.generic_obj(
-                    "收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG
-                )
+                self.logger.generic_obj("收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG)
                 if raw_str == "":
                     continue
                 raw = json.loads(raw_str)
@@ -107,9 +105,7 @@ class ReverseWebSocketIO(BaseIOSource):
                 break
 
             except ConnectionClosed:
-                self.logger.info(
-                    "实现端与 OneBot v11 反向 WebSocket IO 源已断连，等待连接中"
-                )
+                self.logger.info("实现端与 OneBot v11 反向 WebSocket IO 源已断连，等待连接中")
                 self._opened.clear()
                 self._restart_flag.set()
                 self._conn_requested = False

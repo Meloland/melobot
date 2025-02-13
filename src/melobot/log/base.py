@@ -76,9 +76,7 @@ def _get_rich_object(
     return colored_str, _CONSOLE.export_text().rstrip("\n")
 
 
-def _get_rich_repr(
-    s: str, style: Style | None = None, no_color: bool = False
-) -> tuple[str, str]:
+def _get_rich_repr(s: str, style: Style | None = None, no_color: bool = False) -> tuple[str, str]:
     if no_color:
         msg = Text(s)
     elif style:
@@ -155,9 +153,7 @@ class _MeloLogFilter(logging.Filter):
             if self._obj is VoidType.VOID:
                 record.legacy_obj, record.obj = "", ""
             else:
-                record.legacy_obj = record.obj = _get_rich_object(
-                    self._obj, no_color=True
-                )[1]
+                record.legacy_obj = record.obj = _get_rich_object(self._obj, no_color=True)[1]
             record.colored_obj = ""
             return
 

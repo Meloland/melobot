@@ -15,7 +15,11 @@ from importlib.machinery import (
     ModuleSpec,
 )
 from importlib.machinery import PathFinder as _PathFinder
-from importlib.machinery import SourceFileLoader, SourcelessFileLoader, all_suffixes
+from importlib.machinery import (
+    SourceFileLoader,
+    SourcelessFileLoader,
+    all_suffixes,
+)
 from importlib.util import module_from_spec, spec_from_file_location
 from os import PathLike
 from pathlib import Path
@@ -251,10 +255,7 @@ class ModuleLoader(Loader):
         return mod
 
     def exec_module(self, mod: ModuleType) -> None:
-        if (
-            not self.melobot_cacher.has_cache(mod)
-            and self.melobot_inner_loader is not None
-        ):
+        if not self.melobot_cacher.has_cache(mod) and self.melobot_inner_loader is not None:
             # 遵循先记录原则，防止 exec_module 发起的某些递归导入出现错误
             if self.melobot_sys_cache:
                 sys.modules[self.melobot_fullname] = mod
@@ -296,9 +297,7 @@ class ModuleLoader(Loader):
         # inner_loader 实现了必要的 内省接口、importlib.resources 接口
         if self.melobot_inner_loader is not None:
             return getattr(self.melobot_inner_loader, name)
-        raise AttributeError(
-            f"'{self.__class__.__name__}' object has no attribute '{name}'"
-        )
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
 
 class Importer:
@@ -347,9 +346,7 @@ class Importer:
             )
 
         mod = module_from_spec(spec)
-        assert (
-            spec.loader is not None
-        ), f"module named {name} and path from {path} has no loader"
+        assert spec.loader is not None, f"module named {name} and path from {path} has no loader"
         spec.loader.exec_module(mod)
         return mod
 

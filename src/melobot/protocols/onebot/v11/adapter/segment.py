@@ -52,10 +52,7 @@ def cq_escape(text: str) -> str:
     :return: 转义特殊符号后的 cq 字符串
     """
     return (
-        text.replace("&", "&amp;")
-        .replace("[", "&#91;")
-        .replace("]", "&#93;")
-        .replace(",", "&#44;")
+        text.replace("&", "&amp;").replace("[", "&#91;").replace("]", "&#93;").replace(",", "&#44;")
     )
 
 
@@ -68,10 +65,7 @@ def cq_anti_escape(text: str) -> str:
     :return: 逆转义特殊符号后的 cq 字符串
     """
     return (
-        text.replace("&#44;", ",")
-        .replace("&#93;", "]")
-        .replace("&#91;", "[")
-        .replace("&amp;", "&")
+        text.replace("&#44;", ",").replace("&#93;", "]").replace("&#91;", "[").replace("&amp;", "&")
     )
 
 
@@ -109,11 +103,7 @@ def _cq_to_dicts(s: str) -> list[dict[str, Any]]:
             else:
                 cq_data[name] = cq_anti_escape(val)
 
-        if (
-            cq_type == "node"
-            and "content" in cq_data
-            and isinstance(cq_data["content"], str)
-        ):
+        if cq_type == "node" and "content" in cq_data and isinstance(cq_data["content"], str):
             cq_data["content"] = [
                 Segment.resolve(seg_dict["type"], seg_dict["data"])
                 for seg_dict in _cq_to_dicts(cq_data["content"])
@@ -162,32 +152,22 @@ def segs_to_contents(message: list[Segment]) -> list[mbcontent.Content]:
             contents.append(mbcontent.TextContent(seg.data["text"]))
 
         elif isinstance(seg, ImageRecvSegment):
-            contents.append(
-                mbcontent.ImageContent(name=seg.data["file"], url=str(seg.data["url"]))
-            )
+            contents.append(mbcontent.ImageContent(name=seg.data["file"], url=str(seg.data["url"])))
 
         elif isinstance(seg, RecordRecvSegment):
-            contents.append(
-                mbcontent.VoiceContent(name=seg.data["file"], url=str(seg.data["url"]))
-            )
+            contents.append(mbcontent.VoiceContent(name=seg.data["file"], url=str(seg.data["url"])))
 
         elif isinstance(seg, VideoRecvSegment):
-            contents.append(
-                mbcontent.VideoContent(name=seg.data["file"], url=str(seg.data["url"]))
-            )
+            contents.append(mbcontent.VideoContent(name=seg.data["file"], url=str(seg.data["url"])))
 
         elif isinstance(seg, AtSegment):
             contents.append(
-                mbcontent.ReferContent(
-                    prompt=str(seg.data["qq"]), flag=seg.data["qq"], contents=()
-                )
+                mbcontent.ReferContent(prompt=str(seg.data["qq"]), flag=seg.data["qq"], contents=())
             )
 
         elif isinstance(seg, ShareSegment):
             contents.append(
-                mbcontent.ResourceContent(
-                    name=seg.data["title"], url=str(seg.data["url"])
-                )
+                mbcontent.ResourceContent(name=seg.data["title"], url=str(seg.data["url"]))
             )
 
         else:
@@ -274,9 +254,7 @@ class Segment(Generic[SegTypeT, SegDataT]):
         cls, seg_type_hint: type[TypeT], seg_data_hint: type[DataT]
     ) -> type[_CustomSegInterface[TypeT, DataT]]:  # type: ignore[type-var]
         if cls is not Segment:
-            raise ValueError(
-                f"只能使用 {Segment.__name__} 类的 {Segment.add_type.__name__} 方法"
-            )
+            raise ValueError(f"只能使用 {Segment.__name__} 类的 {Segment.add_type.__name__} 方法")
         if not is_subhint(seg_type_hint, Literal):
             raise ValueError("新消息段的类型标注必须为 Literal")
         if not is_subhint(seg_data_hint, TypedDict):
@@ -435,9 +413,7 @@ class ImageSegment(Segment[Literal["image"], _ImageSendData | _ImageRecvData]):
     ) -> None: ...
 
     @overload
-    def __init__(
-        self, *, file: str, url: str, type: Literal["flash"] | None = None
-    ) -> None: ...
+    def __init__(self, *, file: str, url: str, type: Literal["flash"] | None = None) -> None: ...
 
     def __init__(self, **kv_pairs: Any) -> None:
         super().__init__("image", **kv_pairs)
@@ -464,9 +440,7 @@ class ImageSendSegment(ImageSegment):
         timeout: int | None = None,
         **kwargs: Any,
     ) -> None:
-        super().__init__(
-            file=file, type=type, cache=cache, proxy=proxy, timeout=timeout, **kwargs
-        )
+        super().__init__(file=file, type=type, cache=cache, proxy=proxy, timeout=timeout, **kwargs)
 
     data: _ImageSendData
 
@@ -517,9 +491,7 @@ class RecordSegment(Segment[Literal["record"], _RecordSendData | _RecordRecvData
     ) -> None: ...
 
     @overload
-    def __init__(
-        self, *, file: str, url: str, magic: Literal[0, 1] | None = None
-    ) -> None: ...
+    def __init__(self, *, file: str, url: str, magic: Literal[0, 1] | None = None) -> None: ...
 
     def __init__(self, **kv_pairs: Any) -> None:
         super().__init__("record", **kv_pairs)
@@ -762,9 +734,7 @@ class AnonymousSegment(Segment[Literal["anonymous"], _AnonymousData]):
         super().__init__("anonymous", ignore=ignore, **kwargs)
 
     @classmethod
-    def resolve(
-        cls, seg_type: Literal["anonymous"], seg_data: _AnonymousData
-    ) -> AnonymousSegment:
+    def resolve(cls, seg_type: Literal["anonymous"], seg_data: _AnonymousData) -> AnonymousSegment:
         return cls(**seg_data)
 
 
@@ -789,9 +759,7 @@ class ShareSegment(Segment[Literal["share"], _ShareData]):
         image: str | None = None,
         **kwargs: Any,
     ) -> None:
-        super().__init__(
-            "share", url=url, title=title, content=content, image=image, **kwargs
-        )
+        super().__init__("share", url=url, title=title, content=content, image=image, **kwargs)
 
     @classmethod
     def resolve(cls, seg_type: Literal["share"], seg_data: _ShareData) -> ShareSegment:
@@ -863,14 +831,10 @@ class LocationSegment(Segment[Literal["location"], _LocationData]):
         content: str | None = None,
         **kwargs: Any,
     ) -> None:
-        super().__init__(
-            "location", lat=lat, lon=lon, title=title, content=content, **kwargs
-        )
+        super().__init__("location", lat=lat, lon=lon, title=title, content=content, **kwargs)
 
     @classmethod
-    def resolve(
-        cls, seg_type: Literal["location"], seg_data: _LocationData
-    ) -> LocationSegment:
+    def resolve(cls, seg_type: Literal["location"], seg_data: _LocationData) -> LocationSegment:
         return cls(**seg_data)
 
 
@@ -922,9 +886,7 @@ class MusicSegment(Segment[Literal["music"], _MusicData | _MusicCustomData]):
 
 
 class MusicPlatformSegment(MusicSegment):
-    def __init__(
-        self, *, type: Literal["qq", "163", "xm"], id: str, **kwargs: Any
-    ) -> None:
+    def __init__(self, *, type: Literal["qq", "163", "xm"], id: str, **kwargs: Any) -> None:
         super().__init__(type=type, id=id, **kwargs)
 
     data: _MusicData
@@ -987,9 +949,7 @@ class ForwardSegment(Segment[Literal["forward"], _ForwardData]):
         super().__init__("forward", id=id, **kwargs)
 
     @classmethod
-    def resolve(
-        cls, seg_type: Literal["forward"], seg_data: _ForwardData
-    ) -> ForwardSegment:
+    def resolve(cls, seg_type: Literal["forward"], seg_data: _ForwardData) -> ForwardSegment:
         return cls(**seg_data)
 
 
@@ -1028,9 +988,7 @@ class NodeSegment(
             Annotated[_NodeReferData, Tag("0")]
             | Annotated[_NodeStdCustomData, Tag("1")]
             | Annotated[_NodeGocqCustomData, Tag("2")],
-            Discriminator(
-                lambda data: "0" if "id" in data else "1" if "user_id" in data else "2"
-            ),
+            Discriminator(lambda data: "0" if "id" in data else "1" if "user_id" in data else "2"),
         ]
 
     @overload
@@ -1052,9 +1010,7 @@ class NodeSegment(
         content = kv_pairs.pop("content")
         _content: list[Segment]
         if len(content) and isinstance(content[0], dict):
-            _content = [
-                Segment.resolve(seg_dic["type"], seg_dic["data"]) for seg_dic in content
-            ]
+            _content = [Segment.resolve(seg_dic["type"], seg_dic["data"]) for seg_dic in content]
         else:
             _content = content
 
@@ -1072,9 +1028,7 @@ class NodeSegment(
     def resolve(
         cls,
         seg_type: Literal["node"],
-        seg_data: (
-            _NodeReferData | _NodeStdCustomDataInterface | _NodeGocqCustomDataInterface
-        ),
+        seg_data: _NodeReferData | _NodeStdCustomDataInterface | _NodeGocqCustomDataInterface,
     ) -> NodeSegment:
         if "id" in seg_data:
             return NodeReferSegment(**seg_data)
@@ -1110,20 +1064,14 @@ class NodeReferSegment(NodeSegment):
 
 
 class NodeStdCustomSegment(NodeSegment):
-    def __init__(
-        self, user_id: int, nickname: str, content: list[Segment], **kwargs: Any
-    ) -> None:
-        super().__init__(
-            uin=user_id, name=nickname, content=content, use_std=True, **kwargs
-        )
+    def __init__(self, user_id: int, nickname: str, content: list[Segment], **kwargs: Any) -> None:
+        super().__init__(uin=user_id, name=nickname, content=content, use_std=True, **kwargs)
 
     data: _NodeStdCustomDataInterface
 
 
 class NodeGocqCustomSegment(NodeSegment):
-    def __init__(
-        self, uin: int, name: str, content: list[Segment], **kwargs: Any
-    ) -> None:
+    def __init__(self, uin: int, name: str, content: list[Segment], **kwargs: Any) -> None:
         super().__init__(uin=uin, name=name, content=content, use_std=False, **kwargs)
 
     data: _NodeGocqCustomDataInterface

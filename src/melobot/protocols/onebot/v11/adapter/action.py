@@ -48,9 +48,7 @@ def msgs_to_dicts(
     if isinstance(msgs, dict):
         return [msgs]
 
-    return [
-        msg.to_dict(force_str=True) if isinstance(msg, Segment) else msg for msg in msgs
-    ]
+    return [msg.to_dict(force_str=True) if isinstance(msg, Segment) else msg for msg in msgs]
 
 
 class SendMsgAction(Action):
@@ -216,9 +214,7 @@ class SetGroupLeaveAction(Action):
 
 
 class SetGroupSpecialTitleAction(Action):
-    def __init__(
-        self, group_id: int, user_id: int, title: str = "", duration: int = -1
-    ) -> None:
+    def __init__(self, group_id: int, user_id: int, title: str = "", duration: int = -1) -> None:
         type = "set_group_special_title"
         params = {
             "group_id": group_id,
@@ -308,9 +304,7 @@ class GetGroupHonorInfoAction(Action):
     def __init__(
         self,
         group_id: int,
-        type: Literal[
-            "talkative", "performer", "legend", "strong_newbie", "emotion", "all"
-        ],
+        type: Literal["talkative", "performer", "legend", "strong_newbie", "emotion", "all"],
     ) -> None:
         _type = "get_group_honor_info"
         params = {"group_id": group_id, "type": type}

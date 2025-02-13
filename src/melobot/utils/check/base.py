@@ -22,16 +22,12 @@ class Checker(Generic[EventT], BetterABC):
 
     def __and__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilValidateError(
-                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
-            )
+            raise UtilValidateError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.AND, self, other)
 
     def __or__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilValidateError(
-                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
-            )
+            raise UtilValidateError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.OR, self, other)
 
     def __invert__(self) -> WrappedChecker:
@@ -39,9 +35,7 @@ class Checker(Generic[EventT], BetterABC):
 
     def __xor__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilValidateError(
-                f"联合检查器定义时出现了非检查器对象，其值为：{other}"
-            )
+            raise UtilValidateError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
         return WrappedChecker(LogicMode.XOR, self, other)
 
     @abstractmethod

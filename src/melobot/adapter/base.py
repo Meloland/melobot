@@ -172,9 +172,7 @@ class Adapter(
                 packet = await src.input()
                 event: Event = await self._event_factory.create(packet)
                 EventOrigin.set_origin(event, EventOrigin(self, src))
-                await self._hook_bus.emit(
-                    AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,)
-                )
+                await self._hook_bus.emit(AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,))
                 self.dispatcher.broadcast(event)
             except Exception:
                 logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
@@ -257,12 +255,9 @@ class Adapter(
         else:
             osrcs = self.out_srcs if len(self.out_srcs) else ()
 
-        await self._hook_bus.emit(
-            AdapterLifeSpan.BEFORE_ACTION_EXEC, True, args=(action,)
-        )
+        await self._hook_bus.emit(AdapterLifeSpan.BEFORE_ACTION_EXEC, True, args=(action,))
         return tuple(
-            ActionHandle(action, osrc, self._output_factory, self._echo_factory)
-            for osrc in osrcs
+            ActionHandle(action, osrc, self._output_factory, self._echo_factory) for osrc in osrcs
         )
 
     @abstractmethod
@@ -381,9 +376,7 @@ class Adapter(
             f"[melobot video: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def __send_file__(
-        self, name: str, path: str | PathLike[str]
-    ) -> tuple[ActionHandle, ...]:
+    async def __send_file__(self, name: str, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
         """输出文件
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -405,9 +398,7 @@ class Adapter(
         :param contents: 附加的通用内容序列
         :return: :class:`.ActionHandle` 元组
         """
-        return await self.__send_text__(
-            f"[melobot refer: {event.__class__.__name__}({event.id})]"
-        )
+        return await self.__send_text__(f"[melobot refer: {event.__class__.__name__}({event.id})]")
 
     async def __send_resource__(self, name: str, url: str) -> tuple[ActionHandle, ...]:
         """输出网络资源

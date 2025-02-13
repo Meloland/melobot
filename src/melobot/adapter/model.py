@@ -194,9 +194,7 @@ class ActionHandle(Generic[ActionRetT]):
             self._done.set()
         except Exception:
             logger = LoggerCtx().get()
-            handle_name = (
-                f"{self.__class__.__module__}.{self.action.__class__.__qualname__}"
-            )
+            handle_name = f"{self.__class__.__module__}.{self.action.__class__.__qualname__}"
             logger.exception(f"行为句柄 {handle_name} 执行时出现异常")
             logger.generic_obj("异常点局部变量", self.__dict__, level=LogLevel.ERROR)
 
@@ -255,9 +253,7 @@ class ActionChain:
     def add(
         self,
         *handles: Awaitable[tuple[ActionHandle, ...]],
-        ret_when: Literal[
-            "FIRST_COMPLETED", "FIRST_EXCEPTION", "ALL_COMPLETED"
-        ] = "ALL_COMPLETED",
+        ret_when: Literal["FIRST_COMPLETED", "FIRST_EXCEPTION", "ALL_COMPLETED"] = "ALL_COMPLETED",
     ) -> Self:
         """在链的步骤中添加一组行为
 

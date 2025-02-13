@@ -233,7 +233,7 @@ class HookMixin(Generic[HookEnumT]):
         """
 
         def hook_register_wrapped(
-            func: SyncOrAsyncCallable[P, None]
+            func: SyncOrAsyncCallable[P, None],
         ) -> AsyncCallable[P, None]:
             f = to_async(func)
             for type in periods:

@@ -65,10 +65,7 @@ class MessageEvent(RootTextEvent, Event):
         post_type: Literal["message"]
         message_type: Literal["private", "group"] | str
         sub_type: (
-            Literal[
-                "friend", "group", "other", "normal", "anonymous", "notice", "group_self"
-            ]
-            | str
+            Literal["friend", "group", "other", "normal", "anonymous", "notice", "group_self"] | str
         )
         message_id: int
         user_id: int
@@ -94,19 +91,14 @@ class MessageEvent(RootTextEvent, Event):
         if isinstance(data["message"], str):
             self.message = Segment.__resolve_cq__(data["raw_message"])
         else:
-            self.message = [
-                Segment.resolve(dic["type"], dic["data"]) for dic in data["message"]
-            ]
+            self.message = [Segment.resolve(dic["type"], dic["data"]) for dic in data["message"]]
         self.contents = segs_to_contents(self.message)
 
         #: 消息类型
         self.message_type: Literal["private", "group"] | str = self._model.message_type
         #: 消息子类型
         self.sub_type: (
-            Literal[
-                "friend", "group", "other", "normal", "anonymous", "notice", "group_self"
-            ]
-            | str
+            Literal["friend", "group", "other", "normal", "anonymous", "notice", "group_self"] | str
         ) = self._model.sub_type
         #: 消息 id
         self.message_id: int = self._model.message_id
@@ -217,9 +209,7 @@ class _MessageSender:
             return False
 
         _self = cast(_GroupMessageSender, self)
-        return (
-            _self.role is not None and _self.role == "owner"  # pylint: disable=no-member
-        )
+        return _self.role is not None and _self.role == "owner"  # pylint: disable=no-member
 
     def is_group_admin(self) -> bool:
         """判断是否为群管理（包含群主），若不是或不是群类型消息，返回 False"""
@@ -238,9 +228,7 @@ class _MessageSender:
             return False
 
         _self = cast(_GroupMessageSender, self)
-        return (
-            _self.role is not None and _self.role == "member"  # pylint: disable=no-member
-        )
+        return _self.role is not None and _self.role == "member"  # pylint: disable=no-member
 
 
 class PrivateMessageEvent(MessageEvent):
@@ -322,9 +310,7 @@ class GroupMessageEvent(MessageEvent):
         self.sender = _GroupMessageSender(**event_data["sender"])
         #: 消息匿名信息段
         self.anonymous: _MessageAnonymous | None = (
-            _MessageAnonymous(**event_data["anonymous"])
-            if event_data["anonymous"]
-            else None
+            _MessageAnonymous(**event_data["anonymous"]) if event_data["anonymous"] else None
         )
         #: 消息来源群号
         self.group_id: int = self._model.group_id
@@ -355,9 +341,7 @@ class MetaEvent(Event):
 
         self._model: MetaEvent.Model
         #: 元事件类型
-        self.meta_event_type: Literal["lifecycle", "heartbeat"] | str = (
-            self._model.meta_event_type
-        )
+        self.meta_event_type: Literal["lifecycle", "heartbeat"] | str = self._model.meta_event_type
 
     def __repr__(self) -> str:
         return (
@@ -397,9 +381,7 @@ class LifeCycleMetaEvent(MetaEvent):
         #: 元事件类型
         self.meta_event_type: Literal["lifecycle"]
         #: 元事件子类型
-        self.sub_type: Literal["enable", "disable", "connect"] | str = (
-            self._model.sub_type
-        )
+        self.sub_type: Literal["enable", "disable", "connect"] | str = self._model.sub_type
 
     def is_enable(self) -> bool:
         return self.sub_type == "enable"
@@ -887,9 +869,7 @@ class HonorNotifyEvent(NotifyNoticeEvent):
         #: 群号
         self.group_id: int = self._model.group_id
         #: 群荣誉类型
-        self.honor_type: Literal["talkative", "performer", "emotion"] = (
-            self._model.honor_type
-        )
+        self.honor_type: Literal["talkative", "performer", "emotion"] = self._model.honor_type
         #: 事件主体人 qq 号
         self.user_id: int = self._model.user_id
 

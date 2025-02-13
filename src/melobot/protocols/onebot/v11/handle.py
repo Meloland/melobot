@@ -1,4 +1,4 @@
-from typing_extensions import Any, Callable, Sequence, cast
+from typing_extensions import Callable, Sequence, cast
 
 from melobot.adapter.model import Event as RootEvent
 from melobot.handle import FlowDecorator
@@ -6,7 +6,6 @@ from melobot.handle import on_event as on_root_event
 from melobot.handle import on_text
 from melobot.session import Rule
 from melobot.utils.check import Checker, checker_join
-from melobot.utils.common import DeprecatedLoader as _DeprecatedLoader
 from melobot.utils.match import Matcher
 from melobot.utils.parse import Parser
 
@@ -145,21 +144,3 @@ def on_meta(
         decos,
         rule,
     )
-
-
-_LOADER = _DeprecatedLoader(
-    __name__,
-    {
-        "GetParseArgs": ("melobot.handle", "GetParseArgs", "3.1.1"),
-        "on_command": ("melobot.handle", "on_command", "3.1.1"),
-        "on_start_match": ("melobot.handle", "on_start_match", "3.1.1"),
-        "on_contain_match": ("melobot.handle", "on_contain_match", "3.1.1"),
-        "on_full_match": ("melobot.handle", "on_full_match", "3.1.1"),
-        "on_end_match": ("melobot.handle", "on_end_match", "3.1.1"),
-        "on_regex_match": ("melobot.handle", "on_regex_match", "3.1.1"),
-    },
-)
-
-
-def __getattr__(name: str) -> Any:
-    return _LOADER.get(name)

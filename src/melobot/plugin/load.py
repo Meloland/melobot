@@ -127,9 +127,7 @@ class PluginInitHelper:
             for namespace, obj_names in refs.items()
             for name in obj_names
         )
-        gets_str = "\n".join(
-            f"{varname} = _{varname}.get()" for varname in autoget_varnames
-        )
+        gets_str = "\n".join(f"{varname} = _{varname}.get()" for varname in autoget_varnames)
         vars_str = f"__all__ = {repr(tuple(varnames))}"
 
         if not len(varnames):
@@ -301,9 +299,7 @@ class PluginLoader:
                 f"请修改名称（修改插件目录名）。对应插件：{p_dir}"
             )
         if not p_dir.joinpath("__plugin__.py").exists():
-            raise PluginLoadError(
-                f"插件目录下不存在 __plugin__.py，无法加载。对应插件：{p_dir}"
-            )
+            raise PluginLoadError(f"插件目录下不存在 __plugin__.py，无法加载。对应插件：{p_dir}")
 
         p_mod = Importer.get_cache(p_dir)
         if p_mod is not None:

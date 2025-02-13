@@ -105,9 +105,7 @@ class DeprecatedLoader:
 
     def get(self, name: str) -> Any:
         if name not in self.__deprecations__:
-            raise AttributeError(
-                f"module {self.__depre_mod_name__!r} has no attribute {name!r}"
-            )
+            raise AttributeError(f"module {self.__depre_mod_name__!r} has no attribute {name!r}")
         location, varname, ver = self.__deprecations__[name]
         deprecate_warn(
             f"{self.__depre_mod_name__}.{name} 现以弃用，"
@@ -226,9 +224,7 @@ class SnowFlakeIdWorker:
         return new_id
 
     def get_b64_id(self, trim_pad: bool = True) -> str:
-        id = base64.urlsafe_b64encode(
-            self.get_id().to_bytes(8, byteorder="little")
-        ).decode()
+        id = base64.urlsafe_b64encode(self.get_id().to_bytes(8, byteorder="little")).decode()
         if trim_pad:
             id = id.rstrip("=")
         return id

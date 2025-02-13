@@ -12,7 +12,10 @@ from melobot.adapter import (
     ActionHandle,
 )
 from melobot.adapter import Adapter as RootAdapter
-from melobot.adapter import Content, EchoT
+from melobot.adapter import (
+    Content,
+    EchoT,
+)
 from melobot.adapter import content as mc
 from melobot.ctx import Context
 from melobot.exceptions import AdapterError
@@ -38,9 +41,7 @@ class ValidateHandleMixin:
     def add_validate_handler(self, callback: _ValidateHandler) -> None:
         self.validate_handlers.append(callback)
 
-    async def validate_handle(
-        self, data: dict[str, Any], func: Callable[[dict[str, Any]], T]
-    ) -> T:
+    async def validate_handle(self, data: dict[str, Any], func: Callable[[dict[str, Any]], T]) -> T:
         try:
             return func(data)
         except Exception as e:
@@ -87,21 +88,17 @@ class EchoRequireCtx(Context[bool]):
 
 
 class Adapter(
-    RootAdapter[
-        EventFactory, OutputFactory, EchoFactory, ac.Action, BaseIOSource, BaseIOSource
-    ]
+    RootAdapter[EventFactory, OutputFactory, EchoFactory, ac.Action, BaseIOSource, BaseIOSource]
 ):
     def __init__(self) -> None:
-        super().__init__(
-            PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory()
-        )
+        super().__init__(PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory())
 
     def when_validate_error(self, validate_type: Literal["event", "echo"]) -> Callable[
         [SyncOrAsyncCallable[[dict[str, Any], Exception], None]],
         AsyncCallable[[dict[str, Any], Exception], None],
     ]:
         def when_validate_error_wrapper(
-            func: SyncOrAsyncCallable[[dict[str, Any], Exception], None]
+            func: SyncOrAsyncCallable[[dict[str, Any], Exception], None],
         ) -> AsyncCallable[[dict[str, Any], Exception], None]:
             f = to_async(func)
             if validate_type == "event":
@@ -136,9 +133,7 @@ class Adapter(
 
         return with_echo_wrapped
 
-    async def __send_text__(
-        self, text: str
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    async def __send_text__(self, text: str) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(text)
 
     async def __send_media__(
@@ -149,9 +144,9 @@ class Adapter(
         mimetype: str | None = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(
-            se.contents_to_segs(
-                [mc.MediaContent(name=name, url=url, raw=raw, mimetype=mimetype)]
-            )[0]
+            se.contents_to_segs([mc.MediaContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
+                0
+            ]
         )
 
     async def __send_image__(
@@ -162,9 +157,9 @@ class Adapter(
         mimetype: str | None = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(
-            se.contents_to_segs(
-                [mc.ImageContent(name=name, url=url, raw=raw, mimetype=mimetype)]
-            )[0]
+            se.contents_to_segs([mc.ImageContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
+                0
+            ]
         )
 
     async def __send_audio__(
@@ -175,9 +170,9 @@ class Adapter(
         mimetype: str | None = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(
-            se.contents_to_segs(
-                [mc.AudioContent(name=name, url=url, raw=raw, mimetype=mimetype)]
-            )[0]
+            se.contents_to_segs([mc.AudioContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
+                0
+            ]
         )
 
     async def __send_voice__(
@@ -188,9 +183,9 @@ class Adapter(
         mimetype: str | None = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(
-            se.contents_to_segs(
-                [mc.VoiceContent(name=name, url=url, raw=raw, mimetype=mimetype)]
-            )[0]
+            se.contents_to_segs([mc.VoiceContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
+                0
+            ]
         )
 
     async def __send_video__(
@@ -201,17 +196,15 @@ class Adapter(
         mimetype: str | None = None,
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(
-            se.contents_to_segs(
-                [mc.VideoContent(name=name, url=url, raw=raw, mimetype=mimetype)]
-            )[0]
+            se.contents_to_segs([mc.VideoContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
+                0
+            ]
         )
 
     async def __send_file__(
         self, name: str, path: str | PathLike[str]
     ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
-        return await self.send(
-            se.contents_to_segs([mc.FileContent(name=name, flag=str(path))])[0]
-        )
+        return await self.send(se.contents_to_segs([mc.FileContent(name=name, flag=str(path))])[0])
 
     async def __send_refer__(
         self, event: ev.RootEvent, contents: Sequence[Content] | None = None
@@ -293,14 +286,10 @@ class Adapter(
     ) -> tuple[ActionHandle[ec.SendForwardMsgEcho | None], ...]:
         return await self.call_output(ac.SendForwardMsgAction(msgs, user_id, group_id))
 
-    async def delete_msg(
-        self, msg_id: int
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    async def delete_msg(self, msg_id: int) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
         return await self.call_output(ac.DeleteMsgAction(msg_id))
 
-    async def get_msg(
-        self, msg_id: int
-    ) -> tuple[ActionHandle[ec.GetMsgEcho | None], ...]:
+    async def get_msg(self, msg_id: int) -> tuple[ActionHandle[ec.GetMsgEcho | None], ...]:
         return await self.call_output(ac.GetMsgAction(msg_id))
 
     async def get_forward_msg(
@@ -316,9 +305,7 @@ class Adapter(
     async def set_group_kick(
         self, group_id: int, user_id: int, later_reject: bool = False
     ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
-        return await self.call_output(
-            ac.SetGroupKickAction(group_id, user_id, later_reject)
-        )
+        return await self.call_output(ac.SetGroupKickAction(group_id, user_id, later_reject))
 
     async def set_group_ban(
         self, group_id: int, user_id: int, duration: int = 30 * 60
@@ -376,9 +363,7 @@ class Adapter(
     async def set_friend_add_request(
         self, add_flag: str, approve: bool = True, remark: str = ""
     ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
-        return await self.call_output(
-            ac.SetFriendAddRequestAction(add_flag, approve, remark)
-        )
+        return await self.call_output(ac.SetFriendAddRequestAction(add_flag, approve, remark))
 
     async def set_group_add_request(
         self,
@@ -413,9 +398,7 @@ class Adapter(
     async def get_group_member_info(
         self, group_id: int, user_id: int, no_cache: bool = False
     ) -> tuple[ActionHandle[ec.GetGroupMemberInfoEcho], ...]:
-        return await self.call_output(
-            ac.GetGroupMemberInfoAction(group_id, user_id, no_cache)
-        )
+        return await self.call_output(ac.GetGroupMemberInfoAction(group_id, user_id, no_cache))
 
     async def get_group_member_list(
         self, group_id: int
@@ -425,15 +408,11 @@ class Adapter(
     async def get_group_honor_info(
         self,
         group_id: int,
-        type: Literal[
-            "talkative", "performer", "legend", "strong_newbie", "emotion", "all"
-        ],
+        type: Literal["talkative", "performer", "legend", "strong_newbie", "emotion", "all"],
     ) -> tuple[ActionHandle[ec.GetGroupHonorInfoEcho], ...]:
         return await self.call_output(ac.GetGroupHonorInfoAction(group_id, type))
 
-    async def get_cookies(
-        self, domain: str = ""
-    ) -> tuple[ActionHandle[ec.GetCookiesEcho], ...]:
+    async def get_cookies(self, domain: str = "") -> tuple[ActionHandle[ec.GetCookiesEcho], ...]:
         return await self.call_output(ac.GetCookiesAction(domain))
 
     async def get_csrf_token(self) -> tuple[ActionHandle[ec.GetCsrfTokenEcho], ...]:
@@ -464,9 +443,7 @@ class Adapter(
     async def get_version_info(self) -> tuple[ActionHandle[ec.GetVersionInfoEcho], ...]:
         return await self.call_output(ac.GetVersionInfoAction())
 
-    async def set_restart(
-        self, delay: int = 0
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    async def set_restart(self, delay: int = 0) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
         return await self.call_output(ac.SetRestartAction(delay))
 
     async def clean_cache(self) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:

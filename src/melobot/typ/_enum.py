@@ -117,9 +117,7 @@ class LogicMode(Enum):
         return res
 
     @classmethod
-    def short_seq_calc(
-        cls, logic: "LogicMode", getters: Sequence[Callable[[], Any]]
-    ) -> bool:
+    def short_seq_calc(cls, logic: "LogicMode", getters: Sequence[Callable[[], Any]]) -> bool:
         """与 :func:`seq_calc` 功能类似，但运算支持短路
 
         :param logic: 逻辑模式

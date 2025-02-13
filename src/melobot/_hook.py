@@ -15,9 +15,7 @@ HookEnumT = TypeVar("HookEnumT", bound=Enum)
 
 
 class HookRunner(Generic[HookEnumT]):
-    def __init__(
-        self, type: HookEnumT, func: AsyncCallable[..., None], once: bool = False
-    ) -> None:
+    def __init__(self, type: HookEnumT, func: AsyncCallable[..., None], once: bool = False) -> None:
         self.type = type
         self.callback: AsyncCallable[..., None] = inject_deps(func, manual_arg=True)
         self.once = once
@@ -93,8 +91,7 @@ class HookBus(Generic[HookEnumT]):
         logger.debug(msg)
 
         tasks = tuple(
-            asyncio.create_task(runner.run(*args, **kwargs))
-            for runner in self._hooks[hook_type]
+            asyncio.create_task(runner.run(*args, **kwargs)) for runner in self._hooks[hook_type]
         )
 
         if callback is not None:

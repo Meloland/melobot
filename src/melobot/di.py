@@ -34,9 +34,7 @@ if TYPE_CHECKING:
 
 
 class DependNotMatched(BaseException):
-    def __init__(
-        self, msg: str, func_name: str, arg_name: str, real_type: type, hint: Any
-    ) -> None:
+    def __init__(self, msg: str, func_name: str, arg_name: str, real_type: type, hint: Any) -> None:
         super().__init__(msg)
         self.func_name = func_name
         self.arg_name = arg_name
@@ -128,9 +126,7 @@ class AutoDepends(Depends):
         if get_origin(hint) is Annotated:
             args = get_args(hint)
             if not len(args):
-                raise DependInitError(
-                    "可依赖注入的函数若使用 Annotated 注解，必须附加元数据"
-                )
+                raise DependInitError("可依赖注入的函数若使用 Annotated 注解，必须附加元数据")
             self.metadatas = args
         else:
             self.metadatas = ()
@@ -166,9 +162,7 @@ class AutoDepends(Depends):
 
         for data in self.metadatas:
             if isinstance(data, CustomLogger):
-                self.orig_getter = cast(
-                    Callable[[], Any], partial(_custom_logger_get, hint, data)
-                )
+                self.orig_getter = cast(Callable[[], Any], partial(_custom_logger_get, hint, data))
                 break
 
         if self.orig_getter is None:
@@ -179,9 +173,7 @@ class AutoDepends(Depends):
 
         for data in self.metadatas:
             if isinstance(data, Reflect):
-                self.orig_getter = cast(
-                    Callable[[], Any], partial(Reflection, self.orig_getter)
-                )
+                self.orig_getter = cast(Callable[[], Any], partial(Reflection, self.orig_getter))
                 break
 
         super().__init__(self.orig_getter, sub_getter=None, cache=False, recursive=False)
@@ -214,9 +206,7 @@ class AutoDepends(Depends):
         if isinstance(val, Reflection):
             inner_val = val.__origin__
             if isawaitable(inner_val):
-                raise AttributeError(
-                    f"异步依赖项不能通过 {Reflect.__name__} 创建反射依赖"
-                )
+                raise AttributeError(f"异步依赖项不能通过 {Reflect.__name__} 创建反射依赖")
 
             self._match_check(inner_val)
             return val
