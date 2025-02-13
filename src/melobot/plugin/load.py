@@ -18,7 +18,9 @@ from .base import Plugin, PluginPlanner
 from .ipc import AsyncShare, SyncShare
 
 
-def plugin_get_attr(p_name: str, name: str) -> Any:
+def plugin_get_attr(p_name: str, name: str, excepts: Iterable[str]) -> Any:
+    if name in excepts or name.startswith("_"):
+        raise AttributeError
     obj = BotCtx().get().ipc_manager.get(p_name, name)
     if obj.static:
         return obj.get()
