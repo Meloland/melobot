@@ -152,7 +152,6 @@ class FlagMixin:
         :param val: 标记值
         :param wait_val: 为 `True` 则需要值也一致
         :param use_id: 为 `True` 则使用 `is` 判断 `val`，否则调用 `==` 判断 `val`
-        :return: Future 对象
         """
         if self.flag_check(namespace, flag, val, wait_val, use_id):
             return None
