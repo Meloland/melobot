@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.handle.register - melobot 3.1.1</title>
+        <title>melobot.handle.register - melobot 3.1.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.1</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.1</span>
+  <span class="sidebar-brand-text">melobot 3.1.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -310,7 +310,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">TextEvent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">ParseArgsCtx</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..di</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">inject_deps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..di</span><span class="w"> </span><span class="kn">import</span> <span class="n">inject_deps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..session.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">enter_session</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..session.option</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultRule</span><span class="p">,</span> <span class="n">Rule</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typ._enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogicMode</span>
@@ -327,17 +327,6 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractParseArgs</span><span class="p">,</span> <span class="n">CmdArgFormatter</span><span class="p">,</span> <span class="n">CmdParser</span><span class="p">,</span> <span class="n">Parser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">no_deps_node</span>
-
-
-<div class="viewcode-block" id="GetParseArgs">
-<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.GetParseArgs">[文档]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">GetParseArgs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AbstractParseArgs</span><span class="p">:</span>  <span class="c1"># pylint: disable=invalid-name</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取解析参数</span>
-
-<span class="sd">    :return: 解析参数</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">AbstractParseArgs</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">ParseArgsCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
-
 
 
 <div class="viewcode-block" id="FlowDecorator">
@@ -418,9 +407,7 @@
             <span class="k">if</span> <span class="n">args_token</span><span class="p">:</span>
                 <span class="n">parse_args_ctx</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args_token</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">auto_flow_wrapped</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">auto_flow_wrapped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invalid</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="o">.</span><span class="n">dismiss</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -701,7 +688,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=401578d7"></script>
+</div><script src="../../../_static/documentation_options.js?v=775f3cf9"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

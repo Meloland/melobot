@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.onebot.v11.adapter.base - melobot 3.1.1</title>
+        <title>melobot.protocols.onebot.v11.adapter.base - melobot 3.1.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">melobot 3.1.1</div></a>
+      <a href="../../../../../../index.html"><div class="brand">melobot 3.1.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.1</span>
+  <span class="sidebar-brand-text">melobot 3.1.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -343,9 +343,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_validate_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">_ValidateHandler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_handle</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">T</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -397,14 +395,10 @@
 <div class="viewcode-block" id="Adapter">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Adapter</span><span class="p">(</span>
-    <span class="n">RootAdapter</span><span class="p">[</span>
-        <span class="n">EventFactory</span><span class="p">,</span> <span class="n">OutputFactory</span><span class="p">,</span> <span class="n">EchoFactory</span><span class="p">,</span> <span class="n">ac</span><span class="o">.</span><span class="n">Action</span><span class="p">,</span> <span class="n">BaseIOSource</span><span class="p">,</span> <span class="n">BaseIOSource</span>
-    <span class="p">]</span>
+    <span class="n">RootAdapter</span><span class="p">[</span><span class="n">EventFactory</span><span class="p">,</span> <span class="n">OutputFactory</span><span class="p">,</span> <span class="n">EchoFactory</span><span class="p">,</span> <span class="n">ac</span><span class="o">.</span><span class="n">Action</span><span class="p">,</span> <span class="n">BaseIOSource</span><span class="p">,</span> <span class="n">BaseIOSource</span><span class="p">]</span>
 <span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">EventFactory</span><span class="p">(),</span> <span class="n">OutputFactory</span><span class="p">(),</span> <span class="n">EchoFactory</span><span class="p">()</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">EventFactory</span><span class="p">(),</span> <span class="n">OutputFactory</span><span class="p">(),</span> <span class="n">EchoFactory</span><span class="p">())</span>
 
 <div class="viewcode-block" id="Adapter.when_validate_error">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.when_validate_error">[文档]</a>
@@ -413,7 +407,7 @@
         <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
     <span class="p">]:</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">when_validate_error_wrapper</span><span class="p">(</span>
-            <span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">validate_type</span> <span class="o">==</span> <span class="s2">&quot;event&quot;</span><span class="p">:</span>
@@ -455,9 +449,7 @@
         <span class="k">return</span> <span class="n">with_echo_wrapped</span></div>
 
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_text__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_text__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_media__</span><span class="p">(</span>
@@ -468,9 +460,9 @@
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">MediaContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)]</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">([</span><span class="n">mc</span><span class="o">.</span><span class="n">MediaContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)])[</span>
+                <span class="mi">0</span>
+            <span class="p">]</span>
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_image__</span><span class="p">(</span>
@@ -481,9 +473,9 @@
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">ImageContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)]</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">([</span><span class="n">mc</span><span class="o">.</span><span class="n">ImageContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)])[</span>
+                <span class="mi">0</span>
+            <span class="p">]</span>
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_audio__</span><span class="p">(</span>
@@ -494,9 +486,9 @@
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">AudioContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)]</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">([</span><span class="n">mc</span><span class="o">.</span><span class="n">AudioContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)])[</span>
+                <span class="mi">0</span>
+            <span class="p">]</span>
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_voice__</span><span class="p">(</span>
@@ -507,9 +499,9 @@
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">VoiceContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)]</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">([</span><span class="n">mc</span><span class="o">.</span><span class="n">VoiceContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)])[</span>
+                <span class="mi">0</span>
+            <span class="p">]</span>
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_video__</span><span class="p">(</span>
@@ -520,17 +512,15 @@
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">VideoContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)]</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">([</span><span class="n">mc</span><span class="o">.</span><span class="n">VideoContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="n">mimetype</span><span class="p">)])[</span>
+                <span class="mi">0</span>
+            <span class="p">]</span>
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_file__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">([</span><span class="n">mc</span><span class="o">.</span><span class="n">FileContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))])[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">se</span><span class="o">.</span><span class="n">contents_to_segs</span><span class="p">([</span><span class="n">mc</span><span class="o">.</span><span class="n">FileContent</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))])[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_refer__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">RootEvent</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -629,17 +619,13 @@
 
 <div class="viewcode-block" id="Adapter.delete_msg">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.delete_msg">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_msg</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">EmptyEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">EmptyEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">DeleteMsgAction</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Adapter.get_msg">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.get_msg">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_msg</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">GetMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">GetMsgEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">GetMsgAction</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span></div>
 
 
@@ -664,9 +650,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_group_kick</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">later_reject</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">EmptyEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span>
-            <span class="n">ac</span><span class="o">.</span><span class="n">SetGroupKickAction</span><span class="p">(</span><span class="n">group_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">later_reject</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">SetGroupKickAction</span><span class="p">(</span><span class="n">group_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">later_reject</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Adapter.set_group_ban">
@@ -754,9 +738,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_friend_add_request</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">add_flag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">approve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">remark</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">EmptyEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span>
-            <span class="n">ac</span><span class="o">.</span><span class="n">SetFriendAddRequestAction</span><span class="p">(</span><span class="n">add_flag</span><span class="p">,</span> <span class="n">approve</span><span class="p">,</span> <span class="n">remark</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">SetFriendAddRequestAction</span><span class="p">(</span><span class="n">add_flag</span><span class="p">,</span> <span class="n">approve</span><span class="p">,</span> <span class="n">remark</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Adapter.set_group_add_request">
@@ -812,9 +794,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_group_member_info</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">GetGroupMemberInfoEcho</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span>
-            <span class="n">ac</span><span class="o">.</span><span class="n">GetGroupMemberInfoAction</span><span class="p">(</span><span class="n">group_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">GetGroupMemberInfoAction</span><span class="p">(</span><span class="n">group_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">no_cache</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Adapter.get_group_member_list">
@@ -830,18 +810,14 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_group_honor_info</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
-            <span class="s2">&quot;talkative&quot;</span><span class="p">,</span> <span class="s2">&quot;performer&quot;</span><span class="p">,</span> <span class="s2">&quot;legend&quot;</span><span class="p">,</span> <span class="s2">&quot;strong_newbie&quot;</span><span class="p">,</span> <span class="s2">&quot;emotion&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span>
-        <span class="p">],</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;talkative&quot;</span><span class="p">,</span> <span class="s2">&quot;performer&quot;</span><span class="p">,</span> <span class="s2">&quot;legend&quot;</span><span class="p">,</span> <span class="s2">&quot;strong_newbie&quot;</span><span class="p">,</span> <span class="s2">&quot;emotion&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">GetGroupHonorInfoEcho</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">GetGroupHonorInfoAction</span><span class="p">(</span><span class="n">group_id</span><span class="p">,</span> <span class="nb">type</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Adapter.get_cookies">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.get_cookies">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_cookies</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">GetCookiesEcho</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_cookies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">GetCookiesEcho</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">GetCookiesAction</span><span class="p">(</span><span class="n">domain</span><span class="p">))</span></div>
 
 
@@ -899,9 +875,7 @@
 
 <div class="viewcode-block" id="Adapter.set_restart">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.set_restart">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_restart</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">EmptyEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">EmptyEcho</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">SetRestartAction</span><span class="p">(</span><span class="n">delay</span><span class="p">))</span></div>
 
 
@@ -950,7 +924,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../../_static/documentation_options.js?v=401578d7"></script>
+</div><script src="../../../../../../_static/documentation_options.js?v=775f3cf9"></script>
     <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/scripts/furo.js?v=5fa4622c"></script>

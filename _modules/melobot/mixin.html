@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.mixin - melobot 3.1.1</title>
+        <title>melobot.mixin - melobot 3.1.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">melobot 3.1.1</div></a>
+      <a href="../../index.html"><div class="brand">melobot 3.1.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.1</span>
+  <span class="sidebar-brand-text">melobot 3.1.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -447,7 +447,6 @@
 <span class="sd">        :param use_id: 为 `True` 则使用 `is` 判断 `val`，否则调用 `==` 判断 `val`</span>
 <span class="sd">        :return: 是否通过检查</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># pylint: disable=consider-iterating-dictionary</span>
         <span class="k">if</span> <span class="n">namespace</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__flag_mixin_flags__</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">flag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__flag_mixin_flags__</span><span class="p">[</span><span class="n">namespace</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -480,7 +479,6 @@
 <span class="sd">        :param val: 标记值</span>
 <span class="sd">        :param wait_val: 为 `True` 则需要值也一致</span>
 <span class="sd">        :param use_id: 为 `True` 则使用 `is` 判断 `val`，否则调用 `==` 判断 `val`</span>
-<span class="sd">        :return: Future 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_check</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">wait_val</span><span class="p">,</span> <span class="n">use_id</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -572,7 +570,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">hook_register_wrapped</span><span class="p">(</span>
-            <span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
             <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">periods</span><span class="p">:</span>
@@ -622,7 +620,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=401578d7"></script>
+</div><script src="../../_static/documentation_options.js?v=775f3cf9"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

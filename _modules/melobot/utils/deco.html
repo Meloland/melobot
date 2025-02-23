@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.utils.deco - melobot 3.1.1</title>
+        <title>melobot.utils.deco - melobot 3.1.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.1</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.1</span>
+  <span class="sidebar-brand-text">melobot 3.1.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -408,7 +408,7 @@
 <div class="viewcode-block" id="lock">
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.lock">[文档]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lock</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="n">U</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="n">U</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="n">U</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;锁装饰器</span>
 
@@ -635,25 +635,19 @@
         <span class="k">if</span> <span class="n">passed_time</span> <span class="o">&lt;=</span> <span class="n">duration</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">called_num</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">:</span>
                 <span class="n">called_num</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-                    <span class="n">_speedlimit_set_result</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">_speedlimit_set_result</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
             <span class="k">elif</span> <span class="n">_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">_speedlimit_set_result</span><span class="p">(</span><span class="n">_callback</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-                    <span class="n">_speedlimit_set_result</span><span class="p">(</span>
-                        <span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="n">duration</span> <span class="o">-</span> <span class="n">passed_time</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-                    <span class="p">)</span>
+                    <span class="n">_speedlimit_set_result</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="n">duration</span> <span class="o">-</span> <span class="n">passed_time</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">called_num</span><span class="p">,</span> <span class="n">min_start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
             <span class="n">called_num</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-                <span class="n">_speedlimit_set_result</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">_speedlimit_set_result</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">,</span> <span class="n">res_fut</span><span class="p">)</span>
 
@@ -723,7 +717,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=401578d7"></script>
+</div><script src="../../../_static/documentation_options.js?v=775f3cf9"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

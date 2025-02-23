@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.handle.base - melobot 3.1.1</title>
+        <title>melobot.handle.base - melobot 3.1.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.1</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.1</span>
+  <span class="sidebar-brand-text">melobot 3.1.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -351,9 +351,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">FlowNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;处理流结点&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">no_deps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">no_deps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">get_obj_name</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s2">&quot;callable&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">to_async</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="k">if</span> <span class="n">no_deps</span> <span class="k">else</span> <span class="n">inject_deps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
@@ -372,15 +370,11 @@
 
         <span class="k">with</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">FlowStatus</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">completion</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">store</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">NODE_START</span><span class="p">,</span> <span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">NODE_START</span><span class="p">,</span> <span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="p">()</span>
-                    <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">NODE_FINISH</span><span class="p">,</span> <span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-                    <span class="p">)</span>
+                    <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">NODE_FINISH</span><span class="p">,</span> <span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span>
                 <span class="k">except</span> <span class="n">DependNotMatched</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -608,14 +602,10 @@
         <span class="k">except</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">lookup_exc_cls</span><span class="p">:</span>
             <span class="n">records</span><span class="p">,</span> <span class="n">store</span> <span class="o">=</span> <span class="n">FlowRecords</span><span class="p">(),</span> <span class="n">FlowStore</span><span class="p">()</span>
 
-        <span class="k">with</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span>
-            <span class="n">FlowStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="n">completion</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">store</span><span class="p">)</span>
-        <span class="p">):</span>
+        <span class="k">with</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">FlowStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="n">completion</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">store</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">FlowRecord</span><span class="p">(</span>
-                        <span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_START</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span>
-                    <span class="p">)</span>
+                    <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_START</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
                 <span class="p">)</span>
 
                 <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
@@ -627,9 +617,7 @@
                         <span class="k">pass</span>
 
                 <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">FlowRecord</span><span class="p">(</span>
-                        <span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_FINISH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span>
-                    <span class="p">)</span>
+                    <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_FINISH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
                 <span class="p">)</span>
 
             <span class="k">except</span> <span class="n">FlowBroke</span><span class="p">:</span>
@@ -637,9 +625,7 @@
 
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;事件处理流 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 发生异常&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;异常点 event </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;异常点 event </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span>
                     <span class="s2">&quot;异常点局部变量：&quot;</span><span class="p">,</span>
                     <span class="p">{</span><span class="s2">&quot;completion&quot;</span><span class="p">:</span> <span class="n">completion</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="s2">&quot;cur_flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span>
@@ -699,9 +685,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;阻止当前事件向更低优先级的处理流传播（在处理流中使用）&quot;&quot;&quot;</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="n">status</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">FlowRecord</span><span class="p">(</span>
-            <span class="n">RecordStage</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">event</span>
-        <span class="p">)</span>
+        <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">event</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">spread</span> <span class="o">=</span> <span class="kc">False</span></div>
 
@@ -713,9 +697,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;立即停止当前处理流（在处理流中使用）&quot;&quot;&quot;</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="n">status</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">FlowRecord</span><span class="p">(</span>
-            <span class="n">RecordStage</span><span class="o">.</span><span class="n">STOP</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">event</span>
-        <span class="p">)</span>
+        <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">STOP</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">event</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">status</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="n">FlowRecord</span><span class="p">(</span>
@@ -833,7 +815,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=401578d7"></script>
+</div><script src="../../../_static/documentation_options.js?v=775f3cf9"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

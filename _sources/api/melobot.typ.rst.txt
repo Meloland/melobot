@@ -36,6 +36,14 @@ melobot.typ
 
     泛型 T，无约束
 
+.. data:: melobot.typ.U
+
+    泛型 U，无约束
+
+.. data:: melobot.typ.V
+
+    泛型 V，无约束
+
 .. data:: melobot.typ.T_co
 
     泛型 T_co，协变无约束

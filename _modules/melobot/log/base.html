@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.log.base - melobot 3.1.1</title>
+        <title>melobot.log.base - melobot 3.1.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.1</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.1</span>
+  <span class="sidebar-brand-text">melobot 3.1.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -381,9 +381,7 @@
     <span class="k">return</span> <span class="n">colored_str</span><span class="p">,</span> <span class="n">_CONSOLE</span><span class="o">.</span><span class="n">export_text</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_rich_repr</span><span class="p">(</span>
-    <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">Style</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">no_color</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_rich_repr</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">Style</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">no_color</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">no_color</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">style</span><span class="p">:</span>
@@ -403,9 +401,9 @@
 <span class="n">_NO_COLOR_EXC_FORMATTER</span> <span class="o">=</span> <span class="n">ExceptionFormatter</span><span class="p">(</span><span class="n">colored</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">_NoErrFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_NormalLvlFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">LogRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="o">&lt;=</span> <span class="n">record</span><span class="o">.</span><span class="n">levelno</span> <span class="o">&lt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span>
+        <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="o">&lt;=</span> <span class="n">record</span><span class="o">.</span><span class="n">levelno</span> <span class="o">&lt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_MeloLogFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
@@ -460,9 +458,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="ow">is</span> <span class="n">VoidType</span><span class="o">.</span><span class="n">VOID</span><span class="p">:</span>
                 <span class="n">record</span><span class="o">.</span><span class="n">legacy_obj</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">record</span><span class="o">.</span><span class="n">legacy_obj</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">_get_rich_object</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">,</span> <span class="n">no_color</span><span class="o">=</span><span class="kc">True</span>
-                <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">legacy_obj</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">_get_rich_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">,</span> <span class="n">no_color</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">record</span><span class="o">.</span><span class="n">colored_obj</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="k">return</span>
 
@@ -494,10 +490,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;日志等级枚举&quot;&quot;&quot;</span>
 
     <span class="n">CRITICAL</span> <span class="o">=</span> <span class="n">CRITICAL</span>
-    <span class="n">DEBUG</span> <span class="o">=</span> <span class="n">DEBUG</span>
     <span class="n">ERROR</span> <span class="o">=</span> <span class="n">ERROR</span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="n">WARNING</span>
     <span class="n">INFO</span> <span class="o">=</span> <span class="n">INFO</span>
-    <span class="n">WARNING</span> <span class="o">=</span> <span class="n">WARNING</span></div>
+    <span class="n">DEBUG</span> <span class="o">=</span> <span class="n">DEBUG</span></div>
 
 
 
@@ -532,8 +528,6 @@
 <span class="sd">    任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，</span>
 <span class="sd">    即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.__init__`）</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># pylint: disable=duplicate-code</span>
 
 <div class="viewcode-block" id="GenericLogger.debug">
 <a class="viewcode-back" href="../../../api/melobot.log.html#melobot.log.GenericLogger.debug">[文档]</a>
@@ -705,10 +699,7 @@
 
 <span class="sd">        :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“错误日志”到不同的文件</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_built&quot;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_built</span>  <span class="c1"># pylint: disable=access-member-before-definition</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_built&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_built</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
@@ -726,8 +717,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_file_handler</span><span class="p">(</span><span class="n">to_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">file_level</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">normal_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_file_handler</span><span class="p">(</span><span class="n">to_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.out&quot;</span><span class="p">,</span> <span class="n">file_level</span><span class="p">)</span>
-            <span class="n">normal_handler</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">_NoErrFilter</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add_file_handler</span><span class="p">(</span><span class="n">to_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.err&quot;</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">file_level</span><span class="p">,</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">))</span>
+            <span class="n">normal_handler</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">_NormalLvlFilter</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_file_handler</span><span class="p">(</span><span class="n">to_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.err&quot;</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">file_level</span><span class="p">,</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">WARNING</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_built</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -962,7 +953,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=401578d7"></script>
+</div><script src="../../../_static/documentation_options.js?v=775f3cf9"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

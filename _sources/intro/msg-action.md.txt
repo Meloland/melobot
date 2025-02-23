@@ -97,7 +97,7 @@ async def _():
 如何让 melobot 发送这种自定义的消息段？非常简单：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.segment import Segment
+from melobot.protocols.onebot.v11 import Segment
 # 临时构造自定义消息段
 seg = Segment(type="touch", id="1574260633")
 ```
@@ -105,17 +105,21 @@ seg = Segment(type="touch", id="1574260633")
 或者构造一种新的消息段类型：
 
 ```python
-from melobot.protocols.onebot.v11.adapter.segment import Segment
-from typing import Literal, TypedDict
+from melobot.protocols.onebot.v11 import CustomSegCls, Segment
+from typing_extensions import Literal, TypedDict
 
 class _TouchData(TypedDict):
     id: str
 
 # 返回新类型 TouchSegment
 # 后续事件的消息段创建过程，会自动将对应消息段初始化为 TouchSegment 类型
-TouchSegment = Segment.add_type(Literal['touch'], _TouchData)
+TouchSegment: type[CustomSegCls[Literal['touch'], _TouchData]] = \
+    Segment.add_type(Literal['touch'], _TouchData)
 # 使用新的消息段类型来构造：
 seg = TouchSegment(id="1574260633")
+# 对象的这些属性拥有类型注解：
+s.type  # Literal['touch']
+s.data  # _TouchData
 ```
 
 ## 单条消息的其他发送方法
