@@ -251,8 +251,8 @@ class Segment(Generic[SegTypeT, SegDataT]):
     @classmethod
     @final
     def add_type(
-        cls, seg_type_hint: type[TypeT], seg_data_hint: type[DataT]
-    ) -> type[_CustomSegInterface[TypeT, DataT]]:  # type: ignore[type-var]
+        cls, seg_type_hint: Any, seg_data_hint: type[DataT]
+    ) -> type[CustomSegCls[Any, DataT]]:
         if cls is not Segment:
             raise ValueError(f"只能使用 {Segment.__name__} 类的 {Segment.add_type.__name__} 方法")
         if not is_subhint(seg_type_hint, Literal):
@@ -274,7 +274,7 @@ class Segment(Generic[SegTypeT, SegDataT]):
 
         seg_cls = type(
             type_classname,
-            (_CustomSegInterface,),
+            (CustomSegCls,),
             {
                 "Model": create_model(
                     type_dataname,
@@ -289,7 +289,7 @@ class Segment(Generic[SegTypeT, SegDataT]):
             Segment.resolve.__name__,
             lambda _, seg_data: seg_cls(**seg_data),
         )
-        return cast(type[_CustomSegInterface], seg_cls)
+        return seg_cls
 
     @property
     def type(self) -> SegTypeT:
@@ -304,7 +304,7 @@ class Segment(Generic[SegTypeT, SegDataT]):
         cls_name = f"{seg_type.lower().capitalize()}Segment"
         cls_map = {
             subcls.__name__: subcls
-            for subcls in cls.__subclasses__() + _CustomSegInterface.__subclasses__()
+            for subcls in cls.__subclasses__() + CustomSegCls.__subclasses__()
         }
         if cls_name in cls_map:
             return cls_map[cls_name].resolve(seg_type, seg_data)
@@ -332,10 +332,10 @@ class Segment(Generic[SegTypeT, SegDataT]):
         return json.dumps(self.to_dict(force_str), ensure_ascii=False)
 
 
-class _CustomSegInterface(Segment[TypeT, DataT]):
-    SegTypeVal: TypeT
+class CustomSegCls(Segment[TypeT, DataT]):
+    SegTypeVal: Any
 
-    def __init__(self, **seg_data: DataT) -> None:
+    def __init__(self, **seg_data: Any) -> None:
         super().__init__(self.__class__.SegTypeVal, **seg_data)
 
 
