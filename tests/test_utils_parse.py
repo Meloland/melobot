@@ -62,6 +62,8 @@ async def test_parser():
         "123",
         "asjf;\n\rlaja",
     ]
-    assert (
-        await p4.parse("\t\f\n\rasdfa\n\rfa *echo 456 asdaf;   asjf;\n\rlaja\r\n")
-    ).vals == ["456", "asdaf;", "asjf;\n\rlaja"]
+    assert (await p4.parse("\t\f\n\rasdfa\n\rfa *echo 456 asdaf;   asjf;\n\rlaja\r\n")).vals == [
+        "456",
+        "asdaf;",
+        "asjf;\n\rlaja",
+    ]

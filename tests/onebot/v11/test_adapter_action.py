@@ -7,9 +7,7 @@ async def test_base():
     a = action.Action("test", {"hi": True, "you": 123.45})
     a.set_echo(True)
     assert a.need_echo
-    assert a.flatten().startswith(
-        '{"action": "test", "params": {"hi": true, "you": 123.45}'
-    )
+    assert a.flatten().startswith('{"action": "test", "params": {"hi": true, "you": 123.45}')
 
 
 async def test_msgs_to_dicts():
