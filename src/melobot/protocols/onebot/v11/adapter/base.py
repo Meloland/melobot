@@ -12,10 +12,7 @@ from melobot.adapter import (
     ActionHandle,
 )
 from melobot.adapter import Adapter as RootAdapter
-from melobot.adapter import (
-    Content,
-    EchoT,
-)
+from melobot.adapter import Content, EchoT
 from melobot.adapter import content as mc
 from melobot.ctx import Context
 from melobot.exceptions import AdapterError
