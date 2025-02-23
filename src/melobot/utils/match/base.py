@@ -18,16 +18,12 @@ class Matcher(BetterABC):
 
     def __and__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(
-                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
-            )
+            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(
-                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
-            )
+            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> WrappedMatcher:
@@ -35,9 +31,7 @@ class Matcher(BetterABC):
 
     def __xor__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(
-                f"联合匹配器定义时出现了非匹配器对象，其值为：{other}"
-            )
+            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -78,9 +72,7 @@ class WrappedMatcher(Matcher):
         m2_match: Callable[[], Coroutine[Any, Any, bool]] | None = (
             partial(self.m2.match, text) if self.m2 is not None else None
         )
-        return await LogicMode.async_short_calc(
-            self.mode, partial(self.m1.match, text), m2_match
-        )
+        return await LogicMode.async_short_calc(self.mode, partial(self.m1.match, text), m2_match)
 
 
 class StartMatcher(Matcher):

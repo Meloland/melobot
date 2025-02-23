@@ -4,16 +4,7 @@ from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
 
-from typing_extensions import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Generator,
-    Generic,
-    Self,
-    Union,
-    cast,
-)
+from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Self, Union, cast
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
 from .typ.base import T
@@ -50,9 +41,7 @@ class Context(Generic[T], metaclass=SingletonMeta):
         :param lookup_exc_tip: 当试图获取上下文值失败时，抛出异常的附加说明
         """
         if self.__class__ is Context:
-            raise TypeError(
-                f"任何时候都不应该直接实例化 {Context.__name__}，而应该实现子类"
-            )
+            raise TypeError(f"任何时候都不应该直接实例化 {Context.__name__}，而应该实现子类")
 
         self.__storage__ = ContextVar[T](ctx_name)
         self.lookup_exc_cls = lookup_exc_cls

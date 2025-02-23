@@ -5,7 +5,7 @@ from typing_extensions import Callable, Sequence, cast
 
 from ..adapter.model import Event, TextEvent
 from ..ctx import FlowCtx, ParseArgsCtx
-from ..di import Depends, inject_deps
+from ..di import inject_deps
 from ..session.base import enter_session
 from ..session.option import DefaultRule, Rule
 from ..typ._enum import LogicMode
@@ -22,14 +22,6 @@ from ..utils.match import (
 )
 from ..utils.parse import AbstractParseArgs, CmdArgFormatter, CmdParser, Parser
 from .base import Flow, no_deps_node
-
-
-def GetParseArgs() -> AbstractParseArgs:  # pylint: disable=invalid-name
-    """获取解析参数
-
-    :return: 解析参数
-    """
-    return cast(AbstractParseArgs, Depends(ParseArgsCtx().get, recursive=False))
 
 
 class FlowDecorator:
@@ -105,9 +97,7 @@ class FlowDecorator:
             if args_token:
                 parse_args_ctx.remove(args_token)
 
-    async def auto_flow_wrapped(
-        self, func: AsyncCallable[..., bool | None]
-    ) -> bool | None:
+    async def auto_flow_wrapped(self, func: AsyncCallable[..., bool | None]) -> bool | None:
         if self._invalid:
             self._flow.dismiss()
             return None

@@ -161,9 +161,7 @@ class Session:
             self._completions.remove(c)
 
     def get_incompletions(self) -> list[tuple[Event, Future]]:
-        return [
-            (c.event, c.completed) for c in self._completions if not c.completed.done()
-        ]
+        return [(c.event, c.completed) for c in self._completions if not c.completed.done()]
 
     def __to_state__(self, state_class: type[SessionState]) -> None:
         self._state = state_class(self)
@@ -214,26 +212,20 @@ class Session:
 
                 suspends = filter(lambda s: s.__is_state__(SuspendSessionState), _set)
                 for session in suspends:
-                    if await rule.compare_with(
-                        CompareInfo(session, session.event, event)
-                    ):
+                    if await rule.compare_with(CompareInfo(session, session.event, event)):
                         await session.__wakeup__(completion)
                         return None
 
                 spares = filter(lambda s: s.__is_state__(SpareSessionState), _set)
                 for session in spares:
-                    if await rule.compare_with(
-                        CompareInfo(session, session.event, event)
-                    ):
+                    if await rule.compare_with(CompareInfo(session, session.event, event)):
                         await session.__work__(completion)
                         session._keep = keep
                         return session
 
                 workings = filter(lambda s: s.__is_state__(WorkingSessionState), _set)
                 for session in workings:
-                    if not await rule.compare_with(
-                        CompareInfo(session, session.event, event)
-                    ):
+                    if not await rule.compare_with(CompareInfo(session, session.event, event)):
                         continue
 
                     if not wait:
@@ -270,9 +262,7 @@ class Session:
                 return session
 
             finally:
-                expires = tuple(
-                    filter(lambda s: s.__is_state__(ExpireSessionState), _set)
-                )
+                expires = tuple(filter(lambda s: s.__is_state__(ExpireSessionState), _set))
                 for session in expires:
                     Session.__instances__[rule].remove(session)
 

@@ -96,6 +96,7 @@ from .segment import (
     ContactFriendSegment,
     ContactGroupSegment,
     ContactSegment,
+    CustomSegCls,
     DiceSegment,
     FaceSegment,
     ForwardSegment,

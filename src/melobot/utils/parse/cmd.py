@@ -102,14 +102,10 @@ class CmdArgFormatter:
         self.default = default
         self.default_replace_flag = default_replace_flag
         if self.default is VoidType.VOID and self.default_replace_flag is not None:
-            raise CmdParseError(
-                "初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值"
-            )
+            raise CmdParseError("初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值")
 
         self.convert_fail = to_async(convert_fail) if convert_fail is not None else None
-        self.validate_fail = (
-            to_async(validate_fail) if validate_fail is not None else None
-        )
+        self.validate_fail = to_async(validate_fail) if validate_fail is not None else None
         self.arg_lack = to_async(arg_lack) if arg_lack is not None else None
 
     def _get_val(self, args: CmdArgs, idx: int) -> Any:
@@ -228,9 +224,7 @@ def _cmd_parse(
         return filter(lambda x: x != "", temp_list)
 
     pure_string = text.strip() if rm_empty else text
-    cmd_seqs = (
-        list(_split(s, sep_regex, False)) for s in _split(pure_string, start_regex)
-    )
+    cmd_seqs = (list(_split(s, sep_regex, False)) for s in _split(pure_string, start_regex))
     seqs_filter = filter(lambda x: len(x) > 0, cmd_seqs)
 
     cmd_dict: dict[str, list[str]] = {}
@@ -288,9 +282,7 @@ class CmdParser(Parser):
         if self.ban_regex.findall(f"{''.join(cmd_start)}{''.join(cmd_sep)}"):
             raise CmdParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
 
-        _regex = re.compile(
-            r"([\`\-\=\~\!\@\#\$\%\^\&\*\(\)\_\+\[\]\{\}\|\:\,\.\/\<\>\?])"
-        )
+        _regex = re.compile(r"([\`\-\=\~\!\@\#\$\%\^\&\*\(\)\_\+\[\]\{\}\|\:\,\.\/\<\>\?])")
 
         if not len(set(self.sep_tokens) & set(self.start_tokens)):
             self.cmd_sep = [_regex.sub(r"\\\1", token) for token in self.sep_tokens]
@@ -303,8 +295,7 @@ class CmdParser(Parser):
     async def parse(self, text: str) -> Optional[CmdArgs]:
         cmd_dict = _cmd_parse(text, self.start_regex, self.sep_regex)
         args_dict = {
-            cmd_name: CmdArgs(cmd_name, self.arg_tag, vals)
-            for cmd_name, vals in cmd_dict.items()
+            cmd_name: CmdArgs(cmd_name, self.arg_tag, vals) for cmd_name, vals in cmd_dict.items()
         }
 
         for group_id in self.targets:

@@ -29,9 +29,7 @@ class BotException(Exception):
             self.err = str(args[0])
         else:
             self.err = str(args)
-        self.pretty_err = (
-            f"[{self.__class__.__module__}.{self.__class__.__qualname__}] {self.err}"
-        )
+        self.pretty_err = f"[{self.__class__.__module__}.{self.__class__.__qualname__}] {self.err}"
 
     def __str__(self) -> str:
         return self.err
@@ -113,8 +111,6 @@ class DependBindError(DependError):
 class DynamicImpError(BotException, ImportError):
     """melobot 动态导入组件异常"""
 
-    def __init__(
-        self, *args: Any, name: str | None = None, path: str | None = None
-    ) -> None:
+    def __init__(self, *args: Any, name: str | None = None, path: str | None = None) -> None:
         BotException.__init__(self, *args)
         ImportError.__init__(self, *args, name=name, path=path)

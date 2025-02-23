@@ -123,7 +123,6 @@ class FlagMixin:
         :param use_id: 为 `True` 则使用 `is` 判断 `val`，否则调用 `==` 判断 `val`
         :return: 是否通过检查
         """
-        # pylint: disable=consider-iterating-dictionary
         if namespace not in self.__flag_mixin_flags__.keys():
             return False
         if flag not in self.__flag_mixin_flags__[namespace].keys():
@@ -153,7 +152,6 @@ class FlagMixin:
         :param val: 标记值
         :param wait_val: 为 `True` 则需要值也一致
         :param use_id: 为 `True` 则使用 `is` 判断 `val`，否则调用 `==` 判断 `val`
-        :return: Future 对象
         """
         if self.flag_check(namespace, flag, val, wait_val, use_id):
             return None
@@ -233,7 +231,7 @@ class HookMixin(Generic[HookEnumT]):
         """
 
         def hook_register_wrapped(
-            func: SyncOrAsyncCallable[P, None]
+            func: SyncOrAsyncCallable[P, None],
         ) -> AsyncCallable[P, None]:
             f = to_async(func)
             for type in periods:

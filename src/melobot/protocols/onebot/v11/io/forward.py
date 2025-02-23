@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 import asyncio
 import json
 import time
@@ -44,15 +43,12 @@ class ForwardWebSocketIO(BaseIOSource):
         self._restart_flag = asyncio.Event()
 
     async def _input_loop(self) -> None:
-        # pylint: disable=duplicate-code
         while True:
             try:
                 await self._opened.wait()
 
                 raw_str = await self.conn.recv()
-                self.logger.generic_obj(
-                    "收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG
-                )
+                self.logger.generic_obj("收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG)
                 if raw_str == "":
                     continue
                 raw = json.loads(raw_str)
@@ -122,27 +118,21 @@ class ForwardWebSocketIO(BaseIOSource):
             retry_iter = count(0) if self.max_retry < 0 else range(self.max_retry + 1)
             for _ in retry_iter:
                 try:
-                    self.conn = await websockets.connect(
-                        self.url, additional_headers=headers
-                    )
+                    self.conn = await websockets.connect(self.url, additional_headers=headers)
                     break
 
                 except asyncio.CancelledError:
                     raise
 
                 except BaseException as e:
-                    self.logger.warning(
-                        f"连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}"
-                    )
+                    self.logger.warning(f"连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}")
                     if "403" in str(e):
                         self.logger.warning("403 错误可能是 access_token 未配置或无效")
 
                 await asyncio.sleep(self.retry_delay)
 
             else:
-                raise SourceError(
-                    "OneBot v11 正向 WebSocket IO 源重试已达最大次数，已放弃建立连接"
-                )
+                raise SourceError("OneBot v11 正向 WebSocket IO 源重试已达最大次数，已放弃建立连接")
 
             self._tasks.append(asyncio.create_task(self._input_loop()))
             self._tasks.append(asyncio.create_task(self._output_loop()))

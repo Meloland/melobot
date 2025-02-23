@@ -58,9 +58,7 @@ _OUT_BUF = Queue()
 @singleton
 class MockClientSession:
     async def post(self, url, *args, **kwargs):
-        await _OUT_BUF.put(
-            json.dumps({"action": url.split("/")[-1], "params": kwargs["json"]})
-        )
+        await _OUT_BUF.put(json.dumps({"action": url.split("/")[-1], "params": kwargs["json"]}))
         resp = aiohttp.web.Response(status=200)
         resp.json = to_async(lambda: _TEST_ECHO_DICT | {"echo": _TEST_ACTION.id})
         return resp
@@ -73,7 +71,7 @@ async def test_http(monkeypatch) -> None:
     with LoggerCtx().unfold(Logger()):
         aiohttp._ClientSession = aiohttp.ClientSession
         monkeypatch.setattr(aiohttp, "ClientSession", lambda: MockClientSession())
-        io = HttpIO("localhost", 8080, "localhost", 9090)
+        io = HttpIO("http://localhost:80", "localhost", 9090)
         create_task(put_input(json.dumps(_TEST_EVENT_DICT)))
 
         async with io:

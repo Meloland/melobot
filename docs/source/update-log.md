@@ -5,6 +5,28 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.1.2
+
+### ⏩变更
+
+- [core] 移除所有原本预计在 `3.1.1` 版本移除的组件 ([4b14ed5](https://github.com/Meloland/melobot/commit/4b14ed5))
+
+- [core] 内置日志器现在启用 `two_steam`，warning 级别的日志也将被分流到 `xxxxx.err.log` 中 ([8a2f1d7](https://github.com/Meloland/melobot/commit/8a2f1d7))
+
+- [core] 更新了插件共享对象获取的逻辑，无需更新任何代码。但新的插件初始化过程生成的 `__init__.py` 将采用新的运行逻辑 ([a207f27](https://github.com/Meloland/melobot/commit/a207f27))
+
+- [OneBot] 现在 {class}`~.v11.io.HttpIO` 的初始化参数 `onebot_host` 和 `onebot_port` 已移除，改为使用 `onebot_url`。这有利于更自由的提供 http 服务的 url ([5a2cbb6](https://github.com/Meloland/melobot/commit/5a2cbb6))
+
+### 👍修复
+
+- [OneBot] 修复创建自定义消息段类型的方法 {meth}`~.Segment.add_type` 的类型注解问题，并更新了相关文档 ([e2175d1](https://github.com/Meloland/melobot/commit/e2175d1))。无需更新任何代码。文档被更新处：[自定义消息段的构造](https://docs.melobot.org/intro/msg-action.html#id3)
+
+- [Docs] 文档笔误修复 ([23076b8](https://github.com/Meloland/melobot/commit/23076b8), [b37874e](https://github.com/Meloland/melobot/commit/b37874e))
+
+### ⚙️ 内部
+
+- [core] 开发项目时不再使用 pylint 监测代码质量 ([1b49dfb](https://github.com/Meloland/melobot/commit/1b49dfb))
+
 ## v3.1.1
 
 ### ⏩变更

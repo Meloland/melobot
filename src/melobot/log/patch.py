@@ -33,9 +33,7 @@ def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
     :param lazy_meth: 修补方法
     """
     setattr(logger, Logger.generic_lazy.__name__, lazy_meth)
-    setattr(
-        logger, Logger.generic_obj.__name__, types.MethodType(Logger.generic_obj, logger)
-    )
+    setattr(logger, Logger.generic_obj.__name__, types.MethodType(Logger.generic_obj, logger))
     return cast(GenericLogger, logger)
 
 

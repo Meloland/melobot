@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "cli", "dev", "docs", "lint", "manage", "measure", "onebot", "test"]
+groups = ["default", "cli", "docs", "lint", "manage", "measure", "onebot", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:0fc53eabda38d0f7b8a1ea727fa5e52220645c4996091710f526768ead319bf2"
+content_hash = "sha256:bd420e39d7c58074f8255530232fe8c2fe6b2a375af4a1d613f9ad3a1c98f1ee"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -142,20 +142,6 @@ dependencies = [
 files = [
     {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
     {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
-]
-
-[[package]]
-name = "astroid"
-version = "3.3.8"
-requires_python = ">=3.9.0"
-summary = "An abstract syntax tree for Python with inference support."
-groups = ["lint"]
-dependencies = [
-    "typing-extensions>=4.0.0; python_version < \"3.11\"",
-]
-files = [
-    {file = "astroid-3.3.8-py3-none-any.whl", hash = "sha256:187ccc0c248bfbba564826c26f070494f7bc964fd286b6d9fff4420e55de828c"},
-    {file = "astroid-3.3.8.tar.gz", hash = "sha256:a88c7994f914a4ea8572fac479459f4955eeccc877be3f2d959a33273b0cf40b"},
 ]
 
 [[package]]
@@ -415,17 +401,6 @@ groups = ["manage", "measure"]
 files = [
     {file = "decorator-5.1.1-py3-none-any.whl", hash = "sha256:b8c3f85900b9dc423225913c5aace94729fe1fa9763b38939a95226f02d37186"},
     {file = "decorator-5.1.1.tar.gz", hash = "sha256:637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330"},
-]
-
-[[package]]
-name = "dill"
-version = "0.3.9"
-requires_python = ">=3.8"
-summary = "serialize all of Python"
-groups = ["lint"]
-files = [
-    {file = "dill-0.3.9-py3-none-any.whl", hash = "sha256:468dff3b89520b474c0397703366b7b95eebe6303f108adf9b19da1f702be87a"},
-    {file = "dill-0.3.9.tar.gz", hash = "sha256:81aa267dddf68cbfe8029c42ca9ec6a4ab3b22371d1c450abc54422577b4512c"},
 ]
 
 [[package]]
@@ -1322,30 +1297,6 @@ files = [
 ]
 
 [[package]]
-name = "pylint"
-version = "3.3.4"
-requires_python = ">=3.9.0"
-summary = "python code static checker"
-groups = ["lint"]
-dependencies = [
-    "astroid<=3.4.0-dev0,>=3.3.8",
-    "colorama>=0.4.5; sys_platform == \"win32\"",
-    "dill>=0.2; python_version < \"3.11\"",
-    "dill>=0.3.6; python_version >= \"3.11\"",
-    "dill>=0.3.7; python_version >= \"3.12\"",
-    "isort!=5.13.0,<7,>=4.2.5",
-    "mccabe<0.8,>=0.6",
-    "platformdirs>=2.2.0",
-    "tomli>=1.1.0; python_version < \"3.11\"",
-    "tomlkit>=0.10.1",
-    "typing-extensions>=3.10.0; python_version < \"3.10\"",
-]
-files = [
-    {file = "pylint-3.3.4-py3-none-any.whl", hash = "sha256:289e6a1eb27b453b08436478391a48cd53bb0efb824873f949e709350f3de018"},
-    {file = "pylint-3.3.4.tar.gz", hash = "sha256:74ae7a38b177e69a9b525d0794bd8183820bfa7eb68cc1bee6e8ed22a42be4ce"},
-]
-
-[[package]]
 name = "pytest"
 version = "8.3.4"
 requires_python = ">=3.8"
@@ -1679,17 +1630,6 @@ files = [
     {file = "tomli-2.2.1-cp313-cp313-win_amd64.whl", hash = "sha256:a38aa0308e754b0e3c67e344754dff64999ff9b513e691d0e786265c93583c69"},
     {file = "tomli-2.2.1-py3-none-any.whl", hash = "sha256:cb55c73c5f4408779d0cf3eef9f762b9c9f147a77de7b258bef0a5628adc85cc"},
     {file = "tomli-2.2.1.tar.gz", hash = "sha256:cd45e1dc79c835ce60f7404ec8119f2eb06d38b1deba146f07ced3bbc44505ff"},
-]
-
-[[package]]
-name = "tomlkit"
-version = "0.13.2"
-requires_python = ">=3.8"
-summary = "Style preserving TOML library"
-groups = ["lint"]
-files = [
-    {file = "tomlkit-0.13.2-py3-none-any.whl", hash = "sha256:7a974427f6e119197f670fbbbeae7bef749a6c14e793db934baefc1b5f03efde"},
-    {file = "tomlkit-0.13.2.tar.gz", hash = "sha256:fff5fe59a87295b278abd31bec92c15d9bc4a06885ab12bcea52c71119392e79"},
 ]
 
 [[package]]

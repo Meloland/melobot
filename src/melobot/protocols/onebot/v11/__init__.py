@@ -1,18 +1,10 @@
 from melobot.protocols import ProtocolStack
-from melobot.utils.common import DeprecatedLoader as _DeprecatedLoader
 
 from .. import __version__
 from .adapter import *
-from .const import (
-    PROTOCOL_IDENTIFIER,
-    PROTOCOL_NAME,
-    PROTOCOL_SUPPORT_AUTHOR,
-    PROTOCOL_VERSION,
-)
-from .handle import _LOADER as _HANDLE_LOADER
+from .const import PROTOCOL_IDENTIFIER, PROTOCOL_NAME, PROTOCOL_SUPPORT_AUTHOR, PROTOCOL_VERSION
 from .handle import on_at_qq, on_event, on_message, on_meta, on_notice, on_request
 from .io import *
-from .utils import _LOADER as _UTILS_LOADER
 from .utils import *
 
 
@@ -30,10 +22,3 @@ class OneBotV11Protocol(ProtocolStack):
                 self.inputs.add(src)
             if isinstance(src, BaseOutSource):
                 self.outputs.add(src)
-
-
-_LOADER = _DeprecatedLoader.merge(__name__, _HANDLE_LOADER, _UTILS_LOADER)
-
-
-def __getattr__(name: str) -> Any:
-    return _LOADER.get(name)

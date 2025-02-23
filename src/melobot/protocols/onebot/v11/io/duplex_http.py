@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 import asyncio
 import hmac
 import json
@@ -19,8 +18,7 @@ from .packet import EchoPacket, InPacket, OutPacket
 class HttpIO(BaseIOSource):
     def __init__(
         self,
-        onebot_host: str,
-        onebot_port: int,
+        onebot_url: str,
         serve_host: str,
         serve_port: int,
         secret: str | None = None,
@@ -28,7 +26,7 @@ class HttpIO(BaseIOSource):
         cd_time: float = 0,
     ) -> None:
         super().__init__(cd_time)
-        self.onebot_url = f"http://{onebot_host}:{onebot_port}"
+        self.onebot_url = onebot_url
         self.host: str = serve_host
         self.port: int = serve_port
         self.serve_site: aiohttp.web.TCPSite
@@ -71,9 +69,7 @@ class HttpIO(BaseIOSource):
                 and raw.get("sub_type") == "connect"
             ):
                 await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
-            self.logger.generic_obj(
-                "收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG
-            )
+            self.logger.generic_obj("收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG)
             await self._in_buf.put(InPacket(time=raw["time"], data=raw))
 
         except Exception:
@@ -81,9 +77,7 @@ class HttpIO(BaseIOSource):
             self.logger.generic_obj("异常点的上报数据", raw, level=LogLevel.ERROR)
 
         finally:
-            return (  # pylint: disable=return-in-finally,lost-exception
-                aiohttp.web.Response(status=204)
-            )
+            return aiohttp.web.Response(status=204)
 
     async def _output_loop(self) -> None:
         while True:

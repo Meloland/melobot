@@ -76,9 +76,7 @@ def _get_rich_object(
     return colored_str, _CONSOLE.export_text().rstrip("\n")
 
 
-def _get_rich_repr(
-    s: str, style: Style | None = None, no_color: bool = False
-) -> tuple[str, str]:
+def _get_rich_repr(s: str, style: Style | None = None, no_color: bool = False) -> tuple[str, str]:
     if no_color:
         msg = Text(s)
     elif style:
@@ -98,9 +96,9 @@ _EXC_FORMATTER = ExceptionFormatter(colored=True)
 _NO_COLOR_EXC_FORMATTER = ExceptionFormatter(colored=False)
 
 
-class _NoErrFilter(logging.Filter):
+class _NormalLvlFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        return logging.DEBUG <= record.levelno < logging.ERROR
+        return logging.DEBUG <= record.levelno < logging.WARNING
 
 
 class _MeloLogFilter(logging.Filter):
@@ -155,9 +153,7 @@ class _MeloLogFilter(logging.Filter):
             if self._obj is VoidType.VOID:
                 record.legacy_obj, record.obj = "", ""
             else:
-                record.legacy_obj = record.obj = _get_rich_object(
-                    self._obj, no_color=True
-                )[1]
+                record.legacy_obj = record.obj = _get_rich_object(self._obj, no_color=True)[1]
             record.colored_obj = ""
             return
 
@@ -187,10 +183,10 @@ class LogLevel(int, Enum):
     """日志等级枚举"""
 
     CRITICAL = CRITICAL
-    DEBUG = DEBUG
     ERROR = ERROR
-    INFO = INFO
     WARNING = WARNING
+    INFO = INFO
+    DEBUG = DEBUG
 
 
 _FILE = os.path.normcase(_get_rich_object.__code__.co_filename)
@@ -222,8 +218,6 @@ class GenericLogger(BetterABC):
     任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，
     即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.__init__`）
     """
-
-    # pylint: disable=duplicate-code
 
     @abstractmethod
     def debug(self, msg: object) -> None:
@@ -366,10 +360,7 @@ class Logger(_Logger, GenericLogger):
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“错误日志”到不同的文件
         """
-        if (
-            hasattr(self, "_built")
-            and self._built  # pylint: disable=access-member-before-definition
-        ):
+        if hasattr(self, "_built") and self._built:
             return
 
         super().__init__(name, LogLevel.DEBUG)
@@ -387,8 +378,8 @@ class Logger(_Logger, GenericLogger):
             self._add_file_handler(to_dir, name, file_level)
         else:
             normal_handler = self._add_file_handler(to_dir, f"{name}.out", file_level)
-            normal_handler.addFilter(_NoErrFilter(name))
-            self._add_file_handler(to_dir, f"{name}.err", max(file_level, LogLevel.ERROR))
+            normal_handler.addFilter(_NormalLvlFilter(name))
+            self._add_file_handler(to_dir, f"{name}.err", max(file_level, LogLevel.WARNING))
 
         self._built: bool = True
 

@@ -193,9 +193,7 @@ class Bot(HookMixin[BotLifeSpan]):
         if self._inited:
             raise BotError(f"{self} 已不在初始化期，无法再绑定适配器")
         if adapter.protocol in self.adapters:
-            raise BotError(
-                f"已存在协议 {adapter.protocol} 的适配器，同协议的适配器不能再绑定"
-            )
+            raise BotError(f"已存在协议 {adapter.protocol} 的适配器，同协议的适配器不能再绑定")
 
         self.adapters[adapter.protocol] = adapter
         return self
@@ -223,9 +221,7 @@ class Bot(HookMixin[BotLifeSpan]):
                 if adapter is not None:
                     adapter.in_srcs.add(isrc)
                 else:
-                    self.logger.warning(
-                        f"输入源 {isrc.__class__.__name__} 没有对应的适配器"
-                    )
+                    self.logger.warning(f"输入源 {isrc.__class__.__name__} 没有对应的适配器")
 
         for protocol, outsrcs in self._out_srcs.items():
             for osrc in outsrcs:
@@ -233,15 +229,11 @@ class Bot(HookMixin[BotLifeSpan]):
                 if adapter is not None:
                     adapter.out_srcs.add(osrc)
                 else:
-                    self.logger.warning(
-                        f"输出源 {osrc.__class__.__name__} 没有对应的适配器"
-                    )
+                    self.logger.warning(f"输出源 {osrc.__class__.__name__} 没有对应的适配器")
 
         for adapter in self.adapters.values():
             if not len(adapter.in_srcs) and not len(adapter.out_srcs):
-                self.logger.warning(
-                    f"适配器 {adapter.__class__.__name__} 没有对应的输入源或输出源"
-                )
+                self.logger.warning(f"适配器 {adapter.__class__.__name__} 没有对应的输入源或输出源")
             adapter.dispatcher = self._dispatcher
 
         self._inited = True
@@ -317,9 +309,7 @@ class Bot(HookMixin[BotLifeSpan]):
 
         self.load_plugins(plugin_dirs, load_depth)
 
-    def load_plugins_dirs(
-        self, pdirs: Iterable[str | PathLike[str]], load_depth: int = 1
-    ) -> None:
+    def load_plugins_dirs(self, pdirs: Iterable[str | PathLike[str]], load_depth: int = 1) -> None:
         """与 :func:`load_plugins_dir` 行为类似，但是参数变为可迭代对象，每个元素为包含插件目录的父目录。
         本方法可以加载多个目录下的多个插件
 
@@ -359,9 +349,7 @@ class Bot(HookMixin[BotLifeSpan]):
                 self._dispatcher.start()
 
                 ts = tuple(
-                    asyncio.create_task(
-                        stack.enter_async_context(adapter.__adapter_launch__())
-                    )
+                    asyncio.create_task(stack.enter_async_context(adapter.__adapter_launch__()))
                     for adapter in self.adapters.values()
                 )
                 if len(ts):
@@ -419,9 +407,7 @@ class Bot(HookMixin[BotLifeSpan]):
             python3 -m melobot run [*.py]
         """
         if CLI_RUNTIME not in os.environ:
-            raise BotError(
-                "启用重启功能，需要用以下命令运行 bot：python -m melobot run [*.py]"
-            )
+            raise BotError("启用重启功能，需要用以下命令运行 bot：python -m melobot run [*.py]")
 
         await self.close()
         sys.exit(BotExitSignal.RESTART.value)
@@ -453,9 +439,7 @@ class Bot(HookMixin[BotLifeSpan]):
 
         return None
 
-    def get_adapters(
-        self, filter: Callable[[Adapter], bool] | None = None
-    ) -> set[Adapter]:
+    def get_adapters(self, filter: Callable[[Adapter], bool] | None = None) -> set[Adapter]:
         """获取一组适配器
 
         :param filter: 参见 :func:`get_adapter` 同名参数。但此处为空时直接获取所有适配器

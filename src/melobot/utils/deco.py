@@ -95,7 +95,7 @@ def unfold_ctx(
 
 
 def lock(
-    callback: SyncOrAsyncCallable[[], U] | None = None
+    callback: SyncOrAsyncCallable[[], U] | None = None,
 ) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | U]]:
     """锁装饰器
 
@@ -310,25 +310,19 @@ def speedlimit(
         if passed_time <= duration:
             if called_num < limit:
                 called_num += 1
-                asyncio.create_task(
-                    _speedlimit_set_result(func, res_fut, -1, *args, **kwargs)
-                )
+                asyncio.create_task(_speedlimit_set_result(func, res_fut, -1, *args, **kwargs))
 
             elif _callback is not None:
                 asyncio.create_task(_speedlimit_set_result(_callback, res_fut, -1))
 
             else:
                 asyncio.create_task(
-                    _speedlimit_set_result(
-                        func, res_fut, duration - passed_time, *args, **kwargs
-                    )
+                    _speedlimit_set_result(func, res_fut, duration - passed_time, *args, **kwargs)
                 )
         else:
             called_num, min_start = 0, time.perf_counter()
             called_num += 1
-            asyncio.create_task(
-                _speedlimit_set_result(func, res_fut, -1, *args, **kwargs)
-            )
+            asyncio.create_task(_speedlimit_set_result(func, res_fut, -1, *args, **kwargs))
 
         return cast(asyncio.Future, res_fut)
 

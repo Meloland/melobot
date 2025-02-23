@@ -9,7 +9,7 @@ from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
 
 
 def to_async(
-    obj: SyncOrAsyncCallable[P, T] | Awaitable[T]
+    obj: SyncOrAsyncCallable[P, T] | Awaitable[T],
 ) -> Callable[P, Coroutine[Any, Any, T]]:
     """异步包装函数
 
@@ -55,9 +55,7 @@ def to_coro(
 async def async_guard(func: AsyncCallable[..., T], *args: Any, **kwargs: Any) -> T:
     """在使用异步可调用对象时，提供用户友好的验证"""
     if not callable(func):
-        raise UtilValidateError(
-            f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）"
-        )
+        raise UtilValidateError(f"{func} 不是异步可调用对象（返回 Awaitable 的可调用对象）")
 
     await_obj = func(*args, **kwargs)
     if inspect.isawaitable(await_obj):

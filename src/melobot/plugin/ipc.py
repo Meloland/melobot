@@ -38,9 +38,7 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
         if self.name.startswith("_"):
             raise PluginIpcError(f"共享对象 {self} 的名称不能以 _ 开头")
         if self.static and self.__callback is not None:
-            raise PluginIpcError(
-                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
-            )
+            raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
 
     def __call__(self, func: AsyncCallable[[], T]) -> AsyncCallable[[], T]:
         """绑定获取共享值的异步方法的装饰器，如果未在初始化时绑定
@@ -60,9 +58,7 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
         :return: `func` 原值
         """
         if self.static:
-            raise PluginIpcError(
-                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
-            )
+            raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
         if self.__callback is not None:
             raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
         self.__callback = inject_deps(func, manual_arg=True)
@@ -115,9 +111,7 @@ class SyncShare(Generic[T], LocateMixin, AttrReprMixin):
         if self.name.startswith("_"):
             raise PluginIpcError(f"共享对象 {self} 的名称不能以 _ 开头")
         if self.static and self.__callback is not None:
-            raise PluginIpcError(
-                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
-            )
+            raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
 
     def __call__(self, func: Callable[[], T]) -> Callable[[], T]:
         """绑定获取共享值的方法的装饰器，如果未在初始化时绑定
@@ -137,9 +131,7 @@ class SyncShare(Generic[T], LocateMixin, AttrReprMixin):
         :return: `func` 原值
         """
         if self.static:
-            raise PluginIpcError(
-                f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法"
-            )
+            raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
         if self.__callback is not None:
             raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
         self.__callback = func

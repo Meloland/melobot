@@ -38,9 +38,7 @@ def no_deps_node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
 class FlowNode:
     """处理流结点"""
 
-    def __init__(
-        self, func: SyncOrAsyncCallable[..., bool | None], no_deps: bool = False
-    ) -> None:
+    def __init__(self, func: SyncOrAsyncCallable[..., bool | None], no_deps: bool = False) -> None:
         self.name = get_obj_name(func, otype="callable")
         self.processor: AsyncCallable[..., bool | None] = (
             to_async(func) if no_deps else inject_deps(func)
@@ -59,15 +57,11 @@ class FlowNode:
 
         with _FLOW_CTX.unfold(FlowStatus(flow, self, True, completion, records, store)):
             try:
-                records.append(
-                    FlowRecord(RecordStage.NODE_START, flow.name, self.name, event)
-                )
+                records.append(FlowRecord(RecordStage.NODE_START, flow.name, self.name, event))
 
                 try:
                     ret = await self.processor()
-                    records.append(
-                        FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, event)
-                    )
+                    records.append(FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, event))
                 except DependNotMatched as e:
                     ret = False
                     records.append(
@@ -277,14 +271,10 @@ class Flow(LogMixin):
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.unfold(
-            FlowStatus(self, self.starts[0], True, completion, records, store)
-        ):
+        with _FLOW_CTX.unfold(FlowStatus(self, self.starts[0], True, completion, records, store)):
             try:
                 records.append(
-                    FlowRecord(
-                        RecordStage.FLOW_START, self.name, self.starts[0].name, event
-                    )
+                    FlowRecord(RecordStage.FLOW_START, self.name, self.starts[0].name, event)
                 )
 
                 idx = 0
@@ -296,9 +286,7 @@ class Flow(LogMixin):
                         pass
 
                 records.append(
-                    FlowRecord(
-                        RecordStage.FLOW_FINISH, self.name, self.starts[0].name, event
-                    )
+                    FlowRecord(RecordStage.FLOW_FINISH, self.name, self.starts[0].name, event)
                 )
 
             except FlowBroke:
@@ -306,9 +294,7 @@ class Flow(LogMixin):
 
             except Exception:
                 self.logger.exception(f"事件处理流 {self.name} 发生异常")
-                self.logger.generic_obj(
-                    f"异常点 event {event.id}", event, level=LogLevel.ERROR
-                )
+                self.logger.generic_obj(f"异常点 event {event.id}", event, level=LogLevel.ERROR)
                 self.logger.generic_obj(
                     "异常点局部变量：",
                     {"completion": completion.__dict__, "cur_flow": self},
@@ -362,9 +348,7 @@ async def block() -> None:
     """阻止当前事件向更低优先级的处理流传播（在处理流中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
-        FlowRecord(
-            RecordStage.BLOCK, status.flow.name, status.node.name, status.completion.event
-        )
+        FlowRecord(RecordStage.BLOCK, status.flow.name, status.node.name, status.completion.event)
     )
     status.completion.event.spread = False
 
@@ -373,9 +357,7 @@ async def stop() -> NoReturn:
     """立即停止当前处理流（在处理流中使用）"""
     status = _FLOW_CTX.get()
     status.records.append(
-        FlowRecord(
-            RecordStage.STOP, status.flow.name, status.node.name, status.completion.event
-        )
+        FlowRecord(RecordStage.STOP, status.flow.name, status.node.name, status.completion.event)
     )
     status.records.append(
         FlowRecord(

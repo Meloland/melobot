@@ -188,9 +188,7 @@ OutSourceT = TypeVar("OutSourceT", bound=AbstractOutSource)
 InOrOutSourceT = TypeVar("InOrOutSourceT", bound=AbstractInSource | AbstractOutSource)
 
 
-class AbstractIOSource(
-    AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT]
-):
+class AbstractIOSource(AbstractInSource[InPacketT], AbstractOutSource[OutPacketT, EchoPacketT]):
     """抽象输入输出源基类"""
 
     @abstractmethod

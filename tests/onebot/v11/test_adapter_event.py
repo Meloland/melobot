@@ -300,9 +300,7 @@ async def test_notice(notice_head, notify_head) -> None:
     assert isinstance(e1, event.GroupBanNoticeEvent)
     assert isinstance(e2, event.GroupBanNoticeEvent)
 
-    e1 = event.Event.resolve(
-        notice_head | {"notice_type": "friend_add", "user_id": 123456}
-    )
+    e1 = event.Event.resolve(notice_head | {"notice_type": "friend_add", "user_id": 123456})
     assert isinstance(e1, event.FriendAddNoticeEvent)
 
     e1 = event.Event.resolve(
@@ -318,8 +316,7 @@ async def test_notice(notice_head, notify_head) -> None:
     assert isinstance(e1, event.GroupRecallNoticeEvent)
 
     e1 = event.Event.resolve(
-        notice_head
-        | {"notice_type": "friend_recall", "user_id": 123456, "message_id": -12345678}
+        notice_head | {"notice_type": "friend_recall", "user_id": 123456, "message_id": -12345678}
     )
     assert isinstance(e1, event.FriendRecallNoticeEvent)
 

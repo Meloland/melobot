@@ -114,9 +114,7 @@ async def test_other():
     )
 
     echo.GetLoginInfoEcho(**fake_ec(user_id=123, nickname="melody"))
-    echo.GetStrangerInfoEcho(
-        **fake_ec(user_id=123, nickname="melody", sex="male", age=18)
-    )
+    echo.GetStrangerInfoEcho(**fake_ec(user_id=123, nickname="melody", sex="male", age=18))
     echo.GetFriendListEcho(
         **fake_li_ec(
             [

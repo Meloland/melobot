@@ -1,11 +1,6 @@
 from abc import abstractmethod
 
-from melobot.io import (
-    AbstractInSource,
-    AbstractIOSource,
-    AbstractOutSource,
-    AbstractSource,
-)
+from melobot.io import AbstractInSource, AbstractIOSource, AbstractOutSource, AbstractSource
 
 from ..const import PROTOCOL_IDENTIFIER
 from .packet import EchoPacket, InPacket, OutPacket
@@ -72,15 +67,12 @@ class BaseOutSource(AbstractOutSource[OutPacket, EchoPacket], BaseSource):
         raise NotImplementedError
 
 
-class BaseIOSource(
-    AbstractIOSource[InPacket, OutPacket, EchoPacket], BaseInSource, BaseOutSource
-):
+class BaseIOSource(AbstractIOSource[InPacket, OutPacket, EchoPacket], BaseInSource, BaseOutSource):
     """
 
     :ivar float cd_time: 发送行为操作的冷却时间（防风控）
     """
 
-    # pylint: disable=duplicate-code
     def __init__(self, cd_time: float) -> None:
         super().__init__()
         self.cd_time = cd_time if cd_time >= 0 else 0
