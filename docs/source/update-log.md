@@ -23,7 +23,7 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 - [Docs] 文档笔误修复 ([23076b8](https://github.com/Meloland/melobot/commit/23076b8), [b37874e](https://github.com/Meloland/melobot/commit/b37874e))
 
-### ⚙️ 内部
+### ⚙️内部
 
 - [core] 开发项目时不再使用 pylint 监测代码质量 ([1b49dfb](https://github.com/Meloland/melobot/commit/1b49dfb))
 
