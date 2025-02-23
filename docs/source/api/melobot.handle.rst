@@ -81,8 +81,3 @@ melobot.handle
 .. autofunction:: melobot.handle.get_event
 
 .. autofunction:: melobot.handle.try_get_event
-
-弃用项，临时存在
-----------------
-
-.. autofunction:: melobot.handle.GetParseArgs
