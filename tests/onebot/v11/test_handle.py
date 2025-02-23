@@ -2,7 +2,7 @@ import asyncio
 from asyncio import Queue, create_task
 
 from melobot.bot import Bot
-from melobot.handle import GetParseArgs, on_start_match
+from melobot.handle import on_start_match
 from melobot.log import GenericLogger
 from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
@@ -55,12 +55,7 @@ h = on_start_match(
 
 
 @h
-async def _flow(
-    bot: Bot,
-    event: MessageEvent,
-    logger: GenericLogger,
-    args: CmdArgs = GetParseArgs(),
-) -> None:
+async def _flow(bot: Bot, logger: GenericLogger, args: CmdArgs) -> None:
     logger.info(args)
     await bot.close()
     _SUCCESS_SIGNAL.set()
