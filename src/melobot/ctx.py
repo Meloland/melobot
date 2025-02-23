@@ -4,16 +4,7 @@ from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
 
-from typing_extensions import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Generator,
-    Generic,
-    Self,
-    Union,
-    cast,
-)
+from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Self, Union, cast
 
 from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
 from .typ.base import T

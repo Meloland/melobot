@@ -69,7 +69,7 @@ distribution = true
 version = { source = "file", path = "src/melobot/_meta.py" }
 
 [tool.pdm.scripts]
-isort = { shell = "isort src/melobot tests scripts docs" }
+isort = { shell = "isort --profile black src/melobot tests scripts docs" }
 format = { shell = "black src/melobot tests scripts docs" }
 check = { shell = "flake8 src/melobot" }
 analyse = { shell = "mypy src/melobot" }

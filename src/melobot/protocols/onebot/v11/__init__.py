@@ -2,12 +2,7 @@ from melobot.protocols import ProtocolStack
 
 from .. import __version__
 from .adapter import *
-from .const import (
-    PROTOCOL_IDENTIFIER,
-    PROTOCOL_NAME,
-    PROTOCOL_SUPPORT_AUTHOR,
-    PROTOCOL_VERSION,
-)
+from .const import PROTOCOL_IDENTIFIER, PROTOCOL_NAME, PROTOCOL_SUPPORT_AUTHOR, PROTOCOL_VERSION
 from .handle import on_at_qq, on_event, on_message, on_meta, on_notice, on_request
 from .io import *
 from .utils import *

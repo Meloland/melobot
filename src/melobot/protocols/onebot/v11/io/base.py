@@ -1,11 +1,6 @@
 from abc import abstractmethod
 
-from melobot.io import (
-    AbstractInSource,
-    AbstractIOSource,
-    AbstractOutSource,
-    AbstractSource,
-)
+from melobot.io import AbstractInSource, AbstractIOSource, AbstractOutSource, AbstractSource
 
 from ..const import PROTOCOL_IDENTIFIER
 from .packet import EchoPacket, InPacket, OutPacket

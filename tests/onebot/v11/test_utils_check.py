@@ -2,12 +2,7 @@ from asyncio import Queue
 
 from melobot.protocols.onebot.v11.adapter import event
 from melobot.protocols.onebot.v11.adapter.segment import AtSegment
-from melobot.protocols.onebot.v11.utils import (
-    AtMsgChecker,
-    GroupRole,
-    LevelRole,
-    MsgCheckerFactory,
-)
+from melobot.protocols.onebot.v11.utils import AtMsgChecker, GroupRole, LevelRole, MsgCheckerFactory
 from tests.base import *
 
 _CB_BUF = Queue()
