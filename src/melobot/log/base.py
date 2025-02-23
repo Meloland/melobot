@@ -96,9 +96,9 @@ _EXC_FORMATTER = ExceptionFormatter(colored=True)
 _NO_COLOR_EXC_FORMATTER = ExceptionFormatter(colored=False)
 
 
-class _NoErrFilter(logging.Filter):
+class _NormalLvlFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        return logging.DEBUG <= record.levelno < logging.ERROR
+        return logging.DEBUG <= record.levelno < logging.WARNING
 
 
 class _MeloLogFilter(logging.Filter):
@@ -183,10 +183,10 @@ class LogLevel(int, Enum):
     """日志等级枚举"""
 
     CRITICAL = CRITICAL
-    DEBUG = DEBUG
     ERROR = ERROR
-    INFO = INFO
     WARNING = WARNING
+    INFO = INFO
+    DEBUG = DEBUG
 
 
 _FILE = os.path.normcase(_get_rich_object.__code__.co_filename)
@@ -378,8 +378,8 @@ class Logger(_Logger, GenericLogger):
             self._add_file_handler(to_dir, name, file_level)
         else:
             normal_handler = self._add_file_handler(to_dir, f"{name}.out", file_level)
-            normal_handler.addFilter(_NoErrFilter(name))
-            self._add_file_handler(to_dir, f"{name}.err", max(file_level, LogLevel.ERROR))
+            normal_handler.addFilter(_NormalLvlFilter(name))
+            self._add_file_handler(to_dir, f"{name}.err", max(file_level, LogLevel.WARNING))
 
         self._built: bool = True
 
