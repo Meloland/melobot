@@ -238,9 +238,9 @@ class Bot(HookMixin[BotLifeSpan]):
 
         self._inited = True
         self.logger.debug("bot 核心组件初始化完成")
-        self.logger.debug(
-            f"当前事件循环策略：<{asyncio.get_event_loop_policy().__class__.__name__}>"
-        )
+        policy = asyncio.get_event_loop_policy()
+        policy_name = f"{policy.__class__.__module__}.{policy.__class__.__name__}"
+        self.logger.debug(f"当前事件循环策略：<{policy_name}>")
 
     def load_plugin(
         self,
