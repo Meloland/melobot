@@ -40,12 +40,20 @@ class PluginInitHelper:
     )
 
     @staticmethod
-    def _get_init_py_str() -> str:
-        return re.sub(
+    def _get_init_py_str(p_planner: PluginPlanner) -> str:
+        output = re.sub(
             r"_VAR(\d+)",
             lambda matched: f"_{int(time()):#x}{matched.group(1)}",
             PluginInitHelper._BASE_INIT_PY_STR,
         )
+
+        output = f'{output}__version__ = "{p_planner.version}"\n'
+        if p_planner.info.author != "":
+            output = f'{output}__author__ = "{p_planner.info.author}"\n'
+        if p_planner.info.desc != "":
+            output = f'"""\n{p_planner.info.desc}\n"""\n{output}'
+            output = f'{output}__doc__ = "{p_planner.info.desc}"\n'
+        return output
 
     @staticmethod
     def _get_init_pyi_str(
@@ -207,10 +215,10 @@ class PluginInitHelper:
                 if pyi_content != "":
                     with open(pinit_typ_path, "w", encoding="utf-8") as fp:
                         fp.write(_AUTOGEN_COMMENT + pyi_content)
-                    with open(pinit_path, "w", encoding="utf-8") as fp:
-                        fp.write(_AUTOGEN_COMMENT + PluginInitHelper._get_init_py_str())
+                with open(pinit_path, "w", encoding="utf-8") as fp:
+                    fp.write(_AUTOGEN_COMMENT + PluginInitHelper._get_init_py_str(p_planner))
 
-            except Exception:
+            except BaseException:
                 if pinit_path.exists():
                     remove(pinit_path)
                 if pinit_typ_path.exists():
@@ -221,6 +229,7 @@ class PluginInitHelper:
 
 
 P_PLANNER_ATTR = "__plugin_planner__"
+P_INFO_ATTR = "__plugin_info__"
 
 
 @singleton
@@ -321,4 +330,6 @@ class PluginLoader:
         p, is_repeat = self._build_plugin(p_name, entry=p_entry_mod, p_planner=None)
         if not is_repeat:
             self._dir_caches[p.name] = p_dir.resolve()
+            p_mod = cast(ModuleType, Importer.get_cache(p_dir))
+            setattr(p_mod, P_INFO_ATTR, p.planner.info)
         return p, is_repeat

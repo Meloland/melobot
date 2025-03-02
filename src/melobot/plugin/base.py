@@ -23,7 +23,6 @@ class PluginLifeSpan(Enum):
 class PluginInfo:
     """插件信息类，用于添加描述信息"""
 
-    version: str = ""
     desc: str = ""
     docs: Path | None = None
     keywords: list[str] | None = None
