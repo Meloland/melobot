@@ -55,8 +55,7 @@ class WorkingSessionState(SessionState):
             cond.notify()
 
     async def suspend(self, timeout: float | None) -> bool:
-        self.session.set_completed()
-
+        self.session.__try_auto_complete__()
         if self.session.rule is None:
             raise SessionRuleLacked("缺少会话规则，会话无法从“运行态”转为“挂起态”")
 
@@ -73,7 +72,6 @@ class WorkingSessionState(SessionState):
             try:
                 await asyncio.wait_for(self.session._wakeup_cond.wait(), timeout=timeout)
                 return True
-
             except asyncio.TimeoutError:
                 if self.session.__is_state__(WorkingSessionState):
                     return True
@@ -86,7 +84,6 @@ class WorkingSessionState(SessionState):
             cond = self.session._refresh_cond
             async with cond:
                 cond.notify()
-
         self.session.set_completed()
 
 
@@ -162,6 +159,10 @@ class Session:
 
     def get_incompletions(self) -> list[tuple[Event, Future]]:
         return [(c.event, c.completed) for c in self._completions if not c.completed.done()]
+
+    def __try_auto_complete__(self) -> None:
+        if self.auto_complete:
+            self.set_completed()
 
     def __to_state__(self, state_class: type[SessionState]) -> None:
         self._state = state_class(self)
