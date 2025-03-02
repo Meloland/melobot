@@ -78,7 +78,7 @@ class Dispatcher(LogMixin):
         if self.first_chan is not None:
             self.first_chan.event_que.put_nowait(event)
         else:
-            self.logger.warning(f"没有任何可用的事件处理流，事件 {event.id} 将被丢弃")
+            self.logger.debug(f"此刻没有可用的事件处理流，事件 {event.id} 将被丢弃")
 
     def start(self) -> None:
         for chan in self._pending_chans:
