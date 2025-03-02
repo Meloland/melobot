@@ -358,7 +358,7 @@ class Logger(_Logger, GenericLogger):
             记录 `LogLevel.ERROR` 及以上级别时，是否将日志内容着色为红色。
             `legacy` 选项为 `True` 时此参数无效
 
-        :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“错误日志”到不同的文件
+        :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件
         """
         if hasattr(self, "_built") and self._built:
             return

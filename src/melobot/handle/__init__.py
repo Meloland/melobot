@@ -1,3 +1,5 @@
+from typing_extensions import Any
+
 from ..adapter.model import Event as _Event
 from ..ctx import BotCtx as _BotCtx
 from ..ctx import FlowCtx as _FlowCtx
@@ -46,3 +48,24 @@ def try_get_event() -> _Event | None:
     :return: 事件或空
     """
     return _FlowCtx().try_get_event()
+
+
+def __getattr__(name: str) -> Any:
+    if name == "f_records":
+        return get_flow_records()
+    elif name == "f_store":
+        return get_flow_store()
+    elif name == "event":
+        return get_event()
+    else:
+        raise AttributeError
+
+
+f_records: tuple[FlowRecord, ...]
+"""当前上下文中的流记录"""
+
+f_store: FlowStore
+"""当前上下文中的流存储"""
+
+event: _Event
+"""当前上下文中的事件"""

@@ -4,7 +4,7 @@ from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoRet
 
 from .typ.base import T
 
-__version__ = "3.1.2"
+__version__ = "3.1.3"
 
 
 def _version_str_to_info(s: str) -> VersionInfo:
@@ -73,7 +73,7 @@ class VersionInfo(NamedTuple):
     `minor` 更新，可能历经：
         - `alpha` -> `beta` -> `pre-release` -> `final` （极少）
         - `pre-release` -> `final` （较多）
-        - `final` （少）
+        - `final` （较多）
 
     `major` 更新，一定历经：
         - `alpha` -> `beta` -> `pre-release` -> `final`

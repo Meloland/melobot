@@ -5,6 +5,7 @@ from asyncio import Queue, Task, get_running_loop
 
 from ..adapter.base import Event
 from ..handle.base import Flow
+from ..log.base import LogLevel
 from ..mixin import LogMixin
 
 
@@ -64,21 +65,31 @@ class Dispatcher(LogMixin):
 
             f._active = True
 
+        self.logger.generic_lazy(
+            "以下处理流流已添加：%s", lambda: repr(flows), level=LogLevel.DEBUG
+        )
+
     def remove(self, *flows: Flow) -> None:
         for f in flows:
             f._active = False
+        self.logger.generic_lazy(
+            "以下处理流不再生效：%s", lambda: repr(flows), level=LogLevel.DEBUG
+        )
 
     def update(self, priority: int, *flows: Flow) -> None:
         self.remove(*flows)
         for f in flows:
             f.priority = priority
         self.add(*flows)
+        self.logger.generic_lazy(
+            f"以下处理流优先级更新为 {priority}：%s", lambda: repr(flows), level=LogLevel.DEBUG
+        )
 
     def broadcast(self, event: Event) -> None:
         if self.first_chan is not None:
             self.first_chan.event_que.put_nowait(event)
         else:
-            self.logger.warning(f"没有任何可用的事件处理流，事件 {event.id} 将被丢弃")
+            self.logger.debug(f"此刻没有可用的事件处理流，事件 {event.id} 将被丢弃")
 
     def start(self) -> None:
         for chan in self._pending_chans:
@@ -86,7 +97,7 @@ class Dispatcher(LogMixin):
         self._pending_chans.clear()
 
 
-class EventChannel:
+class EventChannel(LogMixin):
     def __init__(self, owner: Dispatcher, priority: int) -> None:
         self.owner = owner
         self.event_que: Queue[Event] = Queue()
@@ -97,6 +108,7 @@ class EventChannel:
         self.next: EventChannel | None = None
 
         self.owner._arrange_chan(self)
+        self.logger.debug(f"pri={self.priority} 的通道已生成")
 
     def set_pre(self, pre: EventChannel | None) -> None:
         self.pre = pre
@@ -121,6 +133,7 @@ class EventChannel:
             for _ in range(self.event_que.qsize()):
                 events.append(self.event_que.get_nowait())
 
+            self.logger.debug(f"pri={self.priority} 通道开始处理 {len(events)} 个事件")
             for ev in events:
                 ev.flag_set_default(self.owner, self.owner, set())
                 handle_tasks.clear()
@@ -151,13 +164,13 @@ class EventChannel:
     def _dispose(self, *events: Event) -> None:
         if self.pre is not None:
             self.pre.set_next(self.next)
-
         if self.next is not None:
             for ev in events:
                 self.next.event_que.put_nowait(ev)
-
         if self is self.owner.first_chan:
             self.owner.first_chan = self.next
+
+        self.logger.debug(f"pri={self.priority} 通道没有可用处理流，已销毁")
 
     async def _determine_spread(self, ev: Event, handle_tasks: list[Task]) -> None:
         if not len(handle_tasks):
@@ -165,6 +178,20 @@ class EventChannel:
                 self.next.event_que.put_nowait(ev)
             return
 
+        self.logger.generic_lazy(
+            f"pri={self.priority} 通道启动了 {len(handle_tasks)} 个处理流，事件：%s",
+            lambda: repr(ev),
+            level=LogLevel.DEBUG,
+        )
         await asyncio.wait(handle_tasks)
+        self.logger.generic_lazy(
+            f"pri={self.priority} 通道处理完成，事件：%s", lambda: repr(ev), level=LogLevel.DEBUG
+        )
+
         if self.next is not None and ev.spread:
+            self.logger.generic_lazy(
+                f"事件向下一优先级 pri={self.next.priority} 传播，事件：%s",
+                lambda: repr(ev),
+                level=LogLevel.DEBUG,
+            )
             self.next.event_que.put_nowait(ev)

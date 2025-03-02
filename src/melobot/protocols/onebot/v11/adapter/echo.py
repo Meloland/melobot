@@ -7,7 +7,7 @@ from melobot.adapter import Echo as RootEcho
 
 from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER
 from .event import _GroupMessageSender, _MessageSender
-from .segment import NodeSegment, Segment
+from .segment import NodeGocqCustomSegment, NodeStdCustomSegment, Segment
 
 
 class Echo(RootEcho):
@@ -193,7 +193,7 @@ class _GetForwardMsgEchoData(TypedDict): ...
 
 
 class _GetForwardMsgEchoDataInterface(_GetForwardMsgEchoData):
-    message: list[NodeSegment]
+    message: list[NodeGocqCustomSegment | NodeStdCustomSegment]
 
 
 class GetForwardMsgEcho(Echo):
@@ -216,7 +216,7 @@ class GetForwardMsgEcho(Echo):
         else:
             segs = [Segment.resolve(seg_dic["type"], seg_dic["data"]) for seg_dic in msgs]
 
-        self.data["message"] = cast(list[NodeSegment], segs)
+        self.data["message"] = cast(list[NodeGocqCustomSegment | NodeStdCustomSegment], segs)
 
 
 class _GetLoginInfoEchoData(TypedDict):

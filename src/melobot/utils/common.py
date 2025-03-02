@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
 
-from typing_extensions import Any, AsyncGenerator, Callable, Literal, cast
+from typing_extensions import Any, AsyncGenerator, Callable, Literal, cast, overload
 
 from ..typ.base import P, T
 
@@ -53,7 +53,13 @@ def get_obj_name(
     return default % otype
 
 
-def singleton(cls: Callable[P, T]) -> Callable[P, T]:
+@overload
+def singleton(cls: type[T]) -> type[T]: ...
+@overload
+def singleton(cls: Callable[P, T]) -> Callable[P, T]: ...
+
+
+def singleton(cls: type[T] | Callable[P, T]) -> type[T] | Callable[P, T]:
     """单例装饰器
 
     :param cls: 需要被单例化的可调用对象

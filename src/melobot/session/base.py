@@ -55,8 +55,7 @@ class WorkingSessionState(SessionState):
             cond.notify()
 
     async def suspend(self, timeout: float | None) -> bool:
-        self.session.set_completed()
-
+        self.session.__try_auto_complete__()
         if self.session.rule is None:
             raise SessionRuleLacked("缺少会话规则，会话无法从“运行态”转为“挂起态”")
 
@@ -73,7 +72,6 @@ class WorkingSessionState(SessionState):
             try:
                 await asyncio.wait_for(self.session._wakeup_cond.wait(), timeout=timeout)
                 return True
-
             except asyncio.TimeoutError:
                 if self.session.__is_state__(WorkingSessionState):
                     return True
@@ -86,7 +84,6 @@ class WorkingSessionState(SessionState):
             cond = self.session._refresh_cond
             async with cond:
                 cond.notify()
-
         self.session.set_completed()
 
 
@@ -146,9 +143,34 @@ class Session:
         self._state: SessionState = WorkingSessionState(self)
 
     def stop_keep(self) -> None:
+        """停止会话保持
+
+        当进入会话时，启用了 `keep=True`，
+        需要在会话不需要保持后，手动调用此方法标识会话可以销毁
+        """
         self._keep = False
 
     def set_completed(self, event: Event | None = None) -> None:
+        """标志会话中的事件为完成状态
+
+        `event` 参数为空，自动标志会话历史中所有事件为完成状态
+
+        事件被标志为完成状态后，事件才可能向更低优先级传播。
+        但具体是否可以，还和其他处理流的操作有关
+
+        举例来说，假设一个事件触发了一批处理流，如果这批处理流都没有启用会话，
+        处理流结束后，将会自动标志事件“完成”。事件是否可以传播，将在所有处理流完成后评估
+
+        但如果这批处理流中有启用会话的，由于会话是可以挂起的，
+        这意味着非常长的处理周期，因此需要会话来标志事件“完成”，
+        这样后续的传播评估才能在合适的时机进行
+
+        使用 :func:`enter_session` 进入会话时，设置 `auto_complete=True`，会话将在每次挂起后，
+        自动标志当前事件为完成状态，这样事件就不会被会话“囚禁”，
+        而迟迟无法传播到下一优先级。而设置为 `False`，则需要手动调用此方法来标志“完成”状态
+
+        :param event: 事件
+        """
         if event is None:
             for c in self._completions:
                 c.completed.set_result(None)
@@ -161,7 +183,15 @@ class Session:
             self._completions.remove(c)
 
     def get_incompletions(self) -> list[tuple[Event, Future]]:
+        """获取会话历史中所有未完成的事件组
+
+        :return: 元组 (事件, 事件“完成”的信号) 组成的列表
+        """
         return [(c.event, c.completed) for c in self._completions if not c.completed.done()]
+
+    def __try_auto_complete__(self) -> None:
+        if self.auto_complete:
+            self.set_completed()
 
     def __to_state__(self, state_class: type[SessionState]) -> None:
         self._state = state_class(self)
@@ -326,7 +356,7 @@ def enter_session(
     :param wait: 当出现会话冲突时，是否需要等待
     :param nowait_cb: 指定了 `wait=False` 后，会话冲突时执行的回调
     :param keep: 会话在退出会话上下文后是否继续保持
-    :param auto_complete: 当前会话挂起后，事件是否自动向更低优先级传播
+    :param auto_complete: 当前会话挂起后，事件是否自动标记为“完成”状态。其他有关细节参考 :meth:`Session.set_completed`
     :yield: 会话对象
     """
     return Session.enter(rule, wait, nowait_cb, keep, auto_complete)

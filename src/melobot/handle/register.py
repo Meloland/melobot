@@ -36,6 +36,17 @@ class FlowDecorator:
         decos: Sequence[Callable[[Callable], Callable]] | None = None,
         rule: Rule[Event] | None = None,
     ) -> None:
+        """处理流装饰器
+
+        :param checker: 检查器
+        :param matcher: 匹配器
+        :param parser: 解析器
+        :param priority: 优先级
+        :param block: 是否阻断向低优先级传播
+        :param temp: 是否临时使用（处理一次事件后停用）
+        :param decos: 装饰器组
+        :param rule: 会话规则
+        """
         self.checker: Checker | None
         if callable(checker):
             self.checker = Checker.new(checker)
@@ -122,6 +133,11 @@ class FlowDecorator:
         return await self._process(func, event, args)
 
     def __call__(self, func: SyncOrAsyncCallable[..., bool | None]) -> Flow:
+        """实现了此方法，因此可被当作装饰器使用
+
+        :param func: 被装饰的函数
+        :return: 处理流对象
+        """
         func = inject_deps(func)
         if self.decos is not None:
             for deco in reversed(self.decos):
@@ -143,6 +159,20 @@ def on_event(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     rule: Rule[Event] | None = None,
 ) -> FlowDecorator:
+    """绑定任意事件的处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param checker: 检查器
+    :param matcher: 匹配器
+    :param parser: 解析器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param rule: 会话规则
+    :return: 处理流装饰器
+    """
     return FlowDecorator(checker, matcher, parser, priority, block, temp, decos, rule)
 
 
@@ -156,6 +186,20 @@ def on_text(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     legacy_session: bool = False,
 ) -> FlowDecorator:
+    """绑定文本事件的处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param checker: 检查器
+    :param matcher: 匹配器
+    :param parser: 解析器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param legacy_session: 是否自动启用传统会话
+    :return: 处理流装饰器
+    """
     if legacy_session:
         rule = DefaultRule()
     else:
@@ -186,6 +230,23 @@ def on_command(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     legacy_session: bool = False,
 ) -> FlowDecorator:
+    """绑定文本事件的“命令解析”处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param cmd_start: 命令起始符
+    :param cmd_sep: 命令分隔符
+    :param targets: 解析匹配的命令名
+    :param fmtters: 命令参数格式化器
+    :param checker: 检查器
+    :param matcher: 匹配器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param legacy_session: 是否自动启用传统会话
+    :return: 处理流装饰器
+    """
     return on_text(
         checker,
         matcher,
@@ -209,6 +270,21 @@ def on_start_match(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     legacy_session: bool = False,
 ) -> FlowDecorator:
+    """绑定文本事件的“字符串起始匹配”处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param target: 匹配的目标字符串
+    :param logic_mode: 匹配的逻辑模式
+    :param checker: 检查器
+    :param parser: 解析器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param legacy_session: 是否自动启用传统会话
+    :return: 处理流装饰器
+    """
     return on_text(
         checker,
         StartMatcher(target, logic_mode),
@@ -232,6 +308,21 @@ def on_contain_match(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     legacy_session: bool = False,
 ) -> FlowDecorator:
+    """绑定文本事件的“字符串包含匹配”处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param target: 匹配的目标字符串
+    :param logic_mode: 匹配的逻辑模式
+    :param checker: 检查器
+    :param parser: 解析器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param legacy_session: 是否自动启用传统会话
+    :return: 处理流装饰器
+    """
     return on_text(
         checker,
         ContainMatcher(target, logic_mode),
@@ -255,6 +346,21 @@ def on_full_match(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     legacy_session: bool = False,
 ) -> FlowDecorator:
+    """绑定文本事件的“字符串完整匹配”处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param target: 匹配的目标字符串
+    :param logic_mode: 匹配的逻辑模式
+    :param checker: 检查器
+    :param parser: 解析器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param legacy_session: 是否自动启用传统会话
+    :return: 处理流装饰器
+    """
     return on_text(
         checker,
         FullMatcher(target, logic_mode),
@@ -278,6 +384,21 @@ def on_end_match(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     legacy_session: bool = False,
 ) -> FlowDecorator:
+    """绑定文本事件的“字符串末尾匹配”处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param target: 匹配的目标字符串
+    :param logic_mode: 匹配的逻辑模式
+    :param checker: 检查器
+    :param parser: 解析器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param legacy_session: 是否自动启用传统会话
+    :return: 处理流装饰器
+    """
     return on_text(
         checker,
         EndMatcher(target, logic_mode),
@@ -301,6 +422,21 @@ def on_regex_match(
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
     legacy_session: bool = False,
 ) -> FlowDecorator:
+    """绑定文本事件的“正则匹配”处理流装饰方法
+
+    在前期的教程中，处理流装饰方法也称为绑定方法
+
+    :param target: 匹配的目标字符串
+    :param logic_mode: 匹配的逻辑模式
+    :param checker: 检查器
+    :param parser: 解析器
+    :param priority: 优先级
+    :param block: 是否阻断向低优先级传播
+    :param temp: 是否临时使用（处理一次事件后停用）
+    :param decos: 装饰器组
+    :param legacy_session: 是否自动启用传统会话
+    :return: 处理流装饰器
+    """
     return on_text(
         checker,
         RegexMatcher(target, logic_mode),
