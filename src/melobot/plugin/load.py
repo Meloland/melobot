@@ -299,6 +299,8 @@ class PluginLoader:
                 f"尝试加载的插件 {p_name} 与 Python 内置模块重名，"
                 f"请修改名称（修改插件目录名）。对应插件：{p_dir}"
             )
+        if not p_dir.exists():
+            raise PluginLoadError(f"插件目录不存在，无法加载。对应插件：{p_dir}")
         if not p_dir.joinpath("__plugin__.py").exists():
             raise PluginLoadError(f"插件目录下不存在 __plugin__.py，无法加载。对应插件：{p_dir}")
 
