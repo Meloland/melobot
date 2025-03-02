@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.session - melobot 3.1.2</title>
+        <title>melobot.session - melobot 3.1.3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.2</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.2</span>
+  <span class="sidebar-brand-text">melobot 3.1.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -333,7 +333,10 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.session.Session.stop_keep">
 <span class="sig-name descname"><span class="pre">stop_keep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/session/base.html#Session.stop_keep"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.session.Session.stop_keep" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>停止会话保持</p>
+<p>当进入会话时，启用了 <cite>keep=True</cite>，
+需要在会话不需要保持后，手动调用此方法标识会话可以销毁</p>
+<dl class="field-list simple">
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
 </dd>
@@ -343,9 +346,21 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.session.Session.set_completed">
 <span class="sig-name descname"><span class="pre">set_completed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><span class="pre">Event</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/session/base.html#Session.set_completed"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.session.Session.set_completed" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>标志会话中的事件为完成状态</p>
+<p><cite>event</cite> 参数为空，自动标志会话历史中所有事件为完成状态</p>
+<p>事件被标志为完成状态后，事件才可能向更低优先级传播。
+但具体是否可以，还和其他处理流的操作有关</p>
+<p>举例来说，假设一个事件触发了一批处理流，如果这批处理流都没有启用会话，
+处理流结束后，将会自动标志事件“完成”。事件是否可以传播，将在所有处理流完成后评估</p>
+<p>但如果这批处理流中有启用会话的，由于会话是可以挂起的，
+这意味着非常长的处理周期，因此需要会话来标志事件“完成”，
+这样后续的传播评估才能在合适的时机进行</p>
+<p>使用 <a class="reference internal" href="#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 进入会话时，设置 <cite>auto_complete=True</cite>，会话将在每次挂起后，
+自动标志当前事件为完成状态，这样事件就不会被会话“囚禁”，
+而迟迟无法传播到下一优先级。而设置为 <cite>False</cite>，则需要手动调用此方法来标志“完成”状态</p>
+<dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a><em> | </em><em>None</em>)</p>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a><em> | </em><em>None</em>) -- 事件</p>
 </dd>
 <dt class="field-even">返回类型<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -356,9 +371,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.session.Session.get_incompletions">
 <span class="sig-name descname"><span class="pre">get_incompletions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><span class="pre">Event</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Future</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/session/base.html#Session.get_incompletions"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.session.Session.get_incompletions" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）">tuple</a>[<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a>, <em>Future</em>]]</p>
+<dd><p>获取会话历史中所有未完成的事件组</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>元组 (事件, 事件“完成”的信号) 组成的列表</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="（在 Python v3.13）">tuple</a>[<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a>, <em>Future</em>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -480,45 +499,6 @@
 <dd><p>基类：<a class="reference internal" href="#melobot.session.Rule" title="melobot.session.option.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a>[<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>]</p>
 <p>传统的会话规则</p>
 <p>判断事件的 <cite>scope</cite> 是否相同</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.session.DefaultRule.compare">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">e2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><span class="pre">Event</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/melobot/session/option.html#DefaultRule.compare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.session.DefaultRule.compare" title="Link to this definition">¶</a></dt>
-<dd><p>会话判断的方法</p>
-<p>抽象方法，和 <a class="reference internal" href="#melobot.session.DefaultRule.compare_with" title="melobot.session.DefaultRule.compare_with"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare_with()</span></code></a> 二选一实现</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>e1</strong> (<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a>) -- 某一已存在的会话中的事件</p></li>
-<li><p><strong>e2</strong> (<a class="reference internal" href="melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><em>Event</em></a>) -- 待判断的事件</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>为 <cite>True</cite> 则在一个会话中，反之亦然</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="melobot.session.DefaultRule.compare_with">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compare_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.session.CompareInfo" title="melobot.session.option.CompareInfo"><span class="pre">CompareInfo</span></a><span class="p"><span class="pre">[</span></span><span class="pre">EventT</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#melobot.session.DefaultRule.compare_with" title="Link to this definition">¶</a></dt>
-<dd><p>会话判断的方法</p>
-<p>抽象方法，和 <a class="reference internal" href="#melobot.session.DefaultRule.compare" title="melobot.session.DefaultRule.compare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare()</span></code></a> 二选一实现</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>info</strong> (<a class="reference internal" href="#melobot.session.CompareInfo" title="melobot.session.option.CompareInfo"><em>CompareInfo</em></a><em>[</em><em>EventT</em><em>]</em>) -- 用于会话判断的信息</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>为 <cite>True</cite> 则在一个会话中，反之亦然</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py function">
@@ -532,7 +512,7 @@
 <li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 当出现会话冲突时，是否需要等待</p></li>
 <li><p><strong>nowait_cb</strong> (<a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><em>SyncOrAsyncCallable</em></a><em>[</em><em>(</em><em>)</em><em>, </em><em>None</em><em>] </em><em>| </em><em>None</em>) -- 指定了 <cite>wait=False</cite> 后，会话冲突时执行的回调</p></li>
 <li><p><strong>keep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 会话在退出会话上下文后是否继续保持</p></li>
-<li><p><strong>auto_complete</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 当前会话挂起后，事件是否自动向更低优先级传播</p></li>
+<li><p><strong>auto_complete</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 当前会话挂起后，事件是否自动标记为“完成”状态。其他有关细节参考 <a class="reference internal" href="#melobot.session.Session.set_completed" title="melobot.session.Session.set_completed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Session.set_completed()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Yield<span class="colon">:</span></dt>
@@ -604,6 +584,27 @@
 <dd class="field-even"><p><a class="reference internal" href="#melobot.session.SessionStore" title="melobot.session.base.SessionStore"><em>SessionStore</em></a></p>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="id3">
+<h2>上下文动态变量<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.session.session">
+<span class="sig-prename descclassname"><span class="pre">melobot.session.</span></span><span class="sig-name descname"><span class="pre">session</span></span><a class="headerlink" href="#melobot.session.session" title="Link to this definition">¶</a></dt>
+<dd><p>当前上下文中的会话，类型为 <a class="reference internal" href="#melobot.session.Session" title="melobot.session.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.session.s_store">
+<span class="sig-prename descclassname"><span class="pre">melobot.session.</span></span><span class="sig-name descname"><span class="pre">s_store</span></span><a class="headerlink" href="#melobot.session.s_store" title="Link to this definition">¶</a></dt>
+<dd><p>当前上下文中的会话存储，类型为 <a class="reference internal" href="#melobot.session.SessionStore" title="melobot.session.SessionStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionStore</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.session.rule">
+<span class="sig-prename descclassname"><span class="pre">melobot.session.</span></span><span class="sig-name descname"><span class="pre">rule</span></span><a class="headerlink" href="#melobot.session.rule" title="Link to this definition">¶</a></dt>
+<dd><p>当前上下文中的规则，类型为 <a class="reference internal" href="#melobot.session.Rule" title="melobot.session.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a></p>
 </dd></dl>
 
 </section>
@@ -695,11 +696,7 @@
 <li><a class="reference internal" href="#melobot.session.CompareInfo.new_event"><code class="docutils literal notranslate"><span class="pre">CompareInfo.new_event</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#melobot.session.DefaultRule"><code class="docutils literal notranslate"><span class="pre">DefaultRule</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.session.DefaultRule.compare"><code class="docutils literal notranslate"><span class="pre">DefaultRule.compare()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.session.DefaultRule.compare_with"><code class="docutils literal notranslate"><span class="pre">DefaultRule.compare_with()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#melobot.session.DefaultRule"><code class="docutils literal notranslate"><span class="pre">DefaultRule</span></code></a></li>
 <li><a class="reference internal" href="#melobot.session.enter_session"><code class="docutils literal notranslate"><span class="pre">enter_session()</span></code></a></li>
 </ul>
 </li>
@@ -708,6 +705,12 @@
 <li><a class="reference internal" href="#melobot.session.get_session"><code class="docutils literal notranslate"><span class="pre">get_session()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.session.get_rule"><code class="docutils literal notranslate"><span class="pre">get_rule()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.session.get_session_store"><code class="docutils literal notranslate"><span class="pre">get_session_store()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">上下文动态变量</a><ul>
+<li><a class="reference internal" href="#melobot.session.session"><code class="docutils literal notranslate"><span class="pre">melobot.session.session</span></code></a></li>
+<li><a class="reference internal" href="#melobot.session.s_store"><code class="docutils literal notranslate"><span class="pre">melobot.session.s_store</span></code></a></li>
+<li><a class="reference internal" href="#melobot.session.rule"><code class="docutils literal notranslate"><span class="pre">melobot.session.rule</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -721,7 +724,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=775f3cf9"></script>
+</div><script src="../_static/documentation_options.js?v=659900e3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

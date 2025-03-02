@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.log - melobot 3.1.2</title>
+        <title>melobot.log - melobot 3.1.3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.2</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.2</span>
+  <span class="sidebar-brand-text">melobot 3.1.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -343,7 +343,7 @@
 <cite>legacy</cite> 选项为 <cite>True</cite> 时此参数无效</p></li>
 <li><p><strong>red_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 记录 <cite>LogLevel.ERROR</cite> 及以上级别时，是否将日志内容着色为红色。
 <cite>legacy</cite> 选项为 <cite>True</cite> 时此参数无效</p></li>
-<li><p><strong>two_stream</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 当使用记录到文件功能时，是否分离“常规日志”和“错误日志”到不同的文件</p></li>
+<li><p><strong>two_stream</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回类型<span class="colon">:</span></dt>
@@ -754,6 +754,15 @@
 </dd></dl>
 
 </section>
+<section id="id3">
+<h2>上下文动态变量<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.log.logger">
+<span class="sig-prename descclassname"><span class="pre">melobot.log.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#melobot.log.logger" title="Link to this definition">¶</a></dt>
+<dd><p>当前上下文中的日志器，类型为 <a class="reference internal" href="#melobot.log.GenericLogger" title="melobot.log.GenericLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericLogger</span></code></a></p>
+</dd></dl>
+
+</section>
 </section>
 
         </article>
@@ -872,6 +881,10 @@
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#id3">上下文动态变量</a><ul>
+<li><a class="reference internal" href="#melobot.log.logger"><code class="docutils literal notranslate"><span class="pre">melobot.log.logger</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -883,7 +896,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=775f3cf9"></script>
+</div><script src="../_static/documentation_options.js?v=659900e3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

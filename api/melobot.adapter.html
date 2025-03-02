@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.adapter - melobot 3.1.2</title>
+        <title>melobot.adapter - melobot 3.1.3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.2</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.2</span>
+  <span class="sidebar-brand-text">melobot 3.1.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -539,22 +539,29 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.adapter.TextEvent">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">TextEvent</span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#TextEvent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.TextEvent" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference internal" href="#melobot.adapter.Event" title="melobot.adapter.model.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a></p>
+<dd><p>基类：<a class="reference internal" href="#melobot.adapter.Event" title="melobot.adapter.model.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>, <a class="reference internal" href="melobot.typ.html#melobot.typ.BetterABC" title="melobot.typ.cls.BetterABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">BetterABC</span></code></a></p>
 <p>文本事件类</p>
 <dl class="field-list simple">
 <dt class="field-odd">变量<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 文本内容</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 文本内容</p></li>
+<li><p><strong>textlines</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>]</em>) -- 文本分行内容</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.adapter.TextEvent.text">
-<span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;melobot.typ.cls.BetterABCMeta.DummyAttribute</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#melobot.adapter.TextEvent.text" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></em><a class="headerlink" href="#melobot.adapter.TextEvent.text" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.adapter.TextEvent.textlines">
-<span class="sig-name descname"><span class="pre">textlines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;melobot.typ.cls.BetterABCMeta.DummyAttribute</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#melobot.adapter.TextEvent.textlines" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">textlines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="（在 Python v3.13）"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.adapter.TextEvent.textlines" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1039,6 +1046,33 @@
 </dd></dl>
 
 </section>
+<section id="id6">
+<h2>泛型<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.adapter.EventT">
+<span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">EventT</span></span><a class="headerlink" href="#melobot.adapter.EventT" title="Link to this definition">¶</a></dt>
+<dd><p>事件泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.adapter.ActionT">
+<span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">ActionT</span></span><a class="headerlink" href="#melobot.adapter.ActionT" title="Link to this definition">¶</a></dt>
+<dd><p>行为（动作）泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.adapter.EchoT">
+<span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">EchoT</span></span><a class="headerlink" href="#melobot.adapter.EchoT" title="Link to this definition">¶</a></dt>
+<dd><p>回应泛型</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.adapter.ActionRetT">
+<span class="sig-prename descclassname"><span class="pre">melobot.adapter.</span></span><span class="sig-name descname"><span class="pre">ActionRetT</span></span><a class="headerlink" href="#melobot.adapter.ActionRetT" title="Link to this definition">¶</a></dt>
+<dd><p>行为返回值泛型（bound 到：Echo | None）</p>
+</dd></dl>
+
+</section>
 </section>
 
         </article>
@@ -1200,6 +1234,13 @@
 <li><a class="reference internal" href="#melobot.adapter.generic.send_resource"><code class="docutils literal notranslate"><span class="pre">send_resource()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#id6">泛型</a><ul>
+<li><a class="reference internal" href="#melobot.adapter.EventT"><code class="docutils literal notranslate"><span class="pre">melobot.adapter.EventT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.ActionT"><code class="docutils literal notranslate"><span class="pre">melobot.adapter.ActionT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.EchoT"><code class="docutils literal notranslate"><span class="pre">melobot.adapter.EchoT</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.ActionRetT"><code class="docutils literal notranslate"><span class="pre">melobot.adapter.ActionRetT</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1211,7 +1252,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=775f3cf9"></script>
+</div><script src="../_static/documentation_options.js?v=659900e3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

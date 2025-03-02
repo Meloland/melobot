@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.mixin - melobot 3.1.2</title>
+        <title>melobot.mixin - melobot 3.1.3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.2</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.2</span>
+  <span class="sidebar-brand-text">melobot 3.1.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -319,6 +319,7 @@
 <dt class="sig sig-object py" id="melobot.mixin.LogMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.mixin.</span></span><span class="sig-name descname"><span class="pre">LogMixin</span></span><a class="reference internal" href="../_modules/melobot/mixin.html#LogMixin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.LogMixin" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>日志混合类</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="melobot.mixin.LogMixin.logger">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.base.GenericLogger"><span class="pre">GenericLogger</span></a></em><a class="headerlink" href="#melobot.mixin.LogMixin.logger" title="Link to this definition">¶</a></dt>
@@ -330,6 +331,7 @@
 <dt class="sig sig-object py" id="melobot.mixin.FlagMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.mixin.</span></span><span class="sig-name descname"><span class="pre">FlagMixin</span></span><a class="reference internal" href="../_modules/melobot/mixin.html#FlagMixin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.FlagMixin" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>标记混合类</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.mixin.FlagMixin.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/mixin.html#FlagMixin.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.FlagMixin.__init__" title="Link to this definition">¶</a></dt>
@@ -453,20 +455,25 @@
 <dt class="sig sig-object py" id="melobot.mixin.AttrReprMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.mixin.</span></span><span class="sig-name descname"><span class="pre">AttrReprMixin</span></span><a class="reference internal" href="../_modules/melobot/mixin.html#AttrReprMixin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.AttrReprMixin" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>属性 repr 混合类</p>
+<p>继承后自动依靠实例属性生成 repr</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.mixin.HookMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.mixin.</span></span><span class="sig-name descname"><span class="pre">HookMixin</span></span><a class="reference internal" href="../_modules/melobot/mixin.html#HookMixin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.HookMixin" title="Link to this definition">¶</a></dt>
 <dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">HookEnumT</span></code>]</p>
+<p>hook 混合类</p>
+<p>继承后可注册 hook</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.mixin.HookMixin.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><span class="pre">HookEnumT</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/melobot/mixin.html#HookMixin.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.HookMixin.__init__" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>实例化一个 hook 混合类</p>
+<dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hook_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><em>type</em></a><em>[</em><em>HookEnumT</em><em>]</em>)</p></li>
-<li><p><strong>hook_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>hook_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><em>type</em></a><em>[</em><em>HookEnumT</em><em>]</em>) -- hook 阶段的枚举类型</p></li>
+<li><p><strong>hook_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>) -- 在日志信息中显示的 tag</p></li>
 </ul>
 </dd>
 </dl>
@@ -586,7 +593,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=775f3cf9"></script>
+</div><script src="../_static/documentation_options.js?v=659900e3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

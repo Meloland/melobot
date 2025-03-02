@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>更新日志 - melobot 3.1.2</title>
+        <title>更新日志 - melobot 3.1.3</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">melobot 3.1.2</div></a>
+      <a href="index.html"><div class="brand">melobot 3.1.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.2</span>
+  <span class="sidebar-brand-text">melobot 3.1.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -319,10 +319,37 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 -->
 <section id="id1">
 <h1>更新日志<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
-<section id="v3-1-2">
-<h2>v3.1.2<a class="headerlink" href="#v3-1-2" title="Link to this heading">¶</a></h2>
+<section id="v3-1-3">
+<h2>v3.1.3<a class="headerlink" href="#v3-1-3" title="Link to this heading">¶</a></h2>
 <section id="id2">
 <h3>⏩变更<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] 内部分发过程，现在提供更清晰的调试日志 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/f3178fc">f3178fc</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/50d7449">50d7449</a>)</p></li>
+<li><p>[core] 插件管理器初始化时的 <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginInfo" title="melobot.plugin.PluginInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginInfo</span></code></a> 对象，现在不再需要 <code class="docutils literal notranslate"><span class="pre">version</span></code> 参数。插件版本由 <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 初始化的第一参数唯一确定 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/03ad408">03ad408</a>)</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>✨新增<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] 新增上下文动态变量，可以在合适的场景中 import 它们来使用，免去调用 <code class="docutils literal notranslate"><span class="pre">get_xxx()</span></code> 方法的麻烦 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/89e4e1f">89e4e1f</a>)。<strong>但注意 import 时，上下文中必须已经存在对应类型的对象</strong>。新增的变量有：<a class="reference internal" href="api/melobot.bot.html#melobot.bot.bot" title="melobot.bot.bot"><code class="xref py py-data docutils literal notranslate"><span class="pre">bot</span></code></a>, <a class="reference internal" href="api/melobot.handle.html#melobot.handle.f_records" title="melobot.handle.f_records"><code class="xref py py-data docutils literal notranslate"><span class="pre">f_records</span></code></a>, <a class="reference internal" href="api/melobot.handle.html#melobot.handle.f_store" title="melobot.handle.f_store"><code class="xref py py-data docutils literal notranslate"><span class="pre">f_store</span></code></a>, <a class="reference internal" href="api/melobot.handle.html#melobot.handle.event" title="melobot.handle.event"><code class="xref py py-data docutils literal notranslate"><span class="pre">event</span></code></a>, <a class="reference internal" href="api/melobot.session.html#melobot.session.session" title="melobot.session.session"><code class="xref py py-data docutils literal notranslate"><span class="pre">session</span></code></a>, <a class="reference internal" href="api/melobot.session.html#melobot.session.s_store" title="melobot.session.s_store"><code class="xref py py-data docutils literal notranslate"><span class="pre">s_store</span></code></a>, <a class="reference internal" href="api/melobot.session.html#melobot.session.rule" title="melobot.session.rule"><code class="xref py py-data docutils literal notranslate"><span class="pre">rule</span></code></a>, <a class="reference internal" href="api/melobot.log.html#melobot.log.logger" title="melobot.log.logger"><code class="xref py py-data docutils literal notranslate"><span class="pre">logger</span></code></a></p></li>
+<li><p>[core] 插件初始化现在可以把插件版本、插件作者等元信息，自动生成到 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 中。此外插件目录模块现在拥有 <code class="docutils literal notranslate"><span class="pre">__plugin_info__</span></code> 属性，可返回插件管理器中的 <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginInfo" title="melobot.plugin.PluginInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginInfo</span></code></a> 对象 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/03ad408">03ad408</a>)</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>👍修复<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[core] 改进了调试日志中，事件循环策略对象打印的方式。现在更加直观清晰 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e78dbcc">e78dbcc</a>)</p></li>
+<li><p>[core] 加载插件时，如果插件目录不存在，现在显示合理的错误提示信息 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/adc43b0">adc43b0</a>)</p></li>
+<li><p>[core] 修复了会话的“自动完成”功能，现在已按预期工作 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/0e23432">0e23432</a>)</p></li>
+<li><p>[core] 修复了 <a class="reference internal" href="api/melobot.utils.html#melobot.utils.singleton" title="melobot.utils.singleton"><code class="xref py py-func docutils literal notranslate"><span class="pre">singleton()</span></code></a> 函数在装饰类时，类型注解丢失的问题 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/245b14a">245b14a</a>)</p></li>
+<li><p>[OneBot] 修复了 <a class="reference internal" href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetForwardMsgEcho" title="melobot.protocols.onebot.v11.adapter.echo.GetForwardMsgEcho"><code class="xref py py-class docutils literal notranslate"><span class="pre">GetForwardMsgEcho</span></code></a> 的类型注解 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/dbf0de4">dbf0de4</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="v3-1-2">
+<h2>v3.1.2<a class="headerlink" href="#v3-1-2" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h3>⏩变更<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] 移除所有原本预计在 <code class="docutils literal notranslate"><span class="pre">3.1.1</span></code> 版本移除的组件 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/4b14ed5">4b14ed5</a>)</p></li>
 <li><p>[core] 内置日志器现在启用 <code class="docutils literal notranslate"><span class="pre">two_steam</span></code>，warning 级别的日志也将被分流到 <code class="docutils literal notranslate"><span class="pre">xxxxx.err.log</span></code> 中 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/8a2f1d7">8a2f1d7</a>)</p></li>
@@ -330,15 +357,15 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 <li><p>[OneBot] 现在 <a class="reference internal" href="ob_api/v11.io.html#melobot.protocols.onebot.v11.io.HttpIO" title="melobot.protocols.onebot.v11.io.HttpIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">HttpIO</span></code></a> 的初始化参数 <code class="docutils literal notranslate"><span class="pre">onebot_host</span></code> 和 <code class="docutils literal notranslate"><span class="pre">onebot_port</span></code> 已移除，改为使用 <code class="docutils literal notranslate"><span class="pre">onebot_url</span></code>。这有利于更自由的提供 http 服务的 url (<a class="reference external" href="https://github.com/Meloland/melobot/commit/5a2cbb6">5a2cbb6</a>)</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>👍修复<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<h3>👍修复<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[OneBot] 修复创建自定义消息段类型的方法 <a class="reference internal" href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.add_type" title="melobot.protocols.onebot.v11.adapter.segment.Segment.add_type"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_type()</span></code></a> 的类型注解问题，并更新了相关文档 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2175d1">e2175d1</a>)。无需更新任何代码。文档被更新处：<a class="reference external" href="https://docs.melobot.org/intro/msg-action.html#id3">自定义消息段的构造</a></p></li>
 <li><p>[Docs] 文档笔误修复 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/23076b8">23076b8</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/b37874e">b37874e</a>)</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>⚙️内部<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="id7">
+<h3>⚙️内部<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] 开发项目时不再使用 pylint 监测代码质量 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/1b49dfb">1b49dfb</a>)</p></li>
 </ul>
@@ -346,14 +373,14 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 </section>
 <section id="v3-1-1">
 <h2>v3.1.1<a class="headerlink" href="#v3-1-1" title="Link to this heading">¶</a></h2>
-<section id="id5">
-<h3>⏩变更<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<section id="id8">
+<h3>⏩变更<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[OneBot] 所有消息段内的 str 类型参数，现在不再进行除类型判断以外的校验。现在你必须自行验证这些字符串是否非空，以及是否符合特定格式（例如 url 格式）(<a class="reference external" href="https://github.com/Meloland/melobot/commit/f6b5a56">f6b5a56</a>)</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>👍修复<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="id9">
+<h3>👍修复<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] 异常日志过于冗杂，且输出过多敏感信息 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/0154d2e">0154d2e</a>)</p></li>
 <li><p>[OneBot] 部分消息段的初始化失败问题、<a class="reference internal" href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.to_dict" title="melobot.protocols.onebot.v11.adapter.segment.Segment.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a> 或 <a class="reference internal" href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.Segment.to_json" title="melobot.protocols.onebot.v11.adapter.segment.Segment.to_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_json()</span></code></a> 转换失败问题 (<a class="reference external" href="https://github.com/Meloland/melobot/issues/36">#36</a> -&gt; <a class="reference external" href="https://github.com/Meloland/melobot/commit/f6b5a56">f6b5a56</a>)</p></li>
@@ -362,8 +389,8 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 </section>
 <section id="v3-1-0">
 <h2>v3.1.0<a class="headerlink" href="#v3-1-0" title="Link to this heading">¶</a></h2>
-<section id="id7">
-<h3>⏩变更<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<section id="id10">
+<h3>⏩变更<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] 改进了内部事件分发机制，现在所有情况下的事件处理都不再阻塞分发。原始的处理流优先级枚举 <code class="docutils literal notranslate"><span class="pre">HandleLevel</span></code> 已移除，现在通过 int 值定义优先级，默认处理流优先级为 0 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2aaa72">e2aaa72</a>)</p></li>
 <li><p>[core] <a class="reference internal" href="api/melobot.utils.html#melobot.utils.async_later" title="melobot.utils.async_later"><code class="xref py py-func docutils literal notranslate"><span class="pre">async_later()</span></code></a> 和 <a class="reference internal" href="api/melobot.utils.html#melobot.utils.async_at" title="melobot.utils.async_at"><code class="xref py py-func docutils literal notranslate"><span class="pre">async_at()</span></code></a> 现在返回 <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code></a> 而不是 <a class="reference external" href="https://docs.python.org/3/library/asyncio-future.html#asyncio.Future" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/3b7bea2">3b7bea2</a>)</p></li>
@@ -452,8 +479,8 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
 <li><p>[OneBot] 除以上变更的 api 外，其余 onebot 协议支持部分的公开接口可以从 <code class="docutils literal notranslate"><span class="pre">melobot.protocols.onebot.v11</span></code> 直接导入 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/e2aaa72">e2aaa72</a>)</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3>✨ 新增<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<section id="id11">
+<h3>✨ 新增<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] <a class="reference internal" href="api/melobot.session.html#melobot.session.Rule" title="melobot.session.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a> 现在支持两种抽象方法 <a class="reference internal" href="api/melobot.session.html#melobot.session.Rule.compare" title="melobot.session.Rule.compare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare()</span></code></a> 与 <a class="reference internal" href="api/melobot.session.html#melobot.session.Rule.compare_with" title="melobot.session.Rule.compare_with"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare_with()</span></code></a> （提供更有用的对比信息），二选一实现即可 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/ef173c6">ef173c6</a>)</p></li>
 <li><p>[core] <a class="reference internal" href="api/melobot.session.html#melobot.session.SessionStore" title="melobot.session.SessionStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionStore</span></code></a> 现在可以使用 set 方法设置值，方便链式调用 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/36b555e">36b555e</a>)</p></li>
@@ -532,8 +559,8 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
 </pre></div>
 </div>
 </section>
-<section id="id9">
-<h3>👍修复<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<section id="id12">
+<h3>👍修复<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] 通过依赖注入获取适配器时，返回值可能为空的错误 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/1c7d170">1c7d170</a>)</p></li>
 <li><p>[core] 更改部分内置数据结构为集合，避免重复添加元素导致未定义行为 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/7ec9709">7ec9709</a>)</p></li>
@@ -546,8 +573,8 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
 </section>
 <section id="v3-0-0">
 <h2>v3.0.0<a class="headerlink" href="#v3-0-0" title="Link to this heading">¶</a></h2>
-<section id="id10">
-<h3>⚠️特别：<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<section id="id13">
+<h3>⚠️特别：<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><strong>melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 bot 开发框架，与 v2 完全不兼容。</strong></p></li>
 <li><p>v3 文档教程：<a class="reference external" href="https://docs.melobot.org">melobot docs</a></p></li>
@@ -592,16 +619,16 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
 </div>
 <p>对比上一预发布版本 <code class="docutils literal notranslate"><span class="pre">3.0.0rc21</span></code>，主要有：</p>
 </section>
-<section id="id11">
-<h3>⏩变更<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<section id="id14">
+<h3>⏩变更<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] 移除计划移除的 api 和组件（移除了方法 <code class="docutils literal notranslate"><span class="pre">Args</span></code>, <code class="docutils literal notranslate"><span class="pre">Context.in_ctx</span></code> 与传统插件类 <code class="docutils literal notranslate"><span class="pre">Plugin</span></code>）(<a class="reference external" href="https://github.com/Meloland/melobot/commit/ec518f5">ec518f5</a>)</p></li>
 <li><p>[core] 改进了 io 层的 packet 限制，现在所有 packet 不再是 <code class="docutils literal notranslate"><span class="pre">frozen</span></code> 的 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/88eeb85">88eeb85</a>)</p></li>
 <li><p>[core] 改进了 adapter 层的组件，现在钩子 <code class="docutils literal notranslate"><span class="pre">BEFORE_EVENT</span></code> 重命名为 <code class="docutils literal notranslate"><span class="pre">BEFORE_EVENT_CREATE</span></code>，钩子 <code class="docutils literal notranslate"><span class="pre">BEFORE_ACTION</span></code> 重命名为 <code class="docutils literal notranslate"><span class="pre">BEFORE_ACTION_EXEC</span></code> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/d50d3a3">d50d3a3</a>)</p></li>
 </ul>
 </section>
-<section id="id12">
-<h3>✨ 新增<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
+<section id="id15">
+<h3>✨ 新增<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[core] 内置日志器添加 <code class="docutils literal notranslate"><span class="pre">yellow_warn</span></code> 参数，可在智能着色模式下强制警告消息为醒目的黄色 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/0dae81d">0dae81d</a>)</p></li>
 <li><p>[core] 现在使用 <a class="reference internal" href="api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 声明插件及各种插件功能 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/4508081">4508081</a>)</p></li>
@@ -609,8 +636,8 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
 <li><p>[OneBot] 添加了用于处理 OneBot v11 实体（事件、动作与回应）数据模型验证异常的 OneBot v11 适配器接口 <code class="xref py py-meth docutils literal notranslate"><span class="pre">when_validate_error()</span></code> (<a class="reference external" href="https://github.com/Meloland/melobot/commit/4bddb6a">4bddb6a</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/0589f3a">0589f3a</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/a4d35b3">a4d35b3</a>)</p></li>
 </ul>
 </section>
-<section id="id13">
-<h3>👍修复<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h3>
+<section id="id16">
+<h3>👍修复<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>[OneBot] 自定义消息段类型创建和解析 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/3026543">3026543</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/51f7cbe">51f7cbe</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/f006ee0">f006ee0</a>, <a class="reference external" href="https://github.com/Meloland/melobot/commit/819489f">819489f</a>)</p></li>
 <li><p>[OneBot] 正向 websocket IO 源忽略 bot 停止信号 (<a class="reference external" href="https://github.com/Meloland/melobot/commit/da0e3df">da0e3df</a>)</p></li>
@@ -618,8 +645,8 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
 <li><p>[All] 文档与内置异常提示更正</p></li>
 </ul>
 </section>
-<section id="id14">
-<h3>♥️新贡献者<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h3>
+<section id="id17">
+<h3>♥️新贡献者<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/Asankilp">&#64;Asankilp</a> 首次提交 <a class="reference external" href="https://github.com/Meloland/melobot/pull/14">#14</a></p></li>
 <li><p><a class="reference external" href="https://github.com/NingmengLemon">&#64;NingmengLemon</a> 首次提交 <a class="reference external" href="https://github.com/Meloland/melobot/pull/15">#15</a></p></li>
@@ -691,29 +718,35 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">更新日志</a><ul>
-<li><a class="reference internal" href="#v3-1-2">v3.1.2</a><ul>
+<li><a class="reference internal" href="#v3-1-3">v3.1.3</a><ul>
 <li><a class="reference internal" href="#id2">⏩变更</a></li>
-<li><a class="reference internal" href="#id3">👍修复</a></li>
-<li><a class="reference internal" href="#id4">⚙️内部</a></li>
+<li><a class="reference internal" href="#id3">✨新增</a></li>
+<li><a class="reference internal" href="#id4">👍修复</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#v3-1-2">v3.1.2</a><ul>
+<li><a class="reference internal" href="#id5">⏩变更</a></li>
+<li><a class="reference internal" href="#id6">👍修复</a></li>
+<li><a class="reference internal" href="#id7">⚙️内部</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#v3-1-1">v3.1.1</a><ul>
-<li><a class="reference internal" href="#id5">⏩变更</a></li>
-<li><a class="reference internal" href="#id6">👍修复</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#v3-1-0">v3.1.0</a><ul>
-<li><a class="reference internal" href="#id7">⏩变更</a></li>
-<li><a class="reference internal" href="#id8">✨ 新增</a></li>
+<li><a class="reference internal" href="#id8">⏩变更</a></li>
 <li><a class="reference internal" href="#id9">👍修复</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#v3-1-0">v3.1.0</a><ul>
+<li><a class="reference internal" href="#id10">⏩变更</a></li>
+<li><a class="reference internal" href="#id11">✨ 新增</a></li>
+<li><a class="reference internal" href="#id12">👍修复</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#v3-0-0">v3.0.0</a><ul>
-<li><a class="reference internal" href="#id10">⚠️特别：</a></li>
-<li><a class="reference internal" href="#id11">⏩变更</a></li>
-<li><a class="reference internal" href="#id12">✨ 新增</a></li>
-<li><a class="reference internal" href="#id13">👍修复</a></li>
-<li><a class="reference internal" href="#id14">♥️新贡献者</a></li>
+<li><a class="reference internal" href="#id13">⚠️特别：</a></li>
+<li><a class="reference internal" href="#id14">⏩变更</a></li>
+<li><a class="reference internal" href="#id15">✨ 新增</a></li>
+<li><a class="reference internal" href="#id16">👍修复</a></li>
+<li><a class="reference internal" href="#id17">♥️新贡献者</a></li>
 </ul>
 </li>
 </ul>
@@ -727,7 +760,7 @@ onebot.v11.handle.GetParseArgs<span class="w">     </span>-&gt;<span class="w"> 
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=775f3cf9"></script>
+</div><script src="_static/documentation_options.js?v=659900e3"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

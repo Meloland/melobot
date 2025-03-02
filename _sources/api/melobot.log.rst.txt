@@ -34,3 +34,10 @@ melobot.log
 
 .. autoclass:: melobot.log.StructlogPatch
     :members:
+
+上下文动态变量
+----------------
+
+.. data:: melobot.log.logger
+
+    当前上下文中的日志器，类型为 :class:`~melobot.log.GenericLogger`

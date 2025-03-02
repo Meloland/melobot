@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.handle.register - melobot 3.1.2</title>
+        <title>melobot.handle.register - melobot 3.1.3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.2</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.1.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.2</span>
+  <span class="sidebar-brand-text">melobot 3.1.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -345,6 +345,17 @@
         <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;处理流装饰器</span>
+
+<span class="sd">        :param checker: 检查器</span>
+<span class="sd">        :param matcher: 匹配器</span>
+<span class="sd">        :param parser: 解析器</span>
+<span class="sd">        :param priority: 优先级</span>
+<span class="sd">        :param block: 是否阻断向低优先级传播</span>
+<span class="sd">        :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">        :param decos: 装饰器组</span>
+<span class="sd">        :param rule: 会话规则</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">checker</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">checker</span> <span class="o">=</span> <span class="n">Checker</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">checker</span><span class="p">)</span>
@@ -434,6 +445,11 @@
 <div class="viewcode-block" id="FlowDecorator.__call__">
 <a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.FlowDecorator.__call__">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;实现了此方法，因此可被当作装饰器使用</span>
+
+<span class="sd">        :param func: 被装饰的函数</span>
+<span class="sd">        :return: 处理流对象</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">func</span> <span class="o">=</span> <span class="n">inject_deps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">decos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">deco</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decos</span><span class="p">):</span>
@@ -459,6 +475,20 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定任意事件的处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param matcher: 匹配器</span>
+<span class="sd">    :param parser: 解析器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param rule: 会话规则</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">FlowDecorator</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">matcher</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">decos</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span></div>
 
 
@@ -475,6 +505,20 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">legacy_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定文本事件的处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param matcher: 匹配器</span>
+<span class="sd">    :param parser: 解析器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param legacy_session: 是否自动启用传统会话</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">legacy_session</span><span class="p">:</span>
         <span class="n">rule</span> <span class="o">=</span> <span class="n">DefaultRule</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -508,6 +552,23 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">legacy_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定文本事件的“命令解析”处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param cmd_start: 命令起始符</span>
+<span class="sd">    :param cmd_sep: 命令分隔符</span>
+<span class="sd">    :param targets: 解析匹配的命令名</span>
+<span class="sd">    :param fmtters: 命令参数格式化器</span>
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param matcher: 匹配器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param legacy_session: 是否自动启用传统会话</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">on_text</span><span class="p">(</span>
         <span class="n">checker</span><span class="p">,</span>
         <span class="n">matcher</span><span class="p">,</span>
@@ -534,6 +595,21 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">legacy_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定文本事件的“字符串起始匹配”处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param target: 匹配的目标字符串</span>
+<span class="sd">    :param logic_mode: 匹配的逻辑模式</span>
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param parser: 解析器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param legacy_session: 是否自动启用传统会话</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">on_text</span><span class="p">(</span>
         <span class="n">checker</span><span class="p">,</span>
         <span class="n">StartMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
@@ -560,6 +636,21 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">legacy_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定文本事件的“字符串包含匹配”处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param target: 匹配的目标字符串</span>
+<span class="sd">    :param logic_mode: 匹配的逻辑模式</span>
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param parser: 解析器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param legacy_session: 是否自动启用传统会话</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">on_text</span><span class="p">(</span>
         <span class="n">checker</span><span class="p">,</span>
         <span class="n">ContainMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
@@ -586,6 +677,21 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">legacy_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定文本事件的“字符串完整匹配”处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param target: 匹配的目标字符串</span>
+<span class="sd">    :param logic_mode: 匹配的逻辑模式</span>
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param parser: 解析器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param legacy_session: 是否自动启用传统会话</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">on_text</span><span class="p">(</span>
         <span class="n">checker</span><span class="p">,</span>
         <span class="n">FullMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
@@ -612,6 +718,21 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">legacy_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定文本事件的“字符串末尾匹配”处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param target: 匹配的目标字符串</span>
+<span class="sd">    :param logic_mode: 匹配的逻辑模式</span>
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param parser: 解析器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param legacy_session: 是否自动启用传统会话</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">on_text</span><span class="p">(</span>
         <span class="n">checker</span><span class="p">,</span>
         <span class="n">EndMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
@@ -638,6 +759,21 @@
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">legacy_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;绑定文本事件的“正则匹配”处理流装饰方法</span>
+
+<span class="sd">    在前期的教程中，处理流装饰方法也称为绑定方法</span>
+
+<span class="sd">    :param target: 匹配的目标字符串</span>
+<span class="sd">    :param logic_mode: 匹配的逻辑模式</span>
+<span class="sd">    :param checker: 检查器</span>
+<span class="sd">    :param parser: 解析器</span>
+<span class="sd">    :param priority: 优先级</span>
+<span class="sd">    :param block: 是否阻断向低优先级传播</span>
+<span class="sd">    :param temp: 是否临时使用（处理一次事件后停用）</span>
+<span class="sd">    :param decos: 装饰器组</span>
+<span class="sd">    :param legacy_session: 是否自动启用传统会话</span>
+<span class="sd">    :return: 处理流装饰器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">on_text</span><span class="p">(</span>
         <span class="n">checker</span><span class="p">,</span>
         <span class="n">RegexMatcher</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logic_mode</span><span class="p">),</span>
@@ -688,7 +824,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=775f3cf9"></script>
+</div><script src="../../../_static/documentation_options.js?v=659900e3"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

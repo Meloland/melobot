@@ -5,6 +5,32 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.1.3
+
+### ⏩变更
+
+- [core] 内部分发过程，现在提供更清晰的调试日志 ([f3178fc](https://github.com/Meloland/melobot/commit/f3178fc), [50d7449](https://github.com/Meloland/melobot/commit/50d7449))
+
+- [core] 插件管理器初始化时的 {class}`.PluginInfo` 对象，现在不再需要 `version` 参数。插件版本由 {class}`.PluginPlanner` 初始化的第一参数唯一确定 ([03ad408](https://github.com/Meloland/melobot/commit/03ad408))
+
+### ✨新增
+
+- [core] 新增上下文动态变量，可以在合适的场景中 import 它们来使用，免去调用 `get_xxx()` 方法的麻烦 ([89e4e1f](https://github.com/Meloland/melobot/commit/89e4e1f))。**但注意 import 时，上下文中必须已经存在对应类型的对象**。新增的变量有：{data}`~melobot.bot.bot`, {data}`~melobot.handle.f_records`, {data}`~melobot.handle.f_store`, {data}`~melobot.handle.event`, {data}`~melobot.session.session`, {data}`~melobot.session.s_store`, {data}`~melobot.session.rule`, {data}`~melobot.log.logger`
+
+- [core] 插件初始化现在可以把插件版本、插件作者等元信息，自动生成到 `__init__.py` 中。此外插件目录模块现在拥有 `__plugin_info__` 属性，可返回插件管理器中的 {class}`.PluginInfo` 对象 ([03ad408](https://github.com/Meloland/melobot/commit/03ad408))
+
+### 👍修复
+
+- [core] 改进了调试日志中，事件循环策略对象打印的方式。现在更加直观清晰 ([e78dbcc](https://github.com/Meloland/melobot/commit/e78dbcc))
+
+- [core] 加载插件时，如果插件目录不存在，现在显示合理的错误提示信息 ([adc43b0](https://github.com/Meloland/melobot/commit/adc43b0))
+
+- [core] 修复了会话的“自动完成”功能，现在已按预期工作 ([0e23432](https://github.com/Meloland/melobot/commit/0e23432))
+
+- [core] 修复了 {func}`.singleton` 函数在装饰类时，类型注解丢失的问题 ([245b14a](https://github.com/Meloland/melobot/commit/245b14a))
+
+- [OneBot] 修复了 {class}`~.v11.adapter.echo.GetForwardMsgEcho` 的类型注解 ([dbf0de4](https://github.com/Meloland/melobot/commit/dbf0de4))
+
 ## v3.1.2
 
 ### ⏩变更
