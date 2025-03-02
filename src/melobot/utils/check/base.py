@@ -51,6 +51,11 @@ class Checker(Generic[EventT], BetterABC):
 
     @staticmethod
     def new(func: Callable[[EventT], bool]) -> Checker[EventT]:
+        """从可调用对象创建检查器
+
+        :param func: 可调用对象
+        :return: 检查器对象
+        """
         return _CustomChecker[EventT](func)
 
 

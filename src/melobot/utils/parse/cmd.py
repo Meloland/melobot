@@ -27,6 +27,8 @@ class ArgLackError(FormatError): ...
 
 @dataclass
 class CmdArgs(AbstractParseArgs):
+    """命令参数对象"""
+
     name: str
     tag: str | None
     vals: list[Any]

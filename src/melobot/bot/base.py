@@ -404,10 +404,10 @@ class Bot(HookMixin[BotLifeSpan]):
 
         .. code:: shell
 
-            python3 -m melobot run [*.py]
+            python3 -m melobot run xxx.py
         """
         if CLI_RUNTIME not in os.environ:
-            raise BotError("启用重启功能，需要用以下命令运行 bot：python -m melobot run [*.py]")
+            raise BotError("启用重启功能，需要用以下命令运行 bot：python -m melobot run xxx.py")
 
         await self.close()
         sys.exit(BotExitSignal.RESTART.value)

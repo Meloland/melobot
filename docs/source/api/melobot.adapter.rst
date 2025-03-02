@@ -106,3 +106,22 @@ melobot.adapter
 .. autofunction:: melobot.adapter.generic.send_refer
 
 .. autofunction:: melobot.adapter.generic.send_resource
+
+泛型
+------
+
+.. data:: melobot.adapter.EventT
+
+    事件泛型
+
+.. data:: melobot.adapter.ActionT
+
+    行为（动作）泛型
+
+.. data:: melobot.adapter.EchoT
+
+    回应泛型
+
+.. data:: melobot.adapter.ActionRetT
+
+    行为返回值泛型（bound 到：Echo | None）

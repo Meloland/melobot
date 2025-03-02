@@ -73,7 +73,7 @@ class VersionInfo(NamedTuple):
     `minor` 更新，可能历经：
         - `alpha` -> `beta` -> `pre-release` -> `final` （极少）
         - `pre-release` -> `final` （较多）
-        - `final` （少）
+        - `final` （较多）
 
     `major` 更新，一定历经：
         - `alpha` -> `beta` -> `pre-release` -> `final`

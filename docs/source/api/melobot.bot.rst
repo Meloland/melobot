@@ -13,3 +13,11 @@ bot 层组件
     :members:
 
 .. autofunction:: melobot.bot.get_bot
+
+
+上下文动态变量
+----------------
+
+.. data:: melobot.bot.bot
+
+    当前上下文中的 bot 实例，类型为 :class:`~melobot.bot.Bot`

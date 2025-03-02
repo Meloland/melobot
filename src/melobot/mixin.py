@@ -11,12 +11,16 @@ from .utils.base import to_async
 
 
 class LogMixin:
+    """日志混合类"""
+
     @property
     def logger(self) -> GenericLogger:
         return LoggerCtx().get()
 
 
 class FlagMixin:
+    """标记混合类"""
+
     def __init__(self) -> None:
         self.__flag_mixin_flags__: dict[Any, dict[Any, Any]] = {}
         self.__flag_mixin_waitings__: dict[
@@ -166,6 +170,11 @@ class FlagMixin:
 
 
 class AttrReprMixin:
+    """属性 repr 混合类
+
+    继承后自动依靠实例属性生成 repr
+    """
+
     def __repr__(self) -> str:
         attrs = ", ".join(
             f"{k}={repr(v)}" for k, v in self.__dict__.items() if not k.startswith("_")
@@ -212,7 +221,17 @@ class LocateMixin:
 
 
 class HookMixin(Generic[HookEnumT]):
+    """hook 混合类
+
+    继承后可注册 hook
+    """
+
     def __init__(self, hook_type: type[HookEnumT], hook_tag: str | None = None):
+        """实例化一个 hook 混合类
+
+        :param hook_type: hook 阶段的枚举类型
+        :param hook_tag: 在日志信息中显示的 tag
+        """
         super().__init__()
         self._hook_bus = HookBus[HookEnumT](hook_type, hook_tag)
         self.__repeatable_hook_types__: set[HookEnumT] = set()

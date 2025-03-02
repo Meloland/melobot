@@ -72,14 +72,19 @@ melobot.utils
 -------------
 
 .. autoclass:: melobot.utils.match.StartMatcher
+    :exclude-members: match
 
 .. autoclass:: melobot.utils.match.ContainMatcher
+    :exclude-members: match
 
 .. autoclass:: melobot.utils.match.EndMatcher
+    :exclude-members: match
 
 .. autoclass:: melobot.utils.match.FullMatcher
+    :exclude-members: match
 
 .. autoclass:: melobot.utils.match.RegexMatcher
+    :exclude-members: match
 
 .. _melobot_parse:
 
@@ -96,7 +101,7 @@ melobot.utils
 -------------
 
 .. autoclass:: melobot.utils.parse.CmdParser
-    :exclude-members: format
+    :exclude-members: format, parse
 
 .. autoclass:: melobot.utils.parse.CmdArgs
     :exclude-members: __init__, vals

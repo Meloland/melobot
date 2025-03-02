@@ -81,3 +81,18 @@ melobot.handle
 .. autofunction:: melobot.handle.get_event
 
 .. autofunction:: melobot.handle.try_get_event
+
+上下文动态变量
+----------------
+
+.. data:: melobot.handle.f_records
+
+    当前上下文中的流记录，类型为 :external:class:`tuple`\[:class:`~melobot.handle.FlowRecord`, ...\]
+
+.. data:: melobot.handle.f_store
+
+    当前上下文中的流存储，类型为 :class:`~melobot.handle.FlowStore`
+
+.. data:: melobot.handle.event
+
+    当前上下文中的事件，类型为 :class:`~melobot.adapter.Event`
