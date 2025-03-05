@@ -226,7 +226,7 @@ class StartEndMatch(Matcher):
     async def match(text: str) -> bool:
         return text.startswith(self.start) or text.endswith(self.end)
 
-@on_message(checker=StartEndMatch())
+@on_message(matcher=StartEndMatch())
 async def _():
     ...
 ```
