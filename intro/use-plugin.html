@@ -3,8 +3,8 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="OneBot 事件预处理" href="event-preprocess.html" /><link rel="prev" title="OneBot 消息操作" href="msg-action.html" />
-        <link rel="canonical" href="/melobot/intro/action-echo.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="交互式处理与会话的使用" href="use-session.html" /><link rel="prev" title="OneBot 事件预处理" href="event-preprocess.html" />
+        <link rel="canonical" href="/melobot/intro/use-plugin.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OneBot 行为操作 - melobot 3.1.3</title>
+        <title>插件系统的使用 - melobot 3.1.3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -218,9 +218,9 @@
 <li class="toctree-l2"><a class="reference internal" href="create-bot.html">开始创建机器人</a></li>
 <li class="toctree-l2"><a class="reference internal" href="event-process.html">OneBot 事件处理</a></li>
 <li class="toctree-l2"><a class="reference internal" href="msg-action.html">OneBot 消息操作</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">OneBot 行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action-echo.html">OneBot 行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="event-preprocess.html">OneBot 事件预处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="use-plugin.html">插件系统的使用</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">插件系统的使用</a></li>
 <li class="toctree-l2"><a class="reference internal" href="use-session.html">交互式处理与会话的使用</a></li>
 </ul>
 </li>
@@ -291,12 +291,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/intro/action-echo.md.txt" title="View this page">
+  <a class="muted-link" href="../_sources/intro/use-plugin.md.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/intro/action-echo.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/intro/use-plugin.md" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -315,118 +315,118 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="onebot">
-<h1>OneBot 行为操作<a class="headerlink" href="#onebot" title="Link to this heading">¶</a></h1>
-<div class="note admonition">
-<p class="admonition-title">相关知识</p>
-<p>如果你不知道什么是“行为”和“行为操作”，建议先浏览：<a class="reference internal" href="../ob_refer/event-action.html"><span class="doc std std-doc">行为的相关知识</span></a></p>
-</div>
-<p>其他行为操作，和 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.send" title="melobot.protocols.onebot.v11.Adapter.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> 类似，都由对应的行为操作方法产生。关于这些方法和它们的参数，参考 <a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-adapter"><span class="std std-ref">OneBot v11 适配器的 API</span></a></p>
-<p>它们的用法，与上一篇文章中的消息行为方法基本一致。可在事件处理方法中直接调用。</p>
-<section id="id1">
-<h2>行为句柄<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>当直接使用 OneBot 的行为方法时，默认是尽快完成的。即不等待也不关心 OneBot 实现端是否成功完成了行为：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 发送消息而不等待，也不关心是否成功</span>
-<span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-
-<span class="c1"># 因此在某些情况下，以下的一系列行为操作可能是无序的：</span>
-<span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我想要这条消息先被看到&quot;</span><span class="p">)</span>
-<span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;但是这条可能才是先被发出去的&quot;</span><span class="p">)</span>
-<span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;也可能是这条&quot;</span><span class="p">)</span>
-
-<span class="c1"># 而且有些行为需要响应数据</span>
-<span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">get_group_list</span><span class="p">()</span>
-<span class="c1"># 如何等待返回的数据呢？</span>
-</pre></div>
-</div>
-<p>此时就需要行为句柄了：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 with_echo 装饰原行为方法</span>
-<span class="n">waited_send</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">with_echo</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">)</span>
-<span class="c1"># 获得一个元组，其中每个元素就是行为句柄</span>
-<span class="c1"># 因为 melobot 支持多个输出源，因此会有多个句柄</span>
-<span class="n">handles</span> <span class="o">=</span> <span class="k">await</span> <span class="n">waited_send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-
-<span class="c1"># 如果像教程开始那样，只使用 add_io 添加了一个输入输出源</span>
-<span class="c1"># 那么就是一个输入，一个输出源。因此取第一个元素即可</span>
-<span class="n">hs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">waited_send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">handle</span> <span class="o">=</span> <span class="n">hs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="c1"># 等待句柄，即是等待被 OneBot 实现端通知行为已完成</span>
-<span class="c1"># 等待并获取返回值，即是这个行为的响应结果，这在 melobot 中一般称作回应对象</span>
-<span class="n">echo</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handle</span>
-<span class="c1"># 访问需要的响应数据（data 字段与 OneBot 中的数据结构一致）</span>
-<span class="c1"># 依然建议使用下标访问，因为会有精确的类型注解</span>
-<span class="n">msg_id</span> <span class="o">=</span> <span class="n">echo</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;message_id&#39;</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>关于回应对象，更多请参考 API 文档中的内容：<a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-echo"><span class="std std-ref">OneBot v11 回应</span></a></p>
-<p>当然，有时候你可能有大量的行为操作需要等待，那这时可以使用更方便的上下文管理器：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
-
-<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">EchoRequireCtx</span><span class="p">()</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
-        <span class="c1"># 全部都会等待</span>
-        <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定先被看到&quot;</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定是第二条消息&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>一整个事件处理函数都需要等待时，可以使用 <a class="reference internal" href="../api/melobot.utils.html#melobot.utils.unfold_ctx" title="melobot.utils.unfold_ctx"><code class="xref py py-func docutils literal notranslate"><span class="pre">unfold_ctx()</span></code></a> 装饰器：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">unfold_ctx</span>
-
-<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="nd">@unfold_ctx</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">EchoRequireCtx</span><span class="p">()</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
-<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
-    <span class="c1"># 全部都会等待</span>
-    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定先被看到&quot;</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定是第二条消息&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>注意：melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.generic.send_text" title="melobot.adapter.generic.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a>），都会返回行为句柄。</p>
-<p>但这里提及的 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.with_echo" title="melobot.protocols.onebot.v11.Adapter.with_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_echo()</span></code></a> 以及 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.EchoRequireCtx" title="melobot.protocols.onebot.v11.EchoRequireCtx"><code class="xref py py-class docutils literal notranslate"><span class="pre">EchoRequireCtx</span></code></a> 等操作，只对 OneBot 协议特有行为操作有效。</p>
-<p><strong>其他协议的行为句柄，是否需要类似的操作，取决于它们的实现。但不变的是：使用行为句柄，可以获知行为的执行情况。</strong></p>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<p><strong>不建议频繁等待行为操作</strong>。等待总是需要更多时间，大量使用会降低运行效率。</p>
-<p>建议只在<strong>行为操作必须有序</strong>，或<strong>需要返回数据</strong>时才去等待。</p>
-</div>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<p>句柄的本质是将操作和等待解耦。由此你可以发散自己的思维来使用它：</p>
-<p>例如安排一批操作，后续再集中等待，实现并发操作。</p>
-</div>
-</section>
+          <section id="id1">
+<h1>插件系统的使用<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <section id="id2">
-<h2>自定义行为<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>和自定义消息段类似，有时候我们总是会需要自定义的 OneBot 行为类型的。一般这样构造：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Action</span>
+<h2>匿名插件<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>在之前的例子中，我们通过实例化 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 创建了一个插件管理器，并向其中添加“处理流”（我们的函数经过绑定方法装饰后将会生成“处理流对象”）。随后又使用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 将插件加载在 bot 中：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
 
-<span class="c1"># 临时构造一个自定义行为</span>
-<span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;action_type&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123456</span><span class="p">})</span>
+<span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;Hello, melobot!&quot;</span><span class="p">)</span>
 
-<span class="c1"># 继承并构造一个新的 Action 类</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">MyAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param1</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;action_type&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="mi">123456</span><span class="p">})</span>
+<span class="c1"># echo_hi 这个事件处理函数，经过 on_xxx 方法装饰，实际上变为一个“处理流”对象</span>
+<span class="n">test_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">flows</span><span class="o">=</span><span class="p">[</span><span class="n">echo_hi</span><span class="p">])</span>
 
-<span class="n">action</span> <span class="o">=</span> <span class="n">MyAction</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span>
-
-<span class="c1"># 通过 adapter 的通用 action 输出方法输出</span>
-<span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-
-<span class="c1"># 需要等待时，这样设置：</span>
-<span class="n">action</span><span class="o">.</span><span class="n">set_echo</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">handles</span> <span class="o">=</span> <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># 此处省略创建 bot 等代码</span>
+    <span class="o">...</span>
+    <span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">test_plugin</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>实际上，适配器所有行为操作，都是先在内部构建 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.Action" title="melobot.adapter.model.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> 对象，再通过 <code class="xref py py-meth docutils literal notranslate"><span class="pre">call_output()</span></code> 输出。</p>
-<p>而所有 OneBot v11 的行为对象，也可以在文档 <a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-action"><span class="std std-ref">OneBot v11 行为类型</span></a> 中找到。你完全可以手动构造，再使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.call_output" title="melobot.protocols.onebot.v11.Adapter.call_output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">call_output()</span></code></a> 输出，这适用于更精细的控制需求。</p>
+<p>这实际上是创建了“匿名插件”并加载。一般用作临时性调试用途。在复杂的实际项目中，可能有很多功能要分别写到不同的插件中，方便管理和维护。此时再这样创建插件就不再合适。</p>
+<p>下面我们将介绍如何通过模块为载体，来声明和加载插件。</p>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>关于“处理流”的更多内容，未来的教程我们将会详细说明。</p>
+</div>
 </section>
 <section id="id3">
-<h2>总结<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>本篇主要说明了行为操作函数的用法，及行为操作的流程控制。</p>
-<p>下一篇将重点说明：事件预处理。</p>
+<h2>模块级插件的声明<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>在任意目录中，创建子目录作为“插件目录”，例如下面例子中的 <code class="docutils literal notranslate"><span class="pre">test_plugin</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./
+└──<span class="w"> </span>test_plugin
+</pre></div>
+</div>
+<p>插件目录的名称，将被 melobot 识别为插件的名称，同时也是加载时的唯一 id。因此请不要为一个 bot 加载两个同目录名的插件，这将会导致<strong>加载错误</strong>异常。</p>
+<p>随后，插件管理器对象，需要存在于该目录中的 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 文件（一般称为插件入口文件）中：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./
+└──<span class="w"> </span>test_plugin
+<span class="w">    </span>└──<span class="w"> </span>__plugin__.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># __plugin__.py 内：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
+
+<span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="c1"># 变量命名为任意名称都可以，这并不影响加载过程</span>
+<span class="c1"># 但我们建议使用常量命名规范，并为：&quot;XXX_PLUGIN&quot; 或 &quot;PLUGIN&quot;</span>
+<span class="n">ECHO_PLUGIN</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">flows</span><span class="o">=</span><span class="p">[</span><span class="n">echo_hi</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>除了 <strong>插件目录中必须存在 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code></strong>，<strong>插件管理器对象必须存在于 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 中</strong> 这两条规则，其余的组件可以自由地划分到插件目录的其他模块中，甚至任意深度子目录中的子模块也没有问题。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./
+├──<span class="w"> </span>flow2.py
+├──<span class="w"> </span>more_flows
+│<span class="w">   </span>└──<span class="w"> </span>flow3.py
+└──<span class="w"> </span>__plugin__.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># __plugin__.py 内：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.flow2</span><span class="w"> </span><span class="kn">import</span> <span class="n">another_echo_hi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.more_flows.flow3</span><span class="w"> </span><span class="kn">import</span> <span class="n">third_echo_hi</span>
+
+<span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="n">ECHO_PLUGIN</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+    <span class="c1"># 如果需要，就加到插件管理器中；不需要就甚至不用导入咯~</span>
+    <span class="n">flows</span><span class="o">=</span><span class="p">[</span><span class="n">echo_hi</span><span class="p">,</span> <span class="n">another_echo_hi</span><span class="p">,</span> <span class="n">third_echo_hi</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>在某些情况下，先通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 创建插件管理器对象，再使用会较为方便。</p>
+<p>但问题是，如果先创建插件管理器，此时处理流显然尚未就位。因此我们提供了 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 装饰器用于解决此问题：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># __plugin__.py 内：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
+
+<span class="n">ECHO_PLUGIN</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">)</span>
+
+<span class="nd">@ECHO_PLUGIN</span><span class="o">.</span><span class="n">use</span>
+<span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.sayhi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_hi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>一般情况下，<strong>请勿在插件目录内手动创建 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 文件</strong>。</p>
+<p>在之后的教程中会详细说明为什么不要这样做，以及与此相关的<strong>插件加载机制</strong>与<strong>插件高级用法</strong>。</p>
+</div>
+</section>
+<section id="id4">
+<h2>模块级插件的加载<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>在目前阶段，只需要学会通过插件目录的路径加载插件，就可以了：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 在创建 bot 后使用，提供插件目录的相对或绝对路径：</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;test_plugin&quot;</span><span class="p">)</span>
+<span class="c1"># 或</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;./test_plugin&quot;</span><span class="p">)</span>
+<span class="c1"># 或</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;/home/test_user/my_bot/test_plugin&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>总结<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p>本篇主要说明了插件系统的简单使用方法。</p>
+<p>下一篇将重点说明：简单的交互式事件处理与会话。</p>
 </section>
 </section>
 
@@ -435,23 +435,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="event-preprocess.html">
+          <a class="next-page" href="use-session.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">OneBot 事件预处理</div>
+                <div class="title">交互式处理与会话的使用</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="msg-action.html">
+          <a class="prev-page" href="event-preprocess.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">OneBot 消息操作</div>
+                <div class="title">OneBot 事件预处理</div>
                 
               </div>
             </a>
@@ -492,10 +492,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">OneBot 行为操作</a><ul>
-<li><a class="reference internal" href="#id1">行为句柄</a></li>
-<li><a class="reference internal" href="#id2">自定义行为</a></li>
-<li><a class="reference internal" href="#id3">总结</a></li>
+<li><a class="reference internal" href="#">插件系统的使用</a><ul>
+<li><a class="reference internal" href="#id2">匿名插件</a></li>
+<li><a class="reference internal" href="#id3">模块级插件的声明</a></li>
+<li><a class="reference internal" href="#id4">模块级插件的加载</a></li>
+<li><a class="reference internal" href="#id5">总结</a></li>
 </ul>
 </li>
 </ul>

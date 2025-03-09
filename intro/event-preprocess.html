@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="OneBot 相关" href="../ob_refer/index.html" /><link rel="prev" title="OneBot 行为操作" href="action-echo.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="插件系统的使用" href="use-plugin.html" /><link rel="prev" title="OneBot 行为操作" href="action-echo.html" />
         <link rel="canonical" href="/melobot/intro/event-preprocess.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
@@ -220,6 +220,8 @@
 <li class="toctree-l2"><a class="reference internal" href="msg-action.html">OneBot 消息操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="action-echo.html">OneBot 行为操作</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="use-plugin.html">插件系统的使用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="use-session.html">交互式处理与会话的使用</a></li>
 </ul>
 </li>
 </ul>
@@ -782,6 +784,7 @@
 <p>对于文本事件的绑定方法，检查、匹配和解析可以同时指定。顺序是：先检查，再匹配，最后解析。而其他事件绑定方法，只能指定检查。</p>
 <p>再次提醒，所有内置预处理机制，<strong>均不是异步安全的</strong>。若需要异步安全，请实现自定义类。</p>
 <p>同时，读者也无需拘泥于文档所给的示例。充分利用 OOP 的编程思路，可以创造出更多有趣的玩法。</p>
+<p>下一篇将重点说明：插件系统的初步使用。</p>
 </section>
 </section>
 
@@ -790,12 +793,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../ob_refer/index.html">
+          <a class="next-page" href="use-plugin.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">OneBot 相关</div>
+                <div class="title">插件系统的使用</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

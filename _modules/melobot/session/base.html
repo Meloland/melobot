@@ -219,6 +219,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/msg-action.html">OneBot 消息操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/action-echo.html">OneBot 行为操作</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/event-preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/use-plugin.html">插件系统的使用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/use-session.html">交互式处理与会话的使用</a></li>
 </ul>
 </li>
 </ul>
@@ -473,19 +475,20 @@
 
 <span class="sd">        `event` 参数为空，自动标志会话历史中所有事件为完成状态</span>
 
-<span class="sd">        事件被标志为完成状态后，事件才可能向更低优先级传播。</span>
-<span class="sd">        但具体是否可以，还和其他处理流的操作有关</span>
+<span class="sd">        事件被标志为完成状态后，事件才可能向更低优先级传播。但具体是否可以，</span>
+<span class="sd">        还和其他处理流的操作有关</span>
 
 <span class="sd">        举例来说，假设一个事件触发了一批处理流，如果这批处理流都没有启用会话，</span>
-<span class="sd">        处理流结束后，将会自动标志事件“完成”。事件是否可以传播，将在所有处理流完成后评估</span>
+<span class="sd">        处理流结束后，将会自动标志事件“完成”。事件是否可以传播，</span>
+<span class="sd">        将在所有处理流完成后评估</span>
 
 <span class="sd">        但如果这批处理流中有启用会话的，由于会话是可以挂起的，</span>
 <span class="sd">        这意味着非常长的处理周期，因此需要会话来标志事件“完成”，</span>
 <span class="sd">        这样后续的传播评估才能在合适的时机进行</span>
 
-<span class="sd">        使用 :func:`enter_session` 进入会话时，设置 `auto_complete=True`，会话将在每次挂起后，</span>
-<span class="sd">        自动标志当前事件为完成状态，这样事件就不会被会话“囚禁”，</span>
-<span class="sd">        而迟迟无法传播到下一优先级。而设置为 `False`，则需要手动调用此方法来标志“完成”状态</span>
+<span class="sd">        使用 :func:`enter_session` 进入会话时，设置 `auto_complete=True`，</span>
+<span class="sd">        会话将在每次挂起后，自动标志当前事件为完成状态，这样事件就不会被会话“囚禁”，</span>
+<span class="sd">        而迟迟无法传播到下一优先级。而设置为 `False`，则需要手动调用此方法来标志“完成”</span>
 
 <span class="sd">        :param event: 事件</span>
 <span class="sd">        &quot;&quot;&quot;</span>
