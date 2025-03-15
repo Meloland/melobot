@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from types import TracebackType
 
-from typing_extensions import Any, Callable, Iterator, Optional
+from typing_extensions import Any, Callable, Iterable, Iterator, NamedTuple, Optional, Sequence
 
 from melobot.exceptions import UtilError
 from melobot.log import get_logger
@@ -210,32 +210,41 @@ class CmdArgFormatter:
         get_logger().warning(tip)
 
 
+class CmdParseResult(NamedTuple):
+    cmd_dict: dict[str, list[str]]
+    pure_text: str
+
+
+def _regex_split(string: str, regex: re.Pattern, pop_first: bool = True) -> Iterator[str]:
+    temp_string = regex.sub("\u0000", string)
+    temp_list = re.split("\u0000", temp_string)
+    if pop_first:
+        temp_list.pop(0)
+    return filter(lambda x: x != "", temp_list)
+
+
 @lru_cache(maxsize=128)
 def _cmd_parse(
     text: str,
     start_regex: re.Pattern[str],
     sep_regex: re.Pattern[str],
-    rm_empty: bool = True,
-) -> dict[str, list[str]]:
-
-    def _split(string: str, regex: re.Pattern, pop_first: bool = True) -> Iterator[str]:
-        temp_string = regex.sub("\u0000", string)
-        temp_list = re.split("\u0000", temp_string)
-        if pop_first:
-            temp_list.pop(0)
-        return filter(lambda x: x != "", temp_list)
-
-    pure_string = text.strip() if rm_empty else text
-    cmd_seqs = (list(_split(s, sep_regex, False)) for s in _split(pure_string, start_regex))
+    strip_blank: bool = True,
+) -> CmdParseResult:
+    pure_string = text.strip() if strip_blank else text
+    cmd_seqs = (
+        list(_regex_split(s, sep_regex, False)) for s in _regex_split(pure_string, start_regex)
+    )
     seqs_filter = filter(lambda x: len(x) > 0, cmd_seqs)
 
     cmd_dict: dict[str, list[str]] = {}
     for seq in seqs_filter:
         if len(seq) == 0:
             continue
+        if seq[0] in cmd_dict:
+            continue
         cmd_dict[seq[0]] = seq[1:]
 
-    return cmd_dict
+    return CmdParseResult(cmd_dict, pure_string)
 
 
 class CmdParser(Parser):
@@ -246,11 +255,12 @@ class CmdParser(Parser):
 
     def __init__(
         self,
-        cmd_start: str | list[str],
-        cmd_sep: str | list[str],
-        targets: str | list[str],
-        fmtters: Optional[list[Optional[CmdArgFormatter]]] = None,
+        cmd_start: str | Iterable[str],
+        cmd_sep: str | Iterable[str],
+        targets: str | Sequence[str],
+        fmtters: Optional[Sequence[Optional[CmdArgFormatter]]] = None,
         tag: str | None = None,
+        strict: bool = False,
     ) -> None:
         """初始化一个命令解析器
 
@@ -265,37 +275,47 @@ class CmdParser(Parser):
         :param targets: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）
         :param tag: 标签，此标签将被填充给本解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
+        :param strict: 是否启用严格模式（不在解析前去除字符串两端的空白字符）
         """
         super().__init__()
-        self.targets = targets if isinstance(targets, list) else [targets]
+        if isinstance(targets, str):
+            self.targets = (targets,)
+        else:
+            self.targets = targets if isinstance(targets, tuple) else tuple(targets)
         assert len(self.targets) >= 1, "命令解析器至少需要一个目标命令名"
-        self.fmtters = fmtters
 
-        self.start_tokens = cmd_start if isinstance(cmd_start, list) else [cmd_start]
-        self.sep_tokens = cmd_sep if isinstance(cmd_sep, list) else [cmd_sep]
+        if isinstance(cmd_start, str):
+            start_tokens = {cmd_start}
+        else:
+            start_tokens = cmd_start if isinstance(cmd_start, set) else set(cmd_start)
+        if isinstance(cmd_sep, str):
+            sep_tokens = {cmd_sep}
+        else:
+            sep_tokens = cmd_sep if isinstance(cmd_sep, set) else set(cmd_sep)
+
+        self.start_tokens = tuple(start_tokens)
         self.ban_regex = re.compile(r"[\'\"\\\(\)\[\]\{\}\r\n\ta-zA-Z0-9]")
-
-        self.cmd_start: list[str]
-        self.cmd_sep: list[str]
-        self.start_regex: re.Pattern[str]
-        self.sep_regex: re.Pattern[str]
         self.arg_tag = tag if tag is not None else self.targets[0]
+        self.fmtters = fmtters
+        self.need_strip = not strict
 
         if self.ban_regex.findall(f"{''.join(cmd_start)}{''.join(cmd_sep)}"):
             raise CmdParseError("存在命令解析器不支持的命令起始符，或命令间隔符")
 
         _regex = re.compile(r"([\`\-\=\~\!\@\#\$\%\^\&\*\(\)\_\+\[\]\{\}\|\:\,\.\/\<\>\?])")
 
-        if not len(set(self.sep_tokens) & set(self.start_tokens)):
-            self.cmd_sep = [_regex.sub(r"\\\1", token) for token in self.sep_tokens]
-            self.cmd_start = [_regex.sub(r"\\\1", token) for token in self.start_tokens]
-            self.sep_regex = re.compile(rf"{'|'.join(self.cmd_sep)}")
-            self.start_regex = re.compile(rf"{'|'.join(self.cmd_start)}")
-        else:
+        if len(sep_tokens & start_tokens):
             raise CmdParseError("命令解析器起始符不能和间隔符重合")
+        cmd_seps = "|".join(_regex.sub(r"\\\1", token) for token in sep_tokens)
+        cmd_starts = "|".join(_regex.sub(r"\\\1", token) for token in start_tokens)
+        self.sep_regex = re.compile(cmd_seps)
+        self.start_regex = re.compile(cmd_starts)
 
     async def parse(self, text: str) -> Optional[CmdArgs]:
-        cmd_dict = _cmd_parse(text, self.start_regex, self.sep_regex)
+        cmd_dict, pure_text = _cmd_parse(text, self.start_regex, self.sep_regex, self.need_strip)
+        if not pure_text.startswith(self.start_tokens):
+            return None
+
         args_dict = {
             cmd_name: CmdArgs(cmd_name, self.arg_tag, vals) for cmd_name, vals in cmd_dict.items()
         }
@@ -327,7 +347,7 @@ class CmdParserFactory:
     预先存储命令起始符和命令间隔符，指定匹配的命令名后返回一个命令解析器。
     """
 
-    def __init__(self, cmd_start: str | list[str], cmd_sep: str | list[str]) -> None:
+    def __init__(self, cmd_start: str | Iterable[str], cmd_sep: str | Iterable[str]) -> None:
         """初始化一个命令解析器的工厂
 
         .. admonition:: 注意
@@ -344,14 +364,16 @@ class CmdParserFactory:
 
     def get(
         self,
-        targets: str | list[str],
-        formatters: Optional[list[Optional[CmdArgFormatter]]] = None,
+        targets: str | Sequence[str],
+        formatters: Optional[Sequence[Optional[CmdArgFormatter]]] = None,
         tag: str | None = None,
+        strict: bool = False,
     ) -> CmdParser:
         """生成匹配指定命令名的命令解析器
 
         :param targets: 匹配的命令名
         :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）
         :param tag: 标签，此标签将被填充给解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
+        :param strict: 是否启用严格模式（不在解析前去除字符串两端的空白字符）
         """
-        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters, tag)
+        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters, tag, strict)

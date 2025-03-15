@@ -4,7 +4,7 @@ import re
 from abc import abstractmethod
 from functools import partial
 
-from typing_extensions import Any, Callable, Coroutine
+from typing_extensions import Any, Callable, Coroutine, Iterable
 
 from melobot.exceptions import UtilValidateError
 from melobot.typ import BetterABC, LogicMode
@@ -78,7 +78,7 @@ class WrappedMatcher(Matcher):
 class StartMatcher(Matcher):
     """字符串起始匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串起始匹配器
 
         `target` 为字符串时，只进行一次起始匹配，即判断是否匹配成功。
@@ -89,20 +89,24 @@ class StartMatcher(Matcher):
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
-            return text[: len(self.target)] == self.target
-        res_seq = [text[: len(s)] == s for s in self.target]
+            return text.startswith(self.target)
+        res_seq = tuple(text.startswith(s) for s in self.target)
         return LogicMode.seq_calc(self.mode, res_seq)
 
 
 class ContainMatcher(Matcher):
     """字符串包含匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串包含匹配器
 
         `target` 为字符串时，只进行一次包含匹配，即判断是否匹配成功。
@@ -113,20 +117,24 @@ class ContainMatcher(Matcher):
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
             return self.target in text
-        res_seq = [s in text for s in self.target]
+        res_seq = tuple(s in text for s in self.target)
         return LogicMode.seq_calc(self.mode, res_seq)
 
 
 class EndMatcher(Matcher):
     """字符串结尾匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串结尾匹配器
 
         `target` 为字符串时，只进行一次结尾匹配，即判断是否匹配成功。
@@ -137,20 +145,24 @@ class EndMatcher(Matcher):
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
-            return text[-len(self.target) :] == self.target
-        res_seq = [text[-len(s) :] == s for s in self.target]
+            return text.endswith(self.target)
+        res_seq = tuple(text.endswith(s) for s in self.target)
         return LogicMode.seq_calc(self.mode, res_seq)
 
 
 class FullMatcher(Matcher):
     """字符串全匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串全匹配器
 
         `target` 为字符串时，只进行一次全匹配，即判断是否匹配成功。
@@ -161,8 +173,12 @@ class FullMatcher(Matcher):
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):

@@ -1,7 +1,7 @@
 from asyncio import Lock
 from functools import partial, wraps
 
-from typing_extensions import Callable, Sequence, cast
+from typing_extensions import Callable, Iterable, Sequence, cast
 
 from ..adapter.model import Event, TextEvent
 from ..ctx import FlowCtx, ParseArgsCtx
@@ -218,10 +218,10 @@ def on_text(
 
 
 def on_command(
-    cmd_start: str | list[str],
-    cmd_sep: str | list[str],
-    targets: str | list[str],
-    fmtters: list[CmdArgFormatter | None] | None = None,
+    cmd_start: str | Iterable[str],
+    cmd_sep: str | Iterable[str],
+    targets: str | Sequence[str],
+    fmtters: Sequence[CmdArgFormatter | None] | None = None,
     checker: Checker | None | Callable[[TextEvent], bool] = None,
     matcher: Matcher | None = None,
     priority: int = 0,
@@ -260,7 +260,7 @@ def on_command(
 
 
 def on_start_match(
-    target: str | list[str],
+    target: str | Iterable[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,
@@ -298,7 +298,7 @@ def on_start_match(
 
 
 def on_contain_match(
-    target: str | list[str],
+    target: str | Iterable[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,
@@ -336,7 +336,7 @@ def on_contain_match(
 
 
 def on_full_match(
-    target: str | list[str],
+    target: str | Iterable[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,
@@ -374,7 +374,7 @@ def on_full_match(
 
 
 def on_end_match(
-    target: str | list[str],
+    target: str | Iterable[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,

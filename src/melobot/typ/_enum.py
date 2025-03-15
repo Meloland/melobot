@@ -88,7 +88,7 @@ class LogicMode(Enum):
         return res  # type: ignore[no-any-return]
 
     @classmethod
-    def seq_calc(cls, logic: "LogicMode", values: list[Any]) -> bool:
+    def seq_calc(cls, logic: "LogicMode", values: Sequence[Any]) -> bool:
         """使用指定的逻辑模式，对值序列进行运算
 
         .. code:: python
@@ -100,6 +100,11 @@ class LogicMode(Enum):
         :param values: 值序列
         :return: 布尔值
         """
+        if logic is LogicMode.AND:
+            return all(values)
+        if logic is LogicMode.OR:
+            return any(values)
+
         if len(values) <= 0:
             return False
         if len(values) <= 1:
