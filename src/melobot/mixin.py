@@ -240,6 +240,16 @@ class HookMixin(Generic[HookEnumT]):
         for t in types:
             self.__repeatable_hook_types__.add(t)
 
+    def get_hook_evoke_time(self, hook_type: HookEnumT) -> float:
+        """获取指定 hook 最后一次触发的时间戳（秒）
+
+        若从未触发过，返回 -1
+
+        :param hook_type: hook 类型
+        :return: 触发时间
+        """
+        return self._hook_bus.get_evoke_time(hook_type)
+
     def on(
         self, *periods: HookEnumT
     ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
