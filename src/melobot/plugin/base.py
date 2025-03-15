@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from typing_extensions import Callable, final, overload
+from typing_extensions import Callable, Iterable, final, overload
 
 from ..exceptions import PluginLoadError
 from ..handle.base import Flow
@@ -25,7 +25,7 @@ class PluginInfo:
 
     desc: str = ""
     docs: Path | None = None
-    keywords: list[str] | None = None
+    keywords: tuple[str] | None = None
     url: str = ""
     author: str = ""
 
@@ -39,25 +39,25 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
     def __init__(
         self,
         version: str,
-        flows: list[Flow] | None = None,
-        shares: list[SyncShare | AsyncShare] | None = None,
-        funcs: list[Callable] | None = None,
+        flows: Iterable[Flow] | None = None,
+        shares: Iterable[SyncShare | AsyncShare] | None = None,
+        funcs: Iterable[Callable] | None = None,
         *,
         info: PluginInfo | None = None,
     ) -> None:
         """插件管理器初始化
 
         :param version: 版本号
-        :param flows: 事件流列表。可以先指定为空，后续使用 :meth:`use` 绑定
-        :param shares: 共享对象列表。可以先指定为空，后续使用 :meth:`use` 绑定
-        :param funcs: 导出函数列表。可以先指定为空，后续使用 :meth:`use` 绑定
+        :param flows: 事件流。可以先指定为空，后续使用 :meth:`use` 绑定
+        :param shares: 共享对象。可以先指定为空，后续使用 :meth:`use` 绑定
+        :param funcs: 导出函数（需要是本插件内定义的函数，提供方法是未定义行为）。可以先指定为空，后续使用 :meth:`use` 绑定
         :param info: 插件信息
         """
         super().__init__(hook_type=PluginLifeSpan)
         self.version = version
-        self.init_flows = [] if flows is None else flows
-        self.shares = [] if shares is None else shares
-        self.funcs = [] if funcs is None else funcs
+        self.init_flows = [] if flows is None else list(flows)
+        self.shares = set[SyncShare | AsyncShare]() if shares is None else set(shares)
+        self.funcs = set[Callable]() if funcs is None else set(funcs)
         self.info = PluginInfo() if info is None else info
 
         self._pname: str = ""
@@ -94,9 +94,9 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
         if isinstance(obj, Flow):
             self.init_flows.append(obj)
         elif isinstance(obj, (SyncShare, AsyncShare)):
-            self.shares.append(obj)
+            self.shares.add(obj)
         elif callable(obj):
-            self.funcs.append(obj)
+            self.funcs.add(obj)
         else:
             raise PluginLoadError(f"插件无法使用 {type(obj)} 类型的对象")
         return obj

@@ -260,7 +260,7 @@ def on_command(
 
 
 def on_start_match(
-    target: str | Iterable[str],
+    target: str | Sequence[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,
@@ -298,7 +298,7 @@ def on_start_match(
 
 
 def on_contain_match(
-    target: str | Iterable[str],
+    target: str | Sequence[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,
@@ -336,7 +336,7 @@ def on_contain_match(
 
 
 def on_full_match(
-    target: str | Iterable[str],
+    target: str | Sequence[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,
@@ -374,7 +374,7 @@ def on_full_match(
 
 
 def on_end_match(
-    target: str | Iterable[str],
+    target: str | Sequence[str],
     logic_mode: LogicMode = LogicMode.OR,
     checker: Checker | Callable[[TextEvent], bool] | None = None,
     parser: Parser | None = None,

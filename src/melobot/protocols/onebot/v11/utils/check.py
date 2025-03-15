@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from typing_extensions import Literal, Optional, cast
+from typing_extensions import Iterable, Literal, Optional, cast
 
 from melobot.typ import SyncOrAsyncCallable
 from melobot.utils.check import Checker
@@ -38,13 +38,13 @@ def get_level_role(checker: MsgChecker, event: MessageEvent) -> LevelRole:
     """
     qid = event.user_id
 
-    if qid in checker.black_list:
+    if qid in checker.black_users:
         return LevelRole.BLACK
     if qid == checker.owner:
         return LevelRole.OWNER
-    if qid in checker.su_list:
+    if qid in checker.super_users:
         return LevelRole.SU
-    if qid in checker.white_list:
+    if qid in checker.white_users:
         return LevelRole.WHITE
     return LevelRole.NORMAL
 
@@ -74,27 +74,27 @@ class MsgChecker(Checker[Event]):
         self,
         role: LevelRole | GroupRole,
         owner: Optional[int] = None,
-        super_users: Optional[list[int]] = None,
-        white_users: Optional[list[int]] = None,
-        black_users: Optional[list[int]] = None,
+        super_users: Optional[Iterable[int]] = None,
+        white_users: Optional[Iterable[int]] = None,
+        black_users: Optional[Iterable[int]] = None,
         fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器
 
         :param role: 允许的等级（>= 此等级才能通过校验）
         :param owner: 主人的 qq 号
-        :param super_users: 超级用户 qq 号列表
-        :param white_users: 白名单用户 qq 号列表
-        :param black_users: 黑名单用户 qq 号列表
+        :param super_users: 超级用户 qq 号
+        :param white_users: 白名单用户 qq 号
+        :param black_users: 黑名单用户 qq 号
         :param fail_cb: 检查不通过的回调
         """
         super().__init__(fail_cb)
         self.check_role = role
 
         self.owner = owner
-        self.su_list = super_users if super_users is not None else []
-        self.white_list = white_users if white_users is not None else []
-        self.black_list = black_users if black_users is not None else []
+        self.super_users = tuple(super_users) if super_users is not None else ()
+        self.white_users = tuple(white_users) if white_users is not None else ()
+        self.black_users = tuple(black_users) if black_users is not None else ()
 
     def _get_level(self, event: MessageEvent) -> LevelRole | GroupRole:
         """获得事件对应的登记"""
@@ -136,24 +136,24 @@ class GroupMsgChecker(MsgChecker):
         self,
         role: LevelRole | GroupRole,
         owner: Optional[int] = None,
-        super_users: Optional[list[int]] = None,
-        white_users: Optional[list[int]] = None,
-        black_users: Optional[list[int]] = None,
-        white_groups: Optional[list[int]] = None,
+        super_users: Optional[Iterable[int]] = None,
+        white_users: Optional[Iterable[int]] = None,
+        black_users: Optional[Iterable[int]] = None,
+        white_groups: Optional[Iterable[int]] = None,
         fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个群聊消息事件分级权限检查器
 
         :param role: 允许的等级（>= 此等级才能通过校验）
         :param owner: 主人的 qq 号
-        :param super_users: 超级用户 qq 号列表
-        :param white_users: 白名单用户 qq 号列表
-        :param black_users: 黑名单用户 qq 号列表
-        :param white_groups: 白名单群号列表（不在其中的群不通过校验）
+        :param super_users: 超级用户 qq 号
+        :param white_users: 白名单用户 qq 号
+        :param black_users: 黑名单用户 qq 号
+        :param white_groups: 白名单群号（不在其中的群不通过校验）
         :param fail_cb: 检查不通过的回调
         """
         super().__init__(role, owner, super_users, white_users, black_users, fail_cb)
-        self.white_group_list = white_groups if white_groups is not None else []
+        self.white_group_list = tuple(white_groups) if white_groups is not None else ()
 
     def _check(self, event: MessageEvent) -> bool:
         # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
@@ -179,18 +179,18 @@ class PrivateMsgChecker(MsgChecker):
         self,
         role: LevelRole,
         owner: Optional[int] = None,
-        super_users: Optional[list[int]] = None,
-        white_users: Optional[list[int]] = None,
-        black_users: Optional[list[int]] = None,
+        super_users: Optional[Iterable[int]] = None,
+        white_users: Optional[Iterable[int]] = None,
+        black_users: Optional[Iterable[int]] = None,
         fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个私聊消息事件分级权限检查器
 
         :param role: 允许的等级（>= 此等级才能通过校验）
         :param owner: 主人的 qq 号
-        :param super_users: 超级用户 qq 号列表
-        :param white_users: 白名单用户 qq 号列表
-        :param black_users: 黑名单用户 qq 号列表
+        :param super_users: 超级用户 qq 号
+        :param white_users: 白名单用户 qq 号
+        :param black_users: 黑名单用户 qq 号
         :param fail_cb: 检查不通过的回调
         """
         super().__init__(role, owner, super_users, white_users, black_users, fail_cb)
@@ -211,26 +211,26 @@ class MsgCheckerFactory:
     def __init__(
         self,
         owner: Optional[int] = None,
-        super_users: Optional[list[int]] = None,
-        white_users: Optional[list[int]] = None,
-        black_users: Optional[list[int]] = None,
-        white_groups: Optional[list[int]] = None,
+        super_users: Optional[Iterable[int]] = None,
+        white_users: Optional[Iterable[int]] = None,
+        black_users: Optional[Iterable[int]] = None,
+        white_groups: Optional[Iterable[int]] = None,
         fail_cb: Optional[SyncOrAsyncCallable[[], None]] = None,
     ) -> None:
         """初始化一个消息事件分级权限检查器的工厂
 
         :param owner: 主人的 qq 号
-        :param super_users: 超级用户 qq 号列表
-        :param white_users: 白名单用户 qq 号列表
-        :param black_users: 黑名单用户 qq 号列表
-        :param white_groups: 白名单群号列表（不在其中的群不通过校验）
+        :param super_users: 超级用户 qq 号
+        :param white_users: 白名单用户 qq 号
+        :param black_users: 黑名单用户 qq 号
+        :param white_groups: 白名单群号（不在其中的群不通过校验）
         :param fail_cb: 检查不通过的回调（这将自动附加到生成的检查器上）
         """
         self.owner = owner
-        self.su_list = super_users if super_users is not None else []
-        self.white_list = white_users if white_users is not None else []
-        self.black_list = black_users if black_users is not None else []
-        self.white_group_list = white_groups if white_groups is not None else []
+        self.super_users = tuple(super_users) if super_users is not None else ()
+        self.white_users = tuple(white_users) if white_users is not None else ()
+        self.black_users = tuple(black_users) if black_users is not None else ()
+        self.white_groups = tuple(white_groups) if white_groups is not None else ()
 
         self.fail_cb = fail_cb
 
@@ -248,9 +248,9 @@ class MsgCheckerFactory:
         return MsgChecker(
             role,
             self.owner,
-            self.su_list,
-            self.white_list,
-            self.black_list,
+            self.super_users,
+            self.white_users,
+            self.black_users,
             self.fail_cb if fail_cb is None else fail_cb,
         )
 
@@ -268,10 +268,10 @@ class MsgCheckerFactory:
         return GroupMsgChecker(
             role,
             self.owner,
-            self.su_list,
-            self.white_list,
-            self.black_list,
-            self.white_group_list,
+            self.super_users,
+            self.white_users,
+            self.black_users,
+            self.white_groups,
             self.fail_cb if fail_cb is None else fail_cb,
         )
 
@@ -289,9 +289,9 @@ class MsgCheckerFactory:
         return PrivateMsgChecker(
             role,
             self.owner,
-            self.su_list,
-            self.white_list,
-            self.black_list,
+            self.super_users,
+            self.white_users,
+            self.black_users,
             self.fail_cb if fail_cb is None else fail_cb,
         )
 

@@ -4,7 +4,7 @@ import re
 from abc import abstractmethod
 from functools import partial
 
-from typing_extensions import Any, Callable, Coroutine, Iterable
+from typing_extensions import Any, Callable, Coroutine, Sequence
 
 from melobot.exceptions import UtilValidateError
 from melobot.typ import BetterABC, LogicMode
@@ -78,11 +78,11 @@ class WrappedMatcher(Matcher):
 class StartMatcher(Matcher):
     """字符串起始匹配器"""
 
-    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串起始匹配器
 
         `target` 为字符串时，只进行一次起始匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行起始匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行起始匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标
@@ -106,11 +106,11 @@ class StartMatcher(Matcher):
 class ContainMatcher(Matcher):
     """字符串包含匹配器"""
 
-    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串包含匹配器
 
         `target` 为字符串时，只进行一次包含匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行包含匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行包含匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标
@@ -134,11 +134,11 @@ class ContainMatcher(Matcher):
 class EndMatcher(Matcher):
     """字符串结尾匹配器"""
 
-    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串结尾匹配器
 
         `target` 为字符串时，只进行一次结尾匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行结尾匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行结尾匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标
@@ -162,11 +162,11 @@ class EndMatcher(Matcher):
 class FullMatcher(Matcher):
     """字符串全匹配器"""
 
-    def __init__(self, target: str | Iterable[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串全匹配器
 
         `target` 为字符串时，只进行一次全匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行全匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行全匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标

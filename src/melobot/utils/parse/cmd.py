@@ -273,9 +273,9 @@ class CmdParser(Parser):
         :param cmd_start: 命令起始符（可以是字符串或字符串列表）
         :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
         :param targets: 匹配的命令名
-        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化）
+        :param formatters: 格式化器（可以包含空值，即此位置的参数无格式化）
         :param tag: 标签，此标签将被填充给本解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
-        :param strict: 是否启用严格模式（不在解析前去除字符串两端的空白字符）
+        :param strict: 是否启用严格模式（解析前不去除字符串两端的空白字符）
         """
         super().__init__()
         if isinstance(targets, str):
@@ -372,8 +372,8 @@ class CmdParserFactory:
         """生成匹配指定命令名的命令解析器
 
         :param targets: 匹配的命令名
-        :param formatters: 格式化器列表（列表可以包含空值，即此位置的参数无格式化选项）
+        :param formatters: 格式化器（列表可以包含空值，即此位置的参数无格式化选项）
         :param tag: 标签，此标签将被填充给解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
-        :param strict: 是否启用严格模式（不在解析前去除字符串两端的空白字符）
+        :param strict: 是否启用严格模式（解析前不去除字符串两端的空白字符）
         """
         return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters, tag, strict)
