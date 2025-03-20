@@ -22,10 +22,10 @@ from typing_extensions import (
     cast,
 )
 
-from ..ctx import ActionManualSignalCtx, Context, LoggerCtx
+from .._run import report_exc
+from ..ctx import ActionManualSignalCtx, Context
 from ..exceptions import AdapterError
 from ..io.base import AbstractOutSource
-from ..log.base import LogLevel
 from ..mixin import AttrReprMixin, FlagMixin
 from ..typ.base import T
 from ..typ.cls import BetterABC, abstractattr
@@ -196,11 +196,9 @@ class ActionHandle(Generic[ActionRetT]):
             self._echo = cast(ActionRetT, await self._echo_factory.create(echo_packet))
             self.status = "FINISHED"
             self._done.set()
-        except Exception:
-            logger = LoggerCtx().get()
+        except Exception as e:
             handle_name = f"{self.__class__.__module__}.{self.action.__class__.__qualname__}"
-            logger.exception(f"行为句柄 {handle_name} 执行时出现异常")
-            logger.generic_obj("异常点局部变量", self.__dict__, level=LogLevel.ERROR)
+            report_exc(e, msg=f"行为句柄 {handle_name} 执行时出现异常", var=self.__dict__)
 
     def execute(self) -> Self:
         if self.status != "PENDING":

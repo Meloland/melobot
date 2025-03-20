@@ -6,14 +6,13 @@ from itertools import tee
 
 from typing_extensions import Iterable, NoReturn, Sequence
 
+from .._run import report_exc
 from ..adapter.base import Event
 from ..ctx import BotCtx, EventCompletion, FlowCtx, FlowRecord, FlowRecords
 from ..ctx import FlowRecordStage as RecordStage
 from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
-from ..log import LogLevel
-from ..mixin import LogMixin
 from ..typ.base import AsyncCallable, SyncOrAsyncCallable
 from ..utils.base import to_async
 from ..utils.common import get_obj_name
@@ -91,7 +90,7 @@ class NodeInfo:
         return NodeInfo(self.nexts, self.in_deg, self.out_deg)
 
 
-class Flow(LogMixin):
+class Flow:
     """处理流
 
     :ivar str name: 处理流的标识
@@ -292,13 +291,16 @@ class Flow(LogMixin):
             except FlowBroke:
                 pass
 
-            except Exception:
-                self.logger.exception(f"事件处理流 {self.name} 发生异常")
-                self.logger.generic_obj(f"异常点 event {event.id}", event, level=LogLevel.ERROR)
-                self.logger.generic_obj(
-                    "异常点局部变量：",
-                    {"completion": completion.__dict__, "cur_flow": self},
-                    level=LogLevel.ERROR,
+            except Exception as e:
+                report_exc(
+                    e,
+                    msg=f"事件处理流 {self.name} 发生异常",
+                    var={
+                        "event_id": event.id,
+                        "event": event,
+                        "completion": completion.__dict__,
+                        "cur_flow": self,
+                    },
                 )
 
             finally:

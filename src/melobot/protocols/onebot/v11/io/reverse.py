@@ -10,6 +10,7 @@ from websockets import ConnectionClosed
 from websockets.asyncio.server import Server, ServerConnection
 from websockets.http11 import Request, Response
 
+from melobot import report_exc
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
@@ -100,7 +101,7 @@ class ReverseWebSocketIO(BaseIOSource):
                 )
 
             except asyncio.CancelledError:
-                break
+                raise
 
             except ConnectionClosed:
                 self.logger.info("实现端与 OneBot v11 反向 WebSocket IO 源已断连，等待连接中")
@@ -109,9 +110,8 @@ class ReverseWebSocketIO(BaseIOSource):
                 self._conn_requested = False
                 break
 
-            except Exception:
-                self.logger.exception("OneBot v11 反向 WebSocket IO 源输入异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                report_exc(e, "OneBot v11 反向 WebSocket IO 源输入异常", var=locals())
 
     async def _output_loop(self) -> None:
         while True:
@@ -125,11 +125,10 @@ class ReverseWebSocketIO(BaseIOSource):
                 self._pre_send_time = time.time_ns()
 
             except asyncio.CancelledError:
-                break
+                raise
 
-            except Exception:
-                self.logger.exception("OneBot v11 反向 WebSocket IO 源输出异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                report_exc(e, msg="OneBot v11 反向 WebSocket IO 源输出异常", var=locals())
 
     async def open(self) -> None:
         if self.opened():

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from asyncio import Queue, Task, get_running_loop
+from asyncio import Queue, Task
 
 from ..adapter.base import Event
 from ..handle.base import Flow
@@ -27,10 +27,11 @@ class Dispatcher(LogMixin):
 
     def _arrange_chan(self, chan: EventChannel) -> None:
         try:
-            get_running_loop()
-            asyncio.create_task(chan.run())
+            asyncio.get_running_loop()
         except RuntimeError:
             self._pending_chans.append(chan)
+        else:
+            asyncio.create_task(chan.run())
 
     def add(self, *flows: Flow) -> None:
         for f in flows:
@@ -65,9 +66,7 @@ class Dispatcher(LogMixin):
 
             f._active = True
 
-        self.logger.generic_lazy(
-            "以下处理流流已添加：%s", lambda: repr(flows), level=LogLevel.DEBUG
-        )
+        self.logger.generic_lazy("以下处理流已添加：%s", lambda: repr(flows), level=LogLevel.DEBUG)
 
     def remove(self, *flows: Flow) -> None:
         for f in flows:

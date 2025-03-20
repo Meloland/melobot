@@ -1,4 +1,5 @@
 from ._meta import MetaInfo, __version__
+from ._run import report_exc
 from .adapter import Action, Adapter, Echo, Event
 from .adapter.generic import send_image, send_text
 from .bot import Bot, get_bot

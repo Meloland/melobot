@@ -4,7 +4,6 @@ import asyncio
 import asyncio.tasks
 import os
 import platform
-import sys
 from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
 from enum import Enum
 from os import PathLike
@@ -15,7 +14,6 @@ from typing_extensions import (
     Any,
     AsyncGenerator,
     Callable,
-    Coroutine,
     Generator,
     Iterable,
     LiteralString,
@@ -23,6 +21,7 @@ from typing_extensions import (
 )
 
 from .._meta import MetaInfo
+from .._run import LOOP_MANAGER
 from ..adapter.base import Adapter
 from ..ctx import BotCtx, LoggerCtx
 from ..exceptions import BotError
@@ -48,16 +47,6 @@ class BotLifeSpan(Enum):
     STOPPED = "sto"
 
 
-class BotExitSignal(Enum):
-    NORMAL_STOP = 0
-    ERROR = 1
-    RESTART = 2
-
-
-CLI_RUNTIME = "MELOBOT_CLI_RUNTIME"
-CLI_DEV = "MELOBOT_CLI_DEV"
-CLI_DEV_ALIVE_SIGNAL = "MELOBOT_CLI_DEV_ALIVE_SIGNAL"
-LAST_EXIT_SIGNAL = "MELOBOT_LAST_EXIT_SIGNAL"
 _BOT_CTX = BotCtx()
 _LOGGER_CTX = LoggerCtx()
 
@@ -118,6 +107,7 @@ class Bot(HookMixin[BotLifeSpan]):
         self.adapters: dict[str, Adapter] = {}
         self.ipc_manager = IPCManager()
 
+        self._runner = LOOP_MANAGER
         self._in_srcs: dict[str, set[AbstractInSource]] = {}
         self._out_srcs: dict[str, set[AbstractOutSource]] = {}
         self._loader = PluginLoader()
@@ -334,10 +324,7 @@ class Bot(HookMixin[BotLifeSpan]):
         try:
             async with self._common_async_ctx() as stack:
                 await self._hook_bus.emit(BotLifeSpan.LOADED)
-                if (
-                    LAST_EXIT_SIGNAL in os.environ
-                    and int(os.environ[LAST_EXIT_SIGNAL]) == BotExitSignal.RESTART.value
-                ):
+                if self._runner.is_from_restart():
                     await self._hook_bus.emit(BotLifeSpan.RELOADED)
 
                 for p in self._plugins.values():
@@ -364,32 +351,35 @@ class Bot(HookMixin[BotLifeSpan]):
                 self.logger.info(f"{self} 已安全停止运行")
                 self._running = False
 
-    def run(self, debug: bool = False) -> None:
+    def run(self, debug: bool = False, strict_log: bool = False) -> None:
         """安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况
 
         :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级
+        :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
         """
-        _safe_run(self.core_run(), debug)
+        self._runner.run(self.core_run(), debug, strict_log)
 
     @classmethod
-    def start(cls, *bots: Bot, debug: bool = False) -> None:
+    def start(cls, *bots: Bot, debug: bool = False, strict_log: bool = False) -> None:
         """安全地同时运行多个 bot 的阻塞方法
 
         :param bots: 要运行的 bot 对象
         :param debug: 参见 :func:`run` 同名参数
+        :param strict_log: 参见 :func:`run` 同名参数
         """
 
         async def bots_run() -> None:
-            tasks = []
-            for bot in bots:
-                tasks.append(asyncio.create_task(bot.core_run()))
+            tasks: list[asyncio.Task] = []
             try:
-                if len(tasks):
-                    await asyncio.wait(tasks)
+                for bot in bots:
+                    tasks.append(asyncio.create_task(bot.core_run()))
+                    if len(tasks):
+                        await asyncio.wait(tasks)
             except asyncio.CancelledError:
-                pass
+                for t in tasks:
+                    t.cancel()
 
-        _safe_run(bots_run(), debug)
+        LOOP_MANAGER.run(bots_run(), debug, strict_log)
 
     async def close(self) -> None:
         """停止并关闭当前 bot"""
@@ -399,18 +389,27 @@ class Bot(HookMixin[BotLifeSpan]):
         await self._hook_bus.emit(BotLifeSpan.CLOSE, True)
         self._rip_signal.set()
 
+    def is_restartable(self) -> bool:
+        if len(self.__class__.__instances__) > 1:
+            return False
+        return self._runner.is_restartable()
+
     async def restart(self) -> NoReturn:
         """重启当前 bot，需要通过模块运行模式启动 bot 主脚本：
 
         .. code:: shell
 
             python3 -m melobot run xxx.py
+
+        另外请注意，重启功能只在启动了一个 bot 时生效，多个 bot 同时运行时无法重启
         """
-        if CLI_RUNTIME not in os.environ:
-            raise BotError("启用重启功能，需要用以下命令运行 bot：python -m melobot run xxx.py")
+        if len(self.__class__.__instances__) > 1:
+            raise BotError("使用重启功能，同一时刻只能有一个 bot 在运行")
+        if not self._runner.is_restartable():
+            raise BotError("使用重启功能，需要用以下命令运行 bot：python -m melobot run xxx.py")
 
         await self.close()
-        sys.exit(BotExitSignal.RESTART.value)
+        self._runner.restart()
 
     def get_adapter(
         self,
@@ -508,63 +507,3 @@ class Bot(HookMixin[BotLifeSpan]):
     ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.STOPPED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STOPPED)
-
-
-def _safe_run(main: Coroutine[Any, Any, None], debug: bool) -> None:
-    try:
-        loop = asyncio.get_event_loop()
-        asyncio.get_event_loop_policy().set_event_loop(loop)
-
-        if debug is not None:
-            loop.set_debug(debug)
-
-        if CLI_DEV in os.environ:
-            main = alive_signal_guard(main)
-
-        loop.run_until_complete(main)
-
-    except KeyboardInterrupt:
-        pass
-    except asyncio.CancelledError:
-        pass
-
-    finally:
-        try:
-            _cancel_all_tasks(loop)
-            loop.run_until_complete(loop.shutdown_asyncgens())
-            loop.run_until_complete(loop.shutdown_default_executor())
-        finally:
-            asyncio.get_event_loop_policy().set_event_loop(None)
-            loop.close()
-
-
-async def alive_signal_guard(main_coro: Coroutine[Any, Any, None]) -> None:
-    asyncio.create_task(main_coro)
-
-    while True:
-        if not os.path.exists(os.environ[CLI_DEV_ALIVE_SIGNAL]):
-            for bot in Bot.__instances__.values():
-                bot._rip_signal.set()
-            break
-        await asyncio.sleep(0.45)
-
-
-def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
-    to_cancel = asyncio.tasks.all_tasks(loop)
-    if not to_cancel:
-        return
-    for task in to_cancel:
-        task.cancel()
-    loop.run_until_complete(asyncio.tasks.gather(*to_cancel, return_exceptions=True))
-
-    for task in to_cancel:
-        if task.cancelled():
-            continue
-        if task.exception() is not None:
-            loop.call_exception_handler(
-                {
-                    "message": "unhandled exception during eventloop shutdown",
-                    "exception": task.exception(),
-                    "task": task,
-                }
-            )

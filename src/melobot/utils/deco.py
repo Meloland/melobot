@@ -247,7 +247,7 @@ def timelimit(
                 return await asyncio.wait_for(_func(*args, **kwargs), timeout)
             except asyncio.TimeoutError:
                 if _callback is None:
-                    raise TimeoutError("timelimit 所装饰的任务已超时") from None
+                    raise TimeoutError(f"{timelimit.__name__} 所装饰的任务已超时") from None
                 return await _callback()
 
         return timelimit_wrapped

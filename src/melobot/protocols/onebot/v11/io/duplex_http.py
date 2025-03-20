@@ -8,6 +8,7 @@ import aiohttp
 import aiohttp.log
 import aiohttp.web
 
+from melobot import report_exc
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
 
@@ -56,8 +57,8 @@ class HttpIO(BaseIOSource):
             recv_sign = request.headers["X-Signature"][len("sha1=") :]
 
             if sign != recv_sign:
-                self.logger.error("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
-                self.logger.generic_obj("试图上报的数据", data, level=LogLevel.ERROR)
+                self.logger.warning("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
+                self.logger.generic_obj("试图上报的数据", data, level=LogLevel.WARNING)
                 return aiohttp.web.Response(status=403)
 
         try:
@@ -72,9 +73,8 @@ class HttpIO(BaseIOSource):
             self.logger.generic_obj("收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG)
             await self._in_buf.put(InPacket(time=raw["time"], data=raw))
 
-        except Exception:
-            self.logger.exception("OneBot v11 HTTP IO 源输入异常")
-            self.logger.generic_obj("异常点的上报数据", raw, level=LogLevel.ERROR)
+        except Exception as e:
+            report_exc(e, msg="OneBot v11 HTTP IO 源输入异常", var=raw)
 
         finally:
             return aiohttp.web.Response(status=204)
@@ -91,11 +91,10 @@ class HttpIO(BaseIOSource):
                 self._pre_send_time = time.time_ns()
 
             except asyncio.CancelledError:
-                break
+                raise
 
-            except Exception:
-                self.logger.exception("OneBot v11 HTTP IO 源输出异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                report_exc(e, msg="OneBot v11 HTTP IO 源输出异常", var=locals())
 
     async def _handle_output(self, packet: OutPacket) -> None:
         try:
@@ -130,9 +129,8 @@ class HttpIO(BaseIOSource):
             self.logger.error(
                 "OneBot v11 HTTP IO 源无法解析上报数据。可能是 access_token 未配置或错误"
             )
-        except Exception:
-            self.logger.exception("OneBot v11 HTTP IO 源输出异常")
-            self.logger.generic_obj("异常点的发送数据", packet.data, level=LogLevel.ERROR)
+        except Exception as e:
+            report_exc(e, msg="OneBot v11 HTTP IO 源输出异常", var=packet.data)
 
     async def open(self) -> None:
         if self.opened():

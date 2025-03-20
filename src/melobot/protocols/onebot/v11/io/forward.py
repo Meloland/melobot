@@ -8,6 +8,7 @@ import websockets
 from websockets.asyncio.client import ClientConnection
 from websockets.exceptions import ConnectionClosed
 
+from melobot import report_exc
 from melobot.exceptions import SourceError
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel
@@ -73,7 +74,7 @@ class ForwardWebSocketIO(BaseIOSource):
                 )
 
             except asyncio.CancelledError:
-                break
+                raise
 
             except ConnectionClosed:
                 if self.opened():
@@ -81,9 +82,8 @@ class ForwardWebSocketIO(BaseIOSource):
                     asyncio.create_task(self.close())
                 break
 
-            except Exception:
-                self.logger.exception("OneBot v11 正向 WebSocket IO 源输入异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                report_exc(e, msg="OneBot v11 正向 WebSocket IO 源输入异常", var=locals())
 
     async def _output_loop(self) -> None:
         while True:
@@ -97,11 +97,10 @@ class ForwardWebSocketIO(BaseIOSource):
                 self._pre_send_time = time.time_ns()
 
             except asyncio.CancelledError:
-                break
+                raise
 
-            except Exception:
-                self.logger.exception("OneBot v11 正向 WebSocket IO 源输出异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                report_exc(e, msg="OneBot v11 正向 WebSocket IO 源输出异常", var=locals())
 
     async def open(self) -> None:
         if self.opened():

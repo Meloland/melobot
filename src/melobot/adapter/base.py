@@ -22,7 +22,8 @@ from typing_extensions import (
     final,
 )
 
-from ..ctx import EventOrigin, FlowCtx, LoggerCtx, OutSrcFilterCtx
+from .._run import report_exc
+from ..ctx import EventOrigin, FlowCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
     AbstractInSource,
@@ -33,7 +34,6 @@ from ..io.base import (
     OutPacketT,
     OutSourceT,
 )
-from ..log.base import LogLevel
 from ..mixin import HookMixin
 from ..typ.cls import BetterABC
 from .content import Content
@@ -163,7 +163,6 @@ class Adapter(
 
     @final
     async def __adapter_input_loop__(self, src: InSourceT) -> NoReturn:
-        logger = LoggerCtx().get()
         while True:
             try:
                 packet = await src.input()
@@ -171,16 +170,15 @@ class Adapter(
                 EventOrigin.set_origin(event, EventOrigin(self, src))
                 await self._hook_bus.emit(AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,))
                 self.dispatcher.broadcast(event)
-            except Exception:
-                logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
-                logger.generic_obj(
-                    "异常点局部变量：",
-                    {
+            except Exception as e:
+                report_exc(
+                    e,
+                    msg=f"适配器 {self} 处理输入源 {src} 时发生异常",
+                    var={
                         "in_factory": self._event_factory,
                         "dispatcher": self.dispatcher,
                     }
                     | locals(),
-                    level=LogLevel.ERROR,
                 )
 
     @asynccontextmanager
