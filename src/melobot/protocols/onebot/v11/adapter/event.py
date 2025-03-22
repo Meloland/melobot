@@ -341,12 +341,9 @@ class MetaEvent(Event):
         self.meta_event_type: Literal["lifecycle", "heartbeat"] | str = self._model.meta_event_type
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(meta_type={self.meta_event_type}"
-            + f", sub_type={self.sub_type})"
-            if hasattr(self, "sub_type")
-            else ")"
-        )
+        str_head = f"{self.__class__.__name__}(meta_type={self.meta_event_type}"
+        str_remain = f", sub_type={self.sub_type})" if hasattr(self, "sub_type") else ")"
+        return str_head + str_remain
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> MetaEvent:
@@ -466,12 +463,9 @@ class NoticeEvent(Event):
         ) = self._model.notice_type
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(notice_type={self.notice_type}"
-            + f", sub_type={self.sub_type})"
-            if hasattr(self, "sub_type")
-            else ")"
-        )
+        str_head = f"{self.__class__.__name__}(notice_type={self.notice_type}"
+        str_remain = f", sub_type={self.sub_type})" if hasattr(self, "sub_type") else ")"
+        return str_head + str_remain
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> NoticeEvent:
@@ -894,12 +888,9 @@ class RequestEvent(Event):
         self.request_type: Literal["friend", "group"] | str = self._model.request_type
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(request_type={self.request_type}"
-            + f", sub_type={self.sub_type})"
-            if hasattr(self, "sub_type")
-            else ")"
-        )
+        str_head = f"{self.__class__.__name__}(request_type={self.request_type}"
+        str_remain = f", sub_type={self.sub_type})" if hasattr(self, "sub_type") else ")"
+        return str_head + str_remain
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> RequestEvent:
