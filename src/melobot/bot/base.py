@@ -7,6 +7,7 @@ from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextma
 from enum import Enum
 from os import PathLike
 from pathlib import Path
+from random import random
 from types import ModuleType
 
 from typing_extensions import (
@@ -48,6 +49,7 @@ class BotLifeSpan(Enum):
 
 
 _BOT_CTX = BotCtx()
+_LUCKY_VALUE = random()
 
 
 def _start_log() -> None:
@@ -57,7 +59,15 @@ def _start_log() -> None:
     logger.info(f"版本：{MetaInfo.ver}")
     logger.info(f"系统：{platform.system()} {platform.release()} {platform.machine()}")
     logger.info(f"环境：{platform.python_implementation()} {platform.python_version()}")
+    if _LUCKY_VALUE >= 0.999:
+        logger.info("彩蛋：恭喜你触发了这个彩蛋，本次运行幸运值 +65535 ✨")
+
     logger.info("=" * 40)
+
+
+def _end_log() -> None:
+    if _LUCKY_VALUE >= 0.999:
+        logger.info('melobot: "我们弹下的每段旋律，终将在某时回归 🎵"')
 
 
 class Bot(HookMixin[BotLifeSpan]):
@@ -342,6 +352,7 @@ class Bot(HookMixin[BotLifeSpan]):
         :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
         """
         self._runner.run(self.core_run(), debug, strict_log)
+        _end_log()
 
     @classmethod
     def start(cls, *bots: Bot, debug: bool = False, strict_log: bool = False) -> None:
@@ -362,6 +373,7 @@ class Bot(HookMixin[BotLifeSpan]):
             except asyncio.CancelledError:
                 for t in tasks:
                     t.cancel()
+            _end_log()
 
         LoopManager().run(bots_run(), debug, strict_log)
 

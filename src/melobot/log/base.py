@@ -32,7 +32,7 @@ from ..utils.common import singleton
 _CONSOLE_IO = io.StringIO()
 _CONSOLE = rich.console.Console(file=_CONSOLE_IO, record=True, color_system="256")
 _REPR_HIGHLIGHTER = ReprHighlighter()
-_HIGH_LIGHTWORDS = ["GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
+_HIGH_LIGHTWORDS = ["melobot", "GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
 
 
 class _StyleHighlighter(Highlighter):
