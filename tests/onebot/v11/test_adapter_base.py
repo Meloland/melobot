@@ -4,7 +4,7 @@ from asyncio import Queue, create_task
 from melobot.adapter.generic import send_text
 from melobot.bot import Bot
 from melobot.handle import Flow, node
-from melobot.log import GenericLogger
+from melobot.log import logger
 from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.adapter.event import MessageEvent
@@ -69,7 +69,7 @@ class TempIO(BaseIOSource):
 
 
 @node
-async def process(adapter: Adapter, event: MessageEvent, logger: GenericLogger) -> None:
+async def process(adapter: Adapter, event: MessageEvent) -> None:
     assert isinstance(event, MessageEvent)
 
     pending = await adapter.with_echo(send_text)("generic send test")

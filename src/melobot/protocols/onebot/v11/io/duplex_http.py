@@ -5,12 +5,11 @@ import time
 from asyncio import Future
 
 import aiohttp
-import aiohttp.log
 import aiohttp.web
 
 from melobot import report_exc
 from melobot.io import SourceLifeSpan
-from melobot.log import LogLevel
+from melobot.log import LogLevel, logger
 
 from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
@@ -57,8 +56,8 @@ class HttpIO(BaseIOSource):
             recv_sign = request.headers["X-Signature"][len("sha1=") :]
 
             if sign != recv_sign:
-                self.logger.warning("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
-                self.logger.generic_obj("试图上报的数据", data, level=LogLevel.WARNING)
+                logger.warning("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
+                logger.generic_obj("试图上报的数据", data, level=LogLevel.WARNING)
                 return aiohttp.web.Response(status=403)
 
         try:
@@ -70,7 +69,7 @@ class HttpIO(BaseIOSource):
                 and raw.get("sub_type") == "connect"
             ):
                 await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
-            self.logger.generic_obj("收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG)
+            logger.generic_obj("收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG)
             await self._in_buf.put(InPacket(time=raw["time"], data=raw))
 
         except Exception as e:
@@ -126,9 +125,7 @@ class HttpIO(BaseIOSource):
                 )
             )
         except aiohttp.ContentTypeError:
-            self.logger.error(
-                "OneBot v11 HTTP IO 源无法解析上报数据。可能是 access_token 未配置或错误"
-            )
+            logger.error("OneBot v11 HTTP IO 源无法解析上报数据。可能是 access_token 未配置或错误")
         except Exception as e:
             report_exc(e, msg="OneBot v11 HTTP IO 源输出异常", var=packet.data)
 
@@ -150,9 +147,9 @@ class HttpIO(BaseIOSource):
             await self.serve_site.start()
             self._tasks.append(asyncio.create_task(self._output_loop()))
 
-            self.logger.info("OneBot v11 HTTP IO 源就绪，等待实现端上线中")
+            logger.info("OneBot v11 HTTP IO 源就绪，等待实现端上线中")
             await self._opened.wait()
-            self.logger.info("OneBot v11 HTTP IO 源双向通信已建立")
+            logger.info("OneBot v11 HTTP IO 源双向通信已建立")
 
     def opened(self) -> bool:
         return self._opened.is_set()
@@ -174,7 +171,7 @@ class HttpIO(BaseIOSource):
             self._tasks.clear()
 
             self._opened.clear()
-            self.logger.info("OneBot v11 HTTP IO 源已停止运行")
+            logger.info("OneBot v11 HTTP IO 源已停止运行")
 
     async def input(self) -> InPacket:
         return await self._in_buf.get()

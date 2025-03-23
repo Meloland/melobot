@@ -17,7 +17,8 @@ from typing_extensions import (
     cast,
 )
 
-from .log.base import GenericLogger, Logger, LogLevel
+from .log.base import LogLevel
+from .log.reflect import logger
 
 if TYPE_CHECKING:
     import socket
@@ -41,11 +42,10 @@ class LoopManager:
             cls.__instance__ = super().__new__(cls)
         return cls.__instance__
 
-    def __init__(self, logger: GenericLogger) -> None:
+    def __init__(self) -> None:
         self.root_task: asyncio.Task | None = None
         self.stop_accepted = False
-        self.logger: GenericLogger = logger
-        self.exc_handler = ExceptionHandler(self, logger)
+        self.exc_handler = ExceptionHandler(self)
         self.strict_log = False
 
     def run(self, root: Coroutine[Any, Any, None], debug: bool, strict_log: bool) -> None:
@@ -147,9 +147,8 @@ class LoopExcCtx(TypedDict):
 
 
 class ExceptionHandler:
-    def __init__(self, manager: LoopManager, logger: GenericLogger) -> None:
+    def __init__(self, manager: LoopManager) -> None:
         self.mananger = manager
-        self.logger = logger
 
     def handle_from_loop(self, loop: asyncio.AbstractEventLoop, context: dict[str, Any]) -> None:
         strict_log = self.mananger.strict_log
@@ -164,7 +163,7 @@ class ExceptionHandler:
                 and exc.code is not None
                 and int(exc.code) == ExitCode.RESTART.value
             ):
-                self.logger.debug("收到重启信号，即将重启...")
+                logger.debug("收到重启信号，即将重启...")
 
             elif "exception was never retrieved" in msg:
                 fut = ctx.get("future")
@@ -173,8 +172,8 @@ class ExceptionHandler:
                     try:
                         raise exc
                     except BaseException:
-                        self.logger.exception(f"从未捕获的异常的回溯栈：{msg}")
-                self.logger.generic_obj(
+                        logger.exception(f"从未捕获的异常的回溯栈：{msg}")
+                logger.generic_obj(
                     f"发现从未捕获的异常（这不一定是错误）：{msg}",
                     {"future": fut, "task": task},
                     level=LogLevel.ERROR if strict_log else LogLevel.DEBUG,
@@ -184,23 +183,23 @@ class ExceptionHandler:
                 try:
                     raise exc
                 except BaseException:
-                    self.logger.exception(f"事件循环中抛出预期外的异常：{msg}")
-                    self.logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
+                    logger.exception(f"事件循环中抛出预期外的异常：{msg}")
+                    logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
 
         else:
-            self.logger.error(f"事件循环出现预期外的状况：{msg}")
-            self.logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
+            logger.error(f"事件循环出现预期外的状况：{msg}")
+            logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
 
     def handle_from_report(self, exc: BaseException, msg: str, obj: Any = None) -> None:
         try:
             raise exc
         except BaseException:
-            self.logger.exception(msg)
+            logger.exception(msg)
             if obj is not None:
-                self.logger.generic_obj("相关变量信息：", obj, level=LogLevel.ERROR)
+                logger.generic_obj("相关变量信息：", obj, level=LogLevel.ERROR)
 
 
-LOOP_MANAGER = LoopManager(Logger("melobot.loop", LogLevel.DEBUG))
+LOOP_MANAGER = LoopManager()
 
 
 def report_exc(exc: BaseException, msg: str, var: Any) -> None:

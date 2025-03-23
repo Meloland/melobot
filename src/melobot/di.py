@@ -21,7 +21,7 @@ from typing_extensions import (
     get_origin,
 )
 
-from .ctx import BotCtx, EventOrigin, FlowCtx, LoggerCtx, ParseArgsCtx, SessionCtx
+from .ctx import BotCtx, EventOrigin, FlowCtx, ParseArgsCtx, SessionCtx, get_logger_type
 from .exceptions import DependBindError, DependInitError
 from .typ._enum import VoidType
 from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, is_subhint, is_type
@@ -142,8 +142,8 @@ class AutoDepends(Depends):
         elif is_subhint(hint, _get_adapter_type()):
             self.orig_getter = cast(Callable[[], Any], partial(_adapter_get, self, hint))
 
-        elif is_subhint(hint, LoggerCtx().get_type()):
-            self.orig_getter = LoggerCtx().get
+        elif is_subhint(hint, get_logger_type()):
+            self.orig_getter = BotCtx().get_logger
 
         elif is_subhint(hint, FlowCtx().get_store_type()):
             self.orig_getter = FlowCtx().get_store
@@ -234,7 +234,7 @@ def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
 
 
 def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
-    val = LoggerCtx().get()
+    val = BotCtx().get_logger()
     if not is_type(val, hint):
         val = data.getter()
     return val
@@ -300,8 +300,6 @@ class Reflection:
 
     def __getattr__(self, name: str) -> Any:
         getter = self.__obj_getter__
-        if name == "__obj_getter__":
-            return getter
         if name.startswith("_"):
             raise AttributeError(f"在反射对象上，不允许访问名称以 _ 开头的属性：{name}")
 

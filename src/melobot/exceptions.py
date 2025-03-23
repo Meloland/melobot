@@ -114,3 +114,7 @@ class DynamicImpError(BotException, ImportError):
     def __init__(self, *args: Any, name: str | None = None, path: str | None = None) -> None:
         BotException.__init__(self, *args)
         ImportError.__init__(self, *args, name=name, path=path)
+
+
+class DynamicImpSpecEmpty(DynamicImpError):
+    """melobot 动态导入时，模块的 spec 为空"""

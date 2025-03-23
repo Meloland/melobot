@@ -4,18 +4,8 @@ from asyncio import Future, get_running_loop
 from typing_extensions import Any, Callable, Generic, Self, cast
 
 from ._hook import HookBus, HookEnumT
-from .ctx import LoggerCtx
-from .log.base import GenericLogger
 from .typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from .utils.base import to_async
-
-
-class LogMixin:
-    """日志混合类"""
-
-    @property
-    def logger(self) -> GenericLogger:
-        return LoggerCtx().get()
 
 
 class FlagMixin:

@@ -6,8 +6,8 @@ from enum import Enum
 from typing_extensions import Any, Generic, TypeVar
 
 from ._run import report_exc
-from .ctx import LoggerCtx
 from .di import inject_deps
+from .log.reflect import logger
 from .typ.base import AsyncCallable, SyncOrAsyncCallable
 from .utils import to_async, to_sync
 
@@ -79,7 +79,6 @@ class HookBus(Generic[HookEnumT]):
         self._stamps[hook_type] = time.time_ns() / 1e9
         args = args if args is not None else ()
         kwargs = kwargs if kwargs is not None else {}
-        logger = LoggerCtx().get()
 
         msg = f"<{hook_type}>（{wait = }）"  # noqa: E251, E202
         if self._tag:

@@ -200,6 +200,9 @@ class BotCtx(Context["Bot"]):
 
         return Bot
 
+    def get_logger(self) -> "GenericLogger | None":
+        return self.get().logger
+
 
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
@@ -233,14 +236,10 @@ class SessionCtx(Context["Session"]):
         return Rule
 
 
-class LoggerCtx(Context["GenericLogger"]):
-    def __init__(self) -> None:
-        super().__init__("MELOBOT_LOGGER", LogError, "此时未初始化 logger 实例，无法获取")
+def get_logger_type() -> type["GenericLogger"]:
+    from .log.base import GenericLogger
 
-    def get_type(self) -> type["GenericLogger"]:
-        from .log.base import GenericLogger
-
-        return GenericLogger
+    return GenericLogger
 
 
 class EventOrigin:

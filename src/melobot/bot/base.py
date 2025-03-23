@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import asyncio.tasks
 import os
 import platform
 from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
@@ -21,13 +20,14 @@ from typing_extensions import (
 )
 
 from .._meta import MetaInfo
-from .._run import LOOP_MANAGER
+from .._run import LoopManager
 from ..adapter.base import Adapter
-from ..ctx import BotCtx, LoggerCtx
+from ..ctx import BotCtx
 from ..exceptions import BotError
 from ..handle.base import Flow
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
-from ..log.base import GenericLogger, Logger, NullLogger
+from ..log.base import GenericLogger
+from ..log.reflect import logger
 from ..mixin import HookMixin
 from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
@@ -48,10 +48,9 @@ class BotLifeSpan(Enum):
 
 
 _BOT_CTX = BotCtx()
-_LOGGER_CTX = LoggerCtx()
 
 
-def _start_log(logger: GenericLogger) -> None:
+def _start_log() -> None:
     for row in MetaInfo.logo.split("\n"):
         logger.info(f"{row}")
     logger.info("")
@@ -77,13 +76,7 @@ class Bot(HookMixin[BotLifeSpan]):
         Bot.__instances__[name] = obj
         return obj
 
-    def __init__(
-        self,
-        name: str = "melobot",
-        /,
-        logger: GenericLogger | None = None,
-        enable_log: bool = True,
-    ) -> None:
+    def __init__(self, name: str = "melobot", /, logger: GenericLogger | None = None) -> None:
         """
         初始化 bot
 
@@ -91,23 +84,16 @@ class Bot(HookMixin[BotLifeSpan]):
         :param logger:
             bot 使用的日志器，符合 :class:`.GenericLogger` 的接口即可。
             可使用 melobot 内置的 :class:`.Logger`，或经过 :func:`.logger_patch` 修补的日志器
-        :param enable_log: 是否启用日志功能
         """
         super().__init__(hook_type=BotLifeSpan, hook_tag=name)
 
         self.name = name
-        self.logger: GenericLogger
-        if not enable_log:
-            self.logger = NullLogger()
-        elif logger is None:
-            self.logger = Logger()
-        else:
-            self.logger = logger
+        self.logger = logger
 
         self.adapters: dict[str, Adapter] = {}
         self.ipc_manager = IPCManager()
 
-        self._runner = LOOP_MANAGER
+        self._runner = LoopManager()
         self._in_srcs: dict[str, set[AbstractInSource]] = {}
         self._out_srcs: dict[str, set[AbstractOutSource]] = {}
         self._loader = PluginLoader()
@@ -130,14 +116,12 @@ class Bot(HookMixin[BotLifeSpan]):
     def _common_sync_ctx(self) -> Generator[ExitStack, None, None]:
         with ExitStack() as stack:
             stack.enter_context(_BOT_CTX.unfold(self))
-            stack.enter_context(_LOGGER_CTX.unfold(self.logger))
             yield stack
 
     @asynccontextmanager
     async def _common_async_ctx(self) -> AsyncGenerator[AsyncExitStack, None]:
         async with AsyncExitStack() as stack:
             stack.enter_context(_BOT_CTX.unfold(self))
-            stack.enter_context(_LOGGER_CTX.unfold(self.logger))
             yield stack
 
     def add_input(self, src: AbstractInSource) -> Bot:
@@ -203,7 +187,7 @@ class Bot(HookMixin[BotLifeSpan]):
         return self
 
     def _core_init(self) -> None:
-        _start_log(self.logger)
+        _start_log()
 
         for protocol, srcs in self._in_srcs.items():
             for isrc in srcs:
@@ -211,7 +195,7 @@ class Bot(HookMixin[BotLifeSpan]):
                 if adapter is not None:
                     adapter.in_srcs.add(isrc)
                 else:
-                    self.logger.warning(f"输入源 {isrc.__class__.__name__} 没有对应的适配器")
+                    logger.warning(f"输入源 {isrc.__class__.__name__} 没有对应的适配器")
 
         for protocol, outsrcs in self._out_srcs.items():
             for osrc in outsrcs:
@@ -219,18 +203,18 @@ class Bot(HookMixin[BotLifeSpan]):
                 if adapter is not None:
                     adapter.out_srcs.add(osrc)
                 else:
-                    self.logger.warning(f"输出源 {osrc.__class__.__name__} 没有对应的适配器")
+                    logger.warning(f"输出源 {osrc.__class__.__name__} 没有对应的适配器")
 
         for adapter in self.adapters.values():
             if not len(adapter.in_srcs) and not len(adapter.out_srcs):
-                self.logger.warning(f"适配器 {adapter.__class__.__name__} 没有对应的输入源或输出源")
+                logger.warning(f"适配器 {adapter.__class__.__name__} 没有对应的输入源或输出源")
             adapter.dispatcher = self._dispatcher
 
         self._inited = True
-        self.logger.debug("bot 核心组件初始化完成")
+        logger.debug("bot 核心组件初始化完成")
         policy = asyncio.get_event_loop_policy()
         policy_name = f"{policy.__class__.__module__}.{policy.__class__.__name__}"
-        self.logger.debug(f"当前事件循环策略：<{policy_name}>")
+        logger.debug(f"当前事件循环策略：<{policy_name}>")
 
     def load_plugin(
         self,
@@ -259,7 +243,7 @@ class Bot(HookMixin[BotLifeSpan]):
                 self.ipc_manager.add(p.name, share)
             for func in p.funcs:
                 self.ipc_manager.add_func(p.name, func)
-            self.logger.info(f"成功加载插件：{p.name}")
+            logger.info(f"成功加载插件：{p.name}")
 
             if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
                 asyncio.create_task(
@@ -348,7 +332,7 @@ class Bot(HookMixin[BotLifeSpan]):
         finally:
             async with self._common_async_ctx() as stack:
                 await self._hook_bus.emit(BotLifeSpan.STOPPED, True)
-                self.logger.info(f"{self} 已安全停止运行")
+                logger.info(f"{self} 已安全停止运行")
                 self._running = False
 
     def run(self, debug: bool = False, strict_log: bool = False) -> None:
@@ -379,7 +363,7 @@ class Bot(HookMixin[BotLifeSpan]):
                 for t in tasks:
                     t.cancel()
 
-        LOOP_MANAGER.run(bots_run(), debug, strict_log)
+        LoopManager().run(bots_run(), debug, strict_log)
 
     async def close(self) -> None:
         """停止并关闭当前 bot"""

@@ -10,9 +10,10 @@ from types import ModuleType
 
 from typing_extensions import Any, Callable, Iterable, cast
 
-from .._imp import Importer
-from ..ctx import BotCtx, LoggerCtx
-from ..exceptions import PluginAutoGenError, PluginLoadError
+from .._imp import ALL_EXTS, Importer
+from ..ctx import BotCtx
+from ..exceptions import DynamicImpSpecEmpty, PluginAutoGenError, PluginLoadError
+from ..log.reflect import logger
 from ..utils.common import singleton
 from .base import Plugin, PluginPlanner
 from .ipc import AsyncShare, SyncShare
@@ -149,8 +150,7 @@ class PluginInitHelper:
     def run_init(*plugin_dirs: str | PathLike[str], load_depth: int = 1) -> None:
         from melobot.bot import Bot
 
-        tmp_bot = Bot(enable_log=False)
-
+        tmp_bot = Bot()
         for p_dir in plugin_dirs:
             p_dir = Path(p_dir)
             if not p_dir.is_absolute():
@@ -177,7 +177,6 @@ class PluginInitHelper:
 
             with ExitStack() as ctx_stack:
                 ctx_stack.enter_context(BotCtx().unfold(tmp_bot))
-                ctx_stack.enter_context(LoggerCtx().unfold(tmp_bot.logger))
 
                 prefix = ".".join(p_dir.parts[-load_depth:])
                 p_entry_mod_name = f"{prefix}.__plugin__"
@@ -230,6 +229,7 @@ class PluginInitHelper:
 
 P_PLANNER_ATTR = "__plugin_planner__"
 P_INFO_ATTR = "__plugin_info__"
+_MODULE_SUFFIXES = ALL_EXTS
 
 
 @singleton
@@ -266,7 +266,7 @@ class PluginLoader:
         p_planner = cast(PluginPlanner, p_planner)
         if p_planner._built:
             p = p_planner._plugin
-            LoggerCtx().get().debug(f"插件 {p.name} 已加载，重复加载将被跳过")
+            logger.debug(f"插件 {p.name} 已加载，重复加载将被跳过")
             return p, True
 
         p = p_planner.__p_build__(name=p_name)
@@ -275,19 +275,21 @@ class PluginLoader:
     def load(
         self, plugin: ModuleType | str | PathLike[str] | PluginPlanner, load_depth: int
     ) -> tuple[Plugin, bool]:
-        logger = LoggerCtx().get()
         _plugin_repr = repr(plugin)
 
         if isinstance(plugin, PluginPlanner):
             p_name = f"_DynamicPlugin_0x{id(plugin):0x}"
             return self._build_plugin(p_name, entry=None, p_planner=plugin)
 
-        if isinstance(plugin, str):
+        if (
+            isinstance(plugin, str)
+            and not plugin.endswith(_MODULE_SUFFIXES)
+            and not Path(plugin).exists()
+        ):
             try:
                 tmp_mod = Importer.import_mod(plugin)
-                assert isinstance(tmp_mod, ModuleType)
                 plugin = tmp_mod
-            except BaseException:
+            except DynamicImpSpecEmpty:
                 pass
 
         if isinstance(plugin, ModuleType):
@@ -301,7 +303,7 @@ class PluginLoader:
                 p_dir = Path.cwd().joinpath(p_dir).resolve()
 
         p_name = p_dir.parts[-1]
-        logger.debug(f"尝试加载来自 {repr(p_dir)} 的插件：{p_name}")
+        logger.debug(f"尝试加载来自 {p_dir!r} 的插件：{p_name}")
 
         if p_name in sys.stdlib_module_names:
             raise PluginLoadError(

@@ -1,10 +1,10 @@
 import re
 import sys
-import types
+from functools import partial
 
 from typing_extensions import Any, Callable, Protocol, cast
 
-from .base import GenericLogger, Logger, LogLevel
+from .base import GenericLogger, Logger, LogLevel, generic_obj_meth
 
 
 class LazyLogMethod(Protocol):
@@ -33,7 +33,7 @@ def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
     :param lazy_meth: 修补方法
     """
     setattr(logger, Logger.generic_lazy.__name__, lazy_meth)
-    setattr(logger, Logger.generic_obj.__name__, types.MethodType(Logger.generic_obj, logger))
+    setattr(logger, Logger.generic_obj.__name__, partial(generic_obj_meth, logger))
     return cast(GenericLogger, logger)
 
 

@@ -15,7 +15,7 @@ from importlib.machinery import (
     ModuleSpec,
 )
 from importlib.machinery import PathFinder as _PathFinder
-from importlib.machinery import SourceFileLoader, SourcelessFileLoader, all_suffixes
+from importlib.machinery import SourceFileLoader, SourcelessFileLoader
 from importlib.util import module_from_spec, spec_from_file_location
 from os import PathLike
 from pathlib import Path
@@ -23,10 +23,12 @@ from types import ModuleType
 
 from typing_extensions import Any, Sequence, cast
 
-from .exceptions import DynamicImpError
+from .exceptions import DynamicImpSpecEmpty
 from .utils.common import singleton
 
-ALL_EXTS = tuple(all_suffixes())
+# 扩展名的优先级顺序非常重要
+ALL_EXTS = tuple(EXTENSION_SUFFIXES + SOURCE_SUFFIXES + BYTECODE_SUFFIXES)
+PKG_INIT_FILENAMES = tuple(f"__init__{ext}" for ext in ALL_EXTS)
 EMPTY_PKG_TAG = "__melobot_namespace_pkg__"
 ZIP_MODULE_TAG = "__melobot_zip_module__"
 
@@ -68,13 +70,16 @@ class SpecFinder(MetaPathFinder):
             for entry in paths:
                 entry_path = Path(entry)
                 dir_path = entry_path.joinpath(name)
-                pkg_init_path = dir_path.joinpath("__init__.py")
+                pkg_init_paths = tuple(
+                    dir_path.joinpath(filename) for filename in PKG_INIT_FILENAMES
+                )
 
-                # 带有 __init__.py 的包优先
-                if pkg_init_path.exists():
-                    mod_path = pkg_init_path
-                    submod_locs = [str(dir_path.resolve())]
-                    raise _NestedQuickExit
+                # 带有 __init__.* 的包优先
+                for pkg_init_path in pkg_init_paths:
+                    if pkg_init_path.exists():
+                        mod_path = pkg_init_path
+                        submod_locs = [str(dir_path.resolve())]
+                        raise _NestedQuickExit
 
                 # 其次是各种可加载的文件
                 for ext in ALL_EXTS:
@@ -109,7 +114,7 @@ class SpecFinder(MetaPathFinder):
                         setattr(spec, ZIP_MODULE_TAG, True)
                         return spec
 
-                # 没有 __init__.py 的包最后查找，spec 设置为与内置导入兼容的命名空间包格式
+                # 没有 __init__.* 的包最后查找，spec 设置为与内置导入兼容的命名空间包格式
                 if dir_path.exists() and dir_path.is_dir():
                     dir_path_str = str(dir_path.resolve())
                     loader = cast(
@@ -136,7 +141,7 @@ class SpecFinder(MetaPathFinder):
                     )
                     assert (
                         spec is not None
-                    ), f"package from {dir_path} without __init__.py create spec failed"
+                    ), f"package from {dir_path} without __init__ file create spec failed"
                     spec.has_location = False
                     spec.origin = None
                     setattr(spec, EMPTY_PKG_TAG, True)
@@ -172,8 +177,8 @@ class ModuleCacher:
         return mod in self._caches.values()
 
     def get_cache(self, path: Path) -> ModuleType | None:
-        # 对应有 __init__.py 的包模块
-        if path.parts[-1] == "__init__.py":
+        # 对应有 __init__.* 的包模块
+        if path.parts[-1] in PKG_INIT_FILENAMES:
             path = path.parent
         return self._caches.get(path)
 
@@ -188,11 +193,11 @@ class ModuleCacher:
         # __file__ 存在且不为空，可能包或任意可被加载的文件
         if mod.__file__ is not None:
             fp = Path(mod.__file__)
-            if fp.parts[-1] == "__init__.py":
+            if fp.parts[-1] in PKG_INIT_FILENAMES:
                 self._caches[fp.parent] = mod
             else:
                 self._caches[fp] = mod
-        # 若 __file__ 为空则有 __path__，对应无 __init__.py 的包
+        # 若 __file__ 为空则有 __path__，对应无 __init__.* 的包
         else:
             self._caches[Path(mod.__path__[0])] = mod
 
@@ -267,7 +272,7 @@ class ModuleLoader(Loader):
                 except KeyError:
                     pass
                 raise
-        # 若 inner_loader 为空，则是纯粹的命名空间包（没有 __init__.py 的包模块）
+        # 若 inner_loader 为空，则是纯粹的命名空间包（没有 __init__.* 的包模块）
         # 也就不需要任何实质性的 exec_module 过程
 
         if self.melobot_load_cache:
@@ -319,9 +324,10 @@ class Importer:
         if path is not None:
             try:
                 sep = name.rindex(".")
-                Importer.import_mod(name[:sep], Path(path).parent, True, True)
             except ValueError:
                 pass
+            else:
+                Importer.import_mod(name[:sep], Path(path).parent, True, True)
 
         if sys_cache and name in sys.modules:
             return sys.modules[name]
@@ -335,7 +341,7 @@ class Importer:
             pre_cache_len=pre_cache_len,
         )
         if spec is None:
-            raise DynamicImpError(
+            raise DynamicImpSpecEmpty(
                 f"名为 {name} 的模块无法加载，指定的位置：{path}",
                 name=name,
                 path=str(path),

@@ -3,10 +3,9 @@ from asyncio import Queue, create_task
 
 from melobot.bot import Bot
 from melobot.handle import on_start_match
-from melobot.log import GenericLogger
+from melobot.log import logger
 from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
 from melobot.protocols.onebot.v11.io.base import BaseIOSource
 from melobot.protocols.onebot.v11.io.packet import EchoPacket, InPacket, OutPacket
 from melobot.protocols.onebot.v11.utils import GroupMsgChecker, LevelRole
@@ -36,12 +35,12 @@ _GRUOP_EVENT_DICT = {
     "user_id": 3,
     "anonymous": None,
     "group_id": 6,
-    "raw_message": "45691237\n\r\t .echo/123/456    \r\n",
+    "raw_message": "\n\r\t .echo/123/456    \r\n",
 }
 
 
 h = on_start_match(
-    ["123", "456"],
+    ["\n\r\t .echo"],
     checker=GroupMsgChecker(
         role=LevelRole.WHITE,
         owner=1,
@@ -55,7 +54,7 @@ h = on_start_match(
 
 
 @h
-async def _flow(bot: Bot, logger: GenericLogger, args: CmdArgs) -> None:
+async def _flow(bot: Bot, args: CmdArgs) -> None:
     logger.info(args)
     await bot.close()
     _SUCCESS_SIGNAL.set()

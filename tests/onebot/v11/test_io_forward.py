@@ -3,8 +3,6 @@ from asyncio import Queue, create_task
 
 import websockets
 
-from melobot.ctx import LoggerCtx
-from melobot.log.base import Logger
 from melobot.protocols.onebot.v11.adapter import action
 from melobot.protocols.onebot.v11.io.forward import ForwardWebSocketIO
 from melobot.protocols.onebot.v11.io.packet import OutPacket
@@ -71,41 +69,37 @@ class MockWebsocket:
 
 
 async def test_forward_ws(monkeypatch) -> None:
-    with LoggerCtx().unfold(Logger()):
-        monkeypatch.setattr(websockets, "connect", MockWebsocket.get)
-        io = ForwardWebSocketIO("ws://example.com", max_retry=3, retry_delay=1)
-        async with io:
+    monkeypatch.setattr(websockets, "connect", MockWebsocket.get)
+    io = ForwardWebSocketIO("ws://example.com", max_retry=3, retry_delay=1)
+    async with io:
+        await _IN_BUF.put(json.dumps(_TEST_EVENT_DICT))
+        pak = await io.input()
+        assert pak.data == _TEST_EVENT_DICT
 
-            await _IN_BUF.put(json.dumps(_TEST_EVENT_DICT))
-            pak = await io.input()
-            assert pak.data == _TEST_EVENT_DICT
+        pak = await io.output(
+            OutPacket(
+                data=_TEST_ACTION.extract(),
+                action_type=_TEST_ACTION.extract()["action"],
+                action_params=_TEST_ACTION.extract()["params"],
+            )
+        )
+        await _OUT_BUF.get() == _TEST_ACTION.flatten()
+        assert pak.noecho
 
-            pak = await io.output(
+        _TEST_ACTION.set_echo(True)
+        t = create_task(
+            io.output(
                 OutPacket(
                     data=_TEST_ACTION.extract(),
                     action_type=_TEST_ACTION.extract()["action"],
                     action_params=_TEST_ACTION.extract()["params"],
+                    echo_id=_TEST_ACTION.extract()["echo"],
                 )
             )
-            await _OUT_BUF.get() == _TEST_ACTION.flatten()
-            assert pak.noecho
-
-            _TEST_ACTION.set_echo(True)
-            t = create_task(
-                io.output(
-                    OutPacket(
-                        data=_TEST_ACTION.extract(),
-                        action_type=_TEST_ACTION.extract()["action"],
-                        action_params=_TEST_ACTION.extract()["params"],
-                        echo_id=_TEST_ACTION.extract()["echo"],
-                    )
-                )
-            )
-            await _OUT_BUF.get() == _TEST_ACTION.flatten()
-            await _IN_BUF.put(
-                json.dumps(_TEST_ECHO_DICT | {"echo": _TEST_ACTION.extract()["echo"]})
-            )
-            pak = await t
-            assert pak.data["data"]["hello"] == _TEST_ECHO_DICT["data"]["hello"]
-            assert pak.ok == (_TEST_ECHO_DICT["status"] == "ok")
-            assert pak.status == _TEST_ECHO_DICT["retcode"]
+        )
+        await _OUT_BUF.get() == _TEST_ACTION.flatten()
+        await _IN_BUF.put(json.dumps(_TEST_ECHO_DICT | {"echo": _TEST_ACTION.extract()["echo"]}))
+        pak = await t
+        assert pak.data["data"]["hello"] == _TEST_ECHO_DICT["data"]["hello"]
+        assert pak.ok == (_TEST_ECHO_DICT["status"] == "ok")
+        assert pak.status == _TEST_ECHO_DICT["retcode"]

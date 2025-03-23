@@ -8,7 +8,7 @@ from types import TracebackType
 
 from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
 
-from ..mixin import HookMixin, LogMixin
+from ..mixin import HookMixin
 from ..typ.cls import BetterABC, abstractattr
 from ..utils.common import get_id
 
@@ -82,7 +82,7 @@ class SourceLifeSpan(Enum):
     STOPPED = "sto"
 
 
-class AbstractSource(HookMixin[SourceLifeSpan], LogMixin, BetterABC):
+class AbstractSource(HookMixin[SourceLifeSpan], BetterABC):
     """抽象源基类"""
 
     protocol: LiteralString = abstractattr()

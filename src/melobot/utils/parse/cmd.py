@@ -6,7 +6,7 @@ from types import TracebackType
 from typing_extensions import Any, Callable, Iterable, Iterator, NamedTuple, Optional, Sequence
 
 from melobot.exceptions import UtilError
-from melobot.log import get_logger
+from melobot.log import logger
 from melobot.typ import SyncOrAsyncCallable, VoidType
 from melobot.utils import to_async
 
@@ -186,7 +186,7 @@ class CmdArgFormatter:
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip += f"\n详细错误描述：[{e_class}] {info.exc}"
         tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
-        get_logger().warning(tip)
+        logger.warning(tip)
 
     async def _validate_fail_default(self, info: CmdArgFormatInfo) -> None:
         src = repr(info.src) if isinstance(info.src, str) else info.src
@@ -200,14 +200,14 @@ class CmdArgFormatter:
 
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
-        get_logger().warning(tip)
+        logger.warning(tip)
 
     async def _arglack_default(self, info: CmdArgFormatInfo) -> None:
         tip = f"第 {info.idx + 1} 个参数"
         tip += f"（{info.src_desc}）缺失。" if info.src_desc else "缺失。"
         tip += f"参数要求：{info.src_expect}。" if info.src_expect else ""
         tip = f"命令 {info.name} 参数格式化失败：\n{tip}"
-        get_logger().warning(tip)
+        logger.warning(tip)
 
 
 class CmdParseResult(NamedTuple):

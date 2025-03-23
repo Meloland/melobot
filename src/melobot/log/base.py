@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import io
 import logging
-import logging.config
 import logging.handlers
 import os
 import sys
@@ -23,7 +22,7 @@ from better_exceptions import ExceptionFormatter
 from rich.highlighter import Highlighter, ReprHighlighter
 from rich.style import Style
 from rich.text import Text
-from typing_extensions import Any, Callable, Generator, Literal, Optional
+from typing_extensions import Any, Callable, Generator, Literal, Optional, cast
 
 from ..typ._enum import VoidType
 from ..typ.base import T
@@ -136,8 +135,6 @@ class _MeloLogFilter(logging.Filter):
         if record.args:
             msg = msg % record.args
         record.msg_str = msg
-
-        record.mod_name, record.func_name, record.func_lineno = _current_finfo()
         self._fill_msg_and_obj(msg, record)
         return True
 
@@ -199,24 +196,40 @@ def _is_internal_frame(frame: types.FrameType) -> bool:
     )
 
 
-def _current_finfo() -> tuple[str, str, int]:
-    frame = currentframe()
-    while frame:
-        if not _is_internal_frame(frame):
-            return (
-                frame.f_globals["__name__"],
-                frame.f_code.co_name,
-                frame.f_lineno,
-            )
-        frame = frame.f_back
-    return "<unknown module>", "<unknown file>", -1
+def find_caller_stack(
+    stack_info: bool = False, stacklevel: int = 1
+) -> tuple[str, str, int, str, str | None]:
+    f = currentframe()
+    if f is None:
+        return "<unknown module>", "<unknown file>", 0, "<unknown function>", "<unknown stackinfo>"
+
+    while stacklevel > 0:
+        next_f = f.f_back
+        if next_f is None:
+            break
+        f = next_f
+        if not _is_internal_frame(f):
+            stacklevel -= 1
+    co = f.f_code
+    sinfo = None
+
+    if stack_info:
+        with io.StringIO() as sio:
+            sio.write("Stack (most recent call last):\n")
+            traceback.print_stack(f, file=sio)
+            sinfo = sio.getvalue()
+            if sinfo[-1] == "\n":
+                sinfo = sinfo[:-1]
+
+    assert isinstance(f.f_lineno, int)
+    return f.f_globals["__name__"], co.co_filename, f.f_lineno, co.co_name, sinfo
 
 
 class GenericLogger(BetterABC):
     """通用日志器抽象类
 
     任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，
-    即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.__init__`）
+    即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.`）
     """
 
     @abstractmethod
@@ -318,24 +331,36 @@ class Logger(_Logger, GenericLogger):
     等接口与 :class:`logging.Logger` 用法完全一致
     """
 
-    __instances__: dict[str, "Logger"] = {}
+    def findCaller(
+        self, stack_info: bool = False, stacklevel: int = 1
+    ) -> tuple[str, int, str, str | None]:
+        *ret, sinfo = find_caller_stack(stack_info, stacklevel)
+        sinfo = f"\u0000{ret[0]},{ret[2]}"
+        return cast(tuple[str, int, str, str | None], (*(ret[1:]), sinfo))
 
-    def __new__(cls, name: str = "melobot", /, *args: Any, **kwargs: Any) -> Logger:
-        if name in Logger.__instances__:
-            return Logger.__instances__[name]
-        obj = super().__new__(cls)
-        Logger.__instances__[name] = obj
-        return obj
+    def makeRecord(self, *args: Any, **kwargs: Any) -> logging.LogRecord:
+        record = super().makeRecord(*args, **kwargs)
+        sinfo = record.stack_info
+
+        *sinfo_strs, caller_info = cast(str, sinfo).split("\u0000")
+        *mod_name_strs, func_lineno = caller_info.split(",")
+        record.mod_name = "".join(mod_name_strs)
+        record.func_lineno = int(func_lineno)
+
+        sinfo = "".join(sinfo_strs)
+        if sinfo == "":
+            sinfo = None
+        record.stack_info = sinfo
+        return record
 
     def __init__(
         self,
-        name: str = "melobot",
-        /,
+        name: str = "[default]",
         level: LogLevel = LogLevel.INFO,
         file_level: LogLevel = LogLevel.DEBUG,
         to_console: bool = True,
         to_dir: str | None = None,
-        add_tag: bool = False,
+        add_tag: bool = True,
         legacy: bool = False,
         yellow_warn: bool = True,
         red_error: bool = True,
@@ -360,9 +385,6 @@ class Logger(_Logger, GenericLogger):
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件
         """
-        if hasattr(self, "_built") and self._built:
-            return
-
         super().__init__(name, LogLevel.DEBUG)
         self._handler_arr: list[logging.Handler] = []
         self._no_tag = not add_tag
@@ -380,8 +402,6 @@ class Logger(_Logger, GenericLogger):
             normal_handler = self._add_file_handler(to_dir, f"{name}.out", file_level)
             normal_handler.addFilter(_NormalLvlFilter(name))
             self._add_file_handler(to_dir, f"{name}.err", max(file_level, LogLevel.WARNING))
-
-        self._built: bool = True
 
     def _add_console_handler(self) -> logging.Handler:
         fmt = self._console_fmt(self.name, self._no_tag)
@@ -418,11 +438,10 @@ class Logger(_Logger, GenericLogger):
         fmt_arr = [
             "%(cyan)s%(asctime)s.%(msecs)03d%(reset)s",
             "%(log_color)s%(levelname)-7s%(reset)s",
-            "%(blue)s%(mod_name)s%(reset)s:%(blue)s%(func_name)s%(reset)s"
-            + ":%(cyan)s%(func_lineno)d%(reset)s",
+            "%(blue)s%(mod_name)s%(reset)s:%(cyan)s%(func_lineno)d%(reset)s",
         ]
         if not no_tag:
-            fmt_arr.insert(0, f"%(purple)s{name}%(reset)s")
+            fmt_arr.insert(1, f"%(purple)s{name}%(reset)s")
         fmt_s = " | ".join(fmt_arr)
         msg_str_f = "%(log_color)s%(legacy_msg_str)s%(reset)s%(colored_msg_str)s"
         obj_str_f = "%(log_color)s%(legacy_obj)s%(reset)s%(colored_obj)s"
@@ -449,10 +468,10 @@ class Logger(_Logger, GenericLogger):
         fmt_arr = [
             "%(asctime)s.%(msecs)03d",
             "%(levelname)-7s",
-            "%(mod_name)s:%(func_name)s:%(func_lineno)d",
+            "%(mod_name)s:%(func_lineno)d",
         ]
         if not no_tag:
-            fmt_arr.insert(0, name)
+            fmt_arr.insert(1, name)
         fmt_s = " | ".join(fmt_arr)
         fmt_s += " - %(msg_str)s%(obj)s"
 
@@ -497,40 +516,13 @@ class Logger(_Logger, GenericLogger):
             if not isinstance(handler, logging.handlers.RotatingFileHandler):
                 handler.setLevel(level)
 
-    def findCaller(
-        self, stack_info: bool = False, stacklevel: int = 1
-    ) -> tuple[str, int, str, str | None]:
-        f = currentframe()
-        if f is None:
-            return "<unknown file>", 0, "<unknown function>", "<unknown stackinfo>"
-
-        while stacklevel > 0:
-            next_f = f.f_back
-            if next_f is None:
-                break
-            f = next_f
-            if not _is_internal_frame(f):
-                stacklevel -= 1
-        co = f.f_code
-        sinfo = None
-
-        if stack_info:
-            with io.StringIO() as sio:
-                sio.write("Stack (most recent call last):\n")
-                traceback.print_stack(f, file=sio)
-                sinfo = sio.getvalue()
-                if sinfo[-1] == "\n":
-                    sinfo = sinfo[:-1]
-
-        assert isinstance(f.f_lineno, int)
-        return co.co_filename, f.f_lineno, co.co_name, sinfo
-
     def generic_lazy(
         self,
         msg: str,
         *arg_getters: Callable[[], str],
         level: LogLevel,
         with_exc: bool = False,
+        stacklevel: int = 1,
     ) -> None:
         """懒惰日志方法
 
@@ -538,11 +530,12 @@ class Logger(_Logger, GenericLogger):
         :param arg_getters: 填充消息 %s 位置的填充函数
         :param level: 日志等级
         :param with_exc: 是否记录异常栈信息
+        :param stacklevel: 打印日志时尝试解析的调用栈层级
         """
         if not self.isEnabledFor(level):
             return
         exc = sys.exc_info() if with_exc else None
-        self._log(level, msg, tuple(g() for g in arg_getters), exc_info=exc)
+        self._log(level, msg, tuple(g() for g in arg_getters), exc_info=exc, stacklevel=stacklevel)
 
     def generic_obj(
         self,
@@ -550,6 +543,7 @@ class Logger(_Logger, GenericLogger):
         obj: T,
         *arg_getters: Callable[[], str],
         level: LogLevel = LogLevel.INFO,
+        stacklevel: int = 1,
     ) -> None:
         """记录对象的日志方法
 
@@ -557,10 +551,18 @@ class Logger(_Logger, GenericLogger):
         :param obj: 需要被日志记录的对象
         :param arg_getters: 填充消息 %s 位置的填充函数
         :param level: 日志等级
+        :param stacklevel: 打印日志时尝试解析的调用栈层级
         """
-        if isinstance(self, Logger):
-            with self._filter.on_obj(obj):
-                self.generic_lazy(msg + "\n", *arg_getters, level=level)
-        else:
-            _getters = arg_getters + (lambda: _get_rich_object(obj)[1],)
-            self.generic_lazy(msg + "\n%s", *_getters, level=level)
+        with self._filter.on_obj(obj):
+            self.generic_lazy(msg + "\n", *arg_getters, level=level, stacklevel=stacklevel)
+
+
+def generic_obj_meth(
+    logger: GenericLogger,
+    msg: str,
+    obj: T,
+    *arg_getters: Callable[[], str],
+    level: LogLevel = LogLevel.INFO,
+) -> None:
+    _getters = arg_getters + (lambda: _get_rich_object(obj)[1],)
+    logger.generic_lazy(msg + "\n%s", *_getters, level=level)

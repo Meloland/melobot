@@ -77,10 +77,9 @@ def singleton(cls: type[T] | Callable[P, T]) -> type[T] | Callable[P, T]:
 
 
 def deprecate_warn(msg: str, stacklevel: int = 2) -> None:
-    from ..ctx import LoggerCtx
+    from ..log.reflect import logger
 
-    if logger := LoggerCtx().try_get():
-        logger.warning(msg)
+    logger.warning(msg)
     warnings.simplefilter("always", DeprecationWarning)
     warnings.warn(msg, category=DeprecationWarning, stacklevel=stacklevel)
     warnings.simplefilter("default", DeprecationWarning)
