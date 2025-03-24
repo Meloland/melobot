@@ -1,4 +1,4 @@
-from typing import cast
+from typing_extensions import cast
 
 from melobot.adapter.content import TextContent
 from melobot.protocols.onebot.v11.adapter import event

@@ -1,21 +1,4 @@
-import logging
-import sys
-
-import better_exceptions
 from typing_extensions import Any
-
-better_exceptions.SUPPORTS_COLOR = True
-better_exceptions.color.SUPPORTS_COLOR = True
-better_exceptions.formatter.SUPPORTS_COLOR = True
-# 修复在 windows powershell 显示错误的 bug
-better_exceptions.encoding.ENCODING = sys.stdout.encoding
-better_exceptions.formatter.ENCODING = sys.stdout.encoding
-# 直接 hook，而不是让它使用环境变量触发
-sys.excepthook = better_exceptions.excepthook
-# 取消它的猴子补丁
-logging._loggerClass = (  # type:ignore[attr-defined]
-    logging.Logger
-)
 
 
 class BotException(Exception):

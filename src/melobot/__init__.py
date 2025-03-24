@@ -1,4 +1,5 @@
 from ._meta import MetaInfo, __version__
+from ._render import install_exc_hook, set_traceback_style, uninstall_exc_hook
 from ._run import report_exc
 from .adapter import Action, Adapter, Echo, Event
 from .adapter.generic import send_image, send_text

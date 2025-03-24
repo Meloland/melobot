@@ -202,5 +202,7 @@ class ExceptionHandler:
 LOOP_MANAGER = LoopManager()
 
 
-def report_exc(exc: BaseException, msg: str, var: Any) -> None:
+def report_exc(exc: BaseException, msg: str, var: Any = None, can_recover: bool = True) -> None:
     LOOP_MANAGER.exc_handler.handle_from_report(exc, msg, var)
+    if not can_recover:
+        sys.exit(ExitCode.ERROR.value)
