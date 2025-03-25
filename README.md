@@ -13,10 +13,9 @@
   <p align="center">
     <a href="https://python.org" title="Go to Python homepage"><img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-2ea44f?logo=python&logoColor=white" alt="Made with Python"></a>
     <a href="https://pypi.org/project/melobot/"><img alt="PyPI" src="https://img.shields.io/pypi/v/melobot"></a>
-    <a href="https://pdm-project.org"><img src="https://img.shields.io/badge/PDM-Managed-purple?logo=pdm&logoColor=white" alt="PDM - Managed"></a>
   </p>
   <p>
-    <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+    <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" alt="uv - Managed"></a>
     <a href="https://mypy-lang.org/"><img src="https://www.mypy-lang.org/static/mypy_badge.svg" alt="Checked with mypy"></a>
   </p>
 </div>
@@ -86,24 +85,31 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 
 ```shell
 pip install melobot[onebot]
+# 或
+uv pip install melobot[onebot]
 ```
 
 如果您对 melobot 已经十分了解，请自由地安装核心 + 任何可选依赖。
 
 也可以通过源码构建：（对于普通用户不推荐）
 
-> 本项目使用 pdm 管理，你首先需要安装 [pdm](https://pdm-project.org/latest/#installation)。
+> 本项目使用 uv 管理，你首先需要安装 [uv](https://docs.astral.sh/uv/)
 
 ```shell
-pdm install
-pdm build
+git clone https://github.com/meloland/melobot.git
+cd melobot
+uv venv -p 3.10
+uv sync --all-extras --all-groups
+uv build
 ```
 
-之后可在 `.pdm-build` 目录获取本地构建，pip 本地安装即可。
+之后可在 `dist` 目录获取本地构建轮子，安装即可。
 
 <!-- end elevator-pitch -->
 
 ## 💻 其他文档
+
+想要参与开发或报告安全问题？看看这些：
 
 **贡献指南与行为准则**：
 

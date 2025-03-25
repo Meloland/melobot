@@ -15,7 +15,10 @@ from importlib.machinery import (
     ModuleSpec,
 )
 from importlib.machinery import PathFinder as _PathFinder
-from importlib.machinery import SourceFileLoader, SourcelessFileLoader
+from importlib.machinery import (
+    SourceFileLoader,
+    SourcelessFileLoader,
+)
 from importlib.util import module_from_spec, spec_from_file_location
 from os import PathLike
 from pathlib import Path
@@ -366,12 +369,17 @@ sys.meta_path.insert(0, SpecFinder())
 # 兼容 pkg_resources 的资源获取操作
 # 但此模块于 3.12 删除，因此前向版本不再兼容
 if sys.version_info < (3, 12):
-    import pkg_resources
+    # 部分构建可能已经缺失 pkg_resources
+    try:
+        import pkg_resources  # type: ignore[import-untyped]
+    except ModuleNotFoundError:
+        pass
+    else:
 
-    def _union_provider(mod: Any) -> pkg_resources.NullProvider:
-        if hasattr(mod.__spec__, ZIP_MODULE_TAG):
-            return pkg_resources.ZipProvider(mod)
-        return pkg_resources.DefaultProvider(mod)
+        def _union_provider(mod: Any) -> pkg_resources.NullProvider:
+            if hasattr(mod.__spec__, ZIP_MODULE_TAG):
+                return pkg_resources.ZipProvider(mod)
+            return pkg_resources.DefaultProvider(mod)
 
-    pkg_resources.register_loader_type(ModuleLoader, cast(type, _union_provider))
-    pkg_resources.register_namespace_handler(SpecFinder, pkg_resources.file_ns_handler)
+        pkg_resources.register_loader_type(ModuleLoader, cast(type, _union_provider))
+        pkg_resources.register_namespace_handler(SpecFinder, pkg_resources.file_ns_handler)

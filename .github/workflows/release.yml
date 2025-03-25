@@ -11,7 +11,13 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: pdm-project/setup-pdm@v4
-      - name: Publish package distributions to PyPI
-        run: pdm publish
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.9"
+
+      - name: Publish to PyPI
+        run: uv publish

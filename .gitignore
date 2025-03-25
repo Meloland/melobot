@@ -15,8 +15,5 @@ pydeps.png
 .pytest_cache
 .idea
 .pypirc
-.pdm-python
-.pdm-build
-.pdm.toml
 
 .DS_Store

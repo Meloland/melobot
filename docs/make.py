@@ -1,4 +1,4 @@
-"""Cross platform Sphinx doc build, called by pdm command."""
+"""Cross platform Sphinx doc build, called by uv."""
 
 import os
 import sys
