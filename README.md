@@ -84,9 +84,9 @@ melobot v3 是跨平台、跨协议、支持多路 IO 及其他高级特性的 b
 如果您对 melobot 完全不熟悉，建议配合文档开始学习。文档以 OneBot v11 协议为例，通过以下命令安装文档教程中必需的组件：
 
 ```shell
-pip install melobot[onebot]
+pip install "melobot[onebot]"
 # 或
-uv pip install melobot[onebot]
+uv pip install "melobot[onebot]"
 ```
 
 如果您对 melobot 已经十分了解，请自由地安装核心 + 任何可选依赖。
