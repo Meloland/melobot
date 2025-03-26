@@ -35,7 +35,7 @@ If we fail to update in time, please help to remind us. Thank you for your coope
 
 - **[Python]()**
     - Referenced at: [_render.py](./src/melobot/_render.py)
-    - License type: Python 软件基金会自定类型
+    - License type: Python Software Foundation custom types
     - License web archive: https://github.com/python/cpython/blob/main/LICENSE
     - License full text: 
         ```text
