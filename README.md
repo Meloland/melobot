@@ -132,6 +132,8 @@ uv build
 
 <a href="https://opensource.org/license/bsd-3-clause"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/License_icon-bsd-88x31.svg" style="width: 150px"></a>
 
+此外本项目使用了部分开源项目的源代码，参阅：[THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md)
+
 ## ❤️ 鸣谢
 
 > [PyCharm](https://zh.wikipedia.org/wiki/PyCharm) 是一款流行的、强大的、适用于数据科学与 Web 开发的 Python IDE。

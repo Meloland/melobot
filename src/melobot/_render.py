@@ -261,7 +261,7 @@ class ExcFmtter(ExceptionFormatter):
 """
 以下代码，由 Python 3.10 的 traceback 模块源代码修改而来
 原始版权 © 2001-2024 Python 软件基金会
-原始许可：https://docs.python.org/3/license.html
+原始许可：https://github.com/python/cpython/blob/main/LICENSE
 """
 _RECURSIVE_CUTOFF = 3
 
