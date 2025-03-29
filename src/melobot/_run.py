@@ -35,14 +35,20 @@ class ExitCode(Enum):
 
 
 class LoopManager:
-    __instance__: LoopManager
+    __instance__: LoopManager | None = None
 
     def __new__(cls, *_: Any, **__: Any) -> LoopManager:
-        if not hasattr(cls, "__instance__"):
+        if cls.__instance__ is None:
             cls.__instance__ = super().__new__(cls)
+            cls.__instance__.__initiated__ = False
         return cls.__instance__
 
     def __init__(self) -> None:
+        self.__initiated__: bool
+        if self.__initiated__:
+            return
+        self.__initiated__ = True
+
         self.root_task: asyncio.Task | None = None
         self.stop_accepted = False
         self.exc_handler = ExceptionHandler(self)
