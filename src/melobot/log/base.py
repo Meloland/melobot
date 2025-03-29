@@ -483,7 +483,8 @@ def find_caller_stack(
             if sinfo[-1] == "\n":
                 sinfo = sinfo[:-1]
 
-    assert isinstance(f.f_lineno, int)
+    if not isinstance(f.f_lineno, int):
+        raise ValueError(f"尝试解析调用栈时，获取的行号不是整数，值类型是：{type(f.f_lineno)}")
     return f.f_globals["__name__"], co.co_filename, f.f_lineno, co.co_name, sinfo
 
 

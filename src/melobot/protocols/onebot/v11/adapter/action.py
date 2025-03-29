@@ -61,7 +61,8 @@ class SendMsgAction(Action):
         type = "send_msg"
         _msgs = msgs_to_dicts(msgs)
         if group_id is None:
-            assert user_id is not None, "group_id 为空时，user_id 必须为非空"
+            if user_id is None:
+                raise ValueError("group_id 为空时，user_id 必须为非空")
             params = {
                 "message_type": "private",
                 "user_id": user_id,

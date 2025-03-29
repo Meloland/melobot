@@ -217,7 +217,8 @@ class SessionCtx(Context["Session"]):
 
     def get_rule(self) -> "Rule":
         rule = self.get().rule
-        assert rule is not None, "预期之外的会话规则为空"
+        if rule is None:
+            raise SessionError("获取会话规则时，预期之外的会话规则为空")
         return rule
 
     def get_session_type(self) -> type["Session"]:

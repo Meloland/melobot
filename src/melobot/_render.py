@@ -179,7 +179,8 @@ class ExcFmtter(ExceptionFormatter):
             except Exception:
                 omit_last = True
                 _, _, tb = sys.exc_info()
-                assert tb is not None
+                if tb is None:
+                    raise ValueError("异常的回溯栈信息为空，无法格式化")
 
         frames = []
         final_source = ""

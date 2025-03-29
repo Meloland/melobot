@@ -282,7 +282,8 @@ class CmdParser(Parser):
             self.targets = (targets,)
         else:
             self.targets = targets if isinstance(targets, tuple) else tuple(targets)
-        assert len(self.targets) >= 1, "命令解析器至少需要一个目标命令名"
+        if len(self.targets) < 1:
+            raise CmdParseError("命令解析器至少需要一个目标命令名")
 
         if isinstance(cmd_start, str):
             start_tokens = {cmd_start}

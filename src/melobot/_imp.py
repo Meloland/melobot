@@ -26,7 +26,7 @@ from types import ModuleType
 
 from typing_extensions import Any, Sequence, cast
 
-from .exceptions import DynamicImpSpecEmpty
+from .exceptions import DynamicImpError, DynamicImpSpecEmpty
 from .utils.common import singleton
 
 # 扩展名的优先级顺序非常重要
@@ -97,14 +97,20 @@ class SpecFinder(MetaPathFinder):
                     zip_importer = zipimport.zipimporter(str(entry_path))
                     spec = zip_importer.find_spec(fullname, target)
                     if spec is not None:
-                        assert spec.origin is not None and spec.origin != "", (
-                            f"zip file from {entry_path}, module named {fullname} from {target}, "
-                            "failed to get spec origin"
-                        )
-                        assert spec.loader is not None, (
-                            f"zip file from {entry_path}, module named {fullname} from {target}, "
-                            "spec has no loader"
-                        )
+                        if spec.origin is None or spec.origin == "":
+                            raise DynamicImpError(
+                                f"zip file from {entry_path}, module named {fullname} from {target}, "
+                                "failed to get spec origin",
+                                name=fullname,
+                                path=str(entry_path),
+                            )
+                        if spec.loader is None:
+                            raise DynamicImpError(
+                                f"zip file from {entry_path}, module named {fullname} from {target}, "
+                                "spec has no loader",
+                                name=fullname,
+                                path=str(entry_path),
+                            )
                         spec.loader = ModuleLoader(
                             fullname,
                             Path(spec.origin).resolve(),
@@ -142,9 +148,12 @@ class SpecFinder(MetaPathFinder):
                         ),
                         submodule_search_locations=loader._path,  # type: ignore[attr-defined]
                     )
-                    assert (
-                        spec is not None
-                    ), f"package from {dir_path} without __init__ file create spec failed"
+                    if spec is None:
+                        raise DynamicImpSpecEmpty(
+                            f"package from {dir_path} without __init__ file create spec failed",
+                            name=fullname,
+                            path=str(dir_path),
+                        )
                     spec.has_location = False
                     spec.origin = None
                     setattr(spec, EMPTY_PKG_TAG, True)
@@ -351,7 +360,10 @@ class Importer:
             )
 
         mod = module_from_spec(spec)
-        assert spec.loader is not None, f"module named {name} and path from {path} has no loader"
+        if spec.loader is None:
+            raise DynamicImpError(
+                f"module named {name} and path from {path} has no loader", name=name, path=str(path)
+            )
         spec.loader.exec_module(mod)
         return mod
 
