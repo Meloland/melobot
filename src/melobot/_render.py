@@ -115,6 +115,8 @@ def get_rich_render(s: str, markup: bool = True, emoji: bool = False) -> tuple[s
 
 # 从 3.13 开始，traceback 的格式化发生改变，导致 better-exceptions 无法使用
 # 因此以下代码，用于在任意版本中兼容同一套 trackback 格式化
+# TODO: 在升级最低版本到 3.11 后，考虑对 ExceptionGroup, add_note 的支持
+# TODO: 在升级最低版本到 3.11 后，考虑使用 traceback.StackSummary.format_frame_summary 来过滤回溯栈帧，并更新 FrameInfo 和 Traceback
 
 
 class ExcFmtter(ExceptionFormatter):

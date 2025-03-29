@@ -26,3 +26,5 @@ from .log import GenericLogger, Logger, LogLevel, get_logger
 from .plugin import AsyncShare, PluginInfo, PluginLifeSpan, PluginPlanner, SyncShare
 from .session import DefaultRule, Rule, Session, SessionStore, enter_session, suspend
 from .typ._enum import LogicMode
+
+# TODO: 考虑在最低支持 3.11 后，使用 asyncio.TaskGroup 替代多数任务生成场景

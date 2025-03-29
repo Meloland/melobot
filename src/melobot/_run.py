@@ -51,6 +51,7 @@ class LoopManager:
     def run(self, root: Coroutine[Any, Any, None], debug: bool, strict_log: bool) -> None:
         self.strict_log = strict_log
         try:
+            # TODO: 在升级最低支持到 3.11 后，考虑更换为 new_event_loop，并使用 asyncio.Runner 来运行
             loop = asyncio.get_event_loop()
             asyncio.get_event_loop_policy().set_event_loop(loop)
             loop.set_exception_handler(self.exc_handler.handle_from_loop)

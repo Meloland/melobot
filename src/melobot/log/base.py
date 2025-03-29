@@ -31,6 +31,7 @@ logging._loggerClass = (  # type:ignore[attr-defined]
 )
 
 
+# TODO: 考虑在最低支持 3.11 后，使用 logging.getLevelNamesMapping 兼容部分场景
 class LogLevel(int, Enum):
     """日志等级枚举"""
 
