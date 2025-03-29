@@ -60,6 +60,9 @@ class LoopManager:
             # TODO: 在升级最低支持到 3.11 后，考虑更换为 new_event_loop，并使用 asyncio.Runner 来运行
             loop = asyncio.get_event_loop()
             asyncio.get_event_loop_policy().set_event_loop(loop)
+            # TODO: 在升级最低支持到 3.12 后，设置为默认标准
+            if sys.version_info >= (3, 12):
+                loop.set_task_factory(asyncio.eager_task_factory)
             loop.set_exception_handler(self.exc_handler.handle_from_loop)
             if debug is not None:
                 loop.set_debug(debug)
