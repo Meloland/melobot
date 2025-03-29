@@ -91,12 +91,13 @@ class DependBindError(DependError):
     """melobot 依赖注入项值绑定失败"""
 
 
-class DynamicImpError(BotException, ImportError):
+class DynamicImpError(BotException):
     """melobot 动态导入组件异常"""
 
     def __init__(self, *args: Any, name: str | None = None, path: str | None = None) -> None:
-        BotException.__init__(self, *args)
-        ImportError.__init__(self, *args, name=name, path=path)
+        super().__init__(self, *args)
+        self.name = name
+        self.path = path
 
 
 class DynamicImpSpecEmpty(DynamicImpError):
