@@ -337,7 +337,6 @@ def speedlimit(
         只有依然在当前 duration 区间内，但超出调用次数限制的，需要等待。
         随后就是递归调用。delay > 0 为需要递归的分支。
         """
-        nonlocal called_num
         try:
             if delay > 0:
                 await asyncio.sleep(delay)

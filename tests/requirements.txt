@@ -3,6 +3,7 @@
 aiohappyeyeballs==2.6.1 \
     --hash=sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558 \
     --hash=sha256:f349ba8f4b75cb25c99c5c2d84e997e485204d2902a9597802b0371f09331fb8
+    # via aiohttp
 aiohttp==3.11.14 \
     --hash=sha256:04eb541ce1e03edc1e3be1917a0f45ac703e913c21a940111df73a2c2db11d73 \
     --hash=sha256:05582cb2d156ac7506e68b5eac83179faedad74522ed88f88e5861b78740dc0e \
@@ -69,33 +70,46 @@ aiohttp==3.11.14 \
     --hash=sha256:ec6cd1954ca2bbf0970f531a628da1b1338f594bf5da7e361e19ba163ecc4f3b \
     --hash=sha256:f296d637a50bb15fb6a229fbb0eb053080e703b53dbfe55b1e4bb1c5ed25d325 \
     --hash=sha256:f30fc72daf85486cdcdfc3f5e0aea9255493ef499e31582b34abadbfaafb0965
+    # via melobot
 aiosignal==1.3.2 \
     --hash=sha256:45cde58e409a301715980c2b01d0c28bdde3770d8290b5eb2173759d9acb31a5 \
     --hash=sha256:a8c255c66fafb1e499c9351d0bf32ff2d8a0321595ebac3b93713656d2436f54
+    # via aiohttp
 annotated-types==0.7.0 \
     --hash=sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53 \
     --hash=sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89
+    # via pydantic
 async-timeout==5.0.1 ; python_full_version < '3.11' \
     --hash=sha256:39e3809566ff85354557ec2398b55e096c8364bacac9405a7a1fa429e77fe76c \
     --hash=sha256:d9321a7a3d5a6a5e187e824d2fa0793ce379a202935782d555d6e9d2735677d3
+    # via aiohttp
 attrs==25.3.0 \
     --hash=sha256:427318ce031701fea540783410126f03899a97ffc6f61596ad581ac2e40e3bc3 \
     --hash=sha256:75d7cefc7fb576747b2c81b4442d4d4a1ce0900973527c011d1030fd3bf4af1b
+    # via aiohttp
 beartype==0.20.2 \
     --hash=sha256:38c60c065ad99364a8c767e8a0e71ba8263d467b91414ed5dcffb7758a2e8079 \
     --hash=sha256:5171a91ecf01438a59884f0cde37d2d5da2c992198b53d6ba31db3940f47ff04
+    # via melobot
 better-exceptions==0.3.3 \
     --hash=sha256:9c70b1c61d5a179b84cd2c9d62c3324b667d74286207343645ed4306fdaad976 \
     --hash=sha256:e4e6bc18444d5f04e6e894b10381e5e921d3d544240418162c7db57e9eb3453b
+    # via melobot
 colorama==0.4.6 ; sys_platform == 'win32' \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
+    # via
+    #   better-exceptions
+    #   colorlog
+    #   pytest
 colorlog==6.9.0 \
     --hash=sha256:5906e71acd67cb07a71e779c47c4bcb45fb8c2993eebe9e5adcd6a6f1b283eff \
     --hash=sha256:bfba54a1b93b94f54e1f4fe48395725a3d92fd2a4af702f6bd70946bdc0c6ac2
+    # via melobot
 exceptiongroup==1.2.2 ; python_full_version < '3.11' \
     --hash=sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b \
     --hash=sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc
+    # via pytest
 frozenlist==1.5.0 \
     --hash=sha256:000a77d6034fbad9b6bb880f7ec073027908f1b40254b5d6f26210d2dab1240e \
     --hash=sha256:03d33c2ddbc1816237a67f66336616416e2bbb6beb306e5f890f2eb22b959cdf \
@@ -159,18 +173,25 @@ frozenlist==1.5.0 \
     --hash=sha256:f5f9da7f5dbc00a604fe74aa02ae7c98bcede8a3b8b9666f9f86fc13993bc71a \
     --hash=sha256:fd74520371c3c4175142d02a976aee0b4cb4a7cc912a60586ffd8d5929979b30 \
     --hash=sha256:feeb64bc9bcc6b45c6311c9e9b99406660a9c05ca8a5b30d14a78555088b0b3a
+    # via
+    #   aiohttp
+    #   aiosignal
 idna==3.10 \
     --hash=sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9 \
     --hash=sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3
+    # via yarl
 iniconfig==2.1.0 \
     --hash=sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7 \
     --hash=sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760
+    # via pytest
 markdown-it-py==3.0.0 \
     --hash=sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1 \
     --hash=sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb
+    # via rich
 mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
     --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
+    # via markdown-it-py
 multidict==6.2.0 \
     --hash=sha256:0085b0afb2446e57050140240a8595846ed64d1cbd26cef936bfab3192c673b8 \
     --hash=sha256:042028348dc5a1f2be6c666437042a98a5d24cee50380f4c0902215e5ec41844 \
@@ -249,12 +270,17 @@ multidict==6.2.0 \
     --hash=sha256:ef7d48207926edbf8b16b336f779c557dd8f5a33035a85db9c4b0febb0706817 \
     --hash=sha256:f7716f7e7138252d88607228ce40be22660d6608d20fd365d596e7ca0738e019 \
     --hash=sha256:facaf11f21f3a4c51b62931feb13310e6fe3475f85e20d9c9fdce0d2ea561b87
+    # via
+    #   aiohttp
+    #   yarl
 packaging==24.2 \
     --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
     --hash=sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f
+    # via pytest
 pluggy==1.5.0 \
     --hash=sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1 \
     --hash=sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669
+    # via pytest
 propcache==0.3.0 \
     --hash=sha256:02df07041e0820cacc8f739510078f2aadcfd3fc57eaeeb16d5ded85c872c89e \
     --hash=sha256:07700939b2cbd67bfb3b76a12e1412405d71019df00ca5697ce75e5ef789d829 \
@@ -338,9 +364,13 @@ propcache==0.3.0 \
     --hash=sha256:f857034dc68d5ceb30fb60afb6ff2103087aea10a01b613985610e007053a121 \
     --hash=sha256:fb91d20fa2d3b13deea98a690534697742029f4fb83673a3501ae6e3746508b5 \
     --hash=sha256:fddb8870bdb83456a489ab67c6b3040a8d5a55069aa6f72f9d872235fbc52f54
+    # via
+    #   aiohttp
+    #   yarl
 pydantic==2.10.6 \
     --hash=sha256:427d664bf0b8a2b34ff5dd0f5a18df00591adcee7198fbd71981054cef37b584 \
     --hash=sha256:ca5daa827cce33de7a42be142548b0096bf05a7e7b365aebfa5f8eeec7128236
+    # via melobot
 pydantic-core==2.27.2 \
     --hash=sha256:0296abcb83a797db256b773f45773da397da75a08f5fcaef41f2044adec05f50 \
     --hash=sha256:03d0f86ea3184a12f41a2d23f7ccb79cdb5a18e06993f8a45baa8dfec746f0e9 \
@@ -407,18 +437,22 @@ pydantic-core==2.27.2 \
     --hash=sha256:eb026e5a4c1fee05726072337ff51d1efb6f59090b7da90d30ea58625b1ffb39 \
     --hash=sha256:eda3f5c2a021bbc5d976107bb302e0131351c2ba54343f8a496dc8783d3d3a6a \
     --hash=sha256:fa8e459d4954f608fa26116118bb67f56b93b209c39b008277ace29937453dc9
+    # via pydantic
 pygments==2.19.1 \
     --hash=sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f \
     --hash=sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c
+    # via rich
 pytest==8.3.5 \
     --hash=sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820 \
     --hash=sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845
+    # via pytest-asyncio
 pytest-asyncio==0.26.0 \
     --hash=sha256:7b51ed894f4fbea1340262bdae5135797ebbe21d8638978e35d31c6d19f72fb0 \
     --hash=sha256:c4df2a697648241ff39e7f0e4a73050b03f123f760673956cf0d72a4990e312f
 rich==13.9.4 \
     --hash=sha256:439594978a49a09530cff7ebc4b5c7103ef57baf48d5ea3184f21d9a2befa098 \
     --hash=sha256:6049d5e6ec054bf2779ab3358186963bac2ea89175919d699e378b99738c2a90
+    # via melobot
 tomli==2.2.1 ; python_full_version < '3.11' \
     --hash=sha256:023aa114dd824ade0100497eb2318602af309e5a55595f76b626d6d9f3b7b0a6 \
     --hash=sha256:02abe224de6ae62c19f090f68da4e27b10af2b93213d36cf44e6e1c5abd19fdd \
@@ -452,9 +486,16 @@ tomli==2.2.1 ; python_full_version < '3.11' \
     --hash=sha256:e85e99945e688e32d5a35c1ff38ed0b3f41f43fad8df0bdf79f72b2ba7bc5272 \
     --hash=sha256:ece47d672db52ac607a3d9599a9d48dcb2f2f735c6c2d1f34130085bb12b112a \
     --hash=sha256:f4039b9cbc3048b2416cc57ab3bda989a6fcf9b36cf8937f01a6e731b64f80d7
+    # via pytest
 typing-extensions==4.12.2 \
     --hash=sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d \
     --hash=sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8
+    # via
+    #   melobot
+    #   multidict
+    #   pydantic
+    #   pydantic-core
+    #   rich
 websockets==14.2 \
     --hash=sha256:02687db35dbc7d25fd541a602b5f8e451a238ffa033030b172ff86a93cb5dc2a \
     --hash=sha256:065ce275e7c4ffb42cb738dd6b20726ac26ac9ad0a2a48e33ca632351a737267 \
@@ -508,6 +549,7 @@ websockets==14.2 \
     --hash=sha256:f2e53c72052f2596fb792a7acd9704cbc549bf70fcde8a99e899311455974ca3 \
     --hash=sha256:f8a86a269759026d2bde227652b87be79f8a734e582debf64c9d302faa1e9f03 \
     --hash=sha256:fd475a974d5352390baf865309fe37dec6831aafc3014ffac1eea99e84e83fc2
+    # via melobot
 yarl==1.18.3 \
     --hash=sha256:00e5a1fea0fd4f5bfa7440a47eff01d9822a65b4488f7cff83155a0f31a2ecba \
     --hash=sha256:02ddb6756f8f4517a2d5e99d8b2f272488e18dd0bfbc802f31c16c6c20f22193 \
@@ -575,3 +617,4 @@ yarl==1.18.3 \
     --hash=sha256:f91c4803173928a25e1a55b943c81f55b8872f0018be83e3ad4938adffb77dd2 \
     --hash=sha256:fbd6748e8ab9b41171bb95c6142faf068f5ef1511935a0aa07025438dd9a9bc1 \
     --hash=sha256:fea09ca13323376a2fdfb353a5fa2e59f90cd18d7ca4eaa1fd31f0a8b4f91e62
+    # via aiohttp
