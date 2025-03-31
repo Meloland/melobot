@@ -4,6 +4,7 @@ import collections
 import io
 import itertools
 import linecache
+import os
 import sys
 from functools import lru_cache
 from types import FrameType, TracebackType
@@ -118,6 +119,9 @@ def get_rich_render(s: str, markup: bool = True, emoji: bool = False) -> tuple[s
 # TODO: 在升级最低版本到 3.11 后，考虑对 ExceptionGroup, add_note 的支持
 # TODO: 在升级最低版本到 3.11 后，考虑使用 traceback.StackSummary.format_frame_summary 来过滤回溯栈帧，并更新 FrameInfo 和 Traceback
 
+EXC_SHOW_INTERNAL = "MELOBOT_EXC_SHOW_INTERNAL"
+EXC_FLIP = "MELOBOT_EXC_FLIP"
+
 
 class ExcFmtter(ExceptionFormatter):
     # 以下代码，由 better-exceptions 模块源代码修改而来
@@ -127,8 +131,8 @@ class ExcFmtter(ExceptionFormatter):
         super().__init__()
         self._pipe_char = "\x00bold bright_black\x01│\x00/\x01"
         self._cap_char = "\x00bold bright_black\x01└\x00/\x01"
-        self._hide_internal = True
-        self._flip = False
+        self._hide_internal = False if EXC_SHOW_INTERNAL in os.environ else True
+        self._flip = True if EXC_FLIP in os.environ else False
 
     def set_style(self, hide_internal: bool = True, flip: bool = False) -> None:
         self._hide_internal = hide_internal
@@ -703,7 +707,9 @@ def install_exc_hook() -> None:
         sys.excepthook = _excepthook
 
 
-sys.excepthook = _excepthook
+EXC_FMT_FALLBACK = "MELOBOT_EXC_FMT_FALLBACK"
+if EXC_FMT_FALLBACK not in os.environ:
+    sys.excepthook = _excepthook
 
 
 def uninstall_exc_hook() -> None:
