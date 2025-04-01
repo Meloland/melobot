@@ -380,6 +380,6 @@ def add_import_fallback(*names: str) -> None:
 
     使用此方法，将模块名以 `names` 起始的模块或包标记为需要回退
 
-    :param names: 需要回退的模块或包的起始字符串
+    :param names: 需要回退的模块或包名称的起始字符串
     """
     Importer.add_fallback(*names)
