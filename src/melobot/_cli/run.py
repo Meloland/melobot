@@ -14,20 +14,19 @@ from melobot._run import CLI_LAST_EXIT_CODE, CLI_RUN_ALIVE_FLAG, CLI_RUN_FLAG, E
 
 
 def main(args: Namespace) -> None:
-    entry_path = Path(args.entry_file)
-    if not entry_path.is_absolute():
-        entry = str(entry_path.resolve())
+    if not args.entry_file.endswith(".py"):
+        entry_str = f"{args.entry_file}.py"
     else:
-        entry = str(entry_path)
+        entry_str = args.entry_file
 
-    if not entry.endswith(".py"):
-        entry += ".py"
-    if not Path(entry).exists():
-        print(f"不存在的入口文件：{str(entry)}")
-        sys.exit(1)
+    entry_path = Path(entry_str)
+    try:
+        entry = entry_path.resolve(strict=True).as_posix()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"不存在的入口文件：{args.entry_file}")
 
     cmd = [sys.executable, entry]
-    cwd = str(Path.cwd().resolve())
+    cwd = Path.cwd().resolve().as_posix()
     os.environ[CLI_RUN_FLAG] = "1"
     tmp_dir = Path(tempfile.mkdtemp()).resolve()
     os.environ[CLI_RUN_ALIVE_FLAG] = str(

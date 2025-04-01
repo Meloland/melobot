@@ -96,7 +96,7 @@ class SpecFinder(MetaPathFinder):
                 for pkg_init_path in pkg_init_paths:
                     if pkg_init_path.exists():
                         mod_path = pkg_init_path
-                        submod_locs = [str(dir_path.resolve())]
+                        submod_locs = [dir_path.resolve().as_posix()]
                         raise _NestedQuickExit
 
                 # 其次是各种可加载的文件
@@ -109,7 +109,7 @@ class SpecFinder(MetaPathFinder):
 
                 # 再次是 zip 文件导入
                 if entry_path.suffix == ".zip" and entry_path.exists():
-                    zip_importer = zipimport.zipimporter(str(entry_path))
+                    zip_importer = zipimport.zipimporter(entry_path.as_posix())
                     spec = zip_importer.find_spec(fullname, target)
 
                     if spec is not None:
@@ -118,14 +118,14 @@ class SpecFinder(MetaPathFinder):
                                 f"zip file from {entry_path}, module named {fullname} from {target}, "
                                 "failed to get spec origin",
                                 name=fullname,
-                                path=str(entry_path),
+                                path=entry_path.as_posix(),
                             )
                         if spec.loader is None:
                             raise DynamicImpError(
                                 f"zip file from {entry_path}, module named {fullname} from {target}, "
                                 "spec has no loader",
                                 name=fullname,
-                                path=str(entry_path),
+                                path=entry_path.as_posix(),
                             )
 
                         spec.loader = ModuleLoader(
@@ -136,7 +136,7 @@ class SpecFinder(MetaPathFinder):
 
                 # 没有 __init__.* 的包最后查找，spec 设置为与内置导入兼容的命名空间包格式
                 if dir_path.exists() and dir_path.is_dir():
-                    dir_path_str = str(dir_path.resolve())
+                    dir_path_str = dir_path.resolve().as_posix()
                     loader = cast(
                         Loader,
                         _NamespaceLoader(
@@ -156,7 +156,7 @@ class SpecFinder(MetaPathFinder):
                         raise DynamicImpSpecEmpty(
                             f"package from {dir_path} without __init__ file create spec failed",
                             name=fullname,
-                            path=str(dir_path),
+                            path=dir_path.as_posix(),
                         )
 
                     spec.has_location = False
@@ -173,7 +173,7 @@ class SpecFinder(MetaPathFinder):
         mod_path = cast(Path, mod_path).resolve()
         return spec_from_file_location(
             fullname,
-            str(mod_path),
+            mod_path.as_posix(),
             loader=ModuleLoader(fullname, mod_path, cache),
             submodule_search_locations=submod_locs,
         )
@@ -248,9 +248,9 @@ class ModuleLoader(Loader):
             return
 
         for loader_cls, suffixes in _get_file_loaders():
-            if str(fp).endswith(tuple(suffixes)):
+            if fp.resolve().suffix in suffixes:
                 loader_cls = cast(type[FileLoader], loader_cls)
-                loader = loader_cls(fullname, str(fp))
+                loader = loader_cls(fullname, fp.as_posix())
                 self.mb_inner_loader = loader
                 break
 

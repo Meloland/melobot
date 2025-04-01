@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 
-os.chdir(str(Path(__file__).parent.absolute().resolve(strict=True)))
+os.chdir(Path(__file__).parent.absolute().resolve(strict=True).as_posix())
 
 
 def main():
