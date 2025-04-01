@@ -6,6 +6,7 @@ if sys.version_info < (3, 11):
 else:
     from importlib.machinery import NamespaceLoader as _NamespaceLoader
 
+from functools import wraps
 from importlib.abc import FileLoader, Loader, MetaPathFinder
 from importlib.machinery import (
     BYTECODE_SUFFIXES,
@@ -24,10 +25,9 @@ from os import PathLike
 from pathlib import Path
 from types import ModuleType
 
-from typing_extensions import Any, Sequence, cast
+from typing_extensions import Any, Sequence, TypeVar, cast
 
 from .exceptions import DynamicImpError, DynamicImpSpecEmpty
-from .utils.common import singleton
 
 # 扩展名的优先级顺序非常重要
 ALL_EXTS = tuple(EXTENSION_SUFFIXES + SOURCE_SUFFIXES + BYTECODE_SUFFIXES)
@@ -46,6 +46,21 @@ def _get_file_loaders() -> list[tuple[type[Loader], list[str]]]:
 class _NestedQuickExit(BaseException): ...
 
 
+T = TypeVar("T")
+
+
+def singleton(cls: type[T]) -> type[T]:
+    obj_map = {}
+
+    @wraps(cls)
+    def singleton_wrapped(*args: Any, **kwargs: Any) -> T:
+        if cls not in obj_map:
+            obj_map[cls] = cls(*args, **kwargs)
+        return obj_map[cls]
+
+    return cast(type[T], singleton_wrapped)
+
+
 @singleton
 class SpecFinder(MetaPathFinder):
     def find_spec(
@@ -53,11 +68,11 @@ class SpecFinder(MetaPathFinder):
         fullname: str,
         paths: Sequence[str] | None,
         target: ModuleType | None = None,
-        sys_cache: bool = True,
-        load_cache: bool = True,
-        pre_sys_len: int = -1,
-        pre_cache_len: int = -1,
+        cache: bool = True,
     ) -> ModuleSpec | None:
+        if fullname.startswith(_IMP_FALLBACKS):
+            return None
+
         if paths is None:
             paths = sys.path
         if "." in fullname:
@@ -96,6 +111,7 @@ class SpecFinder(MetaPathFinder):
                 if entry_path.suffix == ".zip" and entry_path.exists():
                     zip_importer = zipimport.zipimporter(str(entry_path))
                     spec = zip_importer.find_spec(fullname, target)
+
                     if spec is not None:
                         if spec.origin is None or spec.origin == "":
                             raise DynamicImpError(
@@ -111,14 +127,9 @@ class SpecFinder(MetaPathFinder):
                                 name=fullname,
                                 path=str(entry_path),
                             )
+
                         spec.loader = ModuleLoader(
-                            fullname,
-                            Path(spec.origin).resolve(),
-                            sys_cache,
-                            load_cache,
-                            pre_sys_len,
-                            pre_cache_len,
-                            spec.loader,
+                            fullname, Path(spec.origin).resolve(), cache, spec.loader
                         )
                         setattr(spec, ZIP_MODULE_TAG, True)
                         return spec
@@ -137,23 +148,17 @@ class SpecFinder(MetaPathFinder):
                     spec = spec_from_file_location(
                         fullname,
                         dir_path_str,
-                        loader=ModuleLoader(
-                            fullname,
-                            dir_path,
-                            sys_cache,
-                            load_cache,
-                            pre_sys_len,
-                            pre_cache_len,
-                            loader,
-                        ),
+                        loader=ModuleLoader(fullname, dir_path, cache, loader),
                         submodule_search_locations=loader._path,  # type: ignore[attr-defined]
                     )
+
                     if spec is None:
                         raise DynamicImpSpecEmpty(
                             f"package from {dir_path} without __init__ file create spec failed",
                             name=fullname,
                             path=str(dir_path),
                         )
+
                     spec.has_location = False
                     spec.origin = None
                     setattr(spec, EMPTY_PKG_TAG, True)
@@ -169,9 +174,7 @@ class SpecFinder(MetaPathFinder):
         return spec_from_file_location(
             fullname,
             str(mod_path),
-            loader=ModuleLoader(
-                fullname, mod_path, sys_cache, load_cache, pre_sys_len, pre_cache_len
-            ),
+            loader=ModuleLoader(fullname, mod_path, cache),
             submodule_search_locations=submod_locs,
         )
 
@@ -180,10 +183,10 @@ class SpecFinder(MetaPathFinder):
 class ModuleCacher:
     def __init__(self) -> None:
         self._caches: dict[Path, ModuleType] = {}
-        self.clear_cache()
+        self.sync_all_cache()
 
-    def get_len(self) -> int:
-        return len(self._caches)
+    # 此处不考虑与 sys.modules 的同步问题，这些接口基本只被 melobot 用于动态加载
+    # 而 melobot 动态加载的对象一般不存在对 sys.modules 的 hack
 
     def has_cache(self, mod: ModuleType) -> bool:
         return mod in self._caches.values()
@@ -213,15 +216,13 @@ class ModuleCacher:
         else:
             self._caches[Path(mod.__path__[0])] = mod
 
-    def rm_lastn(self, n: int) -> None:
-        iter = reversed(self._caches.keys())
-        rm_paths: list[Path] = []
-        for _ in range(n):
-            rm_paths.append(next(iter))
-        for p in rm_paths:
-            self._caches.pop(p)
+    def rm_cache(self, path: Path) -> None:
+        # 对应有 __init__.* 的包模块
+        if path.parts[-1] in PKG_INIT_FILENAMES:
+            path = path.parent
+        self._caches.pop(path)
 
-    def clear_cache(self) -> None:
+    def sync_all_cache(self) -> None:
         self._caches.clear()
         for name, mod in sys.modules.items():
             self.set_cache(name, mod)
@@ -232,23 +233,17 @@ class ModuleLoader(Loader):
         self,
         fullname: str,
         fp: Path,
-        sys_cache: bool,
-        load_cache: bool,
-        pre_sys_len: int = -1,
-        pre_cache_len: int = -1,
+        cache: bool,
         inner_loader: Loader | None = None,
     ) -> None:
         super().__init__()
         # 避免在 self.__getattr__() 反射时重名
-        self.melobot_cacher = ModuleCacher()
-        self.melobot_fullname = fullname
-        self.melobot_fp = fp
-        self.melobot_sys_cache = sys_cache
-        self.melobot_load_cache = load_cache
-        self.melobot_pre_sys_len = pre_sys_len
-        self.melobot_pre_cache_len = pre_cache_len
+        self.mb_cacher = ModuleCacher()
+        self.mb_fullname = fullname
+        self.mb_fp = fp
+        self.mb_cache = cache
+        self.mb_inner_loader: Loader | None = inner_loader
 
-        self.melobot_inner_loader: Loader | None = inner_loader
         if inner_loader is not None:
             return
 
@@ -256,82 +251,77 @@ class ModuleLoader(Loader):
             if str(fp).endswith(tuple(suffixes)):
                 loader_cls = cast(type[FileLoader], loader_cls)
                 loader = loader_cls(fullname, str(fp))
-                self.melobot_inner_loader = loader
+                self.mb_inner_loader = loader
                 break
 
     def create_module(self, spec: ModuleSpec) -> ModuleType | None:
         mod = None
-        if self.melobot_load_cache:
-            mod = self.melobot_cacher.get_cache(self.melobot_fp)
-        if mod is None and self.melobot_inner_loader is not None:
-            mod = self.melobot_inner_loader.create_module(spec)
+        if self.mb_cache:
+            mod = self.mb_cacher.get_cache(self.mb_fp)
+        if mod is not None and mod.__name__ not in sys.modules:
+            # 模块有缓存，但不在 sys.modules 中，说明外部手动移除
+            # 此时同步地删除缓存条目，让行为符合外部预期
+            # 对 sys.modules 的其他修改不需要兼容（非常少出现），实在需要就用导入回退
+            mod = None
+            self.mb_cacher.rm_cache(self.mb_fp)
+        if mod is None and self.mb_inner_loader is not None:
+            mod = self.mb_inner_loader.create_module(spec)
         return mod
 
     def exec_module(self, mod: ModuleType) -> None:
-        if not self.melobot_cacher.has_cache(mod) and self.melobot_inner_loader is not None:
+        if not self.mb_cacher.has_cache(mod) and self.mb_inner_loader is not None:
             # 遵循先记录原则，防止 exec_module 发起的某些递归导入出现错误
-            if self.melobot_sys_cache:
-                sys.modules[self.melobot_fullname] = mod
+            if self.mb_cache:
+                sys.modules[self.mb_fullname] = mod
 
             try:
-                self.melobot_inner_loader.exec_module(mod)
+                self.mb_inner_loader.exec_module(mod)
                 # 设置为与内置导入机制兼容的模式
                 if hasattr(mod.__spec__, EMPTY_PKG_TAG):
                     mod.__file__ = None
             except BaseException:
                 try:
-                    del sys.modules[self.melobot_fullname]
+                    if self.mb_cache:
+                        del sys.modules[self.mb_fullname]
                 except KeyError:
                     pass
                 raise
+
         # 若 inner_loader 为空，则是纯粹的命名空间包（没有 __init__.* 的包模块）
         # 也就不需要任何实质性的 exec_module 过程
-
-        if self.melobot_load_cache:
-            self.melobot_cacher.set_cache(self.melobot_fullname, mod)
-
-        if not self.melobot_load_cache:
-            diff = self.melobot_cacher.get_len() - self.melobot_pre_cache_len
-            if diff > 0:
-                self.melobot_cacher.rm_lastn(diff)
-
-        if not self.melobot_sys_cache:
-            diff = len(sys.modules) - self.melobot_pre_sys_len
-            if diff > 0:
-                iter = reversed(sys.modules.keys())
-                rm_names: list[str] = []
-                for _ in range(diff):
-                    rm_names.append(next(iter))
-                for name in rm_names:
-                    sys.modules.pop(name)
+        if self.mb_cache:
+            self.mb_cacher.set_cache(self.mb_fullname, mod)
 
     def __getattr__(self, name: str) -> Any:
         # 直接使用反射，而不是更复杂的继承方案
         # inner_loader 实现了必要的 内省接口、importlib.resources 接口
-        if self.melobot_inner_loader is not None:
-            return getattr(self.melobot_inner_loader, name)
+        if self.mb_inner_loader is not None:
+            return getattr(self.mb_inner_loader, name)
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+
+_IMP_FALLBACKS: tuple[str, ...] = ()
+_IMP_FALLBACK_SET: set[str] = set()
 
 
 class Importer:
     @staticmethod
     def import_mod(
-        name: str,
-        path: str | PathLike[str] | None = None,
-        sys_cache: bool = True,
-        mb_cache: bool = True,
+        name: str, path: str | PathLike[str] | None = None, cache: bool = True
     ) -> ModuleType:
         """动态导入一个模块
 
         :param name: 模块名
         :param path: 在何处查找模块，为空则按照默认规则查找
-        :param sys_cache: 是否加载后在 `sys.modules` 中缓存
-        :param load_cache: 是否加载后在 melobot 模块缓存器中缓存
+        :param cache: 是否在 `sys.modules` 中缓存模块
         :return: 模块
         """
-        # 必须先获取，后续可能运行的递归将会影响序列长度
-        pre_sys_len = len(sys.modules)
-        pre_cache_len = ModuleCacher().get_len()
+        if name.startswith(_IMP_FALLBACKS):
+            raise DynamicImpError(
+                f"模块 {name} 被标记为回退默认导入机制，无法使用动态导入",
+                name=name,
+                path=str(path),
+            )
 
         if path is not None:
             try:
@@ -339,19 +329,12 @@ class Importer:
             except ValueError:
                 pass
             else:
-                Importer.import_mod(name[:sep], Path(path).parent, True, True)
+                Importer.import_mod(name[:sep], Path(path).parent)
 
-        if sys_cache and name in sys.modules:
+        if cache and name in sys.modules:
             return sys.modules[name]
 
-        spec = SpecFinder().find_spec(
-            name,
-            (str(path),) if path is not None else None,
-            sys_cache=sys_cache,
-            load_cache=mb_cache,
-            pre_sys_len=pre_sys_len,
-            pre_cache_len=pre_cache_len,
-        )
+        spec = SpecFinder().find_spec(name, (str(path),) if path is not None else None, cache=cache)
         if spec is None:
             raise DynamicImpSpecEmpty(
                 f"名为 {name} 的模块无法加载，指定的位置：{path}",
@@ -368,8 +351,15 @@ class Importer:
         return mod
 
     @staticmethod
+    def add_fallback(*names: str) -> None:
+        global _IMP_FALLBACKS
+        for name in names:
+            _IMP_FALLBACK_SET.add(name)
+        _IMP_FALLBACKS = tuple(_IMP_FALLBACK_SET)
+
+    @staticmethod
     def clear_cache() -> None:
-        ModuleCacher().clear_cache()
+        ModuleCacher().sync_all_cache()
 
     @staticmethod
     def get_cache(path: Path) -> ModuleType | None:
@@ -395,3 +385,16 @@ if sys.version_info < (3, 12):
 
         pkg_resources.register_loader_type(ModuleLoader, cast(type, _union_provider))
         pkg_resources.register_namespace_handler(SpecFinder, pkg_resources.file_ns_handler)
+
+
+def add_import_fallback(*names: str) -> None:
+    """添加导入回退
+
+    绝大多数情况下，melobot 都能处理好导入行为。
+    但在极少数情况下，某些包或模块可能需要回退到默认的导入机制
+
+    使用此方法，将模块名以 `names` 起始的模块或包标记为需要回退
+
+    :param names: 需要回退的模块或包的起始字符串
+    """
+    Importer.add_fallback(*names)

@@ -71,7 +71,7 @@ class LogReflector:
             spec = _SPEC_FINDER.find_spec(mod, paths=None)
             if spec is not None:
                 loader = cast(ModuleLoader, spec.loader)
-                path = loader.melobot_fp
+                path = loader.mb_fp
                 if path.parts[-1] in PKG_INIT_FILENAMES:
                     path = path.parent
                 return path
@@ -83,8 +83,8 @@ class LogReflector:
             if not path.is_absolute():
                 try:
                     path = path.resolve(strict=True)
-                except OSError:
-                    raise FileNotFoundError(f"尝试解析模块路径时，发现路径 {path} 不存在")
+                except FileNotFoundError as e:
+                    raise FileNotFoundError(f"尝试解析模块路径时，发现路径 {path} 不存在") from e
         return path
 
     @staticmethod
@@ -115,7 +115,7 @@ def reflect_logger(stack_depth: int = 3) -> GenericLogger:
     _, caller_path_str, *_ = find_caller_stack(stacklevel=stack_depth)
     try:
         caller_path = Path(caller_path_str).resolve(strict=True)
-    except OSError as e:
+    except FileNotFoundError as e:
         raise FileNotFoundError("自动决定日志器时，尝试解析调用模块的路径失败") from e
 
     cur_node = LogReflector.root_node
