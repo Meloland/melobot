@@ -6,7 +6,6 @@ if sys.version_info < (3, 11):
 else:
     from importlib.machinery import NamespaceLoader as _NamespaceLoader
 
-from functools import wraps
 from importlib.abc import FileLoader, Loader, MetaPathFinder
 from importlib.machinery import (
     BYTECODE_SUFFIXES,
@@ -25,8 +24,9 @@ from os import PathLike
 from pathlib import Path
 from types import ModuleType
 
-from typing_extensions import Any, Sequence, TypeVar, cast
+from typing_extensions import Any, Sequence, cast
 
+from ._lazy import singleton
 from .exceptions import DynamicImpError, DynamicImpSpecEmpty
 
 # 扩展名的优先级顺序非常重要
@@ -44,21 +44,6 @@ def _get_file_loaders() -> list[tuple[type[Loader], list[str]]]:
 
 
 class _NestedQuickExit(BaseException): ...
-
-
-T = TypeVar("T")
-
-
-def singleton(cls: type[T]) -> type[T]:
-    obj_map = {}
-
-    @wraps(cls)
-    def singleton_wrapped(*args: Any, **kwargs: Any) -> T:
-        if cls not in obj_map:
-            obj_map[cls] = cls(*args, **kwargs)
-        return obj_map[cls]
-
-    return cast(type[T], singleton_wrapped)
 
 
 @singleton

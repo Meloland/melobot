@@ -7,7 +7,6 @@ import warnings
 from collections.abc import Mapping
 from itertools import chain, zip_longest
 
-from beartype.door import is_subhint
 from pydantic import BaseModel, Discriminator, Tag, create_model
 from typing_extensions import (
     Annotated,
@@ -254,6 +253,8 @@ class Segment(Generic[SegTypeT, SegDataT]):
     def add_type(
         cls, seg_type_hint: Any, seg_data_hint: type[DataT]
     ) -> type[CustomSegCls[Any, DataT]]:
+        from melobot.typ import is_subhint
+
         if cls is not Segment:
             raise ValueError(f"只能使用 {Segment.__name__} 类的 {Segment.add_type.__name__} 方法")
         if not is_subhint(seg_type_hint, Literal):

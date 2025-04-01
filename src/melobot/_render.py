@@ -2,24 +2,14 @@ from __future__ import annotations
 
 import collections
 import io
-import itertools
-import linecache
 import os
 import sys
 from functools import lru_cache
+from pathlib import Path
 from types import FrameType, TracebackType
 
-_ORIGINAL_EXC_HOOK = sys.excepthook
-
-from pathlib import Path
-
-import better_exceptions
-import rich.console
-import rich.pretty
-from rich.highlighter import Highlighter, ReprHighlighter
-from rich.style import Style
-from rich.text import Text
 from typing_extensions import (
+    TYPE_CHECKING,
     Any,
     Generator,
     Iterable,
@@ -31,49 +21,238 @@ from typing_extensions import (
     overload,
 )
 
-from ._meta import MetaInfo
+from ._lazy import singleton
 
-better_exceptions.SUPPORTS_COLOR = True
-better_exceptions.color.SUPPORTS_COLOR = True
-better_exceptions.formatter.SUPPORTS_COLOR = True
-# 修复在 windows powershell 显示错误的 bug
-better_exceptions.encoding.ENCODING = sys.stdout.encoding
-better_exceptions.formatter.ENCODING = sys.stdout.encoding
+if TYPE_CHECKING:
+    import rich.console
+    import rich.highlighter
+    from better_exceptions import ExceptionFormatter
+    from rich.style import Style
 
-from better_exceptions.formatter import ExceptionFormatter
+_ORIGINAL_EXC_HOOK = sys.excepthook
+
+# 使用 singleton 做 lazyload 优化
 
 
-class _StyleHighlighter(Highlighter):
-    def __init__(self, style: Style | None) -> None:
-        super().__init__()
-        self.style = style
+@singleton
+def _get_tmp_console() -> "rich.console.Console":
+    import rich.console
 
-    def highlight(self, text: Text) -> None:
-        if self.style:
-            text.stylize(self.style)
+    return rich.console.Console(file=_TMP_CONSOLE_IO, record=True, color_system="256")
+
+
+@singleton
+def _get_exc_console() -> "rich.console.Console":
+    import rich.console
+
+    return rich.console.Console(file=sys.stderr, color_system="256")
+
+
+@singleton
+def _get_repr_highlighter() -> "rich.highlighter.Highlighter":
+    import rich.highlighter
+
+    return rich.highlighter.ReprHighlighter()
+
+
+@singleton
+def _get_style_highlighter_type() -> Any:
+    from rich.highlighter import Highlighter
+
+    if TYPE_CHECKING:
+        from rich.text import Text
+
+    class _StyleHighlighter(Highlighter):
+        def __init__(self, style: "Style" | None) -> None:
+            super().__init__()
+            self.style = style
+
+        def highlight(self, text: "Text") -> None:
+            if self.style:
+                text.stylize(self.style)
+
+    return _StyleHighlighter
+
+
+@singleton
+def _get_exc_fmtter() -> "ExceptionFormatter":
+    import better_exceptions
+    from better_exceptions.formatter import ExceptionFormatter
+
+    better_exceptions.SUPPORTS_COLOR = True
+    better_exceptions.color.SUPPORTS_COLOR = True
+    better_exceptions.formatter.SUPPORTS_COLOR = True
+    # 修复在 windows powershell 显示错误的 bug
+    better_exceptions.encoding.ENCODING = sys.stdout.encoding
+    better_exceptions.formatter.ENCODING = sys.stdout.encoding
+
+    class ExcFmtter(ExceptionFormatter):
+        # 以下代码，由 better-exceptions 模块源代码修改而来
+        # 原始版权 © 2016 Josh Junon
+        # 原始许可：https://github.com/Qix-/better-exceptions/blob/master/LICENSE.txt
+        def __init__(self) -> None:
+            super().__init__()
+            self._pipe_char = "\x00bold bright_black\x01│\x00/\x01"
+            self._cap_char = "\x00bold bright_black\x01└\x00/\x01"
+            self._hide_internal = False if EXC_SHOW_INTERNAL in os.environ else True
+            self._flip = True if EXC_FLIP in os.environ else False
+
+        def set_style(self, hide_internal: bool = True, flip: bool = False) -> None:
+            self._hide_internal = hide_internal
+            self._flip = flip
+
+        def to_unicode(self, val: bytes | str) -> str:
+            if isinstance(val, bytes):
+                try:
+                    return val.decode()
+                except UnicodeDecodeError:
+                    return val.decode("unicode-escape")
+            return val
+
+        def format_traceback_frame(
+            self, tb: TracebackType
+        ) -> tuple[tuple[str, int, str, str], str]:
+            filename, lineno, function, _, color_source, relevant_values = (
+                self.get_traceback_information(tb)
+            )
+
+            need_style = False
+            if len(color_source.strip()):
+                need_style = True
+            else:
+                color_source = ""
+            lines = [color_source]
+
+            for i in reversed(range(len(relevant_values))):
+                _, col, val = relevant_values[i]
+                pipe_cols = [pcol for _, pcol, _ in relevant_values[:i]]
+                line = ""
+                index = 0
+                for pc in pipe_cols:
+                    line += (" " * (pc - index)) + self._pipe_char
+                    index = pc + 1
+
+                line += "{}{} {}".format((" " * (col - index)), self._cap_char, val)
+                lines.append(self._theme["inspect"](line) if self._colored else line)
+
+            if need_style:
+                lines[0] = f"\x00bold white\x01{lines[0]}\x00/\x01"
+            formatted = "\n    ".join([self.to_unicode(x) for x in lines])
+            return (filename, lineno, function, formatted), color_source
+
+        def format_traceback(self, tb: TracebackType | None = None) -> tuple[str, str]:
+            omit_last = False
+            if not tb:
+                try:
+                    raise Exception
+                except Exception:
+                    omit_last = True
+                    _, _, tb = sys.exc_info()
+                    if tb is None:
+                        raise ValueError("异常的回溯栈信息为空，无法格式化")
+
+            frames = []
+            final_source = ""
+            while tb:
+                if omit_last and not tb.tb_next:
+                    break
+                formatted, colored = self.format_traceback_frame(tb)
+                collectable = True
+
+                if self._flip:
+                    formatted = (*formatted[:-1], "")
+                    colored = ""
+
+                try:
+                    path = Path(formatted[0]).resolve(strict=True)
+                    path_str = path.as_posix()
+                except Exception:
+                    pass
+                else:
+                    if self._hide_internal and _MAIN_PKG_PATH in path.parents:
+                        collectable = False
+                    else:
+                        formatted = (path_str, *formatted[1:])
+
+                if collectable:
+                    final_source = colored
+                    frames.append(formatted)
+                tb = tb.tb_next
+
+            lines = StackSummary.from_list(frames).format()
+            return "".join(lines), final_source
+
+        @lru_cache(maxsize=3)
+        def format_exception(self, _: Any, exc: BaseException, tb: TracebackType | None) -> str:
+            output = "".join(line for line in self._format_exception(exc, tb)).lstrip("\n").rstrip()
+            if self._flip:
+                output = output.replace("\n\n", "\n")
+            return output
+
+        def _format_exception(
+            self, value: BaseException, tb: TracebackType | None, seen: set[int] | None = None
+        ) -> Generator[str, None, None]:
+            exc_type, exc_value, exc_traceback = type(value), value, tb
+            if seen is None:
+                seen = set()
+            seen.add(id(exc_value))
+
+            if exc_value:
+                if exc_value.__cause__ is not None and id(exc_value.__cause__) not in seen:
+                    for text in self._format_exception(
+                        exc_value.__cause__, exc_value.__cause__.__traceback__, seen=seen
+                    ):
+                        yield text
+                    yield "\nThe above exception was the direct cause of the following exception:\n\n"
+                elif (
+                    exc_value.__context__ is not None
+                    and id(exc_value.__context__) not in seen
+                    and not exc_value.__suppress_context__
+                ):
+                    for text in self._format_exception(
+                        exc_value.__context__, exc_value.__context__.__traceback__, seen=seen
+                    ):
+                        yield text
+                    yield "\nDuring handling of the above exception, another exception occurred:\n\n"
+
+            if exc_traceback is not None:
+                yield "Traceback (most recent call last):\n\n"
+
+            formatted, colored_source = self.format_traceback(exc_traceback)
+            formatted = formatted.replace("[", r"\[").replace("\x00", "[").replace("\x01", "]")
+            yield formatted
+            if not str(value) and exc_type is AssertionError:
+                value.args = (colored_source,)
+
+            te = TracebackException(type(value), value, None, compact=True)
+            title_str = "".join(te.format_exception_only()).lstrip("\n").rstrip() + "\n"
+            title_str = title_str.replace("[", r"\[").replace("\x00", "[").replace("\x01", "]")
+            yield title_str
+
+    return ExcFmtter()
 
 
 _TMP_CONSOLE_IO = io.StringIO()
-_TMP_CONSOLE = rich.console.Console(file=_TMP_CONSOLE_IO, record=True, color_system="256")
-_REPR_HIGHLIGHTER = ReprHighlighter()
 _HIGH_LIGHTWORDS = ["GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
-_MAIN_PKG_PATH = Path(cast(str, sys.modules[MetaInfo.name].__file__)).parent.resolve()
+_MAIN_PKG_PATH = Path(cast(str, sys.modules["melobot"].__file__)).parent.resolve()
 
 
 def get_rich_object(
     obj: object,
     max_len: int | None = 2000,
-    style: Style | None = None,
+    style: "Style" | None = None,
     no_color: bool = False,
 ) -> tuple[str, str]:
+    import rich.pretty
+
     if no_color:
-        hl = _StyleHighlighter(style=None)
+        hl = _get_style_highlighter_type()(style=None)
     elif style:
-        hl = _StyleHighlighter(style)
+        hl = _get_style_highlighter_type()(style)
     else:
         hl = None
 
-    _TMP_CONSOLE.print(
+    _get_tmp_console().print(
         rich.pretty.Pretty(
             obj,
             highlighter=hl,
@@ -87,31 +266,33 @@ def get_rich_object(
     colored_str = _TMP_CONSOLE_IO.getvalue().rstrip("\n")
     _TMP_CONSOLE_IO.seek(0)
     _TMP_CONSOLE_IO.truncate(0)
-    return colored_str, _TMP_CONSOLE.export_text().rstrip("\n")
+    return colored_str, _get_tmp_console().export_text().rstrip("\n")
 
 
-def get_rich_repr(s: str, style: Style | None = None, no_color: bool = False) -> tuple[str, str]:
+def get_rich_repr(s: str, style: "Style" | None = None, no_color: bool = False) -> tuple[str, str]:
+    from rich.text import Text
+
     if no_color:
         msg = Text(s)
     elif style:
         msg = Text(s, style=style)
     else:
-        msg = _REPR_HIGHLIGHTER(Text(s))
+        msg = _get_repr_highlighter()(Text(s))
         msg.highlight_words(_HIGH_LIGHTWORDS, "logging.keyword")
 
-    _TMP_CONSOLE.print(msg)
+    _get_tmp_console().print(msg)
     colored_str = _TMP_CONSOLE_IO.getvalue()[:-1]
     _TMP_CONSOLE_IO.seek(0)
     _TMP_CONSOLE_IO.truncate(0)
-    return colored_str, _TMP_CONSOLE.export_text()[:-1]
+    return colored_str, _get_tmp_console().export_text()[:-1]
 
 
 def get_rich_render(s: str, markup: bool = True, emoji: bool = False) -> tuple[str, str]:
-    _TMP_CONSOLE.print(s, markup=markup, emoji=emoji, crop=False)
+    _get_tmp_console().print(s, markup=markup, emoji=emoji, crop=False)
     colored_str = _TMP_CONSOLE_IO.getvalue()[:-1]
     _TMP_CONSOLE_IO.seek(0)
     _TMP_CONSOLE_IO.truncate(0)
-    return colored_str, _TMP_CONSOLE.export_text()[:-1]
+    return colored_str, _get_tmp_console().export_text()[:-1]
 
 
 # 从 3.13 开始，traceback 的格式化发生改变，导致 better-exceptions 无法使用
@@ -121,148 +302,6 @@ def get_rich_render(s: str, markup: bool = True, emoji: bool = False) -> tuple[s
 
 EXC_SHOW_INTERNAL = "MELOBOT_EXC_SHOW_INTERNAL"
 EXC_FLIP = "MELOBOT_EXC_FLIP"
-
-
-class ExcFmtter(ExceptionFormatter):
-    # 以下代码，由 better-exceptions 模块源代码修改而来
-    # 原始版权 © 2016 Josh Junon
-    # 原始许可：https://github.com/Qix-/better-exceptions/blob/master/LICENSE.txt
-    def __init__(self) -> None:
-        super().__init__()
-        self._pipe_char = "\x00bold bright_black\x01│\x00/\x01"
-        self._cap_char = "\x00bold bright_black\x01└\x00/\x01"
-        self._hide_internal = False if EXC_SHOW_INTERNAL in os.environ else True
-        self._flip = True if EXC_FLIP in os.environ else False
-
-    def set_style(self, hide_internal: bool = True, flip: bool = False) -> None:
-        self._hide_internal = hide_internal
-        self._flip = flip
-
-    def to_unicode(self, val: bytes | str) -> str:
-        if isinstance(val, bytes):
-            try:
-                return val.decode()
-            except UnicodeDecodeError:
-                return val.decode("unicode-escape")
-        return val
-
-    def format_traceback_frame(self, tb: TracebackType) -> tuple[tuple[str, int, str, str], str]:
-        filename, lineno, function, _, color_source, relevant_values = (
-            self.get_traceback_information(tb)
-        )
-
-        need_style = False
-        if len(color_source.strip()):
-            need_style = True
-        else:
-            color_source = ""
-        lines = [color_source]
-
-        for i in reversed(range(len(relevant_values))):
-            _, col, val = relevant_values[i]
-            pipe_cols = [pcol for _, pcol, _ in relevant_values[:i]]
-            line = ""
-            index = 0
-            for pc in pipe_cols:
-                line += (" " * (pc - index)) + self._pipe_char
-                index = pc + 1
-
-            line += "{}{} {}".format((" " * (col - index)), self._cap_char, val)
-            lines.append(self._theme["inspect"](line) if self._colored else line)
-
-        if need_style:
-            lines[0] = f"\x00bold white\x01{lines[0]}\x00/\x01"
-        formatted = "\n    ".join([self.to_unicode(x) for x in lines])
-        return (filename, lineno, function, formatted), color_source
-
-    def format_traceback(self, tb: TracebackType | None = None) -> tuple[str, str]:
-        omit_last = False
-        if not tb:
-            try:
-                raise Exception
-            except Exception:
-                omit_last = True
-                _, _, tb = sys.exc_info()
-                if tb is None:
-                    raise ValueError("异常的回溯栈信息为空，无法格式化")
-
-        frames = []
-        final_source = ""
-        while tb:
-            if omit_last and not tb.tb_next:
-                break
-            formatted, colored = self.format_traceback_frame(tb)
-            collectable = True
-
-            if self._flip:
-                formatted = (*formatted[:-1], "")
-                colored = ""
-
-            try:
-                path = Path(formatted[0]).resolve(strict=True)
-                path_str = path.as_posix()
-            except Exception:
-                pass
-            else:
-                if self._hide_internal and _MAIN_PKG_PATH in path.parents:
-                    collectable = False
-                else:
-                    formatted = (path_str, *formatted[1:])
-
-            if collectable:
-                final_source = colored
-                frames.append(formatted)
-            tb = tb.tb_next
-
-        lines = StackSummary.from_list(frames).format()
-        return "".join(lines), final_source
-
-    @lru_cache(maxsize=3)
-    def format_exception(self, _: Any, exc: BaseException, tb: TracebackType | None) -> str:
-        output = "".join(line for line in self._format_exception(exc, tb)).lstrip("\n").rstrip()
-        if self._flip:
-            output = output.replace("\n\n", "\n")
-        return output
-
-    def _format_exception(
-        self, value: BaseException, tb: TracebackType | None, seen: set[int] | None = None
-    ) -> Generator[str, None, None]:
-        exc_type, exc_value, exc_traceback = type(value), value, tb
-        if seen is None:
-            seen = set()
-        seen.add(id(exc_value))
-
-        if exc_value:
-            if exc_value.__cause__ is not None and id(exc_value.__cause__) not in seen:
-                for text in self._format_exception(
-                    exc_value.__cause__, exc_value.__cause__.__traceback__, seen=seen
-                ):
-                    yield text
-                yield "\nThe above exception was the direct cause of the following exception:\n\n"
-            elif (
-                exc_value.__context__ is not None
-                and id(exc_value.__context__) not in seen
-                and not exc_value.__suppress_context__
-            ):
-                for text in self._format_exception(
-                    exc_value.__context__, exc_value.__context__.__traceback__, seen=seen
-                ):
-                    yield text
-                yield "\nDuring handling of the above exception, another exception occurred:\n\n"
-
-        if exc_traceback is not None:
-            yield "Traceback (most recent call last):\n\n"
-
-        formatted, colored_source = self.format_traceback(exc_traceback)
-        formatted = formatted.replace("[", r"\[").replace("\x00", "[").replace("\x01", "]")
-        yield formatted
-        if not str(value) and exc_type is AssertionError:
-            value.args = (colored_source,)
-
-        te = TracebackException(type(value), value, None, compact=True)
-        title_str = "".join(te.format_exception_only()).lstrip("\n").rstrip() + "\n"
-        title_str = title_str.replace("[", r"\[").replace("\x00", "[").replace("\x01", "]")
-        yield title_str
 
 
 """
@@ -288,6 +327,7 @@ class FrameSummary:
         locals: Mapping[str, str] | None = None,
         line: str | None = None,
     ) -> None:
+
         self.filename = filename
         self.lineno = lineno
         self.name = name
@@ -337,6 +377,8 @@ class FrameSummary:
 
     @property
     def line(self) -> str | None:
+        import linecache
+
         if self._line is None:
             if self.lineno is None:
                 return None
@@ -354,6 +396,9 @@ class StackSummary(list[FrameSummary]):
         lookup_lines: bool = True,
         capture_locals: bool = False,
     ) -> StackSummary:
+        import itertools
+        import linecache
+
         if limit is None:
             limit = getattr(sys, "tracebacklimit", None)
             if limit is not None and limit < 0:
@@ -645,15 +690,12 @@ class TracebackException:
 
 # -----------------------------------------------------------------------------
 
-_EXC_FORMATTER = ExcFmtter()
-_EXC_CONSOLE = rich.console.Console(file=sys.stderr, color_system="256")
-
 
 @lru_cache(maxsize=3)
 def get_rich_exception(
     exc_type: type[BaseException], exc: BaseException, tb: TracebackType | None
 ) -> tuple[str, str]:
-    lines = _EXC_FORMATTER.format_exception(exc_type, exc, tb)  # type: ignore[arg-type]
+    lines = _get_exc_fmtter().format_exception(exc_type, exc, tb)  # type: ignore[arg-type]
     colored_str, plain_str = get_rich_render(lines)
     return colored_str, plain_str
 
@@ -661,8 +703,8 @@ def get_rich_exception(
 def _excepthook(
     exc_type: type[BaseException], exc: BaseException, tb: TracebackType | None
 ) -> None:
-    lines = _EXC_FORMATTER.format_exception(exc_type, exc, tb)  # type: ignore[arg-type]
-    _EXC_CONSOLE.print(lines, markup=True, emoji=False, crop=False)
+    lines = _get_exc_fmtter().format_exception(exc_type, exc, tb)  # type: ignore[arg-type]
+    _get_exc_console().print(lines, markup=True, emoji=False, crop=False)
 
 
 def install_exc_hook() -> None:
@@ -717,4 +759,4 @@ def uninstall_exc_hook() -> None:
 
 
 def set_traceback_style(hide_internal: bool = True, flip: bool = False) -> None:
-    _EXC_FORMATTER.set_style(hide_internal, flip)
+    _get_exc_fmtter().set_style(hide_internal, flip)

@@ -1,6 +1,10 @@
 import warnings
+from functools import wraps
 
-from typing_extensions import Any, Iterable
+from typing_extensions import Any, Callable, Iterable, ParamSpec, TypeVar, overload
+
+T = TypeVar("T", default=Any)
+P = ParamSpec("P", default=Any)
 
 # 以下代码，由 websockets.imports 模块源代码修改而来
 # 原始版权 © Aymeric Augustin and contributors
@@ -74,3 +78,26 @@ def lazy_import(
 
     mod_globals["__getattr__"] = __getattr__
     mod_globals["__dir__"] = __dir__
+
+
+@overload
+def singleton(cls: type[T]) -> type[T]: ...
+@overload
+def singleton(cls: Callable[P, T]) -> Callable[P, T]: ...
+
+
+def singleton(cls: type[T] | Callable[P, T]) -> type[T] | Callable[P, T]:
+    """单例装饰器
+
+    :param cls: 需要被单例化的可调用对象
+    :return: 需要被单例化的可调用对象
+    """
+    obj_map = {}
+
+    @wraps(cls)
+    def singleton_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        if cls not in obj_map:
+            obj_map[cls] = cls(*args, **kwargs)
+        return obj_map[cls]
+
+    return singleton_wrapped

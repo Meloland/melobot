@@ -15,8 +15,6 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from logging import Logger as _Logger
 from logging import _srcfile as _LOGGING_SRC_FILE
 
-import colorlog
-from rich.style import Style
 from typing_extensions import Any, Callable, Generator, Literal, cast
 
 from .._render import get_rich_exception, get_rich_object, get_rich_repr
@@ -252,6 +250,8 @@ class Logger(_Logger, GenericLogger):
 
     @staticmethod
     def _console_fmt(name: str, no_tag: bool = False) -> logging.Formatter:
+        import colorlog
+
         fmt_arr = [
             "%(cyan)s%(asctime)s.%(msecs)03d%(reset)s",
             "%(log_color)s%(levelname)-7s%(reset)s",
@@ -383,6 +383,8 @@ class _MeloLogFilter(logging.Filter):
         red_error: bool = True,
         legacy: bool = False,
     ) -> None:
+        from rich.style import Style
+
         super().__init__(name)
         self._obj: Any = VoidType.VOID
         self._yellow_style = Style(color="yellow")

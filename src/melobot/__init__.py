@@ -1,6 +1,6 @@
 from typing_extensions import TYPE_CHECKING
 
-from . import _imp
+from . import _imp, _render
 from ._lazy import lazy_import as _lazy_import
 
 # TODO: 考虑在最低支持 3.11 后，使用 asyncio.TaskGroup 替代多数任务生成场景
