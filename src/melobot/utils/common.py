@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import io
 import time
+import traceback
 import warnings
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
+from inspect import currentframe
+from types import FrameType
 
 from typing_extensions import Any, AsyncGenerator, Callable, Literal, cast
 
@@ -203,3 +207,35 @@ def get_id() -> str:
     :return: id 值
     """
     return _DEFAULT_ID_WORKER.get_b64_id()
+
+
+def find_caller_stack(
+    stack_info: bool = False,
+    stacklevel: int = 1,
+    inner_frame_filter: Callable[[FrameType], bool] | None = None,
+) -> tuple[str, str, int, str, str | None]:
+    f = currentframe()
+    if f is None:
+        return "<unknown module>", "<unknown file>", 0, "<unknown function>", "<unknown stackinfo>"
+
+    while stacklevel > 0:
+        next_f = f.f_back
+        if next_f is None:
+            break
+        f = next_f
+        if inner_frame_filter is None or not inner_frame_filter(f):
+            stacklevel -= 1
+    co = f.f_code
+    sinfo = None
+
+    if stack_info:
+        with io.StringIO() as sio:
+            sio.write("Stack (most recent call last):\n")
+            traceback.print_stack(f, file=sio)
+            sinfo = sio.getvalue()
+            if sinfo[-1] == "\n":
+                sinfo = sinfo[:-1]
+
+    if not isinstance(f.f_lineno, int):
+        raise ValueError(f"尝试解析调用栈时，获取的行号不是整数，值类型是：{type(f.f_lineno)}")
+    return f.f_globals["__name__"], co.co_filename, f.f_lineno, co.co_name, sinfo

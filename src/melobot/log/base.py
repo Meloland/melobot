@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import io
 import logging
 import logging.handlers
 import os
 import sys
-import traceback
 import types
 from abc import abstractmethod
 from contextlib import contextmanager
 from enum import Enum
-from inspect import currentframe
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from logging import Logger as _Logger
 from logging import _srcfile as _LOGGING_SRC_FILE
@@ -21,7 +18,7 @@ from .._render import get_rich_exception, get_rich_object, get_rich_repr
 from ..typ._enum import VoidType
 from ..typ.base import T
 from ..typ.cls import BetterABC
-from ..utils.common import singleton
+from ..utils.common import find_caller_stack, singleton
 
 # 取消 better-exceptions 的猴子补丁
 logging._loggerClass = (  # type:ignore[attr-defined]
@@ -149,7 +146,7 @@ class Logger(_Logger, GenericLogger):
     def findCaller(
         self, stack_info: bool = False, stacklevel: int = 1
     ) -> tuple[str, int, str, str | None]:
-        *ret, sinfo = find_caller_stack(stack_info, stacklevel)
+        *ret, sinfo = find_caller_stack(stack_info, stacklevel, is_logging_frame)
         sinfo = f"\u0000{ret[0]},{ret[2]}"
         return cast(tuple[str, int, str, str | None], (*(ret[1:]), sinfo))
 
@@ -453,41 +450,11 @@ class _MeloLogFilter(logging.Filter):
             record.colored_obj, record.obj = get_rich_object(self._obj)
 
 
-def _is_internal_frame(frame: types.FrameType) -> bool:
+def is_logging_frame(frame: types.FrameType) -> bool:
     filename = os.path.normcase(frame.f_code.co_filename)
     return filename in (_FILE, _LOGGING_SRC_FILE) or (
         "importlib" in filename and "_bootstrap" in filename
     )
-
-
-def find_caller_stack(
-    stack_info: bool = False, stacklevel: int = 1
-) -> tuple[str, str, int, str, str | None]:
-    f = currentframe()
-    if f is None:
-        return "<unknown module>", "<unknown file>", 0, "<unknown function>", "<unknown stackinfo>"
-
-    while stacklevel > 0:
-        next_f = f.f_back
-        if next_f is None:
-            break
-        f = next_f
-        if not _is_internal_frame(f):
-            stacklevel -= 1
-    co = f.f_code
-    sinfo = None
-
-    if stack_info:
-        with io.StringIO() as sio:
-            sio.write("Stack (most recent call last):\n")
-            traceback.print_stack(f, file=sio)
-            sinfo = sio.getvalue()
-            if sinfo[-1] == "\n":
-                sinfo = sinfo[:-1]
-
-    if not isinstance(f.f_lineno, int):
-        raise ValueError(f"尝试解析调用栈时，获取的行号不是整数，值类型是：{type(f.f_lineno)}")
-    return f.f_globals["__name__"], co.co_filename, f.f_lineno, co.co_name, sinfo
 
 
 def generic_obj_meth(

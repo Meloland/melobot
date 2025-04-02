@@ -11,7 +11,8 @@ from typing_extensions import Any, cast
 
 from .._imp import ALL_EXTS, PKG_INIT_FILENAMES, ModuleLoader, SpecFinder
 from ..ctx import BotCtx
-from .base import GenericLogger, Logger, find_caller_stack
+from ..utils.common import find_caller_stack
+from .base import GenericLogger, Logger, is_logging_frame
 
 _SPEC_FINDER = SpecFinder()
 _BOT_CTX = BotCtx()
@@ -112,7 +113,9 @@ def set_module_logger(
 
 
 def reflect_logger(stack_depth: int = 3) -> GenericLogger:
-    _, caller_path_str, *_ = find_caller_stack(stacklevel=stack_depth)
+    _, caller_path_str, *_ = find_caller_stack(
+        stacklevel=stack_depth, inner_frame_filter=is_logging_frame
+    )
     try:
         caller_path = Path(caller_path_str).resolve(strict=True)
     except FileNotFoundError as e:

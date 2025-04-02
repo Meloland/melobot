@@ -287,7 +287,7 @@ def get_rich_repr(s: str, style: "Style" | None = None, no_color: bool = False) 
     return colored_str, _get_tmp_console().export_text()[:-1]
 
 
-def get_rich_render(s: str, markup: bool = True, emoji: bool = False) -> tuple[str, str]:
+def get_rich_str(s: str, markup: bool = True, emoji: bool = False) -> tuple[str, str]:
     _get_tmp_console().print(s, markup=markup, emoji=emoji, crop=False)
     colored_str = _TMP_CONSOLE_IO.getvalue()[:-1]
     _TMP_CONSOLE_IO.seek(0)
@@ -696,7 +696,7 @@ def get_rich_exception(
     exc_type: type[BaseException], exc: BaseException, tb: TracebackType | None
 ) -> tuple[str, str]:
     lines = _get_exc_fmtter().format_exception(exc_type, exc, tb)  # type: ignore[arg-type]
-    colored_str, plain_str = get_rich_render(lines)
+    colored_str, plain_str = get_rich_str(lines)
     return colored_str, plain_str
 
 
