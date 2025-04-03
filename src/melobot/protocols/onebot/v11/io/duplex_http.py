@@ -74,8 +74,7 @@ class HttpIO(BaseIOSource):
         except Exception as e:
             log_exc(e, msg="OneBot v11 HTTP IO 源输入异常", obj=raw)
 
-        finally:
-            return aiohttp.web.Response(status=204)
+        return aiohttp.web.Response(status=204)
 
     async def _output_loop(self) -> None:
         while True:
