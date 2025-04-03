@@ -1,4 +1,5 @@
 from enum import Enum
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 
 from typing_extensions import Any, Callable, Sequence
 
@@ -16,6 +17,23 @@ class VoidType(Enum):
     """
 
     VOID = type("_VOID", (), {})
+
+
+class ExitCode(Enum):
+    NORMAL = 0
+    ERROR = 1
+    RESTART = 2
+
+
+# TODO: 考虑在最低支持 3.11 后，使用 logging.getLevelNamesMapping 兼容部分场景
+class LogLevel(int, Enum):
+    """日志等级枚举"""
+
+    CRITICAL = CRITICAL
+    ERROR = ERROR
+    WARNING = WARNING
+    INFO = INFO
+    DEBUG = DEBUG
 
 
 class LogicMode(Enum):

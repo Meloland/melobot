@@ -1,7 +1,7 @@
 import warnings
 from functools import wraps
 
-from typing_extensions import Any, Callable, Iterable, ParamSpec, TypeVar, overload
+from typing_extensions import Any, Callable, Iterable, ParamSpec, TypeVar, cast, overload
 
 T = TypeVar("T", default=Any)
 P = ParamSpec("P", default=Any)
@@ -80,6 +80,13 @@ def lazy_import(
     mod_globals["__dir__"] = __dir__
 
 
+# --------------------------------------------------------------------------
+
+
+_SINGLETON_OBJ_MAP: dict[Any, Any] = {}
+_SINGLETON_FACTORY_MAP: dict[Any, Any] = {}
+
+
 @overload
 def singleton(cls: type[T]) -> type[T]: ...
 @overload
@@ -92,12 +99,25 @@ def singleton(cls: type[T] | Callable[P, T]) -> type[T] | Callable[P, T]:
     :param cls: 需要被单例化的可调用对象
     :return: 需要被单例化的可调用对象
     """
-    obj_map = {}
 
     @wraps(cls)
     def singleton_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        if cls not in obj_map:
-            obj_map[cls] = cls(*args, **kwargs)
-        return obj_map[cls]
+        if cls not in _SINGLETON_OBJ_MAP:
+            obj = _SINGLETON_OBJ_MAP[cls] = cls(*args, **kwargs)
+            _SINGLETON_FACTORY_MAP[obj] = cls
+        return cast(T, _SINGLETON_OBJ_MAP[cls])
 
     return singleton_wrapped
+
+
+def singleton_clear(obj: Any) -> None:
+    """清除已经缓存的单例
+
+    :param obj: 单例化得到的对象
+    """
+    if obj not in _SINGLETON_FACTORY_MAP:
+        raise ValueError(
+            f"{obj} 不在单例装饰器的记录中。它可能不是单例对象，或产生此单例的类或可调用对象已清空单例缓存"
+        )
+    callable_or_cls = _SINGLETON_FACTORY_MAP.pop(obj)
+    _SINGLETON_OBJ_MAP.pop(callable_or_cls)

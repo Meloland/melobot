@@ -11,10 +11,10 @@ from types import ModuleType
 from typing_extensions import Any, Callable, Iterable, cast
 
 from .._imp import ALL_EXTS, Importer
+from .._lazy import singleton
 from ..ctx import BotCtx
 from ..exceptions import DynamicImpSpecEmpty, PluginAutoGenError, PluginLoadError
 from ..log.reflect import logger
-from ..utils.common import singleton
 from .base import Plugin, PluginPlanner
 from .ipc import AsyncShare, SyncShare
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import os
 import platform
 from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
@@ -29,6 +30,7 @@ from ..handle.base import Flow
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
 from ..log.base import GenericLogger
 from ..log.reflect import logger
+from ..log.report import set_loop_exc_log
 from ..mixin import HookMixin
 from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
@@ -116,11 +118,6 @@ class Bot(HookMixin[BotLifeSpan]):
 
     def __repr__(self) -> str:
         return f'Bot(name="{self.name}")'
-
-    @property
-    def loop(self) -> asyncio.AbstractEventLoop:
-        """获得当前 bot 运行时的事件循环对象"""
-        return asyncio.get_running_loop()
 
     @contextmanager
     def _common_sync_ctx(self) -> Generator[ExitStack, None, None]:
@@ -317,6 +314,8 @@ class Bot(HookMixin[BotLifeSpan]):
 
         try:
             async with self._common_async_ctx() as stack:
+                self._dispatcher.set_channel_ctx(contextvars.copy_context())
+
                 await self._hook_bus.emit(BotLifeSpan.LOADED)
                 if self._runner.is_from_restart():
                     await self._hook_bus.emit(BotLifeSpan.RELOADED)
@@ -326,8 +325,6 @@ class Bot(HookMixin[BotLifeSpan]):
                         PluginLifeSpan.INITED,
                         callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
                     )
-
-                self._dispatcher.start()
 
                 ts = tuple(
                     asyncio.create_task(stack.enter_async_context(adapter.__adapter_launch__()))
@@ -351,7 +348,8 @@ class Bot(HookMixin[BotLifeSpan]):
         :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级
         :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
         """
-        self._runner.run(self.core_run(), debug, strict_log)
+        set_loop_exc_log(strict_log)
+        self._runner.run(self.core_run(), debug)
         _end_log()
 
     @classmethod
@@ -373,9 +371,10 @@ class Bot(HookMixin[BotLifeSpan]):
             except asyncio.CancelledError:
                 for t in tasks:
                     t.cancel()
-            _end_log()
 
-        LoopManager().run(bots_run(), debug, strict_log)
+        set_loop_exc_log(strict_log)
+        LoopManager().run(bots_run(), debug)
+        _end_log()
 
     async def close(self) -> None:
         """停止并关闭当前 bot"""

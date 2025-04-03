@@ -10,7 +10,8 @@ from pathlib import Path
 
 from typing_extensions import Any
 
-from melobot._run import CLI_LAST_EXIT_CODE, CLI_RUN_ALIVE_FLAG, CLI_RUN_FLAG, ExitCode
+from melobot._run import CLI_LAST_EXIT_CODE, CLI_RUN_ALIVE_FLAG, CLI_RUN_FLAG
+from melobot.typ import ExitCode
 
 
 def main(args: Namespace) -> None:

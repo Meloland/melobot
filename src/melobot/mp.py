@@ -5,10 +5,11 @@
 只要不使用本模块的进程创建接口，就自动回退到 multiprocessing 原始逻辑
 """
 
-# TODO: 由于存在侵入性设计，因此每个 py minor 版本都应该测试验证。
-# 需要提醒用户注意导入优先级，确保模块正常工作
-
+# TODO: 由于存在侵入性设计，因此每个 py minor 版本都应该测试验证
+import multiprocessing.spawn as spawn_mod
+import multiprocessing.util as util_mod
 import sys
+from functools import wraps
 from multiprocessing import current_process
 
 from typing_extensions import Any
@@ -22,38 +23,58 @@ def in_main_process() -> bool:
     return current_process().name == "MainProcess"
 
 
-def in_melobot_sub_process() -> bool:
-    """判断当前进程是否为 melobot 管理的子进程"""
-    return SpawnProcess.owned(current_process().name)
+def _wrapped_get_preparation_data(name: str) -> dict:
+    data = _original_get_preparation_data(name)
+    if SpawnProcess.owned(name):
+        data["sys_path"].insert(0, _P_STATUS[name]["dir"])
+        data["sys_argv"] = _P_STATUS[name]["argv"]
+        data["dir"] = data["orig_dir"] = _P_STATUS[name]["dir"]
+
+        sentinel = object()
+        if data.get("init_main_from_name", sentinel) is not sentinel:
+            raise RuntimeError(
+                f"__main__ 模块从名称 {data['init_main_from_name']!r} 加载，此模式下不支持安全生成子进程"
+            )
+        data["init_main_from_path"] = _P_STATUS[name]["entry"]
+    return data
 
 
-# 只在父进程中进行的修补
-if in_main_process():
+def _wrapped_get_command_line(**kwargs: Any) -> Any:
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "--multiprocessing-fork"] + [
+            "%s=%r" % item for item in kwargs.items()
+        ]
+    else:
+        prog = "import melobot.mp; from multiprocessing.spawn import spawn_main; spawn_main(%s)"
+        prog %= ", ".join("%s=%r" % item for item in kwargs.items())
+        opts = util_mod._args_from_interpreter_flags()  # type: ignore[attr-defined]
+        return [spawn_mod.get_executable()] + opts + ["-c", prog, "--multiprocessing-fork"]
 
-    from functools import wraps
-    from multiprocessing import spawn
 
-    _original_get_preparation_data = spawn.get_preparation_data
+def _wrapped_prepare(data: Any) -> None:
+    ret = _original_prepare(data)
+    if SpawnProcess.owned(data["name"]):
+        import signal
 
-    def _wrapped_get_preparation_data(name: str) -> dict:
-        data = _original_get_preparation_data(name)
-        if SpawnProcess.owned(name):
-            data["sys_path"].insert(0, _P_STATUS[name]["dir"])
-            data["sys_argv"] = _P_STATUS[name]["argv"]
-            data["dir"] = data["orig_dir"] = _P_STATUS[name]["dir"]
+        # 默认重置常见的信号处理，子进程由父进程全权管理
+        signals_to_ignore: list[signal.Signals] = [signal.SIGINT, signal.SIGTERM]
+        if sys.platform == "win32":
+            signals_to_ignore.append(signal.SIGBREAK)
+        for sig in signals_to_ignore:
+            signal.signal(sig, signal.SIG_IGN)
+    return ret
 
-            sentinel = object()
-            if data.get("init_main_from_name", sentinel) is not sentinel:
-                raise RuntimeError(
-                    f"__main__ 模块从名称 {data['init_main_from_name']!r} 加载，此模式下不支持安全生成子进程"
-                )
-            data["init_main_from_path"] = _P_STATUS[name]["entry"]
 
-        return data
+_original_get_preparation_data = spawn_mod.get_preparation_data
+spawn_mod.get_preparation_data = wraps(_original_get_preparation_data)(
+    _wrapped_get_preparation_data
+)
 
-    spawn.get_preparation_data = wraps(_original_get_preparation_data)(
-        _wrapped_get_preparation_data
-    )
+_original_get_command_line = spawn_mod.get_command_line
+spawn_mod.get_command_line = wraps(_original_get_command_line)(_wrapped_get_command_line)
+
+_original_prepare = spawn_mod.prepare
+spawn_mod.prepare = wraps(_original_prepare)(_wrapped_prepare)
 
 
 import pickle
@@ -96,7 +117,7 @@ class SpawnProcess(get_context("spawn").Process):  # type: ignore[name-defined,m
         if not in_main_process():
             raise RuntimeError(
                 "不应该在 melobot 管理的子进程中继续创建子进程。"
-                "出现此异常可能是因为初始化参数“入口路径”设置错误，导致创建进程的代码在子进程中再次执行。"
+                "出现此异常可能是因为初始化参数“入口路径”设置错误，导致创建进程的代码在子进程中再次执行"
             )
 
         super().__init__(
@@ -130,6 +151,11 @@ class SpawnProcess(get_context("spawn").Process):  # type: ignore[name-defined,m
     @staticmethod
     def owned(name: str) -> bool:
         return "melobot" in name.lower()
+
+
+def in_melobot_sub_process() -> bool:
+    """判断当前进程是否为 melobot 管理的子进程"""
+    return SpawnProcess.owned(current_process().name)
 
 
 class _BanOriginalProcess:
@@ -190,6 +216,7 @@ ProcessPoolExecutor: TypeAlias = SpawnProcessPoolExecutor
 
 _EMPTY = object()
 _DUMMY_CLS = type("_DUMMY_CLS", (), {})
+# 注意这个递归锁在序列化和反序列化时，不是同一个（在不同进程中）
 _PICKLE_RLOCK = RLock()
 
 

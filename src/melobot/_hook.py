@@ -5,9 +5,9 @@ from enum import Enum
 
 from typing_extensions import Any, Generic, TypeVar
 
-from ._run import report_exc
 from .di import inject_deps
 from .log.reflect import logger
+from .log.report import log_exc
 from .typ.base import AsyncCallable, SyncOrAsyncCallable
 from .utils import to_async, to_sync
 
@@ -26,10 +26,10 @@ class HookRunner(Generic[HookEnumT]):
         try:
             await self.callback(*args, **kwargs)
         except Exception as e:
-            report_exc(
+            log_exc(
                 e,
                 msg=f"{self.type} 类型的 hook 方法 {self.callback} 发生异常",
-                var={"hook_runner": self, "args": args, "kwargs": kwargs},
+                obj={"hook_runner": self, "args": args, "kwargs": kwargs},
             )
 
     async def run(self, *args: Any, **kwargs: Any) -> None:

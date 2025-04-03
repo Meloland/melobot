@@ -4,7 +4,8 @@ from functools import partial
 
 from typing_extensions import Any, Callable, Protocol, cast
 
-from .base import GenericLogger, Logger, LogLevel, generic_obj_meth
+from ..typ._enum import LogLevel
+from .base import GenericLogger, Logger, generic_obj_meth
 
 
 class LazyLogMethod(Protocol):

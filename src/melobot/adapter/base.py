@@ -22,7 +22,6 @@ from typing_extensions import (
     final,
 )
 
-from .._run import report_exc
 from ..ctx import EventOrigin, FlowCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
@@ -34,6 +33,7 @@ from ..io.base import (
     OutPacketT,
     OutSourceT,
 )
+from ..log import log_exc
 from ..mixin import HookMixin
 from ..typ.cls import BetterABC
 from .content import Content
@@ -171,10 +171,10 @@ class Adapter(
                 await self._hook_bus.emit(AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,))
                 self.dispatcher.broadcast(event)
             except Exception as e:
-                report_exc(
+                log_exc(
                     e,
                     msg=f"适配器 {self} 处理输入源 {src} 时发生异常",
-                    var={
+                    obj={
                         "in_factory": self._event_factory,
                         "dispatcher": self.dispatcher,
                     }

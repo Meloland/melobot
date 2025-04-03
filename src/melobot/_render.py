@@ -21,7 +21,8 @@ from typing_extensions import (
     overload,
 )
 
-from ._lazy import singleton
+# 使用绝对导入保证子进程导入正确
+from melobot._lazy import singleton
 
 if TYPE_CHECKING:
     import rich.console

@@ -7,34 +7,25 @@ import sys
 import types
 from abc import abstractmethod
 from contextlib import contextmanager
-from enum import Enum
-from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
+from dataclasses import dataclass
+from logging import CRITICAL
 from logging import Logger as _Logger
 from logging import _srcfile as _LOGGING_SRC_FILE
 
 from typing_extensions import Any, Callable, Generator, Literal, cast
 
-from .._render import get_rich_exception, get_rich_object, get_rich_repr
-from ..typ._enum import VoidType
+from .._lazy import singleton
+from .._render import get_rich_exception
+from ..typ._enum import LogLevel, VoidType
 from ..typ.base import T
 from ..typ.cls import BetterABC
-from ..utils.common import find_caller_stack, singleton
+from ..utils.common import find_caller_stack
+from .handler import FastRotatingFileHandler, FastStreamHandler
 
 # 取消 better-exceptions 的猴子补丁
 logging._loggerClass = (  # type:ignore[attr-defined]
     logging.Logger
 )
-
-
-# TODO: 考虑在最低支持 3.11 后，使用 logging.getLevelNamesMapping 兼容部分场景
-class LogLevel(int, Enum):
-    """日志等级枚举"""
-
-    CRITICAL = CRITICAL
-    ERROR = ERROR
-    WARNING = WARNING
-    INFO = INFO
-    DEBUG = DEBUG
 
 
 class GenericLogger(BetterABC):
@@ -137,7 +128,7 @@ class NullLogger(_Logger, GenericLogger):
 class Logger(_Logger, GenericLogger):
     """melobot 内置日志器
 
-    推荐使用的日志器。实现了 :class:`GenericLogger` 接口，因此可以用于 melobot 内部日志记录。
+    推荐使用的日志器。实现了 :class:`GenericLogger` 接口，因此可以用于 melobot 内部日志记录
 
     `debug`, `info`, `warning`, `error`, `critical`, `exception`
     等接口与 :class:`logging.Logger` 用法完全一致
@@ -177,6 +168,7 @@ class Logger(_Logger, GenericLogger):
         yellow_warn: bool = True,
         red_error: bool = True,
         two_stream: bool = False,
+        is_parellel: bool = False,
     ) -> None:
         """初始化日志器
 
@@ -196,11 +188,13 @@ class Logger(_Logger, GenericLogger):
             `legacy` 选项为 `True` 时此参数无效
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件
+        :param is_parellel: 日志渲染是否启用并行优化（可能导致日志小部分行间乱序）
         """
         super().__init__(name, LogLevel.DEBUG)
         self._handler_arr: list[logging.Handler] = []
         self._no_tag = not add_tag
         self._filter = _MeloLogFilter(name, yellow_warn, red_error, legacy)
+        self._parellel = is_parellel
 
         if to_console:
             con_handler = self._add_console_handler()
@@ -265,13 +259,10 @@ class Logger(_Logger, GenericLogger):
         fmt.default_msec_format = "%s.%03d"
         fmt.formatException = lambda exc_info: get_rich_exception(*exc_info)[0]  # type: ignore
         Logger._make_fmt_nocache(fmt)
-
-        # 未知的 mypy bug 推断 fmt 为 Any 类型...
         return fmt  # type: ignore[no-any-return]
 
-    @staticmethod
-    def _console_handler(fmt: logging.Formatter) -> logging.Handler:
-        handler = logging.StreamHandler()
+    def _console_handler(self, fmt: logging.Formatter) -> logging.Handler:
+        handler = FastStreamHandler(self._parellel)
         handler.setFormatter(fmt)
         return handler
 
@@ -294,17 +285,16 @@ class Logger(_Logger, GenericLogger):
         fmt.default_msec_format = "%s.%03d"
         fmt.formatException = lambda exc_info: get_rich_exception(*exc_info)[1]  # type: ignore
         Logger._make_fmt_nocache(fmt)
-
         return fmt
 
-    @staticmethod
     def _file_handler(
-        fmt: logging.Formatter, log_dir: str, name: str, level: LogLevel
+        self, fmt: logging.Formatter, log_dir: str, name: str, level: LogLevel
     ) -> logging.Handler:
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
 
-        handler = logging.handlers.RotatingFileHandler(
+        handler = FastRotatingFileHandler(
+            self._parellel,
             filename=os.path.join(log_dir, f"{name}.log"),
             maxBytes=1024 * 1024,
             backupCount=10,
@@ -372,6 +362,15 @@ class _NormalLvlFilter(logging.Filter):
         return logging.DEBUG <= record.levelno < logging.WARNING
 
 
+@dataclass
+class LogInfo:
+    yellow_warn: bool
+    red_error: bool
+    legacy: bool
+    msg: str
+    obj: Any
+
+
 class _MeloLogFilter(logging.Filter):
     def __init__(
         self,
@@ -380,12 +379,9 @@ class _MeloLogFilter(logging.Filter):
         red_error: bool = True,
         legacy: bool = False,
     ) -> None:
-        from rich.style import Style
 
         super().__init__(name)
         self._obj: Any = VoidType.VOID
-        self._yellow_style = Style(color="yellow")
-        self._red_style = Style(color="red")
         self._enable_yellow_warn = yellow_warn
         self._enable_red_error = red_error
         self._legacy = legacy
@@ -409,45 +405,18 @@ class _MeloLogFilter(logging.Filter):
         if record.args:
             msg = msg % record.args
         record.msg_str = msg
-        self._fill_msg_and_obj(msg, record)
+        self._fill_log_info(msg, record)
         return True
 
-    def _fill_msg_and_obj(self, msg: str, record: logging.LogRecord) -> None:
-        yellow_style = self._yellow_style
-        red_style = self._red_style
-        yellow_warn = self._enable_yellow_warn
-        red_error = self._enable_red_error
-
-        if self._legacy:
-            record.legacy_msg_str, record.colored_msg_str, record.msg_str = msg, "", msg
-
-            if self._obj is VoidType.VOID:
-                record.legacy_obj, record.obj = "", ""
-            else:
-                record.legacy_obj = record.obj = get_rich_object(self._obj, no_color=True)[1]
-            record.colored_obj = ""
-            return
-
-        record.legacy_msg_str = ""
-        record.legacy_obj = ""
-
-        if red_error and record.levelno >= ERROR:
-            record.colored_msg_str, record.msg_str = get_rich_repr(msg, red_style)
-        elif yellow_warn and ERROR > record.levelno >= WARNING:
-            record.colored_msg_str, record.msg_str = get_rich_repr(msg, yellow_style)
-        else:
-            record.colored_msg_str, record.msg_str = get_rich_repr(msg)
-
-        if self._obj is VoidType.VOID:
-            record.colored_obj, record.obj = "", ""
-        elif red_error and record.levelno >= ERROR:
-            record.legacy_obj = record.obj = get_rich_object(self._obj, no_color=True)[1]
-            record.colored_obj = ""
-        elif yellow_warn and ERROR > record.levelno >= WARNING:
-            record.legacy_obj = record.obj = get_rich_object(self._obj, no_color=True)[1]
-            record.colored_obj = ""
-        else:
-            record.colored_obj, record.obj = get_rich_object(self._obj)
+    def _fill_log_info(self, msg: str, record: logging.LogRecord) -> None:
+        log_info = LogInfo(
+            yellow_warn=self._enable_yellow_warn,
+            red_error=self._enable_red_error,
+            legacy=self._legacy,
+            msg=msg,
+            obj=self._obj,
+        )
+        record.log_info = log_info
 
 
 def is_logging_frame(frame: types.FrameType) -> bool:
@@ -464,7 +433,7 @@ def generic_obj_meth(
     *arg_getters: Callable[[], str],
     level: LogLevel = LogLevel.INFO,
 ) -> None:
-    _getters = arg_getters + (lambda: get_rich_object(obj)[1],)
+    _getters = arg_getters + (lambda: str(obj),)
     logger.generic_lazy(msg + "\n%s", *_getters, level=level)
 
 

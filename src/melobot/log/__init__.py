@@ -1,9 +1,12 @@
 from typing_extensions import Any
 
-from .base import GenericLogger, Logger, LogLevel, NullLogger
+# 兼容老版本的导入
+from ..typ._enum import LogLevel
+from .base import GenericLogger, Logger, NullLogger
 from .patch import LazyLogMethod, LoguruPatch, StandardPatch, StructlogPatch, logger_patch
 from .reflect import reflect_logger as _reflect_logger
 from .reflect import set_global_logger, set_module_logger
+from .report import log_exc
 
 
 def get_logger() -> GenericLogger:

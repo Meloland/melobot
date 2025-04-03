@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 from asyncio import Queue, Task
 
+from .._run import is_async_running, register_loop_started_hook
 from ..adapter.base import Event
 from ..handle.base import Flow
 from ..log.base import LogLevel
@@ -12,8 +14,7 @@ from ..log.reflect import logger
 class Dispatcher:
     def __init__(self) -> None:
         self.first_chan: EventChannel | None = None
-
-        self._pending_chans: list[EventChannel] = []
+        self._channel_ctx = contextvars.Context()
 
     def __repr__(self) -> str:
         counts: dict[int, str] = {}
@@ -25,13 +26,8 @@ class Dispatcher:
             chan = chan.next
         return f"{self.__class__.__name__}({counts})"
 
-    def _arrange_chan(self, chan: EventChannel) -> None:
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            self._pending_chans.append(chan)
-        else:
-            asyncio.create_task(chan.run())
+    def set_channel_ctx(self, ctx: contextvars.Context) -> None:
+        self._channel_ctx = ctx
 
     def add(self, *flows: Flow) -> None:
         for f in flows:
@@ -88,11 +84,6 @@ class Dispatcher:
         else:
             logger.debug(f"此刻没有可用的事件处理流，事件 {event.id} 将被丢弃")
 
-    def start(self) -> None:
-        for chan in self._pending_chans:
-            asyncio.create_task(chan.run())
-        self._pending_chans.clear()
-
 
 class EventChannel:
     def __init__(self, owner: Dispatcher, priority: int) -> None:
@@ -104,8 +95,15 @@ class EventChannel:
         self.pre: EventChannel | None = None
         self.next: EventChannel | None = None
 
-        self.owner._arrange_chan(self)
-        logger.debug(f"pri={self.priority} 的通道已生成")
+        # 不要把 channel_ctx 先赋值给其他变量，后续再引用此变量，会导致上下文丢失
+        if is_async_running():
+            self.owner._channel_ctx.run(asyncio.create_task, self.run())
+            logger.debug(f"pri={self.priority} 的通道已生成")
+        else:
+            register_loop_started_hook(
+                lambda: self.owner._channel_ctx.run(asyncio.create_task, self.run())
+            )
+            logger.debug(f"pri={self.priority} 的通道已安排生成")
 
     def set_pre(self, pre: EventChannel | None) -> None:
         self.pre = pre

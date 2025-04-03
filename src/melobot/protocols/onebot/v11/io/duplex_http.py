@@ -7,9 +7,8 @@ from asyncio import Future
 import aiohttp
 import aiohttp.web
 
-from melobot import report_exc
 from melobot.io import SourceLifeSpan
-from melobot.log import LogLevel, logger
+from melobot.log import LogLevel, log_exc, logger
 
 from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
@@ -73,7 +72,7 @@ class HttpIO(BaseIOSource):
             await self._in_buf.put(InPacket(time=raw["time"], data=raw))
 
         except Exception as e:
-            report_exc(e, msg="OneBot v11 HTTP IO 源输入异常", var=raw)
+            log_exc(e, msg="OneBot v11 HTTP IO 源输入异常", obj=raw)
 
         finally:
             return aiohttp.web.Response(status=204)
@@ -93,7 +92,7 @@ class HttpIO(BaseIOSource):
                 raise
 
             except Exception as e:
-                report_exc(e, msg="OneBot v11 HTTP IO 源输出异常", var=locals())
+                log_exc(e, msg="OneBot v11 HTTP IO 源输出异常", obj=locals())
 
     async def _handle_output(self, packet: OutPacket) -> None:
         try:
@@ -127,7 +126,7 @@ class HttpIO(BaseIOSource):
         except aiohttp.ContentTypeError:
             logger.error("OneBot v11 HTTP IO 源无法解析上报数据。可能是 access_token 未配置或错误")
         except Exception as e:
-            report_exc(e, msg="OneBot v11 HTTP IO 源输出异常", var=packet.data)
+            log_exc(e, msg="OneBot v11 HTTP IO 源输出异常", obj=packet.data)
 
     async def open(self) -> None:
         if self.opened():

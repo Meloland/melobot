@@ -4,66 +4,42 @@ import asyncio
 import os
 import signal
 import sys
-from enum import Enum
+from weakref import WeakSet
 
-from typing_extensions import (
-    TYPE_CHECKING,
-    Any,
-    AsyncGenerator,
-    Coroutine,
-    NoReturn,
-    NotRequired,
-    TypedDict,
-    cast,
-)
+from typing_extensions import Any, Callable, Coroutine, NoReturn
 
-from .log.base import LogLevel
-from .log.reflect import logger
-
-if TYPE_CHECKING:
-    import socket
+from ._lazy import singleton, singleton_clear
+from .typ._enum import ExitCode
 
 CLI_RUN_FLAG = "MELOBOT_CLI_RUN"
 CLI_RUN_ALIVE_FLAG = "MELOBOT_CLI_RUN_ALIVE"
 CLI_LAST_EXIT_CODE = "MELOBOT_CLI_LAST_EXIT_CODE"
 
 
-class ExitCode(Enum):
-    NORMAL = 0
-    ERROR = 1
-    RESTART = 2
-
-
+@singleton
 class LoopManager:
-    __instance__: LoopManager | None = None
-
-    def __new__(cls, *_: Any, **__: Any) -> LoopManager:
-        if cls.__instance__ is None:
-            cls.__instance__ = super().__new__(cls)
-            cls.__instance__.__initiated__ = False
-        return cls.__instance__
-
     def __init__(self) -> None:
-        self.__initiated__: bool
-        if self.__initiated__:
-            return
-        self.__initiated__ = True
-
         self.root_task: asyncio.Task | None = None
-        self.stop_accepted = False
-        self.exc_handler = ExceptionHandler(self)
-        self.strict_log = False
 
-    def run(self, root: Coroutine[Any, Any, None], debug: bool, strict_log: bool) -> None:
-        self.strict_log = strict_log
+        self.started = False
+        self.closed = False
+        self.stop_accepted = False
+        self._next_manager: LoopManager
+
+        self.started_hooks: set[Callable[[], Any]] = set()
+        self.closing_hooks: set[Callable[[], Any]] = set()
+        self.immunity_tasks: WeakSet[asyncio.Task] = WeakSet()
+
+    def run(self, root: Coroutine[Any, Any, None], debug: bool) -> None:
         try:
             # TODO: 在升级最低支持到 3.11 后，考虑更换为 new_event_loop，并使用 asyncio.Runner 来运行
             loop = asyncio.get_event_loop()
             asyncio.get_event_loop_policy().set_event_loop(loop)
+
             # TODO: 在升级最低支持到 3.12 后，设置为默认标准
             if sys.version_info >= (3, 12):
                 loop.set_task_factory(asyncio.eager_task_factory)
-            loop.set_exception_handler(self.exc_handler.handle_from_loop)
+
             if debug is not None:
                 loop.set_debug(debug)
 
@@ -87,9 +63,20 @@ class LoopManager:
                 loop.set_exception_handler(None)
                 asyncio.get_event_loop_policy().set_event_loop(None)
                 loop.close()
+                self._prepare_next_works()
+
+    def _prepare_next_works(self) -> None:
+        global _MANAGER
+        singleton_clear(self)
+        _MANAGER = LoopManager()
+        _MANAGER.__dict__.update(self._next_manager.__dict__)
+        _MANAGER._next_manager = _MANAGER.__class__()
 
     async def _loop_main(self, root: Coroutine[Any, Any, None]) -> None:
         self.root_task = asyncio.create_task(root)
+        self.started = True
+        for hook in self.started_hooks:
+            hook()
 
         if CLI_RUN_FLAG in os.environ:
             while True:
@@ -103,11 +90,16 @@ class LoopManager:
             await self.root_task
 
     def _loop_cancel_all(self, loop: asyncio.AbstractEventLoop) -> None:
+        self.closed = True
+        for hook in self.closing_hooks:
+            hook()
+
         to_cancel = asyncio.all_tasks(loop)
         if not to_cancel:
             return
         for task in to_cancel:
-            task.cancel()
+            if task not in self.immunity_tasks:
+                task.cancel()
         loop.run_until_complete(asyncio.tasks.gather(*to_cancel, return_exceptions=True))
 
         for task in to_cancel:
@@ -144,75 +136,48 @@ class LoopManager:
         return False
 
 
-class LoopExcCtx(TypedDict):
-    message: str
-    exception: NotRequired[BaseException]
-    future: NotRequired[asyncio.Future]
-    task: NotRequired[asyncio.Task]
-    handle: NotRequired[asyncio.Handle]
-    protocol: NotRequired[asyncio.Protocol]
-    transport: NotRequired[asyncio.Transport]
-    socket: NotRequired["socket.socket"]
-    asyncgen: NotRequired[AsyncGenerator]
+_MANAGER = LoopManager()
+_MANAGER._next_manager = _MANAGER.__class__()
 
 
-class ExceptionHandler:
-    def __init__(self, manager: LoopManager) -> None:
-        self.mananger = manager
-
-    def handle_from_loop(self, loop: asyncio.AbstractEventLoop, context: dict[str, Any]) -> None:
-        strict_log = self.mananger.strict_log
-        ctx = cast(LoopExcCtx, context)
-        with_loop_ctx = {"loop": loop} | ctx
-        exc = ctx.get("exception")
-        msg = ctx["message"]
-
-        if exc is not None:
-            if (
-                isinstance(exc, SystemExit)
-                and exc.code is not None
-                and int(exc.code) == ExitCode.RESTART.value
-            ):
-                logger.debug("收到重启信号，即将重启...")
-
-            elif "exception was never retrieved" in msg:
-                fut = ctx.get("future")
-                task = ctx.get("task")
-                if strict_log:
-                    try:
-                        raise exc
-                    except BaseException:
-                        logger.exception(f"从未捕获的异常的回溯栈：{msg}")
-                logger.generic_obj(
-                    f"发现从未捕获的异常（这不一定是错误）：{msg}",
-                    {"future": fut, "task": task},
-                    level=LogLevel.ERROR if strict_log else LogLevel.DEBUG,
-                )
-
-            else:
-                try:
-                    raise exc
-                except BaseException:
-                    logger.exception(f"事件循环中抛出预期外的异常：{msg}")
-                    logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
-
+def register_loop_started_hook(func: Callable[[], Any], allow_next: bool = False) -> None:
+    if _MANAGER.started and not _MANAGER.closed:
+        raise RuntimeError("事件循环正在运行，无法添加新的事件循环启动 hook")
+    if _MANAGER.closed:
+        if allow_next:
+            _MANAGER._next_manager.started_hooks.add(func)
         else:
-            logger.error(f"事件循环出现预期外的状况：{msg}")
-            logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
-
-    def handle_from_report(self, exc: BaseException, msg: str, obj: Any = None) -> None:
-        try:
-            raise exc
-        except BaseException:
-            logger.exception(msg)
-            if obj is not None:
-                logger.generic_obj("相关变量信息：", obj, level=LogLevel.ERROR)
+            raise RuntimeError("事件循环已关闭，无法添加新的事件循环启动 hook")
+    _MANAGER.started_hooks.add(func)
 
 
-LOOP_MANAGER = LoopManager()
+def register_loop_close_hook(func: Callable[[], Any], allow_next: bool = False) -> None:
+    if _MANAGER.closed:
+        if allow_next:
+            _MANAGER._next_manager.closing_hooks.add(func)
+        else:
+            raise RuntimeError("事件循环已关闭，无法添加新的事件循环关闭 hook")
+    _MANAGER.closing_hooks.add(func)
 
 
-def report_exc(exc: BaseException, msg: str, var: Any = None, can_recover: bool = True) -> None:
-    LOOP_MANAGER.exc_handler.handle_from_report(exc, msg, var)
-    if not can_recover:
-        sys.exit(ExitCode.ERROR.value)
+def add_immunity_task(task: asyncio.Task) -> None:
+    if _MANAGER.closed:
+        raise RuntimeError("事件循环已关闭，无法添加新的取消豁免任务")
+    _MANAGER.immunity_tasks.add(task)
+
+
+def is_async_running() -> bool:
+    return _MANAGER.started and not _MANAGER.closed
+
+
+def set_loop_exc_handler(
+    exc_handler: Callable[[asyncio.AbstractEventLoop, dict[str, Any]], Any],
+) -> None:
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        register_loop_started_hook(
+            lambda: asyncio.get_running_loop().set_exception_handler(exc_handler)
+        )
+    else:
+        loop.set_exception_handler(exc_handler)

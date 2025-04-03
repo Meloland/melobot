@@ -6,13 +6,13 @@ from itertools import tee
 
 from typing_extensions import Iterable, NoReturn, Sequence
 
-from .._run import report_exc
 from ..adapter.base import Event
 from ..ctx import BotCtx, EventCompletion, FlowCtx, FlowRecord, FlowRecords
 from ..ctx import FlowRecordStage as RecordStage
 from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
+from ..log.report import log_exc
 from ..typ.base import AsyncCallable, SyncOrAsyncCallable
 from ..utils.base import to_async
 from ..utils.common import get_obj_name
@@ -254,7 +254,9 @@ class Flow:
         await fut
 
     async def _run(self, completion: EventCompletion) -> None:
-        if not len(self.starts):
+        starts = self.starts
+
+        if not len(starts):
             if (
                 completion.owner_flow is self
                 and not completion.under_session
@@ -270,32 +272,30 @@ class Flow:
         except _FLOW_CTX.lookup_exc_cls:
             records, store = FlowRecords(), FlowStore()
 
-        with _FLOW_CTX.unfold(FlowStatus(self, self.starts[0], True, completion, records, store)):
+        with _FLOW_CTX.unfold(FlowStatus(self, starts[0], True, completion, records, store)):
             try:
-                records.append(
-                    FlowRecord(RecordStage.FLOW_START, self.name, self.starts[0].name, event)
-                )
+                records.append(FlowRecord(RecordStage.FLOW_START, self.name, starts[0].name, event))
 
                 idx = 0
-                while idx < len(self.starts):
+                while idx < len(starts):
                     try:
-                        await self.starts[idx].process(self, completion)
+                        await starts[idx].process(self, completion)
                         idx += 1
                     except FlowRewound:
                         pass
 
                 records.append(
-                    FlowRecord(RecordStage.FLOW_FINISH, self.name, self.starts[0].name, event)
+                    FlowRecord(RecordStage.FLOW_FINISH, self.name, starts[0].name, event)
                 )
 
             except FlowBroke:
                 pass
 
             except Exception as e:
-                report_exc(
+                log_exc(
                     e,
                     msg=f"事件处理流 {self.name} 发生异常",
-                    var={
+                    obj={
                         "event_id": event.id,
                         "event": event,
                         "completion": completion.__dict__,

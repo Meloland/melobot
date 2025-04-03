@@ -8,10 +8,9 @@ import websockets
 from websockets.asyncio.client import ClientConnection
 from websockets.exceptions import ConnectionClosed
 
-from melobot import report_exc
 from melobot.exceptions import SourceError
 from melobot.io import SourceLifeSpan
-from melobot.log import LogLevel, logger
+from melobot.log import LogLevel, log_exc, logger
 
 from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
@@ -83,7 +82,7 @@ class ForwardWebSocketIO(BaseIOSource):
                 break
 
             except Exception as e:
-                report_exc(e, msg="OneBot v11 正向 WebSocket IO 源输入异常", var=locals())
+                log_exc(e, msg="OneBot v11 正向 WebSocket IO 源输入异常", obj=locals())
 
     async def _output_loop(self) -> None:
         while True:
@@ -100,7 +99,7 @@ class ForwardWebSocketIO(BaseIOSource):
                 raise
 
             except Exception as e:
-                report_exc(e, msg="OneBot v11 正向 WebSocket IO 源输出异常", var=locals())
+                log_exc(e, msg="OneBot v11 正向 WebSocket IO 源输出异常", obj=locals())
 
     async def open(self) -> None:
         if self.opened():

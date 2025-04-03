@@ -9,7 +9,6 @@ from ._lazy import lazy_import as _lazy_import
 if TYPE_CHECKING:
     from ._meta import MetaInfo, __version__
     from ._render import install_exc_hook, set_traceback_style, uninstall_exc_hook
-    from ._run import report_exc
     from .adapter import Action, Adapter, Echo, Event
     from .adapter.generic import send_image, send_text
     from .bot import Bot, get_bot
@@ -31,17 +30,16 @@ if TYPE_CHECKING:
         rewind,
         stop,
     )
-    from .log import GenericLogger, Logger, LogLevel, get_logger
+    from .log import GenericLogger, Logger, get_logger
     from .plugin import AsyncShare, PluginInfo, PluginLifeSpan, PluginPlanner, SyncShare
     from .session import DefaultRule, Rule, Session, SessionStore, enter_session, suspend
-    from .typ._enum import LogicMode
+    from .typ._enum import LogicMode, LogLevel
 else:
     _lazy_import(
         globals(),
         map={
             "._meta": ("MetaInfo", "__version__"),
             "._render": ("install_exc_hook", "set_traceback_style", "uninstall_exc_hook"),
-            "._run": ("report_exc",),
             ".adapter": ("Action", "Adapter", "Echo", "Event"),
             ".adapter.generic": ("send_image", "send_text"),
             ".bot": ("Bot", "get_bot"),
@@ -63,7 +61,7 @@ else:
                 "rewind",
                 "stop",
             ),
-            ".log": ("GenericLogger", "Logger", "LogLevel", "get_logger"),
+            ".log": ("GenericLogger", "Logger", "get_logger"),
             ".plugin": ("AsyncShare", "PluginInfo", "PluginLifeSpan", "PluginPlanner", "SyncShare"),
             ".session": (
                 "DefaultRule",
@@ -73,7 +71,7 @@ else:
                 "enter_session",
                 "suspend",
             ),
-            ".typ._enum": ("LogicMode",),
+            ".typ._enum": ("LogicMode", "LogLevel"),
         },
         deprecations={},
     )
