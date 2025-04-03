@@ -11,7 +11,7 @@ from .._render import get_rich_object, get_rich_repr
 from .._run import (
     add_immunity_task,
     is_async_running,
-    register_loop_close_hook,
+    register_loop_closed_hook,
     register_loop_started_hook,
 )
 from ..typ import P, T, VoidType
@@ -90,7 +90,7 @@ class LogRenderRunner:
         self.ref_pairs: list[tuple[Any, str]] = []
         self.done = False
 
-        register_loop_close_hook(self._mark_done, allow_next=True)
+        register_loop_closed_hook(self._mark_done, allow_next=True)
         if is_async_running():
             add_immunity_task(asyncio.create_task(self._render_loop()))
         else:

@@ -300,11 +300,7 @@ class Bot(HookMixin[BotLifeSpan]):
         for pdir in pdirs:
             self.load_plugins_dir(pdir, load_depth)
 
-    async def core_run(self) -> None:
-        """运行 bot 的方法，可以在异步事件循环中自由地使用
-
-        若使用此方法，则需要自行管理异步事件循环
-        """
+    async def _run(self) -> None:
         if not self._inited:
             self._core_init()
 
@@ -349,7 +345,7 @@ class Bot(HookMixin[BotLifeSpan]):
         :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
         """
         set_loop_exc_log(strict_log)
-        self._runner.run(self.core_run(), debug)
+        self._runner.run(self._run(), debug)
         _end_log()
 
     @classmethod
@@ -365,7 +361,7 @@ class Bot(HookMixin[BotLifeSpan]):
             tasks: list[asyncio.Task] = []
             try:
                 for bot in bots:
-                    tasks.append(asyncio.create_task(bot.core_run()))
+                    tasks.append(asyncio.create_task(bot._run()))
                     if len(tasks):
                         await asyncio.wait(tasks)
             except asyncio.CancelledError:

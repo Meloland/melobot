@@ -1,9 +1,9 @@
 import asyncio
-from asyncio import Queue, create_task
+from asyncio import Queue
 
 from melobot.bot import Bot
 from melobot.handle import on_start_match
-from melobot.log import logger
+from melobot.log import Logger, LogLevel, logger
 from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.io.base import BaseIOSource
@@ -86,11 +86,13 @@ class TempIO(BaseIOSource):
 _SUCCESS_SIGNAL = asyncio.Event()
 
 
-async def test_adapter_base():
-    mbot = Bot("test_handle")
+async def test_handle():
+    mbot = Bot("test_handle", logger=Logger(level=LogLevel.DEBUG))
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
     mbot.load_plugin(PluginPlanner("1.0.0", flows=[_flow]))
-    create_task(mbot.core_run())
-    await mbot._rip_signal.wait()
-    await _SUCCESS_SIGNAL.wait()
+
+    with loop_manager():
+        asyncio.create_task(mbot._run())
+        await mbot._rip_signal.wait()
+        await _SUCCESS_SIGNAL.wait()

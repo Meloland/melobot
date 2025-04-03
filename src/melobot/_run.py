@@ -27,7 +27,7 @@ class LoopManager:
         self._next_manager: LoopManager
 
         self.started_hooks: set[Callable[[], Any]] = set()
-        self.closing_hooks: set[Callable[[], Any]] = set()
+        self.closed_hooks: set[Callable[[], Any]] = set()
         self.immunity_tasks: WeakSet[asyncio.Task] = WeakSet()
 
     def run(self, root: Coroutine[Any, Any, None], debug: bool) -> None:
@@ -40,9 +40,7 @@ class LoopManager:
             if sys.version_info >= (3, 12):
                 loop.set_task_factory(asyncio.eager_task_factory)
 
-            if debug is not None:
-                loop.set_debug(debug)
-
+            loop.set_debug(debug)
             loop.add_signal_handler(signal.SIGINT, self.stop)
             loop.add_signal_handler(signal.SIGTERM, self.stop)
             if sys.platform == "win32":
@@ -91,7 +89,7 @@ class LoopManager:
 
     def _loop_cancel_all(self, loop: asyncio.AbstractEventLoop) -> None:
         self.closed = True
-        for hook in self.closing_hooks:
+        for hook in self.closed_hooks:
             hook()
 
         to_cancel = asyncio.all_tasks(loop)
@@ -151,13 +149,13 @@ def register_loop_started_hook(func: Callable[[], Any], allow_next: bool = False
     _MANAGER.started_hooks.add(func)
 
 
-def register_loop_close_hook(func: Callable[[], Any], allow_next: bool = False) -> None:
+def register_loop_closed_hook(func: Callable[[], Any], allow_next: bool = False) -> None:
     if _MANAGER.closed:
         if allow_next:
-            _MANAGER._next_manager.closing_hooks.add(func)
+            _MANAGER._next_manager.closed_hooks.add(func)
         else:
             raise RuntimeError("事件循环已关闭，无法添加新的事件循环关闭 hook")
-    _MANAGER.closing_hooks.add(func)
+    _MANAGER.closed_hooks.add(func)
 
 
 def add_immunity_task(task: asyncio.Task) -> None:
