@@ -72,11 +72,17 @@ class PluginInitHelper:
 
             share_located = Path(share.__obj_file__)
             try:
-                parts1 = share_located.resolve(strict=True).parts
+                share_abs_located = share_located.resolve(strict=True)
             except Exception as e:
                 raise PluginAutoGenError(
                     f"无法定位共享对象所在的模块位置，对应插件：{plugin_dir}"
                 ) from e
+            else:
+                if plugin_dir.resolve(strict=True) not in share_abs_located.parents:
+                    raise PluginAutoGenError(
+                        f"共享对象 {share} 不在插件目录下定义，对应插件：{plugin_dir}"
+                    )
+                parts1 = share_abs_located.parts
 
             parts2 = plugin_dir.parts
             imp_parts = list(parts1[len(parts2) :])
@@ -106,11 +112,17 @@ class PluginInitHelper:
         for func in funcs:
             func_located = Path(getabsfile(func))
             try:
-                parts1 = func_located.resolve(strict=True).parts
+                func_abs_located = func_located.resolve(strict=True)
             except Exception as e:
                 raise PluginAutoGenError(
                     f"无法定位导出函数所在模块的位置，对应插件：{plugin_dir}"
                 ) from e
+            else:
+                if plugin_dir.resolve(strict=True) not in func_abs_located.parents:
+                    raise PluginAutoGenError(
+                        f"导出函数 {func} 不在插件目录下定义，对应插件：{plugin_dir}"
+                    )
+                parts1 = func_abs_located.parts
 
             parts2 = plugin_dir.parts
             imp_parts = list(parts1[len(parts2) :])
