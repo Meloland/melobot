@@ -228,7 +228,7 @@ class Bot(HookMixin[BotLifeSpan]):
         plugin: ModuleType | str | PathLike[str] | PluginPlanner,
         load_depth: int = 1,
     ) -> Bot:
-        """加载插件
+        """加载插件，非线程安全
 
         :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，可直接 import 包名称，插件管理器对象）
         :param load_depth:
@@ -268,6 +268,8 @@ class Bot(HookMixin[BotLifeSpan]):
     ) -> None:
         """与 :func:`load_plugin` 行为类似，但是参数变为可迭代对象
 
+        此方法同样不是线程安全的
+
         :param plugins: 可迭代对象，包含：可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）
         :param load_depth: 参见 :func:`load_plugin` 同名参数
         """
@@ -276,6 +278,8 @@ class Bot(HookMixin[BotLifeSpan]):
 
     def load_plugins_dir(self, pdir: str | PathLike[str], load_depth: int = 1) -> None:
         """与 :func:`load_plugin` 行为类似，但是参数变为插件目录的父目录，本方法可以加载单个目录下的多个插件
+
+        此方法同样不是线程安全的
 
         :param pdir: 插件所在父目录的路径
         :param load_depth: 参见 :func:`load_plugin` 同名参数
@@ -293,6 +297,8 @@ class Bot(HookMixin[BotLifeSpan]):
     def load_plugins_dirs(self, pdirs: Iterable[str | PathLike[str]], load_depth: int = 1) -> None:
         """与 :func:`load_plugins_dir` 行为类似，但是参数变为可迭代对象，每个元素为包含插件目录的父目录。
         本方法可以加载多个目录下的多个插件
+
+        此方法同样不是线程安全的
 
         :param pdirs: 可迭代对象，包含：插件所在父目录的路径
         :param load_depth: 参见 :func:`load_plugin` 同名参数

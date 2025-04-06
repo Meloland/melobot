@@ -15,7 +15,8 @@ def import_name(name: str, source: str, namespace: dict[str, Any]) -> Any:
     level = 0
     while source[level] == ".":
         level += 1
-        assert level < len(source), "importing from parent isn't supported"
+        if level >= len(source):
+            raise ImportError("importing from parent isn't supported")
     module = __import__(source[level:], namespace, None, [name], level)
     return getattr(module, name)
 
@@ -25,7 +26,7 @@ def lazy_import(
     map: dict[str, tuple[str, ...]],
     deprecations: dict[str, tuple[tuple[str, str], ...]],
 ) -> None:
-
+    # 不公开给用户，仅 melobot 内部使用
     mapping: dict[str, str] = {}
     for location, names in map.items():
         for name in names:
@@ -83,6 +84,76 @@ def lazy_import(
 # --------------------------------------------------------------------------
 
 
+class LazyLoader:
+    def __init__(
+        self,
+        namespace: dict[str, Any],
+        location: str,
+        item: str | None = None,
+        alias: str | None = None,
+    ) -> None:
+        self.item = item
+        self.alias = alias
+        self.location = location
+        if self.location.startswith("."):
+            raise ValueError(f"延迟加载不支持 {location!r} 中的相对引用语义")
+        self.loc_parts = location.split(".")
+        self.namespace = namespace
+        self._value: Any
+
+        if self.alias is not None:
+            self.namespace[self.alias] = self
+        elif self.item is None:
+            self.namespace[self.loc_parts[0]] = self
+        else:
+            self.namespace[self.item] = self
+
+    def __repr__(self) -> str:
+        statement = ""
+        if self.item is None:
+            statement += f"import {self.location}"
+        else:
+            statement += f"from {self.location} import {self.item}"
+        if self.alias is not None:
+            statement += f" as {self.alias}"
+        return f"{self.__class__.__name__}(equation={statement!r})"
+
+    def _load(self) -> None:
+        module = __import__(
+            self.location, self.namespace, None, [self.item] if self.item is not None else ()
+        )
+
+        if self.item is None:
+            if self.alias is None:
+                self.namespace[self.loc_parts[0]] = self._value = module
+            else:
+                if len(self.loc_parts) > 1:
+                    node = module
+                    idx = 1
+                    while idx < len(self.loc_parts):
+                        node = getattr(node, self.loc_parts[idx])
+                        idx += 1
+                    module = node
+                self.namespace[self.alias] = self._value = module
+            return
+
+        obj = getattr(module, self.item)
+        if self.alias is None:
+            self.namespace[self.item] = self._value = obj
+        else:
+            self.namespace[self.alias] = self._value = obj
+
+    def __getattr__(self, name: str) -> Any:
+        self._load()
+        return getattr(self._value, name)
+
+
+def lazy_load(
+    namespace: dict[str, Any], location: str, item: str | None = None, alias: str | None = None
+) -> str:
+    return repr(LazyLoader(namespace, location, item, alias))
+
+
 _SINGLETON_OBJ_MAP: dict[Any, Any] = {}
 _SINGLETON_FACTORY_MAP: dict[Any, Any] = {}
 
@@ -117,7 +188,8 @@ def singleton_clear(obj: Any) -> None:
     """
     if obj not in _SINGLETON_FACTORY_MAP:
         raise ValueError(
-            f"{obj} 不在单例装饰器的记录中。它可能不是单例对象，或产生此单例的类或可调用对象已清空单例缓存"
+            f"{obj} 不在单例装饰器的记录中。"
+            "它可能不是单例对象，或产生此单例的类或可调用对象已清空单例缓存"
         )
     callable_or_cls = _SINGLETON_FACTORY_MAP.pop(obj)
     _SINGLETON_OBJ_MAP.pop(callable_or_cls)

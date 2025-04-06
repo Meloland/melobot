@@ -170,8 +170,14 @@ class ModuleCacher:
         self._caches: dict[Path, ModuleType] = {}
         self.sync_all_cache()
 
-    # 此处不考虑与 sys.modules 的同步问题，这些接口基本只被 melobot 用于动态加载
-    # 而 melobot 动态加载的对象一般不存在对 sys.modules 的 hack
+    # 此处不过多考虑与 sys.modules 的同步问题,
+    # 喜爱 hack sys.modules 以至于不兼容的模块，让用户使用导入回退来处理
+
+    # 严格来说，导入缓存应该考虑线程安全问题。
+    # 但无论是内置 import 行为（import 语句，__import__ 等），
+    # 还是 mb 的动态导入，只要不在非主线程中运行，实际上都不会存在问题。
+    # 只需鼓励用户只进行主线程导入即可，这也是十分合理的编程规范。
+    # 极少的多线程导入用例，不值得付出加锁的性能代价
 
     def has_cache(self, mod: ModuleType) -> bool:
         return mod in self._caches.values()
@@ -244,9 +250,9 @@ class ModuleLoader(Loader):
         if self.mb_cache:
             mod = self.mb_cacher.get_cache(self.mb_fp)
         if mod is not None and mod.__name__ not in sys.modules:
-            # 模块有缓存，但不在 sys.modules 中，说明外部手动移除
-            # 此时同步地删除缓存条目，让行为符合外部预期
-            # 对 sys.modules 的其他修改不需要兼容（非常少出现），实在需要就用导入回退
+            # 模块有缓存，但不在 sys.modules 中，说明外部手动移除。
+            # 此时要同步删除缓存条目，让行为符合外部预期。
+            # 对 sys.modules 的其他修改不需要兼容（极少出现），实在需要就用导入回退
             mod = None
             self.mb_cacher.rm_cache(self.mb_fp)
         if mod is None and self.mb_inner_loader is not None:
@@ -260,10 +266,10 @@ class ModuleLoader(Loader):
                 sys.modules[self.mb_fullname] = mod
 
             try:
-                self.mb_inner_loader.exec_module(mod)
                 # 设置为与内置导入机制兼容的模式
                 if hasattr(mod.__spec__, EMPTY_PKG_TAG):
                     mod.__file__ = None
+                self.mb_inner_loader.exec_module(mod)
             except BaseException:
                 try:
                     if self.mb_cache:
@@ -294,7 +300,7 @@ class Importer:
     def import_mod(
         name: str, path: str | PathLike[str] | None = None, cache: bool = True
     ) -> ModuleType:
-        """动态导入一个模块
+        """动态导入一个模块，非线程安全
 
         :param name: 模块名
         :param path: 在何处查找模块，为空则按照默认规则查找
@@ -356,7 +362,7 @@ sys.meta_path.insert(0, SpecFinder())
 # 兼容 pkg_resources 的资源获取操作
 # 但此模块于 3.12 删除，因此前向版本不再兼容
 if sys.version_info < (3, 12):
-    # 部分构建可能已经缺失 pkg_resources
+    # 部分构建（例如 uv 发行的构建）可能已经缺失 pkg_resources
     try:
         import pkg_resources  # type: ignore[import-untyped]
     except ModuleNotFoundError:
@@ -373,7 +379,7 @@ if sys.version_info < (3, 12):
 
 
 def add_import_fallback(*names: str) -> None:
-    """添加导入回退
+    """添加未导入模块或包的导入回退，非线程安全
 
     绝大多数情况下，melobot 都能处理好导入行为。
     但在极少数情况下，某些包或模块可能需要回退到默认的导入机制

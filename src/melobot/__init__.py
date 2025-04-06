@@ -3,6 +3,7 @@ from typing_extensions import TYPE_CHECKING
 # 让 melobot 启用内置异常格式化器
 from . import _render
 from ._lazy import lazy_import as _lazy_import
+from ._lazy import lazy_load
 
 # TODO: 考虑在最低支持 3.11 后，使用 asyncio.TaskGroup 替代多数任务生成场景
 
