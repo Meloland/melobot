@@ -101,18 +101,21 @@ class Flow:
         name: str,
         *edge_maps: Iterable[Iterable[FlowNode] | FlowNode],
         priority: int = 0,
+        guard: SyncOrAsyncCallable[[Event], bool | None] | None = None,
     ) -> None:
         """初始化处理流
 
         :param name: 处理流的标识
         :param edge_maps: 边映射，遵循 melobot 的 graph edges 表示方法
         :param priority: 处理流的优先级
+        :param guard: 守卫函数。在处理流运行前调用，返回 `True` 不再继续运行处理流。默认不启用
         """
         self.name = name
         self.graph: dict[FlowNode, NodeInfo] = {}
         self.priority = priority
 
         self._active = True
+        self._guard = to_async(guard) if guard is not None else None
 
         _edge_maps = tuple(
             tuple((elem,) if isinstance(elem, FlowNode) else elem for elem in emap)
@@ -254,16 +257,25 @@ class Flow:
         await fut
 
     async def _run(self, completion: EventCompletion) -> None:
-        starts = self.starts
+        if self._guard is not None:
+            try:
+                if not await self._guard(completion.event):
+                    return self._try_set_completed(completion)
+            except Exception as e:
+                log_exc(
+                    e,
+                    msg=f"事件处理流 {self.name} 守卫函数发生异常",
+                    obj={
+                        "event_id": completion.event.id,
+                        "event": completion.event,
+                        "guard": self._guard,
+                    },
+                )
+                return self._try_set_completed(completion)
 
+        starts = self.starts
         if not len(starts):
-            if (
-                completion.owner_flow is self
-                and not completion.under_session
-                and not completion.completed.done()
-            ):
-                completion.completed.set_result(None)
-            return
+            return self._try_set_completed(completion)
 
         event = completion.event
         try:
@@ -304,12 +316,15 @@ class Flow:
                 )
 
             finally:
-                if (
-                    completion.owner_flow is self
-                    and not completion.under_session
-                    and not completion.completed.done()
-                ):
-                    completion.completed.set_result(None)
+                self._try_set_completed(completion)
+
+    def _try_set_completed(self, completion: EventCompletion) -> None:
+        if (
+            completion.owner_flow is self
+            and not completion.under_session
+            and not completion.completed.done()
+        ):
+            completion.completed.set_result(None)
 
 
 class _FlowSignal(BaseException): ...

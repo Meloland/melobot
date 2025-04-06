@@ -5,11 +5,11 @@ from types import TracebackType
 
 from typing_extensions import Any, Callable, Iterable, Iterator, NamedTuple, Optional, Sequence
 
-from melobot.exceptions import UtilError
-from melobot.log import logger
-from melobot.typ import SyncOrAsyncCallable, VoidType
-from melobot.utils import to_async
-
+from ...exceptions import UtilError
+from ...log.reflect import logger
+from ...typ._enum import VoidType
+from ...typ.base import SyncOrAsyncCallable
+from ...utils.base import to_async
 from .base import AbstractParseArgs, Parser
 
 

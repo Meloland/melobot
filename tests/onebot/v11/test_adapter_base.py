@@ -107,7 +107,7 @@ async def after_bot_started(bot: Bot):
 
 
 async def test_adapter_base():
-    mbot = Bot("test_adapter_base", logger=Logger(level=LogLevel.DEBUG))
+    mbot = Bot("test_adapter_base")
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
 

@@ -160,7 +160,7 @@ class PluginInitHelper:
 
     @staticmethod
     def run_init(*plugin_dirs: str | PathLike[str], load_depth: int = 1) -> None:
-        from melobot.bot import Bot
+        from ..bot.base import Bot
 
         tmp_bot = Bot()
         for p_dir in plugin_dirs:

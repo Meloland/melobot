@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import re
 from abc import abstractmethod
-from functools import partial
+from functools import reduce
 
-from typing_extensions import Any, Callable, Coroutine, Sequence
+from typing_extensions import Any, Sequence, assert_never
 
-from melobot.exceptions import UtilValidateError
-from melobot.typ import BetterABC, LogicMode
+from ...typ._enum import LogicMode
+from ...typ.cls import BetterABC
 
 
 class Matcher(BetterABC):
@@ -18,12 +18,12 @@ class Matcher(BetterABC):
 
     def __and__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            return NotImplemented
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            return NotImplemented
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> WrappedMatcher:
@@ -31,7 +31,7 @@ class Matcher(BetterABC):
 
     def __xor__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            return NotImplemented
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -69,10 +69,18 @@ class WrappedMatcher(Matcher):
         self.m1, self.m2 = matcher1, matcher2
 
     async def match(self, text: str) -> bool:
-        m2_match: Callable[[], Coroutine[Any, Any, bool]] | None = (
-            partial(self.m2.match, text) if self.m2 is not None else None
-        )
-        return await LogicMode.async_short_calc(self.mode, partial(self.m1.match, text), m2_match)
+        match self.mode:
+            case LogicMode.AND:
+                status = await self.m1.match(text) and await self.m2.match(text)  # type: ignore[union-attr]
+            case LogicMode.OR:
+                status = await self.m1.match(text) or await self.m2.match(text)  # type: ignore[union-attr]
+            case LogicMode.NOT:
+                status = not await self.m1.match(text)
+            case LogicMode.XOR:
+                status = await self.m1.match(text) ^ await self.m2.match(text)  # type: ignore[union-attr]
+            case _:
+                assert_never(f"无效的逻辑模式 {self.mode}")
+        return status
 
 
 class StartMatcher(Matcher):
@@ -100,7 +108,7 @@ class StartMatcher(Matcher):
         if isinstance(self.target, str):
             return text.startswith(self.target)
         res_seq = tuple(text.startswith(s) for s in self.target)
-        return LogicMode.seq_calc(self.mode, res_seq)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class ContainMatcher(Matcher):
@@ -128,7 +136,7 @@ class ContainMatcher(Matcher):
         if isinstance(self.target, str):
             return self.target in text
         res_seq = tuple(s in text for s in self.target)
-        return LogicMode.seq_calc(self.mode, res_seq)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class EndMatcher(Matcher):
@@ -156,7 +164,7 @@ class EndMatcher(Matcher):
         if isinstance(self.target, str):
             return text.endswith(self.target)
         res_seq = tuple(text.endswith(s) for s in self.target)
-        return LogicMode.seq_calc(self.mode, res_seq)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class FullMatcher(Matcher):
@@ -184,7 +192,7 @@ class FullMatcher(Matcher):
         if isinstance(self.target, str):
             return text == self.target
         res_seq = [text == s for s in self.target]
-        return LogicMode.seq_calc(self.mode, res_seq)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class RegexMatcher(Matcher):

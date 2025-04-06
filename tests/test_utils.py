@@ -63,7 +63,7 @@ class TestRwc:
     @classmethod
     async def read(cls) -> None:
         async with cls.RWC.read():
-            i = randint(0, len(TestRwc.EGGS))
+            i = randint(0, len(TestRwc.EGGS) - 1)
             val = cls.BUF[i]
             if val == "":
                 raise ValueError("读写冲突")

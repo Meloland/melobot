@@ -87,7 +87,7 @@ _SUCCESS_SIGNAL = asyncio.Event()
 
 
 async def test_handle():
-    mbot = Bot("test_handle", logger=Logger(level=LogLevel.DEBUG))
+    mbot = Bot("test_handle")
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
     mbot.load_plugin(PluginPlanner("1.0.0", flows=[_flow]))

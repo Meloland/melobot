@@ -6,7 +6,7 @@ from enum import Enum
 
 from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Self, Union, cast
 
-from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
+from .exceptions import AdapterError, BotError, FlowError, SessionError
 from .typ.base import T
 from .typ.cls import SingletonMeta
 
@@ -152,9 +152,7 @@ class FlowStatus:
 class FlowCtx(Context[FlowStatus]):
     def __init__(self) -> None:
         super().__init__(
-            "MELOBOT_FLOW",
-            FlowError,
-            "此时不在活动的事件处理流中，无法获取处理流信息",
+            "MELOBOT_FLOW", FlowError, "此时不在活动的事件处理流中，无法获取处理流信息"
         )
 
     def get_event(self) -> "model.Event":
@@ -207,9 +205,7 @@ class BotCtx(Context["Bot"]):
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
         super().__init__(
-            "MELOBOT_SESSION",
-            SessionError,
-            "此时不在活动的事件处理流中，无法获取会话信息",
+            "MELOBOT_SESSION", SessionError, "此时不在活动的事件处理流中，无法获取会话信息"
         )
 
     def get_store(self) -> "SessionStore":

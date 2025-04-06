@@ -36,17 +36,25 @@ def get_level_role(checker: MsgChecker, event: MessageEvent) -> LevelRole:
     :param event: 消息事件
     :return: 分级权限等级
     """
-    qid = event.user_id
+    _this = get_level_role
+    _flag = (checker.black_users, checker.owner, checker.super_users, checker.white_users)
+    ret = event.flag_get(_this, _flag, raise_exc=False, default=None)
+    if ret is not None:
+        return cast(LevelRole, ret)
 
-    if qid in checker.black_users:
-        return LevelRole.BLACK
-    if qid == checker.owner:
-        return LevelRole.OWNER
-    if qid in checker.super_users:
-        return LevelRole.SU
-    if qid in checker.white_users:
-        return LevelRole.WHITE
-    return LevelRole.NORMAL
+    qid = event.user_id
+    if qid in _flag[0]:
+        res = LevelRole.BLACK
+    elif qid == _flag[1]:
+        res = LevelRole.OWNER
+    elif qid in _flag[2]:
+        res = LevelRole.SU
+    elif qid in _flag[3]:
+        res = LevelRole.WHITE
+    else:
+        res = LevelRole.NORMAL
+    event.flag_set(_this, _flag, res)
+    return res
 
 
 def get_group_role(event: MessageEvent) -> GroupRole:
@@ -55,13 +63,21 @@ def get_group_role(event: MessageEvent) -> GroupRole:
     :param event: 消息事件
     :return: 群权限等级
     """
+    _this = get_group_role
+    ret = event.flag_get(_this, _this, raise_exc=False, default=None)
+    if ret is not None:
+        return cast(GroupRole, ret)
+
     if not event.is_group():
-        return cast(GroupRole, GroupRole.NOT_IN_GROUP)
-    if event.sender.is_group_owner():
-        return GroupRole.OWNER
-    if event.sender.is_group_admin():
-        return GroupRole.ADMIN
-    return GroupRole.MEMBER
+        res = cast(GroupRole, GroupRole.NOT_IN_GROUP)
+    elif event.sender.is_group_owner():
+        res = GroupRole.OWNER
+    elif event.sender.is_group_admin():
+        res = GroupRole.ADMIN
+    else:
+        res = GroupRole.MEMBER
+    event.flag_set(_this, _this, res)
+    return res
 
 
 class MsgChecker(Checker[Event]):
@@ -95,32 +111,46 @@ class MsgChecker(Checker[Event]):
         self.super_users = tuple(super_users) if super_users is not None else ()
         self.white_users = tuple(white_users) if white_users is not None else ()
         self.black_users = tuple(black_users) if black_users is not None else ()
-
-    def _get_level(self, event: MessageEvent) -> LevelRole | GroupRole:
-        """获得事件对应的登记"""
-
-        if isinstance(self.check_role, LevelRole):
-            return get_level_role(self, event)
-        return get_group_role(event)
+        self._hash_tag: tuple[int | None | tuple, ...] = (
+            self.check_role,
+            self.owner,
+            self.super_users,
+            self.white_users,
+            self.black_users,
+        )
 
     def _check(self, event: MessageEvent) -> bool:
-        e_level = self._get_level(event)
-        if isinstance(e_level, LevelRole):
+        e_level: LevelRole | GroupRole
+        if isinstance(self.check_role, LevelRole):
+            e_level = get_level_role(self, event)
             status = LevelRole.BLACK < e_level and e_level >= self.check_role
         else:
+            e_level = get_group_role(event)
             status = e_level >= self.check_role
         return status
 
     async def check(self, event: Event) -> bool:
-        # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
-        if not event.is_message():
-            status = False
-        else:
-            status = self._check(cast(MessageEvent, event))
+        status = is_msg = False
+        try:
+            ret, is_msg = event.flag_get(
+                self.__class__, self._hash_tag, raise_exc=False, default=(None, False)
+            )
+            if ret is not None:
+                return cast(bool, ret)
 
-        if not status and self.fail_cb is not None:
-            await self.fail_cb()
-        return status
+            # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
+            if not event.is_message():
+                status = is_msg = False
+            else:
+                is_msg = True
+                status = self._check(cast(MessageEvent, event))
+
+            event.flag_set(self.__class__, self._hash_tag, (status, is_msg))
+            return status
+
+        finally:
+            if not status and is_msg and self.fail_cb is not None:
+                await self.fail_cb()
 
 
 class GroupMsgChecker(MsgChecker):
@@ -154,6 +184,7 @@ class GroupMsgChecker(MsgChecker):
         """
         super().__init__(role, owner, super_users, white_users, black_users, fail_cb)
         self.white_group_list = tuple(white_groups) if white_groups is not None else ()
+        self._hash_tag = (*self._hash_tag, self.white_group_list)
 
     def _check(self, event: MessageEvent) -> bool:
         # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
@@ -163,7 +194,6 @@ class GroupMsgChecker(MsgChecker):
             return False
         if cast(GroupMessageEvent, event).group_id not in self.white_group_list:
             return False
-
         return super()._check(event)
 
 
@@ -198,7 +228,6 @@ class PrivateMsgChecker(MsgChecker):
     def _check(self, event: MessageEvent) -> bool:
         if not event.is_private():
             return False
-
         return super()._check(event)
 
 
@@ -311,18 +340,32 @@ class AtMsgChecker(Checker):
         """
         super().__init__(fail_cb)
         self.qid = qid
+        self._hash_tag = qid
 
     async def check(self, event: Event) -> bool:
         # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
-        if not event.is_message():
-            return False
+        status = is_msg = False
+        try:
+            ret, is_msg = event.flag_get(
+                self.__class__, self._hash_tag, raise_exc=False, default=(None, False)
+            )
+            if ret is not None:
+                return cast(bool, ret)
 
-        event = cast(MessageEvent, event)
-        qids = [seg.data["qq"] for seg in event.message if isinstance(seg, AtSegment)]
-        if self.qid is None:
-            return len(qids) > 0
-        status = any(id == self.qid for id in qids)
+            if not event.is_message():
+                status = is_msg = False
+            else:
+                is_msg = True
+                event = cast(MessageEvent, event)
+                qids = [seg.data["qq"] for seg in event.message if isinstance(seg, AtSegment)]
+                if self.qid is None:
+                    status = len(qids) > 0
+                else:
+                    status = any(id == self.qid for id in qids)
 
-        if not status and self.fail_cb is not None:
-            await self.fail_cb()
-        return status
+            event.flag_set(self.__class__, self._hash_tag, (status, is_msg))
+            return status
+
+        finally:
+            if not status and is_msg and self.fail_cb is not None:
+                await self.fail_cb()
