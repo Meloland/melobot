@@ -188,7 +188,7 @@ class Logger(_Logger, GenericLogger):
             `legacy` 选项为 `True` 时此参数无效
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件
-        :param is_parellel: 日志渲染是否启用并行优化（可能导致日志小部分行间乱序）
+        :param is_parellel: 日志渲染是否启用并行优化（可能导致日志小范围行间乱序）
         """
         super().__init__(name, LogLevel.DEBUG)
         self._handler_arr: list[logging.Handler] = []
