@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import contextvars
 from asyncio import Queue, Task
+from collections import deque
 
 from .._run import is_async_running, register_loop_started_hook
 from ..adapter.base import Event
@@ -20,9 +21,7 @@ class Dispatcher:
         counts: dict[int, str] = {}
         chan = self.first_chan
         while chan is not None:
-            counts[chan.priority] = (
-                f"[flows:{chan.flow_que.qsize()}, events:{chan.event_que.qsize()}]"
-            )
+            counts[chan.priority] = f"[flows:{len(chan.flow_que)}, events:{chan.event_que.qsize()}]"
             chan = chan.next
         return f"{self.__class__.__name__}({counts})"
 
@@ -35,16 +34,16 @@ class Dispatcher:
 
             if self.first_chan is None:
                 self.first_chan = EventChannel(self, priority=lvl)
-                self.first_chan.flow_que.put_nowait(f)
+                self.first_chan.flow_que.append(f)
 
             elif lvl == self.first_chan.priority:
-                self.first_chan.flow_que.put_nowait(f)
+                self.first_chan.flow_que.append(f)
 
             elif lvl > self.first_chan.priority:
                 chan = EventChannel(self, priority=lvl)
                 chan.set_next(self.first_chan)
                 self.first_chan = chan
-                chan.flow_que.put_nowait(f)
+                chan.flow_que.append(f)
 
             else:
                 chan = self.first_chan
@@ -52,13 +51,13 @@ class Dispatcher:
                     chan = chan.next
 
                 if lvl == chan.priority:
-                    chan.flow_que.put_nowait(f)
+                    chan.flow_que.append(f)
                 else:
                     new_chan = EventChannel(self, priority=lvl)
                     chan_next = chan.next
                     new_chan.set_pre(chan)
                     new_chan.set_next(chan_next)
-                    new_chan.flow_que.put_nowait(f)
+                    new_chan.flow_que.append(f)
 
             f._active = True
 
@@ -89,7 +88,7 @@ class EventChannel:
     def __init__(self, owner: Dispatcher, priority: int) -> None:
         self.owner = owner
         self.event_que: Queue[Event] = Queue()
-        self.flow_que: Queue[Flow] = Queue()
+        self.flow_que: deque[Flow] = deque()
         self.priority = priority
 
         self.pre: EventChannel | None = None
@@ -134,13 +133,13 @@ class EventChannel:
                 handle_tasks.clear()
                 valid_flows.clear()
 
-                if self.flow_que.qsize() == 0:
+                if len(self.flow_que) == 0:
                     self._dispose(*events)
                     return
 
-                for _ in range(self.flow_que.qsize()):
+                for _ in range(len(self.flow_que)):
                     handled_fs: set[Flow] = ev.flag_get(self.owner, self.owner)
-                    f = self.flow_que.get_nowait()
+                    f = self.flow_que.popleft()
                     if f._active and f.priority == self.priority:
                         if f not in handled_fs:
                             handle_tasks.append(asyncio.create_task(f._handle(ev)))
@@ -148,7 +147,7 @@ class EventChannel:
                         valid_flows.append(f)
 
                 for f in valid_flows:
-                    self.flow_que.put_nowait(f)
+                    self.flow_que.append(f)
                 if len(valid_flows):
                     coro = self._determine_spread(ev, handle_tasks)
                     asyncio.create_task(coro)
