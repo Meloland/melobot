@@ -77,4 +77,5 @@ else:
         deprecations={},
     )
 # 让 melobot 开始接管导入机制
+from ._imp import ALL_EXTS as MODULE_EXTS
 from ._imp import add_import_fallback

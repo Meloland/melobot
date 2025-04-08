@@ -158,10 +158,11 @@ def register_loop_closed_hook(func: Callable[[], Any], allow_next: bool = False)
     _MANAGER.closed_hooks.add(func)
 
 
-def add_immunity_task(task: asyncio.Task) -> None:
+def add_immunity_task(task: asyncio.Task) -> asyncio.Task:
     if _MANAGER.closed:
         raise RuntimeError("事件循环已关闭，无法添加新的取消豁免任务")
     _MANAGER.immunity_tasks.add(task)
+    return task
 
 
 def is_async_running() -> bool:

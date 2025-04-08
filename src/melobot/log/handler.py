@@ -85,10 +85,10 @@ class LogRenderRunner:
         from .. import _render
         from ..mp import ProcessPoolExecutor  # noqa: F811
 
-        self.pool = ProcessPoolExecutor(_render.__file__, max_workers=2)
+        self.pool = ProcessPoolExecutor(_render.__file__, max_workers=1)
         self.task_q = asyncio.Queue[tuple[Callable, asyncio.Future, Any, Any]]()
         self.ref_pairs: list[tuple[Any, str]] = []
-        self.done = False
+        self.done = asyncio.Event()
 
         register_loop_closed_hook(self._mark_done, allow_next=True)
         if is_async_running():
@@ -101,22 +101,48 @@ class LogRenderRunner:
     def add_ref(self, obj: Any, attr_name: str) -> None:
         self.ref_pairs.append((obj, attr_name))
 
-    def _mark_done(self) -> None:
-        self.done = True
-
     async def run(self, func: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
         fut = asyncio.get_running_loop().create_future()
         await self.task_q.put((func, fut, args, kwargs))
         res = await fut
         return cast(T, res)
 
+    def _mark_done(self) -> None:
+        self.done.set()
+
     async def _render_loop(self) -> None:
+        # 要尽可能将队列里所有日志都渲染完，而不是直接取消
         loop = asyncio.get_running_loop()
+        done_task = add_immunity_task(asyncio.create_task(self.done.wait()))
+
         with self.pool:
             while True:
-                if self.done and self.task_q.empty():
+                # 想象一种情况：q_task 完成，随后日志渲染（发生了 await），回来时 done_task 已完成
+                if done_task.done():
                     break
-                func, fut, args, kwargs = await self.task_q.get()
+                q_task = add_immunity_task(asyncio.create_task(self.task_q.get()))
+                await asyncio.wait((q_task, done_task), return_when=asyncio.FIRST_COMPLETED)
+                if done_task.done():
+                    if not q_task.done():
+                        q_task.cancel()
+                    else:
+                        self.task_q.put_nowait(q_task.result())
+                    break
+                else:
+                    func, fut, args, kwargs = q_task.result()
+
+                try:
+                    res = await loop.run_in_executor(self.pool, func, *args, **kwargs)
+                except Exception as e:
+                    fut.set_exception(e)
+                else:
+                    fut.set_result(res)
+
+            # 收尾工作，此时把队列的任务消耗完即可
+            # 也有可能此时再增加任务，但是至于能不能处理已经不重要
+            # 因为至少 done_task 完成前的任务都处理了，这就足够了
+            while self.task_q.qsize():
+                func, fut, args, kwargs = self.task_q.get_nowait()
                 try:
                     res = await loop.run_in_executor(self.pool, func, *args, **kwargs)
                 except Exception as e:
