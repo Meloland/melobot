@@ -71,8 +71,8 @@ class LoopManager:
         _MANAGER._next_manager = _MANAGER.__class__()
 
     async def _loop_main(self, root: Coroutine[Any, Any, None]) -> None:
-        self.root_task = asyncio.create_task(root)
         self.started = True
+        self.root_task = asyncio.create_task(root)
         for hook in self.started_hooks:
             hook()
 

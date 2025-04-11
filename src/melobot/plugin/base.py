@@ -50,19 +50,22 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
 
         :param version: 版本号
         :param flows: 事件流。可以先指定为空，后续使用 :meth:`use` 绑定
-        :param shares: 共享对象。可以先指定为空，后续使用 :meth:`use` 绑定
-        :param funcs: 导出函数（需要是本插件内定义的函数，提供方法是未定义行为）。可以先指定为空，后续使用 :meth:`use` 绑定
+        :param shares: 共享对象（需要在本插件内定义）。可以先指定空，后续用 :meth:`use` 绑定
+        :param funcs: 导出函数（需要在本插件内定义，提供方法是未定义行为）。可以先指定空，后续用 :meth:`use` 绑定
         :param auto_import:
-            需要自动导入的模块的路径列表（相对路径以插件目录为基准），该参数对动态插件无效。如果为 `True` 导入插件目录下所有模块，
-            此时只会导入 `.py` 模块。如果你需要导入 `.{pyc,pyd,so,...}` 等其他可加载模块，请自行提供列表。
-            自行提供列表时的一些提示：
+            需要自动导入的模块的路径列表（相对路径以插件目录为基准），该参数对动态插件无效。
+            如果为 `True` 导入插件目录下所有模块，此时只会导入 `.py` 模块。
+            如果你需要导入 `.{pyc,pyd,so,...}` 等其他可加载模块，请自行提供列表。自行提供列表时的一些提示：
 
-                1. 不要包含目录路径，这永远没有效果
-                2. 建议使用 :mod:`glob.glob` 或 :meth:`pathlib.Path.glob` 方法获取路径，而不是手动拼接或查找
-                3. 一个模块在加载时，其向上到插件目录的所有父目录的 `__init__.{pyc,pyd,so,py...}` 都会被自动加载，
-                    此时不需要手动提供 `__init__.{pyc,pyd,so,py...}` 文件。加载时的扩展名优先级请查看
-                    :data:`melobot.MODULE_EXTS`（优先级从高到低，且与操作系统平台有关）
-                4. 如果一个目录中只有 `__init__.{pyc,pyd,so,py...}` 文件，显然此时只能手动提供 `__init__.{pyc,pyd,so,py...}` 文件
+            不要包含目录路径，这永远没有效果
+
+            建议使用 :mod:`glob.glob` 或 :meth:`pathlib.Path.glob` 方法获取路径，而不是手动拼接或查找
+
+            一个模块在加载时，其向上到插件目录的所有父目录的 `__init__.{pyc,pyd,so,py...}` 都会被自动加载，
+            此时不需要手动提供 `__init__.{pyc,pyd,so,py...}` 文件。加载时的扩展名优先级请查看
+            :data:`melobot.MODULE_EXTS`（优先级从高到低，且与操作系统平台有关）
+
+            如果一个目录中只有 `__init__.{pyc,pyd,so,py...}` 文件，此时只能手动提供
 
         :param info: 插件信息
         """
