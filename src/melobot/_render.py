@@ -97,6 +97,7 @@ def _get_exc_fmtter() -> "ExceptionFormatter":
             self._cap_char = "\x00bold bright_black\x01└\x00/\x01"
             self._hide_internal = False if EXC_SHOW_INTERNAL in os.environ else True
             self._flip = True if EXC_FLIP in os.environ else False
+            self._colored = False
 
         def set_style(self, hide_internal: bool = True, flip: bool = False) -> None:
             self._hide_internal = hide_internal

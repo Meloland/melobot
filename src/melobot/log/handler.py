@@ -130,9 +130,10 @@ class LogRenderRunner:
                     break
                 else:
                     func, fut, args, kwargs = q_task.result()
+                    wrapped_func = partial(func, **kwargs)
 
                 try:
-                    res = await loop.run_in_executor(self.pool, func, *args, **kwargs)
+                    res = await loop.run_in_executor(self.pool, wrapped_func, *args)
                 except Exception as e:
                     fut.set_exception(e)
                 else:
@@ -143,8 +144,9 @@ class LogRenderRunner:
             # 因为至少 done_task 完成前的任务都处理了，这就足够了
             while self.task_q.qsize():
                 func, fut, args, kwargs = self.task_q.get_nowait()
+                wrapped_func = partial(func, **kwargs)
                 try:
-                    res = await loop.run_in_executor(self.pool, func, *args, **kwargs)
+                    res = await loop.run_in_executor(self.pool, wrapped_func, *args)
                 except Exception as e:
                     fut.set_exception(e)
                 else:
@@ -226,7 +228,11 @@ class RecordRender:
         red_error = log_info.red_error
         legacy = log_info.legacy
         msg = log_info.msg
-        obj = self._to_easy_pickable(log_info.obj)
+        obj = (
+            self._to_easy_pickable(log_info.obj)
+            if log_info.obj is not VoidType.VOID
+            else VoidType.VOID
+        )
 
         if legacy:
             record.legacy_msg_str, record.colored_msg_str, record.msg_str = msg, "", msg
@@ -270,16 +276,14 @@ class RecordRender:
             record.colored_obj, record.obj = await self.runner.run(get_rich_object, obj)
 
     def _to_easy_pickable(self, obj: Any) -> Any:
-        if isinstance(obj, (str, VoidType)):
+        if isinstance(obj, str):
             return obj
-        if isinstance(
-            obj,
-            (bytes, int, float, complex, bytearray),
-        ) or obj in (None, True, False, Ellipsis, NotImplemented):
+        if isinstance(obj, (bytes, int, float, complex, bytearray)):
             return obj
-
+        if obj in (None, True, False, Ellipsis, NotImplemented):
+            return obj
         if isinstance(obj, (tuple, list, set)):
-            return type(obj)(map(str, obj))
+            return type(obj)(map(self._to_easy_pickable, obj))
         if isinstance(obj, dict):
-            return {str(k): str(v) for k, v in obj.items()}
+            return {self._to_easy_pickable(k): self._to_easy_pickable(v) for k, v in obj.items()}
         return str(obj)

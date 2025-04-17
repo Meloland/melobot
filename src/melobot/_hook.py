@@ -29,7 +29,7 @@ class HookRunner(Generic[HookEnumT]):
             log_exc(
                 e,
                 msg=f"{self.type} 类型的 hook 方法 {self.callback} 发生异常",
-                obj={"hook_runner": self, "args": args, "kwargs": kwargs},
+                obj={"callback": self.callback, "args": args, "kwargs": kwargs},
             )
 
     async def run(self, *args: Any, **kwargs: Any) -> None:

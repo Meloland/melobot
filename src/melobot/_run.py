@@ -4,6 +4,7 @@ import asyncio
 import os
 import signal
 import sys
+from asyncio import get_running_loop
 from weakref import WeakSet
 
 from typing_extensions import Any, Callable, Coroutine, NoReturn
@@ -41,10 +42,10 @@ class LoopManager:
                 loop.set_task_factory(asyncio.eager_task_factory)
 
             loop.set_debug(debug)
-            loop.add_signal_handler(signal.SIGINT, self.stop)
-            loop.add_signal_handler(signal.SIGTERM, self.stop)
+            signal.signal(signal.SIGINT, self.stop)
+            signal.signal(signal.SIGTERM, self.stop)
             if sys.platform == "win32":
-                loop.add_signal_handler(signal.SIGBREAK, self.stop)
+                signal.signal(signal.SIGBREAK, self.stop)
 
             main = self._loop_main(root)
             loop.run_until_complete(main)
@@ -116,8 +117,8 @@ class LoopManager:
         if self.stop_accepted:
             return
         self.stop_accepted = True
-        if self.root_task is not None:
-            self.root_task.cancel()
+        if self.root_task is not None and not self.root_task.done():
+            get_running_loop().call_soon(self.root_task.cancel)
 
     def restart(self) -> NoReturn:
         sys.exit(ExitCode.RESTART.value)
