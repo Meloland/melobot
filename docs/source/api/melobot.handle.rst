@@ -13,7 +13,7 @@ melobot.handle
     :members:
     :exclude-members: __init__, process
 
-处理节点
+处理结点
 -----------
 
 .. autofunction:: melobot.handle.node

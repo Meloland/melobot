@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from asyncio import create_task, get_running_loop
-from dataclasses import dataclass
-from itertools import tee
 
-from typing_extensions import Iterable, NoReturn, Sequence
+from typing_extensions import Callable, Iterable, NoReturn
 
 from ..adapter.base import Event
 from ..ctx import BotCtx, EventCompletion, FlowCtx, FlowRecord, FlowRecords
@@ -13,9 +11,10 @@ from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
 from ..log.report import log_exc
-from ..typ.base import AsyncCallable, SyncOrAsyncCallable
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from ..utils.base import to_async
 from ..utils.common import get_obj_name
+from .graph import DAGMapping
 
 _FLOW_CTX = FlowCtx()
 
@@ -80,16 +79,6 @@ class FlowNode:
                 await nextn()
 
 
-@dataclass
-class NodeInfo:
-    nexts: list[FlowNode]
-    in_deg: int
-    out_deg: int
-
-    def copy(self) -> NodeInfo:
-        return NodeInfo(self.nexts, self.in_deg, self.out_deg)
-
-
 class Flow:
     """处理流
 
@@ -111,23 +100,22 @@ class Flow:
         :param guard: 守卫函数。在处理流运行前调用，返回 `True` 不再继续运行处理流。默认不启用
         """
         self.name = name
-        self.graph: dict[FlowNode, NodeInfo] = {}
+        self.graph = DAGMapping[FlowNode](name, *edge_maps)
         self.priority = priority
 
         self._active = True
         self._guard = to_async(guard) if guard is not None else None
 
-        _edge_maps = tuple(
-            tuple((elem,) if isinstance(elem, FlowNode) else elem for elem in emap)
-            for emap in edge_maps
-        )
-        edges = self._get_edges(_edge_maps)
-
-        for n1, n2 in edges:
-            self._add(n1, n2)
-
-        if not self._valid_check():
-            raise FlowError(f"定义的处理流 {self.name} 中存在环路")
+    @staticmethod
+    def from_graph(
+        name: str,
+        graph: DAGMapping[FlowNode],
+        priority: int = 0,
+        guard: SyncOrAsyncCallable[[Event], bool | None] | None = None,
+    ) -> Flow:
+        f = Flow(name, priority=priority, guard=guard)
+        f.graph = graph
+        return f
 
     def __repr__(self) -> str:
         output = (
@@ -136,18 +124,10 @@ class Flow:
         )
 
         if len(self.graph):
-            output += f", starts=[{', '.join(n.name for n in self.starts)}])"
+            output += f", starts:{len(self.graph.starts)})"
         else:
             output += ")"
         return output
-
-    @property
-    def starts(self) -> tuple[FlowNode, ...]:
-        return tuple(n for n, info in self.graph.items() if info.in_deg == 0)
-
-    @property
-    def ends(self) -> tuple[FlowNode, ...]:
-        return tuple(n for n, info in self.graph.items() if info.out_deg == 0)
 
     def update_priority(self, priority: int) -> None:
         """更新处理流优先级
@@ -170,86 +150,63 @@ class Flow:
         """
         return self._active
 
+    def set_guard(self, guard: SyncOrAsyncCallable[[Event], bool | None]) -> None:
+        """设置或重设守卫函数
+
+        :param guard: 守卫函数
+        """
+        self._guard = to_async(guard) if guard is not None else None
+
     def link(self, flow: Flow, priority: int | None = None) -> Flow:
         """连接另一处理流返回新处理流，并设置新优先级
+
+        新处理流守卫函数为空，使用 :meth:`set_guard` 自行添加
 
         :param flow: 连接的新流
         :param priority: 新优先级，若为空，则使用两者中较小的优先级
         :return: 新的处理流
         """
-        _froms = self.ends
-        _tos = flow.starts
-        new_edges = tuple((n1, n2) for n1 in _froms for n2 in _tos)
-
-        new_flow = Flow(
-            f"{self.name} ~ {flow.name}",
-            *new_edges,
+        name = f"{self.name} ~ {flow.name}"
+        new_flow = Flow.from_graph(
+            name,
+            self.graph.link(flow.graph, name),
             priority=priority if priority else min(self.priority, flow.priority),
         )
-
-        for n1, info in (self.graph | flow.graph).items():
-            if not len(info.nexts):
-                new_flow._add(n1, None)
-                continue
-            for n2 in info.nexts:
-                new_flow._add(n1, n2)
-
-        if not self._valid_check():
-            raise FlowError(f"定义的处理流 {self.name} 中存在环路")
-
         return new_flow
 
-    def _get_edges(
-        self, edge_maps: Sequence[Sequence[Iterable[FlowNode]]]
-    ) -> list[tuple[FlowNode, FlowNode]]:
-        edges: list[tuple[FlowNode, FlowNode]] = []
+    def start(self, node: FlowNode) -> FlowNode:
+        self.graph.add(node, None)
+        return node
 
-        for emap in edge_maps:
-            iter1, iter2 = tee(emap, 2)
-            try:
-                next(iter2)
-            except StopIteration:
-                continue
+    def after(self, node: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        def after_wrapped(next_node: FlowNode) -> FlowNode:
+            self.graph.add(node, next_node)
+            return next_node
 
-            if len(emap) == 1:
-                for n in emap[0]:
-                    self._add(n, None)
-                continue
+        return after_wrapped
 
-            for from_seq, to_seq in zip(iter1, iter2):
-                for n1 in from_seq:
-                    for n2 in to_seq:
-                        if (n1, n2) not in edges:
-                            edges.append((n1, n2))
+    def before(self, node: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        def before_wrapped(pre_node: FlowNode) -> FlowNode:
+            self.graph.add(pre_node, node)
+            return pre_node
 
-        return edges
+        return before_wrapped
 
-    def _add(self, _from: FlowNode, to: FlowNode | None) -> None:
-        from_info = self.graph.setdefault(_from, NodeInfo([], 0, 0))
+    def merge(self, *nodes: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        def merge_wrapped(next_node: FlowNode) -> FlowNode:
+            for node in nodes:
+                self.graph.add(node, next_node)
+            return next_node
 
-        if to is not None:
-            to_info = self.graph.setdefault(to, NodeInfo([], 0, 0))
-            to_info.in_deg += 1
-            from_info.out_deg += 1
-            from_info.nexts.append(to)
+        return merge_wrapped
 
-    def _valid_check(self) -> bool:
-        graph = {n: info.copy() for n, info in self.graph.items()}
+    def fork(self, *nodes: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        def fork_wrapped(pre_node: FlowNode) -> FlowNode:
+            for node in nodes:
+                self.graph.add(pre_node, node)
+            return pre_node
 
-        while len(graph):
-            for n, info in graph.items():
-                nexts, in_deg = info.nexts, info.in_deg
-
-                if in_deg == 0:
-                    graph.pop(n)
-                    for next_n in nexts:
-                        graph[next_n].in_deg -= 1
-                    break
-
-            else:
-                return False
-
-        return True
+        return fork_wrapped
 
     async def _handle(self, event: Event) -> None:
         fut = get_running_loop().create_future()
@@ -273,7 +230,7 @@ class Flow:
                 )
                 return self._try_set_completed(completion)
 
-        starts = self.starts
+        starts = self.graph.starts
         if not len(starts):
             return self._try_set_completed(completion)
 
@@ -286,6 +243,9 @@ class Flow:
 
         with _FLOW_CTX.unfold(FlowStatus(self, starts[0], True, completion, records, store)):
             try:
+                if not self.graph._verified:
+                    self.graph.verify()
+
                 records.append(FlowRecord(RecordStage.FLOW_START, self.name, starts[0].name, event))
 
                 idx = 0
