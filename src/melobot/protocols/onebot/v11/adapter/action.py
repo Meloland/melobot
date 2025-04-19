@@ -17,7 +17,7 @@ class Action(RootAction):
 
         self.type = type
         self.params = params
-        self.need_echo = False
+        self.need_echo = True
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(type={self.type}, echo={self.need_echo})"

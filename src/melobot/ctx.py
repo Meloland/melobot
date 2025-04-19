@@ -4,10 +4,20 @@ from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
 
-from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Self, Union, cast
+from typing_extensions import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generator,
+    Generic,
+    Self,
+    Union,
+    cast,
+    overload,
+)
 
 from .exceptions import AdapterError, BotError, FlowError, SessionError
-from .typ.base import T
+from .typ.base import T, V
 from .typ.cls import SingletonMeta
 
 if TYPE_CHECKING:
@@ -57,12 +67,19 @@ class Context(Generic[T], metaclass=SingletonMeta):
         except LookupError:
             raise self.lookup_exc_cls(self.lookup_exc_tip) from None
 
-    def try_get(self) -> T | None:
+    @overload
+    def try_get(self, default: V) -> T | V: ...
+
+    @overload
+    def try_get(self, default: None = None) -> T | None: ...
+
+    def try_get(self, default: Any = None) -> T | Any:
         """与 :func:`get` 类似，但不存在上下文对象时返回 `None`
 
+        :param default: 上下文值不存在时返回的默认值
         :return: 上下文对象的上下文值
         """
-        return self.__storage__.get(None)
+        return self.__storage__.get(default)
 
     def add(self, ctx: T) -> Token[T]:
         """在当前上下文中，添加一个上下文值

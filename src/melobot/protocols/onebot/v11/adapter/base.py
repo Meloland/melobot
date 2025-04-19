@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextvars import Token
 from os import PathLike
 
 from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence, cast
@@ -21,7 +22,7 @@ from melobot.ctx import Context
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
 from melobot.typ import AsyncCallable, SyncOrAsyncCallable
-from melobot.utils import to_async, to_coro
+from melobot.utils import deprecate_warn, to_async, to_coro
 
 from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER, P, T
 from ..io.base import BaseIOSource
@@ -86,6 +87,15 @@ class EchoRequireCtx(Context[bool]):
     def __init__(self) -> None:
         super().__init__("ONEBOT_V11_ECHO_REQUIRE", LookupError)
 
+    def add(self, ctx: bool) -> Token[bool]:
+        if ctx:
+            deprecate_warn(
+                f"将 {EchoRequireCtx.__name__} 上下文的值设置为 True 的行为已被弃用。"
+                "从 melobot 3.2.0 开始，此上下文值默认为真",
+                stacklevel=3,
+            )
+        return super().add(ctx)
+
 
 class Adapter(
     RootAdapter[EventFactory, OutputFactory, EchoFactory, ac.Action, BaseIOSource, BaseIOSource]
@@ -117,21 +127,39 @@ class Adapter(
         :param action: 行为对象
         :return: :class:`.ActionHandle` 元组
         """
-        if EchoRequireCtx().try_get():
-            action.need_echo = True
+        if not EchoRequireCtx().try_get(default=True):
+            action.need_echo = False
         return await super().call_output(action)
 
     def with_echo(
         self, func: AsyncCallable[P, tuple[ActionHandle[EchoT | None], ...]]
     ) -> AsyncCallable[P, tuple[ActionHandle[EchoT], ...]]:
+        deprecate_warn(
+            f"OneBot v11 的 {Adapter.with_echo.__qualname__} 方法已被弃用，"
+            "将于 melobot 3.2.1 版本删除。"
+            "从 melobot 3.2.0 开始，OneBot v11 所有 action 默认需要 echo",
+            stacklevel=3,
+        )
+
         async def with_echo_wrapped(
             *args: P.args, **kwargs: P.kwargs
         ) -> tuple[ActionHandle[EchoT], ...]:
-            with EchoRequireCtx().unfold(True):
-                handles = await func(*args, **kwargs)
+            handles = await func(*args, **kwargs)
             return cast(tuple[ActionHandle[EchoT], ...], handles)
 
         return with_echo_wrapped
+
+    def without_echo(
+        self, func: AsyncCallable[P, tuple[ActionHandle[EchoT | None], ...]]
+    ) -> AsyncCallable[P, tuple[ActionHandle[EchoT], ...]]:
+        async def without_echo_wrapped(
+            *args: P.args, **kwargs: P.kwargs
+        ) -> tuple[ActionHandle[EchoT], ...]:
+            with EchoRequireCtx().unfold(False):
+                handles = await func(*args, **kwargs)
+            return cast(tuple[ActionHandle[EchoT], ...], handles)
+
+        return without_echo_wrapped
 
     async def __send_text__(self, text: str) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
         return await self.send(text)
