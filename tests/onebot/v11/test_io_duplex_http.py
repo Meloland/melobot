@@ -88,7 +88,6 @@ async def test_http(monkeypatch) -> None:
         await _OUT_BUF.get() == _TEST_ACTION.flatten()
         assert pak.noecho
 
-        _TEST_ACTION.set_echo(True)
         t = create_task(
             io.output(
                 OutPacket(

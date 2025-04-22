@@ -14,6 +14,8 @@ from multiprocessing import current_process
 
 from typing_extensions import Any
 
+from ._imp import ALL_EXTS
+
 _PNAME_PREFIX = "MeloBot_MP"
 MP_MODULE_NAME = "__mp_main__"
 
@@ -129,15 +131,18 @@ class SpawnProcess(get_context("spawn").Process):  # type: ignore[name-defined,m
             daemon=daemon,
         )
         order = self.name.split("-")[-1]
+        self.init_name = name
         # 重设 name 属性，用于后续在 hack 中区分进程
-        self.name: str = f"{_PNAME_PREFIX}_{id(self):x}-{order}"
+        self.main_part = f"{id(self):x}" if self.init_name is None else self.init_name
+        self.name: str = f"{_PNAME_PREFIX}_{self.main_part}-{order}"
 
         try:
             entry_file = Path(entry).resolve(True)
         except FileNotFoundError as e:
-            raise FileNotFoundError(
-                f"子进程 {self.name} 指定的入口模块不存在: {entry_file!r}"
-            ) from e
+            raise FileNotFoundError(f"子进程 {self.main_part} 的入口不存在: {entry!r}") from e
+
+        if not entry_file.is_file() or not entry_file.as_posix().endswith(ALL_EXTS):
+            raise ValueError(f"子进程 {self.main_part} 的入口不是可加载的文件: {entry_file!r}")
 
         # 再使用一次 normpath，保证与原始实现一样的兼容性
         entry_norm_path = normpath(entry_file.as_posix())
@@ -251,15 +256,16 @@ class PBox:
                 raise FileNotFoundError(f"入口路径 {entry!r} 不存在") from e
             self.entry = abs_entry_path.as_posix()
 
-            mod_parts = tuple(self.module.split("."))
-            if "" in mod_parts:
-                raise ValueError(f"模块名 {module!r} 有误或存在相对导入语义")
+            if self.module != MP_MODULE_NAME:
+                mod_parts = tuple(self.module.split("."))
+                if "" in mod_parts:
+                    raise ValueError(f"模块名 {module!r} 有误或存在相对导入语义")
 
-            path_parts = abs_entry_path.parts[:-1] + (abs_entry_path.stem,)
-            if path_parts[-len(mod_parts) :] != mod_parts:
-                raise ValueError(
-                    "模块名 split('.') 后的序列，不是路径绝对化并去除扩展名后 split('/') 得到序列的尾子序列"
-                )
+                path_parts = abs_entry_path.parts[:-1] + (abs_entry_path.stem,)
+                if path_parts[-len(mod_parts) :] != mod_parts:
+                    raise ValueError(
+                        "模块名 split('.') 后的序列，不是路径绝对化并去除扩展名后 split('/') 得到序列的尾子序列"
+                    )
         else:
             self.entry = None
 
