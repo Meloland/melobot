@@ -33,9 +33,10 @@ def _wrapped_get_preparation_data(name: str) -> dict:
         data["dir"] = data["orig_dir"] = _P_STATUS[name]["dir"]
 
         sentinel = object()
-        if data.get("init_main_from_name", sentinel) is not sentinel:
+        mod_name = data.get("init_main_from_name", sentinel)
+        if mod_name is not sentinel and mod_name not in ("__main__", MP_MODULE_NAME):
             raise RuntimeError(
-                f"__main__ 模块从名称 {data['init_main_from_name']!r} 加载，此模式下不支持安全生成子进程"
+                f"子进程中 __main__ 模块从名称 {mod_name!r} 加载，这种情况下无法安全生成子进程"
             )
         data["init_main_from_path"] = _P_STATUS[name]["entry"]
     return data
