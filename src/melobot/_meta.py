@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from importlib.metadata import version
-
 from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoReturn
 
 from .typ.base import T
 
-__version__ = version("melobot")
+__version__ = "3.2.0"
 
 
 def _version_str_to_info(s: str) -> VersionInfo:
