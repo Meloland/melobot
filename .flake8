@@ -1,3 +1,5 @@
 [flake8]
-ignore = E402,F841,F401,E302,E305,W503,F403,E203,E501,E731,F405,E701,E704
+ignore = E402,F841,F401,E302,E305,W503,E203,E501,E731,F405,E701,E704
+per-file-ignores =
+    tests/*: F403
 max_line_length = 90

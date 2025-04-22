@@ -4,13 +4,13 @@ import asyncio
 from contextvars import Token
 from os import PathLike
 
-from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence, cast
+from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence
 
 from melobot.adapter import (
     AbstractEchoFactory,
     AbstractEventFactory,
     AbstractOutputFactory,
-    ActionHandle,
+    ActionHandleGroup,
 )
 from melobot.adapter import Adapter as RootAdapter
 from melobot.adapter import (
@@ -69,7 +69,7 @@ class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):
             data=action.flatten(),
             action_type=action.type,
             action_params=action.params,
-            echo_id=action.id if action.need_echo else None,
+            echo_id=action.id,
         )
 
 
@@ -88,12 +88,11 @@ class EchoRequireCtx(Context[bool]):
         super().__init__("ONEBOT_V11_ECHO_REQUIRE", LookupError)
 
     def add(self, ctx: bool) -> Token[bool]:
-        if ctx:
-            deprecate_warn(
-                f"将 {EchoRequireCtx.__name__} 上下文的值设置为 True 的行为已被弃用。"
-                "从 melobot 3.2.0 开始，此上下文值默认为真",
-                stacklevel=3,
-            )
+        deprecate_warn(
+            f"OneBot v11 的上下文 {EchoRequireCtx.__name__} 已弃用，将于 melobot 3.2.1 版本删除。"
+            "从 melobot 3.2.0 开始，此上下文值永远为真",
+            stacklevel=3,
+        )
         return super().add(ctx)
 
 
@@ -121,47 +120,18 @@ class Adapter(
 
         return when_validate_error_wrapper
 
-    async def call_output(self, action: ac.Action) -> tuple[ActionHandle, ...]:
-        """输出行为的底层方法
-
-        :param action: 行为对象
-        :return: :class:`.ActionHandle` 元组
-        """
-        if not EchoRequireCtx().try_get(default=True):
-            action.need_echo = False
-        return await super().call_output(action)
-
     def with_echo(
-        self, func: AsyncCallable[P, tuple[ActionHandle[EchoT | None], ...]]
-    ) -> AsyncCallable[P, tuple[ActionHandle[EchoT], ...]]:
+        self, func: AsyncCallable[P, ActionHandleGroup[EchoT]]
+    ) -> AsyncCallable[P, ActionHandleGroup[EchoT]]:
         deprecate_warn(
             f"OneBot v11 的 {Adapter.with_echo.__qualname__} 方法已被弃用，"
             "将于 melobot 3.2.1 版本删除。"
-            "从 melobot 3.2.0 开始，OneBot v11 所有 action 默认需要 echo",
+            "从 melobot 3.2.0 开始，OneBot v11 所有 action dict 的 echo 字段都不为空",
             stacklevel=3,
         )
+        return func
 
-        async def with_echo_wrapped(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> tuple[ActionHandle[EchoT], ...]:
-            handles = await func(*args, **kwargs)
-            return cast(tuple[ActionHandle[EchoT], ...], handles)
-
-        return with_echo_wrapped
-
-    def without_echo(
-        self, func: AsyncCallable[P, tuple[ActionHandle[EchoT | None], ...]]
-    ) -> AsyncCallable[P, tuple[ActionHandle[EchoT], ...]]:
-        async def without_echo_wrapped(
-            *args: P.args, **kwargs: P.kwargs
-        ) -> tuple[ActionHandle[EchoT], ...]:
-            with EchoRequireCtx().unfold(False):
-                handles = await func(*args, **kwargs)
-            return cast(tuple[ActionHandle[EchoT], ...], handles)
-
-        return without_echo_wrapped
-
-    async def __send_text__(self, text: str) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    async def __send_text__(self, text: str) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(text)
 
     async def __send_media__(
@@ -170,7 +140,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(
             se.contents_to_segs([mc.MediaContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
                 0
@@ -183,7 +153,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(
             se.contents_to_segs([mc.ImageContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
                 0
@@ -196,7 +166,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(
             se.contents_to_segs([mc.AudioContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
                 0
@@ -209,7 +179,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(
             se.contents_to_segs([mc.VoiceContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
                 0
@@ -222,7 +192,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(
             se.contents_to_segs([mc.VideoContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
                 0
@@ -231,12 +201,12 @@ class Adapter(
 
     async def __send_file__(
         self, name: str, path: str | PathLike[str]
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(se.contents_to_segs([mc.FileContent(name=name, flag=str(path))])[0])
 
     async def __send_refer__(
         self, event: ev.RootEvent, contents: Sequence[Content] | None = None
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         if not isinstance(event, ev.MessageEvent):
             raise AdapterError(
                 f"提供的事件不是 {ev.MessageEvent.__qualname__} 类型，无法用于发送 refer 消息"
@@ -248,14 +218,12 @@ class Adapter(
             return await self.send_custom(segs, group_id=event.group_id)
         return await self.send_custom(segs, user_id=event.user_id)
 
-    async def __send_resource__(
-        self, name: str, url: str
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    async def __send_resource__(self, name: str, url: str) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(se.contents_to_segs([mc.ResourceContent(name, url)])[0])
 
     async def send(
         self, msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict]
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         event = try_get_event()
         if not isinstance(event, ev.MessageEvent):
             raise AdapterError(
@@ -268,7 +236,7 @@ class Adapter(
 
     async def send_reply(
         self, msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict]
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         event = try_get_event()
         if not isinstance(event, ev.MessageEvent):
             raise AdapterError(
@@ -290,12 +258,12 @@ class Adapter(
         msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict],
         user_id: Optional[int] = None,
         group_id: Optional[int] = None,
-    ) -> tuple[ActionHandle[ec.SendMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.call_output(ac.SendMsgAction(msgs, user_id, group_id))
 
     async def send_forward(
         self, msgs: Iterable[se.NodeSegment]
-    ) -> tuple[ActionHandle[ec.SendForwardMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendForwardMsgEcho]:
         event = try_get_event()
         if not isinstance(event, ev.MessageEvent):
             raise AdapterError(
@@ -311,33 +279,29 @@ class Adapter(
         msgs: Iterable[se.NodeSegment] | Iterable[dict],
         user_id: Optional[int] = None,
         group_id: Optional[int] = None,
-    ) -> tuple[ActionHandle[ec.SendForwardMsgEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.SendForwardMsgEcho]:
         return await self.call_output(ac.SendForwardMsgAction(msgs, user_id, group_id))
 
-    async def delete_msg(self, msg_id: int) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    async def delete_msg(self, msg_id: int) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.DeleteMsgAction(msg_id))
 
-    async def get_msg(self, msg_id: int) -> tuple[ActionHandle[ec.GetMsgEcho | None], ...]:
+    async def get_msg(self, msg_id: int) -> ActionHandleGroup[ec.GetMsgEcho]:
         return await self.call_output(ac.GetMsgAction(msg_id))
 
-    async def get_forward_msg(
-        self, forward_id: str
-    ) -> tuple[ActionHandle[ec.GetForwardMsgEcho | None], ...]:
+    async def get_forward_msg(self, forward_id: str) -> ActionHandleGroup[ec.GetForwardMsgEcho]:
         return await self.call_output(ac.GetForwardMsgAction(forward_id))
 
-    async def send_like(
-        self, user_id: int, times: int = 1
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    async def send_like(self, user_id: int, times: int = 1) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SendLikeAction(user_id, times))
 
     async def set_group_kick(
         self, group_id: int, user_id: int, later_reject: bool = False
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupKickAction(group_id, user_id, later_reject))
 
     async def set_group_ban(
         self, group_id: int, user_id: int, duration: int = 30 * 60
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupBanAction(group_id, user_id, duration))
 
     async def set_group_anonymous_ban(
@@ -346,51 +310,49 @@ class Adapter(
         anonymous: ac.SetGroupAnonymousBanAction.AnonymousDict,
         anonymous_flag: str,
         duration: int = 30 * 60,
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(
             ac.SetGroupAnonymousBanAction(group_id, anonymous, anonymous_flag, duration)
         )
 
     async def set_group_whole_ban(
         self, group_id: int, enable: bool = True
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupWholeBanAction(group_id, enable))
 
     async def set_group_admin(
         self, group_id: int, enable: bool = True
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupAdminAction(group_id, enable))
 
     async def set_group_anonymous(
         self, group_id: int, enable: bool = True
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupAnonymousAction(group_id, enable))
 
     async def set_group_card(
         self, group_id: int, user_id: int, card: str = ""
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupCardAction(group_id, user_id, card))
 
-    async def set_group_name(
-        self, group_id: int, name: str
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    async def set_group_name(self, group_id: int, name: str) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupNameAction(group_id, name))
 
     async def set_group_leave(
         self, group_id: int, is_dismiss: bool = False
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetGroupLeaveAction(group_id, is_dismiss))
 
     async def set_group_special_title(
         self, group_id: int, user_id: int, title: str = "", duration: int = -1
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(
             ac.SetGroupSpecialTitleAction(group_id, user_id, title, duration)
         )
 
     async def set_friend_add_request(
         self, add_flag: str, approve: bool = True, remark: str = ""
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetFriendAddRequestAction(add_flag, approve, remark))
 
     async def set_group_add_request(
@@ -399,80 +361,76 @@ class Adapter(
         add_type: Literal["add", "invite"],
         approve: bool = True,
         reason: str = "",
-    ) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    ) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(
             ac.SetGroupAddRequestAction(add_flag, add_type, approve, reason)
         )
 
-    async def get_login_info(self) -> tuple[ActionHandle[ec.GetLoginInfoEcho], ...]:
+    async def get_login_info(self) -> ActionHandleGroup[ec.GetLoginInfoEcho]:
         return await self.call_output(ac.GetLoginInfoAction())
 
     async def get_stranger_info(
         self, user_id: int, no_cache: bool = False
-    ) -> tuple[ActionHandle[ec.GetStrangerInfoEcho], ...]:
+    ) -> ActionHandleGroup[ec.GetStrangerInfoEcho]:
         return await self.call_output(ac.GetStrangerInfoAction(user_id, no_cache))
 
-    async def get_friend_list(self) -> tuple[ActionHandle[ec.GetFriendListEcho], ...]:
+    async def get_friend_list(self) -> ActionHandleGroup[ec.GetFriendListEcho]:
         return await self.call_output(ac.GetFriendlistAction())
 
     async def get_group_info(
         self, group_id: int, no_cache: bool = False
-    ) -> tuple[ActionHandle[ec.GetGroupInfoEcho], ...]:
+    ) -> ActionHandleGroup[ec.GetGroupInfoEcho]:
         return await self.call_output(ac.GetGroupInfoAction(group_id, no_cache))
 
-    async def get_group_list(self) -> tuple[ActionHandle[ec.GetGroupListEcho], ...]:
+    async def get_group_list(self) -> ActionHandleGroup[ec.GetGroupListEcho]:
         return await self.call_output(ac.GetGrouplistAction())
 
     async def get_group_member_info(
         self, group_id: int, user_id: int, no_cache: bool = False
-    ) -> tuple[ActionHandle[ec.GetGroupMemberInfoEcho], ...]:
+    ) -> ActionHandleGroup[ec.GetGroupMemberInfoEcho]:
         return await self.call_output(ac.GetGroupMemberInfoAction(group_id, user_id, no_cache))
 
     async def get_group_member_list(
         self, group_id: int
-    ) -> tuple[ActionHandle[ec.GetGroupMemberListEcho], ...]:
+    ) -> ActionHandleGroup[ec.GetGroupMemberListEcho]:
         return await self.call_output(ac.GetGroupMemberlistAction(group_id))
 
     async def get_group_honor_info(
         self,
         group_id: int,
         type: Literal["talkative", "performer", "legend", "strong_newbie", "emotion", "all"],
-    ) -> tuple[ActionHandle[ec.GetGroupHonorInfoEcho], ...]:
+    ) -> ActionHandleGroup[ec.GetGroupHonorInfoEcho]:
         return await self.call_output(ac.GetGroupHonorInfoAction(group_id, type))
 
-    async def get_cookies(self, domain: str = "") -> tuple[ActionHandle[ec.GetCookiesEcho], ...]:
+    async def get_cookies(self, domain: str = "") -> ActionHandleGroup[ec.GetCookiesEcho]:
         return await self.call_output(ac.GetCookiesAction(domain))
 
-    async def get_csrf_token(self) -> tuple[ActionHandle[ec.GetCsrfTokenEcho], ...]:
+    async def get_csrf_token(self) -> ActionHandleGroup[ec.GetCsrfTokenEcho]:
         return await self.call_output(ac.GetCsrfTokenAction())
 
-    async def get_credentials(
-        self, domain: str = ""
-    ) -> tuple[ActionHandle[ec.GetCredentialsEcho], ...]:
+    async def get_credentials(self, domain: str = "") -> ActionHandleGroup[ec.GetCredentialsEcho]:
         return await self.call_output(ac.GetCredentialsAction(domain))
 
-    async def get_record(
-        self, file: str, out_format: str
-    ) -> tuple[ActionHandle[ec.GetRecordEcho], ...]:
+    async def get_record(self, file: str, out_format: str) -> ActionHandleGroup[ec.GetRecordEcho]:
         return await self.call_output(ac.GetRecordAction(file, out_format))
 
-    async def get_image(self, file: str) -> tuple[ActionHandle[ec.GetImageEcho], ...]:
+    async def get_image(self, file: str) -> ActionHandleGroup[ec.GetImageEcho]:
         return await self.call_output(ac.GetImageAction(file))
 
-    async def can_send_image(self) -> tuple[ActionHandle[ec.CanSendImageEcho], ...]:
+    async def can_send_image(self) -> ActionHandleGroup[ec.CanSendImageEcho]:
         return await self.call_output(ac.CanSendImageAction())
 
-    async def can_send_record(self) -> tuple[ActionHandle[ec.CanSendRecordEcho], ...]:
+    async def can_send_record(self) -> ActionHandleGroup[ec.CanSendRecordEcho]:
         return await self.call_output(ac.CanSendRecordAction())
 
-    async def get_status(self) -> tuple[ActionHandle[ec.GetStatusEcho], ...]:
+    async def get_status(self) -> ActionHandleGroup[ec.GetStatusEcho]:
         return await self.call_output(ac.GetStatusAction())
 
-    async def get_version_info(self) -> tuple[ActionHandle[ec.GetVersionInfoEcho], ...]:
+    async def get_version_info(self) -> ActionHandleGroup[ec.GetVersionInfoEcho]:
         return await self.call_output(ac.GetVersionInfoAction())
 
-    async def set_restart(self, delay: int = 0) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    async def set_restart(self, delay: int = 0) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.SetRestartAction(delay))
 
-    async def clean_cache(self) -> tuple[ActionHandle[ec.EmptyEcho | None], ...]:
+    async def clean_cache(self) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.CleanCacheAction())

@@ -3,17 +3,16 @@ from __future__ import annotations
 import asyncio
 from asyncio import create_task
 from contextlib import contextmanager
-from dataclasses import dataclass, field
 from time import time_ns
 
 from typing_extensions import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
-    Coroutine,
+    AsyncIterator,
     Generator,
     Generic,
     Hashable,
+    Iterator,
     Literal,
     LiteralString,
     Self,
@@ -22,14 +21,11 @@ from typing_extensions import (
     cast,
 )
 
-from ..ctx import ActionManualSignalCtx, Context
-from ..exceptions import AdapterError
+from ..ctx import ActionAutoExecCtx
+from ..exceptions import ActionHandleError
 from ..io.base import AbstractOutSource
-from ..log.report import log_exc
 from ..mixin import AttrReprMixin, FlagMixin
-from ..typ.base import T
 from ..typ.cls import BetterABC, abstractattr
-from ..utils.base import to_coro
 from ..utils.common import get_id
 from .content import Content
 
@@ -122,7 +118,6 @@ class Echo(AttrReprMixin, FlagMixin):
     :ivar bool ok: 回应是否成功
     :ivar int status: 回应状态码
     :ivar str prompt: 回应提示语
-    :ivar Any data: 回应数据
     """
 
     def __init__(
@@ -131,30 +126,88 @@ class Echo(AttrReprMixin, FlagMixin):
         id: str = "",
         protocol: LiteralString | None = None,
         scope: Hashable | None = None,
-        ok: bool = True,
         status: int = 0,
         prompt: str = "",
-        data: Any = None,
     ) -> None:
         super().__init__()
         self.time = time_ns() / 1e9 if time == -1 else time
         self.id = get_id() if id == "" else id
         self.protocol = protocol
         self.scope = scope
-        self.ok = ok
         self.status = status
         self.prompt = prompt
-        self.data = data
 
 
 ActionT = TypeVar("ActionT", bound=Action)
 EchoT = TypeVar("EchoT", bound=Echo)
 
 
-ActionRetT = TypeVar("ActionRetT", bound=Echo | None)
+class ActionHandleGroup(Generic[EchoT]):
+    def __init__(self, *handles: ActionHandle[EchoT]) -> None:
+        self._handles = handles
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(all: {len(self._handles)}, "
+            f"done: {len(tuple(h for h in self._handles if h.status == 'DONE'))})"
+        )
+
+    def __getitem__(self, idx: int) -> ActionHandle[EchoT]:
+        return self._handles[idx]
+
+    def __len__(self) -> int:
+        return len(self._handles)
+
+    def __iter__(self) -> Iterator[ActionHandle[EchoT]]:
+        return iter(self._handles)
+
+    async def __aiter__(self) -> AsyncIterator[tuple[EchoT | None, ActionHandle[EchoT]]]:
+        waits = (h._await_ret_self() for h in self._handles)
+        for fut in asyncio.as_completed(waits):
+            yield await fut
+
+    async def unwrap_iter(self) -> AsyncIterator[EchoT]:
+        waits = (h._await_ret_self() for h in self._handles)
+        for fut in asyncio.as_completed(waits):
+            echo, h = await fut
+            if echo is None:
+                raise ActionHandleError(
+                    "迭代获取行为操作的回应失败，迭代时出现为 None 的回应", handle=h
+                )
+            yield echo
+
+    def __await__(self) -> Generator[Any, Any, list[EchoT | None]]:
+        return self._await_all().__await__()
+
+    async def unwrap(self, idx: int) -> EchoT:
+        handle = self._handles[idx]
+        echo = await handle
+        if echo is None:
+            raise ActionHandleError(
+                f"对行为操作 {self.unwrap.__name__} 失败，因为操作的回应为 None", handle=handle
+            )
+        return echo
+
+    async def unwrap_all(self) -> list[EchoT]:
+        echoes = await self._await_all()
+        for idx, e in enumerate(echoes):
+            if e is None:
+                raise ActionHandleError(
+                    f"对行为操作组 {self.unwrap_all.__name__} 失败，因为操作组的回应中有 None。",
+                    handle=self._handles[idx],
+                )
+        return cast(list[EchoT], echoes)
+
+    async def _await_all(self) -> list[EchoT | None]:
+        echoes = await asyncio.gather(*self._handles)
+        return echoes
+
+    def execute(self) -> None:
+        for h in self._handles:
+            h.execute()
 
 
-class ActionHandle(Generic[ActionRetT]):
+class ActionHandle(Generic[EchoT]):
     """行为操作句柄
 
     :ivar Action action: 操作包含的行为对象
@@ -170,136 +223,50 @@ class ActionHandle(Generic[ActionRetT]):
         echo_factory: "AbstractEchoFactory",
     ) -> None:
         self.action = action
-        self.status: Literal["PENDING", "EXECUTING", "FINISHED"] = "PENDING"
+        self.status: Literal["PENDING", "EXECUTING", "DONE"] = "PENDING"
         self.out_src = out_src
 
-        self._echo: ActionRetT
+        self._echo_fut: asyncio.Future[EchoT | None] = asyncio.Future()
         self._output_factory = output_factory
         self._echo_factory = echo_factory
-        self._done = asyncio.Event()
 
-        if not ActionManualSignalCtx().try_get():
+        if ActionAutoExecCtx().try_get(True):
             self.execute()
 
-    async def _wait(self) -> ActionRetT:
-        await self._done.wait()
-        return self._echo
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(status={self.status}, fut={self._echo_fut})"
 
-    def __await__(self) -> Generator[Any, Any, ActionRetT]:
-        """本对象实现 __await__ 接口，因此可等待。返回本操作对应的回应数据"""
-        return self._wait().__await__()
+    def __await__(self) -> Generator[Any, Any, EchoT | None]:
+        # 并发多次 await 是安全的，未触发执行任务时 await 也是安全的
+        return self._echo_fut.__await__()
+
+    async def _await_ret_self(self) -> tuple[EchoT | None, Self]:
+        echo = await self._echo_fut
+        return echo, self
+
+    def execute(self) -> Self:
+        if self.status != "PENDING":
+            raise RuntimeError("行为操作正在执行或执行完毕，不应该再执行")
+        self.status = "EXECUTING"
+        create_task(self._execute())
+        return self
 
     async def _execute(self) -> None:
         try:
             output_packet = await self._output_factory.create(self.action)
             echo_packet = await self.out_src.output(output_packet)
-            self._echo = cast(ActionRetT, await self._echo_factory.create(echo_packet))
-            self.status = "FINISHED"
-            self._done.set()
+            echo = await self._echo_factory.create(echo_packet)
+            self._echo_fut.set_result(echo)
         except Exception as e:
-            handle_name = f"{self.__class__.__module__}.{self.action.__class__.__qualname__}"
-            log_exc(e, msg=f"行为句柄 {handle_name} 执行时出现异常", obj=self.__dict__)
-
-    def execute(self) -> Self:
-        if self.status != "PENDING":
-            raise AdapterError("行为操作正在执行或执行完毕，不应该再执行")
-
-        self.status = "EXECUTING"
-        create_task(self._execute())
-        return self
-
-
-@dataclass
-class _ChainStep:
-    coros: Sequence[Coroutine]
-    ret_when: Literal["FIRST_COMPLETED", "FIRST_EXCEPTION", "ALL_COMPLETED"]
-    next: _ChainStep | None = None
-
-
-@dataclass(kw_only=True)
-class _ChainCtxStep(_ChainStep):  # type: ignore[override]
-    ctx_var: Context
-    ctx_val: Any
-    coros: Sequence[Coroutine] = field(default_factory=tuple)
-    ret_when: Literal["ALL_COMPLETED"] = "ALL_COMPLETED"
-
-
-class ActionChain:
-    """行为链"""
-
-    def __init__(self) -> None:
-        self._chain: list[_ChainStep] = []
-
-    def _add_step(self, step: _ChainStep) -> None:
-        if len(self._chain):
-            self._chain[-1].next = step
-        self._chain.append(step)
-
-    def unfold(self, ctx: Context[T], val: T) -> Self:
-        """指定链后续的步骤中在 `ctx` 类别的上下文中执行，上下文值为 `val`
-
-        :param ctx: 上下文类别
-        :param val: 上下文的值
-        :return: 自身，因此支持链式调用
-        """
-        self._add_step(_ChainCtxStep(ctx_var=ctx, ctx_val=val))
-        return self
-
-    async def _exec_handle(self, handles: Awaitable[tuple[ActionHandle, ...]]) -> None:
-        _handles = await handles
-        for handle in _handles:
-            handle.execute()
-        if len(_handles):
-            await asyncio.wait(map(create_task, map(to_coro, _handles)))
-
-    def add(
-        self,
-        *handles: Awaitable[tuple[ActionHandle, ...]],
-        ret_when: Literal["FIRST_COMPLETED", "FIRST_EXCEPTION", "ALL_COMPLETED"] = "ALL_COMPLETED",
-    ) -> Self:
-        """在链的步骤中添加一组行为
-
-        :param handles: 返回行为操作句柄的可等待对象
-        :param ret_when: 指定这一组行为的等待模式
-        :return: 自身，因此支持链式调用
-        """
-        coros = tuple(self._exec_handle(hs) for hs in handles)
-        self._add_step(_ChainStep(coros, ret_when))
-        return self
-
-    def sleep(self, interval: float) -> Self:
-        """
-        在链的步骤中添加指定时长的等待
-
-        :param interval: 等待时长
-        :return: 自身，因此支持链式调用
-        """
-        coros = (asyncio.sleep(interval),)
-        self._add_step(_ChainStep(coros, ret_when="ALL_COMPLETED"))
-        return self
-
-    async def _start(self, step: _ChainStep) -> None:
-        if isinstance(step, _ChainCtxStep):
-            with step.ctx_var.unfold(step.ctx_val):
-                if step.next:
-                    await self._start(step.next)
-            return
-
-        if len(step.coros):
-            await asyncio.wait(map(create_task, step.coros), return_when=step.ret_when)
-        if step.next:
-            await self._start(step.next)
-
-    async def run(self) -> None:
-        """顺序执行链的所有步骤"""
-        await self._start(self._chain[0])
+            self._echo_fut.set_exception(e)
+            if isinstance(e, asyncio.CancelledError):
+                raise
+        finally:
+            self.status = "DONE"
 
 
 @contextmanager
-def open_chain() -> Generator[ActionChain, None, None]:
-    """创建行为链的上下文管理器
-
-    :yield: 行为链对象
-    """
-    with ActionManualSignalCtx().unfold(True):
-        yield ActionChain()
+def lazy_action() -> Generator[None, None, None]:
+    """手动执行行为操作的上下文管理器"""
+    with ActionAutoExecCtx().unfold(False):
+        yield

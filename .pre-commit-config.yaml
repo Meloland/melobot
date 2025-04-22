@@ -25,7 +25,7 @@ repos:
         exclude: '^(tests/|scripts/|docs/)'
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.6.11
+    rev: 0.6.16
     hooks:
       - id: uv-export
         name: docs-export

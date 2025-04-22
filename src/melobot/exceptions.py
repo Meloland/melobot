@@ -1,4 +1,7 @@
-from typing_extensions import Any
+from typing_extensions import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .adapter.model import ActionHandle
 
 
 class BotException(Exception):
@@ -79,6 +82,14 @@ class AdapterError(BotException):
     """melobot 适配器异常"""
 
 
+class ActionHandleError(BotException):
+    """melobot 行为操作异常"""
+
+    def __init__(self, *args: object, handle: "ActionHandle") -> None:
+        super().__init__(*args)
+        self.handle = handle
+
+
 class DependError(BotException):
     """melobot 依赖注入异常"""
 
@@ -94,8 +105,8 @@ class DependBindError(DependError):
 class DynamicImpError(BotException):
     """melobot 动态导入组件异常"""
 
-    def __init__(self, *args: Any, name: str | None = None, path: str | None = None) -> None:
-        super().__init__(self, *args)
+    def __init__(self, *args: object, name: str | None = None, path: str | None = None) -> None:
+        super().__init__(*args)
         self.name = name
         self.path = path
 

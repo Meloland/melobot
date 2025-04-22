@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel
-from typing_extensions import Any, Literal, Mapping, TypedDict, cast
+from typing_extensions import Any, Generic, Literal, Mapping, TypedDict, TypeVar, cast
 
 from melobot.adapter import Echo as RootEcho
 
@@ -9,8 +9,10 @@ from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER
 from .event import _GroupMessageSender, _MessageSender
 from .segment import NodeGocqCustomSegment, NodeStdCustomSegment, Segment
 
+DataT = TypeVar("DataT", bound=Mapping[str, Any] | list | None)
 
-class Echo(RootEcho):
+
+class Echo(RootEcho, Generic[DataT]):
 
     class Model(BaseModel):
         status: Literal["ok", "async", "failed"]
@@ -19,17 +21,12 @@ class Echo(RootEcho):
 
     def __init__(self, **kv_pairs: Any) -> None:
         self._model = self.Model(**kv_pairs)
+        self.data: DataT | None = cast(DataT | None, self._model.data)
 
         _dic = kv_pairs.copy()
         self.action_type: str = _dic.pop(ACTION_TYPE_KEY_NAME)
         self.raw = _dic
-
-        super().__init__(
-            protocol=PROTOCOL_IDENTIFIER,
-            ok=self._model.status == "ok",
-            status=self._model.retcode,
-            data=self._model.data,
-        )
+        super().__init__(protocol=PROTOCOL_IDENTIFIER, status=self._model.retcode)
 
     def __repr__(self) -> str:
         return (
@@ -45,6 +42,11 @@ class Echo(RootEcho):
 
     def is_failed(self) -> bool:
         return self._model.status == "failed"
+
+    def result(self) -> DataT:
+        if self.data is None:
+            raise ValueError("回应中的响应数据为空")
+        return self.data
 
     @classmethod
     def resolve(cls, raw: dict[str, Any]) -> Echo:
@@ -114,24 +116,20 @@ class Echo(RootEcho):
                 return Echo(**raw)
 
 
-class EmptyEcho(Echo):
+class EmptyEcho(Echo[None]):
 
     class Model(Echo.Model):
         data: None
-
-    data: None
 
 
 class _SendMsgEchoData(TypedDict):
     message_id: int
 
 
-class SendMsgEcho(Echo):
+class SendMsgEcho(Echo[_SendMsgEchoData]):
 
     class Model(Echo.Model):
         data: _SendMsgEchoData | None
-
-    data: _SendMsgEchoData | None
 
 
 class _SendForwardMsgEchoData(TypedDict):
@@ -139,12 +137,10 @@ class _SendForwardMsgEchoData(TypedDict):
     forward_id: str
 
 
-class SendForwardMsgEcho(Echo):
+class SendForwardMsgEcho(Echo[_SendForwardMsgEchoData]):
 
     class Model(Echo.Model):
         data: _SendForwardMsgEchoData | None
-
-    data: _SendForwardMsgEchoData | None
 
 
 class _GetMsgEchoData(TypedDict):
@@ -159,12 +155,10 @@ class _GetMsgEchoDataInterface(_GetMsgEchoData):
     message: list[Segment]
 
 
-class GetMsgEcho(Echo):
+class GetMsgEcho(Echo[_GetMsgEchoDataInterface]):
 
     class Model(Echo.Model):
         data: _GetMsgEchoData | None
-
-    data: _GetMsgEchoDataInterface | None
 
     def __init__(self, **kv_pairs: Any) -> None:
         super().__init__(**kv_pairs)
@@ -196,12 +190,10 @@ class _GetForwardMsgEchoDataInterface(_GetForwardMsgEchoData):
     message: list[NodeGocqCustomSegment | NodeStdCustomSegment]
 
 
-class GetForwardMsgEcho(Echo):
+class GetForwardMsgEcho(Echo[_GetForwardMsgEchoDataInterface]):
 
     class Model(Echo.Model):
         data: _GetForwardMsgEchoData | None
-
-    data: _GetForwardMsgEchoDataInterface | None
 
     def __init__(self, **kv_pairs: Any) -> None:
         super().__init__(**kv_pairs)
@@ -224,12 +216,10 @@ class _GetLoginInfoEchoData(TypedDict):
     nickname: str
 
 
-class GetLoginInfoEcho(Echo):
+class GetLoginInfoEcho(Echo[_GetLoginInfoEchoData]):
 
     class Model(Echo.Model):
         data: _GetLoginInfoEchoData | None
-
-    data: _GetLoginInfoEchoData | None
 
 
 class _GetStrangerInfoEchoData(TypedDict):
@@ -239,12 +229,10 @@ class _GetStrangerInfoEchoData(TypedDict):
     age: int
 
 
-class GetStrangerInfoEcho(Echo):
+class GetStrangerInfoEcho(Echo[_GetStrangerInfoEchoData]):
 
     class Model(Echo.Model):
         data: _GetStrangerInfoEchoData | None
-
-    data: _GetStrangerInfoEchoData | None
 
 
 class _GetFriendListEchoElem(TypedDict):
@@ -253,12 +241,10 @@ class _GetFriendListEchoElem(TypedDict):
     remark: str
 
 
-class GetFriendListEcho(Echo):
+class GetFriendListEcho(Echo[list[_GetFriendListEchoElem]]):
 
     class Model(Echo.Model):
         data: list[_GetFriendListEchoElem] | None
-
-    data: list[_GetFriendListEchoElem] | None
 
 
 class _GetGroupInfoEchoData(TypedDict):
@@ -268,20 +254,16 @@ class _GetGroupInfoEchoData(TypedDict):
     max_member_count: int
 
 
-class GetGroupInfoEcho(Echo):
+class GetGroupInfoEcho(Echo[_GetGroupInfoEchoData]):
 
     class Model(Echo.Model):
         data: _GetGroupInfoEchoData | None
 
-    data: _GetGroupInfoEchoData | None
 
-
-class GetGroupListEcho(Echo):
+class GetGroupListEcho(Echo[list[_GetGroupInfoEchoData]]):
 
     class Model(Echo.Model):
         data: list[_GetGroupInfoEchoData] | None
-
-    data: list[_GetGroupInfoEchoData] | None
 
 
 class _GetGroupMemberInfoEchoData(TypedDict):
@@ -302,20 +284,16 @@ class _GetGroupMemberInfoEchoData(TypedDict):
     card_changeable: bool
 
 
-class GetGroupMemberInfoEcho(Echo):
+class GetGroupMemberInfoEcho(Echo[_GetGroupMemberInfoEchoData]):
 
     class Model(Echo.Model):
         data: _GetGroupMemberInfoEchoData | None
 
-    data: _GetGroupMemberInfoEchoData | None
 
-
-class GetGroupMemberListEcho(Echo):
+class GetGroupMemberListEcho(Echo[list[_GetGroupMemberInfoEchoData]]):
 
     class Model(Echo.Model):
         data: list[_GetGroupMemberInfoEchoData] | None
-
-    data: list[_GetGroupMemberInfoEchoData] | None
 
 
 class _CurrentTalkativeData(TypedDict):
@@ -342,36 +320,30 @@ class _GetGroupHonorInfoEchoData(TypedDict):
     emotion_list: list[_OtherListData] | None
 
 
-class GetGroupHonorInfoEcho(Echo):
+class GetGroupHonorInfoEcho(Echo[_GetGroupHonorInfoEchoData]):
 
     class Model(Echo.Model):
         data: _GetGroupHonorInfoEchoData | None
-
-    data: _GetGroupHonorInfoEchoData | None
 
 
 class _GetCookiesEchoData(TypedDict):
     cookies: str
 
 
-class GetCookiesEcho(Echo):
+class GetCookiesEcho(Echo[_GetCookiesEchoData]):
 
     class Model(Echo.Model):
         data: _GetCookiesEchoData | None
-
-    data: _GetCookiesEchoData | None
 
 
 class _GetCsrfTokenEchoData(TypedDict):
     token: int
 
 
-class GetCsrfTokenEcho(Echo):
+class GetCsrfTokenEcho(Echo[_GetCsrfTokenEchoData]):
 
     class Model(Echo.Model):
         data: _GetCsrfTokenEchoData | None
-
-    data: _GetCsrfTokenEchoData | None
 
 
 class _GetCredentialsEchoData(TypedDict):
@@ -379,60 +351,50 @@ class _GetCredentialsEchoData(TypedDict):
     csrf_token: int
 
 
-class GetCredentialsEcho(Echo):
+class GetCredentialsEcho(Echo[_GetCredentialsEchoData]):
 
     class Model(Echo.Model):
         data: _GetCredentialsEchoData | None
-
-    data: _GetCredentialsEchoData | None
 
 
 class _GetRecordEchoData(TypedDict):
     file: str
 
 
-class GetRecordEcho(Echo):
+class GetRecordEcho(Echo[_GetRecordEchoData]):
 
     class Model(Echo.Model):
         data: _GetRecordEchoData | None
-
-    data: _GetRecordEchoData | None
 
 
 class _GetImageEchoData(TypedDict):
     file: str
 
 
-class GetImageEcho(Echo):
+class GetImageEcho(Echo[_GetImageEchoData]):
 
     class Model(Echo.Model):
         data: _GetImageEchoData | None
-
-    data: _GetImageEchoData | None
 
 
 class _CanSendImageEchoData(TypedDict):
     yes: bool
 
 
-class CanSendImageEcho(Echo):
+class CanSendImageEcho(Echo[_CanSendImageEchoData]):
 
     class Model(Echo.Model):
         data: _CanSendImageEchoData | None
-
-    data: _CanSendImageEchoData | None
 
 
 class _CanSendRecordEchoData(TypedDict):
     yes: bool
 
 
-class CanSendRecordEcho(Echo):
+class CanSendRecordEcho(Echo[_CanSendRecordEchoData]):
 
     class Model(Echo.Model):
         data: _CanSendRecordEchoData | None
-
-    data: _CanSendRecordEchoData | None
 
 
 class _GetStatusEchoData(TypedDict):
@@ -440,7 +402,7 @@ class _GetStatusEchoData(TypedDict):
     good: bool
 
 
-class GetStatusEcho(Echo):
+class GetStatusEcho(Echo[_GetStatusEchoData]):
 
     class Model(Echo.Model):
         data: _GetStatusEchoData | None
@@ -455,8 +417,6 @@ class GetStatusEcho(Echo):
             if k not in cast(_GetStatusEchoData, self._model.data):
                 cast(_GetStatusEchoData, self.data)[k] = v  # type: ignore[literal-required]
 
-    data: _GetStatusEchoData | None
-
 
 class _GetVersionInfoEchoData(TypedDict):
     app_name: str
@@ -464,7 +424,7 @@ class _GetVersionInfoEchoData(TypedDict):
     protocol_version: str
 
 
-class GetVersionInfoEcho(Echo):
+class GetVersionInfoEcho(Echo[_GetVersionInfoEchoData]):
 
     class Model(Echo.Model):
         data: _GetVersionInfoEchoData | None
@@ -478,5 +438,3 @@ class GetVersionInfoEcho(Echo):
         for k, v in kv_pairs["data"].items():
             if k not in cast(_GetVersionInfoEchoData, self._model.data):
                 cast(_GetVersionInfoEchoData, self.data)[k] = v  # type: ignore[literal-required]
-
-    data: _GetVersionInfoEchoData | None

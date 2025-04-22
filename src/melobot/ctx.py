@@ -74,7 +74,7 @@ class Context(Generic[T], metaclass=SingletonMeta):
     def try_get(self, default: None = None) -> T | None: ...
 
     def try_get(self, default: Any = None) -> T | Any:
-        """与 :func:`get` 类似，但不存在上下文对象时返回 `None`
+        """与 :func:`get` 类似，但不存在上下文对象时返回默认值
 
         :param default: 上下文值不存在时返回的默认值
         :return: 上下文对象的上下文值
@@ -288,9 +288,9 @@ class EventCompletion:
         self.under_session = under_session
 
 
-class ActionManualSignalCtx(Context[bool]):
+class ActionAutoExecCtx(Context[bool]):
     def __init__(self) -> None:
-        super().__init__("MELOBOT_ACTION_MANUAL_SIGNAL", AdapterError)
+        super().__init__("MELOBOT_ACTION_AUTO_EXEC", AdapterError)
 
 
 class ParseArgsCtx(Context["AbstractParseArgs"]):

@@ -11,7 +11,7 @@ from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
 from ..log.report import log_exc
-from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
+from ..typ.base import AsyncCallable, SyncOrAsyncCallable
 from ..utils.base import to_async
 from ..utils.common import get_obj_name
 from .graph import DAGMapping

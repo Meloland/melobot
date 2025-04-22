@@ -8,14 +8,13 @@ from .base import (
 from .content import Content
 from .model import (
     Action,
-    ActionChain,
     ActionHandle,
-    ActionRetT,
+    ActionHandleGroup,
     ActionT,
     Echo,
     EchoT,
     Event,
     EventT,
     TextEvent,
-    open_chain,
+    lazy_action,
 )
