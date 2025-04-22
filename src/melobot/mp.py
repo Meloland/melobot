@@ -11,6 +11,7 @@ import multiprocessing.util as util_mod
 import sys
 from functools import wraps
 from multiprocessing import current_process
+from pathlib import Path
 
 from typing_extensions import Any
 
@@ -18,6 +19,7 @@ from ._imp import ALL_EXTS
 
 _PNAME_PREFIX = "MeloBot_MP"
 MP_MODULE_NAME = "__mp_main__"
+ROOT_MODULE_DIR = Path(__file__).parent.parent.resolve().as_posix()
 
 
 def in_main_process() -> bool:
@@ -48,7 +50,10 @@ def _wrapped_get_command_line(**kwargs: Any) -> Any:
             "%s=%r" % item for item in kwargs.items()
         ]
     else:
-        prog = "import melobot.mp; from multiprocessing.spawn import spawn_main; spawn_main(%s)"
+        prog = (
+            f"import sys; sys.path.insert(0, {ROOT_MODULE_DIR!r}); import melobot.mp; "
+            "from multiprocessing.spawn import spawn_main; spawn_main(%s)"
+        )
         prog %= ", ".join("%s=%r" % item for item in kwargs.items())
         opts = util_mod._args_from_interpreter_flags()  # type: ignore[attr-defined]
         return [spawn_mod.get_executable()] + opts + ["-c", prog, "--multiprocessing-fork"]
