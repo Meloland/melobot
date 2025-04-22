@@ -61,6 +61,7 @@ async def test_process_pool():
         ares = pool.apply_async(func, (2000,))
         res = ares.get(timeout=10)
         assert res == 2001000
+        pool.terminate()
 
 
 async def test_process_pool_executor():
@@ -70,4 +71,5 @@ async def test_process_pool_executor():
         res = await asyncio.gather(
             *tuple(loop.run_in_executor(pool, func, TEST_S) for _ in range(10))
         )
+        pool.shutdown(wait=False)
     assert res[0][-1] == TEST_S

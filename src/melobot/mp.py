@@ -40,6 +40,7 @@ def _wrapped_get_preparation_data(name: str) -> dict:
             raise RuntimeError(
                 f"子进程中 __main__ 模块从名称 {mod_name!r} 加载，这种情况下无法安全生成子进程"
             )
+        data.pop("init_main_from_name", None)
         data["init_main_from_path"] = _P_STATUS[name]["entry"]
     return data
 
