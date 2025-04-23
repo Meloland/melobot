@@ -340,8 +340,8 @@
 <span class="c1"># 如何等待返回的数据呢？</span>
 </pre></div>
 </div>
-<p>此时就需要行为句柄以及行为句柄组了。melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.generic.send_text" title="melobot.adapter.generic.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a>），都会返回行为句柄。</p>
-<p>melobot 是支持多源输出的。一个行为操作在通过行为操作函数创建后，会自动发送给匹配的协议适配器（一个或多个），随后适配器会根据已有的输出源，以及输出源过滤规则，让指定的输出源执行（输出）行为操作。而每个行为操作函数，会返回一个“行为操作句柄组”对象，用于控制输出过程。</p>
+<p>此时就需要行为句柄和行为句柄组了。melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.generic.send_text" title="melobot.adapter.generic.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a>），都会返回行为句柄。</p>
+<p>melobot 是支持多源输出的。一个行为操作在通过行为操作函数创建后，会自动发送给匹配的协议适配器（一类或多类，当然同一协议只能有一个适配器），随后适配器会根据已有的输出源，以及输出源过滤规则，让指定的输出源执行行为操作。而每个行为操作函数，会返回一个“行为操作句柄组”对象，用于控制操作执行过程。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionHandleGroup</span><span class="p">,</span> <span class="n">Echo</span>
 
 <span class="c1"># melobot 支持多个输出源，因此返回多个句柄组成的句柄组</span>
@@ -357,7 +357,7 @@
     <span class="n">handle</span><span class="p">:</span> <span class="n">ActionHandle</span>
     <span class="o">...</span>
 
-<span class="c1"># 获取句柄包含的行为草组和对应的输出源</span>
+<span class="c1"># 获取句柄包含的行为对象和对应的输出源</span>
 <span class="n">action</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">action</span>
 <span class="n">out_src</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">out_src</span>
 
@@ -394,10 +394,15 @@
 <span class="k">await</span> <span class="p">(</span><span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>对于 OneBot 的回应，拥有 <code class="docutils literal notranslate"><span class="pre">data</span></code> 属性，与 OneBot 标准中 echo 的 <code class="docutils literal notranslate"><span class="pre">data</span></code> 一致。</p>
+<p>对于 OneBot 的回应对象，可以使用 <code class="docutils literal notranslate"><span class="pre">data</span></code> 属性或 <code class="docutils literal notranslate"><span class="pre">result</span></code> 方法获取装有响应数据的字典。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 访问需要的响应数据（data 字段与 OneBot 中的数据结构一致）</span>
 <span class="c1"># 依然建议使用下标访问，因为会有精确的类型注解</span>
-<span class="n">msg_id</span> <span class="o">=</span> <span class="n">echo</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;message_id&#39;</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">echo</span><span class="o">.</span><span class="n">is_ok</span><span class="p">():</span>
+    <span class="c1"># OneBot 的 data 字段也可能为空</span>
+    <span class="c1"># 使用 OneBot Echo 独有的 result 方法来确保非空</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">echo</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">echo</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+    <span class="n">msg_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;message_id&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>关于回应对象，更多请参考 API 文档中的内容：<a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-echo"><span class="std std-ref">OneBot v11 回应</span></a></p>
@@ -422,7 +427,7 @@
     <span class="n">handle</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>特别注意：<strong>惰性行为作用域内，如果不执行 <code class="docutils literal notranslate"><span class="pre">execute</span></code> 就进行 await 就是死锁情况</strong>。但死锁在执行 <code class="docutils literal notranslate"><span class="pre">execute</span></code> 后会被解除。</p>
+<p>特别注意：<strong>惰性行为作用域内，如果不执行 <code class="docutils literal notranslate"><span class="pre">execute</span></code> 就进行 await 会导致死锁</strong>。但死锁在执行 <code class="docutils literal notranslate"><span class="pre">execute</span></code> 后会被解除。</p>
 </section>
 <section id="id2">
 <h2>自定义行为<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>

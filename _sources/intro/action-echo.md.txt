@@ -27,9 +27,9 @@ await adapter.get_group_list()
 # 如何等待返回的数据呢？
 ```
 
-此时就需要行为句柄以及行为句柄组了。melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 {func}`.send_text`），都会返回行为句柄。
+此时就需要行为句柄和行为句柄组了。melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 {func}`.send_text`），都会返回行为句柄。
 
-melobot 是支持多源输出的。一个行为操作在通过行为操作函数创建后，会自动发送给匹配的协议适配器（一个或多个），随后适配器会根据已有的输出源，以及输出源过滤规则，让指定的输出源执行（输出）行为操作。而每个行为操作函数，会返回一个“行为操作句柄组”对象，用于控制输出过程。
+melobot 是支持多源输出的。一个行为操作在通过行为操作函数创建后，会自动发送给匹配的协议适配器（一类或多类，当然同一协议只能有一个适配器），随后适配器会根据已有的输出源，以及输出源过滤规则，让指定的输出源执行行为操作。而每个行为操作函数，会返回一个“行为操作句柄组”对象，用于控制操作执行过程。
 
 ```python
 from melobot.adapter import ActionHandle, ActionHandleGroup, Echo
@@ -47,7 +47,7 @@ for handle in handle_group:
     handle: ActionHandle
     ...
 
-# 获取句柄包含的行为草组和对应的输出源
+# 获取句柄包含的行为对象和对应的输出源
 action = handle.action
 out_src = handle.out_src
 
@@ -86,12 +86,17 @@ async for echo in handle_group.unwrap_iter():
 await (await adapter.send(...))
 ```
 
-对于 OneBot 的回应，拥有 `data` 属性，与 OneBot 标准中 echo 的 `data` 一致。
+对于 OneBot 的回应对象，可以使用 `data` 属性或 `result` 方法获取装有响应数据的字典。
 
 ```python
 # 访问需要的响应数据（data 字段与 OneBot 中的数据结构一致）
 # 依然建议使用下标访问，因为会有精确的类型注解
-msg_id = echo.data['message_id']
+if echo.is_ok():
+    # OneBot 的 data 字段也可能为空
+    # 使用 OneBot Echo 独有的 result 方法来确保非空
+    data: dict | None = echo.data
+    data: dict = echo.result()
+    msg_id = data['message_id']
 ```
 
 关于回应对象，更多请参考 API 文档中的内容：[OneBot v11 回应](onebot_v11_echo)
@@ -122,7 +127,7 @@ with lazy_action():
     handle.execute()
 ```
 
-特别注意：**惰性行为作用域内，如果不执行 `execute` 就进行 await 就是死锁情况**。但死锁在执行 `execute` 后会被解除。
+特别注意：**惰性行为作用域内，如果不执行 `execute` 就进行 await 会导致死锁**。但死锁在执行 `execute` 后会被解除。
 
 ## 自定义行为
 
