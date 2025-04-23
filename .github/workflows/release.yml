@@ -20,4 +20,6 @@ jobs:
           version: "0.6.9"
 
       - name: Publish to PyPI
-        run: uv publish
+        run: |
+          uv build
+          uv publish
