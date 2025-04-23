@@ -115,7 +115,6 @@ class Echo(AttrReprMixin, FlagMixin):
     :ivar str id: id 标识
     :ivar typing.LiteralString | None protocol: 遵循的协议，为空则协议无关
     :ivar typing.Hashable | None scope: 所在的域，可空
-    :ivar bool ok: 回应是否成功
     :ivar int status: 回应状态码
     :ivar str prompt: 回应提示语
     """
@@ -143,6 +142,8 @@ EchoT = TypeVar("EchoT", bound=Echo)
 
 
 class ActionHandleGroup(Generic[EchoT]):
+    """行为操作句柄组"""
+
     def __init__(self, *handles: ActionHandle[EchoT]) -> None:
         self._handles = handles
 
@@ -267,6 +268,9 @@ class ActionHandle(Generic[EchoT]):
 
 @contextmanager
 def lazy_action() -> Generator[None, None, None]:
-    """手动执行行为操作的上下文管理器"""
+    """手动执行行为操作的上下文管理器
+
+    展开一个行为操作不自动执行的上下文，适用于需要手动干预行为操作执行时机的场景
+    """
     with ActionAutoExecCtx().unfold(False):
         yield

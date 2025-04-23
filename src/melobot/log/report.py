@@ -75,6 +75,12 @@ set_loop_exc_handler(_log_loop_exception)
 
 
 def log_exc(exc: BaseException, msg: str, obj: Any = None) -> None:
+    """使用 melobot 内部的异常报告日志器报告异常
+
+    :param exc: 异常对象
+    :param msg: 日志消息
+    :param obj: 需要打印的相关变量，为空时不打印
+    """
     try:
         raise exc
     except BaseException:

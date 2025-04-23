@@ -151,6 +151,44 @@ class LazyLoader:
 def lazy_load(
     namespace: dict[str, Any], location: str, item: str | None = None, alias: str | None = None
 ) -> str:
+    """惰性加载模块的方法
+
+    指定的模块或者对象，在发生第一次属性访问时触发加载，并同步修改 `namespace` 字典中对应键值。
+
+    在完成加载后与常规的 import 语句效果无异，但需要略微注意未加载时的一些行为。
+    例如未加载时 `print` 对象，行为可能就不一致。
+
+    .. code:: python
+
+        # 典型的使用方法：
+        if TYPE_CHECKING:
+            import matplotlib as mpl
+            import matplotlib.font_manager as fm
+            import PIL
+            from matplotlib import pyplot as plt
+        else:
+            _g = globals()
+            lazy_load(_g, "matplotlib", alias="mpl")
+            lazy_load(_g, "matplotlib.font_manager", alias="fm")
+            lazy_load(_g, "PIL")
+            lazy_load(_g, "matplotlib", item="pyplot", alias="plt")
+
+    假设有导入语句：
+
+    `import xxx`
+
+    `import xxx as zzz`
+
+    `from xxx import yyy`
+
+    `from xxx import yyy as zzz`
+
+    :param namespace: 当前模块的 globals() 字典
+    :param location: import 语句中 `xxx` 的部分
+    :param item: import 语句中 `yyy` 的部分，无则为空
+    :param alias: import 语句中 `zzz` 的部分，无则为空
+    :return: 惰性加载对象的 repr 字符串，用于调试
+    """
     return repr(LazyLoader(namespace, location, item, alias))
 
 

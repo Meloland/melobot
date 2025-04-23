@@ -710,6 +710,12 @@ def _excepthook(
 
 
 def install_exc_hook() -> None:
+    """安装 melobot 默认异常格式化的钩子
+
+    在 Jupyter 或 IPython 中使用时，需要手动调用该方法安装
+
+    但在普通的脚本环境中，导入时已自动安装
+    """
 
     def ipy_excepthook_closure(ip: Any) -> None:
         # 以下代码，由 rich 模块源代码修改而来
@@ -757,8 +763,17 @@ if EXC_FMT_FALLBACK not in os.environ:
 
 
 def uninstall_exc_hook() -> None:
+    """卸载 melobot 默认异常格式化的钩子
+
+    在任意环境中皆可使用
+    """
     sys.excepthook = _ORIGINAL_EXC_HOOK
 
 
 def set_traceback_style(hide_internal: bool = True, flip: bool = False) -> None:
+    """melobot 默认异常格式化启用时，设置异常回溯栈的格式化风格
+
+    :param hide_internal: 是否隐藏 melobot 内部的栈帧
+    :param flip: 是否折叠异常栈帧，只显示文件和行号，而不是具体行的代码
+    """
     _get_exc_fmtter().set_style(hide_internal, flip)

@@ -35,13 +35,10 @@ async def echo_hi() -> None:
 test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 
 if __name__ == "__main__":
-    (
-        Bot(__name__)
-        .add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
-        .load_plugin(test_plugin)
-        .run()
-    )
-
+    bot = Bot(__name__)
+    bot.add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
+    bot.load_plugin(test_plugin)
+    bot.run()
 ```
 
 运行后，在机器人加入的任何一个群聊中，或与机器人的私聊中，输入以 `.sayhi` 起始的消息，即可回复：`Hello, melobot!`。
@@ -61,8 +58,7 @@ async def echo_hi() -> None:
 由于 melobot 是基于插件化管理的，随后通过 {class}`.PluginPlanner` 创建一个插件管理器。插件管理器将被 melobot 用于创建插件。
 
 ```python
-# version 描述插件的版本
-# flows 填入刚才的事件处理方法
+# version 描述插件的版本，flows 填入刚才的事件处理方法
 test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 ```
 
@@ -74,12 +70,10 @@ test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 5. 启动 bot
 
 ```python
-(
-    Bot(__name__)
-    .add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
-    .load_plugin(test_plugin)
-    .run()
-)
+bot = Bot(__name__)
+bot.add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
+bot.load_plugin(test_plugin)
+bot.run()
 ```
 
 ```{admonition} 相关知识

@@ -102,6 +102,8 @@ class GenericLogger(BetterABC):
 
 @singleton
 class NullLogger(_Logger, GenericLogger):
+    """空日志器，自动丢弃所有日志记录请求"""
+
     def __init__(self) -> None:
         super().__init__("__MELO_EMPTYLOGGER__", CRITICAL)
         self.addHandler(logging.NullHandler())

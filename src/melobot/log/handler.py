@@ -229,7 +229,7 @@ class RecordRender:
         legacy = log_info.legacy
         msg = log_info.msg
         obj = (
-            self._to_easy_pickable(log_info.obj)
+            self._to_easy_serialize(log_info.obj)
             if log_info.obj is not VoidType.VOID
             else VoidType.VOID
         )
@@ -275,7 +275,7 @@ class RecordRender:
         else:
             record.colored_obj, record.obj = await self.runner.run(get_rich_object, obj)
 
-    def _to_easy_pickable(self, obj: Any) -> Any:
+    def _to_easy_serialize(self, obj: Any) -> Any:
         if isinstance(obj, str):
             return obj
         if isinstance(obj, (bytes, int, float, complex, bytearray)):
@@ -283,7 +283,7 @@ class RecordRender:
         if obj in (None, True, False, Ellipsis, NotImplemented):
             return obj
         if isinstance(obj, (tuple, list, set)):
-            return type(obj)(map(self._to_easy_pickable, obj))
+            return type(obj)(map(self._to_easy_serialize, obj))
         if isinstance(obj, dict):
-            return {self._to_easy_pickable(k): self._to_easy_pickable(v) for k, v in obj.items()}
+            return {self._to_easy_serialize(k): self._to_easy_serialize(v) for k, v in obj.items()}
         return str(obj)

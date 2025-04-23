@@ -103,12 +103,21 @@ class LogReflector:
 
 
 def set_global_logger(logger: GenericLogger | None) -> None:
+    """设置顶级域对应的日志器
+
+    :param logger: 日志器，可以为空
+    """
     LogReflector.set_global_logger(logger)
 
 
 def set_module_logger(
     module: str | PathLike[str] | ModuleType, logger: GenericLogger | None
 ) -> None:
+    """设置模块域对应的日志器
+
+    :param module: 模块名、模块相对或绝对路径、模块对象
+    :param logger: 日志器，可以为空
+    """
     LogReflector.set_module_logger(module, logger)
 
 

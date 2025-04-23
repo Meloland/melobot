@@ -112,6 +112,8 @@ _P_STATUS: dict[str, _ProcessStatus] = {}
 
 
 class SpawnProcess(get_context("spawn").Process):  # type: ignore[name-defined,misc]
+    """melobot 进程类（使用 spawn 模式生成子进程）"""
+
     def __init__(
         self,
         entry: str | PathLike[str] | Path,
@@ -123,6 +125,16 @@ class SpawnProcess(get_context("spawn").Process):  # type: ignore[name-defined,m
         *,
         daemon: bool | None = None,
     ) -> None:
+        """初始化一个子进程对象
+
+        :param entry: 子进程的入口模块（必须是文件）
+        :param argv: 子进程的 `argv`，为空时使用默认设置
+        :param target: 子进程的目标函数
+        :param name: 子进程的标识名称，注意真实的进程名称与此参数不相等，只是包含
+        :param args: 目标函数的参数
+        :param kwargs: 目标函数的参数
+        :param daemon: 是否是守护进程
+        """
         if not in_main_process():
             raise RuntimeError(
                 "不应该在 melobot 管理的子进程中继续创建子进程。"
@@ -190,6 +202,8 @@ class SpawnContext(_SpawnContext):
 
 
 class SpawnProcessPool(Pool):
+    """melobot 进程池类（使用 spawn 模式生成子进程）"""
+
     def __init__(
         self,
         entry: str | PathLike[str] | Path,
@@ -198,7 +212,16 @@ class SpawnProcessPool(Pool):
         initializer: Callable[..., object] | None = None,
         initargs: Iterable[Any] | None = None,
         maxtasksperchild: int | None = None,
-    ):
+    ) -> None:
+        """初始化一个进程池对象
+
+        :param entry: 所有子进程的入口模块（必须是文件）
+        :param argv: 所有子进程的 `argv`，为空时使用默认设置
+        :param processes: 进程数
+        :param initializer: 初始化函数
+        :param initargs: 初始化函数的参数
+        :param maxtasksperchild: 每个子进程执行的任务数，达到此数时销毁并生成新进程
+        """
         if initargs is None:
             init_args = ()
         super().__init__(
@@ -207,6 +230,8 @@ class SpawnProcessPool(Pool):
 
 
 class SpawnProcessPoolExecutor(_ProcessPoolExecutor):
+    """melobot 进程池执行器类（使用 spawn 模式生成子进程）"""
+
     def __init__(
         self,
         entry: str | PathLike[str] | Path,
@@ -214,7 +239,15 @@ class SpawnProcessPoolExecutor(_ProcessPoolExecutor):
         max_workers: int | None = None,
         initializer: Callable[..., object] | None = None,
         initargs: Iterable[Any] | None = None,
-    ):
+    ) -> None:
+        """初始化一个进程池执行器对象
+
+        :param entry: 所有子进程的入口模块（必须是文件）
+        :param argv: 所有子进程的 `argv`，为空时使用默认设置
+        :param max_workers: worker（进程）的数量
+        :param initializer: 初始化函数
+        :param initargs: 初始化函数的参数
+        """
         if initargs is None:
             init_args = ()
         super().__init__(max_workers, SpawnContext(entry, argv), initializer, init_args)
@@ -240,6 +273,15 @@ class PBox:
         module: str | None = None,
         entry: str | PathLike[str] | Path | None = None,
     ) -> None:
+        """pickle 包装器
+
+        更改或指定需要 pickle 的对象的来源
+
+        :param value: 和 `name` 二选一，指定需要 pickle 的对象，默认值为一个哨兵对象（表示无值）
+        :param name: 和 `value` 二选一，指定需要 pickle 的对象的名称
+        :param module: pickle 的对象的来源模块名，为空时映射到进程的入口模块
+        :param entry: pickle 的对象的来源模块的路径，如果为空则只依赖于模块名进行加载
+        """
         if value is _EMPTY and name is None:
             raise ValueError("值参数和名称参数不能同时为空")
         if value is not _EMPTY and name is not None:

@@ -66,7 +66,7 @@ async def test_process_pool():
 
 async def test_process_pool_executor():
     func = PBox(name="get_rich_str", module="mp.submod2", entry=SUBMOD2_PATH)
-    with ProcessPoolExecutor(entry=EMPTY_ENTRY_PATH, max_workers=4) as pool:
+    with ProcessPoolExecutor(entry=EMPTY_ENTRY_PATH, max_workers=2) as pool:
         loop = asyncio.get_running_loop()
         res = await asyncio.gather(
             *tuple(loop.run_in_executor(pool, func, TEST_S) for _ in range(10))

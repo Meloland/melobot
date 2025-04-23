@@ -175,10 +175,21 @@ class Flow:
         return new_flow
 
     def start(self, node: FlowNode) -> FlowNode:
+        """设置处理流起始结点的装饰器
+
+        :param node: 起始结点
+        :return: 起始结点
+        """
         self.graph.add(node, None)
         return node
 
     def after(self, node: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        """在处理流某一参照结点后，添加新结点的装饰器函数
+
+        :param node: 参照结点
+        :return: 被装饰的结点
+        """
+
         def after_wrapped(next_node: FlowNode) -> FlowNode:
             self.graph.add(node, next_node)
             return next_node
@@ -186,6 +197,12 @@ class Flow:
         return after_wrapped
 
     def before(self, node: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        """在处理流某一参照结点前，添加新结点的装饰器函数
+
+        :param node: 参照结点
+        :return: 被装饰的结点
+        """
+
         def before_wrapped(pre_node: FlowNode) -> FlowNode:
             self.graph.add(pre_node, node)
             return pre_node
@@ -193,6 +210,11 @@ class Flow:
         return before_wrapped
 
     def merge(self, *nodes: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        """将处理流某几结点的控制流，在当前结点合并的装饰器函数
+
+        :return: 被装饰的结点
+        """
+
         def merge_wrapped(next_node: FlowNode) -> FlowNode:
             for node in nodes:
                 self.graph.add(node, next_node)
@@ -201,6 +223,11 @@ class Flow:
         return merge_wrapped
 
     def fork(self, *nodes: FlowNode) -> Callable[[FlowNode], FlowNode]:
+        """将处理流当前结点的控制流，分流到某几个结点的装饰器函数
+
+        :return: 被装饰的结点
+        """
+
         def fork_wrapped(pre_node: FlowNode) -> FlowNode:
             for node in nodes:
                 self.graph.add(pre_node, node)

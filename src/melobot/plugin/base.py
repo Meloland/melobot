@@ -59,11 +59,11 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
 
             不要包含目录路径，这永远没有效果
 
-            建议使用 :mod:`glob.glob` 或 :meth:`pathlib.Path.glob` 方法获取路径，而不是手动拼接或查找
+            建议使用 :func:`glob.glob` 或 :meth:`pathlib.Path.glob` 方法获取路径，而不是手动拼接或查找
 
             一个模块在加载时，其向上到插件目录的所有父目录的 `__init__.{pyc,pyd,so,py...}` 都会被自动加载，
-            此时不需要手动提供 `__init__.{pyc,pyd,so,py...}` 文件。加载时的扩展名优先级请查看
-            :data:`melobot.MODULE_EXTS`（优先级从高到低，且与操作系统平台有关）
+            此时不需要手动提供 `__init__.{pyc,pyd,so,py...}` 文件。加载时的扩展名优先级请查看 :data:`~.MODULE_EXTS`
+            （优先级从高到低，且与操作系统平台有关）
 
             如果一个目录中只有 `__init__.{pyc,pyd,so,py...}` 文件，此时只能手动提供
 

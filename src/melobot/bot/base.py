@@ -387,6 +387,10 @@ class Bot(HookMixin[BotLifeSpan]):
         self._rip_signal.set()
 
     def is_restartable(self) -> bool:
+        """判断当前 bot 是否可以重启
+
+        :return: 是否可以重启
+        """
         if len(self.__class__.__instances__) > 1:
             return False
         return self._runner.is_restartable()
