@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.mixin - melobot 3.1.3</title>
+        <title>melobot.mixin - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -253,6 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">melobot.mixin</a></li>
 </ul>
@@ -317,18 +318,6 @@
         <article role="main" id="furo-main-content">
           <section id="melobot-mixin">
 <h1>melobot.mixin<a class="headerlink" href="#melobot-mixin" title="Link to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="melobot.mixin.LogMixin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.mixin.</span></span><span class="sig-name descname"><span class="pre">LogMixin</span></span><a class="reference internal" href="../_modules/melobot/mixin.html#LogMixin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.LogMixin" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>日志混合类</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.mixin.LogMixin.logger">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="melobot.log.html#melobot.log.GenericLogger" title="melobot.log.base.GenericLogger"><span class="pre">GenericLogger</span></a></em><a class="headerlink" href="#melobot.mixin.LogMixin.logger" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.mixin.FlagMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.mixin.</span></span><span class="sig-name descname"><span class="pre">FlagMixin</span></span><a class="reference internal" href="../_modules/melobot/mixin.html#FlagMixin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.FlagMixin" title="Link to this definition">¶</a></dt>
@@ -482,6 +471,24 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="melobot.mixin.HookMixin.get_hook_evoke_time">
+<span class="sig-name descname"><span class="pre">get_hook_evoke_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HookEnumT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/melobot/mixin.html#HookMixin.get_hook_evoke_time"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.HookMixin.get_hook_evoke_time" title="Link to this definition">¶</a></dt>
+<dd><p>获取指定 hook 最后一次触发的时间戳（秒）</p>
+<p>若从未触发过，返回 -1</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hook_type</strong> (<em>HookEnumT</em>) -- hook 类型</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>触发时间</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="melobot.mixin.HookMixin.on">
 <span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HookEnumT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/mixin.html#HookMixin.on"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.mixin.HookMixin.on" title="Link to this definition">¶</a></dt>
 <dd><p>注册一个 hook</p>
@@ -565,10 +572,6 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">melobot.mixin</a><ul>
-<li><a class="reference internal" href="#melobot.mixin.LogMixin"><code class="docutils literal notranslate"><span class="pre">LogMixin</span></code></a><ul>
-<li><a class="reference internal" href="#melobot.mixin.LogMixin.logger"><code class="docutils literal notranslate"><span class="pre">LogMixin.logger</span></code></a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#melobot.mixin.FlagMixin"><code class="docutils literal notranslate"><span class="pre">FlagMixin</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.mixin.FlagMixin.__init__"><code class="docutils literal notranslate"><span class="pre">FlagMixin.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.mixin.FlagMixin.flag_set"><code class="docutils literal notranslate"><span class="pre">FlagMixin.flag_set()</span></code></a></li>
@@ -581,6 +584,7 @@
 <li><a class="reference internal" href="#melobot.mixin.AttrReprMixin"><code class="docutils literal notranslate"><span class="pre">AttrReprMixin</span></code></a></li>
 <li><a class="reference internal" href="#melobot.mixin.HookMixin"><code class="docutils literal notranslate"><span class="pre">HookMixin</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.mixin.HookMixin.__init__"><code class="docutils literal notranslate"><span class="pre">HookMixin.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.mixin.HookMixin.get_hook_evoke_time"><code class="docutils literal notranslate"><span class="pre">HookMixin.get_hook_evoke_time()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.mixin.HookMixin.on"><code class="docutils literal notranslate"><span class="pre">HookMixin.on()</span></code></a></li>
 </ul>
 </li>
@@ -595,7 +599,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

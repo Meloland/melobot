@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.adapter.base - melobot 3.1.3</title>
+        <title>melobot.adapter.base - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,6 +252,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -329,7 +330,7 @@
     <span class="n">final</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventOrigin</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventOrigin</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">OutSrcFilterCtx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdapterError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..io.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AbstractInSource</span><span class="p">,</span>
@@ -340,11 +341,11 @@
     <span class="n">OutPacketT</span><span class="p">,</span>
     <span class="n">OutSourceT</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..log</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_exc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">HookMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typ.cls</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetterABC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.content</span><span class="w"> </span><span class="kn">import</span> <span class="n">Content</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">EventT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionHandleGroup</span><span class="p">,</span> <span class="n">ActionT</span><span class="p">,</span> <span class="n">EchoT</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">EventT</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..bot.dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dispatcher</span>
@@ -499,7 +500,6 @@
 
     <span class="nd">@final</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__adapter_input_loop__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">InSourceT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">packet</span> <span class="o">=</span> <span class="k">await</span> <span class="n">src</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
@@ -507,16 +507,15 @@
                 <span class="n">EventOrigin</span><span class="o">.</span><span class="n">set_origin</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">EventOrigin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">))</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_EVENT_HANDLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;适配器 </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 处理输入与分发事件时发生异常&quot;</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span>
-                    <span class="s2">&quot;异常点局部变量：&quot;</span><span class="p">,</span>
-                    <span class="p">{</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">log_exc</span><span class="p">(</span>
+                    <span class="n">e</span><span class="p">,</span>
+                    <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;适配器 </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> 处理输入源 </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> 时发生异常&quot;</span><span class="p">,</span>
+                    <span class="n">obj</span><span class="o">=</span><span class="p">{</span>
                         <span class="s2">&quot;in_factory&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_factory</span><span class="p">,</span>
                         <span class="s2">&quot;dispatcher&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="p">,</span>
                     <span class="p">}</span>
                     <span class="o">|</span> <span class="nb">locals</span><span class="p">(),</span>
-                    <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
                 <span class="p">)</span>
 
     <span class="nd">@asynccontextmanager</span>
@@ -567,15 +566,15 @@
 
 <div class="viewcode-block" id="Adapter.call_output">
 <a class="viewcode-back" href="../../../api/melobot.adapter.html#melobot.adapter.Adapter.call_output">[文档]</a>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">call_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出行为，并返回各个输出源返回的 :class:`.ActionHandle` 组成的元组</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">call_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;输出行为，返回 :class:`.ActionHandleGroup`</span>
 
 <span class="sd">        适配器开发者的适配器子类可以重写此方法，以实现自定义功能</span>
 
 <span class="sd">        但子类实现中必须调用原始方法： `super().call_output(...)`</span>
 
 <span class="sd">        :param action: 行为</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">osrcs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">OutSourceT</span><span class="p">]</span>
         <span class="nb">filter</span> <span class="o">=</span> <span class="n">_OUT_SRC_FILTER_CTX</span><span class="o">.</span><span class="n">try_get</span><span class="p">()</span>
@@ -594,19 +593,20 @@
             <span class="n">osrcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_srcs</span><span class="p">)</span> <span class="k">else</span> <span class="p">()</span>
 
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">AdapterLifeSpan</span><span class="o">.</span><span class="n">BEFORE_ACTION_EXEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">action</span><span class="p">,))</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">hs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
             <span class="n">ActionHandle</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">osrc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_factory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_echo_factory</span><span class="p">)</span> <span class="k">for</span> <span class="n">osrc</span> <span class="ow">in</span> <span class="n">osrcs</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ActionHandleGroup</span><span class="p">(</span><span class="o">*</span><span class="n">hs</span><span class="p">)</span></div>
 
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_text__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_text__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文本</span>
 
 <span class="sd">        抽象方法。所有适配器子类应该实现此方法</span>
 
 <span class="sd">        :param text: 文本</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -616,7 +616,7 @@
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出多媒体内容</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
@@ -625,7 +625,7 @@
 <span class="sd">        :param raw: 多媒体内容的二进制内容</span>
 <span class="sd">        :param url: 多媒体内容的网络地址（和 `raw` 参数二选一）</span>
 <span class="sd">        :param mimetype: 多媒体内容的 mimetype，为空则根据 `name` 自动检测</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot media: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
@@ -637,7 +637,7 @@
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出图像内容</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
@@ -646,7 +646,7 @@
 <span class="sd">        :param raw: 图像内容的二进制内容</span>
 <span class="sd">        :param url: 图像内容的网络地址（和 `raw` 参数二选一）</span>
 <span class="sd">        :param mimetype: 图像内容的 mimetype，为空则根据 `name` 自动检测</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot image: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
@@ -658,7 +658,7 @@
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出音频内容</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
@@ -667,7 +667,7 @@
 <span class="sd">        :param raw: 音频内容的二进制内容</span>
 <span class="sd">        :param url: 音频内容的网络地址（和 `raw` 参数二选一）</span>
 <span class="sd">        :param mimetype: 音频内容的 mimetype，为空则根据 `name` 自动检测</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot audio: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
@@ -679,7 +679,7 @@
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出语音内容</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
@@ -688,7 +688,7 @@
 <span class="sd">        :param raw: 语音内容的二进制内容</span>
 <span class="sd">        :param url: 语音内容的网络地址（和 `raw` 参数二选一）</span>
 <span class="sd">        :param mimetype: 语音内容的 mimetype，为空则根据 `name` 自动检测</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot voice: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
@@ -700,7 +700,7 @@
         <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出视频内容</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
@@ -709,44 +709,44 @@
 <span class="sd">        :param raw: 视频内容的二进制内容</span>
 <span class="sd">        :param url: 视频内容的网络地址（和 `raw` 参数二选一）</span>
 <span class="sd">        :param mimetype: 视频内容的 mimetype，为空则根据 `name` 自动检测</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;[melobot video: </span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; at &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_file__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_file__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出文件</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
 
 <span class="sd">        :param name: 文件名</span>
 <span class="sd">        :param path: 文件路径</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot file: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_refer__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出对过往事件的引用</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
 
 <span class="sd">        :param event: 过往的事件对象</span>
 <span class="sd">        :param contents: 附加的通用内容序列</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot refer: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)]&quot;</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_resource__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ActionHandle</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_resource__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;输出网络资源</span>
 
 <span class="sd">        建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息</span>
 
 <span class="sd">        :param name: 网络资源名称</span>
 <span class="sd">        :param url: 网络资源的 url</span>
-<span class="sd">        :return: :class:`.ActionHandle` 元组</span>
+<span class="sd">        :return: :class:`.ActionHandleGroup` 对象</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_text__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[melobot resource: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span></div>
 
@@ -789,7 +789,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../../../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

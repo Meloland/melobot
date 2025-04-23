@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.handle.base - melobot 3.1.3</title>
+        <title>melobot.handle.base - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,6 +252,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -308,10 +309,8 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_task</span><span class="p">,</span> <span class="n">get_running_loop</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tee</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">NoReturn</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">EventCompletion</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">FlowRecord</span><span class="p">,</span> <span class="n">FlowRecords</span>
@@ -319,11 +318,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowStatus</span><span class="p">,</span> <span class="n">FlowStore</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..di</span><span class="w"> </span><span class="kn">import</span> <span class="n">DependNotMatched</span><span class="p">,</span> <span class="n">inject_deps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..log</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..log.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_exc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typ.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">SyncOrAsyncCallable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_async</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_obj_name</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAGMapping</span>
 
 <span class="n">_FLOW_CTX</span> <span class="o">=</span> <span class="n">FlowCtx</span><span class="p">()</span>
 
@@ -397,19 +396,9 @@
 
 
 
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">NodeInfo</span><span class="p">:</span>
-    <span class="n">nexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">]</span>
-    <span class="n">in_deg</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">out_deg</span><span class="p">:</span> <span class="nb">int</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NodeInfo</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">NodeInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nexts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_deg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_deg</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="Flow">
 <a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Flow</span><span class="p">(</span><span class="n">LogMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Flow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;处理流</span>
 
 <span class="sd">    :ivar str name: 处理流的标识</span>
@@ -422,31 +411,33 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="n">edge_maps</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">]</span> <span class="o">|</span> <span class="n">FlowNode</span><span class="p">],</span>
         <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">guard</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化处理流</span>
 
 <span class="sd">        :param name: 处理流的标识</span>
 <span class="sd">        :param edge_maps: 边映射，遵循 melobot 的 graph edges 表示方法</span>
 <span class="sd">        :param priority: 处理流的优先级</span>
+<span class="sd">        :param guard: 守卫函数。在处理流运行前调用，返回 `True` 不再继续运行处理流。默认不启用</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">,</span> <span class="n">NodeInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">DAGMapping</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">edge_maps</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="n">priority</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_guard</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">guard</span><span class="p">)</span> <span class="k">if</span> <span class="n">guard</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-        <span class="n">_edge_maps</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="nb">tuple</span><span class="p">((</span><span class="n">elem</span><span class="p">,)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="k">else</span> <span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">emap</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">emap</span> <span class="ow">in</span> <span class="n">edge_maps</span>
-        <span class="p">)</span>
-        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_edges</span><span class="p">(</span><span class="n">_edge_maps</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_check</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">FlowError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;定义的处理流 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 中存在环路&quot;</span><span class="p">)</span></div>
-
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">graph</span><span class="p">:</span> <span class="n">DAGMapping</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">],</span>
+        <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">guard</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span> <span class="n">guard</span><span class="o">=</span><span class="n">guard</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span>
+        <span class="k">return</span> <span class="n">f</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">(</span>
@@ -455,18 +446,10 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">):</span>
-            <span class="n">output</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, starts=[</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">)</span><span class="si">}</span><span class="s2">])&quot;</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, starts:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">starts</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;)&quot;</span>
         <span class="k">return</span> <span class="n">output</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">starts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">in_deg</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">ends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">out_deg</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Flow.update_priority">
 <a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.update_priority">[文档]</a>
@@ -498,89 +481,111 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active</span></div>
 
 
+<div class="viewcode-block" id="Flow.set_guard">
+<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.set_guard">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_guard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guard</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="n">Event</span><span class="p">],</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;设置或重设守卫函数</span>
+
+<span class="sd">        :param guard: 守卫函数</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_guard</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">guard</span><span class="p">)</span> <span class="k">if</span> <span class="n">guard</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
 <div class="viewcode-block" id="Flow.link">
 <a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.link">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;连接另一处理流返回新处理流，并设置新优先级</span>
 
+<span class="sd">        新处理流守卫函数为空，使用 :meth:`set_guard` 自行添加</span>
+
 <span class="sd">        :param flow: 连接的新流</span>
 <span class="sd">        :param priority: 新优先级，若为空，则使用两者中较小的优先级</span>
 <span class="sd">        :return: 新的处理流</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_froms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ends</span>
-        <span class="n">_tos</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">starts</span>
-        <span class="n">new_edges</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span> <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="n">_froms</span> <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">_tos</span><span class="p">)</span>
-
-        <span class="n">new_flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> ~ </span><span class="si">{</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">new_edges</span><span class="p">,</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> ~ </span><span class="si">{</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">new_flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="o">.</span><span class="n">from_graph</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
             <span class="n">priority</span><span class="o">=</span><span class="n">priority</span> <span class="k">if</span> <span class="n">priority</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="n">flow</span><span class="o">.</span><span class="n">priority</span><span class="p">),</span>
         <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">|</span> <span class="n">flow</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">nexts</span><span class="p">):</span>
-                <span class="n">new_flow</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">continue</span>
-            <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">nexts</span><span class="p">:</span>
-                <span class="n">new_flow</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_check</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">FlowError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;定义的处理流 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 中存在环路&quot;</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">new_flow</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_edges</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">edge_maps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">]]]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">,</span> <span class="n">FlowNode</span><span class="p">]]:</span>
-        <span class="n">edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">FlowNode</span><span class="p">,</span> <span class="n">FlowNode</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="viewcode-block" id="Flow.start">
+<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.start">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;设置处理流起始结点的装饰器</span>
 
-        <span class="k">for</span> <span class="n">emap</span> <span class="ow">in</span> <span class="n">edge_maps</span><span class="p">:</span>
-            <span class="n">iter1</span><span class="p">,</span> <span class="n">iter2</span> <span class="o">=</span> <span class="n">tee</span><span class="p">(</span><span class="n">emap</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="nb">next</span><span class="p">(</span><span class="n">iter2</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
-                <span class="k">continue</span>
+<span class="sd">        :param node: 起始结点</span>
+<span class="sd">        :return: 起始结点</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span></div>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">emap</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">emap</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">continue</span>
 
-            <span class="k">for</span> <span class="n">from_seq</span><span class="p">,</span> <span class="n">to_seq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">iter1</span><span class="p">,</span> <span class="n">iter2</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="n">from_seq</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">to_seq</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
-                            <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">))</span>
+<div class="viewcode-block" id="Flow.after">
+<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.after">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">after</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FlowNode</span><span class="p">],</span> <span class="n">FlowNode</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;在处理流某一参照结点后，添加新结点的装饰器函数</span>
 
-        <span class="k">return</span> <span class="n">edges</span>
+<span class="sd">        :param node: 参照结点</span>
+<span class="sd">        :return: 被装饰的结点</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_from</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="n">FlowNode</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">from_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">_from</span><span class="p">,</span> <span class="n">NodeInfo</span><span class="p">([],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">after_wrapped</span><span class="p">(</span><span class="n">next_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">next_node</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">next_node</span>
 
-        <span class="k">if</span> <span class="n">to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">to_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">NodeInfo</span><span class="p">([],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-            <span class="n">to_info</span><span class="o">.</span><span class="n">in_deg</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">from_info</span><span class="o">.</span><span class="n">out_deg</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">from_info</span><span class="o">.</span><span class="n">nexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">after_wrapped</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_valid_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="n">graph</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">nexts</span><span class="p">,</span> <span class="n">in_deg</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">nexts</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">in_deg</span>
+<div class="viewcode-block" id="Flow.before">
+<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.before">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FlowNode</span><span class="p">],</span> <span class="n">FlowNode</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;在处理流某一参照结点前，添加新结点的装饰器函数</span>
 
-                <span class="k">if</span> <span class="n">in_deg</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">graph</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">next_n</span> <span class="ow">in</span> <span class="n">nexts</span><span class="p">:</span>
-                        <span class="n">graph</span><span class="p">[</span><span class="n">next_n</span><span class="p">]</span><span class="o">.</span><span class="n">in_deg</span> <span class="o">-=</span> <span class="mi">1</span>
-                    <span class="k">break</span>
+<span class="sd">        :param node: 参照结点</span>
+<span class="sd">        :return: 被装饰的结点</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">before_wrapped</span><span class="p">(</span><span class="n">pre_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pre_node</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pre_node</span>
 
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">before_wrapped</span></div>
+
+
+<div class="viewcode-block" id="Flow.merge">
+<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.merge">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FlowNode</span><span class="p">],</span> <span class="n">FlowNode</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;将处理流某几结点的控制流，在当前结点合并的装饰器函数</span>
+
+<span class="sd">        :return: 被装饰的结点</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">merge_wrapped</span><span class="p">(</span><span class="n">next_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">next_node</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">next_node</span>
+
+        <span class="k">return</span> <span class="n">merge_wrapped</span></div>
+
+
+<div class="viewcode-block" id="Flow.fork">
+<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.fork">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fork</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FlowNode</span><span class="p">],</span> <span class="n">FlowNode</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;将处理流当前结点的控制流，分流到某几个结点的装饰器函数</span>
+
+<span class="sd">        :return: 被装饰的结点</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fork_wrapped</span><span class="p">(</span><span class="n">pre_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pre_node</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pre_node</span>
+
+        <span class="k">return</span> <span class="n">fork_wrapped</span></div>
+
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fut</span> <span class="o">=</span> <span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span>
@@ -588,14 +593,25 @@
         <span class="k">await</span> <span class="n">fut</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">completion</span><span class="o">.</span><span class="n">owner_flow</span> <span class="ow">is</span> <span class="bp">self</span>
-                <span class="ow">and</span> <span class="ow">not</span> <span class="n">completion</span><span class="o">.</span><span class="n">under_session</span>
-                <span class="ow">and</span> <span class="ow">not</span> <span class="n">completion</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
-            <span class="p">):</span>
-                <span class="n">completion</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_guard</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_guard</span><span class="p">(</span><span class="n">completion</span><span class="o">.</span><span class="n">event</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_set_completed</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">log_exc</span><span class="p">(</span>
+                    <span class="n">e</span><span class="p">,</span>
+                    <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;事件处理流 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 守卫函数发生异常&quot;</span><span class="p">,</span>
+                    <span class="n">obj</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;event_id&quot;</span><span class="p">:</span> <span class="n">completion</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">completion</span><span class="o">.</span><span class="n">event</span><span class="p">,</span>
+                        <span class="s2">&quot;guard&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_guard</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_set_completed</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+
+        <span class="n">starts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">starts</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">starts</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_set_completed</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
 
         <span class="n">event</span> <span class="o">=</span> <span class="n">completion</span><span class="o">.</span><span class="n">event</span>
         <span class="k">try</span><span class="p">:</span>
@@ -604,43 +620,50 @@
         <span class="k">except</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">lookup_exc_cls</span><span class="p">:</span>
             <span class="n">records</span><span class="p">,</span> <span class="n">store</span> <span class="o">=</span> <span class="n">FlowRecords</span><span class="p">(),</span> <span class="n">FlowStore</span><span class="p">()</span>
 
-        <span class="k">with</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">FlowStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="n">completion</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">store</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="n">FlowStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="n">completion</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">store</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_START</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_verified</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">verify</span><span class="p">()</span>
+
+                <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_START</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span>
 
                 <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">while</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">):</span>
+                <span class="k">while</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">starts</span><span class="p">):</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">)</span>
+                        <span class="k">await</span> <span class="n">starts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">)</span>
                         <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">except</span> <span class="n">FlowRewound</span><span class="p">:</span>
                         <span class="k">pass</span>
 
                 <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_FINISH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+                    <span class="n">FlowRecord</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">FLOW_FINISH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
                 <span class="p">)</span>
 
             <span class="k">except</span> <span class="n">FlowBroke</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;事件处理流 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 发生异常&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;异常点 event </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span>
-                    <span class="s2">&quot;异常点局部变量：&quot;</span><span class="p">,</span>
-                    <span class="p">{</span><span class="s2">&quot;completion&quot;</span><span class="p">:</span> <span class="n">completion</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="s2">&quot;cur_flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span>
-                    <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">log_exc</span><span class="p">(</span>
+                    <span class="n">e</span><span class="p">,</span>
+                    <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;事件处理流 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 发生异常&quot;</span><span class="p">,</span>
+                    <span class="n">obj</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;event_id&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">event</span><span class="p">,</span>
+                        <span class="s2">&quot;completion&quot;</span><span class="p">:</span> <span class="n">completion</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span>
+                        <span class="s2">&quot;cur_flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="p">,</span>
+                    <span class="p">},</span>
                 <span class="p">)</span>
 
             <span class="k">finally</span><span class="p">:</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="n">completion</span><span class="o">.</span><span class="n">owner_flow</span> <span class="ow">is</span> <span class="bp">self</span>
-                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">completion</span><span class="o">.</span><span class="n">under_session</span>
-                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">completion</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
-                <span class="p">):</span>
-                    <span class="n">completion</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_try_set_completed</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_try_set_completed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">EventCompletion</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">owner_flow</span> <span class="ow">is</span> <span class="bp">self</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">completion</span><span class="o">.</span><span class="n">under_session</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">completion</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">completed</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
 
 
 
@@ -817,7 +840,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../../../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

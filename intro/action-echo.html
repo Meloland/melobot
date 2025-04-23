@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OneBot 行为操作 - melobot 3.1.3</title>
+        <title>OneBot 行为操作 - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -253,6 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -339,63 +340,89 @@
 <span class="c1"># 如何等待返回的数据呢？</span>
 </pre></div>
 </div>
-<p>此时就需要行为句柄了：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 with_echo 装饰原行为方法</span>
-<span class="n">waited_send</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">with_echo</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">)</span>
-<span class="c1"># 获得一个元组，其中每个元素就是行为句柄</span>
-<span class="c1"># 因为 melobot 支持多个输出源，因此会有多个句柄</span>
-<span class="n">handles</span> <span class="o">=</span> <span class="k">await</span> <span class="n">waited_send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<p>此时就需要行为句柄以及行为句柄组了。melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.generic.send_text" title="melobot.adapter.generic.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a>），都会返回行为句柄。</p>
+<p>melobot 是支持多源输出的。一个行为操作在通过行为操作函数创建后，会自动发送给匹配的协议适配器（一个或多个），随后适配器会根据已有的输出源，以及输出源过滤规则，让指定的输出源执行（输出）行为操作。而每个行为操作函数，会返回一个“行为操作句柄组”对象，用于控制输出过程。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionHandle</span><span class="p">,</span> <span class="n">ActionHandleGroup</span><span class="p">,</span> <span class="n">Echo</span>
 
-<span class="c1"># 如果像教程开始那样，只使用 add_io 添加了一个输入输出源</span>
-<span class="c1"># 那么就是一个输入，一个输出源。因此取第一个元素即可</span>
-<span class="n">hs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">waited_send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">handle</span> <span class="o">=</span> <span class="n">hs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># melobot 支持多个输出源，因此返回多个句柄组成的句柄组</span>
+<span class="n">handle_group</span><span class="p">:</span> <span class="n">ActionHandleGroup</span> <span class="o">=</span> <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 
-<span class="c1"># 等待句柄，即是等待被 OneBot 实现端通知行为已完成</span>
-<span class="c1"># 等待并获取返回值，即是这个行为的响应结果，这在 melobot 中一般称作回应对象</span>
+<span class="c1"># 如果像教程开始那样，只使用添加了一个输入输出源</span>
+<span class="c1"># 那么实际只会产生一个句柄，使用下标可以获得句柄</span>
+<span class="n">handle</span> <span class="o">=</span> <span class="n">handle_group</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># 使用 len 返回句柄数量</span>
+<span class="n">num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">handle_group</span><span class="p">)</span>
+<span class="c1"># 也可使用迭代语法迭代各个句柄</span>
+<span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">handle_group</span><span class="p">:</span>
+    <span class="n">handle</span><span class="p">:</span> <span class="n">ActionHandle</span>
+    <span class="o">...</span>
+
+<span class="c1"># 获取句柄包含的行为草组和对应的输出源</span>
+<span class="n">action</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">action</span>
+<span class="n">out_src</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">out_src</span>
+
+<span class="c1"># 等待句柄，即是等待被输出源通知行为已完成</span>
+<span class="c1"># 获取返回值，即是响应结果，这在 melobot 中一般称作回应对象</span>
 <span class="n">echo</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handle</span>
-<span class="c1"># 访问需要的响应数据（data 字段与 OneBot 中的数据结构一致）</span>
+<span class="c1"># 但需要注意：melobot 的机制规定，输出源可以没有回应</span>
+<span class="c1"># 因此 echo 可能为空</span>
+<span class="n">echo</span><span class="p">:</span> <span class="n">Echo</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="c1"># 等待整个组，将会获得列表</span>
+<span class="n">echoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Echo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handle_group</span>
+
+<span class="c1"># 当需要确保回应不为空时，无需判空，而可以用 unwrap 方法</span>
+<span class="c1"># 例如取出组中第一个句柄的回应，为空时自动发出异常</span>
+<span class="n">echo</span><span class="p">:</span> <span class="n">Echo</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handle_group</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># 同理，也可以一次性取出所有回应，保证它们都不为空</span>
+<span class="n">echoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Echo</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handle_group</span><span class="o">.</span><span class="n">unwrap_all</span><span class="p">()</span>
+
+<span class="c1"># 使用异步迭代接口，可以直接以迭代方式获取回应</span>
+<span class="c1"># 但需要注意：迭代顺序按回应完成的先后顺序</span>
+<span class="k">async</span> <span class="k">for</span> <span class="n">echo</span><span class="p">,</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">handle_group</span><span class="p">:</span>
+    <span class="n">echo</span><span class="p">:</span> <span class="n">Echo</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">handle</span><span class="p">:</span> <span class="n">ActionHandle</span>
+    <span class="o">...</span>
+<span class="c1"># 使用 unwrap_iter 接口，具有非空保证性</span>
+<span class="c1"># 但需要注意：迭代顺序按回应完成的先后顺序</span>
+<span class="k">async</span> <span class="k">for</span> <span class="n">echo</span> <span class="ow">in</span> <span class="n">handle_group</span><span class="o">.</span><span class="n">unwrap_iter</span><span class="p">():</span>
+    <span class="n">echo</span><span class="p">:</span> <span class="n">Echo</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>因此，如果只是想要保证有序性（即等待操作完成），实际上非常简单：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 保证所有输出源的操作完成后继续执行</span>
+<span class="k">await</span> <span class="p">(</span><span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>对于 OneBot 的回应，拥有 <code class="docutils literal notranslate"><span class="pre">data</span></code> 属性，与 OneBot 标准中 echo 的 <code class="docutils literal notranslate"><span class="pre">data</span></code> 一致。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 访问需要的响应数据（data 字段与 OneBot 中的数据结构一致）</span>
 <span class="c1"># 依然建议使用下标访问，因为会有精确的类型注解</span>
 <span class="n">msg_id</span> <span class="o">=</span> <span class="n">echo</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;message_id&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>关于回应对象，更多请参考 API 文档中的内容：<a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-echo"><span class="std std-ref">OneBot v11 回应</span></a></p>
-<p>当然，有时候你可能有大量的行为操作需要等待，那这时可以使用更方便的上下文管理器：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
-
-<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">EchoRequireCtx</span><span class="p">()</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
-        <span class="c1"># 全部都会等待</span>
-        <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定先被看到&quot;</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定是第二条消息&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>一整个事件处理函数都需要等待时，可以使用 <a class="reference internal" href="../api/melobot.utils.html#melobot.utils.unfold_ctx" title="melobot.utils.unfold_ctx"><code class="xref py py-func docutils literal notranslate"><span class="pre">unfold_ctx()</span></code></a> 装饰器：</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">EchoRequireCtx</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">unfold_ctx</span>
-
-<span class="nd">@on_message</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="nd">@unfold_ctx</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">EchoRequireCtx</span><span class="p">()</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
-<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span><span class="p">):</span>
-    <span class="c1"># 全部都会等待</span>
-    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定先被看到&quot;</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;我一定是第二条消息&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>注意：melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.generic.send_text" title="melobot.adapter.generic.send_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_text()</span></code></a>），都会返回行为句柄。</p>
-<p>但这里提及的 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.with_echo" title="melobot.protocols.onebot.v11.Adapter.with_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_echo()</span></code></a> 以及 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.EchoRequireCtx" title="melobot.protocols.onebot.v11.EchoRequireCtx"><code class="xref py py-class docutils literal notranslate"><span class="pre">EchoRequireCtx</span></code></a> 等操作，只对 OneBot 协议特有行为操作有效。</p>
-<p><strong>其他协议的行为句柄，是否需要类似的操作，取决于它们的实现。但不变的是：使用行为句柄，可以获知行为的执行情况。</strong></p>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
 <p><strong>不建议频繁等待行为操作</strong>。等待总是需要更多时间，大量使用会降低运行效率。</p>
 <p>建议只在<strong>行为操作必须有序</strong>，或<strong>需要返回数据</strong>时才去等待。</p>
 </div>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<p>句柄的本质是将操作和等待解耦。由此你可以发散自己的思维来使用它：</p>
-<p>例如安排一批操作，后续再集中等待，实现并发操作。</p>
+<p>句柄的本质是将操作和等待解耦。由此你可以发散自己的思维来使用它：例如安排一批操作，后续再集中等待，实现并发操作。</p>
+<p>但只依靠行为句柄，是无法控制行为何时执行的，只能控制等待的时机。如果还需要控制执行时机，请使用 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.lazy_action" title="melobot.adapter.lazy_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">lazy_action()</span></code></a> 上下文管理器展开<strong>惰性行为作用域</strong>。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">lazy_action</span>
+
+<span class="k">with</span> <span class="n">lazy_action</span><span class="p">():</span>
+    <span class="c1"># 此作用域内，所有行为操作都不会自动执行</span>
+    <span class="c1"># 只是先产生了一个 pending 状态的句柄</span>
+    <span class="n">hg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="c1"># 当需要执行时，手动调用 execute 方法</span>
+    <span class="c1"># 直接执行整个组内所有句柄</span>
+    <span class="n">hg</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="c1"># 执行组内某一句柄</span>
+    <span class="n">handle</span><span class="p">:</span> <span class="n">ActionHandle</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="n">handle</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+</pre></div>
 </div>
+<p>特别注意：<strong>惰性行为作用域内，如果不执行 <code class="docutils literal notranslate"><span class="pre">execute</span></code> 就进行 await 就是死锁情况</strong>。但死锁在执行 <code class="docutils literal notranslate"><span class="pre">execute</span></code> 后会被解除。</p>
 </section>
 <section id="id2">
 <h2>自定义行为<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
@@ -414,14 +441,11 @@
 
 <span class="c1"># 通过 adapter 的通用 action 输出方法输出</span>
 <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-
-<span class="c1"># 需要等待时，这样设置：</span>
-<span class="n">action</span><span class="o">.</span><span class="n">set_echo</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">handles</span> <span class="o">=</span> <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<span class="n">handle_group</span> <span class="o">=</span> <span class="k">await</span> <span class="n">adapter</span><span class="o">.</span><span class="n">call_output</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>实际上，适配器所有行为操作，都是先在内部构建 <a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.Action" title="melobot.adapter.model.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> 对象，再通过 <code class="xref py py-meth docutils literal notranslate"><span class="pre">call_output()</span></code> 输出。</p>
-<p>而所有 OneBot v11 的行为对象，也可以在文档 <a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-action"><span class="std std-ref">OneBot v11 行为类型</span></a> 中找到。你完全可以手动构造，再使用 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.call_output" title="melobot.protocols.onebot.v11.Adapter.call_output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">call_output()</span></code></a> 输出，这适用于更精细的控制需求。</p>
+<p>而所有 OneBot v11 的行为对象，也可以在文档 <a class="reference internal" href="../ob_api/v11.adapter.html#onebot-v11-action"><span class="std std-ref">OneBot v11 行为类型</span></a> 中找到。你完全可以手动构造，再使用 <code class="xref py py-meth docutils literal notranslate"><span class="pre">call_output()</span></code> 输出，这适用于更精细的控制需求。</p>
 </section>
 <section id="id3">
 <h2>总结<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
@@ -507,7 +531,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

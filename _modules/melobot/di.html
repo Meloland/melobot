@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.di - melobot 3.1.3</title>
+        <title>melobot.di - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,6 +252,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -313,7 +314,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">wraps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">isawaitable</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">unwrap</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">version_info</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">BuiltinFunctionType</span><span class="p">,</span> <span class="n">FunctionType</span><span class="p">,</span> <span class="n">LambdaType</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -328,7 +328,7 @@
     <span class="n">get_origin</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">EventOrigin</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">,</span> <span class="n">ParseArgsCtx</span><span class="p">,</span> <span class="n">SessionCtx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">EventOrigin</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">ParseArgsCtx</span><span class="p">,</span> <span class="n">SessionCtx</span><span class="p">,</span> <span class="n">get_logger_type</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DependBindError</span><span class="p">,</span> <span class="n">DependInitError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.typ._enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoidType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.typ.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">SyncOrAsyncCallable</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">is_subhint</span><span class="p">,</span> <span class="n">is_type</span>
@@ -455,8 +455,8 @@
         <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">_get_adapter_type</span><span class="p">()):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">partial</span><span class="p">(</span><span class="n">_adapter_get</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">hint</span><span class="p">))</span>
 
-        <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_type</span><span class="p">()):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span>
+        <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">get_logger_type</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span>
 
         <span class="k">elif</span> <span class="n">is_subhint</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_store_type</span><span class="p">()):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orig_getter</span> <span class="o">=</span> <span class="n">FlowCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_store</span>
@@ -547,7 +547,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_custom_logger_get</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">CustomLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-    <span class="n">val</span> <span class="o">=</span> <span class="n">LoggerCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">BotCtx</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span>
         <span class="n">val</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">getter</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">val</span>
@@ -622,8 +622,6 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">getter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__obj_getter__</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__obj_getter__&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">getter</span>
         <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;在反射对象上，不允许访问名称以 _ 开头的属性：</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -639,33 +637,28 @@
         <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">getter</span><span class="p">(),</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_init_auto_deps</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">allow_manual_arg</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">sign</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="s2">&quot;no signature found for builtin&quot;</span>
-        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version_info</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;内建函数 </span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2"> 在 python &lt;= 3.10 的版本中，无法进行依赖注入&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-        <span class="k">raise</span>
+<span class="n">_DI_DEFAULTS</span> <span class="o">=</span> <span class="s2">&quot;MELOBOT_DI_TUPLE&quot;</span>
+<span class="n">_DI_KW_DEFAULTS</span> <span class="o">=</span> <span class="s2">&quot;MELOBOT_DI_DICT&quot;</span>
 
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_init_auto_deps</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">allow_manual_arg</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="n">empty</span> <span class="o">=</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span>
     <span class="n">origin_f</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;__signature__&quot;</span><span class="p">))</span>
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">origin_f</span><span class="o">.</span><span class="vm">__defaults__</span><span class="p">)</span> <span class="k">if</span> <span class="n">origin_f</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deque</span><span class="p">()</span>
-    <span class="n">kwds</span> <span class="o">=</span> <span class="n">origin_f</span><span class="o">.</span><span class="vm">__kwdefaults__</span> <span class="k">if</span> <span class="n">origin_f</span><span class="o">.</span><span class="vm">__kwdefaults__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
-    <span class="n">nargs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">origin_f</span><span class="o">.</span><span class="vm">__defaults__</span><span class="p">)</span> <span class="k">if</span> <span class="n">origin_f</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deque</span><span class="p">()</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">origin_f</span><span class="o">.</span><span class="vm">__kwdefaults__</span><span class="p">)</span> <span class="k">if</span> <span class="n">origin_f</span><span class="o">.</span><span class="vm">__kwdefaults__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">sign</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">,</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">empty</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kwds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ds</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
-                <span class="n">nargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+                <span class="n">defaults</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="ow">is</span> <span class="n">empty</span><span class="p">:</span>
@@ -682,30 +675,12 @@
             <span class="k">continue</span>
 
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">:</span>
-            <span class="n">kwds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dep</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dep</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">nargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span>
 
-    <span class="n">origin_f</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">nargs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nargs</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="n">origin_f</span><span class="o">.</span><span class="vm">__kwdefaults__</span> <span class="o">=</span> <span class="n">kwds</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># type: ignore[assignment]</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_bound_args</span><span class="p">(</span>
-    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-    <span class="n">sign</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">bind</span> <span class="o">=</span> <span class="n">sign</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="n">get_obj_name</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s2">&quot;callable&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="n">DependBindError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;依赖注入匹配失败。匹配函数 </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> 的参数时发生错误：</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">。&quot;</span>
-            <span class="s2">&quot;这可能是因为传参个数不匹配，或提供了错误的类型注解&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-
-    <span class="n">bind</span><span class="o">.</span><span class="n">apply_defaults</span><span class="p">()</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">bind</span><span class="o">.</span><span class="n">args</span><span class="p">),</span> <span class="n">bind</span><span class="o">.</span><span class="n">kwargs</span>
+    <span class="n">func</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">_DI_DEFAULTS</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">func</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">_DI_KW_DEFAULTS</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span>
 
 
 <div class="viewcode-block" id="DependsHook">
@@ -762,7 +737,10 @@
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">injectee</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">inject_deps_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="n">_args</span><span class="p">,</span> <span class="n">_kwargs</span> <span class="o">=</span> <span class="n">_get_bound_args</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">defaults</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">injectee</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">_DI_DEFAULTS</span><span class="p">]</span>
+        <span class="n">kw_defaults</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">injectee</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">_DI_KW_DEFAULTS</span><span class="p">]</span>
+        <span class="n">_args</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">defaults</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="p">:]]</span>
+        <span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kw_defaults</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">|</span> <span class="n">kwargs</span>
         <span class="n">dep_scope</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Depends</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_args</span><span class="p">):</span>
@@ -775,16 +753,26 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">Depends</span><span class="p">):</span>
                 <span class="n">_kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">elem</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">dep_scope</span><span class="p">)</span>
 
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">injectee</span><span class="p">(</span><span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">injectee</span><span class="p">(</span><span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">get_obj_name</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s2">&quot;callable&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DependBindError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;依赖注入传参失败。函数 </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> 传参时发生错误：</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">。&quot;</span>
+                <span class="s2">&quot;这可能是因为传参个数不匹配，或提供了错误的类型注解&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
         <span class="k">if</span> <span class="n">isawaitable</span><span class="p">(</span><span class="n">ret</span><span class="p">):</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">ret</span>
         <span class="k">return</span> <span class="n">ret</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="p">(</span><span class="n">FunctionType</span><span class="p">,</span> <span class="n">BuiltinFunctionType</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="n">FunctionType</span><span class="p">):</span>
         <span class="n">_init_auto_deps</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="n">manual_arg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">inject_deps_wrapped</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="n">LambdaType</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">inject_deps_wrapped</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">injectee</span><span class="p">,</span> <span class="n">BuiltinFunctionType</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;内建函数 </span><span class="si">{</span><span class="n">injectee</span><span class="si">}</span><span class="s2"> 不支持依赖注入&quot;</span><span class="p">)</span>
 
     <span class="k">raise</span> <span class="n">DependInitError</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">injectee</span><span class="si">}</span><span class="s2"> 对象不属于以下类别中的任何一种：&quot;</span>
@@ -831,7 +819,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

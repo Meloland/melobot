@@ -6,14 +6,14 @@ melobot.handle
 
 .. autoclass:: melobot.handle.Flow
     :members:
-    :exclude-members: on_priority_reset, starts, ends, run
+    :exclude-members: from_graph
 
 
 .. autoclass:: melobot.handle.FlowNode
     :members:
     :exclude-members: __init__, process
 
-处理节点
+处理结点
 -----------
 
 .. autofunction:: melobot.handle.node
@@ -28,7 +28,7 @@ melobot.handle
 这些组件，在 melobot 的教程中，早期我们称它们为“事件绑定方法”或“事件绑定函数”。
 
 .. autoclass:: melobot.handle.FlowDecorator
-    :exclude-members: auto_flow_wrapped
+    :members:
 
 .. autofunction:: melobot.handle.on_event
 

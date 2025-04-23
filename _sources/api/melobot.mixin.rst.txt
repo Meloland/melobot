@@ -1,9 +1,6 @@
 melobot.mixin
 =============
 
-.. autoclass:: melobot.mixin.LogMixin
-    :members:
-
 .. autoclass:: melobot.mixin.FlagMixin
     :members:
 

@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.plugin.base - melobot 3.1.3</title>
+        <title>melobot.plugin.base - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,6 +252,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -311,7 +312,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginLoadError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..handle.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
@@ -337,7 +338,7 @@
 
     <span class="n">desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">docs</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">keywords</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">author</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
 
@@ -356,40 +357,48 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">flows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Flow</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">shares</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SyncShare</span> <span class="o">|</span> <span class="n">AsyncShare</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">funcs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">flows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Flow</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shares</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SyncShare</span> <span class="o">|</span> <span class="n">AsyncShare</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">funcs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">auto_import</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">info</span><span class="p">:</span> <span class="n">PluginInfo</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;插件管理器初始化</span>
 
 <span class="sd">        :param version: 版本号</span>
-<span class="sd">        :param flows: 事件流列表。可以先指定为空，后续使用 :meth:`use` 绑定</span>
-<span class="sd">        :param shares: 共享对象列表。可以先指定为空，后续使用 :meth:`use` 绑定</span>
-<span class="sd">        :param funcs: 导出函数列表。可以先指定为空，后续使用 :meth:`use` 绑定</span>
+<span class="sd">        :param flows: 事件流。可以先指定为空，后续使用 :meth:`use` 绑定</span>
+<span class="sd">        :param shares: 共享对象（需要在本插件内定义）。可以先指定空，后续用 :meth:`use` 绑定</span>
+<span class="sd">        :param funcs: 导出函数（需要在本插件内定义，提供方法是未定义行为）。可以先指定空，后续用 :meth:`use` 绑定</span>
+<span class="sd">        :param auto_import:</span>
+<span class="sd">            需要自动导入的模块的路径列表（相对路径以插件目录为基准），该参数对动态插件无效。</span>
+<span class="sd">            如果为 `True` 导入插件目录下所有模块，此时只会导入 `.py` 模块。</span>
+<span class="sd">            如果你需要导入 `.{pyc,pyd,so,...}` 等其他可加载模块，请自行提供列表。自行提供列表时的一些提示：</span>
+
+<span class="sd">            不要包含目录路径，这永远没有效果</span>
+
+<span class="sd">            建议使用 :func:`glob.glob` 或 :meth:`pathlib.Path.glob` 方法获取路径，而不是手动拼接或查找</span>
+
+<span class="sd">            一个模块在加载时，其向上到插件目录的所有父目录的 `__init__.{pyc,pyd,so,py...}` 都会被自动加载，</span>
+<span class="sd">            此时不需要手动提供 `__init__.{pyc,pyd,so,py...}` 文件。加载时的扩展名优先级请查看 :data:`~.MODULE_EXTS`</span>
+<span class="sd">            （优先级从高到低，且与操作系统平台有关）</span>
+
+<span class="sd">            如果一个目录中只有 `__init__.{pyc,pyd,so,py...}` 文件，此时只能手动提供</span>
+
 <span class="sd">        :param info: 插件信息</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hook_type</span><span class="o">=</span><span class="n">PluginLifeSpan</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">init_flows</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">flows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">flows</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shares</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">shares</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">shares</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">funcs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">funcs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_flows</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">flows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">flows</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shares</span> <span class="o">=</span> <span class="nb">set</span><span class="p">[</span><span class="n">SyncShare</span> <span class="o">|</span> <span class="n">AsyncShare</span><span class="p">]()</span> <span class="k">if</span> <span class="n">shares</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(</span><span class="n">shares</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">[</span><span class="n">Callable</span><span class="p">]()</span> <span class="k">if</span> <span class="n">funcs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(</span><span class="n">funcs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">PluginInfo</span><span class="p">()</span> <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_import</span> <span class="o">=</span> <span class="n">auto_import</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_built</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plugin</span><span class="p">:</span> <span class="n">Plugin</span></div>
 
-
-    <span class="nd">@final</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__p_build__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Plugin</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_built</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pname</span> <span class="o">=</span> <span class="n">name</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">set_tag</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plugin</span> <span class="o">=</span> <span class="n">Plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_built</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin</span>
 
     <span class="nd">@overload</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Flow</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span> <span class="o">...</span>
@@ -414,9 +423,9 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Flow</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">init_flows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">SyncShare</span><span class="p">,</span> <span class="n">AsyncShare</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shares</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shares</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PluginLoadError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;插件无法使用 </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2"> 类型的对象&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">obj</span></div>
@@ -472,7 +481,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../../../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

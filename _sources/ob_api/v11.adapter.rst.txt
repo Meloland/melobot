@@ -17,6 +17,8 @@ v11 适配器
 
     基类：:class:`.Context`\[:py:data:`bool`\]
 
+    已弃用，将于 3.2.1 版本移除。请避免继续在新版中使用
+
 .. _onebot_v11_event:
 
 v11 事件
@@ -251,25 +253,14 @@ v11 回应
 
 .. code:: python
 
-    # 使用回应的例子：
-    handles = await adapter.with_echo(adapter.send)("Hello Melobot!")
-    # 当需要频繁使用时：
-    block_send = adapter.with_echo(adapter.send)
-    handles1 = await block_send("Hello Melobot!")
-    handles2 = await block_send("Hello OneBot!")
-    # 当然，或者这样：
-    with EchoRequireCtx().unfold(True):
-        handles1 = await adapter.send("Hello Melobot!")
-        handles2 = await adapter.send_image(
-            "test.jpg", 
-            url="https://glowmem.com/static/avatar.jpg"
-        )
+    # 操作会返回操作句柄组
+    handle_group = await adapter.send("Hello Melobot!")
     
-    # 使用：
-    echo: SendMsgEcho = await handles[0]
-    # 建议始终使用下标访问，而不是 get
-    # 使用下标，类型提示将会完美工作
-    assert isinstance(echo.data['message_id'], int)
+    # 使用下标可以获取对应输出源的操作句柄：
+    # 等待句柄获得回应对象
+    echo: SendMsgEcho | None = await handle_group[0]
+    # 使用 unwrap 方法过滤 None 值，为 None 时发出异常
+    echo: SendMsgEcho = await handle_group.unwrap(0)
 
 .. autoclass:: melobot.protocols.onebot.v11.adapter.echo.Echo
     :exclude-members: Model, __init__, resolve

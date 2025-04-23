@@ -45,13 +45,13 @@ melobot.adapter
 
 .. autoclass:: melobot.adapter.ActionHandle
     :members:
-    :exclude-members: __init__, execute
+    :exclude-members: __init__
 
-.. autoclass:: melobot.adapter.ActionChain
+.. autoclass:: melobot.adapter.ActionHandleGroup
     :members:
     :exclude-members: __init__
 
-.. autofunction:: melobot.adapter.open_chain
+.. autofunction:: melobot.adapter.lazy_action
 
 通用实体内容
 ---------------
@@ -121,7 +121,3 @@ melobot.adapter
 .. data:: melobot.adapter.EchoT
 
     回应泛型
-
-.. data:: melobot.adapter.ActionRetT
-
-    行为返回值泛型（bound 到：Echo | None）

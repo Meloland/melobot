@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.onebot.v11.adapter.echo - melobot 3.1.3</title>
+        <title>melobot.protocols.onebot.v11.adapter.echo - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../../../../../../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,6 +252,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -308,7 +309,7 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Echo</span> <span class="k">as</span> <span class="n">RootEcho</span>
 
@@ -316,10 +317,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">_GroupMessageSender</span><span class="p">,</span> <span class="n">_MessageSender</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeGocqCustomSegment</span><span class="p">,</span> <span class="n">NodeStdCustomSegment</span><span class="p">,</span> <span class="n">Segment</span>
 
+<span class="n">DataT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;DataT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="Echo">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.Echo">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Echo</span><span class="p">(</span><span class="n">RootEcho</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Echo</span><span class="p">(</span><span class="n">RootEcho</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">DataT</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="s2">&quot;async&quot;</span><span class="p">,</span> <span class="s2">&quot;failed&quot;</span><span class="p">]</span>
@@ -328,17 +331,12 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span> <span class="n">DataT</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">DataT</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
         <span class="n">_dic</span> <span class="o">=</span> <span class="n">kv_pairs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_dic</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ACTION_TYPE_KEY_NAME</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">_dic</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">protocol</span><span class="o">=</span><span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span>
-            <span class="n">ok</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-            <span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">retcode</span><span class="p">,</span>
-            <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">protocol</span><span class="o">=</span><span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">retcode</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -362,6 +360,14 @@
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.Echo.is_failed">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;failed&quot;</span></div>
+
+
+<div class="viewcode-block" id="Echo.result">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.Echo.result">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;回应中的响应数据为空&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
 
 
     <span class="nd">@classmethod</span>
@@ -435,12 +441,10 @@
 
 <div class="viewcode-block" id="EmptyEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.EmptyEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EmptyEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmptyEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="kc">None</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="kc">None</span></div>
 
 
 
@@ -450,12 +454,10 @@
 
 <div class="viewcode-block" id="SendMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.SendMsgEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SendMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SendMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_SendMsgEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_SendMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_SendMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_SendMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -466,12 +468,10 @@
 
 <div class="viewcode-block" id="SendForwardMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.SendForwardMsgEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SendForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SendForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_SendForwardMsgEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_SendForwardMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_SendForwardMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_SendForwardMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -489,12 +489,10 @@
 
 <div class="viewcode-block" id="GetMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetMsgEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetMsgEchoDataInterface</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetMsgEchoDataInterface</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
@@ -529,12 +527,10 @@
 
 <div class="viewcode-block" id="GetForwardMsgEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetForwardMsgEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetForwardMsgEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetForwardMsgEchoDataInterface</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetForwardMsgEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetForwardMsgEchoDataInterface</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kv_pairs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kv_pairs</span><span class="p">)</span>
@@ -560,12 +556,10 @@
 
 <div class="viewcode-block" id="GetLoginInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetLoginInfoEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetLoginInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetLoginInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetLoginInfoEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetLoginInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetLoginInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetLoginInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -578,12 +572,10 @@
 
 <div class="viewcode-block" id="GetStrangerInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetStrangerInfoEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetStrangerInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetStrangerInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetStrangerInfoEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetStrangerInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetStrangerInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetStrangerInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -595,12 +587,10 @@
 
 <div class="viewcode-block" id="GetFriendListEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetFriendListEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetFriendListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetFriendListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">_GetFriendListEchoElem</span><span class="p">]]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetFriendListEchoElem</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetFriendListEchoElem</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetFriendListEchoElem</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -613,23 +603,19 @@
 
 <div class="viewcode-block" id="GetGroupInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupInfoEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetGroupInfoEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
 <div class="viewcode-block" id="GetGroupListEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupListEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupInfoEchoData</span><span class="p">]]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -653,23 +639,19 @@
 
 <div class="viewcode-block" id="GetGroupMemberInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupMemberInfoEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetGroupMemberInfoEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupMemberInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupMemberInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupMemberInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
 <div class="viewcode-block" id="GetGroupMemberListEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupMemberListEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupMemberListEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupMemberInfoEchoData</span><span class="p">]]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupMemberInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupMemberInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_GetGroupMemberInfoEchoData</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -699,12 +681,10 @@
 
 <div class="viewcode-block" id="GetGroupHonorInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetGroupHonorInfoEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupHonorInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetGroupHonorInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetGroupHonorInfoEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupHonorInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupHonorInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetGroupHonorInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -714,12 +694,10 @@
 
 <div class="viewcode-block" id="GetCookiesEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetCookiesEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetCookiesEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCookiesEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetCookiesEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetCookiesEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetCookiesEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetCookiesEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -729,12 +707,10 @@
 
 <div class="viewcode-block" id="GetCsrfTokenEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetCsrfTokenEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetCsrfTokenEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCsrfTokenEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetCsrfTokenEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetCsrfTokenEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetCsrfTokenEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetCsrfTokenEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -745,12 +721,10 @@
 
 <div class="viewcode-block" id="GetCredentialsEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetCredentialsEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetCredentialsEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetCredentialsEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetCredentialsEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetCredentialsEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetCredentialsEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetCredentialsEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -760,12 +734,10 @@
 
 <div class="viewcode-block" id="GetRecordEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetRecordEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetRecordEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -775,12 +747,10 @@
 
 <div class="viewcode-block" id="GetImageEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetImageEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetImageEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_GetImageEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetImageEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_GetImageEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -790,12 +760,10 @@
 
 <div class="viewcode-block" id="CanSendImageEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.CanSendImageEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">CanSendImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CanSendImageEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_CanSendImageEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendImageEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendImageEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendImageEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -805,12 +773,10 @@
 
 <div class="viewcode-block" id="CanSendRecordEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.CanSendRecordEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">CanSendRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CanSendRecordEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_CanSendRecordEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+        <span class="n">data</span><span class="p">:</span> <span class="n">_CanSendRecordEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
 
 
 
@@ -821,7 +787,7 @@
 
 <div class="viewcode-block" id="GetStatusEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetStatusEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetStatusEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetStatusEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetStatusEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetStatusEchoData</span> <span class="o">|</span> <span class="kc">None</span>
@@ -834,9 +800,7 @@
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv_pairs</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span><span class="n">_GetStatusEchoData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
-                <span class="n">cast</span><span class="p">(</span><span class="n">_GetStatusEchoData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># type: ignore[literal-required]</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetStatusEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+                <span class="n">cast</span><span class="p">(</span><span class="n">_GetStatusEchoData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># type: ignore[literal-required]</span></div>
 
 
 
@@ -848,7 +812,7 @@
 
 <div class="viewcode-block" id="GetVersionInfoEcho">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.GetVersionInfoEcho">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetVersionInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetVersionInfoEcho</span><span class="p">(</span><span class="n">Echo</span><span class="p">[</span><span class="n">_GetVersionInfoEchoData</span><span class="p">]):</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Echo</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">_GetVersionInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span>
@@ -861,9 +825,7 @@
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv_pairs</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span><span class="n">_GetVersionInfoEchoData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
-                <span class="n">cast</span><span class="p">(</span><span class="n">_GetVersionInfoEchoData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># type: ignore[literal-required]</span>
-
-    <span class="n">data</span><span class="p">:</span> <span class="n">_GetVersionInfoEchoData</span> <span class="o">|</span> <span class="kc">None</span></div>
+                <span class="n">cast</span><span class="p">(</span><span class="n">_GetVersionInfoEchoData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># type: ignore[literal-required]</span></div>
 
 </pre></div>
         </article>
@@ -904,7 +866,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../../../../../../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/scripts/furo.js?v=5fa4622c"></script>

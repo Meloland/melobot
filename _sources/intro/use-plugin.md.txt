@@ -107,7 +107,13 @@ async def echo_hi() -> None:
 
 ```{admonition} 提示
 :class: tip
+{meth}`~.PluginPlanner.use` 装饰器等相关接口，一般被称为“组合式风格”。而通过类的初始化参数声明插件功能，一般被称为“选项式风格”。
 
+未来会介绍更多两种风格的 API。具体选择哪种风格进行开发，请根据实际情况与项目结构斟酌，并没有绝对的优劣。
+```
+
+```{admonition} 注意
+:class: caution
 一般情况下，**请勿在插件目录内手动创建 `__init__.py` 文件**。
 
 在之后的教程中会详细说明为什么不要这样做，以及与此相关的**插件加载机制**与**插件高级用法**。
@@ -115,7 +121,7 @@ async def echo_hi() -> None:
 
 ## 模块级插件的加载
 
-在目前阶段，只需要学会通过插件目录的路径加载插件，就可以了：
+在目前阶段，只需要学会通过插件目录的路径，或者插件模块的包名加载插件，就可以了：
 
 ```python
 # 在创建 bot 后使用，提供插件目录的相对或绝对路径：
@@ -124,7 +130,14 @@ bot.load_plugin("test_plugin")
 bot.load_plugin("./test_plugin")
 # 或
 bot.load_plugin("/home/test_user/my_bot/test_plugin")
+
+# 如果是从 pip 安装的第三方模块
+bot.load_plugin("melobot_plugin_xxx")
 ```
+
+一般情况下，**请勿将本地插件目录名设置为与第三方插件模块相同的名称**。
+
+虽然 melobot 会依据 `sys.path` 的优先级加载，但是同名是非常不好的习惯。
 
 ## 总结
 

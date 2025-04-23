@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot - melobot 3.1.3</title>
+        <title>melobot - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -253,6 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -318,7 +319,119 @@
           <section id="melobot">
 <h1>melobot<a class="headerlink" href="#melobot" title="Link to this heading">¶</a></h1>
 <section id="id1">
-<h2>melobot 元信息<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2>melobot 顶级对象与方法<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.lazy_load">
+<span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">lazy_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.13）"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/melobot/_lazy.html#lazy_load"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.lazy_load" title="Link to this definition">¶</a></dt>
+<dd><p>惰性加载模块的方法</p>
+<p>指定的模块或者对象，在发生第一次属性访问时触发加载，并同步修改 <cite>namespace</cite> 字典中对应键值。</p>
+<p>在完成加载后与常规的 import 语句效果无异，但需要略微注意未加载时的一些行为。
+例如未加载时 <cite>print</cite> 对象，行为可能就不一致。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 典型的使用方法：</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.font_manager</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fm</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">PIL</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">_g</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
+    <span class="n">lazy_load</span><span class="p">(</span><span class="n">_g</span><span class="p">,</span> <span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">)</span>
+    <span class="n">lazy_load</span><span class="p">(</span><span class="n">_g</span><span class="p">,</span> <span class="s2">&quot;matplotlib.font_manager&quot;</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;fm&quot;</span><span class="p">)</span>
+    <span class="n">lazy_load</span><span class="p">(</span><span class="n">_g</span><span class="p">,</span> <span class="s2">&quot;PIL&quot;</span><span class="p">)</span>
+    <span class="n">lazy_load</span><span class="p">(</span><span class="n">_g</span><span class="p">,</span> <span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="s2">&quot;pyplot&quot;</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;plt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>假设有导入语句：</p>
+<p><cite>import xxx</cite></p>
+<p><cite>import xxx as zzz</cite></p>
+<p><cite>from xxx import yyy</cite></p>
+<p><cite>from xxx import yyy as zzz</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>namespace</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.13）"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) -- 当前模块的 globals() 字典</p></li>
+<li><p><strong>location</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- import 语句中 <cite>xxx</cite> 的部分</p></li>
+<li><p><strong>item</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>) -- import 语句中 <cite>yyy</cite> 的部分，无则为空</p></li>
+<li><p><strong>alias</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a><em> | </em><em>None</em>) -- import 语句中 <cite>zzz</cite> 的部分，无则为空</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>惰性加载对象的 repr 字符串，用于调试</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.add_import_fallback">
+<span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">add_import_fallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/_imp.html#add_import_fallback"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.add_import_fallback" title="Link to this definition">¶</a></dt>
+<dd><p>添加未导入模块或包的导入回退，非线程安全</p>
+<p>绝大多数情况下，melobot 都能处理好导入行为。
+但在极少数情况下，某些包或模块可能需要回退到默认的导入机制</p>
+<p>使用此方法，将模块名以 <cite>names</cite> 起始的模块或包标记为需要回退</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.13）"><em>str</em></a>) -- 需要回退的模块或包名称的起始字符串</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="melobot.MODULE_EXTS">
+<span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">MODULE_EXTS</span></span><a class="headerlink" href="#melobot.MODULE_EXTS" title="Link to this definition">¶</a></dt>
+<dd><p>模块扩展名元组，包含当前平台所有可加载的模块扩展名。优先级从高到低，且与操作系统平台有关</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.install_exc_hook">
+<span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">install_exc_hook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/_render.html#install_exc_hook"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.install_exc_hook" title="Link to this definition">¶</a></dt>
+<dd><p>安装 melobot 默认异常格式化的钩子</p>
+<p>在 Jupyter 或 IPython 中使用时，需要手动调用该方法安装</p>
+<p>但在普通的脚本环境中，导入时已自动安装</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.uninstall_exc_hook">
+<span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">uninstall_exc_hook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/_render.html#uninstall_exc_hook"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.uninstall_exc_hook" title="Link to this definition">¶</a></dt>
+<dd><p>卸载 melobot 默认异常格式化的钩子</p>
+<p>在任意环境中皆可使用</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.set_traceback_style">
+<span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">set_traceback_style</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hide_internal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/_render.html#set_traceback_style"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.set_traceback_style" title="Link to this definition">¶</a></dt>
+<dd><p>melobot 默认异常格式化启用时，设置异常回溯栈的格式化风格</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hide_internal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否隐藏 melobot 内部的栈帧</p></li>
+<li><p><strong>flip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a>) -- 是否折叠异常栈帧，只显示文件和行号，而不是具体行的代码</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id2">
+<h2>melobot 元信息<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.MetaInfo">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.</span></span><span class="sig-name descname"><span class="pre">MetaInfo</span></span><a class="reference internal" href="../_modules/melobot/_meta.html#MetaInfo"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.MetaInfo" title="Link to this definition">¶</a></dt>
@@ -494,7 +607,16 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">melobot</a><ul>
-<li><a class="reference internal" href="#id1">melobot 元信息</a><ul>
+<li><a class="reference internal" href="#id1">melobot 顶级对象与方法</a><ul>
+<li><a class="reference internal" href="#melobot.lazy_load"><code class="docutils literal notranslate"><span class="pre">lazy_load()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.add_import_fallback"><code class="docutils literal notranslate"><span class="pre">add_import_fallback()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.MODULE_EXTS"><code class="docutils literal notranslate"><span class="pre">melobot.MODULE_EXTS</span></code></a></li>
+<li><a class="reference internal" href="#melobot.install_exc_hook"><code class="docutils literal notranslate"><span class="pre">install_exc_hook()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.uninstall_exc_hook"><code class="docutils literal notranslate"><span class="pre">uninstall_exc_hook()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.set_traceback_style"><code class="docutils literal notranslate"><span class="pre">set_traceback_style()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">melobot 元信息</a><ul>
 <li><a class="reference internal" href="#melobot.MetaInfo"><code class="docutils literal notranslate"><span class="pre">MetaInfo</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.MetaInfo.ver"><code class="docutils literal notranslate"><span class="pre">MetaInfo.ver</span></code></a></li>
 <li><a class="reference internal" href="#melobot.MetaInfo.ver_info"><code class="docutils literal notranslate"><span class="pre">MetaInfo.ver_info</span></code></a></li>
@@ -525,7 +647,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

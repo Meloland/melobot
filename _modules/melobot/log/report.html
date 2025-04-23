@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="索引" href="../../../genindex.html" /><link rel="search" title="搜索" href="../../../search.html" />
-        <link rel="canonical" href="/melobot/_modules/melobot/protocols/base.html" />
+        <link rel="canonical" href="/melobot/_modules/melobot/log/report.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.base - melobot 3.2.0</title>
+        <title>melobot.log.report - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -305,37 +305,98 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>melobot.protocols.base 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..io.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">AbstractOutSource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.cls</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetterABC</span><span class="p">,</span> <span class="n">abstractattr</span>
+          <h1>melobot.log.report 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AsyncGenerator</span><span class="p">,</span> <span class="n">NotRequired</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.reflect</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._run</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_loop_exc_handler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitCode</span><span class="p">,</span> <span class="n">LogLevel</span>
 
 
-<div class="viewcode-block" id="ProtocolStack">
-<a class="viewcode-back" href="../../../api/melobot.protocol.html#melobot.protocols.ProtocolStack">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ProtocolStack</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;协议栈抽象类</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoopExcCtx</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">exception</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span>
+    <span class="n">future</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">]</span>
+    <span class="n">task</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">]</span>
+    <span class="n">handle</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Handle</span><span class="p">]</span>
+    <span class="n">protocol</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Protocol</span><span class="p">]</span>
+    <span class="n">transport</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Transport</span><span class="p">]</span>
+    <span class="n">socket</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="s2">&quot;socket.socket&quot;</span><span class="p">]</span>
+    <span class="n">asyncgen</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">AsyncGenerator</span><span class="p">]</span>
 
-<span class="sd">    子类需要把以下属性按 :func:`.abstractattr` 的要求实现</span>
+
+<span class="n">_STRICT_LOOP_LOG</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_loop_exc_log</span><span class="p">(</span><span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_STRICT_LOOP_LOG</span>
+    <span class="n">_STRICT_LOOP_LOG</span> <span class="o">=</span> <span class="n">strict</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_loop_exception</span><span class="p">(</span><span class="n">loop</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">LoopExcCtx</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+    <span class="n">with_loop_ctx</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loop&quot;</span><span class="p">:</span> <span class="n">loop</span><span class="p">}</span> <span class="o">|</span> <span class="n">ctx</span>
+    <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exception&quot;</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="ne">SystemExit</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">exc</span><span class="o">.</span><span class="n">code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">code</span><span class="p">)</span> <span class="o">==</span> <span class="n">ExitCode</span><span class="o">.</span><span class="n">RESTART</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;收到重启信号，即将重启...&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="s2">&quot;exception was never retrieved&quot;</span> <span class="ow">in</span> <span class="n">msg</span><span class="p">:</span>
+            <span class="n">fut</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;future&quot;</span><span class="p">)</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_STRICT_LOOP_LOG</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">exc</span>
+                <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;从未捕获的异常的回溯栈：</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;发现从未捕获的异常（这不一定是错误）：</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;future&quot;</span><span class="p">:</span> <span class="n">fut</span><span class="p">,</span> <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="n">task</span><span class="p">},</span>
+                <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span> <span class="k">if</span> <span class="n">_STRICT_LOOP_LOG</span> <span class="k">else</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">exc</span>
+            <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;事件循环中抛出预期外的异常：</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;相关变量信息：&quot;</span><span class="p">,</span> <span class="n">with_loop_ctx</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;事件循环出现预期外的状况：</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;相关变量信息：&quot;</span><span class="p">,</span> <span class="n">with_loop_ctx</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+
+<span class="n">set_loop_exc_handler</span><span class="p">(</span><span class="n">_log_loop_exception</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="log_exc">
+<a class="viewcode-back" href="../../../api/melobot.log.html#melobot.log.log_exc">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_exc</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;使用 melobot 内部的异常报告日志器报告异常</span>
+
+<span class="sd">    :param exc: 异常对象</span>
+<span class="sd">    :param msg: 日志消息</span>
+<span class="sd">    :param obj: 需要打印的相关变量，为空时不打印</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">inputs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">AbstractInSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">abstractattr</span><span class="p">()</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;该协议栈兼容的输入源序列</span>
-
-<span class="sd">       :meta hide-value:</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">outputs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">AbstractOutSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">abstractattr</span><span class="p">()</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;该协议栈兼容的输出源序列</span>
-
-<span class="sd">       :meta hide-value:</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">adapter</span><span class="p">:</span> <span class="n">Adapter</span> <span class="o">=</span> <span class="n">abstractattr</span><span class="p">()</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;该协议栈兼容的适配器</span>
-
-<span class="sd">       :meta hide-value:</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">exc</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;相关变量信息：&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
 
 </pre></div>
         </article>

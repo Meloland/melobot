@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>交互式处理与会话的使用 - melobot 3.1.3</title>
+        <title>交互式处理与会话的使用 - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -253,6 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -333,7 +334,7 @@
 </pre></div>
 </div>
 <p>仔细一想，事情似乎没有那么容易了！交互意味着需要停下来等待，但是此时 bot 也应该能做别的事（处理别的事件）才对，似乎情况比较复杂。</p>
-<p>你说的对，但是 melobot 是一款<strong>拥有丰富功能的异步机器人开发框架</strong>。当然会帮你处理好这些的~ 只需要一个名为“会话”的魔法。</p>
+<p>你说的对，但是 melobot 是一款<strong>拥有丰富功能的异步机器人开发框架</strong>。当然会帮你处理好这些~ 只需要一个名为“会话”的魔法。</p>
 </section>
 <section id="id3">
 <h2>使用会话<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
@@ -382,7 +383,7 @@
 <p>第一参数 <code class="docutils literal notranslate"><span class="pre">target</span></code> 可以接受一个列表，看一眼 api 文档就懂了，应该不难。后续将 <code class="docutils literal notranslate"><span class="pre">legacy_session</span></code> 参数置为 <code class="docutils literal notranslate"><span class="pre">True</span></code>，这是告诉 melobot，这个处理过程需要启用一个“传统会话”的规则。</p>
 <p>什么是规则？首先我们说过，会话的重要特性是<strong>暂时停止，并稍后恢复</strong>，稍候是什么时候？当然是出现<strong>一个可以让会话恢复的事件</strong>的时候，因为不是所有事件都能让会话“恢复”。</p>
 <p>melobot 如何知道哪些事件可以让某个会话恢复？就是凭借“会话规则”。会话规则是一种判断规则，让 melobot 在<strong>已经存在一个挂起的会话的前提下，对新来的事件进行是否可以唤醒会话的判断</strong>。这种判断称为“会话判断”。进行判断后如果返回真值，则认为可以唤醒。会话被唤醒，处理流中的“当前事件”将被更新，处理流的代码也将继续执行。</p>
-<p>那这里为什么是传统规则？melobot 基事件类型有一个实例属性 <code class="docutils literal notranslate"><span class="pre">scope</span></code>（<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Hashable" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hashable</span></code></a> 类型）。而传统规则是一种内置的规则，会话判断即<strong>判断两个事件的 <code class="docutils literal notranslate"><span class="pre">scope</span></code> 是否 <code class="docutils literal notranslate"><span class="pre">=</span></code></strong>。举例来说，在 OneBot v11 协议支持中，scope 属性会被设置为 <code class="docutils literal notranslate"><span class="pre">(群组</span> <span class="pre">id</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">用户</span> <span class="pre">id)</span></code> 二元组，用于指示当前的“对话域”。此时的会话与其他 bot 开发框架中狭义的“会话”几乎是一个语义，所以此时的规则取名“传统规则”，此时的会话也就是“传统会话”。</p>
+<p>那这里为什么是传统规则？melobot 基事件类型有一个实例属性 <code class="docutils literal notranslate"><span class="pre">scope</span></code>（<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Hashable" title="（在 Python v3.13）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hashable</span></code></a> 类型）。而传统规则是一种内置的规则，会话判断即<strong>判断两个事件的 <code class="docutils literal notranslate"><span class="pre">scope</span></code> 是否 <code class="docutils literal notranslate"><span class="pre">==</span></code></strong>。举例来说，在 OneBot v11 协议支持中，scope 属性会被设置为 <code class="docutils literal notranslate"><span class="pre">(群组</span> <span class="pre">id</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">用户</span> <span class="pre">id)</span></code> 二元组，用于指示当前的“对话域”。此时的会话与其他 bot 开发框架中狭义的“会话”几乎是一个语义，所以此时的规则取名“传统规则”，此时的会话也就是“传统会话”。</p>
 </section>
 <section id="id5">
 <h3>依赖注入 + 反射<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
@@ -390,18 +391,19 @@
 </pre></div>
 </div>
 <p>在使用依赖注入时，我们使用了 <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Annotated"><code class="docutils literal notranslate"><span class="pre">Annotated</span></code></a> + <a class="reference internal" href="../api/melobot.di.html#melobot.di.Reflect" title="melobot.di.Reflect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reflect</span></code></a> 附加项的方式，这是告诉 melobot 对 <code class="docutils literal notranslate"><span class="pre">event</span></code> 进行反射式的依赖注入。处理流在启用会话后，内部的“当前事件”记录会被更新。如果使用常规的依赖注入，那么 <code class="docutils literal notranslate"><span class="pre">event</span></code> 实参在会话暂停、又恢复后并不会自动被更新。而使用反射式的获取，就可以实时映射到最新的事件。</p>
-<p>需要特别注意的是，反射式的依赖注入，<strong>只适用于获取某些属性再使用</strong>的情景，如果需要对对象做比较底层的操作，需要使用 <code class="docutils literal notranslate"><span class="pre">__origin__</span></code> 属性获取原始对象：</p>
+<p>需要特别注意的是，反射式的依赖注入，<strong>只适用于获取某些属性并使用</strong>的情景，如果要对对象做比较底层的操作，请使用 <code class="docutils literal notranslate"><span class="pre">__origin__</span></code> 属性获取原始对象：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 读取 text 是没有关系的，因为通过反射获取：</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+
 <span class="c1"># 但是进行 isinstance, issubclass 判断，需要获取原对象</span>
 <span class="c1"># 因为当前拿到的 event 不是 Event 类型，而是“代理对象”类型：</span>
 <span class="n">is_msg_event</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">__origin__</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">)</span>
-<span class="c1"># 传入你不清楚实现细节的函数、可调用对象，或其他位置，请一定获取原始对象</span>
-<span class="n">whatever</span> <span class="o">=</span> <span class="n">i_dont_know_whats_this_doing</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">__origin__</span><span class="p">)</span>
+<span class="c1"># 传入你不清楚实现细节的函数，或其他位置，请一定获取原始对象</span>
+<span class="n">whatever</span> <span class="o">=</span> <span class="n">i_dont_know_how_this_running</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">__origin__</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>如果不用依赖注入，用上下文方法 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.get_event" title="melobot.handle.get_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_event()</span></code></a> 也可以获取到最新的事件。但是就需要在函数体里每次调 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.get_event" title="melobot.handle.get_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_event()</span></code></a>，非常不方便，而且没有精确的类型注解。</p>
-<p>当然，除了上下文获取方法，还可以试试上下文变量：</p>
+<p>如果不用依赖注入，用上下文方法 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.get_event" title="melobot.handle.get_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_event()</span></code></a> 可以自动映射到最新的事件。但需要在函数体里反复调用 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.get_event" title="melobot.handle.get_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_event()</span></code></a>，非常不方便，而且没有精确类型注解。</p>
+<p>除了上下文获取方法，上下文变量也是实时映射的：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">melobot.handle</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mb_handle</span>
 
 <span class="nd">@on_start_match</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -414,7 +416,7 @@
     <span class="n">second_text</span> <span class="o">=</span> <span class="n">mb_handle</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">text</span>
 </pre></div>
 </div>
-<p>每次读取 <code class="docutils literal notranslate"><span class="pre">mb_handle.event</span></code> 都是最新的事件，但是坏处是依然没有精确的类型注解。</p>
+<p>坏处是依然没有精确类型注解。</p>
 </section>
 <section id="id6">
 <h3>会话暂停、恢复<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
@@ -430,7 +432,7 @@
 </pre></div>
 </div>
 <p>随后调用了异步函数 <a class="reference internal" href="../api/melobot.session.html#melobot.session.suspend" title="melobot.session.suspend"><code class="xref py py-func docutils literal notranslate"><span class="pre">suspend()</span></code></a>，从而暂时陷入到<strong>会话暂停</strong>中，此时整个处理过程就被暂停了，bot 可以转向处理其他事件。当有新事件发生，并且“传统会话”的会话规则判断通过，那这个 <code class="docutils literal notranslate"><span class="pre">await</span></code> 行为便会完成并返回 <code class="docutils literal notranslate"><span class="pre">True</span></code>。这使得整个事件处理过程得以恢复执行。</p>
-<p>如果一直没有符合要求的事件发生，且超时 10s，那 <code class="docutils literal notranslate"><span class="pre">await</span></code> 将返回 <code class="docutils literal notranslate"><span class="pre">False</span></code>，指示“非预期唤醒”。注意“非预期唤醒”处理流的“当前事件”不会被更新。</p>
+<p>如果一直没有符合要求的事件发生，且超时 10s，那 <code class="docutils literal notranslate"><span class="pre">await</span></code> 将返回 <code class="docutils literal notranslate"><span class="pre">False</span></code>，指示“超时”。注意“超时”发生时，处理流的“当前事件”不会被更新。</p>
 <p>如果你需要无限期的暂停，不提供参数即可：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 无限期等待一定只能返回 True，因此不再需要分支</span>
 <span class="k">await</span> <span class="n">suspend</span><span class="p">()</span>
@@ -442,7 +444,7 @@
 <span class="n">city</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
 </pre></div>
 </div>
-<p>后续的过程不过是一个又一个“暂停、恢复”的周期，不再赘述。</p>
+<p>后续的过程不过是“暂停、恢复”的周期，不再赘述。</p>
 </section>
 </section>
 <section id="id7">
@@ -466,8 +468,8 @@
 </ul>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
-<p>因此如果使用这些“绑定函数”，<code class="docutils literal notranslate"><span class="pre">checker</span></code>, <code class="docutils literal notranslate"><span class="pre">matcher</span></code> 和 <code class="docutils literal notranslate"><span class="pre">parser</span></code> 运行时是不存在会话状态的。</p>
-<p>但如果你调整了会话创建的时机，这些组件运行时也能实现“暂停”、“恢复”。</p>
+<p>如果使用这些“绑定函数”，<code class="docutils literal notranslate"><span class="pre">checker</span></code>, <code class="docutils literal notranslate"><span class="pre">matcher</span></code> 和 <code class="docutils literal notranslate"><span class="pre">parser</span></code> 运行时是不存在会话状态的。</p>
+<p>但如果你调整了会话创建的时机，这些组件运行时也可以实现“暂停”、“恢复”。</p>
 </div>
 </section>
 <section id="id8">
@@ -475,7 +477,7 @@
 <p>本篇主要说明了如何使用会话开启交互式事件处理。</p>
 <p>恭喜你读完了 melobot intro 部分的所有内容。这些内容应该让你对 melobot 有了基础了解，并能基于此构建基础的、适配 OneBot 的机器人程序。</p>
 <p><strong>这便是 melobot 的全部了吗？实际上，一切才刚刚开始 :)</strong></p>
-<p>从下一章开始，我们将深入了解 melobot 的各层架构与各种机制。从而解锁<strong>无序插件加载、自定义会话</strong>等高级玩法，并<strong>使用裸处理流像搭积木一样，实现多协议支持、跨协议 IO</strong>等独家玩法，以及<strong>使用 melobot 妙妙小工具，便捷完成各种小需求</strong>等有趣玩法。</p>
+<p>从下一章开始，我们将深入了解 melobot 的各层架构与各种机制。从而解锁<strong>无序插件加载、自定义会话</strong>等高级玩法，并<strong>使用裸处理流像搭积木一样，实现多路输入输出</strong>等独家玩法，以及<strong>使用 melobot 妙妙小工具，便捷完成各种需求</strong>等有趣玩法。</p>
 </section>
 </section>
 
@@ -562,7 +564,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

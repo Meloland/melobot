@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.onebot.v11.utils.check - melobot 3.1.3</title>
+        <title>melobot.protocols.onebot.v11.utils.check - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../../../../../../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -252,6 +252,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -309,7 +310,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncOrAsyncCallable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checker</span>
@@ -351,17 +352,25 @@
 <span class="sd">    :param event: 消息事件</span>
 <span class="sd">    :return: 分级权限等级</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">qid</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">user_id</span>
+    <span class="n">_this</span> <span class="o">=</span> <span class="n">get_level_role</span>
+    <span class="n">_flag</span> <span class="o">=</span> <span class="p">(</span><span class="n">checker</span><span class="o">.</span><span class="n">black_users</span><span class="p">,</span> <span class="n">checker</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span> <span class="n">checker</span><span class="o">.</span><span class="n">super_users</span><span class="p">,</span> <span class="n">checker</span><span class="o">.</span><span class="n">white_users</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">flag_get</span><span class="p">(</span><span class="n">_this</span><span class="p">,</span> <span class="n">_flag</span><span class="p">,</span> <span class="n">raise_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">LevelRole</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">checker</span><span class="o">.</span><span class="n">black_list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">BLACK</span>
-    <span class="k">if</span> <span class="n">qid</span> <span class="o">==</span> <span class="n">checker</span><span class="o">.</span><span class="n">owner</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span>
-    <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">checker</span><span class="o">.</span><span class="n">su_list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">SU</span>
-    <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">checker</span><span class="o">.</span><span class="n">white_list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">WHITE</span>
-    <span class="k">return</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">NORMAL</span></div>
+    <span class="n">qid</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">user_id</span>
+    <span class="k">if</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">_flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">BLACK</span>
+    <span class="k">elif</span> <span class="n">qid</span> <span class="o">==</span> <span class="n">_flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">OWNER</span>
+    <span class="k">elif</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">_flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">SU</span>
+    <span class="k">elif</span> <span class="n">qid</span> <span class="ow">in</span> <span class="n">_flag</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">WHITE</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">NORMAL</span>
+    <span class="n">event</span><span class="o">.</span><span class="n">flag_set</span><span class="p">(</span><span class="n">_this</span><span class="p">,</span> <span class="n">_flag</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
 
 
 
@@ -373,13 +382,21 @@
 <span class="sd">    :param event: 消息事件</span>
 <span class="sd">    :return: 群权限等级</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_this</span> <span class="o">=</span> <span class="n">get_group_role</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">flag_get</span><span class="p">(</span><span class="n">_this</span><span class="p">,</span> <span class="n">_this</span><span class="p">,</span> <span class="n">raise_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">GroupRole</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_group</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">GroupRole</span><span class="p">,</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">NOT_IN_GROUP</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_owner</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">OWNER</span>
-    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_admin</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">ADMIN</span>
-    <span class="k">return</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">MEMBER</span></div>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">GroupRole</span><span class="p">,</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">NOT_IN_GROUP</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_owner</span><span class="p">():</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">OWNER</span>
+    <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">is_group_admin</span><span class="p">():</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">ADMIN</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">GroupRole</span><span class="o">.</span><span class="n">MEMBER</span>
+    <span class="n">event</span><span class="o">.</span><span class="n">flag_set</span><span class="p">(</span><span class="n">_this</span><span class="p">,</span> <span class="n">_this</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
 
 
 
@@ -397,56 +414,70 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件分级权限检查器</span>
 
 <span class="sd">        :param role: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param owner: 主人的 qq 号</span>
-<span class="sd">        :param super_users: 超级用户 qq 号列表</span>
-<span class="sd">        :param white_users: 白名单用户 qq 号列表</span>
-<span class="sd">        :param black_users: 黑名单用户 qq 号列表</span>
+<span class="sd">        :param super_users: 超级用户 qq 号</span>
+<span class="sd">        :param white_users: 白名单用户 qq 号</span>
+<span class="sd">        :param black_users: 黑名单用户 qq 号</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fail_cb</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_role</span> <span class="o">=</span> <span class="n">role</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">owner</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span> <span class="o">=</span> <span class="n">super_users</span> <span class="k">if</span> <span class="n">super_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span> <span class="o">=</span> <span class="n">white_users</span> <span class="k">if</span> <span class="n">white_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span> <span class="o">=</span> <span class="n">black_users</span> <span class="k">if</span> <span class="n">black_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">super_users</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">super_users</span><span class="p">)</span> <span class="k">if</span> <span class="n">super_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">white_users</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">white_users</span><span class="p">)</span> <span class="k">if</span> <span class="n">white_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">black_users</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">black_users</span><span class="p">)</span> <span class="k">if</span> <span class="n">black_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_role</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">super_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">white_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">black_users</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;获得事件对应的登记&quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_role</span><span class="p">,</span> <span class="n">LevelRole</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">get_level_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">get_group_role</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="n">e_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_level</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e_level</span><span class="p">,</span> <span class="n">LevelRole</span><span class="p">):</span>
+        <span class="n">e_level</span><span class="p">:</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_role</span><span class="p">,</span> <span class="n">LevelRole</span><span class="p">):</span>
+            <span class="n">e_level</span> <span class="o">=</span> <span class="n">get_level_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">LevelRole</span><span class="o">.</span><span class="n">BLACK</span> <span class="o">&lt;</span> <span class="n">e_level</span> <span class="ow">and</span> <span class="n">e_level</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_role</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">e_level</span> <span class="o">=</span> <span class="n">get_group_role</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">e_level</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_role</span>
         <span class="k">return</span> <span class="n">status</span>
 
 <div class="viewcode-block" id="MsgChecker.check">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.MsgChecker.check">[文档]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="c1"># 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_message</span><span class="p">():</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">is_msg</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">is_msg</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">flag_get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span><span class="p">,</span> <span class="n">raise_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">status</span></div>
+            <span class="c1"># 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_message</span><span class="p">():</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">is_msg</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_msg</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">,</span> <span class="n">event</span><span class="p">))</span>
+
+            <span class="n">event</span><span class="o">.</span><span class="n">flag_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span><span class="p">,</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">is_msg</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">status</span>
+
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">is_msg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span><span class="p">()</span></div>
 </div>
 
 
@@ -468,24 +499,25 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span> <span class="o">|</span> <span class="n">GroupRole</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">white_groups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">white_groups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个群聊消息事件分级权限检查器</span>
 
 <span class="sd">        :param role: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param owner: 主人的 qq 号</span>
-<span class="sd">        :param super_users: 超级用户 qq 号列表</span>
-<span class="sd">        :param white_users: 白名单用户 qq 号列表</span>
-<span class="sd">        :param black_users: 黑名单用户 qq 号列表</span>
-<span class="sd">        :param white_groups: 白名单群号列表（不在其中的群不通过校验）</span>
+<span class="sd">        :param super_users: 超级用户 qq 号</span>
+<span class="sd">        :param white_users: 白名单用户 qq 号</span>
+<span class="sd">        :param black_users: 黑名单用户 qq 号</span>
+<span class="sd">        :param white_groups: 白名单群号（不在其中的群不通过校验）</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">super_users</span><span class="p">,</span> <span class="n">white_users</span><span class="p">,</span> <span class="n">black_users</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span> <span class="o">=</span> <span class="n">white_groups</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">white_groups</span><span class="p">)</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -496,7 +528,6 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">cast</span><span class="p">(</span><span class="n">GroupMessageEvent</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span><span class="o">.</span><span class="n">group_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
 
@@ -517,18 +548,18 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">LevelRole</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个私聊消息事件分级权限检查器</span>
 
 <span class="sd">        :param role: 允许的等级（&gt;= 此等级才能通过校验）</span>
 <span class="sd">        :param owner: 主人的 qq 号</span>
-<span class="sd">        :param super_users: 超级用户 qq 号列表</span>
-<span class="sd">        :param white_users: 白名单用户 qq 号列表</span>
-<span class="sd">        :param black_users: 黑名单用户 qq 号列表</span>
+<span class="sd">        :param super_users: 超级用户 qq 号</span>
+<span class="sd">        :param white_users: 白名单用户 qq 号</span>
+<span class="sd">        :param black_users: 黑名单用户 qq 号</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">super_users</span><span class="p">,</span> <span class="n">white_users</span><span class="p">,</span> <span class="n">black_users</span><span class="p">,</span> <span class="n">fail_cb</span><span class="p">)</span></div>
@@ -537,7 +568,6 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_private</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
-
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
 
@@ -555,26 +585,26 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">white_groups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">super_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">white_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">black_users</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">white_groups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fail_cb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化一个消息事件分级权限检查器的工厂</span>
 
 <span class="sd">        :param owner: 主人的 qq 号</span>
-<span class="sd">        :param super_users: 超级用户 qq 号列表</span>
-<span class="sd">        :param white_users: 白名单用户 qq 号列表</span>
-<span class="sd">        :param black_users: 黑名单用户 qq 号列表</span>
-<span class="sd">        :param white_groups: 白名单群号列表（不在其中的群不通过校验）</span>
+<span class="sd">        :param super_users: 超级用户 qq 号</span>
+<span class="sd">        :param white_users: 白名单用户 qq 号</span>
+<span class="sd">        :param black_users: 黑名单用户 qq 号</span>
+<span class="sd">        :param white_groups: 白名单群号（不在其中的群不通过校验）</span>
 <span class="sd">        :param fail_cb: 检查不通过的回调（这将自动附加到生成的检查器上）</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">owner</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span> <span class="o">=</span> <span class="n">super_users</span> <span class="k">if</span> <span class="n">super_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span> <span class="o">=</span> <span class="n">white_users</span> <span class="k">if</span> <span class="n">white_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span> <span class="o">=</span> <span class="n">black_users</span> <span class="k">if</span> <span class="n">black_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span> <span class="o">=</span> <span class="n">white_groups</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">super_users</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">super_users</span><span class="p">)</span> <span class="k">if</span> <span class="n">super_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">white_users</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">white_users</span><span class="p">)</span> <span class="k">if</span> <span class="n">white_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">black_users</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">black_users</span><span class="p">)</span> <span class="k">if</span> <span class="n">black_users</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">white_groups</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">white_groups</span><span class="p">)</span> <span class="k">if</span> <span class="n">white_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="o">=</span> <span class="n">fail_cb</span></div>
 
@@ -595,9 +625,9 @@
         <span class="k">return</span> <span class="n">MsgChecker</span><span class="p">(</span>
             <span class="n">role</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">super_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">white_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">black_users</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -618,10 +648,10 @@
         <span class="k">return</span> <span class="n">GroupMsgChecker</span><span class="p">(</span>
             <span class="n">role</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">white_group_list</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">super_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">white_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">black_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">white_groups</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -642,9 +672,9 @@
         <span class="k">return</span> <span class="n">PrivateMsgChecker</span><span class="p">(</span>
             <span class="n">role</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">su_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">white_list</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">black_list</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">super_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">white_users</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">black_users</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="k">if</span> <span class="n">fail_cb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fail_cb</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
@@ -669,25 +699,39 @@
 <span class="sd">        :param fail_cb: 检查不通过的回调</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fail_cb</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="o">=</span> <span class="n">qid</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="o">=</span> <span class="n">qid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span> <span class="o">=</span> <span class="n">qid</span></div>
 
 
 <div class="viewcode-block" id="AtMsgChecker.check">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.utils.html#melobot.protocols.onebot.v11.utils.AtMsgChecker.check">[文档]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_message</span><span class="p">():</span>
-            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">is_msg</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">is_msg</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">flag_get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span><span class="p">,</span> <span class="n">raise_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
 
-        <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-        <span class="n">qids</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;qq&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">AtSegment</span><span class="p">)]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">qids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">qids</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_message</span><span class="p">():</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">is_msg</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_msg</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">MessageEvent</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+                <span class="n">qids</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;qq&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">AtSegment</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">qids</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">status</span></div>
+            <span class="n">event</span><span class="o">.</span><span class="n">flag_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_tag</span><span class="p">,</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">is_msg</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">status</span>
+
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">is_msg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_cb</span><span class="p">()</span></div>
 </div>
 
 </pre></div>
@@ -729,7 +773,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../../../../../../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/scripts/furo.js?v=5fa4622c"></script>

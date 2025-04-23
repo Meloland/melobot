@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot 3.1.3</title>
+        <title>melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">melobot 3.1.3</div></a>
+      <a href="#"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -253,6 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -389,19 +390,24 @@
 <div><p>Python 版本需求：&gt;= 3.10</p>
 </div></blockquote>
 <p>如果您对 melobot 完全不熟悉，建议配合文档开始学习。文档以 OneBot v11 协议为例，通过以下命令安装文档教程中必需的组件：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>melobot<span class="o">[</span>onebot<span class="o">]</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;melobot[onebot]&quot;</span>
+<span class="c1"># 或</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;melobot[onebot]&quot;</span>
 </pre></div>
 </div>
 <p>如果您对 melobot 已经十分了解，请自由地安装核心 + 任何可选依赖。</p>
 <p>也可以通过源码构建：（对于普通用户不推荐）</p>
 <blockquote>
-<div><p>本项目使用 pdm 管理，你首先需要安装 <a class="reference external" href="https://pdm-project.org/latest/#installation">pdm</a>。</p>
+<div><p>本项目使用 uv 管理，你首先需要安装 <a class="reference external" href="https://docs.astral.sh/uv/">uv</a></p>
 </div></blockquote>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pdm<span class="w"> </span>install
-pdm<span class="w"> </span>build
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/meloland/melobot.git
+<span class="nb">cd</span><span class="w"> </span>melobot
+uv<span class="w"> </span>venv<span class="w"> </span>-p<span class="w"> </span><span class="m">3</span>.10
+uv<span class="w"> </span>sync<span class="w"> </span>--all-extras<span class="w"> </span>--all-groups
+uv<span class="w"> </span>build
 </pre></div>
 </div>
-<p>之后可在 <code class="docutils literal notranslate"><span class="pre">.pdm-build</span></code> 目录获取本地构建，pip 本地安装即可。</p>
+<p>之后可在 <code class="docutils literal notranslate"><span class="pre">dist</span></code> 目录获取本地构建轮子，安装即可。</p>
 </section>
 </section>
 
@@ -472,7 +478,7 @@ pdm<span class="w"> </span>build
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=659900e3"></script>
+</div><script src="_static/documentation_options.js?v=2865ff22"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

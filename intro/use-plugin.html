@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>插件系统的使用 - melobot 3.1.3</title>
+        <title>插件系统的使用 - melobot 3.2.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.1.3</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.1.3</span>
+  <span class="sidebar-brand-text">melobot 3.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -253,6 +253,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mp.html">melobot.mp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
@@ -407,21 +408,31 @@
 </div>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
+<p><a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 装饰器等相关接口，一般被称为“组合式风格”。而通过类的初始化参数声明插件功能，一般被称为“选项式风格”。</p>
+<p>未来会介绍更多两种风格的 API。具体选择哪种风格进行开发，请根据实际情况与项目结构斟酌，并没有绝对的优劣。</p>
+</div>
+<div class="caution admonition">
+<p class="admonition-title">注意</p>
 <p>一般情况下，<strong>请勿在插件目录内手动创建 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 文件</strong>。</p>
 <p>在之后的教程中会详细说明为什么不要这样做，以及与此相关的<strong>插件加载机制</strong>与<strong>插件高级用法</strong>。</p>
 </div>
 </section>
 <section id="id4">
 <h2>模块级插件的加载<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p>在目前阶段，只需要学会通过插件目录的路径加载插件，就可以了：</p>
+<p>在目前阶段，只需要学会通过插件目录的路径，或者插件模块的包名加载插件，就可以了：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 在创建 bot 后使用，提供插件目录的相对或绝对路径：</span>
 <span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;test_plugin&quot;</span><span class="p">)</span>
 <span class="c1"># 或</span>
 <span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;./test_plugin&quot;</span><span class="p">)</span>
 <span class="c1"># 或</span>
 <span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;/home/test_user/my_bot/test_plugin&quot;</span><span class="p">)</span>
+
+<span class="c1"># 如果是从 pip 安装的第三方模块</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;melobot_plugin_xxx&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>一般情况下，<strong>请勿将本地插件目录名设置为与第三方插件模块相同的名称</strong>。</p>
+<p>虽然 melobot 会依据 <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> 的优先级加载，但是同名是非常不好的习惯。</p>
 </section>
 <section id="id5">
 <h2>总结<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
@@ -508,7 +519,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=659900e3"></script>
+</div><script src="../_static/documentation_options.js?v=2865ff22"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
