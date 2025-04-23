@@ -4,8 +4,6 @@ from asyncio import Queue, create_task
 import aiohttp
 import aiohttp.web
 
-from melobot.ctx import LoggerCtx
-from melobot.log.base import Logger
 from melobot.protocols.onebot.v11.adapter import action
 from melobot.protocols.onebot.v11.io.duplex_http import HttpIO
 from melobot.protocols.onebot.v11.io.packet import OutPacket
@@ -68,42 +66,40 @@ class MockClientSession:
 
 
 async def test_http(monkeypatch) -> None:
-    with LoggerCtx().unfold(Logger()):
-        aiohttp._ClientSession = aiohttp.ClientSession
-        monkeypatch.setattr(aiohttp, "ClientSession", lambda: MockClientSession())
-        io = HttpIO("http://localhost:80", "localhost", 9090)
-        create_task(put_input(json.dumps(_TEST_EVENT_DICT)))
+    aiohttp._ClientSession = aiohttp.ClientSession
+    monkeypatch.setattr(aiohttp, "ClientSession", lambda: MockClientSession())
+    io = HttpIO("http://localhost:80", "localhost", 9090)
+    create_task(put_input(json.dumps(_TEST_EVENT_DICT)))
 
-        async with io:
-            await io.input()
+    async with io:
+        await io.input()
 
-            await put_input(json.dumps(_TEST_EVENT_DICT))
-            pak = await io.input()
-            assert pak.data == _TEST_EVENT_DICT
+        await put_input(json.dumps(_TEST_EVENT_DICT))
+        pak = await io.input()
+        assert pak.data == _TEST_EVENT_DICT
 
-            pak = await io.output(
+        pak = await io.output(
+            OutPacket(
+                data=_TEST_ACTION.extract(),
+                action_type=_TEST_ACTION.extract()["action"],
+                action_params=_TEST_ACTION.extract()["params"],
+            )
+        )
+        await _OUT_BUF.get() == _TEST_ACTION.flatten()
+        assert pak.noecho
+
+        t = create_task(
+            io.output(
                 OutPacket(
                     data=_TEST_ACTION.extract(),
                     action_type=_TEST_ACTION.extract()["action"],
                     action_params=_TEST_ACTION.extract()["params"],
+                    echo_id=_TEST_ACTION.extract()["echo"],
                 )
             )
-            await _OUT_BUF.get() == _TEST_ACTION.flatten()
-            assert pak.noecho
-
-            _TEST_ACTION.set_echo(True)
-            t = create_task(
-                io.output(
-                    OutPacket(
-                        data=_TEST_ACTION.extract(),
-                        action_type=_TEST_ACTION.extract()["action"],
-                        action_params=_TEST_ACTION.extract()["params"],
-                        echo_id=_TEST_ACTION.extract()["echo"],
-                    )
-                )
-            )
-            await _OUT_BUF.get() == _TEST_ACTION.flatten()
-            pak = await t
-            assert pak.data["data"]["hello"] == _TEST_ECHO_DICT["data"]["hello"]
-            assert pak.ok == (_TEST_ECHO_DICT["status"] == "ok")
-            assert pak.status == _TEST_ECHO_DICT["retcode"]
+        )
+        await _OUT_BUF.get() == _TEST_ACTION.flatten()
+        pak = await t
+        assert pak.data["data"]["hello"] == _TEST_ECHO_DICT["data"]["hello"]
+        assert pak.ok == (_TEST_ECHO_DICT["status"] == "ok")
+        assert pak.status == _TEST_ECHO_DICT["retcode"]

@@ -1,10 +1,11 @@
 import re
 import sys
-import types
+from functools import partial
 
-from typing_extensions import Any, Callable, Protocol, cast
+from typing_extensions import Any, Callable, Protocol, assert_never, cast
 
-from .base import GenericLogger, Logger, LogLevel
+from ..typ._enum import LogLevel
+from .base import GenericLogger, Logger, generic_obj_meth
 
 
 class LazyLogMethod(Protocol):
@@ -33,7 +34,7 @@ def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
     :param lazy_meth: 修补方法
     """
     setattr(logger, Logger.generic_lazy.__name__, lazy_meth)
-    setattr(logger, Logger.generic_obj.__name__, types.MethodType(Logger.generic_obj, logger))
+    setattr(logger, Logger.generic_obj.__name__, partial(generic_obj_meth, logger))
     return cast(GenericLogger, logger)
 
 
@@ -99,7 +100,7 @@ class LoguruPatch(LazyLogMethod):
             case LogLevel.CRITICAL:
                 logger.critical(msg, *arg_getters)
             case _:
-                raise ValueError(f"无效的日志等级：{level}")
+                assert_never(f"无效的日志等级：{level}")
 
 
 class StructlogPatch(LazyLogMethod):
@@ -138,4 +139,4 @@ class StructlogPatch(LazyLogMethod):
             case LogLevel.CRITICAL:
                 logger.critical(msg, *args)
             case _:
-                raise ValueError(f"无效的日志等级：{level}")
+                assert_never(f"无效的日志等级：{level}")

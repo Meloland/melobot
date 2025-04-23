@@ -1,222 +1,38 @@
 from __future__ import annotations
 
-import io
 import logging
-import logging.config
 import logging.handlers
 import os
 import sys
-import traceback
 import types
 from abc import abstractmethod
 from contextlib import contextmanager
-from enum import Enum
-from inspect import currentframe
-from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
+from dataclasses import dataclass
+from logging import CRITICAL
 from logging import Logger as _Logger
 from logging import _srcfile as _LOGGING_SRC_FILE
 
-import colorlog
-import rich.console
-import rich.pretty
-from better_exceptions import ExceptionFormatter
-from rich.highlighter import Highlighter, ReprHighlighter
-from rich.style import Style
-from rich.text import Text
-from typing_extensions import Any, Callable, Generator, Literal, Optional
+from typing_extensions import Any, Callable, Generator, Literal, cast
 
-from ..typ._enum import VoidType
+from .._lazy import singleton
+from .._render import get_rich_exception
+from ..typ._enum import LogLevel, VoidType
 from ..typ.base import T
 from ..typ.cls import BetterABC
-from ..utils.common import singleton
+from ..utils.common import find_caller_stack
+from .handler import FastRotatingFileHandler, FastStreamHandler
 
-_CONSOLE_IO = io.StringIO()
-_CONSOLE = rich.console.Console(file=_CONSOLE_IO, record=True, color_system="256")
-_REPR_HIGHLIGHTER = ReprHighlighter()
-_HIGH_LIGHTWORDS = ["GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
-
-
-class _StyleHighlighter(Highlighter):
-    def __init__(self, style: Style | None) -> None:
-        super().__init__()
-        self.style = style
-
-    def highlight(self, text: Text) -> None:
-        if self.style:
-            text.stylize(self.style)
-
-
-def _get_rich_object(
-    obj: object,
-    max_len: Optional[int] = 2000,
-    style: Style | None = None,
-    no_color: bool = False,
-) -> tuple[str, str]:
-    if no_color:
-        hl = _StyleHighlighter(style=None)
-    elif style:
-        hl = _StyleHighlighter(style)
-    else:
-        hl = None
-
-    _CONSOLE.print(
-        rich.pretty.Pretty(
-            obj,
-            highlighter=hl,
-            indent_guides=True,
-            max_string=max_len,
-            overflow="ignore",
-            expand_all=True,
-        ),
-        crop=False,
-    )
-    colored_str = _CONSOLE_IO.getvalue().rstrip("\n")
-    _CONSOLE_IO.seek(0)
-    _CONSOLE_IO.truncate(0)
-    return colored_str, _CONSOLE.export_text().rstrip("\n")
-
-
-def _get_rich_repr(s: str, style: Style | None = None, no_color: bool = False) -> tuple[str, str]:
-    if no_color:
-        msg = Text(s)
-    elif style:
-        msg = Text(s, style=style)
-    else:
-        msg = _REPR_HIGHLIGHTER(Text(s))
-        msg.highlight_words(_HIGH_LIGHTWORDS, "logging.keyword")
-
-    _CONSOLE.print(msg)
-    colored_str = _CONSOLE_IO.getvalue()[:-1]
-    _CONSOLE_IO.seek(0)
-    _CONSOLE_IO.truncate(0)
-    return colored_str, _CONSOLE.export_text()[:-1]
-
-
-_EXC_FORMATTER = ExceptionFormatter(colored=True)
-_NO_COLOR_EXC_FORMATTER = ExceptionFormatter(colored=False)
-
-
-class _NormalLvlFilter(logging.Filter):
-    def filter(self, record: logging.LogRecord) -> bool:
-        return logging.DEBUG <= record.levelno < logging.WARNING
-
-
-class _MeloLogFilter(logging.Filter):
-    def __init__(
-        self,
-        name: str = "",
-        yellow_warn: bool = True,
-        red_error: bool = True,
-        legacy: bool = False,
-    ) -> None:
-        super().__init__(name)
-        self._obj: Any = VoidType.VOID
-        self._yellow_style = Style(color="yellow")
-        self._red_style = Style(color="red")
-        self._enable_yellow_warn = yellow_warn
-        self._enable_red_error = red_error
-        self._legacy = legacy
-
-    def set_obj(self, obj: Any) -> None:
-        self._obj = obj
-
-    def clear_obj(self) -> None:
-        self._obj = VoidType.VOID
-
-    @contextmanager
-    def on_obj(self, obj: Any) -> Generator[None, None, None]:
-        try:
-            self.set_obj(obj)
-            yield
-        finally:
-            self.clear_obj()
-
-    def filter(self, record: logging.LogRecord) -> Literal[True]:
-        msg = str(record.msg)
-        if record.args:
-            msg = msg % record.args
-        record.msg_str = msg
-
-        record.mod_name, record.func_name, record.func_lineno = _current_finfo()
-        self._fill_msg_and_obj(msg, record)
-        return True
-
-    def _fill_msg_and_obj(self, msg: str, record: logging.LogRecord) -> None:
-        yellow_style = self._yellow_style
-        red_style = self._red_style
-        yellow_warn = self._enable_yellow_warn
-        red_error = self._enable_red_error
-
-        if self._legacy:
-            record.legacy_msg_str, record.colored_msg_str, record.msg_str = msg, "", msg
-
-            if self._obj is VoidType.VOID:
-                record.legacy_obj, record.obj = "", ""
-            else:
-                record.legacy_obj = record.obj = _get_rich_object(self._obj, no_color=True)[1]
-            record.colored_obj = ""
-            return
-
-        record.legacy_msg_str = ""
-        record.legacy_obj = ""
-
-        if red_error and record.levelno >= ERROR:
-            record.colored_msg_str, record.msg_str = _get_rich_repr(msg, red_style)
-        elif yellow_warn and record.levelno >= WARNING:
-            record.colored_msg_str, record.msg_str = _get_rich_repr(msg, yellow_style)
-        else:
-            record.colored_msg_str, record.msg_str = _get_rich_repr(msg)
-
-        if self._obj is VoidType.VOID:
-            record.colored_obj, record.obj = "", ""
-        elif red_error and record.levelno >= ERROR:
-            record.legacy_obj = record.obj = _get_rich_object(self._obj, no_color=True)[1]
-            record.colored_obj = ""
-        elif yellow_warn and record.levelno >= WARNING:
-            record.legacy_obj = record.obj = _get_rich_object(self._obj, no_color=True)[1]
-            record.colored_obj = ""
-        else:
-            record.colored_obj, record.obj = _get_rich_object(self._obj)
-
-
-class LogLevel(int, Enum):
-    """日志等级枚举"""
-
-    CRITICAL = CRITICAL
-    ERROR = ERROR
-    WARNING = WARNING
-    INFO = INFO
-    DEBUG = DEBUG
-
-
-_FILE = os.path.normcase(_get_rich_object.__code__.co_filename)
-
-
-def _is_internal_frame(frame: types.FrameType) -> bool:
-    filename = os.path.normcase(frame.f_code.co_filename)
-    return filename in (_FILE, _LOGGING_SRC_FILE) or (
-        "importlib" in filename and "_bootstrap" in filename
-    )
-
-
-def _current_finfo() -> tuple[str, str, int]:
-    frame = currentframe()
-    while frame:
-        if not _is_internal_frame(frame):
-            return (
-                frame.f_globals["__name__"],
-                frame.f_code.co_name,
-                frame.f_lineno,
-            )
-        frame = frame.f_back
-    return "<unknown module>", "<unknown file>", -1
+# 取消 better-exceptions 的猴子补丁
+logging._loggerClass = (  # type:ignore[attr-defined]
+    logging.Logger
+)
 
 
 class GenericLogger(BetterABC):
     """通用日志器抽象类
 
     任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，
-    即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.__init__`）
+    即可兼容 melobot 内部所有日志操作（也就可以用于 bot 初始化 :meth:`.Bot.`）
     """
 
     @abstractmethod
@@ -286,6 +102,8 @@ class GenericLogger(BetterABC):
 
 @singleton
 class NullLogger(_Logger, GenericLogger):
+    """空日志器，自动丢弃所有日志记录请求"""
+
     def __init__(self) -> None:
         super().__init__("__MELO_EMPTYLOGGER__", CRITICAL)
         self.addHandler(logging.NullHandler())
@@ -312,34 +130,47 @@ class NullLogger(_Logger, GenericLogger):
 class Logger(_Logger, GenericLogger):
     """melobot 内置日志器
 
-    推荐使用的日志器。实现了 :class:`GenericLogger` 接口，因此可以用于 melobot 内部日志记录。
+    推荐使用的日志器。实现了 :class:`GenericLogger` 接口，因此可以用于 melobot 内部日志记录
 
     `debug`, `info`, `warning`, `error`, `critical`, `exception`
     等接口与 :class:`logging.Logger` 用法完全一致
     """
 
-    __instances__: dict[str, "Logger"] = {}
+    def findCaller(
+        self, stack_info: bool = False, stacklevel: int = 1
+    ) -> tuple[str, int, str, str | None]:
+        *ret, sinfo = find_caller_stack(stack_info, stacklevel, is_logging_frame)
+        sinfo = f"\u0000{ret[0]},{ret[2]}"
+        return cast(tuple[str, int, str, str | None], (*(ret[1:]), sinfo))
 
-    def __new__(cls, name: str = "melobot", /, *args: Any, **kwargs: Any) -> Logger:
-        if name in Logger.__instances__:
-            return Logger.__instances__[name]
-        obj = super().__new__(cls)
-        Logger.__instances__[name] = obj
-        return obj
+    def makeRecord(self, *args: Any, **kwargs: Any) -> logging.LogRecord:
+        record = super().makeRecord(*args, **kwargs)
+        sinfo = record.stack_info
+
+        *sinfo_strs, caller_info = cast(str, sinfo).split("\u0000")
+        *mod_name_strs, func_lineno = caller_info.split(",")
+        record.mod_name = "".join(mod_name_strs)
+        record.func_lineno = int(func_lineno)
+
+        sinfo = "".join(sinfo_strs)
+        if sinfo == "":
+            sinfo = None
+        record.stack_info = sinfo
+        return record
 
     def __init__(
         self,
-        name: str = "melobot",
-        /,
+        name: str = "[default]",
         level: LogLevel = LogLevel.INFO,
         file_level: LogLevel = LogLevel.DEBUG,
         to_console: bool = True,
         to_dir: str | None = None,
-        add_tag: bool = False,
+        add_tag: bool = True,
         legacy: bool = False,
         yellow_warn: bool = True,
         red_error: bool = True,
         two_stream: bool = False,
+        is_parellel: bool = False,
     ) -> None:
         """初始化日志器
 
@@ -359,14 +190,13 @@ class Logger(_Logger, GenericLogger):
             `legacy` 选项为 `True` 时此参数无效
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件
+        :param is_parellel: 日志渲染是否启用并行优化（可能导致日志小范围行间乱序）
         """
-        if hasattr(self, "_built") and self._built:
-            return
-
         super().__init__(name, LogLevel.DEBUG)
         self._handler_arr: list[logging.Handler] = []
         self._no_tag = not add_tag
         self._filter = _MeloLogFilter(name, yellow_warn, red_error, legacy)
+        self._parellel = is_parellel
 
         if to_console:
             con_handler = self._add_console_handler()
@@ -380,8 +210,6 @@ class Logger(_Logger, GenericLogger):
             normal_handler = self._add_file_handler(to_dir, f"{name}.out", file_level)
             normal_handler.addFilter(_NormalLvlFilter(name))
             self._add_file_handler(to_dir, f"{name}.err", max(file_level, LogLevel.WARNING))
-
-        self._built: bool = True
 
     def _add_console_handler(self) -> logging.Handler:
         fmt = self._console_fmt(self.name, self._no_tag)
@@ -405,24 +233,25 @@ class Logger(_Logger, GenericLogger):
 
     @staticmethod
     def _make_fmt_nocache(fmt: logging.Formatter) -> None:
-        _origin_format = fmt.format
+        _original_format = fmt.format
 
         def nocache_format(record: logging.LogRecord) -> str:
             record.exc_text = None
-            return _origin_format(record)
+            return _original_format(record)
 
         fmt.format = nocache_format  # type: ignore[method-assign]
 
     @staticmethod
     def _console_fmt(name: str, no_tag: bool = False) -> logging.Formatter:
+        import colorlog
+
         fmt_arr = [
             "%(cyan)s%(asctime)s.%(msecs)03d%(reset)s",
             "%(log_color)s%(levelname)-7s%(reset)s",
-            "%(blue)s%(mod_name)s%(reset)s:%(blue)s%(func_name)s%(reset)s"
-            + ":%(cyan)s%(func_lineno)d%(reset)s",
+            "%(blue)s%(mod_name)s%(reset)s:%(cyan)s%(func_lineno)d%(reset)s",
         ]
         if not no_tag:
-            fmt_arr.insert(0, f"%(purple)s{name}%(reset)s")
+            fmt_arr.insert(1, f"%(purple)s{name}%(reset)s")
         fmt_s = " | ".join(fmt_arr)
         msg_str_f = "%(log_color)s%(legacy_msg_str)s%(reset)s%(colored_msg_str)s"
         obj_str_f = "%(log_color)s%(legacy_obj)s%(reset)s%(colored_obj)s"
@@ -430,17 +259,12 @@ class Logger(_Logger, GenericLogger):
 
         fmt = colorlog.ColoredFormatter(fmt_s, datefmt="%Y-%m-%d %H:%M:%S", reset=True)
         fmt.default_msec_format = "%s.%03d"
-        fmt.formatException = lambda exc_info: "".join(  # type: ignore[assignment]
-            _EXC_FORMATTER.format_exception(*exc_info)
-        )
+        fmt.formatException = lambda exc_info: get_rich_exception(*exc_info)[0]  # type: ignore
         Logger._make_fmt_nocache(fmt)
-
-        # 未知的 mypy bug 推断 fmt 为 Any 类型...
         return fmt  # type: ignore[no-any-return]
 
-    @staticmethod
-    def _console_handler(fmt: logging.Formatter) -> logging.Handler:
-        handler = logging.StreamHandler()
+    def _console_handler(self, fmt: logging.Formatter) -> logging.Handler:
+        handler = FastStreamHandler(self._parellel)
         handler.setFormatter(fmt)
         return handler
 
@@ -449,10 +273,10 @@ class Logger(_Logger, GenericLogger):
         fmt_arr = [
             "%(asctime)s.%(msecs)03d",
             "%(levelname)-7s",
-            "%(mod_name)s:%(func_name)s:%(func_lineno)d",
+            "%(mod_name)s:%(func_lineno)d",
         ]
         if not no_tag:
-            fmt_arr.insert(0, name)
+            fmt_arr.insert(1, name)
         fmt_s = " | ".join(fmt_arr)
         fmt_s += " - %(msg_str)s%(obj)s"
 
@@ -461,21 +285,18 @@ class Logger(_Logger, GenericLogger):
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         fmt.default_msec_format = "%s.%03d"
-        fmt.formatException = lambda exc_info: "".join(  # type: ignore
-            _NO_COLOR_EXC_FORMATTER.format_exception(*exc_info)
-        )
+        fmt.formatException = lambda exc_info: get_rich_exception(*exc_info)[1]  # type: ignore
         Logger._make_fmt_nocache(fmt)
-
         return fmt
 
-    @staticmethod
     def _file_handler(
-        fmt: logging.Formatter, log_dir: str, name: str, level: LogLevel
+        self, fmt: logging.Formatter, log_dir: str, name: str, level: LogLevel
     ) -> logging.Handler:
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
 
-        handler = logging.handlers.RotatingFileHandler(
+        handler = FastRotatingFileHandler(
+            self._parellel,
             filename=os.path.join(log_dir, f"{name}.log"),
             maxBytes=1024 * 1024,
             backupCount=10,
@@ -497,40 +318,13 @@ class Logger(_Logger, GenericLogger):
             if not isinstance(handler, logging.handlers.RotatingFileHandler):
                 handler.setLevel(level)
 
-    def findCaller(
-        self, stack_info: bool = False, stacklevel: int = 1
-    ) -> tuple[str, int, str, str | None]:
-        f = currentframe()
-        if f is None:
-            return "<unknown file>", 0, "<unknown function>", "<unknown stackinfo>"
-
-        while stacklevel > 0:
-            next_f = f.f_back
-            if next_f is None:
-                break
-            f = next_f
-            if not _is_internal_frame(f):
-                stacklevel -= 1
-        co = f.f_code
-        sinfo = None
-
-        if stack_info:
-            with io.StringIO() as sio:
-                sio.write("Stack (most recent call last):\n")
-                traceback.print_stack(f, file=sio)
-                sinfo = sio.getvalue()
-                if sinfo[-1] == "\n":
-                    sinfo = sinfo[:-1]
-
-        assert isinstance(f.f_lineno, int)
-        return co.co_filename, f.f_lineno, co.co_name, sinfo
-
     def generic_lazy(
         self,
         msg: str,
         *arg_getters: Callable[[], str],
         level: LogLevel,
         with_exc: bool = False,
+        stacklevel: int = 1,
     ) -> None:
         """懒惰日志方法
 
@@ -538,11 +332,12 @@ class Logger(_Logger, GenericLogger):
         :param arg_getters: 填充消息 %s 位置的填充函数
         :param level: 日志等级
         :param with_exc: 是否记录异常栈信息
+        :param stacklevel: 打印日志时尝试解析的调用栈层级
         """
         if not self.isEnabledFor(level):
             return
         exc = sys.exc_info() if with_exc else None
-        self._log(level, msg, tuple(g() for g in arg_getters), exc_info=exc)
+        self._log(level, msg, tuple(g() for g in arg_getters), exc_info=exc, stacklevel=stacklevel)
 
     def generic_obj(
         self,
@@ -550,6 +345,7 @@ class Logger(_Logger, GenericLogger):
         obj: T,
         *arg_getters: Callable[[], str],
         level: LogLevel = LogLevel.INFO,
+        stacklevel: int = 1,
     ) -> None:
         """记录对象的日志方法
 
@@ -557,10 +353,90 @@ class Logger(_Logger, GenericLogger):
         :param obj: 需要被日志记录的对象
         :param arg_getters: 填充消息 %s 位置的填充函数
         :param level: 日志等级
+        :param stacklevel: 打印日志时尝试解析的调用栈层级
         """
-        if isinstance(self, Logger):
-            with self._filter.on_obj(obj):
-                self.generic_lazy(msg + "\n", *arg_getters, level=level)
-        else:
-            _getters = arg_getters + (lambda: _get_rich_object(obj)[1],)
-            self.generic_lazy(msg + "\n%s", *_getters, level=level)
+        with self._filter.on_obj(obj):
+            self.generic_lazy(msg + "\n", *arg_getters, level=level, stacklevel=stacklevel)
+
+
+class _NormalLvlFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return logging.DEBUG <= record.levelno < logging.WARNING
+
+
+@dataclass
+class LogInfo:
+    yellow_warn: bool
+    red_error: bool
+    legacy: bool
+    msg: str
+    obj: Any
+
+
+class _MeloLogFilter(logging.Filter):
+    def __init__(
+        self,
+        name: str = "",
+        yellow_warn: bool = True,
+        red_error: bool = True,
+        legacy: bool = False,
+    ) -> None:
+
+        super().__init__(name)
+        self._obj: Any = VoidType.VOID
+        self._enable_yellow_warn = yellow_warn
+        self._enable_red_error = red_error
+        self._legacy = legacy
+
+    def set_obj(self, obj: Any) -> None:
+        self._obj = obj
+
+    def clear_obj(self) -> None:
+        self._obj = VoidType.VOID
+
+    @contextmanager
+    def on_obj(self, obj: Any) -> Generator[None, None, None]:
+        try:
+            self.set_obj(obj)
+            yield
+        finally:
+            self.clear_obj()
+
+    def filter(self, record: logging.LogRecord) -> Literal[True]:
+        msg = str(record.msg)
+        if record.args:
+            msg = msg % record.args
+        record.msg_str = msg
+        self._fill_log_info(msg, record)
+        return True
+
+    def _fill_log_info(self, msg: str, record: logging.LogRecord) -> None:
+        log_info = LogInfo(
+            yellow_warn=self._enable_yellow_warn,
+            red_error=self._enable_red_error,
+            legacy=self._legacy,
+            msg=msg,
+            obj=self._obj,
+        )
+        record.log_info = log_info
+
+
+def is_logging_frame(frame: types.FrameType) -> bool:
+    filename = os.path.normcase(frame.f_code.co_filename)
+    return filename in (_FILE, _LOGGING_SRC_FILE) or (
+        "importlib" in filename and "_bootstrap" in filename
+    )
+
+
+def generic_obj_meth(
+    logger: GenericLogger,
+    msg: str,
+    obj: T,
+    *arg_getters: Callable[[], str],
+    level: LogLevel = LogLevel.INFO,
+) -> None:
+    _getters = arg_getters + (lambda: str(obj),)
+    logger.generic_lazy(msg + "\n%s", *_getters, level=level)
+
+
+_FILE = os.path.normcase(generic_obj_meth.__code__.co_filename)

@@ -22,7 +22,7 @@ from typing_extensions import (
     final,
 )
 
-from ..ctx import EventOrigin, FlowCtx, LoggerCtx, OutSrcFilterCtx
+from ..ctx import EventOrigin, FlowCtx, OutSrcFilterCtx
 from ..exceptions import AdapterError
 from ..io.base import (
     AbstractInSource,
@@ -33,11 +33,11 @@ from ..io.base import (
     OutPacketT,
     OutSourceT,
 )
-from ..log.base import LogLevel
+from ..log import log_exc
 from ..mixin import HookMixin
 from ..typ.cls import BetterABC
 from .content import Content
-from .model import ActionHandle, ActionT, EchoT, Event, EventT
+from .model import ActionHandle, ActionHandleGroup, ActionT, EchoT, Event, EventT
 
 if TYPE_CHECKING:
     from ..bot.dispatch import Dispatcher
@@ -163,7 +163,6 @@ class Adapter(
 
     @final
     async def __adapter_input_loop__(self, src: InSourceT) -> NoReturn:
-        logger = LoggerCtx().get()
         while True:
             try:
                 packet = await src.input()
@@ -171,16 +170,15 @@ class Adapter(
                 EventOrigin.set_origin(event, EventOrigin(self, src))
                 await self._hook_bus.emit(AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,))
                 self.dispatcher.broadcast(event)
-            except Exception:
-                logger.exception(f"适配器 {self} 处理输入与分发事件时发生异常")
-                logger.generic_obj(
-                    "异常点局部变量：",
-                    {
+            except Exception as e:
+                log_exc(
+                    e,
+                    msg=f"适配器 {self} 处理输入源 {src} 时发生异常",
+                    obj={
                         "in_factory": self._event_factory,
                         "dispatcher": self.dispatcher,
                     }
                     | locals(),
-                    level=LogLevel.ERROR,
                 )
 
     @asynccontextmanager
@@ -226,15 +224,15 @@ class Adapter(
         """
         return _OUT_SRC_FILTER_CTX.unfold(filter)
 
-    async def call_output(self, action: ActionT) -> tuple[ActionHandle, ...]:
-        """输出行为，并返回各个输出源返回的 :class:`.ActionHandle` 组成的元组
+    async def call_output(self, action: ActionT) -> ActionHandleGroup:
+        """输出行为，返回 :class:`.ActionHandleGroup`
 
         适配器开发者的适配器子类可以重写此方法，以实现自定义功能
 
         但子类实现中必须调用原始方法： `super().call_output(...)`
 
         :param action: 行为
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         osrcs: Iterable[OutSourceT]
         filter = _OUT_SRC_FILTER_CTX.try_get()
@@ -253,18 +251,19 @@ class Adapter(
             osrcs = self.out_srcs if len(self.out_srcs) else ()
 
         await self._hook_bus.emit(AdapterLifeSpan.BEFORE_ACTION_EXEC, True, args=(action,))
-        return tuple(
+        hs: tuple[ActionHandle, ...] = tuple(
             ActionHandle(action, osrc, self._output_factory, self._echo_factory) for osrc in osrcs
         )
+        return ActionHandleGroup(*hs)
 
     @abstractmethod
-    async def __send_text__(self, text: str) -> tuple[ActionHandle, ...]:
+    async def __send_text__(self, text: str) -> ActionHandleGroup:
         """输出文本
 
         抽象方法。所有适配器子类应该实现此方法
 
         :param text: 文本
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         raise NotImplementedError
 
@@ -274,7 +273,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle, ...]:
+    ) -> ActionHandleGroup:
         """输出多媒体内容
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -283,7 +282,7 @@ class Adapter(
         :param raw: 多媒体内容的二进制内容
         :param url: 多媒体内容的网络地址（和 `raw` 参数二选一）
         :param mimetype: 多媒体内容的 mimetype，为空则根据 `name` 自动检测
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(
             f"[melobot media: {name if url is None else name + ' at ' + url}]"
@@ -295,7 +294,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle, ...]:
+    ) -> ActionHandleGroup:
         """输出图像内容
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -304,7 +303,7 @@ class Adapter(
         :param raw: 图像内容的二进制内容
         :param url: 图像内容的网络地址（和 `raw` 参数二选一）
         :param mimetype: 图像内容的 mimetype，为空则根据 `name` 自动检测
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(
             f"[melobot image: {name if url is None else name + ' at ' + url}]"
@@ -316,7 +315,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle, ...]:
+    ) -> ActionHandleGroup:
         """输出音频内容
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -325,7 +324,7 @@ class Adapter(
         :param raw: 音频内容的二进制内容
         :param url: 音频内容的网络地址（和 `raw` 参数二选一）
         :param mimetype: 音频内容的 mimetype，为空则根据 `name` 自动检测
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(
             f"[melobot audio: {name if url is None else name + ' at ' + url}]"
@@ -337,7 +336,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle, ...]:
+    ) -> ActionHandleGroup:
         """输出语音内容
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -346,7 +345,7 @@ class Adapter(
         :param raw: 语音内容的二进制内容
         :param url: 语音内容的网络地址（和 `raw` 参数二选一）
         :param mimetype: 语音内容的 mimetype，为空则根据 `name` 自动检测
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(
             f"[melobot voice: {name if url is None else name + ' at ' + url}]"
@@ -358,7 +357,7 @@ class Adapter(
         raw: bytes | None = None,
         url: str | None = None,
         mimetype: str | None = None,
-    ) -> tuple[ActionHandle, ...]:
+    ) -> ActionHandleGroup:
         """输出视频内容
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
@@ -367,43 +366,43 @@ class Adapter(
         :param raw: 视频内容的二进制内容
         :param url: 视频内容的网络地址（和 `raw` 参数二选一）
         :param mimetype: 视频内容的 mimetype，为空则根据 `name` 自动检测
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(
             f"[melobot video: {name if url is None else name + ' at ' + url}]"
         )
 
-    async def __send_file__(self, name: str, path: str | PathLike[str]) -> tuple[ActionHandle, ...]:
+    async def __send_file__(self, name: str, path: str | PathLike[str]) -> ActionHandleGroup:
         """输出文件
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
 
         :param name: 文件名
         :param path: 文件路径
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(f"[melobot file: {name} at {path}]")
 
     async def __send_refer__(
         self, event: Event, contents: Sequence[Content] | None = None
-    ) -> tuple[ActionHandle, ...]:
+    ) -> ActionHandleGroup:
         """输出对过往事件的引用
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
 
         :param event: 过往的事件对象
         :param contents: 附加的通用内容序列
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(f"[melobot refer: {event.__class__.__name__}({event.id})]")
 
-    async def __send_resource__(self, name: str, url: str) -> tuple[ActionHandle, ...]:
+    async def __send_resource__(self, name: str, url: str) -> ActionHandleGroup:
         """输出网络资源
 
         建议所有适配器子类重写此方法，否则回退到基类实现：仅使用 :func:`send_text` 输出相关提示信息
 
         :param name: 网络资源名称
         :param url: 网络资源的 url
-        :return: :class:`.ActionHandle` 元组
+        :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(f"[melobot resource: {name} at {url}]")

@@ -1,10 +1,10 @@
-"""Cross platform Sphinx doc build, called by pdm command."""
+"""Cross platform Sphinx doc build, called by uv."""
 
 import os
 import sys
 from pathlib import Path
 
-os.chdir(str(Path(__file__).parent.absolute().resolve(strict=True)))
+os.chdir(Path(__file__).parent.absolute().resolve(strict=True).as_posix())
 
 
 def main():

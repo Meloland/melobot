@@ -2,15 +2,20 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import importlib
+import io
 import time
+import traceback
 import warnings
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import wraps
+from inspect import currentframe
+from types import FrameType
 
-from typing_extensions import Any, AsyncGenerator, Callable, Literal, cast, overload
+from typing_extensions import Any, AsyncGenerator, Callable, Literal, cast
 
+# 导入用作重导出（兼容过去的布局）
+from .._lazy import singleton
 from ..typ.base import P, T
 
 
@@ -53,34 +58,10 @@ def get_obj_name(
     return default % otype
 
 
-@overload
-def singleton(cls: type[T]) -> type[T]: ...
-@overload
-def singleton(cls: Callable[P, T]) -> Callable[P, T]: ...
-
-
-def singleton(cls: type[T] | Callable[P, T]) -> type[T] | Callable[P, T]:
-    """单例装饰器
-
-    :param cls: 需要被单例化的可调用对象
-    :return: 需要被单例化的可调用对象
-    """
-    obj_map = {}
-
-    @wraps(cls)
-    def singleton_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        if cls not in obj_map:
-            obj_map[cls] = cls(*args, **kwargs)
-        return obj_map[cls]
-
-    return singleton_wrapped
-
-
 def deprecate_warn(msg: str, stacklevel: int = 2) -> None:
-    from ..ctx import LoggerCtx
+    from ..log.reflect import logger
 
-    if logger := LoggerCtx().try_get():
-        logger.warning(msg)
+    logger.warning(msg)
     warnings.simplefilter("always", DeprecationWarning)
     warnings.warn(msg, category=DeprecationWarning, stacklevel=stacklevel)
     warnings.simplefilter("default", DeprecationWarning)
@@ -101,30 +82,6 @@ def deprecated(msg: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
         return deprecated_wrapped
 
     return deprecated_wrapper
-
-
-class DeprecatedLoader:
-    def __init__(self, mod_name: str, obj_pairs: dict[str, tuple[str, str, str]]) -> None:
-        self.__depre_mod_name__ = mod_name
-        self.__deprecations__ = obj_pairs
-
-    def get(self, name: str) -> Any:
-        if name not in self.__deprecations__:
-            raise AttributeError(f"module {self.__depre_mod_name__!r} has no attribute {name!r}")
-        location, varname, ver = self.__deprecations__[name]
-        deprecate_warn(
-            f"{self.__depre_mod_name__}.{name} 现以弃用，"
-            f"将于 {ver} 版本移除，使用 {location}.{varname} 代替",
-            stacklevel=4,
-        )
-        return getattr(importlib.import_module(location), varname)
-
-    @staticmethod
-    def merge(name: str, *loaders: DeprecatedLoader) -> DeprecatedLoader:
-        dic: dict[str, tuple[str, str, str]] = {}
-        for loader in loaders:
-            dic |= loader.__deprecations__
-        return DeprecatedLoader(name, dic)
 
 
 class RWContext:
@@ -250,3 +207,35 @@ def get_id() -> str:
     :return: id 值
     """
     return _DEFAULT_ID_WORKER.get_b64_id()
+
+
+def find_caller_stack(
+    stack_info: bool = False,
+    stacklevel: int = 1,
+    inner_frame_filter: Callable[[FrameType], bool] | None = None,
+) -> tuple[str, str, int, str, str | None]:
+    f = currentframe()
+    if f is None:
+        return "<unknown module>", "<unknown file>", 0, "<unknown function>", "<unknown stackinfo>"
+
+    while stacklevel > 0:
+        next_f = f.f_back
+        if next_f is None:
+            break
+        f = next_f
+        if inner_frame_filter is None or not inner_frame_filter(f):
+            stacklevel -= 1
+    co = f.f_code
+    sinfo = None
+
+    if stack_info:
+        with io.StringIO() as sio:
+            sio.write("Stack (most recent call last):\n")
+            traceback.print_stack(f, file=sio)
+            sinfo = sio.getvalue()
+            if sinfo[-1] == "\n":
+                sinfo = sinfo[:-1]
+
+    if not isinstance(f.f_lineno, int):
+        raise ValueError(f"尝试解析调用栈时，获取的行号不是整数，值类型是：{type(f.f_lineno)}")
+    return f.f_globals["__name__"], co.co_filename, f.f_lineno, co.co_name, sinfo

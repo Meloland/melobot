@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import re
 from abc import abstractmethod
-from functools import partial
+from functools import reduce
 
-from typing_extensions import Any, Callable, Coroutine
+from typing_extensions import Any, Sequence, assert_never
 
-from melobot.exceptions import UtilValidateError
-from melobot.typ import BetterABC, LogicMode
+from ...typ._enum import LogicMode
+from ...typ.cls import BetterABC
 
 
 class Matcher(BetterABC):
@@ -18,12 +18,12 @@ class Matcher(BetterABC):
 
     def __and__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            return NotImplemented
         return WrappedMatcher(LogicMode.AND, self, other)
 
     def __or__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            return NotImplemented
         return WrappedMatcher(LogicMode.OR, self, other)
 
     def __invert__(self) -> WrappedMatcher:
@@ -31,7 +31,7 @@ class Matcher(BetterABC):
 
     def __xor__(self, other: Matcher) -> WrappedMatcher:
         if not isinstance(other, Matcher):
-            raise UtilValidateError(f"联合匹配器定义时出现了非匹配器对象，其值为：{other}")
+            return NotImplemented
         return WrappedMatcher(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -69,106 +69,130 @@ class WrappedMatcher(Matcher):
         self.m1, self.m2 = matcher1, matcher2
 
     async def match(self, text: str) -> bool:
-        m2_match: Callable[[], Coroutine[Any, Any, bool]] | None = (
-            partial(self.m2.match, text) if self.m2 is not None else None
-        )
-        return await LogicMode.async_short_calc(self.mode, partial(self.m1.match, text), m2_match)
+        match self.mode:
+            case LogicMode.AND:
+                status = await self.m1.match(text) and await self.m2.match(text)  # type: ignore[union-attr]
+            case LogicMode.OR:
+                status = await self.m1.match(text) or await self.m2.match(text)  # type: ignore[union-attr]
+            case LogicMode.NOT:
+                status = not await self.m1.match(text)
+            case LogicMode.XOR:
+                status = await self.m1.match(text) ^ await self.m2.match(text)  # type: ignore[union-attr]
+            case _:
+                assert_never(f"无效的逻辑模式 {self.mode}")
+        return status
 
 
 class StartMatcher(Matcher):
     """字符串起始匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串起始匹配器
 
         `target` 为字符串时，只进行一次起始匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行起始匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行起始匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
-            return text[: len(self.target)] == self.target
-        res_seq = [text[: len(s)] == s for s in self.target]
-        return LogicMode.seq_calc(self.mode, res_seq)
+            return text.startswith(self.target)
+        res_seq = tuple(text.startswith(s) for s in self.target)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class ContainMatcher(Matcher):
     """字符串包含匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串包含匹配器
 
         `target` 为字符串时，只进行一次包含匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行包含匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行包含匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
             return self.target in text
-        res_seq = [s in text for s in self.target]
-        return LogicMode.seq_calc(self.mode, res_seq)
+        res_seq = tuple(s in text for s in self.target)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class EndMatcher(Matcher):
     """字符串结尾匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串结尾匹配器
 
         `target` 为字符串时，只进行一次结尾匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行结尾匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行结尾匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
-            return text[-len(self.target) :] == self.target
-        res_seq = [text[-len(s) :] == s for s in self.target]
-        return LogicMode.seq_calc(self.mode, res_seq)
+            return text.endswith(self.target)
+        res_seq = tuple(text.endswith(s) for s in self.target)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class FullMatcher(Matcher):
     """字符串全匹配器"""
 
-    def __init__(self, target: str | list[str], mode: LogicMode = LogicMode.OR) -> None:
+    def __init__(self, target: str | Sequence[str], mode: LogicMode = LogicMode.OR) -> None:
         """初始化一个字符串全匹配器
 
         `target` 为字符串时，只进行一次全匹配，即判断是否匹配成功。
-        `target` 为字符串列表时，所有字符串都进行全匹配，再将所有结果使用给定
+        `target` 为字符串序列时，所有字符串都进行全匹配，再将所有结果使用给定
         `mode` 计算是否匹配成功。
 
         :param target: 匹配目标
         :param mode: 匹配模式
         """
         super().__init__()
-        self.target = target
         self.mode = mode
+        self.target: set[str] | str
+        if not isinstance(target, str):
+            self.target = set(target)
+        else:
+            self.target = target
 
     async def match(self, text: str) -> bool:
         if isinstance(self.target, str):
             return text == self.target
         res_seq = [text == s for s in self.target]
-        return LogicMode.seq_calc(self.mode, res_seq)
+        return reduce(self.mode.get_operator(), res_seq)
 
 
 class RegexMatcher(Matcher):

@@ -27,62 +27,74 @@ await adapter.get_group_list()
 # 如何等待返回的数据呢？
 ```
 
-此时就需要行为句柄了：
+此时就需要行为句柄以及行为句柄组了。melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 {func}`.send_text`），都会返回行为句柄。
+
+melobot 是支持多源输出的。一个行为操作在通过行为操作函数创建后，会自动发送给匹配的协议适配器（一个或多个），随后适配器会根据已有的输出源，以及输出源过滤规则，让指定的输出源执行（输出）行为操作。而每个行为操作函数，会返回一个“行为操作句柄组”对象，用于控制输出过程。
 
 ```python
-# 使用 with_echo 装饰原行为方法
-waited_send = adapter.with_echo(adapter.send)
-# 获得一个元组，其中每个元素就是行为句柄
-# 因为 melobot 支持多个输出源，因此会有多个句柄
-handles = await waited_send(...)
+from melobot.adapter import ActionHandle, ActionHandleGroup, Echo
 
-# 如果像教程开始那样，只使用 add_io 添加了一个输入输出源
-# 那么就是一个输入，一个输出源。因此取第一个元素即可
-hs = await waited_send(...)
-handle = hs[0]
+# melobot 支持多个输出源，因此返回多个句柄组成的句柄组
+handle_group: ActionHandleGroup = await adapter.send(...)
 
-# 等待句柄，即是等待被 OneBot 实现端通知行为已完成
-# 等待并获取返回值，即是这个行为的响应结果，这在 melobot 中一般称作回应对象
+# 如果像教程开始那样，只使用添加了一个输入输出源
+# 那么实际只会产生一个句柄，使用下标可以获得句柄
+handle = handle_group[0]
+# 使用 len 返回句柄数量
+num = len(handle_group)
+# 也可使用迭代语法迭代各个句柄
+for handle in handle_group:
+    handle: ActionHandle
+    ...
+
+# 获取句柄包含的行为草组和对应的输出源
+action = handle.action
+out_src = handle.out_src
+
+# 等待句柄，即是等待被输出源通知行为已完成
+# 获取返回值，即是响应结果，这在 melobot 中一般称作回应对象
 echo = await handle
+# 但需要注意：melobot 的机制规定，输出源可以没有回应
+# 因此 echo 可能为空
+echo: Echo | None
+# 等待整个组，将会获得列表
+echoes: list[Echo | None] = await handle_group
+
+# 当需要确保回应不为空时，无需判空，而可以用 unwrap 方法
+# 例如取出组中第一个句柄的回应，为空时自动发出异常
+echo: Echo = await handle_group.unwrap(0)
+# 同理，也可以一次性取出所有回应，保证它们都不为空
+echoes: list[Echo] = await handle_group.unwrap_all()
+
+# 使用异步迭代接口，可以直接以迭代方式获取回应
+# 但需要注意：迭代顺序按回应完成的先后顺序
+async for echo, handle in handle_group:
+    echo: Echo | None
+    handle: ActionHandle
+    ...
+# 使用 unwrap_iter 接口，具有非空保证性
+# 但需要注意：迭代顺序按回应完成的先后顺序
+async for echo in handle_group.unwrap_iter():
+    echo: Echo
+    ...
+```
+
+因此，如果只是想要保证有序性（即等待操作完成），实际上非常简单：
+
+```python
+# 保证所有输出源的操作完成后继续执行
+await (await adapter.send(...))
+```
+
+对于 OneBot 的回应，拥有 `data` 属性，与 OneBot 标准中 echo 的 `data` 一致。
+
+```python
 # 访问需要的响应数据（data 字段与 OneBot 中的数据结构一致）
 # 依然建议使用下标访问，因为会有精确的类型注解
 msg_id = echo.data['message_id']
 ```
 
 关于回应对象，更多请参考 API 文档中的内容：[OneBot v11 回应](onebot_v11_echo)
-
-当然，有时候你可能有大量的行为操作需要等待，那这时可以使用更方便的上下文管理器：
-
-```python
-from melobot.protocols.onebot.v11 import Adapter, on_message, EchoRequireCtx
-
-@on_message(...)
-async def _(adapter: Adapter):
-    with EchoRequireCtx().unfold(True):
-        # 全部都会等待
-        await adapter.send("我一定先被看到")
-        await adapter.send("我一定是第二条消息")
-```
-
-一整个事件处理函数都需要等待时，可以使用 {func}`.unfold_ctx` 装饰器：
-
-```python
-from melobot.protocols.onebot.v11 import Adapter, on_message, EchoRequireCtx
-from melobot.utils import unfold_ctx
-
-@on_message(...)
-@unfold_ctx(lambda: EchoRequireCtx().unfold(True))
-async def _(adapter: Adapter):
-    # 全部都会等待
-    await adapter.send("我一定先被看到")
-    await adapter.send("我一定是第二条消息")
-```
-
-注意：melobot 的所有行为操作，包括刚才提及的协议特定操作，或通用的操作（例如 {func}`.send_text`），都会返回行为句柄。
-
-但这里提及的 {meth}`~.v11.Adapter.with_echo` 以及 {class}`.EchoRequireCtx` 等操作，只对 OneBot 协议特有行为操作有效。
-
-**其他协议的行为句柄，是否需要类似的操作，取决于它们的实现。但不变的是：使用行为句柄，可以获知行为的执行情况。**
 
 ```{admonition} 提示
 :class: tip
@@ -91,12 +103,26 @@ async def _(adapter: Adapter):
 建议只在**行为操作必须有序**，或**需要返回数据**时才去等待。
 ```
 
-```{admonition} 提示
-:class: tip
-句柄的本质是将操作和等待解耦。由此你可以发散自己的思维来使用它：
+句柄的本质是将操作和等待解耦。由此你可以发散自己的思维来使用它：例如安排一批操作，后续再集中等待，实现并发操作。
 
-例如安排一批操作，后续再集中等待，实现并发操作。
+但只依靠行为句柄，是无法控制行为何时执行的，只能控制等待的时机。如果还需要控制执行时机，请使用 {func}`.lazy_action` 上下文管理器展开**惰性行为作用域**。
+
+```python
+from melobot.adapter import lazy_action
+
+with lazy_action():
+    # 此作用域内，所有行为操作都不会自动执行
+    # 只是先产生了一个 pending 状态的句柄
+    hg = await send_text(...)
+    # 当需要执行时，手动调用 execute 方法
+    # 直接执行整个组内所有句柄
+    hg.execute()
+    # 执行组内某一句柄
+    handle: ActionHandle = ...
+    handle.execute()
 ```
+
+特别注意：**惰性行为作用域内，如果不执行 `execute` 就进行 await 就是死锁情况**。但死锁在执行 `execute` 后会被解除。
 
 ## 自定义行为
 
@@ -117,10 +143,7 @@ action = MyAction(123456)
 
 # 通过 adapter 的通用 action 输出方法输出
 await adapter.call_output(action)
-
-# 需要等待时，这样设置：
-action.set_echo(True)
-handles = await adapter.call_output(action)
+handle_group = await adapter.call_output(action)
 ```
 
 实际上，适配器所有行为操作，都是先在内部构建 {class}`~melobot.adapter.model.Action` 对象，再通过 {meth}`~melobot.adapter.base.Adapter.call_output` 输出。

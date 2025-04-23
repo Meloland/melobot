@@ -61,7 +61,19 @@ async def func1():
     ...
 ```
 
-需要注意的是，通用接口返回值将标注为 melobot 的事件基类型 {class}`~melobot.adapter.model.Event`，这可能不是你想要的，因此可以自行添加标注：
+或者使用通用上下文变量获取：
+
+```python
+from melobot.protocols.onebot.v11 import on_message
+from melobot.handle import event
+
+@on_message(...)
+async def func1():
+    e = event
+    ...
+```
+
+需要注意的是，通用接口以及通用上下文变量，将标注为 melobot 的事件基类型 {class}`~melobot.adapter.model.Event`，这可能不是你想要的，因此可以自行添加标注：
 
 ```python
 e: MessageEvent = get_event()
@@ -111,7 +123,7 @@ from melobot.protocols.onebot.v11 import NoticeEvent
 @on_start_match(...)
 async def func(event: NoticeEvent) -> None:
     # NoticeEvent 不是 TextEvent 子类，
-    # 还没到依赖注入类型收窄，NoticeEvent 就过不了 on_start_match 这一关
+    # NoticeEvent 还没到依赖注入类型收窄，就过不了 on_start_match 这一关
     ...
 ```
 

@@ -4,10 +4,20 @@ from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
 from enum import Enum
 
-from typing_extensions import TYPE_CHECKING, Any, Callable, Generator, Generic, Self, Union, cast
+from typing_extensions import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generator,
+    Generic,
+    Self,
+    Union,
+    cast,
+    overload,
+)
 
-from .exceptions import AdapterError, BotError, FlowError, LogError, SessionError
-from .typ.base import T
+from .exceptions import AdapterError, BotError, FlowError, SessionError
+from .typ.base import T, V
 from .typ.cls import SingletonMeta
 
 if TYPE_CHECKING:
@@ -57,12 +67,19 @@ class Context(Generic[T], metaclass=SingletonMeta):
         except LookupError:
             raise self.lookup_exc_cls(self.lookup_exc_tip) from None
 
-    def try_get(self) -> T | None:
-        """与 :func:`get` 类似，但不存在上下文对象时返回 `None`
+    @overload
+    def try_get(self, default: V) -> T | V: ...
 
+    @overload
+    def try_get(self, default: None = None) -> T | None: ...
+
+    def try_get(self, default: Any = None) -> T | Any:
+        """与 :func:`get` 类似，但不存在上下文对象时返回默认值
+
+        :param default: 上下文值不存在时返回的默认值
         :return: 上下文对象的上下文值
         """
-        return self.__storage__.get(None)
+        return self.__storage__.get(default)
 
     def add(self, ctx: T) -> Token[T]:
         """在当前上下文中，添加一个上下文值
@@ -152,9 +169,7 @@ class FlowStatus:
 class FlowCtx(Context[FlowStatus]):
     def __init__(self) -> None:
         super().__init__(
-            "MELOBOT_FLOW",
-            FlowError,
-            "此时不在活动的事件处理流中，无法获取处理流信息",
+            "MELOBOT_FLOW", FlowError, "此时不在活动的事件处理流中，无法获取处理流信息"
         )
 
     def get_event(self) -> "model.Event":
@@ -200,13 +215,14 @@ class BotCtx(Context["Bot"]):
 
         return Bot
 
+    def get_logger(self) -> "GenericLogger | None":
+        return self.get().logger
+
 
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
         super().__init__(
-            "MELOBOT_SESSION",
-            SessionError,
-            "此时不在活动的事件处理流中，无法获取会话信息",
+            "MELOBOT_SESSION", SessionError, "此时不在活动的事件处理流中，无法获取会话信息"
         )
 
     def get_store(self) -> "SessionStore":
@@ -214,7 +230,8 @@ class SessionCtx(Context["Session"]):
 
     def get_rule(self) -> "Rule":
         rule = self.get().rule
-        assert rule is not None, "预期之外的会话规则为空"
+        if rule is None:
+            raise SessionError("获取会话规则时，预期之外的会话规则为空")
         return rule
 
     def get_session_type(self) -> type["Session"]:
@@ -233,14 +250,10 @@ class SessionCtx(Context["Session"]):
         return Rule
 
 
-class LoggerCtx(Context["GenericLogger"]):
-    def __init__(self) -> None:
-        super().__init__("MELOBOT_LOGGER", LogError, "此时未初始化 logger 实例，无法获取")
+def get_logger_type() -> type["GenericLogger"]:
+    from .log.base import GenericLogger
 
-    def get_type(self) -> type["GenericLogger"]:
-        from .log.base import GenericLogger
-
-        return GenericLogger
+    return GenericLogger
 
 
 class EventOrigin:
@@ -275,9 +288,9 @@ class EventCompletion:
         self.under_session = under_session
 
 
-class ActionManualSignalCtx(Context[bool]):
+class ActionAutoExecCtx(Context[bool]):
     def __init__(self) -> None:
-        super().__init__("MELOBOT_ACTION_MANUAL_SIGNAL", AdapterError)
+        super().__init__("MELOBOT_ACTION_AUTO_EXEC", AdapterError)
 
 
 class ParseArgsCtx(Context["AbstractParseArgs"]):

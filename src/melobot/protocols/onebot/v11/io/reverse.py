@@ -5,13 +5,12 @@ import time
 from asyncio import Future
 
 import websockets
-import websockets.server
 from websockets import ConnectionClosed
 from websockets.asyncio.server import Server, ServerConnection
 from websockets.http11 import Request, Response
 
 from melobot.io import SourceLifeSpan
-from melobot.log import LogLevel
+from melobot.log import LogLevel, log_exc, logger
 
 from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
@@ -57,7 +56,7 @@ class ReverseWebSocketIO(BaseIOSource):
                 and _headers.get("authorization") != f"Bearer {self.access_token}"
                 and _headers.get("Authorization") != f"Bearer {self.access_token}"
             ):
-                self.logger.warning("OneBot 实现端的 access_token 不匹配，拒绝连接")
+                logger.warning("OneBot 实现端的 access_token 不匹配，拒绝连接")
                 return conn.respond(http.HTTPStatus.FORBIDDEN, auth_failed)
 
             self._conn_requested = True
@@ -66,7 +65,7 @@ class ReverseWebSocketIO(BaseIOSource):
     async def _input_loop(self, ws: ServerConnection) -> None:
         self.conn = ws
         self._opened.set()
-        self.logger.info("实现端与 OneBot v11 反向 WebSocket IO 源建立了连接")
+        logger.info("实现端与 OneBot v11 反向 WebSocket IO 源建立了连接")
 
         if self._restart_flag.is_set():
             self._restart_flag.clear()
@@ -75,7 +74,7 @@ class ReverseWebSocketIO(BaseIOSource):
         while True:
             try:
                 raw_str = await self.conn.recv()
-                self.logger.generic_obj("收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG)
+                logger.generic_obj("收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG)
                 if raw_str == "":
                     continue
                 raw = json.loads(raw_str)
@@ -100,18 +99,17 @@ class ReverseWebSocketIO(BaseIOSource):
                 )
 
             except asyncio.CancelledError:
-                break
+                raise
 
             except ConnectionClosed:
-                self.logger.info("实现端与 OneBot v11 反向 WebSocket IO 源已断连，等待连接中")
+                logger.info("实现端与 OneBot v11 反向 WebSocket IO 源已断连，等待连接中")
                 self._opened.clear()
                 self._restart_flag.set()
                 self._conn_requested = False
                 break
 
-            except Exception:
-                self.logger.exception("OneBot v11 反向 WebSocket IO 源输入异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                log_exc(e, "OneBot v11 反向 WebSocket IO 源输入异常", obj=locals())
 
     async def _output_loop(self) -> None:
         while True:
@@ -125,11 +123,10 @@ class ReverseWebSocketIO(BaseIOSource):
                 self._pre_send_time = time.time_ns()
 
             except asyncio.CancelledError:
-                break
+                raise
 
-            except Exception:
-                self.logger.exception("OneBot v11 反向 WebSocket IO 源输出异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                log_exc(e, msg="OneBot v11 反向 WebSocket IO 源输出异常", obj=locals())
 
     async def open(self) -> None:
         if self.opened():
@@ -143,7 +140,7 @@ class ReverseWebSocketIO(BaseIOSource):
                 self._input_loop, self.host, self.port, process_request=self._req_check
             )
             self._tasks.append(asyncio.create_task(self._output_loop()))
-            self.logger.info("OneBot v11 反向 WebSocket IO 源启动了服务，等待连接中")
+            logger.info("OneBot v11 反向 WebSocket IO 源启动了服务，等待连接中")
             await self._opened.wait()
 
     def opened(self) -> bool:
@@ -166,7 +163,7 @@ class ReverseWebSocketIO(BaseIOSource):
             if len(self._tasks):
                 await asyncio.wait(self._tasks)
             self._tasks.clear()
-            self.logger.info("OneBot v11 反向 WebSocket IO 源的服务已停止运行")
+            logger.info("OneBot v11 反向 WebSocket IO 源的服务已停止运行")
 
     async def input(self) -> InPacket:
         return await self._in_buf.get()

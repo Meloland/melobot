@@ -1,12 +1,11 @@
 import asyncio
-from asyncio import Queue, create_task
+from asyncio import Queue
 
 from melobot.bot import Bot
 from melobot.handle import on_start_match
-from melobot.log import GenericLogger
+from melobot.log import Logger, LogLevel, logger
 from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
-from melobot.protocols.onebot.v11.adapter.event import MessageEvent
 from melobot.protocols.onebot.v11.io.base import BaseIOSource
 from melobot.protocols.onebot.v11.io.packet import EchoPacket, InPacket, OutPacket
 from melobot.protocols.onebot.v11.utils import GroupMsgChecker, LevelRole
@@ -36,12 +35,12 @@ _GRUOP_EVENT_DICT = {
     "user_id": 3,
     "anonymous": None,
     "group_id": 6,
-    "raw_message": "45691237\n\r\t .echo/123/456    \r\n",
+    "raw_message": "\n\r\t .echo/123/456    \r\n",
 }
 
 
 h = on_start_match(
-    ["123", "456"],
+    ["\n\r\t .echo"],
     checker=GroupMsgChecker(
         role=LevelRole.WHITE,
         owner=1,
@@ -55,7 +54,7 @@ h = on_start_match(
 
 
 @h
-async def _flow(bot: Bot, logger: GenericLogger, args: CmdArgs) -> None:
+async def _flow(bot: Bot, args: CmdArgs) -> None:
     logger.info(args)
     await bot.close()
     _SUCCESS_SIGNAL.set()
@@ -87,11 +86,13 @@ class TempIO(BaseIOSource):
 _SUCCESS_SIGNAL = asyncio.Event()
 
 
-async def test_adapter_base():
+async def test_handle():
     mbot = Bot("test_handle")
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
     mbot.load_plugin(PluginPlanner("1.0.0", flows=[_flow]))
-    create_task(mbot.core_run())
-    await mbot._rip_signal.wait()
-    await _SUCCESS_SIGNAL.wait()
+
+    with loop_manager():
+        asyncio.create_task(mbot._run())
+        await mbot._rip_signal.wait()
+        await _SUCCESS_SIGNAL.wait()

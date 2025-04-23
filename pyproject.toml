@@ -1,6 +1,6 @@
 [project]
 name = "melobot"
-dynamic = ["version"]
+version = "3.2.0"
 description = "A bot framework with much high level features."
 authors = [{ name = "aicorein", email = "aicorein@meloland.org" }]
 maintainers = [{ name = "aicorein", email = "aicorein@meloland.org" }]
@@ -13,7 +13,8 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 readme = "README.md"
-license = { text = "BSD" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE-BSD", "LICENSE-CC", "THIRD-PARTY-NOTICES.md"]
 keywords = ["melobot", "bot framework", "asyncio", "coroutine", "concurrency"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -42,9 +43,33 @@ Issues = "https://github.com/Meloland/melobot/issues"
 [project.optional-dependencies]
 onebot = ["pydantic>=2.9.2,<3", "websockets>=14.1,<15", "aiohttp>=3.10.10,<4"]
 cli = ["watchdog>=6.0.0,<7"]
+
+
+[dependency-groups]
+measure = ["viztracer>=0.16.3", "pydeps>=1.12.20", "ipython"]
+test = ["pytest>=8.1.1", "pytest-asyncio>=0.24.0"]
+docs = [
+    "sphinx>=7.3.7",
+    "furo>=2024.1.29",
+    "myst-parser>=2.0.0",
+    "sphinx-copybutton>=0.5.2",
+]
+lint = ["black>=24.2.0", "isort>=5.13.2", "flake8>=7.0.0", "mypy>=1.11.1"]
+manage = ["toml>=0.10.2", "pre-commit>=4.0.1", "ipython>=8.32.0", "poethepoet>=0.33.1"]
+
+[tool.poe.tasks]
+isort = "isort --profile black src/melobot tests docs"
+format = "black src/melobot tests docs"
+check = "flake8 src/melobot"
+analyse = "mypy src/melobot"
+test = "pytest -c pytest.ini"
+deps = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"
+docs.script = "docs.make:main()"
+all_lint = ["isort", "format", "check", "analyse"]
+
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.mypy]
 follow_imports = "normal"
@@ -63,34 +88,3 @@ line-length = 100
 [tool.isort]
 profile = "black"
 line_length = 100
-
-[tool.pdm]
-distribution = true
-version = { source = "file", path = "src/melobot/_meta.py" }
-
-[tool.pdm.scripts]
-isort = { shell = "isort --profile black src/melobot tests scripts docs" }
-format = { shell = "black src/melobot tests scripts docs" }
-check = { shell = "flake8 src/melobot" }
-analyse = { shell = "mypy src/melobot" }
-all_lint = { composite = ["isort", "format", "check", "analyse"] }
-
-test = { shell = "pytest -c pytest.ini" }
-trace = { shell = "viztracer" }
-deps = { shell = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160" }
-docs = { call = "docs.make:main" }
-
-_deps_export = { call = "scripts.exports:main" }
-post_install.composite = ["_deps_export"]
-
-[dependency-groups]
-measure = ["viztracer>=0.16.3", "pydeps>=1.12.20", "ipython"]
-test = ["pytest>=8.1.1", "pytest-asyncio>=0.24.0"]
-docs = [
-    "sphinx>=7.3.7",
-    "furo>=2024.1.29",
-    "myst-parser>=2.0.0",
-    "sphinx-copybutton>=0.5.2",
-]
-lint = ["black>=24.2.0", "isort>=5.13.2", "flake8>=7.0.0", "mypy>=1.11.1"]
-manage = ["toml>=0.10.2", "pre-commit>=4.0.1", "ipython>=8.32.0"]

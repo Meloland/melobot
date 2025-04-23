@@ -328,6 +328,7 @@ class Session:
             except asyncio.CancelledError:
                 if session.__is_state__(SuspendSessionState):
                     await session.__wakeup__(completion=None)
+                raise
             finally:
                 if session._keep:
                     await session.__rest__()

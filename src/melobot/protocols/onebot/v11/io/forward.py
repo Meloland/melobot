@@ -10,7 +10,7 @@ from websockets.exceptions import ConnectionClosed
 
 from melobot.exceptions import SourceError
 from melobot.io import SourceLifeSpan
-from melobot.log import LogLevel
+from melobot.log import LogLevel, log_exc, logger
 
 from .base import BaseIOSource
 from .packet import EchoPacket, InPacket, OutPacket
@@ -48,7 +48,7 @@ class ForwardWebSocketIO(BaseIOSource):
                 await self._opened.wait()
 
                 raw_str = await self.conn.recv()
-                self.logger.generic_obj("收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG)
+                logger.generic_obj("收到上报，未格式化的字符串", raw_str, level=LogLevel.DEBUG)
                 if raw_str == "":
                     continue
                 raw = json.loads(raw_str)
@@ -73,7 +73,7 @@ class ForwardWebSocketIO(BaseIOSource):
                 )
 
             except asyncio.CancelledError:
-                break
+                raise
 
             except ConnectionClosed:
                 if self.opened():
@@ -81,9 +81,8 @@ class ForwardWebSocketIO(BaseIOSource):
                     asyncio.create_task(self.close())
                 break
 
-            except Exception:
-                self.logger.exception("OneBot v11 正向 WebSocket IO 源输入异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                log_exc(e, msg="OneBot v11 正向 WebSocket IO 源输入异常", obj=locals())
 
     async def _output_loop(self) -> None:
         while True:
@@ -97,11 +96,10 @@ class ForwardWebSocketIO(BaseIOSource):
                 self._pre_send_time = time.time_ns()
 
             except asyncio.CancelledError:
-                break
+                raise
 
-            except Exception:
-                self.logger.exception("OneBot v11 正向 WebSocket IO 源输出异常")
-                self.logger.generic_obj("异常点局部变量", locals(), level=LogLevel.ERROR)
+            except Exception as e:
+                log_exc(e, msg="OneBot v11 正向 WebSocket IO 源输出异常", obj=locals())
 
     async def open(self) -> None:
         if self.opened():
@@ -125,9 +123,9 @@ class ForwardWebSocketIO(BaseIOSource):
                     raise
 
                 except BaseException as e:
-                    self.logger.warning(f"连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}")
+                    logger.warning(f"连接建立失败，{self.retry_delay}s 后自动重试。错误：{e}")
                     if "403" in str(e):
-                        self.logger.warning("403 错误可能是 access_token 未配置或无效")
+                        logger.warning("403 错误可能是 access_token 未配置或无效")
 
                 await asyncio.sleep(self.retry_delay)
 
@@ -137,7 +135,7 @@ class ForwardWebSocketIO(BaseIOSource):
             self._tasks.append(asyncio.create_task(self._input_loop()))
             self._tasks.append(asyncio.create_task(self._output_loop()))
             self._opened.set()
-            self.logger.info("OneBot v11 正向 WebSocket IO 源与实现端建立了连接")
+            logger.info("OneBot v11 正向 WebSocket IO 源与实现端建立了连接")
 
             if self._restart_flag.is_set():
                 self._restart_flag.clear()
@@ -164,7 +162,7 @@ class ForwardWebSocketIO(BaseIOSource):
             if len(self._tasks):
                 await asyncio.wait(self._tasks)
             self._tasks.clear()
-            self.logger.info("OneBot v11 正向 WebSocket IO 源已断开连接")
+            logger.info("OneBot v11 正向 WebSocket IO 源已断开连接")
 
             if self._restart_flag.is_set():
                 asyncio.create_task(self.open())

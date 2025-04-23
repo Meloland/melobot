@@ -7,7 +7,6 @@ import warnings
 from collections.abc import Mapping
 from itertools import chain, zip_longest
 
-from beartype.door import is_subhint
 from pydantic import BaseModel, Discriminator, Tag, create_model
 from typing_extensions import (
     Annotated,
@@ -17,6 +16,7 @@ from typing_extensions import (
     Match,
     NotRequired,
     Self,
+    Sequence,
     TypedDict,
     TypeVar,
     cast,
@@ -145,7 +145,7 @@ def base64_encode(data: bytes) -> str:
     return code
 
 
-def segs_to_contents(message: list[Segment]) -> list[mbcontent.Content]:
+def segs_to_contents(message: Sequence[Segment]) -> list[mbcontent.Content]:
     contents: list[mbcontent.Content] = []
     for seg in message:
         if isinstance(seg, TextSegment):
@@ -176,7 +176,7 @@ def segs_to_contents(message: list[Segment]) -> list[mbcontent.Content]:
     return contents
 
 
-def contents_to_segs(contents: list[mbcontent.Content]) -> list[Segment]:
+def contents_to_segs(contents: Sequence[mbcontent.Content]) -> list[Segment]:
     segments: list[Segment] = []
     for c in contents:
         if isinstance(c, mbcontent.TextContent):
@@ -253,6 +253,8 @@ class Segment(Generic[SegTypeT, SegDataT]):
     def add_type(
         cls, seg_type_hint: Any, seg_data_hint: type[DataT]
     ) -> type[CustomSegCls[Any, DataT]]:
+        from melobot.typ import is_subhint
+
         if cls is not Segment:
             raise ValueError(f"只能使用 {Segment.__name__} 类的 {Segment.add_type.__name__} 方法")
         if not is_subhint(seg_type_hint, Literal):

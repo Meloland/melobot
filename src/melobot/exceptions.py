@@ -1,21 +1,7 @@
-import logging
-import sys
+from typing_extensions import TYPE_CHECKING
 
-import better_exceptions
-from typing_extensions import Any
-
-better_exceptions.SUPPORTS_COLOR = True
-better_exceptions.color.SUPPORTS_COLOR = True
-better_exceptions.formatter.SUPPORTS_COLOR = True
-# 修复在 windows powershell 显示错误的 bug
-better_exceptions.encoding.ENCODING = sys.stdout.encoding
-better_exceptions.formatter.ENCODING = sys.stdout.encoding
-# 直接 hook，而不是让它使用环境变量触发
-sys.excepthook = better_exceptions.excepthook
-# 取消它的猴子补丁
-logging._loggerClass = (  # type:ignore[attr-defined]
-    logging.Logger
-)
+if TYPE_CHECKING:
+    from .adapter.model import ActionHandle
 
 
 class BotException(Exception):
@@ -96,6 +82,14 @@ class AdapterError(BotException):
     """melobot 适配器异常"""
 
 
+class ActionHandleError(BotException):
+    """melobot 行为操作异常"""
+
+    def __init__(self, *args: object, handle: "ActionHandle") -> None:
+        super().__init__(*args)
+        self.handle = handle
+
+
 class DependError(BotException):
     """melobot 依赖注入异常"""
 
@@ -108,9 +102,14 @@ class DependBindError(DependError):
     """melobot 依赖注入项值绑定失败"""
 
 
-class DynamicImpError(BotException, ImportError):
+class DynamicImpError(BotException):
     """melobot 动态导入组件异常"""
 
-    def __init__(self, *args: Any, name: str | None = None, path: str | None = None) -> None:
-        BotException.__init__(self, *args)
-        ImportError.__init__(self, *args, name=name, path=path)
+    def __init__(self, *args: object, name: str | None = None, path: str | None = None) -> None:
+        super().__init__(*args)
+        self.name = name
+        self.path = path
+
+
+class DynamicImpSpecEmpty(DynamicImpError):
+    """melobot 动态导入时，模块的 spec 为空"""

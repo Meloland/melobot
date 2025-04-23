@@ -5,9 +5,9 @@ from enum import Enum
 
 from typing_extensions import Any, Generic, TypeVar
 
-from .ctx import LoggerCtx
 from .di import inject_deps
-from .log.base import LogLevel
+from .log.reflect import logger
+from .log.report import log_exc
 from .typ.base import AsyncCallable, SyncOrAsyncCallable
 from .utils import to_async, to_sync
 
@@ -25,13 +25,11 @@ class HookRunner(Generic[HookEnumT]):
     async def _run(self, *args: Any, **kwargs: Any) -> None:
         try:
             await self.callback(*args, **kwargs)
-        except Exception:
-            logger = LoggerCtx().get()
-            logger.exception(f"{self.type} 类型的 hook 方法 {self.callback} 发生异常")
-            logger.generic_obj(
-                "异常点局部变量：",
-                {"hook_runner": self, "args": args, "kwargs": kwargs},
-                level=LogLevel.ERROR,
+        except Exception as e:
+            log_exc(
+                e,
+                msg=f"{self.type} 类型的 hook 方法 {self.callback} 发生异常",
+                obj={"callback": self.callback, "args": args, "kwargs": kwargs},
             )
 
     async def run(self, *args: Any, **kwargs: Any) -> None:
@@ -81,7 +79,6 @@ class HookBus(Generic[HookEnumT]):
         self._stamps[hook_type] = time.time_ns() / 1e9
         args = args if args is not None else ()
         kwargs = kwargs if kwargs is not None else {}
-        logger = LoggerCtx().get()
 
         msg = f"<{hook_type}>（{wait = }）"  # noqa: E251, E202
         if self._tag:

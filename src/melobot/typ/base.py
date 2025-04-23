@@ -1,7 +1,9 @@
-from beartype import BeartypeConf as _BeartypeConf
-from beartype.door import is_bearable as _is_type
-from beartype.door import is_subhint
-from typing_extensions import Any, Awaitable, ParamSpec, Protocol, TypeIs, TypeVar
+from typing_extensions import TYPE_CHECKING, Any, Awaitable, ParamSpec, Protocol, TypeIs, TypeVar
+
+from .._lazy import singleton
+
+if TYPE_CHECKING:
+    from beartype import BeartypeConf
 
 __all__ = ("AsyncCallable", "P", "T", "T_co", "is_type", "is_subhint")
 
@@ -35,7 +37,11 @@ class SyncOrAsyncCallable(Protocol[P, T_co]):
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co | Awaitable[T_co]: ...
 
 
-_DEFAULT_BEARTYPE_CONF = _BeartypeConf(is_pep484_tower=True)
+@singleton
+def _get_beartype_conf() -> "BeartypeConf":
+    from beartype import BeartypeConf
+
+    return BeartypeConf(is_pep484_tower=True)
 
 
 def is_type(obj: T, hint: type[Any]) -> TypeIs[T]:
@@ -45,5 +51,20 @@ def is_type(obj: T, hint: type[Any]) -> TypeIs[T]:
     :param hint: 任意类型注解
     :return: 布尔值
     """
-    ret = _is_type(obj, hint, conf=_DEFAULT_BEARTYPE_CONF)
+    from beartype.door import is_bearable
+
+    ret = is_bearable(obj, hint, conf=_get_beartype_conf())
+    return ret  # type: ignore[no-any-return]
+
+
+def is_subhint(subhint: Any, superhint: Any) -> bool:
+    """检查 `subhint` 是否是 `superhint` 的子类型
+
+    :param subhint: 任意类型注解
+    :param superhint: 任意类型注解
+    :return: 布尔值
+    """
+    from beartype.door import is_subhint as _is_subhint
+
+    ret = _is_subhint(subhint, superhint)
     return ret  # type: ignore[no-any-return]

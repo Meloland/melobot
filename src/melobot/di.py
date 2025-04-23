@@ -6,7 +6,6 @@ from collections import deque
 from dataclasses import dataclass
 from functools import partial, wraps
 from inspect import Parameter, isawaitable, signature, unwrap
-from sys import version_info
 from types import BuiltinFunctionType, FunctionType, LambdaType
 
 from typing_extensions import (
@@ -21,7 +20,7 @@ from typing_extensions import (
     get_origin,
 )
 
-from .ctx import BotCtx, EventOrigin, FlowCtx, LoggerCtx, ParseArgsCtx, SessionCtx
+from .ctx import BotCtx, EventOrigin, FlowCtx, ParseArgsCtx, SessionCtx, get_logger_type
 from .exceptions import DependBindError, DependInitError
 from .typ._enum import VoidType
 from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, is_subhint, is_type
@@ -142,8 +141,8 @@ class AutoDepends(Depends):
         elif is_subhint(hint, _get_adapter_type()):
             self.orig_getter = cast(Callable[[], Any], partial(_adapter_get, self, hint))
 
-        elif is_subhint(hint, LoggerCtx().get_type()):
-            self.orig_getter = LoggerCtx().get
+        elif is_subhint(hint, get_logger_type()):
+            self.orig_getter = BotCtx().get_logger
 
         elif is_subhint(hint, FlowCtx().get_store_type()):
             self.orig_getter = FlowCtx().get_store
@@ -234,7 +233,7 @@ def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
 
 
 def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
-    val = LoggerCtx().get()
+    val = BotCtx().get_logger()
     if not is_type(val, hint):
         val = data.getter()
     return val
@@ -300,8 +299,6 @@ class Reflection:
 
     def __getattr__(self, name: str) -> Any:
         getter = self.__obj_getter__
-        if name == "__obj_getter__":
-            return getter
         if name.startswith("_"):
             raise AttributeError(f"在反射对象上，不允许访问名称以 _ 开头的属性：{name}")
 
@@ -317,33 +314,28 @@ class Reflection:
         return setattr(getter(), name, value)
 
 
-def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
-    try:
-        sign = signature(func)
-    except ValueError as e:
-        tip = "no signature found for builtin"
-        if str(e).startswith(tip) and version_info <= (3, 10):
-            raise DependInitError(
-                f"内建函数 {func} 在 python <= 3.10 的版本中，无法进行依赖注入"
-            ) from None
-        raise
+_DI_DEFAULTS = "MELOBOT_DI_TUPLE"
+_DI_KW_DEFAULTS = "MELOBOT_DI_DICT"
 
+
+def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
+    sign = signature(func)
     empty = Parameter.empty
     origin_f = unwrap(func, stop=lambda f: hasattr(f, "__signature__"))
-    ds = deque(origin_f.__defaults__) if origin_f.__defaults__ is not None else deque()
-    kwds = origin_f.__kwdefaults__ if origin_f.__kwdefaults__ is not None else {}
-    nargs: list[Any] = []
+    defaults = deque(origin_f.__defaults__) if origin_f.__defaults__ is not None else deque()
+    kwargs = dict(origin_f.__kwdefaults__) if origin_f.__kwdefaults__ is not None else {}
+    args: list[Any] = []
 
     for name, param in sign.parameters.items():
         if param.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
             continue
 
         if param.default is not empty:
-            if name in kwds:
+            if name in kwargs:
                 pass
             else:
-                ds.popleft()
-                nargs.append(param.default)
+                defaults.popleft()
+                args.append(param.default)
             continue
 
         if param.annotation is empty:
@@ -360,30 +352,12 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
             continue
 
         if param.kind is Parameter.KEYWORD_ONLY:
-            kwds[name] = dep
+            kwargs[name] = dep
         else:
-            nargs.append(dep)
+            args.append(dep)
 
-    origin_f.__defaults__ = tuple(nargs) if len(nargs) else None
-    origin_f.__kwdefaults__ = kwds if len(kwds) else None  # type: ignore[assignment]
-
-
-def _get_bound_args(
-    func: Callable, /, *args: Any, **kwargs: Any
-) -> tuple[list[Any], dict[str, Any]]:
-    sign = signature(func)
-
-    try:
-        bind = sign.bind(*args, **kwargs)
-    except TypeError as e:
-        fname = get_obj_name(func, otype="callable")
-        raise DependBindError(
-            f"依赖注入匹配失败。匹配函数 {fname} 的参数时发生错误：{e}。"
-            "这可能是因为传参个数不匹配，或提供了错误的类型注解"
-        ) from None
-
-    bind.apply_defaults()
-    return list(bind.args), bind.kwargs
+    func.__dict__[_DI_DEFAULTS] = tuple(args)
+    func.__dict__[_DI_KW_DEFAULTS] = kwargs
 
 
 class DependsHook(Depends[T], BetterABC):
@@ -429,7 +403,10 @@ def inject_deps(
 
     @wraps(injectee)
     async def inject_deps_wrapped(*args: Any, **kwargs: Any) -> T:
-        _args, _kwargs = _get_bound_args(injectee, *args, **kwargs)
+        defaults: tuple[Any] = injectee.__dict__[_DI_DEFAULTS]
+        kw_defaults: dict[str, Any] = injectee.__dict__[_DI_KW_DEFAULTS]
+        _args = [*args, *defaults[len(args) :]]
+        _kwargs = kw_defaults.copy() | kwargs
         dep_scope: dict[Depends, Any] = {}
 
         for idx, _ in enumerate(_args):
@@ -442,16 +419,26 @@ def inject_deps(
             if isinstance(elem, Depends):
                 _kwargs[k] = await elem.fulfill(dep_scope)
 
-        ret = injectee(*_args, **_kwargs)  # type: ignore[arg-type]
+        try:
+            ret = injectee(*_args, **_kwargs)  # type: ignore[arg-type]
+        except TypeError as e:
+            fname = get_obj_name(injectee, otype="callable")
+            raise DependBindError(
+                f"依赖注入传参失败。函数 {fname} 传参时发生错误：{e}。"
+                "这可能是因为传参个数不匹配，或提供了错误的类型注解"
+            ) from None
+
         if isawaitable(ret):
             return await ret
         return ret
 
-    if isinstance(injectee, (FunctionType, BuiltinFunctionType)):
+    if isinstance(injectee, FunctionType):
         _init_auto_deps(injectee, manual_arg)
         return inject_deps_wrapped
     if isinstance(injectee, LambdaType):
         return inject_deps_wrapped
+    if isinstance(injectee, BuiltinFunctionType):
+        raise DependInitError(f"内建函数 {injectee} 不支持依赖注入")
 
     raise DependInitError(
         f"{injectee} 对象不属于以下类别中的任何一种："

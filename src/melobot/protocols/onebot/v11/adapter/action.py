@@ -3,6 +3,7 @@ import json
 from typing_extensions import Any, Iterable, Literal, Optional, TypedDict
 
 from melobot.adapter import Action as RootAction
+from melobot.adapter.content import TextContent
 from melobot.handle import try_get_event
 
 from ..const import PROTOCOL_IDENTIFIER
@@ -12,26 +13,20 @@ from .segment import NodeSegment, Segment, TextSegment
 class Action(RootAction):
     def __init__(self, type: str, params: dict[str, Any]) -> None:
         self.time: int
-
-        super().__init__(protocol=PROTOCOL_IDENTIFIER, trigger=try_get_event())
-
         self.type = type
         self.params = params
-        self.need_echo = False
+
+        super().__init__(
+            protocol=PROTOCOL_IDENTIFIER,
+            trigger=try_get_event(),
+            contents=(TextContent(str({"action": self.type, "params": self.params})),),
+        )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(type={self.type}, echo={self.need_echo})"
-
-    def set_echo(self, status: bool) -> None:
-        self.need_echo = status
+        return f"{self.__class__.__name__}(type={self.type})"
 
     def extract(self) -> dict[str, Any]:
-        obj = {
-            "action": self.type,
-            "params": self.params,
-        }
-        if self.need_echo:
-            obj["echo"] = self.id
+        obj = {"action": self.type, "params": self.params, "echo": self.id}
         return obj
 
     def flatten(self) -> str:
@@ -61,7 +56,8 @@ class SendMsgAction(Action):
         type = "send_msg"
         _msgs = msgs_to_dicts(msgs)
         if group_id is None:
-            assert user_id is not None, "group_id 为空时，user_id 必须为非空"
+            if user_id is None:
+                raise ValueError("group_id 为空时，user_id 必须为非空")
             params = {
                 "message_type": "private",
                 "user_id": user_id,

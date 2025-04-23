@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from functools import partial
 
-from typing_extensions import Any, Callable, Coroutine, Generic
+from typing_extensions import Any, Callable, Coroutine, Generic, assert_never
 
-from ...adapter.model import EventT
-from ...exceptions import UtilValidateError
+from ...adapter.model import Event, EventT
 from ...typ._enum import LogicMode
 from ...typ.base import SyncOrAsyncCallable
 from ...typ.cls import BetterABC
-from ..base import to_async
+from ...utils.base import to_async
 
 
 class Checker(Generic[EventT], BetterABC):
@@ -22,12 +20,12 @@ class Checker(Generic[EventT], BetterABC):
 
     def __and__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilValidateError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            return NotImplemented
         return WrappedChecker(LogicMode.AND, self, other)
 
     def __or__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilValidateError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            return NotImplemented
         return WrappedChecker(LogicMode.OR, self, other)
 
     def __invert__(self) -> WrappedChecker:
@@ -35,7 +33,7 @@ class Checker(Generic[EventT], BetterABC):
 
     def __xor__(self, other: Checker) -> WrappedChecker:
         if not isinstance(other, Checker):
-            raise UtilValidateError(f"联合检查器定义时出现了非检查器对象，其值为：{other}")
+            return NotImplemented
         return WrappedChecker(LogicMode.XOR, self, other)
 
     @abstractmethod
@@ -50,7 +48,7 @@ class Checker(Generic[EventT], BetterABC):
         raise NotImplementedError
 
     @staticmethod
-    def new(func: Callable[[EventT], bool]) -> Checker[EventT]:
+    def new(func: SyncOrAsyncCallable[[EventT], bool]) -> Checker[EventT]:
         """从可调用对象创建检查器
 
         :param func: 可调用对象
@@ -60,12 +58,12 @@ class Checker(Generic[EventT], BetterABC):
 
 
 class _CustomChecker(Checker[EventT]):
-    def __init__(self, func: Callable[[EventT], bool]) -> None:
+    def __init__(self, func: SyncOrAsyncCallable[[EventT], bool]) -> None:
         super().__init__()
-        self.func = func
+        self.func = to_async(func)
 
     async def check(self, event: EventT) -> bool:
-        return self.func(event)
+        return await self.func(event)
 
 
 class WrappedChecker(Checker[EventT]):
@@ -88,25 +86,33 @@ class WrappedChecker(Checker[EventT]):
         """
         super().__init__()
         self.mode = mode
-        self.c1, self.c2 = checker1, checker2
+        self.c1 = checker1
+        self.c2 = checker2
 
     def set_fail_cb(self, fail_cb: SyncOrAsyncCallable[[], None] | None) -> None:
-        self.fail_cb = to_async(fail_cb) if fail_cb is not None else None
+        self.fail_cb: Callable[[], Coroutine[Any, Any, None]] | None = (
+            to_async(fail_cb) if fail_cb is not None else None
+        )
 
     async def check(self, event: EventT) -> bool:
-        c2_check: Callable[[], Coroutine[Any, Any, bool]] | None = (
-            partial(self.c2.check, event) if self.c2 is not None else None
-        )
-        status = await LogicMode.async_short_calc(
-            self.mode, partial(self.c1.check, event), c2_check
-        )
+        match self.mode:
+            case LogicMode.AND:
+                status = await self.c1.check(event) and await self.c2.check(event)  # type: ignore[union-attr]
+            case LogicMode.OR:
+                status = await self.c1.check(event) or await self.c2.check(event)  # type: ignore[union-attr]
+            case LogicMode.NOT:
+                status = not await self.c1.check(event)
+            case LogicMode.XOR:
+                status = await self.c1.check(event) ^ await self.c2.check(event)  # type: ignore[union-attr]
+            case _:
+                assert_never(f"无效的逻辑模式 {self.mode}")
 
         if not status and self.fail_cb is not None:
             await self.fail_cb()
         return status
 
 
-def checker_join(*checkers: Checker | None | Callable[[Any], bool]) -> Checker:
+def checker_join(*checkers: Checker | None | Callable[[Event], bool]) -> Checker:
     """合并检查器
 
     相比于使用 | & ^ ~ 运算符，此函数可以接受一个检查器序列，并返回一个合并检查器。

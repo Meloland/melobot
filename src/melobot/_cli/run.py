@@ -1,53 +1,114 @@
 import os
+import shutil
+import signal
 import subprocess
 import sys
+import tempfile
+import threading
 from argparse import Namespace
 from pathlib import Path
 
-from melobot.bot.base import CLI_RUNTIME, LAST_EXIT_SIGNAL, BotExitSignal
+from typing_extensions import Any
+
+from melobot._run import CLI_LAST_EXIT_CODE, CLI_RUN_ALIVE_FLAG, CLI_RUN_FLAG
+from melobot.typ import ExitCode
 
 
 def main(args: Namespace) -> None:
-    entry_path = Path(args.entry_file)
-    if not entry_path.is_absolute():
-        entry = str(entry_path.resolve())
+    if not args.entry_file.endswith(".py"):
+        entry_str = f"{args.entry_file}.py"
     else:
-        entry = str(entry_path)
+        entry_str = args.entry_file
 
-    if not entry.endswith(".py"):
-        entry += ".py"
-    if not Path(entry).exists():
-        print(f"不存在的入口文件：{str(entry)}")
-        sys.exit(1)
+    entry_path = Path(entry_str)
+    try:
+        entry = entry_path.resolve(strict=True).as_posix()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"不存在的入口文件：{args.entry_file}")
 
     cmd = [sys.executable, entry]
-    cwd = str(Path.cwd().resolve())
-    os.environ[CLI_RUNTIME] = "1"
+    cwd = Path.cwd().resolve().as_posix()
+    os.environ[CLI_RUN_FLAG] = "1"
+    tmp_dir = Path(tempfile.mkdtemp()).resolve()
+    os.environ[CLI_RUN_ALIVE_FLAG] = str(
+        tmp_dir.joinpath(f"melobot_cli_run_{threading.get_native_id()}.signal")
+    )
 
     try:
         while True:
-            proc = subprocess.run(
+            retcode: int
+            create_alive_sig()
+            pre_handlers: list | None = None
+
+            with subprocess.Popen(
                 cmd,
                 env=os.environ,
                 cwd=cwd,
                 stdin=sys.stdin,
                 stdout=sys.stdout,
                 stderr=sys.stderr,
-                check=False,
-            )
-            if LAST_EXIT_SIGNAL in os.environ:
-                os.environ.pop(LAST_EXIT_SIGNAL)
+            ) as proc:
+                pre_handlers = set_signal_handler()
+                retcode = proc.wait()
 
-            if proc.returncode == BotExitSignal.NORMAL_STOP.value:
+            if pre_handlers is not None:
+                clear_signal_handler(pre_handlers)
+
+            if CLI_LAST_EXIT_CODE in os.environ:
+                os.environ.pop(CLI_LAST_EXIT_CODE)
+
+            if retcode == ExitCode.NORMAL.value:
                 break
-            if proc.returncode == BotExitSignal.RESTART.value:
-                print("\n>>> [melobot module] 正在重启 bot 主程序\n")
-                os.environ[LAST_EXIT_SIGNAL] = str(BotExitSignal.RESTART.value)
+
+            if retcode == ExitCode.RESTART.value:
+                print("\n>>> [mb-cli] 正在重启 Bot 主程序\n")
+                os.environ[CLI_LAST_EXIT_CODE] = str(ExitCode.RESTART.value)
                 continue
-            if proc.returncode == BotExitSignal.ERROR.value:
+
+            if retcode == ExitCode.ERROR.value:
                 break
-            print("\n>>> [melobot module] bot 主程序退出时返回了无法处理的返回值\n")
+
+            print()
+            print(f">>> [mb-cli] Bot 主程序返回了意料之外的退出码: {retcode}")
+            print(">>> [mb-cli] 若提示“已安全停止运行”，则无需关注此警告")
             break
 
-    except KeyboardInterrupt:
+    finally:
+        clear_alive_sig()
+        shutil.rmtree(tmp_dir)
+
+
+def create_alive_sig() -> None:
+    with open(os.environ[CLI_RUN_ALIVE_FLAG], "wb"):
         pass
+
+
+def clear_alive_sig() -> None:
+    if os.path.exists(os.environ[CLI_RUN_ALIVE_FLAG]):
+        os.remove(os.environ[CLI_RUN_ALIVE_FLAG])
+
+
+def set_signal_handler() -> list:
+    def signal_handler(*_: Any, **__: Any) -> None:
+        # 重入安全
+        clear_alive_sig()
+
+    pre_handlers = []
+    pre_handlers.append(signal.getsignal(signal.SIGINT))
+    pre_handlers.append(signal.getsignal(signal.SIGTERM))
+    if sys.platform == "win32":
+        pre_handlers.append(signal.getsignal(signal.SIGBREAK))
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    if sys.platform == "win32":
+        signal.signal(signal.SIGBREAK, signal_handler)
+
+    return pre_handlers
+
+
+def clear_signal_handler(pre_handlers: list) -> None:
+    signal.signal(signal.SIGINT, pre_handlers[0])
+    signal.signal(signal.SIGTERM, pre_handlers[1])
+    if sys.platform == "win32":
+        signal.signal(signal.SIGBREAK, pre_handlers[2])

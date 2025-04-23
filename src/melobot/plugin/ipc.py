@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing_extensions import Callable, Generic
 
 from ..di import inject_deps
@@ -40,29 +42,29 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
         if self.static and self.__callback is not None:
             raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
 
-    def __call__(self, func: AsyncCallable[[], T]) -> AsyncCallable[[], T]:
+    def __call__(self, func: AsyncCallable[[], T]) -> AsyncShare[T]:
         """绑定获取共享值的异步方法的装饰器，如果未在初始化时绑定
 
         :param func: 被绑定的异步可调用方法
-        :return: `func` 原值
+        :return: 对应的异步共享对象
         """
         if self.__reflect is not None:
             raise PluginIpcError("共享对象已经有获取值的反射方法，不能再次绑定")
         self.__reflect = inject_deps(func)
-        return func
+        return self
 
-    def setter(self, func: AsyncCallable[[T], None]) -> AsyncCallable[[T], None]:
+    def setter(self, func: AsyncCallable[[T], None]) -> AsyncShare[T]:
         """绑定修改共享值的异步方法的装饰器，如果未在初始化时绑定
 
         :param func: 被绑定的异步可调用方法
-        :return: `func` 原值
+        :return: 对应的异步共享对象
         """
         if self.static:
             raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
         if self.__callback is not None:
             raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
         self.__callback = inject_deps(func, manual_arg=True)
-        return func
+        return self
 
     async def get(self) -> T:
         """获取异步共享值
@@ -113,29 +115,29 @@ class SyncShare(Generic[T], LocateMixin, AttrReprMixin):
         if self.static and self.__callback is not None:
             raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
 
-    def __call__(self, func: Callable[[], T]) -> Callable[[], T]:
+    def __call__(self, func: Callable[[], T]) -> SyncShare[T]:
         """绑定获取共享值的方法的装饰器，如果未在初始化时绑定
 
         :param func: 被绑定的可调用方法
-        :return: `func` 原值
+        :return: 对应的同步共享对象
         """
         if self.__reflect is not None:
             raise PluginIpcError("共享对象已经有获取值的反射方法，不能再次绑定")
         self.__reflect = func
-        return func
+        return self
 
-    def setter(self, func: Callable[[T], None]) -> Callable[[T], None]:
+    def setter(self, func: Callable[[T], None]) -> SyncShare[T]:
         """绑定修改共享值的方法的装饰器，如果未在初始化时绑定
 
         :param func: 被绑定的可调用方法
-        :return: `func` 原值
+        :return: 对应的同步共享对象
         """
         if self.static:
             raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
         if self.__callback is not None:
             raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
         self.__callback = func
-        return func
+        return self
 
     def get(self) -> T:
         """获取共享值

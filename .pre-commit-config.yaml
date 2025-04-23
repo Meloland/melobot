@@ -1,34 +1,36 @@
 fail_fast: true
 repos:
-  # - repo: local
-  #   hooks:
-  #     - id: check-filenames
-  #       name: Check Python Filenames
-  #       entry: python ./.pre-commit/check_filename.py
-  #       language: python
-  #       files: \.py$
-
   - repo: https://github.com/psf/black
-    rev: 24.10.0
+    rev: 25.1.0
     hooks:
       - id: black
         args: [--config=./pyproject.toml]
 
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.13.2
+    rev: 6.0.1
     hooks:
       - id: isort
         args: ["--profile", "black"]
 
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.2.0
+    hooks:
+      - id: flake8
+
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.14.0
+    rev: v1.15.0
     hooks:
       - id: mypy
         args: ["--config-file=./pyproject.toml"]
         exclude: '^(tests/|scripts/|docs/)'
 
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.6.16
     hooks:
-      - id: flake8
+      - id: uv-export
+        name: docs-export
+        args: ["--frozen", "--no-editable", "--no-emit-project", "--extra", "onebot", "--group", "docs", "-o", "./docs/requirements.txt"]
+
+      - id: uv-export
+        name: test-export
+        args: ["--frozen", "--no-editable", "--no-emit-project", "--extra", "onebot", "--group", "test", "-o", "./tests/requirements.txt"]

@@ -2,15 +2,13 @@ import asyncio
 import inspect
 from functools import wraps
 
-from typing_extensions import Any, Awaitable, Callable, Coroutine
+from typing_extensions import Any, Awaitable, Callable, Coroutine, cast
 
 from ..exceptions import UtilValidateError
 from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
 
 
-def to_async(
-    obj: SyncOrAsyncCallable[P, T] | Awaitable[T],
-) -> Callable[P, Coroutine[Any, Any, T]]:
+def to_async(obj: SyncOrAsyncCallable[P, T] | Awaitable[T]) -> Callable[P, Coroutine[Any, Any, T]]:
     """异步包装函数
 
     将一个可调用对象或可等待对象装饰为异步函数
@@ -22,16 +20,18 @@ def to_async(
         return obj
 
     async def to_async_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
-        if not inspect.isawaitable(obj):
-            ret = obj(*args, **kwargs)
-        else:
-            ret = obj
+        if obj_awaitable:
+            return await cast(Awaitable[T], obj)
+        ret = obj(*args, **kwargs)  # type: ignore[operator]
         if inspect.isawaitable(ret):
             return await ret
-        return ret
+        return cast(T, ret)
 
+    obj_awaitable = True
     if not inspect.isawaitable(obj):
+        obj_awaitable = False
         to_async_wrapped = wraps(obj)(to_async_wrapped)
+
     return to_async_wrapped
 
 

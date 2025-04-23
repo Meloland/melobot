@@ -1,21 +1,20 @@
 from __future__ import annotations
 
 import asyncio
-import asyncio.tasks
+import contextvars
 import os
 import platform
-import sys
 from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
 from enum import Enum
 from os import PathLike
 from pathlib import Path
+from random import random
 from types import ModuleType
 
 from typing_extensions import (
     Any,
     AsyncGenerator,
     Callable,
-    Coroutine,
     Generator,
     Iterable,
     LiteralString,
@@ -23,12 +22,15 @@ from typing_extensions import (
 )
 
 from .._meta import MetaInfo
+from .._run import LoopManager
 from ..adapter.base import Adapter
-from ..ctx import BotCtx, LoggerCtx
+from ..ctx import BotCtx
 from ..exceptions import BotError
 from ..handle.base import Flow
 from ..io.base import AbstractInSource, AbstractIOSource, AbstractOutSource
-from ..log.base import GenericLogger, Logger, NullLogger
+from ..log.base import GenericLogger
+from ..log.reflect import logger
+from ..log.report import set_loop_exc_log
 from ..mixin import HookMixin
 from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
@@ -48,28 +50,26 @@ class BotLifeSpan(Enum):
     STOPPED = "sto"
 
 
-class BotExitSignal(Enum):
-    NORMAL_STOP = 0
-    ERROR = 1
-    RESTART = 2
-
-
-CLI_RUNTIME = "MELOBOT_CLI_RUNTIME"
-CLI_DEV = "MELOBOT_CLI_DEV"
-CLI_DEV_ALIVE_SIGNAL = "MELOBOT_CLI_DEV_ALIVE_SIGNAL"
-LAST_EXIT_SIGNAL = "MELOBOT_LAST_EXIT_SIGNAL"
 _BOT_CTX = BotCtx()
-_LOGGER_CTX = LoggerCtx()
+_LUCKY_VALUE = random()
 
 
-def _start_log(logger: GenericLogger) -> None:
+def _start_log() -> None:
     for row in MetaInfo.logo.split("\n"):
         logger.info(f"{row}")
     logger.info("")
     logger.info(f"版本：{MetaInfo.ver}")
     logger.info(f"系统：{platform.system()} {platform.release()} {platform.machine()}")
     logger.info(f"环境：{platform.python_implementation()} {platform.python_version()}")
+    if _LUCKY_VALUE >= 0.999:
+        logger.info("彩蛋：恭喜你触发了这个彩蛋，本次运行幸运值 +65535 ✨")
+
     logger.info("=" * 40)
+
+
+def _end_log() -> None:
+    if _LUCKY_VALUE >= 0.999:
+        logger.info('melobot: "我们弹下的每段旋律，终将在某时回归 🎵"')
 
 
 class Bot(HookMixin[BotLifeSpan]):
@@ -88,13 +88,7 @@ class Bot(HookMixin[BotLifeSpan]):
         Bot.__instances__[name] = obj
         return obj
 
-    def __init__(
-        self,
-        name: str = "melobot",
-        /,
-        logger: GenericLogger | None = None,
-        enable_log: bool = True,
-    ) -> None:
+    def __init__(self, name: str = "melobot", /, logger: GenericLogger | None = None) -> None:
         """
         初始化 bot
 
@@ -102,22 +96,16 @@ class Bot(HookMixin[BotLifeSpan]):
         :param logger:
             bot 使用的日志器，符合 :class:`.GenericLogger` 的接口即可。
             可使用 melobot 内置的 :class:`.Logger`，或经过 :func:`.logger_patch` 修补的日志器
-        :param enable_log: 是否启用日志功能
         """
         super().__init__(hook_type=BotLifeSpan, hook_tag=name)
 
         self.name = name
-        self.logger: GenericLogger
-        if not enable_log:
-            self.logger = NullLogger()
-        elif logger is None:
-            self.logger = Logger()
-        else:
-            self.logger = logger
+        self.logger = logger
 
         self.adapters: dict[str, Adapter] = {}
         self.ipc_manager = IPCManager()
 
+        self._runner = LoopManager()
         self._in_srcs: dict[str, set[AbstractInSource]] = {}
         self._out_srcs: dict[str, set[AbstractOutSource]] = {}
         self._loader = PluginLoader()
@@ -131,23 +119,16 @@ class Bot(HookMixin[BotLifeSpan]):
     def __repr__(self) -> str:
         return f'Bot(name="{self.name}")'
 
-    @property
-    def loop(self) -> asyncio.AbstractEventLoop:
-        """获得当前 bot 运行时的事件循环对象"""
-        return asyncio.get_running_loop()
-
     @contextmanager
     def _common_sync_ctx(self) -> Generator[ExitStack, None, None]:
         with ExitStack() as stack:
             stack.enter_context(_BOT_CTX.unfold(self))
-            stack.enter_context(_LOGGER_CTX.unfold(self.logger))
             yield stack
 
     @asynccontextmanager
     async def _common_async_ctx(self) -> AsyncGenerator[AsyncExitStack, None]:
         async with AsyncExitStack() as stack:
             stack.enter_context(_BOT_CTX.unfold(self))
-            stack.enter_context(_LOGGER_CTX.unfold(self.logger))
             yield stack
 
     def add_input(self, src: AbstractInSource) -> Bot:
@@ -213,7 +194,7 @@ class Bot(HookMixin[BotLifeSpan]):
         return self
 
     def _core_init(self) -> None:
-        _start_log(self.logger)
+        _start_log()
 
         for protocol, srcs in self._in_srcs.items():
             for isrc in srcs:
@@ -221,7 +202,7 @@ class Bot(HookMixin[BotLifeSpan]):
                 if adapter is not None:
                     adapter.in_srcs.add(isrc)
                 else:
-                    self.logger.warning(f"输入源 {isrc.__class__.__name__} 没有对应的适配器")
+                    logger.warning(f"输入源 {isrc.__class__.__name__} 没有对应的适配器")
 
         for protocol, outsrcs in self._out_srcs.items():
             for osrc in outsrcs:
@@ -229,25 +210,25 @@ class Bot(HookMixin[BotLifeSpan]):
                 if adapter is not None:
                     adapter.out_srcs.add(osrc)
                 else:
-                    self.logger.warning(f"输出源 {osrc.__class__.__name__} 没有对应的适配器")
+                    logger.warning(f"输出源 {osrc.__class__.__name__} 没有对应的适配器")
 
         for adapter in self.adapters.values():
             if not len(adapter.in_srcs) and not len(adapter.out_srcs):
-                self.logger.warning(f"适配器 {adapter.__class__.__name__} 没有对应的输入源或输出源")
+                logger.warning(f"适配器 {adapter.__class__.__name__} 没有对应的输入源或输出源")
             adapter.dispatcher = self._dispatcher
 
         self._inited = True
-        self.logger.debug("bot 核心组件初始化完成")
+        logger.debug("bot 核心组件初始化完成")
         policy = asyncio.get_event_loop_policy()
         policy_name = f"{policy.__class__.__module__}.{policy.__class__.__name__}"
-        self.logger.debug(f"当前事件循环策略：<{policy_name}>")
+        logger.debug(f"当前事件循环策略：<{policy_name}>")
 
     def load_plugin(
         self,
         plugin: ModuleType | str | PathLike[str] | PluginPlanner,
         load_depth: int = 1,
     ) -> Bot:
-        """加载插件
+        """加载插件，非线程安全
 
         :param plugin: 可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，可直接 import 包名称，插件管理器对象）
         :param load_depth:
@@ -269,7 +250,7 @@ class Bot(HookMixin[BotLifeSpan]):
                 self.ipc_manager.add(p.name, share)
             for func in p.funcs:
                 self.ipc_manager.add_func(p.name, func)
-            self.logger.info(f"成功加载插件：{p.name}")
+            logger.info(f"成功加载插件：{p.name}")
 
             if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
                 asyncio.create_task(
@@ -287,6 +268,8 @@ class Bot(HookMixin[BotLifeSpan]):
     ) -> None:
         """与 :func:`load_plugin` 行为类似，但是参数变为可迭代对象
 
+        此方法同样不是线程安全的
+
         :param plugins: 可迭代对象，包含：可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）
         :param load_depth: 参见 :func:`load_plugin` 同名参数
         """
@@ -295,6 +278,8 @@ class Bot(HookMixin[BotLifeSpan]):
 
     def load_plugins_dir(self, pdir: str | PathLike[str], load_depth: int = 1) -> None:
         """与 :func:`load_plugin` 行为类似，但是参数变为插件目录的父目录，本方法可以加载单个目录下的多个插件
+
+        此方法同样不是线程安全的
 
         :param pdir: 插件所在父目录的路径
         :param load_depth: 参见 :func:`load_plugin` 同名参数
@@ -313,17 +298,15 @@ class Bot(HookMixin[BotLifeSpan]):
         """与 :func:`load_plugins_dir` 行为类似，但是参数变为可迭代对象，每个元素为包含插件目录的父目录。
         本方法可以加载多个目录下的多个插件
 
+        此方法同样不是线程安全的
+
         :param pdirs: 可迭代对象，包含：插件所在父目录的路径
         :param load_depth: 参见 :func:`load_plugin` 同名参数
         """
         for pdir in pdirs:
             self.load_plugins_dir(pdir, load_depth)
 
-    async def core_run(self) -> None:
-        """运行 bot 的方法，可以在异步事件循环中自由地使用
-
-        若使用此方法，则需要自行管理异步事件循环
-        """
+    async def _run(self) -> None:
         if not self._inited:
             self._core_init()
 
@@ -333,11 +316,10 @@ class Bot(HookMixin[BotLifeSpan]):
 
         try:
             async with self._common_async_ctx() as stack:
+                self._dispatcher.set_channel_ctx(contextvars.copy_context())
+
                 await self._hook_bus.emit(BotLifeSpan.LOADED)
-                if (
-                    LAST_EXIT_SIGNAL in os.environ
-                    and int(os.environ[LAST_EXIT_SIGNAL]) == BotExitSignal.RESTART.value
-                ):
+                if self._runner.is_from_restart():
                     await self._hook_bus.emit(BotLifeSpan.RELOADED)
 
                 for p in self._plugins.values():
@@ -345,8 +327,6 @@ class Bot(HookMixin[BotLifeSpan]):
                         PluginLifeSpan.INITED,
                         callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
                     )
-
-                self._dispatcher.start()
 
                 ts = tuple(
                     asyncio.create_task(stack.enter_async_context(adapter.__adapter_launch__()))
@@ -361,35 +341,42 @@ class Bot(HookMixin[BotLifeSpan]):
         finally:
             async with self._common_async_ctx() as stack:
                 await self._hook_bus.emit(BotLifeSpan.STOPPED, True)
-                self.logger.info(f"{self} 已安全停止运行")
+                logger.info(f"{self} 已安全停止运行")
                 self._running = False
 
-    def run(self, debug: bool = False) -> None:
+    def run(self, debug: bool = False, strict_log: bool = False) -> None:
         """安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况
 
         :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级
+        :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
         """
-        _safe_run(self.core_run(), debug)
+        set_loop_exc_log(strict_log)
+        self._runner.run(self._run(), debug)
+        _end_log()
 
     @classmethod
-    def start(cls, *bots: Bot, debug: bool = False) -> None:
+    def start(cls, *bots: Bot, debug: bool = False, strict_log: bool = False) -> None:
         """安全地同时运行多个 bot 的阻塞方法
 
         :param bots: 要运行的 bot 对象
         :param debug: 参见 :func:`run` 同名参数
+        :param strict_log: 参见 :func:`run` 同名参数
         """
 
         async def bots_run() -> None:
-            tasks = []
-            for bot in bots:
-                tasks.append(asyncio.create_task(bot.core_run()))
+            tasks: list[asyncio.Task] = []
             try:
-                if len(tasks):
-                    await asyncio.wait(tasks)
+                for bot in bots:
+                    tasks.append(asyncio.create_task(bot._run()))
+                    if len(tasks):
+                        await asyncio.wait(tasks)
             except asyncio.CancelledError:
-                pass
+                for t in tasks:
+                    t.cancel()
 
-        _safe_run(bots_run(), debug)
+        set_loop_exc_log(strict_log)
+        LoopManager().run(bots_run(), debug)
+        _end_log()
 
     async def close(self) -> None:
         """停止并关闭当前 bot"""
@@ -399,18 +386,31 @@ class Bot(HookMixin[BotLifeSpan]):
         await self._hook_bus.emit(BotLifeSpan.CLOSE, True)
         self._rip_signal.set()
 
+    def is_restartable(self) -> bool:
+        """判断当前 bot 是否可以重启
+
+        :return: 是否可以重启
+        """
+        if len(self.__class__.__instances__) > 1:
+            return False
+        return self._runner.is_restartable()
+
     async def restart(self) -> NoReturn:
         """重启当前 bot，需要通过模块运行模式启动 bot 主脚本：
 
         .. code:: shell
 
             python3 -m melobot run xxx.py
+
+        另外请注意，重启功能只在启动了一个 bot 时生效，多个 bot 同时运行时无法重启
         """
-        if CLI_RUNTIME not in os.environ:
-            raise BotError("启用重启功能，需要用以下命令运行 bot：python -m melobot run xxx.py")
+        if len(self.__class__.__instances__) > 1:
+            raise BotError("使用重启功能，同一时刻只能有一个 bot 在运行")
+        if not self._runner.is_restartable():
+            raise BotError("使用重启功能，需要用以下命令运行 bot：python -m melobot run xxx.py")
 
         await self.close()
-        sys.exit(BotExitSignal.RESTART.value)
+        self._runner.restart()
 
     def get_adapter(
         self,
@@ -508,63 +508,3 @@ class Bot(HookMixin[BotLifeSpan]):
     ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
         """给 bot 注册 :obj:`.BotLifeSpan.STOPPED` 阶段 hook 的装饰器"""
         return self.on(BotLifeSpan.STOPPED)
-
-
-def _safe_run(main: Coroutine[Any, Any, None], debug: bool) -> None:
-    try:
-        loop = asyncio.get_event_loop()
-        asyncio.get_event_loop_policy().set_event_loop(loop)
-
-        if debug is not None:
-            loop.set_debug(debug)
-
-        if CLI_DEV in os.environ:
-            main = alive_signal_guard(main)
-
-        loop.run_until_complete(main)
-
-    except KeyboardInterrupt:
-        pass
-    except asyncio.CancelledError:
-        pass
-
-    finally:
-        try:
-            _cancel_all_tasks(loop)
-            loop.run_until_complete(loop.shutdown_asyncgens())
-            loop.run_until_complete(loop.shutdown_default_executor())
-        finally:
-            asyncio.get_event_loop_policy().set_event_loop(None)
-            loop.close()
-
-
-async def alive_signal_guard(main_coro: Coroutine[Any, Any, None]) -> None:
-    asyncio.create_task(main_coro)
-
-    while True:
-        if not os.path.exists(os.environ[CLI_DEV_ALIVE_SIGNAL]):
-            for bot in Bot.__instances__.values():
-                bot._rip_signal.set()
-            break
-        await asyncio.sleep(0.45)
-
-
-def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
-    to_cancel = asyncio.tasks.all_tasks(loop)
-    if not to_cancel:
-        return
-    for task in to_cancel:
-        task.cancel()
-    loop.run_until_complete(asyncio.tasks.gather(*to_cancel, return_exceptions=True))
-
-    for task in to_cancel:
-        if task.cancelled():
-            continue
-        if task.exception() is not None:
-            loop.call_exception_handler(
-                {
-                    "message": "unhandled exception during eventloop shutdown",
-                    "exception": task.exception(),
-                    "task": task,
-                }
-            )

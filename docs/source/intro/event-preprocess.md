@@ -172,7 +172,7 @@ from melobot.protocols.onebot.v11 import on_message
 OWNER_QID = 10001
 
 # 通过可调用对象初始化一个检查器，这里给了一个匿名函数
-# 即使使用匿名函数，也会有良好的类型注解哦！
+# 即使使用匿名函数，也会有良好的类型注解
 @on_message(checker=lambda e: e.sender.user_id == 10001)
 async def owner_only_echo():
     ...

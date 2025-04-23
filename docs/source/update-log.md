@@ -5,6 +5,75 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.2.0
+
+### ⏩变更
+
+- [core] 各类匹配的事件绑定函数，以及一些检查器、插件相关接口，现在入参类型更为宽松，不再要求 `list` 类型 ([312ecf4](https://github.com/Meloland/melobot/commit/312ecf4)) ([64deea9](https://github.com/Meloland/melobot/commit/64deea9))
+
+- [core] 命令解析器 {class}`.CmdParser` 现在使用 `strict` 参数控制是否严格解析。严格意为不去除文本两侧的空白文本，默认不启用。此外命令解析器现在认为：如果字符串不以命令起始符起始，那么永远不应该有解析结果，即解析得到 `None` 值。这可避免“误触发”命令的情景 ([312ecf4](https://github.com/Meloland/melobot/commit/312ecf4))
+
+- [core] 基于日志器上下文的日志器设置、获取机制，及混合类 `LogMixin` 已移除。现在推荐使用基于“域”的日志器设置、获取方式。参考：[新版日志机制](./api/melobot.log) ([fb54633](https://github.com/Meloland/melobot/commit/fb54633))
+
+- [core] 修复了 melobot 导入系统的错误，并引入导入回退机制 {func}`.add_import_fallback` ([fe23c85](https://github.com/Meloland/melobot/commit/fe23c85))
+
+- [OneBot] {class}`.EchoRequireCtx` 和 {meth}`~.onebot.v11.Adapter.with_echo` 已弃用，将于 3.2.1 移除。现在不再需要手动声明即可等待回应，而且没有额外的性能成本 ([c3f6c38](https://github.com/Meloland/melobot/commit/c3f6c38))
+
+- [core] 行为操作句柄相关的接口已经发生改变，所有返回行为操作句柄元组的接口，现在改为返回 {class}`.ActionHandleGroup` 对象。但这与过去的接口完全兼容，更多用法参考：[行为操作](./intro/action-echo) ([7006bac](https://github.com/Meloland/melobot/commit/7006bac))
+
+- [core] {class}`.LogicMode` 的相关运算方法过于冗杂，已全部移除。但现在提供一个获取运算逻辑的方法 {meth}`~.LogicMode.get_operator` ([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae))
+
+- [core] 内置日志实现 {class}`~melobot.log.Logger` 改进了日志渲染过程，对应模块加载时间可缩短 90% ([725f116](https://github.com/Meloland/melobot/commit/725f116))
+
+- [core] 对核心模块使用惰性加载，显著提高了顶级模块的导入速度，约减少 0.5-1.5s ([0f9a070](https://github.com/Meloland/melobot/commit/0f9a070))
+
+- [core,OneBot] 优化了事件分发的效率，及事件处理流的执行效率，处理流普遍提速 1 倍左右。在 OneBot 协议支持的特定情景中，二次执行甚至可以快 1.5-2.5 倍 (([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae)), ([5fe5021](https://github.com/Meloland/melobot/commit/5fe5021)))
+
+- [core] 改进了 hook 过程和依赖注入过程的性能，某一 200-300ns 的固定操作用时现在已被优化，目前这一操作耗时是原来的 1% ([739f18a](https://github.com/Meloland/melobot/commit/739f18a))
+
+- [core] 在版本 `>=3.12` 的 python 解释器上，现在拥有更快的异步任务执行速度 ([6635326](https://github.com/Meloland/melobot/commit/6635326))
+
+### ✨新增
+
+- [core] 在大多数支持绑定 hook 的对象上（bot, adapter, source 等），现在支持 {meth}`~.HookMixin.get_hook_evoke_time` 方法。支持获取某一 hook 最后触发的时间戳 ([0a9c20a](https://github.com/Meloland/melobot/commit/0a9c20a))
+
+- [core] 现在导入 melobot 会安装默认的异常回溯栈的格式化器，相关接口参考：{func}`.install_exc_hook`, {func}`.uninstall_exc_hook`, {func}`.set_traceback_style` ([725f116](https://github.com/Meloland/melobot/commit/725f116))
+
+- [core] 在所有支持的 python 版本上，现在提供安全、便捷的多进程相关 API，参考：[melobot.mp](./api/melobot.mp) ([1a15175](https://github.com/Meloland/melobot/commit/1a15175))
+
+- [core] 为内置日志实现 {class}`~melobot.log.Logger` 添加多进程并行渲染支持。在 `DEBUG` 日志级别实测下，日志格式化造成的阻塞已大大缓解。处理每事件的周转时间平均减少 1-2ms ([1b63382](https://github.com/Meloland/melobot/commit/1b63382))
+
+- [core] 添加了通用的惰性导入支持，参考：{func}`.lazy_load` ([834eda8](https://github.com/Meloland/melobot/commit/834eda8))
+
+- [core] 为插件目录内的模块添加自动导入机制。通过插件管理器 {class}`.PluginPlanner` 的 `auto_import` 参数实现。本特性的加入，将有利于其他组合式 API 的广泛使用 ([de4acb7](https://github.com/Meloland/melobot/commit/de4acb7))
+
+- [core] 事件处理流 {class}`.Flow` 现在支持依赖反转式的声明，依靠相关装饰器或装饰器函数 API 的实现。包括：{meth}`~.Flow.start`, {meth}`~.Flow.before`, {meth}`~.Flow.after`, {meth}`~.Flow.merge`, {meth}`~.Flow.fork`。它们都是组合式 API 的一部分 ([c28f289](https://github.com/Meloland/melobot/commit/c28f289))
+
+- [core] 事件处理流 {class}`.Flow` 新增 `guard` 初始化参数，也可通过 {meth}`~.Flow.set_guard` 重设这一参数 (([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae)), [c28f289](https://github.com/Meloland/melobot/commit/c28f289))
+
+### 👍修复
+
+- [core] {func}`.on_regex_match` 函数拥有错误参数 `logic_mode` 的问题已修复，已替换为正确的参数 `regex_flags` ([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae))
+
+- [core] 现在尝试为插件添加一个不在本插件目录内定义的共享对象或导出函数，将会发出详细的异常而不是 `IndexError` ([aff5438](https://github.com/Meloland/melobot/commit/aff5438))
+
+- [core] 核心模块现在使用更安全、可靠的启动机制，内部异常处理方式得到了改进。此外 bot 程序现在已能正常响应中断和终止信号 ([6429bf8](https://github.com/Meloland/melobot/commit/6429bf8))
+
+- [cli] 命令行界面的 `dev`, `run` 命令现在使用更安全的启动方式，且可以正常响应中断和终止信号 ([6429bf8](https://github.com/Meloland/melobot/commit/6429bf8))
+
+- [OneBot] 部分事件错误地生成 repr 字符串的问题已得到修复 ([41ae0c1](https://github.com/Meloland/melobot/commit/41ae0c1))
+
+### ⚙️内部
+
+- [core] 开发与 CI 流程不再使用 `pdm`，全面转向 `uv` ([d5d6c15](https://github.com/Meloland/melobot/commit/d5d6c15))
+
+- [core] 添加了三方代码使用的许可证，并按要求随源代码进行分发。参考：[THIRD-PARTY-NOTICES](https://github.com/Meloland/melobot/blob/main/THIRD-PARTY-NOTICES.md) ([dd5b242](https://github.com/Meloland/melobot/commit/dd5b242))
+
+### 其他
+
+其他文档勘误及非阶段性变更，请参考完整记录：[3.1.3...3.2.0](https://github.com/Meloland/melobot/compare/3.1.3...3.2.0)
+
+
 ## v3.1.3
 
 ### ⏩变更

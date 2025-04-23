@@ -1,10 +1,9 @@
 import asyncio
-from asyncio import Queue, create_task
+from asyncio import Queue
 
-from melobot.adapter.generic import send_text
 from melobot.bot import Bot
 from melobot.handle import Flow, node
-from melobot.log import GenericLogger
+from melobot.log import logger
 from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.adapter.event import MessageEvent
@@ -69,10 +68,10 @@ class TempIO(BaseIOSource):
 
 
 @node
-async def process(adapter: Adapter, event: MessageEvent, logger: GenericLogger) -> None:
+async def process(adapter: Adapter, event: MessageEvent) -> None:
     assert isinstance(event, MessageEvent)
 
-    pending = await adapter.with_echo(send_text)("generic send test")
+    pending = await adapter.send("generic send test")
     assert (await pending[0]).data["message_id"] == 123456
 
     pending = await adapter.__send_media__("test.bmp", url="https://example.com/test.bmp")
@@ -96,12 +95,12 @@ async def process(adapter: Adapter, event: MessageEvent, logger: GenericLogger) 
     _SUCCESS_SIGNAL.set()
 
 
-async def after_bot_started(bot: Bot):
-    adapter = next(iter(bot.adapters.values()))
-    pending = await adapter.with_echo(adapter.send_custom)("Hello World!", user_id=12345)
+async def after_bot_started(bot: Bot, adapter: Adapter):
+    pending = await adapter.send_custom("Hello World!", user_id=12345)
     data = (await pending[0]).data
     mid = data["message_id"]
     assert mid == 123456
+    await _SUCCESS_SIGNAL.wait()
     await bot.close()
 
 
@@ -112,8 +111,9 @@ async def test_adapter_base():
 
     flow = Flow("test_adapter_base", [process])
     mbot.load_plugin(PluginPlanner("1.0.0", flows=[flow]))
-
     mbot.on_started(after_bot_started)
-    create_task(mbot.core_run())
-    await mbot._rip_signal.wait()
-    await _SUCCESS_SIGNAL.wait()
+
+    with loop_manager():
+        asyncio.create_task(mbot._run())
+        await mbot._rip_signal.wait()
+        await _SUCCESS_SIGNAL.wait()

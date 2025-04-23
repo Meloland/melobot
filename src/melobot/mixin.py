@@ -4,18 +4,8 @@ from asyncio import Future, get_running_loop
 from typing_extensions import Any, Callable, Generic, Self, cast
 
 from ._hook import HookBus, HookEnumT
-from .ctx import LoggerCtx
-from .log.base import GenericLogger
 from .typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from .utils.base import to_async
-
-
-class LogMixin:
-    """日志混合类"""
-
-    @property
-    def logger(self) -> GenericLogger:
-        return LoggerCtx().get()
 
 
 class FlagMixin:
@@ -239,6 +229,16 @@ class HookMixin(Generic[HookEnumT]):
     def __mark_repeatable_hooks__(self, *types: HookEnumT) -> None:
         for t in types:
             self.__repeatable_hook_types__.add(t)
+
+    def get_hook_evoke_time(self, hook_type: HookEnumT) -> float:
+        """获取指定 hook 最后一次触发的时间戳（秒）
+
+        若从未触发过，返回 -1
+
+        :param hook_type: hook 类型
+        :return: 触发时间
+        """
+        return self._hook_bus.get_evoke_time(hook_type)
 
     def on(
         self, *periods: HookEnumT
