@@ -27,7 +27,7 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 - [core] 对核心模块使用惰性加载，显著提高了顶级模块的导入速度，约减少 0.5-1.5s ([0f9a070](https://github.com/Meloland/melobot/commit/0f9a070))
 
-- [core,OneBot] 优化了事件分发的效率，及事件处理流的执行效率，处理流普遍提速 1 倍左右。在 OneBot 协议支持的特定情景中，二次执行甚至可以快 1.5-2.5 倍 (([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae)), ([5fe5021](https://github.com/Meloland/melobot/commit/5fe5021)))
+- [core,OneBot] 优化了事件分发的效率，及事件处理流的执行效率，处理流普遍提速 1 倍左右。在 OneBot 协议支持的特定情景中，二次执行甚至可以快 1.5-2.5 倍 ([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae), [5fe5021](https://github.com/Meloland/melobot/commit/5fe5021))
 
 - [core] 改进了 hook 过程和依赖注入过程的性能，某一 200-300ns 的固定操作用时现在已被优化，目前这一操作耗时是原来的 1% ([739f18a](https://github.com/Meloland/melobot/commit/739f18a))
 

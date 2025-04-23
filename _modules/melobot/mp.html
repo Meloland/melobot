@@ -419,13 +419,9 @@
 <span class="n">_P_STATUS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_ProcessStatus</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="SpawnProcess">
-<a class="viewcode-back" href="../../api/melobot.mp.html#melobot.mp.SpawnProcess">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SpawnProcess</span><span class="p">(</span><span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;spawn&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>  <span class="c1"># type: ignore[name-defined,misc]</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 进程类（使用 spawn 模式生成子进程）&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SpawnProcess.__init__">
-<a class="viewcode-back" href="../../api/melobot.mp.html#melobot.mp.SpawnProcess.__init__">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">entry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -482,13 +478,11 @@
             <span class="s2">&quot;entry&quot;</span><span class="p">:</span> <span class="n">entry_norm_path</span><span class="p">,</span>
             <span class="s2">&quot;argv&quot;</span><span class="p">:</span> <span class="n">argv</span> <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">entry_norm_path</span><span class="p">],</span>
             <span class="s2">&quot;dir&quot;</span><span class="p">:</span> <span class="n">normpath</span><span class="p">(</span><span class="n">entry_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()),</span>
-        <span class="p">}</span></div>
-
+        <span class="p">}</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">owned</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;melobot&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
-
+        <span class="k">return</span> <span class="s2">&quot;melobot&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">in_melobot_sub_process</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -515,13 +509,9 @@
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; object has no attribute &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SpawnProcessPool">
-<a class="viewcode-back" href="../../api/melobot.mp.html#melobot.mp.SpawnProcessPool">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SpawnProcessPool</span><span class="p">(</span><span class="n">Pool</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 进程池类（使用 spawn 模式生成子进程）&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SpawnProcessPool.__init__">
-<a class="viewcode-back" href="../../api/melobot.mp.html#melobot.mp.SpawnProcessPool.__init__">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">entry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -544,18 +534,12 @@
             <span class="n">init_args</span> <span class="o">=</span> <span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">processes</span><span class="p">,</span> <span class="n">initializer</span><span class="p">,</span> <span class="n">init_args</span><span class="p">,</span> <span class="n">maxtasksperchild</span><span class="p">,</span> <span class="n">SpawnContext</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
-        <span class="p">)</span></div>
-</div>
+        <span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="SpawnProcessPoolExecutor">
-<a class="viewcode-back" href="../../api/melobot.mp.html#melobot.mp.SpawnProcessPoolExecutor">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SpawnProcessPoolExecutor</span><span class="p">(</span><span class="n">_ProcessPoolExecutor</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;melobot 进程池执行器类（使用 spawn 模式生成子进程）&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SpawnProcessPoolExecutor.__init__">
-<a class="viewcode-back" href="../../api/melobot.mp.html#melobot.mp.SpawnProcessPoolExecutor.__init__">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">entry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -574,9 +558,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">initargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">init_args</span> <span class="o">=</span> <span class="p">()</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">max_workers</span><span class="p">,</span> <span class="n">SpawnContext</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">argv</span><span class="p">),</span> <span class="n">initializer</span><span class="p">,</span> <span class="n">init_args</span><span class="p">)</span></div>
-</div>
-
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">max_workers</span><span class="p">,</span> <span class="n">SpawnContext</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">argv</span><span class="p">),</span> <span class="n">initializer</span><span class="p">,</span> <span class="n">init_args</span><span class="p">)</span>
 
 
 <span class="n">Process</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">SpawnProcess</span>
