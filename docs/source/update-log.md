@@ -9,7 +9,7 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 ### ⏩变更
 
-- [core] 各类匹配的事件绑定函数，以及一些检查器、插件相关接口，现在入参类型更为宽松，不再要求 `list` 类型 ([312ecf4](https://github.com/Meloland/melobot/commit/312ecf4)) ([64deea9](https://github.com/Meloland/melobot/commit/64deea9))
+- [core] 各类匹配的事件绑定函数，以及一些检查器、插件相关接口，现在入参类型更为宽松，不再要求 `list` 类型 ([312ecf4](https://github.com/Meloland/melobot/commit/312ecf4), [64deea9](https://github.com/Meloland/melobot/commit/64deea9))
 
 - [core] 命令解析器 {class}`.CmdParser` 现在使用 `strict` 参数控制是否严格解析。严格意为不去除文本两侧的空白文本，默认不启用。此外命令解析器现在认为：如果字符串不以命令起始符起始，那么永远不应该有解析结果，即解析得到 `None` 值。这可避免“误触发”命令的情景 ([312ecf4](https://github.com/Meloland/melobot/commit/312ecf4))
 
@@ -49,7 +49,7 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 - [core] 事件处理流 {class}`.Flow` 现在支持依赖反转式的声明，依靠相关装饰器或装饰器函数 API 的实现。包括：{meth}`~.Flow.start`, {meth}`~.Flow.before`, {meth}`~.Flow.after`, {meth}`~.Flow.merge`, {meth}`~.Flow.fork`。它们都是组合式 API 的一部分 ([c28f289](https://github.com/Meloland/melobot/commit/c28f289))
 
-- [core] 事件处理流 {class}`.Flow` 新增 `guard` 初始化参数，也可通过 {meth}`~.Flow.set_guard` 重设这一参数 (([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae)), [c28f289](https://github.com/Meloland/melobot/commit/c28f289))
+- [core] 事件处理流 {class}`.Flow` 新增 `guard` 初始化参数，也可通过 {meth}`~.Flow.set_guard` 重设这一参数 ([d08ddae](https://github.com/Meloland/melobot/commit/d08ddae), [c28f289](https://github.com/Meloland/melobot/commit/c28f289))
 
 ### 👍修复
 
