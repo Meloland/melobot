@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.mp - melobot 3.2.0</title>
+        <title>melobot.mp - melobot 3.2.1</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">melobot 3.2.0</div></a>
+      <a href="../../index.html"><div class="brand">melobot 3.2.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.2.0</span>
+  <span class="sidebar-brand-text">melobot 3.2.1</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -319,15 +319,15 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_process</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._imp</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALL_EXTS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaInfo</span>
 
 <span class="n">_PNAME_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;MeloBot_MP&quot;</span>
 <span class="n">MP_MODULE_NAME</span> <span class="o">=</span> <span class="s2">&quot;__mp_main__&quot;</span>
-<span class="n">ROOT_MODULE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+<span class="n">ROOT_MODULE_DIR</span> <span class="o">=</span> <span class="n">MetaInfo</span><span class="o">.</span><span class="n">pkg_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">in_main_process</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -476,12 +476,12 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;子进程 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">main_part</span><span class="si">}</span><span class="s2"> 的入口不是可加载的文件: </span><span class="si">{</span><span class="n">entry_file</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># 再使用一次 normpath，保证与原始实现一样的兼容性</span>
-        <span class="n">entry_norm_path</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span><span class="n">entry_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+        <span class="n">entry_norm_path</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">entry_file</span><span class="p">))</span>
         <span class="n">_P_STATUS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s2">&quot;entry&quot;</span><span class="p">:</span> <span class="n">entry_norm_path</span><span class="p">,</span>
             <span class="s2">&quot;argv&quot;</span><span class="p">:</span> <span class="n">argv</span> <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">entry_norm_path</span><span class="p">],</span>
-            <span class="s2">&quot;dir&quot;</span><span class="p">:</span> <span class="n">normpath</span><span class="p">(</span><span class="n">entry_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()),</span>
+            <span class="s2">&quot;dir&quot;</span><span class="p">:</span> <span class="n">normpath</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">entry_file</span><span class="o">.</span><span class="n">parent</span><span class="p">)),</span>
         <span class="p">}</span></div>
 
 
@@ -805,7 +805,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=2865ff22"></script>
+</div><script src="../../_static/documentation_options.js?v=3aa3c338"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.log - melobot 3.2.0</title>
+        <title>melobot.log - melobot 3.2.1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.2.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.2.0</span>
+  <span class="sidebar-brand-text">melobot 3.2.1</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -342,6 +342,17 @@
 </div>
 <p>另外 3.2.0 版本开始，提供 <a class="reference internal" href="#melobot.log.log_exc" title="melobot.log.log_exc"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_exc()</span></code></a> 方法用于向 melobot 核心模块报告异常信息，并体现在日志或异常回溯栈信息中。</p>
 <p>该方法所在模块为：<cite>melobot.log.report</cite>，此信息可用于调整被报告异常日志输出时使用的日志器。</p>
+<p>注意：通过依赖注入获取 <cite>logger</cite> 的方式依旧可用，并且该特性计划长期支持：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericLogger</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 通过依赖注入获取的 logger，永远是当前 bot 上下文中的 bot 的日志器</span>
+    <span class="c1"># 按照依赖注入规则，如果日志器为空：</span>
+    <span class="c1"># 对于事件处理方法，就不会被执行</span>
+    <span class="c1"># 对于 hook 方法，就会发出一个“依赖不匹配”异常</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
 <section id="id1">
 <h2>内置日志部件<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <dl class="py class">
@@ -1000,7 +1011,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2865ff22"></script>
+</div><script src="../_static/documentation_options.js?v=3aa3c338"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

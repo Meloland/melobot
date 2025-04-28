@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot._render - melobot 3.2.0</title>
+        <title>melobot._render - melobot 3.2.1</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">melobot 3.2.0</div></a>
+      <a href="../../index.html"><div class="brand">melobot 3.2.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.2.0</span>
+  <span class="sidebar-brand-text">melobot 3.2.1</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -331,6 +331,7 @@
 
 <span class="c1"># 使用绝对导入保证子进程导入正确</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot._lazy</span><span class="w"> </span><span class="kn">import</span> <span class="n">singleton</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot._meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaInfo</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">rich.console</span>
@@ -479,7 +480,7 @@
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">pass</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hide_internal</span> <span class="ow">and</span> <span class="n">_MAIN_PKG_PATH</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hide_internal</span> <span class="ow">and</span> <span class="n">MetaInfo</span><span class="o">.</span><span class="n">pkg_path</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
                         <span class="n">collectable</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">formatted</span> <span class="o">=</span> <span class="p">(</span><span class="n">path_str</span><span class="p">,</span> <span class="o">*</span><span class="n">formatted</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
@@ -544,7 +545,6 @@
 
 <span class="n">_TMP_CONSOLE_IO</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
 <span class="n">_HIGH_LIGHTWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;HEAD&quot;</span><span class="p">,</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span> <span class="s2">&quot;DELETE&quot;</span><span class="p">,</span> <span class="s2">&quot;OPTIONS&quot;</span><span class="p">,</span> <span class="s2">&quot;TRACE&quot;</span><span class="p">,</span> <span class="s2">&quot;PATCH&quot;</span><span class="p">]</span>
-<span class="n">_MAIN_PKG_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;melobot&quot;</span><span class="p">]</span><span class="o">.</span><span class="vm">__file__</span><span class="p">))</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_rich_object</span><span class="p">(</span>
@@ -1133,7 +1133,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=2865ff22"></script>
+</div><script src="../../_static/documentation_options.js?v=3aa3c338"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
