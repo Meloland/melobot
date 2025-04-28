@@ -23,6 +23,7 @@ from typing_extensions import (
 
 # 使用绝对导入保证子进程导入正确
 from melobot._lazy import singleton
+from melobot._meta import MetaInfo
 
 if TYPE_CHECKING:
     import rich.console
@@ -171,7 +172,7 @@ def _get_exc_fmtter() -> "ExceptionFormatter":
                 except Exception:
                     pass
                 else:
-                    if self._hide_internal and _MAIN_PKG_PATH in path.parents:
+                    if self._hide_internal and MetaInfo.pkg_path in path.parents:
                         collectable = False
                     else:
                         formatted = (path_str, *formatted[1:])
@@ -236,7 +237,6 @@ def _get_exc_fmtter() -> "ExceptionFormatter":
 
 _TMP_CONSOLE_IO = io.StringIO()
 _HIGH_LIGHTWORDS = ["GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
-_MAIN_PKG_PATH = Path(cast(str, sys.modules["melobot"].__file__)).parent.resolve()
 
 
 def get_rich_object(

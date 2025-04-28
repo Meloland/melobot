@@ -1,5 +1,4 @@
 import sys
-from multiprocessing import SimpleQueue
 from pathlib import Path
 
 sys.path.insert(0, Path(__file__).parent.parent.resolve().as_posix())

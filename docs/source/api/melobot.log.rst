@@ -32,6 +32,19 @@ melobot.log
 
 该方法所在模块为：`melobot.log.report`，此信息可用于调整被报告异常日志输出时使用的日志器。
 
+额外需要注意：通过依赖注入获取 `logger` 的方式依旧可用，并且该特性预计长期支持。
+
+.. code-block:: python
+
+    from melobot.log import GenericLogger
+
+    async def _(logger: GenericLogger) -> None:
+        # 通过依赖注入获取的 logger，永远是当前 bot 上下文中的 bot 的日志器
+        # 按照依赖注入规则，如果日志器为空：
+        # 对于事件处理方法，就不会被执行
+        # 对于 hook 方法，就会发出一个“依赖不匹配”异常
+        ...
+
 
 内置日志部件
 ----------------

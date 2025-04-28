@@ -11,15 +11,15 @@ import multiprocessing.util as util_mod
 import sys
 from functools import wraps
 from multiprocessing import current_process
-from pathlib import Path
 
 from typing_extensions import Any
 
 from ._imp import ALL_EXTS
+from ._meta import MetaInfo
 
 _PNAME_PREFIX = "MeloBot_MP"
 MP_MODULE_NAME = "__mp_main__"
-ROOT_MODULE_DIR = Path(__file__).parent.parent.resolve().as_posix()
+ROOT_MODULE_DIR = MetaInfo.pkg_path.parent.as_posix()
 
 
 def in_main_process() -> bool:
@@ -164,12 +164,12 @@ class SpawnProcess(get_context("spawn").Process):  # type: ignore[name-defined,m
             raise ValueError(f"子进程 {self.main_part} 的入口不是可加载的文件: {entry_file!r}")
 
         # 再使用一次 normpath，保证与原始实现一样的兼容性
-        entry_norm_path = normpath(entry_file.as_posix())
+        entry_norm_path = normpath(str(entry_file))
         _P_STATUS[self.name] = {
             "name": self.name,
             "entry": entry_norm_path,
             "argv": argv if argv is not None else [entry_norm_path],
-            "dir": normpath(entry_file.parent.as_posix()),
+            "dir": normpath(str(entry_file.parent)),
         }
 
     @staticmethod
