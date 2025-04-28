@@ -81,7 +81,7 @@ class SpecFinder(MetaPathFinder):
                 for pkg_init_path in pkg_init_paths:
                     if pkg_init_path.exists():
                         mod_path = pkg_init_path
-                        submod_locs = [dir_path.resolve().as_posix()]
+                        submod_locs = [str(dir_path.resolve())]
                         raise _NestedQuickExit
 
                 # 其次是各种可加载的文件
@@ -94,7 +94,7 @@ class SpecFinder(MetaPathFinder):
 
                 # 再次是 zip 文件导入
                 if entry_path.suffix == ".zip" and entry_path.exists():
-                    zip_importer = zipimport.zipimporter(entry_path.as_posix())
+                    zip_importer = zipimport.zipimporter(str(entry_path))
                     spec = zip_importer.find_spec(fullname, target)
 
                     if spec is not None:
@@ -121,7 +121,7 @@ class SpecFinder(MetaPathFinder):
 
                 # 没有 __init__.* 的包最后查找，spec 设置为与内置导入兼容的命名空间包格式
                 if dir_path.exists() and dir_path.is_dir():
-                    dir_path_str = dir_path.resolve().as_posix()
+                    dir_path_str = str(dir_path.resolve())
                     loader = cast(
                         Loader,
                         _NamespaceLoader(
@@ -158,7 +158,7 @@ class SpecFinder(MetaPathFinder):
         mod_path = cast(Path, mod_path).resolve()
         return spec_from_file_location(
             fullname,
-            mod_path.as_posix(),
+            str(mod_path),
             loader=ModuleLoader(fullname, mod_path, cache),
             submodule_search_locations=submod_locs,
         )
@@ -241,7 +241,8 @@ class ModuleLoader(Loader):
         for loader_cls, suffixes in _get_file_loaders():
             if fp.resolve().suffix in suffixes:
                 loader_cls = cast(type[FileLoader], loader_cls)
-                loader = loader_cls(fullname, fp.as_posix())
+                # 使用 str 转化为平台偏好的路径格式（特别是避免在特定 win 版本上不兼容）
+                loader = loader_cls(fullname, str(fp))
                 self.mb_inner_loader = loader
                 break
 

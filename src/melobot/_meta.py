@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoReturn
 
 from .typ.base import T
 
-__version__ = "3.2.0"
+__version__ = "3.2.1"
 
 
 def _version_str_to_info(s: str) -> VersionInfo:
@@ -92,6 +94,7 @@ class MetaInfoMeta(type):
     name = ReadOnlyAttr[str]("melobot")
     desc = ReadOnlyAttr[str]("A bot framework with much high level features.")
     src = ReadOnlyAttr[str]("https://github.com/Meloland/melobot")
+    pkg_path = ReadOnlyAttr[Path](Path(__file__).parent.resolve(strict=True))
     logo = ReadOnlyAttr[str](
         "\n".join(
             (
@@ -134,6 +137,12 @@ class MetaInfo(metaclass=MetaInfoMeta):
 
     src: ClassVar[str]
     """melobot 项目地址
+
+       :meta hide-value:
+    """
+
+    pkg_path: ClassVar[Path]
+    """melobot 顶级包路径
 
        :meta hide-value:
     """

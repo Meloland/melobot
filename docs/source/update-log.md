@@ -5,6 +5,21 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.2.1
+
+### ✨新增
+
+- [core] 元信息 {class}`.MetaInfo` 新增了 `pkg_path` 属性，指向 melobot 顶级包的路径 ([1e43cbc](https://github.com/Meloland/melobot/commit/1e43cbc))
+
+### 👍修复
+
+- [core] 修复了 melobot 导入系统，在一些 Windows 系统版本（LTSC，Server...）上因路径字符串格式不一致导致的导入错误 ([1e43cbc](https://github.com/Meloland/melobot/commit/1e43cbc))
+
+### 其他
+
+文档勘误及不重要变更，参考完整记录：[3.2.0...3.2.1](https://github.com/Meloland/melobot/compare/3.2.0...3.2.1)
+
+
 ## v3.2.0
 
 ### ⏩变更
