@@ -194,7 +194,7 @@ class ActionHandleGroup(Generic[EchoT]):
         for idx, e in enumerate(echoes):
             if e is None:
                 raise ActionHandleError(
-                    f"对行为操作组 {self.unwrap_all.__name__} 失败，因为操作组的回应中有 None。",
+                    f"对行为操作组 {self.unwrap_all.__name__} 失败，因为操作组的回应中有 None",
                     handle=self._handles[idx],
                 )
         return cast(list[EchoT], echoes)
@@ -212,7 +212,7 @@ class ActionHandle(Generic[EchoT]):
     """行为操作句柄
 
     :ivar Action action: 操作包含的行为对象
-    :ivar typing.Literal["PENDING", "EXECUTING", "FINISHED"] status: 操作的状态。分别对应：未执行、执行中、执行完成
+    :ivar typing.Literal["PENDING", "EXECUTING", "DONE"] status: 操作的状态。分别对应：未执行、执行中、执行完成
     :ivar AbstractOutSource out_src: 执行操作的输出源对象
     """
 

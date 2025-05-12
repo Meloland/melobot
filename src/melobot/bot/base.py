@@ -419,7 +419,7 @@ class Bot(HookMixin[BotLifeSpan]):
     ) -> Adapter | None:
         """获取 bot 所绑定的适配器
 
-        :param type: 适配器的类型（可传入协议字符串或协议类型），为空时才使用 `filter` 参数
+        :param type: 适配器的类型（可传入协议字符串或适配器类型），为空时才使用 `filter` 参数
         :param filter: 过滤函数，返回 `True` 则表明需要该适配器。为空则不使用
         :return: 适配器或空
         """
