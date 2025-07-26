@@ -12,7 +12,9 @@ from melobot.adapter import (
     ActionHandleGroup,
 )
 from melobot.adapter import Adapter as RootAdapter
-from melobot.adapter import Content
+from melobot.adapter import (
+    Content,
+)
 from melobot.adapter import content as mc
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
