@@ -27,7 +27,9 @@ from ..exceptions import AdapterError
 from ..io.base import (
     AbstractInSource,
     AbstractOutSource,
+    AbstractSource,
     EchoPacketT,
+    InOrOutSourceT,
     InPacketT,
     InSourceT,
     OutPacketT,
@@ -195,9 +197,13 @@ class Adapter(
                 if len(out_src_ts):
                     await asyncio.wait(out_src_ts)
 
+                # 防止有些输入输出源在第一次启动失败后，又触发一次下面的启动
+                in_src_set = cast(set[AbstractSource], self.in_srcs) - cast(
+                    set[AbstractSource], self.out_srcs
+                )
                 in_src_ts = tuple(
                     create_task(stack.enter_async_context(src))
-                    for src in self.in_srcs
+                    for src in in_src_set
                     if not src.opened()
                 )
                 if len(in_src_ts):
