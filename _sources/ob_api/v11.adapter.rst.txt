@@ -11,14 +11,6 @@ v11 适配器
 .. autoclass:: melobot.protocols.onebot.v11.Adapter
     :exclude-members: __init__
 
-.. autoclass:: melobot.protocols.onebot.v11.EchoRequireCtx
-    :exclude-members: __init__
-    :no-show-inheritance:
-
-    基类：:class:`.Context`\[:py:data:`bool`\]
-
-    已弃用，将于 3.2.1 版本移除。请避免继续在新版中使用
-
 .. _onebot_v11_event:
 
 v11 事件

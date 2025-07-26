@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.bot - melobot 3.2.1</title>
+        <title>melobot.bot - melobot 3.2.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.2.1</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.2.1</span>
+  <span class="sidebar-brand-text">melobot 3.2.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -595,7 +595,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>type</strong> (<em>LiteralString</em><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><em>type</em></a><em>[</em><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a><em>] </em><em>| </em><em>None</em>) -- 适配器的类型（可传入协议字符串或协议类型），为空时才使用 <cite>filter</cite> 参数</p></li>
+<li><p><strong>type</strong> (<em>LiteralString</em><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.13）"><em>type</em></a><em>[</em><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a><em>] </em><em>| </em><em>None</em>) -- 适配器的类型（可传入协议字符串或适配器类型），为空时才使用 <cite>filter</cite> 参数</p></li>
 <li><p><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a><em>[</em><em>[</em><a class="reference internal" href="melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><em>Adapter</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.13）"><em>bool</em></a><em>] </em><em>| </em><em>None</em>) -- 过滤函数，返回 <cite>True</cite> 则表明需要该适配器。为空则不使用</p></li>
 </ul>
 </dd>
@@ -685,24 +685,6 @@
 <dd><p>给 bot 注册 <a class="reference internal" href="#melobot.bot.BotLifeSpan.RELOADED" title="melobot.bot.BotLifeSpan.RELOADED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BotLifeSpan.RELOADED</span></code></a> 阶段 hook 的装饰器</p>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.bot.Bot.on_started">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_started</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.bot.Bot.on_started" title="Link to this definition">¶</a></dt>
-<dd><p>给 bot 注册 <a class="reference internal" href="#melobot.bot.BotLifeSpan.STARTED" title="melobot.bot.BotLifeSpan.STARTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BotLifeSpan.STARTED</span></code></a> 阶段 hook 的装饰器</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.bot.Bot.on_close">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_close</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.bot.Bot.on_close" title="Link to this definition">¶</a></dt>
-<dd><p>给 bot 注册 <a class="reference internal" href="#melobot.bot.BotLifeSpan.CLOSE" title="melobot.bot.BotLifeSpan.CLOSE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BotLifeSpan.CLOSE</span></code></a> 阶段 hook 的装饰器</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="melobot.bot.Bot.on_stopped">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_stopped</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.bot.Bot.on_stopped" title="Link to this definition">¶</a></dt>
-<dd><p>给 bot 注册 <a class="reference internal" href="#melobot.bot.BotLifeSpan.STOPPED" title="melobot.bot.BotLifeSpan.STOPPED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BotLifeSpan.STOPPED</span></code></a> 阶段 hook 的装饰器</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="melobot.bot.Bot.get_hook_evoke_time">
 <span class="sig-name descname"><span class="pre">get_hook_evoke_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HookEnumT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="（在 Python v3.13）"><span class="pre">float</span></a></span></span><a class="headerlink" href="#melobot.bot.Bot.get_hook_evoke_time" title="Link to this definition">¶</a></dt>
@@ -736,6 +718,24 @@
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><em>Callable</em></a>[[<a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><em>SyncOrAsyncCallable</em></a>[~P, None]], <a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><em>AsyncCallable</em></a>[~P, None]]</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="melobot.bot.Bot.on_started">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_started</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.bot.Bot.on_started" title="Link to this definition">¶</a></dt>
+<dd><p>给 bot 注册 <a class="reference internal" href="#melobot.bot.BotLifeSpan.STARTED" title="melobot.bot.BotLifeSpan.STARTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BotLifeSpan.STARTED</span></code></a> 阶段 hook 的装饰器</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="melobot.bot.Bot.on_close">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_close</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.bot.Bot.on_close" title="Link to this definition">¶</a></dt>
+<dd><p>给 bot 注册 <a class="reference internal" href="#melobot.bot.BotLifeSpan.CLOSE" title="melobot.bot.BotLifeSpan.CLOSE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BotLifeSpan.CLOSE</span></code></a> 阶段 hook 的装饰器</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="melobot.bot.Bot.on_stopped">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_stopped</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.13）"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="melobot.typ.html#melobot.typ.AsyncCallable" title="melobot.typ.base.AsyncCallable"><span class="pre">AsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">P</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.13）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#melobot.bot.Bot.on_stopped" title="Link to this definition">¶</a></dt>
+<dd><p>给 bot 注册 <a class="reference internal" href="#melobot.bot.BotLifeSpan.STOPPED" title="melobot.bot.BotLifeSpan.STOPPED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BotLifeSpan.STOPPED</span></code></a> 阶段 hook 的装饰器</p>
 </dd></dl>
 
 </dd></dl>
@@ -885,11 +885,11 @@
 <li><a class="reference internal" href="#melobot.bot.Bot.add_flows"><code class="docutils literal notranslate"><span class="pre">Bot.add_flows()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.on_loaded"><code class="docutils literal notranslate"><span class="pre">Bot.on_loaded</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.on_reloaded"><code class="docutils literal notranslate"><span class="pre">Bot.on_reloaded</span></code></a></li>
+<li><a class="reference internal" href="#melobot.bot.Bot.get_hook_evoke_time"><code class="docutils literal notranslate"><span class="pre">Bot.get_hook_evoke_time()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.bot.Bot.on"><code class="docutils literal notranslate"><span class="pre">Bot.on()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.on_started"><code class="docutils literal notranslate"><span class="pre">Bot.on_started</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.on_close"><code class="docutils literal notranslate"><span class="pre">Bot.on_close</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.on_stopped"><code class="docutils literal notranslate"><span class="pre">Bot.on_stopped</span></code></a></li>
-<li><a class="reference internal" href="#melobot.bot.Bot.get_hook_evoke_time"><code class="docutils literal notranslate"><span class="pre">Bot.get_hook_evoke_time()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.bot.Bot.on"><code class="docutils literal notranslate"><span class="pre">Bot.on()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#melobot.bot.BotLifeSpan"><code class="docutils literal notranslate"><span class="pre">BotLifeSpan</span></code></a><ul>
@@ -918,7 +918,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=3aa3c338"></script>
+</div><script src="../_static/documentation_options.js?v=0de98716"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

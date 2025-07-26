@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.protocols.onebot.v11.adapter.base - melobot 3.2.1</title>
+        <title>melobot.protocols.onebot.v11.adapter.base - melobot 3.2.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">melobot 3.2.1</div></a>
+      <a href="../../../../../../index.html"><div class="brand">melobot 3.2.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.2.1</span>
+  <span class="sidebar-brand-text">melobot 3.2.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -309,7 +309,6 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">contextvars</span><span class="w"> </span><span class="kn">import</span> <span class="n">Token</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -323,16 +322,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span> <span class="k">as</span> <span class="n">RootAdapter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Content</span><span class="p">,</span>
-    <span class="n">EchoT</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">content</span> <span class="k">as</span> <span class="n">mc</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Context</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdapterError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.handle</span><span class="w"> </span><span class="kn">import</span> <span class="n">try_get_event</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.typ</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">SyncOrAsyncCallable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecate_warn</span><span class="p">,</span> <span class="n">to_async</span><span class="p">,</span> <span class="n">to_coro</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_async</span><span class="p">,</span> <span class="n">to_coro</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..const</span><span class="w"> </span><span class="kn">import</span> <span class="n">ACTION_TYPE_KEY_NAME</span><span class="p">,</span> <span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..const</span><span class="w"> </span><span class="kn">import</span> <span class="n">ACTION_TYPE_KEY_NAME</span><span class="p">,</span> <span class="n">PROTOCOL_IDENTIFIER</span><span class="p">,</span> <span class="n">T</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..io.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseIOSource</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..io.packet</span><span class="w"> </span><span class="kn">import</span> <span class="n">EchoPacket</span><span class="p">,</span> <span class="n">InPacket</span><span class="p">,</span> <span class="n">OutPacket</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span> <span class="k">as</span> <span class="n">ac</span>
@@ -391,25 +388,6 @@
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ec</span><span class="o">.</span><span class="n">Echo</span><span class="o">.</span><span class="n">resolve</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="EchoRequireCtx">
-<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.EchoRequireCtx">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EchoRequireCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ONEBOT_V11_ECHO_REQUIRE&quot;</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">)</span>
-
-<div class="viewcode-block" id="EchoRequireCtx.add">
-<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.EchoRequireCtx.add">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
-        <span class="n">deprecate_warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;OneBot v11 的上下文 </span><span class="si">{</span><span class="n">EchoRequireCtx</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 已弃用，将于 melobot 3.2.1 版本删除。&quot;</span>
-            <span class="s2">&quot;从 melobot 3.2.0 开始，此上下文值永远为真&quot;</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span></div>
-</div>
-
-
-
 <div class="viewcode-block" id="Adapter">
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Adapter</span><span class="p">(</span>
@@ -437,20 +415,6 @@
             <span class="k">return</span> <span class="n">f</span>
 
         <span class="k">return</span> <span class="n">when_validate_error_wrapper</span></div>
-
-
-<div class="viewcode-block" id="Adapter.with_echo">
-<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.Adapter.with_echo">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">with_echo</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">ActionHandleGroup</span><span class="p">[</span><span class="n">EchoT</span><span class="p">]]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">ActionHandleGroup</span><span class="p">[</span><span class="n">EchoT</span><span class="p">]]:</span>
-        <span class="n">deprecate_warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;OneBot v11 的 </span><span class="si">{</span><span class="n">Adapter</span><span class="o">.</span><span class="n">with_echo</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> 方法已被弃用，&quot;</span>
-            <span class="s2">&quot;将于 melobot 3.2.1 版本删除。&quot;</span>
-            <span class="s2">&quot;从 melobot 3.2.0 开始，OneBot v11 所有 action dict 的 echo 字段都不为空&quot;</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">func</span></div>
 
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">__send_text__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionHandleGroup</span><span class="p">[</span><span class="n">ec</span><span class="o">.</span><span class="n">SendMsgEcho</span><span class="p">]:</span>
@@ -916,7 +880,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../../_static/documentation_options.js?v=3aa3c338"></script>
+</div><script src="../../../../../../_static/documentation_options.js?v=0de98716"></script>
     <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/scripts/furo.js?v=5fa4622c"></script>

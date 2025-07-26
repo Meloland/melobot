@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.ctx - melobot 3.2.1</title>
+        <title>melobot.ctx - melobot 3.2.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -175,7 +175,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">melobot 3.2.1</div></a>
+      <a href="../../index.html"><div class="brand">melobot 3.2.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.2.1</span>
+  <span class="sidebar-brand-text">melobot 3.2.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -329,9 +329,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.typ.cls</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingletonMeta</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">adapter</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">model</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.bot.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.handle.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">FlowNode</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">io_base</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.io.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractInSource</span><span class="p">,</span> <span class="n">OutSourceT</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.log.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericLogger</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.session.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span><span class="p">,</span> <span class="n">SessionStore</span>
@@ -594,21 +596,32 @@
     <span class="k">return</span> <span class="n">GenericLogger</span>
 
 
+<div class="viewcode-block" id="EventOrigin">
+<a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.EventOrigin">[文档]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EventOrigin</span><span class="p">:</span>
     <span class="n">_FLAG_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="nb">object</span><span class="p">(),</span> <span class="nb">object</span><span class="p">())</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adapter</span><span class="p">:</span> <span class="s2">&quot;Adapter&quot;</span><span class="p">,</span> <span class="n">in_src</span><span class="p">:</span> <span class="s2">&quot;AbstractInSource&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adapter</span><span class="p">:</span> <span class="s2">&quot;adapter.Adapter&quot;</span><span class="p">,</span> <span class="n">in_src</span><span class="p">:</span> <span class="s2">&quot;io_base.AbstractInSource&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1">#: 适配器对象</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span> <span class="o">=</span> <span class="n">adapter</span>
+        <span class="c1">#: 输入源对象</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_src</span> <span class="o">=</span> <span class="n">in_src</span>
 
+<div class="viewcode-block" id="EventOrigin.set_origin">
+<a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.EventOrigin.set_origin">[文档]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_origin</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;model.Event&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="p">:</span> <span class="s2">&quot;EventOrigin&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">event</span><span class="o">.</span><span class="n">flag_set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FLAG_KEYS</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_FLAG_KEYS</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">origin</span><span class="p">)</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">flag_set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FLAG_KEYS</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_FLAG_KEYS</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">origin</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="EventOrigin.get_origin">
+<a class="viewcode-back" href="../../api/melobot.ctx.html#melobot.ctx.EventOrigin.get_origin">[文档]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_origin</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;model.Event&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="n">origin</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">flag_get</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FLAG_KEYS</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_FLAG_KEYS</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Self</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Self</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># 不使用 dataclass，不用重写任何方法就可哈希</span>
@@ -678,7 +691,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=3aa3c338"></script>
+</div><script src="../../_static/documentation_options.js?v=0de98716"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

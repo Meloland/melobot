@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>melobot.adapter - melobot 3.2.1</title>
+        <title>melobot.adapter - melobot 3.2.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -176,7 +176,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.2.1</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.2.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.2.1</span>
+  <span class="sidebar-brand-text">melobot 3.2.2</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -555,6 +555,16 @@
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.adapter.Event.get_origin_info">
+<span class="sig-name descname"><span class="pre">get_origin_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="melobot.ctx.html#melobot.ctx.EventOrigin" title="melobot.ctx.EventOrigin"><span class="pre">EventOrigin</span></a></span></span><a class="reference internal" href="../_modules/melobot/adapter/model.html#Event.get_origin_info"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.adapter.Event.get_origin_info" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="melobot.ctx.html#melobot.ctx.EventOrigin" title="melobot.ctx.EventOrigin"><em>EventOrigin</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -636,7 +646,7 @@
 <dt class="field-odd">变量<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>action</strong> (<a class="reference internal" href="#melobot.adapter.Action" title="melobot.adapter.Action"><em>Action</em></a>) -- 操作包含的行为对象</p></li>
-<li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.13）"><em>Literal</em></a><em>[</em><em>&quot;PENDING&quot;</em><em>, </em><em>&quot;EXECUTING&quot;</em><em>, </em><em>&quot;FINISHED&quot;</em><em>]</em>) -- 操作的状态。分别对应：未执行、执行中、执行完成</p></li>
+<li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.13）"><em>Literal</em></a><em>[</em><em>&quot;PENDING&quot;</em><em>, </em><em>&quot;EXECUTING&quot;</em><em>, </em><em>&quot;DONE&quot;</em><em>]</em>) -- 操作的状态。分别对应：未执行、执行中、执行完成</p></li>
 <li><p><strong>out_src</strong> (<a class="reference internal" href="melobot.io.html#melobot.io.AbstractOutSource" title="melobot.io.AbstractOutSource"><em>AbstractOutSource</em></a>) -- 执行操作的输出源对象</p></li>
 </ul>
 </dd>
@@ -1205,7 +1215,10 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#id2">实体基类</a><ul>
-<li><a class="reference internal" href="#melobot.adapter.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li><a class="reference internal" href="#melobot.adapter.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.adapter.Event.get_origin_info"><code class="docutils literal notranslate"><span class="pre">Event.get_origin_info()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#melobot.adapter.TextEvent"><code class="docutils literal notranslate"><span class="pre">TextEvent</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.adapter.TextEvent.text"><code class="docutils literal notranslate"><span class="pre">TextEvent.text</span></code></a></li>
 <li><a class="reference internal" href="#melobot.adapter.TextEvent.textlines"><code class="docutils literal notranslate"><span class="pre">TextEvent.textlines</span></code></a></li>
@@ -1292,7 +1305,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=3aa3c338"></script>
+</div><script src="../_static/documentation_options.js?v=0de98716"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
