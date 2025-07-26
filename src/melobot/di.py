@@ -306,8 +306,8 @@ class MatchEvent:
     即尽最大可能获取指定类型的对象。但有时需要实现这样的需求：
 
     .. code:: python
-        # 假设 bot 已经加载了两个适配器：ObAdapter 和 XxAdapter
 
+        # 假设 bot 已经加载了两个适配器：ObAdapter 和 XxAdapter
         from melobot.handle import on_event
         # 期待事件来自 ObAdapter 时，调用这个
         @on_event()

@@ -5,6 +5,53 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.2.2
+
+### ⏩变更
+
+- [core] 预计于 3.2.1 版本移除的所有组件正式移除：{class}`melobot.protocols.onebot.v11.EchoRequireCtx` 和 {meth}`melobot.protocols.onebot.v11.Adapter.with_echo` ([74968a0](https://github.com/Meloland/melobot/commit/74968a0))
+
+- [core] 现在 {meth}`~.Bot.get_adapter` 在使用类型对象获取适配器时，返回更精准的类型注解 ([3a48150](https://github.com/Meloland/melobot/commit/3a48150))
+
+```python
+from melobot.adapter import Adapter
+from melobot.protocols.onebot.v11 import Adapter as ObAdapter
+from typing import reveal_type
+
+# 过往版本返回的是基类型
+reveal_type(bot.get_adapter(ObAdapter)) # infer: Adapter | None
+# 当前版本
+reveal_type(bot.get_adapter(ObAdapter)) # infer: ObAdapter | None
+```
+
+### ✨新增
+
+- [core] 现在所有事件对象可以通过 {meth}`~melobot.adapter.Event.get_origin_info` 获取事件来源信息对象 {class}`.EventOrigin` ([3a48150](https://github.com/Meloland/melobot/commit/3a48150))
+
+- [core] 新增依赖注入元数据标记 {class}`.MatchEvent`，还更改了适配器依赖注入的逻辑。新逻辑及用法参考 {class}`.MatchEvent` 文档
+
+### 👍修复
+
+- [core] 修复了某些源对象在启动失败后，适配器会额外重复启动一次的错误 ([942ba8c](https://github.com/Meloland/melobot/commit/942ba8c))
+
+- [core] 修复了实例方法、类方法、静态方法无法进行依赖注入的问题 ([3a48150](https://github.com/Meloland/melobot/commit/3a48150))
+
+- [core] 修复了由流装饰器（事件绑定方法）产生的流对象拥有错误名称属性的问题 ([7a8087d](https://github.com/Meloland/melobot/commit/7a8087d))
+
+- [core] 修复了适配器在自动确定输出源时，可能会选择非本协议的输出源的问题 ([209fe61](https://github.com/Meloland/melobot/commit/209fe61))
+
+### ⚙️内部
+
+- [core] 移除了针对 OneBot v12 协议的适配计划，短期内不再考虑适配 ([42a7037](https://github.com/Meloland/melobot/commit/42a7037))
+
+### 其他
+
+文档勘误及不重要变更，参考完整记录：[3.2.1...3.2.2](https://github.com/Meloland/melobot/compare/3.2.1...3.2.2)
+
+### 生态新闻
+
+- 适用于 Minecraft 服务端进程管理的 melobot 协议 [melobot_protocol_mcpm](https://github.com/aicorein/melobot-protocol-mcpm) 第一个版本已经开发完成，完成了对 vanilla/fabric 端的适配。
+
 ## v3.2.1
 
 ### ✨新增
