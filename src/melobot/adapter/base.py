@@ -29,7 +29,6 @@ from ..io.base import (
     AbstractOutSource,
     AbstractSource,
     EchoPacketT,
-    InOrOutSourceT,
     InPacketT,
     InSourceT,
     OutPacketT,
@@ -251,7 +250,7 @@ class Adapter(
 
         if filter is not None:
             osrcs = (osrc for osrc in self.out_srcs if filter(osrc))
-        elif isinstance(cur_isrc, AbstractOutSource):
+        elif isinstance(cur_isrc, AbstractOutSource) and cur_isrc in self.out_srcs:
             osrcs = (cast(OutSourceT, cur_isrc),)
         else:
             osrcs = self.out_srcs if len(self.out_srcs) else ()
