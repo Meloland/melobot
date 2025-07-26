@@ -39,7 +39,7 @@ from .action import (
     SetRestartAction,
     msgs_to_dicts,
 )
-from .base import Adapter, EchoFactory, EchoRequireCtx, EventFactory, OutputFactory
+from .base import Adapter, EchoFactory, EventFactory, OutputFactory
 from .echo import (
     CanSendImageEcho,
     CanSendRecordEcho,
