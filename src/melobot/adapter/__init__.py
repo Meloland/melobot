@@ -4,6 +4,7 @@ from .base import (
     AbstractOutputFactory,
     Adapter,
     AdapterLifeSpan,
+    AdapterT,
 )
 from .content import Content
 from .model import (

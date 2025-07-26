@@ -21,7 +21,7 @@ from typing_extensions import (
     cast,
 )
 
-from ..ctx import ActionAutoExecCtx
+from ..ctx import ActionAutoExecCtx, EventOrigin
 from ..exceptions import ActionHandleError
 from ..io.base import AbstractOutSource
 from ..mixin import AttrReprMixin, FlagMixin
@@ -60,6 +60,9 @@ class Event(AttrReprMixin, FlagMixin):
         self.scope = scope
 
         self.spread: bool = True
+
+    def get_origin_info(self) -> EventOrigin:
+        return EventOrigin.get_origin(self)
 
 
 EventT = TypeVar("EventT", bound=Event)

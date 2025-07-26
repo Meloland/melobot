@@ -412,3 +412,6 @@ class Adapter(
         :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(f"[melobot resource: {name} at {url}]")
+
+
+AdapterT = TypeVar("AdapterT", bound=Adapter)

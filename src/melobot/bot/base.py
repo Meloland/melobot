@@ -19,11 +19,12 @@ from typing_extensions import (
     Iterable,
     LiteralString,
     NoReturn,
+    overload,
 )
 
 from .._meta import MetaInfo
 from .._run import LoopManager
-from ..adapter.base import Adapter
+from ..adapter.base import Adapter, AdapterT
 from ..ctx import BotCtx
 from ..exceptions import BotError
 from ..handle.base import Flow
@@ -411,6 +412,17 @@ class Bot(HookMixin[BotLifeSpan]):
 
         await self.close()
         self._runner.restart()
+
+    @overload
+    def get_adapter(self, type: type[AdapterT], filter: None = None) -> AdapterT | None: ...
+
+    @overload
+    def get_adapter(self, type: LiteralString, filter: None = None) -> Adapter | None: ...
+
+    @overload
+    def get_adapter(
+        self, type: None = None, filter: Callable[[Adapter], bool] | None = None
+    ) -> Adapter | None: ...
 
     def get_adapter(
         self,
