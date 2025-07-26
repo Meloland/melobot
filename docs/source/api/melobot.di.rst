@@ -30,3 +30,7 @@ melobot.di
 .. autoclass:: melobot.di.Reflect
     :members:
     :exclude-members: __init__
+
+.. autoclass:: melobot.di.MatchEvent
+    :members:
+    :exclude-members: __init__

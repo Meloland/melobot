@@ -27,6 +27,7 @@ from ..exceptions import AdapterError
 from ..io.base import (
     AbstractInSource,
     AbstractOutSource,
+    AbstractSource,
     EchoPacketT,
     InPacketT,
     InSourceT,
@@ -195,9 +196,13 @@ class Adapter(
                 if len(out_src_ts):
                     await asyncio.wait(out_src_ts)
 
+                # 防止有些输入输出源在第一次启动失败后，又触发一次下面的启动
+                in_src_set = cast(set[AbstractSource], self.in_srcs) - cast(
+                    set[AbstractSource], self.out_srcs
+                )
                 in_src_ts = tuple(
                     create_task(stack.enter_async_context(src))
-                    for src in self.in_srcs
+                    for src in in_src_set
                     if not src.opened()
                 )
                 if len(in_src_ts):
@@ -245,7 +250,7 @@ class Adapter(
 
         if filter is not None:
             osrcs = (osrc for osrc in self.out_srcs if filter(osrc))
-        elif isinstance(cur_isrc, AbstractOutSource):
+        elif isinstance(cur_isrc, AbstractOutSource) and cur_isrc in self.out_srcs:
             osrcs = (cast(OutSourceT, cur_isrc),)
         else:
             osrcs = self.out_srcs if len(self.out_srcs) else ()
@@ -406,3 +411,6 @@ class Adapter(
         :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(f"[melobot resource: {name} at {url}]")
+
+
+AdapterT = TypeVar("AdapterT", bound=Adapter)

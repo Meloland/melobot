@@ -19,11 +19,12 @@ from typing_extensions import (
     Iterable,
     LiteralString,
     NoReturn,
+    overload,
 )
 
 from .._meta import MetaInfo
 from .._run import LoopManager
-from ..adapter.base import Adapter
+from ..adapter.base import Adapter, AdapterT
 from ..ctx import BotCtx
 from ..exceptions import BotError
 from ..handle.base import Flow
@@ -412,6 +413,17 @@ class Bot(HookMixin[BotLifeSpan]):
         await self.close()
         self._runner.restart()
 
+    @overload
+    def get_adapter(self, type: type[AdapterT], filter: None = None) -> AdapterT | None: ...
+
+    @overload
+    def get_adapter(self, type: LiteralString, filter: None = None) -> Adapter | None: ...
+
+    @overload
+    def get_adapter(
+        self, type: None = None, filter: Callable[[Adapter], bool] | None = None
+    ) -> Adapter | None: ...
+
     def get_adapter(
         self,
         type: LiteralString | type[Adapter] | None = None,
@@ -419,7 +431,7 @@ class Bot(HookMixin[BotLifeSpan]):
     ) -> Adapter | None:
         """获取 bot 所绑定的适配器
 
-        :param type: 适配器的类型（可传入协议字符串或协议类型），为空时才使用 `filter` 参数
+        :param type: 适配器的类型（可传入协议字符串或适配器类型），为空时才使用 `filter` 参数
         :param filter: 过滤函数，返回 `True` 则表明需要该适配器。为空则不使用
         :return: 适配器或空
         """

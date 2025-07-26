@@ -13,7 +13,6 @@ MOD_PATH = Path(__file__).parent.joinpath("mp", "mod.py").resolve()
 SUBMOD_PATH = Path(__file__).parent.joinpath("mp", "submod.py").resolve()
 SUBMOD2_PATH = Path(__file__).parent.joinpath("mp", "submod2.py").resolve()
 ARGV = ["123", "456"]
-SIGNAL_QUEUE = SimpleQueue()
 TEST_S = "/abc/123, '123456' <test>(123)45678900012"
 
 

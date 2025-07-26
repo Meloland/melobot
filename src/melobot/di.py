@@ -6,7 +6,7 @@ from collections import deque
 from dataclasses import dataclass
 from functools import partial, wraps
 from inspect import Parameter, isawaitable, signature, unwrap
-from types import BuiltinFunctionType, FunctionType, LambdaType
+from types import BuiltinFunctionType, FunctionType, LambdaType, MethodType
 
 from typing_extensions import (
     TYPE_CHECKING,
@@ -122,6 +122,8 @@ class AutoDepends(Depends):
         self.func_name = get_obj_name(func, otype="callable")
         self.arg_name = name
 
+        self._match_event = False
+
         if get_origin(hint) is Annotated:
             args = get_args(hint)
             if not len(args):
@@ -160,6 +162,9 @@ class AutoDepends(Depends):
             self.orig_getter = ParseArgsCtx().get
 
         for data in self.metadatas:
+            if isinstance(data, MatchEvent):
+                self._match_event = True
+
             if isinstance(data, CustomLogger):
                 self.orig_getter = cast(Callable[[], Any], partial(_custom_logger_get, hint, data))
                 break
@@ -221,15 +226,18 @@ def _get_adapter_type() -> type["Adapter"]:
 
 
 def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
-    flow_ctx = FlowCtx()
-    try:
-        event = flow_ctx.get_event()
-        return EventOrigin.get_origin(event).adapter
-    except flow_ctx.lookup_exc_cls:
+    if not deps._match_event:
         adapter = BotCtx().get().get_adapter(hint)
         if adapter is None:
             raise deps._unmatch_exc(VoidType) from None
-        return adapter
+        return cast("Adapter", adapter)
+    else:
+        flow_ctx = FlowCtx()
+        try:
+            event = flow_ctx.get_event()
+            return EventOrigin.get_origin(event).adapter
+        except flow_ctx.lookup_exc_cls:
+            raise deps._unmatch_exc(VoidType) from None
 
 
 def _custom_logger_get(hint: Any, data: CustomLogger) -> Any:
@@ -286,6 +294,37 @@ class Reflect:
         isinstance(event_proxy.__origin__, SomeEventType)
         # 或者是作为运行逻辑未知的函数的参数
         dont_know_what_this_do(event_proxy.__origin__)
+    """
+
+
+@dataclass
+class MatchEvent:
+    """数据类。指定从当前事件的上下文中获取依赖
+
+    默认情况下，获取 Adapter 依赖都会直接尝试遍历所有可能的对象。
+
+    即尽最大可能获取指定类型的对象。但有时需要实现这样的需求：
+
+    .. code:: python
+
+        # 假设 bot 已经加载了两个适配器：ObAdapter 和 XxAdapter
+        from melobot.handle import on_event
+        # 期待事件来自 ObAdapter 时，调用这个
+        @on_event()
+        async def on_onebot_event(adapter: ObAdapter) -> None: ...
+        # 期待事件来自 XxAdapter 时，调用这个
+        @on_event()
+        async def on_xx_event(adapter: XxAdapter) -> None: ...
+
+        # 但默认的逻辑是：bot 只要加载了对应的适配器，依赖就可以满足
+        # 所以实际上他们都会被调用，没有任何区分效果
+
+        # 使用 MatchEvent 来改变依赖获取的逻辑：
+        # 事件的来源适配器必须和 MatchEvent 中指定的类型匹配，依赖才能满足
+        @on_event()
+        async def on_onebot_event(adapter: Annotated[ObAdapter, MatchEvent()]) -> None: ...
+        @on_event()
+        async def on_xx_event(adapter: Annotated[XxAdapter, MatchEvent()]) -> None: ...
     """
 
 
@@ -432,7 +471,7 @@ def inject_deps(
             return await ret
         return ret
 
-    if isinstance(injectee, FunctionType):
+    if isinstance(injectee, (FunctionType, MethodType)):
         _init_auto_deps(injectee, manual_arg)
         return inject_deps_wrapped
     if isinstance(injectee, LambdaType):

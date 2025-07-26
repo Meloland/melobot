@@ -75,7 +75,7 @@ class FlowDecorator:
         n = no_deps_node(wraps(func)(partial(self._flow_wrapped, func)))
         n.name = get_obj_name(func, otype="callable")
         self._flow = Flow(
-            f"OneBotV11Flow[{n.name}]", (n,), priority=self._priority, guard=self._guard
+            f"FlowDecorator[{n.name}]", (n,), priority=self._priority, guard=self._guard
         )
         return self._flow
 

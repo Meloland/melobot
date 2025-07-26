@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-from contextvars import Token
 from os import PathLike
 
 from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence
@@ -15,16 +14,14 @@ from melobot.adapter import (
 from melobot.adapter import Adapter as RootAdapter
 from melobot.adapter import (
     Content,
-    EchoT,
 )
 from melobot.adapter import content as mc
-from melobot.ctx import Context
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
 from melobot.typ import AsyncCallable, SyncOrAsyncCallable
-from melobot.utils import deprecate_warn, to_async, to_coro
+from melobot.utils import to_async, to_coro
 
-from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER, P, T
+from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER, T
 from ..io.base import BaseIOSource
 from ..io.packet import EchoPacket, InPacket, OutPacket
 from . import action as ac
@@ -83,19 +80,6 @@ class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo], ValidateHandleMixin)
         return await self.validate_handle(data, ec.Echo.resolve)
 
 
-class EchoRequireCtx(Context[bool]):
-    def __init__(self) -> None:
-        super().__init__("ONEBOT_V11_ECHO_REQUIRE", LookupError)
-
-    def add(self, ctx: bool) -> Token[bool]:
-        deprecate_warn(
-            f"OneBot v11 的上下文 {EchoRequireCtx.__name__} 已弃用，将于 melobot 3.2.1 版本删除。"
-            "从 melobot 3.2.0 开始，此上下文值永远为真",
-            stacklevel=3,
-        )
-        return super().add(ctx)
-
-
 class Adapter(
     RootAdapter[EventFactory, OutputFactory, EchoFactory, ac.Action, BaseIOSource, BaseIOSource]
 ):
@@ -119,17 +103,6 @@ class Adapter(
             return f
 
         return when_validate_error_wrapper
-
-    def with_echo(
-        self, func: AsyncCallable[P, ActionHandleGroup[EchoT]]
-    ) -> AsyncCallable[P, ActionHandleGroup[EchoT]]:
-        deprecate_warn(
-            f"OneBot v11 的 {Adapter.with_echo.__qualname__} 方法已被弃用，"
-            "将于 melobot 3.2.1 版本删除。"
-            "从 melobot 3.2.0 开始，OneBot v11 所有 action dict 的 echo 字段都不为空",
-            stacklevel=3,
-        )
-        return func
 
     async def __send_text__(self, text: str) -> ActionHandleGroup[ec.SendMsgEcho]:
         return await self.send(text)

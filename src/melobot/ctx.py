@@ -21,9 +21,11 @@ from .typ.base import T, V
 from .typ.cls import SingletonMeta
 
 if TYPE_CHECKING:
+    from . import adapter
     from .adapter import Adapter, model
     from .bot.base import Bot
     from .handle.base import Flow, FlowNode
+    from .io import base as io_base
     from .io.base import AbstractInSource, OutSourceT
     from .log.base import GenericLogger
     from .session.base import Session, SessionStore
@@ -259,8 +261,10 @@ def get_logger_type() -> type["GenericLogger"]:
 class EventOrigin:
     _FLAG_KEYS = (object(), object())
 
-    def __init__(self, adapter: "Adapter", in_src: "AbstractInSource") -> None:
+    def __init__(self, adapter: "adapter.Adapter", in_src: "io_base.AbstractInSource") -> None:
+        #: 适配器对象
         self.adapter = adapter
+        #: 输入源对象
         self.in_src = in_src
 
     @classmethod

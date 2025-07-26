@@ -16,7 +16,7 @@ def import_name(name: str, source: str, namespace: dict[str, Any]) -> Any:
     while source[level] == ".":
         level += 1
         if level >= len(source):
-            raise ImportError("importing from parent isn't supported")
+            raise ImportError("不支持相对导入语义")
     module = __import__(source[level:], namespace, None, [name], level)
     return getattr(module, name)
 
