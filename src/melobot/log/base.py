@@ -114,6 +114,7 @@ class NullLogger(_Logger, GenericLogger):
         *arg_getters: Callable[[], str],
         level: LogLevel,
         with_exc: bool = False,
+        stacklevel: int = 1,
     ) -> None:
         return
 
@@ -123,6 +124,7 @@ class NullLogger(_Logger, GenericLogger):
         obj: T,
         *arg_getters: Callable[[], str],
         level: LogLevel = LogLevel.INFO,
+        stacklevel: int = 1,
     ) -> None:
         return
 
