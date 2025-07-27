@@ -102,6 +102,7 @@ class AdapterLifeSpan(Enum):
     BEFORE_EVENT_HANDLE = "beh"
     BEFORE_ACTION_EXEC = "bae"
     STARTED = "sta"
+    CLOSE = "clo"
     STOPPED = "sto"
 
 
@@ -182,6 +183,14 @@ class Adapter(
                     | locals(),
                 )
 
+    @final
+    @asynccontextmanager
+    async def __wait_close_hook__(self) -> AsyncGenerator[None, None]:
+        try:
+            yield
+        finally:
+            await self._hook_bus.emit(AdapterLifeSpan.CLOSE, True)
+
     @asynccontextmanager
     @final
     async def __adapter_launch__(self) -> AsyncGenerator[Self, None]:
@@ -211,6 +220,7 @@ class Adapter(
                 for src in self.in_srcs:
                     create_task(self.__adapter_input_loop__(src))
 
+                await stack.enter_async_context(self.__wait_close_hook__())
                 self._inited = True
                 await self._hook_bus.emit(AdapterLifeSpan.STARTED)
                 yield self

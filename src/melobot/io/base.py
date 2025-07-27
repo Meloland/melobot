@@ -79,6 +79,7 @@ class SourceLifeSpan(Enum):
 
     STARTED = "sta"
     RESTARTED = "res"
+    CLOSE = "clo"
     STOPPED = "sto"
 
 
@@ -126,6 +127,7 @@ class AbstractSource(HookMixin[SourceLifeSpan], BetterABC):
             return None
 
         try:
+            await self._hook_bus.emit(SourceLifeSpan.CLOSE, True)
             await self.close()
         finally:
             await self._hook_bus.emit(SourceLifeSpan.STOPPED, True)
