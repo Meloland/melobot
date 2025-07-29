@@ -10,6 +10,7 @@ from os import PathLike
 from pathlib import Path
 from random import random
 from types import ModuleType
+from weakref import WeakValueDictionary
 
 from typing_extensions import (
     Any,
@@ -80,7 +81,7 @@ class Bot(HookMixin[BotLifeSpan]):
     :ivar GenericLogger logger: bot 对象使用的日志器
     """
 
-    __instances__: dict[str, Bot] = {}
+    __instances__: WeakValueDictionary[str, Bot] = WeakValueDictionary()
 
     def __new__(cls, name: str = "melobot", /, *args: Any, **kwargs: Any) -> Bot:
         if name in Bot.__instances__:
