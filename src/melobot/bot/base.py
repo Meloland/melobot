@@ -479,12 +479,10 @@ class Bot(HookMixin[BotLifeSpan]):
         return self.ipc_manager.get(plugin, share)
 
     def add_flows(self, *flows: Flow) -> None:
-        """添加处理流
+        """添加处理流，非线程安全
 
         :param flows: 流对象
         """
-        if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) == -1:
-            raise BotError(f"只有在 {BotLifeSpan.STARTED} 生命周期后才能动态添加处理流")
         self._dispatcher.add(*flows)
 
     @property
