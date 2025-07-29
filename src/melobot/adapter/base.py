@@ -183,8 +183,8 @@ class Adapter(
                     | locals(),
                 )
 
-    @final
     @asynccontextmanager
+    @final
     async def __wait_close_hook__(self) -> AsyncGenerator[None, None]:
         try:
             yield
