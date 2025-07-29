@@ -1,6 +1,6 @@
 [project]
 name = "melobot"
-version = "3.2.2"
+version = "3.2.3"
 description = "A bot framework with much high level features."
 authors = [{ name = "aicorein", email = "aicorein@meloland.org" }]
 maintainers = [{ name = "aicorein", email = "aicorein@meloland.org" }]
