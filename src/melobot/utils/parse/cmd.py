@@ -33,6 +33,9 @@ class CmdArgs(AbstractParseArgs):
     tag: str | None
     vals: list[Any]
 
+    def __len__(self) -> int:
+        return len(self.vals)
+
 
 class CmdArgFormatInfo:
     """命令参数格式化信息对象
