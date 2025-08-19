@@ -8,6 +8,13 @@
 intro/index
 ```
 
+```{toctree}
+:maxdepth: 2
+:caption: 深入与最佳实践
+:hidden:
+
+dive_in/index
+```
 
 ```{toctree}
 :maxdepth: 2

@@ -77,9 +77,13 @@ EchoPacketT = TypeVar("EchoPacketT", bound=EchoPacket)
 class SourceLifeSpan(Enum):
     """源生命周期阶段的枚举"""
 
+    #: 源启动完成之后
     STARTED = "sta"
+    #: 源重新启动完成之后（未实现重启的源，自然不会调用这个）
     RESTARTED = "res"
+    #: 源停止即将发生前（出现异常可能不会调用此类型）
     CLOSE = "clo"
+    #: 源停止完成后（包含任何情况导致的停止）
     STOPPED = "sto"
 
 
