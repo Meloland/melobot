@@ -36,6 +36,9 @@ class CmdArgs(AbstractParseArgs):
     def __len__(self) -> int:
         return len(self.vals)
 
+    def __bool__(self) -> bool:
+        return True
+
 
 class CmdArgFormatInfo:
     """命令参数格式化信息对象

@@ -44,6 +44,9 @@ class DAGMapping(Generic[T]):
             self.add(n1, n2)
         self.verify()
 
+    def __bool__(self) -> bool:
+        return True
+
     def __len__(self) -> int:
         return len(self.map)
 

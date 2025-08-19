@@ -18,6 +18,7 @@ from typing_extensions import (
     Callable,
     Generator,
     Iterable,
+    Literal,
     LiteralString,
     NoReturn,
     overload,
@@ -47,15 +48,20 @@ class BotLifeSpan(Enum):
 
     #: 所有插件加载之后
     LOADED = "l"
-    #: bot 重新启动完成之后
-    RELOADED = "r"
     #: bot 启动完成之后（此时所有适配器和源已经开始工作）
     STARTED = "sta"
+    #: bot 重新启动完成之后
+    RESTARTED = "r"
     #: bot 手动停止即将发生前（仅限 bot.close() 发起的，信号触发不会调用此类型，出现异常可能不会调用此类型）
     CLOSE = "c"
     #: bot 停止完成后（包含任何情况导致的停止）
     STOPPED = "sto"
 
+    RELOADED: Literal["r"]
+
+
+# 兼容旧版本
+BotLifeSpan.RELOADED = BotLifeSpan.RESTARTED  # type: ignore[assignment]
 
 _BOT_CTX = BotCtx()
 _LUCKY_VALUE = random()

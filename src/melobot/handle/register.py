@@ -141,7 +141,7 @@ class FlowDecorator:
         if self.parser:
             event = cast(TextEvent, event)
             args = await self.parser.parse(event.text)
-            if args:
+            if args is not None:
                 return (True, args)
             return (False, None)
 

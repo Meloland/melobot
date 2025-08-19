@@ -162,6 +162,9 @@ class ActionHandleGroup(Generic[EchoT]):
     def __len__(self) -> int:
         return len(self._handles)
 
+    def __bool__(self) -> bool:
+        return True
+
     def __iter__(self) -> Iterator[ActionHandle[EchoT]]:
         return iter(self._handles)
 
