@@ -16,7 +16,8 @@ body:
         - 我已按照 melobot 文档的教程操作，依然存在问题
         - 我已使用最新的发布版本，依然存在问题
         - 我已在 issue 页面搜索过，没有重复问题存在
-        - 开发者没有义务 100% 为您修复任何错误/问题，是否修复，以何种形式进行，何时完成均不做担保。
+        - 提供信息前确保：调整日志级别为 DEBUG，运行时添加了环境变量 MELOBOT_EXC_SHOW_INTERNAL=1
+        - 开发者没有义务 100% 为您修复任何错误/问题，是否修复，以何种形式进行，何时完成均不做担保
 
   - type: checkboxes
     id: terms
@@ -87,6 +88,8 @@ body:
           required: false
         - label: OneBot 协议（内置）
           required: false
+        - label: Console 协议（内置）
+          required: false
         - label: 三方协议（请在“问题描述”板块说明）
           required: false
     validations:
@@ -111,11 +114,13 @@ body:
   - type: textarea
     id: reproduce
     attributes:
-      label: 简单的复现代码或相关代码链接（可选，文本块自动渲染为 python 代码块）
+      label: 简单的复现代码或相关代码链接
+      description: 文本块自动渲染为 python 代码块，如果没有请留空
       render: python
 
   - type: textarea
     id: log
     attributes:
-      label: DEBUG 级别日志记录（如果问题无需日志诊断，则可选）
+      label: DEBUG 级别日志记录
+      description: 确保运行时添加了环境变量 MELOBOT_EXC_SHOW_INTERNAL=1，如果问题无需日志诊断，请留空
       render: shell
