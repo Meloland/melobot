@@ -227,7 +227,14 @@ def _get_adapter_type() -> type["Adapter"]:
 
 def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
     if not deps._match_event:
-        adapter = BotCtx().get().get_adapter(hint)
+        if get_origin(hint) is Annotated:
+            args = get_args(hint)
+            if not len(args):
+                raise DependInitError("可依赖注入的函数若使用 Annotated 注解，必须附加元数据")
+            adapter_type = args[0]
+        else:
+            adapter_type = hint
+        adapter = BotCtx().get().get_adapter(adapter_type)
         if adapter is None:
             raise deps._unmatch_exc(VoidType) from None
         return cast("Adapter", adapter)
