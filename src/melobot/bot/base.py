@@ -336,7 +336,7 @@ class Bot(HookMixin[BotLifeSpan]):
 
                 await self._hook_bus.emit(BotLifeSpan.LOADED)
                 if self._runner.is_from_restart():
-                    await self._hook_bus.emit(BotLifeSpan.RELOADED)
+                    await self._hook_bus.emit(BotLifeSpan.RESTARTED)
 
                 for p in self._plugins.values():
                     await p.hook_bus.emit(
@@ -517,8 +517,15 @@ class Bot(HookMixin[BotLifeSpan]):
     def on_reloaded(
         self,
     ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 :obj:`.BotLifeSpan.RELOADED` 阶段 hook 的装饰器"""
-        return self.on(BotLifeSpan.RELOADED)
+        """给 bot 注册 :obj:`.BotLifeSpan.RESTARTED` 阶段 hook 的装饰器"""
+        return self.on(BotLifeSpan.RESTARTED)
+
+    @property
+    def on_restarted(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给 bot 注册 :obj:`.BotLifeSpan.RESTARTED` 阶段 hook 的装饰器"""
+        return self.on(BotLifeSpan.RESTARTED)
 
     @property
     def on_started(
