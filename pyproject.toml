@@ -41,8 +41,9 @@ Repository = "https://github.com/Meloland/melobot.git"
 Issues = "https://github.com/Meloland/melobot/issues"
 
 [project.optional-dependencies]
-onebot = ["pydantic>=2.9.2,<3", "websockets>=14.1,<15", "aiohttp>=3.10.10,<4"]
+onebot = ["pydantic>=2.9.2,<3", "websockets>=14.1,<15", "aiohttp>=3.12.15,<4"]
 cli = ["watchdog>=6.0.0,<7"]
+console = ["prompt_toolkit>=3.0.52"]
 
 
 [dependency-groups]

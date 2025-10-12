@@ -45,6 +45,9 @@ def _log_loop_exception(loop: asyncio.AbstractEventLoop, context: dict[str, Any]
         ):
             logger.debug("收到重启信号，即将重启...")
 
+        elif isinstance(exc, KeyboardInterrupt):
+            logger.debug("收到键盘中断，正在关闭...")
+
         elif "exception was never retrieved" in msg:
             fut = ctx.get("future")
             task = ctx.get("task")

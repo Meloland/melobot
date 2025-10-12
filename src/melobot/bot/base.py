@@ -27,6 +27,7 @@ from typing_extensions import (
 from .._meta import MetaInfo
 from .._run import LoopManager
 from ..adapter.base import Adapter, AdapterT
+from ..adapter.model import Event
 from ..ctx import BotCtx
 from ..exceptions import BotError
 from ..handle.base import Flow
@@ -40,7 +41,7 @@ from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
 from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
-from .dispatch import Dispatcher
+from .dispatch import Dispatcher, wait_dispatched
 
 
 class BotLifeSpan(Enum):
@@ -192,12 +193,14 @@ class Bot(HookMixin[BotLifeSpan]):
         self.adapters[adapter.protocol] = adapter
         return self
 
-    def add_protocol(self, pstack: ProtocolStack) -> Bot:
+    def add_protocol(self, pstack: ProtocolStack | type[ProtocolStack]) -> Bot:
         """绑定完整的协议栈，这包含了一组协同工作的输入源、输出源和适配器
 
-        :param pstack: 协议栈对象
+        :param pstack: 协议栈对象或协议栈类
         :return: bot 对象，因此支持链式调用
         """
+        if isinstance(pstack, type):
+            pstack = pstack()
         insrcs, outsrcs, adapter = pstack.inputs, pstack.outputs, pstack.adapter
         self.add_adapter(adapter)
         for isrc in insrcs:
@@ -495,6 +498,13 @@ class Bot(HookMixin[BotLifeSpan]):
         :param flows: 流对象
         """
         self._dispatcher.add(*flows)
+
+    async def wait_finish(self, event: Event) -> None:
+        """等待事件被所有处理流处理完成
+
+        :param event: 事件对象
+        """
+        await wait_dispatched(event, self)
 
     @property
     def on_loaded(
