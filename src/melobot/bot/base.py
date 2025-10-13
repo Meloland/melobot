@@ -235,9 +235,6 @@ class Bot(HookMixin[BotLifeSpan]):
 
         self._inited = True
         logger.debug("bot 核心组件初始化完成")
-        policy = asyncio.get_event_loop_policy()
-        policy_name = f"{policy.__class__.__module__}.{policy.__class__.__name__}"
-        logger.debug(f"当前事件循环策略：<{policy_name}>")
 
     def load_plugin(
         self,
@@ -330,6 +327,7 @@ class Bot(HookMixin[BotLifeSpan]):
             raise BotError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
 
+        logger.debug(f"当前事件循环类型：{type(asyncio.get_running_loop())}")
         try:
             async with self._common_async_ctx() as stack:
                 self._dispatcher.set_channel_ctx(contextvars.copy_context())
@@ -360,14 +358,25 @@ class Bot(HookMixin[BotLifeSpan]):
                 logger.info(f"{self} 已安全停止运行")
                 self._running = False
 
-    def run(self, debug: bool = False, strict_log: bool = False) -> None:
+    def run(
+        self,
+        debug: bool = False,
+        strict_log: bool = False,
+        loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
+        eager_task: bool = True,
+    ) -> None:
         """安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况
 
         :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级
         :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
+        :param loop_factory:
+            使用此参数提供事件循环工厂。
+            Python 3.14 版本开始弃用事件循环策略，替代方案为事件循环工厂。
+            当然在 < 3.16 的版本，你依然可以不提供此参数，继续使用事件循环策略设置事件循环类型
+        :param eager_task: 是否启用急切任务模式（Python 3.12+ 可用），启用后任务会在创建时立即执行协程直到第一个 await 表达式
         """
         set_loop_exc_log(strict_log)
-        self._runner.run(self._run(), debug)
+        self._runner.run(self._run(), debug, loop_factory, eager_task)
         _end_log()
 
     @classmethod

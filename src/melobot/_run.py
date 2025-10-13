@@ -25,20 +25,38 @@ class LoopManager:
         self.started = False
         self.closed = False
         self.stop_accepted = False
+        self._loop_auto_set: bool = False
         self._next_manager: LoopManager
 
         self.started_hooks: set[Callable[[], Any]] = set()
         self.closed_hooks: set[Callable[[], Any]] = set()
         self.immunity_tasks: WeakSet[asyncio.Task] = WeakSet()
 
-    def run(self, root: Coroutine[Any, Any, None], debug: bool) -> None:
-        try:
-            # TODO: 在升级最低支持到 3.11 后，考虑更换为 new_event_loop，并使用 asyncio.Runner 来运行
-            loop = asyncio.get_event_loop()
-            asyncio.get_event_loop_policy().set_event_loop(loop)
+    def run(
+        self,
+        root_coro: Coroutine[Any, Any, None],
+        debug: bool,
+        loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
+        eager_task: bool = True,
+    ) -> None:
+        if self.closed:
+            raise RuntimeError("运行器内的事件循环已关闭，此运行器无法再次运行")
+        if self.started:
+            raise RuntimeError("运行器内的事件循环已启动，无法再次运行")
 
-            # TODO: 在升级最低支持到 3.12 后，设置为默认标准
-            if sys.version_info >= (3, 12):
+        try:
+            # TODO: 在升级支持到 3.16 后，需要重新验证代码，
+            # 因为 3.16 底层实现不再依赖于 policy，需要根据低级 loop 方法的新实现来调整
+            if loop_factory is None:
+                loop = asyncio.new_event_loop()
+                if not self._loop_auto_set:
+                    asyncio.set_event_loop(loop)
+                    self._loop_auto_set = True
+            else:
+                loop = loop_factory()
+
+            # TODO: 在升级最低支持到 3.12 后简化条件判断
+            if sys.version_info >= (3, 12) and eager_task:
                 loop.set_task_factory(asyncio.eager_task_factory)
 
             loop.set_debug(debug)
@@ -50,7 +68,7 @@ class LoopManager:
                 signal.signal(signal.SIGTERM, self.stop)
                 signal.signal(signal.SIGBREAK, self.stop)
 
-            main = self._loop_main(root)
+            main = self._loop_main(root_coro)
             loop.run_until_complete(main)
 
         except asyncio.CancelledError:
@@ -66,7 +84,8 @@ class LoopManager:
                 loop.run_until_complete(loop.shutdown_default_executor())
             finally:
                 loop.set_exception_handler(None)
-                asyncio.get_event_loop_policy().set_event_loop(None)
+                if self._loop_auto_set:
+                    asyncio.set_event_loop(None)
                 loop.close()
                 self._prepare_next_works()
 
