@@ -92,7 +92,8 @@ async def test_handle():
     mbot.add_adapter(Adapter())
     mbot.load_plugin(PluginPlanner("1.0.0", flows=[_flow]))
 
-    with loop_manager():
-        asyncio.create_task(mbot._run())
-        await mbot._rip_signal.wait()
+    async with loop_manager() as self_tasks:
+        self_tasks.append(asyncio.current_task())
+        t = asyncio.create_task(mbot._run())
+        await t
         await _SUCCESS_SIGNAL.wait()

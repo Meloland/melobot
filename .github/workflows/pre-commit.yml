@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']  # 添加你想要测试的 Python 版本
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']  # 添加你想要测试的 Python 版本
 
     steps:
     - name: Checkout
