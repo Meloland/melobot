@@ -172,7 +172,7 @@ class Logger(_Logger, GenericLogger):
         yellow_warn: bool = True,
         red_error: bool = True,
         two_stream: bool = False,
-        is_parellel: bool = False,
+        is_parallel: bool = False,
     ) -> None:
         """初始化日志器
 
@@ -192,13 +192,13 @@ class Logger(_Logger, GenericLogger):
             `legacy` 选项为 `True` 时此参数无效
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件
-        :param is_parellel: 日志渲染是否启用并行优化（可能导致日志小范围行间乱序）
+        :param is_parallel: 日志渲染是否启用并行优化（可能导致日志小范围行间乱序）
         """
         super().__init__(name, LogLevel.DEBUG)
         self._handler_arr: list[logging.Handler] = []
         self._no_tag = not add_tag
         self._filter = _MeloLogFilter(name, yellow_warn, red_error, legacy)
-        self._parellel = is_parellel
+        self._parallel = is_parallel
 
         if to_console:
             con_handler = self._add_console_handler()
@@ -266,7 +266,7 @@ class Logger(_Logger, GenericLogger):
         return fmt  # type: ignore[no-any-return]
 
     def _console_handler(self, fmt: logging.Formatter) -> logging.Handler:
-        handler = FastStreamHandler(self._parellel)
+        handler = FastStreamHandler(self._parallel)
         handler.setFormatter(fmt)
         return handler
 
@@ -298,7 +298,7 @@ class Logger(_Logger, GenericLogger):
             os.mkdir(log_dir)
 
         handler = FastRotatingFileHandler(
-            self._parellel,
+            self._parallel,
             filename=os.path.join(log_dir, f"{name}.log"),
             maxBytes=1024 * 1024,
             backupCount=10,
