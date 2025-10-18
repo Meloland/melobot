@@ -7,7 +7,6 @@ from .reflect import logger
 if TYPE_CHECKING:
     import socket
 
-from .._run import set_loop_exc_handler
 from ..typ import ExitCode, LogLevel
 
 
@@ -72,9 +71,6 @@ def _log_loop_exception(loop: asyncio.AbstractEventLoop, context: dict[str, Any]
     else:
         logger.error(f"事件循环出现预期外的状况：{msg}")
         logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
-
-
-set_loop_exc_handler(_log_loop_exception)
 
 
 def log_exc(exc: BaseException, msg: str, obj: Any = None) -> None:

@@ -25,7 +25,7 @@ from typing_extensions import (
 )
 
 from .._meta import MetaInfo
-from .._run import LoopManager
+from .._run import AsyncRunner
 from ..adapter.base import Adapter, AdapterT
 from ..adapter.model import Event
 from ..ctx import BotCtx
@@ -119,7 +119,7 @@ class Bot(HookMixin[BotLifeSpan]):
         self.adapters: dict[str, Adapter] = {}
         self.ipc_manager = IPCManager()
 
-        self._runner = LoopManager()
+        self._runner = AsyncRunner()
         self._in_srcs: dict[str, set[AbstractInSource]] = {}
         self._out_srcs: dict[str, set[AbstractOutSource]] = {}
         self._loader = PluginLoader()
@@ -362,21 +362,66 @@ class Bot(HookMixin[BotLifeSpan]):
         self,
         debug: bool = False,
         strict_log: bool = False,
+        use_exc_handler: bool = True,
         loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
         eager_task: bool = True,
     ) -> None:
-        """安全地运行 bot 的阻塞方法，这适用于只运行单一 bot 的情况
+        """运行 bot 的阻塞方法（将在内部创建事件循环），这适用于只运行单一 bot 的情况
 
         :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级
         :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
+        :param use_exc_handler:
+            是否使用内置的事件循环异常处理器来处理未捕获异常，为 False 时 `strict_log` 参数无效。
+            设置为 True 时，未捕获异常会被记录到日志中。并在运行结束后重置为调用前的异常处理器
         :param loop_factory:
             使用此参数提供事件循环工厂。
             Python 3.14 版本开始弃用事件循环策略，替代方案为事件循环工厂。
             当然在 < 3.16 的版本，你依然可以不提供此参数，继续使用事件循环策略设置事件循环类型
-        :param eager_task: 是否启用急切任务模式（Python 3.12+ 可用），启用后任务会在创建时立即执行协程直到第一个 await 表达式
+        :param eager_task: 是否启用主动任务模式（Python 3.12+ 可用），启用后任务会在创建时立即执行协程直到第一个 await 表达式
         """
+        logger.info("当前模式：事件循环由内部创建")
         set_loop_exc_log(strict_log)
-        self._runner.run(self._run(), debug, loop_factory, eager_task)
+        self._runner.run(self._run(), debug, use_exc_handler, loop_factory, eager_task)
+        _end_log()
+
+    async def run_async(
+        self,
+        strict_log: bool = False,
+        use_exc_handler: bool = True,
+        reserved_tasks: set[asyncio.Task] | None = None,
+        pre_loop_sig_handlers: list[tuple[int, Callable[..., object]]] | None = None,
+        shutdown_asyncgens: bool = False,
+        shutdown_default_executor: bool = False,
+    ) -> None:
+        """运行 bot 的异步方法（将在已有的事件循环中运行），这适用于只运行单一 bot 的情况
+
+        我们仅推荐在测试环境中使用此方法，因为部分测试框架的异步测试会先运行一个事件循环（如 pytest-asyncio）。
+        在复杂的生产环境中，无法 100% 保证运行前后事件循环的状态不被破坏
+
+        :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
+        :param use_exc_handler:
+            是否使用内置的事件循环异常处理器来处理未捕获异常，为 False 时 `strict_log` 参数无效。
+            设置为 True 时，未捕获异常会被记录到日志中。此方法运行结束后重置为调用前的异常处理器
+        :param reserved_tasks:
+            bot 运行结束时，会取消事件循环中除此方法调用栈上的其他任务，此参数提供不需要取消的任务的集合。
+            这一般适用于在调用此方法时，已存在其他非本栈上的异步任务的情况
+        :param pre_loop_sig_handlers:
+            bot 运行时会尝试覆盖原有的信号处理函数，对于 Windows 平台，在运行结束后自动重置为调用前的信号处理函数。
+            但对于其他平台，内部使用 :py:mod:`~asyncio.AbstractEventLoop.add_signal_handler` 方法添加信号处理函数，
+            无法获取到先前的信号处理函数。如果需要重置，请使用此参数提供调用前的信号处理函数列表
+        :param shutdown_asyncgens: 运行结束后是否关闭事件循环中所有异步生成器
+        :param shutdown_default_executor: 运行结束后是否关闭事件循环的默认执行器
+        """
+        logger.info("当前模式：事件循环由外部创建")
+        set_loop_exc_log(strict_log)
+        await self._runner.run_async(
+            self._run(),
+            reserved_tasks,
+            use_exc_handler,
+            pre_loop_sig_handlers,
+            shutdown_asyncgens,
+            shutdown_default_executor,
+        )
         _end_log()
 
     @classmethod
@@ -400,7 +445,7 @@ class Bot(HookMixin[BotLifeSpan]):
                     t.cancel()
 
         set_loop_exc_log(strict_log)
-        LoopManager().run(bots_run(), debug)
+        AsyncRunner().run(bots_run(), debug)
         _end_log()
 
     async def close(self) -> None:

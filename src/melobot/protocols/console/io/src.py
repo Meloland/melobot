@@ -68,7 +68,8 @@ class ConsoleIO(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
                 return
 
             self._opened.clear()
-            self.prompt_session.app.exit()
+            if self.prompt_session.app.is_running:
+                self.prompt_session.app.exit()
             logger.info("控制台源已停止运行")
 
     def refresh_prompt_args(self) -> None:

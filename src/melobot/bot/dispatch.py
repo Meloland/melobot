@@ -7,7 +7,7 @@ from collections import deque
 
 from typing_extensions import TYPE_CHECKING
 
-from .._run import is_async_running, register_loop_started_hook
+from .._run import is_runner_running, register_started_hook
 from ..adapter.base import Event
 from ..handle.base import Flow
 from ..log.base import LogLevel
@@ -108,11 +108,11 @@ class EventChannel:
         self.next: EventChannel | None = None
 
         # 不要把 channel_ctx 先赋值给其他变量，后续再引用此变量，会导致上下文丢失
-        if is_async_running():
+        if is_runner_running():
             self.owner._channel_ctx.run(asyncio.create_task, self.run())
             logger.debug(f"pri={self.priority} 的通道已生成")
         else:
-            register_loop_started_hook(
+            register_started_hook(
                 lambda: self.owner._channel_ctx.run(asyncio.create_task, self.run())
             )
             logger.debug(f"pri={self.priority} 的通道已安排生成")

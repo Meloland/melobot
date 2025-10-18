@@ -9,10 +9,10 @@ from typing_extensions import TYPE_CHECKING, Any, Callable, cast
 from .._lazy import singleton, singleton_clear
 from .._render import get_rich_object, get_rich_repr
 from .._run import (
-    add_immunity_task,
-    is_async_running,
-    register_loop_closed_hook,
-    register_loop_started_hook,
+    create_immunity_task,
+    is_runner_running,
+    register_closed_hook,
+    register_started_hook,
 )
 from ..typ import P, T, VoidType
 
@@ -26,9 +26,8 @@ class FastStreamHandler(StreamHandler):
         self.render = RecordRender(is_parellel)
 
     def emit(self, record: LogRecord) -> None:
-        if is_async_running():
-            t = asyncio.create_task(self.render.async_format(record))
-            add_immunity_task(t)
+        if is_runner_running():
+            t = create_immunity_task(self.render.async_format(record))
             t.add_done_callback(partial(_format_cb, record, super(FastStreamHandler, self).emit))
         else:
             self.render.sync_format(record)
@@ -51,9 +50,8 @@ class FastRotatingFileHandler(RotatingFileHandler):
         self.render = RecordRender(is_parellel)
 
     def emit(self, record: LogRecord) -> None:
-        if is_async_running():
-            t = asyncio.create_task(self.render.async_format(record))
-            add_immunity_task(t)
+        if is_runner_running():
+            t = create_immunity_task(self.render.async_format(record))
             t.add_done_callback(
                 partial(_format_cb, record, super(FastRotatingFileHandler, self).emit)
             )
@@ -90,12 +88,13 @@ class LogRenderRunner:
         self.ref_pairs: list[tuple[Any, str]] = []
         self.done = asyncio.Event()
 
-        register_loop_closed_hook(self._mark_done, allow_next=True)
-        if is_async_running():
-            add_immunity_task(asyncio.create_task(self._render_loop()))
+        register_closed_hook(self._mark_done, allow_next=True)
+        if is_runner_running():
+            create_immunity_task(self._render_loop())
         else:
-            register_loop_started_hook(
-                lambda: add_immunity_task(asyncio.create_task(self._render_loop())), allow_next=True
+            register_started_hook(
+                lambda: create_immunity_task(self._render_loop()),
+                allow_next=True,
             )
 
     def add_ref(self, obj: Any, attr_name: str) -> None:
@@ -113,14 +112,14 @@ class LogRenderRunner:
     async def _render_loop(self) -> None:
         # 要尽可能将队列里所有日志都渲染完，而不是直接取消
         loop = asyncio.get_running_loop()
-        done_task = add_immunity_task(asyncio.create_task(self.done.wait()))
+        done_task = create_immunity_task(self.done.wait())
 
         with self.pool:
             while True:
                 # 想象一种情况：q_task 完成，随后日志渲染（发生了 await），回来时 done_task 已完成
                 if done_task.done():
                     break
-                q_task = add_immunity_task(asyncio.create_task(self.task_q.get()))
+                q_task = create_immunity_task(self.task_q.get())
                 await asyncio.wait((q_task, done_task), return_when=asyncio.FIRST_COMPLETED)
                 if done_task.done():
                     if not q_task.done():
