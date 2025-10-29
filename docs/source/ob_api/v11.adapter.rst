@@ -8,7 +8,7 @@ v11.adapter
 v11 适配器
 ------------
 
-.. autoclass:: melobot.protocols.onebot.v11.Adapter
+.. autoclass:: melobot.protocols.onebot.v11.adapter.Adapter
     :exclude-members: __init__
 
 .. _onebot_v11_event:

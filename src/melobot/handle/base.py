@@ -36,8 +36,22 @@ def no_deps_node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
 class FlowNode:
     """处理流结点"""
 
-    def __init__(self, func: SyncOrAsyncCallable[..., bool | None], no_deps: bool = False) -> None:
-        self.name = get_obj_name(func, otype="callable")
+    def __init__(
+        self,
+        func: SyncOrAsyncCallable[..., bool | None],
+        no_deps: bool = False,
+        name: str | None = None,
+    ) -> None:
+        """初始化处理结点
+
+        :param func: 处理结点的处理逻辑（函数）
+        :param no_deps: 是否关闭内部的依赖注入支持
+        :param name: 结点名称，为空时获取函数名作为结点名
+        """
+        if name is None:
+            self.name = get_obj_name(func, otype="callable")
+        else:
+            self.name = name
         self.processor: AsyncCallable[..., bool | None] = (
             to_async(func) if no_deps else inject_deps(func)
         )
@@ -95,7 +109,7 @@ class Flow:
         """初始化处理流
 
         :param name: 处理流的标识
-        :param edge_maps: 边映射，遵循 melobot 的 graph edges 表示方法
+        :param edge_maps: 对应的 DAG 路径结构
         :param priority: 处理流的优先级
         :param guard: 守卫函数。在处理流运行前调用，返回 `True` 不再继续运行处理流。默认不启用
         """
@@ -157,16 +171,17 @@ class Flow:
         """
         self._guard = to_async(guard) if guard is not None else None
 
-    def link(self, flow: Flow, priority: int | None = None) -> Flow:
+    def link(self, flow: Flow, priority: int | None = None, new_name: str | None = None) -> Flow:
         """连接另一处理流返回新处理流，并设置新优先级
 
         新处理流守卫函数为空，使用 :meth:`set_guard` 自行添加
 
-        :param flow: 连接的新流
+        :param flow: 连接到末尾的流
         :param priority: 新优先级，若为空，则使用两者中较小的优先级
+        :param new_name: 新处理流名称，为空时使用 `f"{flow1.name} ~ {flow2.name}"`
         :return: 新的处理流
         """
-        name = f"{self.name} ~ {flow.name}"
+        name = f"{self.name} ~ {flow.name}" if new_name is None else new_name
         new_flow = Flow.from_graph(
             name,
             self.graph.link(flow.graph, name),
@@ -174,14 +189,25 @@ class Flow:
         )
         return new_flow
 
-    def start(self, node: FlowNode) -> FlowNode:
-        """设置处理流起始结点的装饰器
+    def add(self, node: FlowNode) -> FlowNode:
+        """添加结点的装饰器
 
-        :param node: 起始结点
-        :return: 起始结点
+        :param node: 添加的结点
+        :return: 结点本身
         """
         self.graph.add(node, None)
         return node
+
+    def start(self, node: FlowNode) -> FlowNode:
+        """与 :meth:`add` 方法功能完全一致
+
+        但此方法语义上更明确地表示添加的是起始结点。
+        建议使用此方法装饰的结点，不要再添加前驱结点。
+
+        :param node: 添加的结点
+        :return: 结点本身
+        """
+        return self.add(node)
 
     def after(self, node: FlowNode) -> Callable[[FlowNode], FlowNode]:
         """在处理流某一参照结点后，添加新结点的装饰器函数

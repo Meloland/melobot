@@ -11,7 +11,7 @@ melobot.handle
 
 .. autoclass:: melobot.handle.FlowNode
     :members:
-    :exclude-members: __init__, process
+    :exclude-members: process
 
 处理结点
 -----------
@@ -25,7 +25,7 @@ melobot.handle
 
 流装饰相关的组件，可以将一个普通函数装饰为一个处理流。
 
-这些组件，在 melobot 的教程中，早期我们称它们为“事件绑定方法”或“事件绑定函数”。
+这些组件，在 melobot 的教程中，早期称它们为“事件绑定方法”或“事件绑定函数”。
 
 .. autoclass:: melobot.handle.FlowDecorator
     :members:

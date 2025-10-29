@@ -31,6 +31,7 @@ ob_refer/index
 
 api/index
 ob_api/index
+console_api/index
 ```
 
 ```{toctree}

@@ -2,7 +2,7 @@
 
 ## 添加源、适配器
 
-此前的章节中，我们提到过源与适配器。实际上一个 bot 实例允许你添加任意协议，任意数量的源与适配器。
+此前的章节中提到过源与适配器。实际上一个 bot 实例允许你添加任意协议，任意数量的源与适配器。
 
 ```python
 from melobot import Bot
@@ -89,7 +89,7 @@ protocol = OneBotV11Protocol(
 bot.add_protocol(protocol)
 ```
 
-其他协议的协议栈对象，可能会有更抽象的包装行为：例如简化掉源对象创建，让用户专注于输入/输出的参数本身。
+其他协议的协议栈对象，可能会有更抽象的包装行为：例如简化掉源对象创建，让用户专注于配置参数本身。
 
 ## 获取适配器对象
 
@@ -116,6 +116,7 @@ adapter = bot.get_adapter(...)
 
 ```python
 from melobot.protocols.onebot.v11 import Adapter
+
 @on_xxx(...)
 async def _(adapter: Adapter) -> None: ...
 ```

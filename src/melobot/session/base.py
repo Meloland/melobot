@@ -165,9 +165,9 @@ class Session:
         此方法标记完成后，即使事件在当前处理流中没有处理完成，也会被允许参与传播评估。
 
         使用 :func:`enter_session` 时：
-            - `auto_complete=True`（默认选项）：每次挂起后，自动调用此方法标记当前事件
-            - `auto_complete=False`：需要手动调用此方法。
-            - `keep=True`：需要手动调用此方法。即使 `auto_complete=True`
+        `auto_complete=True`（默认选项）-> 每次挂起后，自动调用此方法标记当前事件；
+        `auto_complete=False` -> 需要手动调用此方法；
+        `keep=True` -> 需要手动调用此方法，即使 `auto_complete=True`
 
         总结：一般情况下可以自动完成事件传播评估。但如果启用了会话，
         且你需要更精准地控制事件的传播时机，可以考虑使用此方法

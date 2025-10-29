@@ -198,6 +198,9 @@ class FlowCtx(Context[FlowStatus]):
     def get_records(self) -> tuple[FlowRecord, ...]:
         return tuple(self.get().records)
 
+    def get_records_type(self) -> type[tuple[FlowRecord, ...]]:
+        return tuple[FlowRecord, ...]
+
     def get_completion(self) -> "EventCompletion":
         return self.get().completion
 

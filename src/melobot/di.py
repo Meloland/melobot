@@ -161,6 +161,9 @@ class AutoDepends(Depends):
         elif is_subhint(hint, ParseArgsCtx().get_args_type()):
             self.orig_getter = ParseArgsCtx().get
 
+        elif is_subhint(hint, FlowCtx().get_records_type()):
+            self.orig_getter = FlowCtx().get_records
+
         for data in self.metadatas:
             if isinstance(data, MatchEvent):
                 self._match_event = True

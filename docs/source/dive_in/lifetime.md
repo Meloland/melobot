@@ -2,9 +2,9 @@
 
 典型的 bot 程序的生命周期如下所示：
 
-```{image} /_static/lifetime.png
+```{image} /_static/lifetime.svg
 :alt: lifetime
-:width: 250px
+:width: 300px
 :align: center
 ```
 
@@ -20,9 +20,9 @@
 
 启动 bot 的过程在时序上如图所示：
 
-```{image} /_static/bot-start.png
+```{image} /_static/bot-start.svg
 :alt: lifetime
-:width: 400px
+:width: 450px
 :align: center
 ```
 
@@ -137,7 +137,7 @@ async def _() -> None: ...
 # 例如 bot 对象在任何时候都可以尝试：
 bot.get_hook_evoke_time(BotLifeSpan.STARTED)
 # 如果尚未抵达此生命周期，返回 -1
-# 如果抵达并触发过所有 hook，那么会返回一个时间戳值
+# 如果已抵达此生命周期，并触发过此 hook，会返回一个时间戳值
 ```
 
 其他组件的生命周期钩子，会在后续章节穿插讲解。
