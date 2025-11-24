@@ -10,7 +10,7 @@ from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, U, V
 from .base import to_async
 
 
-def if_not(
+def if_(
     condition: SyncOrAsyncCallable[[], U] | U,
     reject: SyncOrAsyncCallable[[], None],
     give_up: bool = False,
@@ -27,11 +27,11 @@ def if_not(
     _reject = to_async(reject)
     _accept = to_async(accept) if accept is not None else accept
 
-    def if_not_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
+    def if_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
         _func = to_async(func)
 
         @wraps(func)
-        async def if_not_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | None:
+        async def if_wrapped(*args: P.args, **kwargs: P.kwargs) -> T | None:
             if not callable(_condition):
                 cond = _condition
             else:
@@ -48,9 +48,9 @@ def if_not(
                 return await _func(*args, **kwargs)
             return None
 
-        return if_not_wrapped
+        return if_wrapped
 
-    return if_not_wrapper
+    return if_wrapper
 
 
 def unfold_ctx(
