@@ -279,9 +279,10 @@ class Exclude:
 
     .. code:: python
 
-        # 假设有继承关系 A <- B, A <- C, A <- D
-        # 表示 A 中不包括 B 和 C 类别的所有子类型，当然，还是会兼容 A 类型本身
+        # 假设有 B 继承于 A, C 继承于 A, D 继承于 A
+        # 表示不包括 B 和 C 类别的 A 的所有子类型：
         NewTypeHint = Annotated[A, Exclude(types=[B, C])]
+        # 当然，依然会兼容 A 类型
     """
 
     types: Sequence[type]
@@ -495,11 +496,16 @@ def inject_deps(
         injectee.__dict__[_DI_KW_DEFAULTS] = injectee.__kwdefaults__ or {}
         injectee.__dict__[_DI_INJECTED] = True
         return inject_deps_wrapped
+    if isinstance(injectee, partial):
+        injectee.__dict__[_DI_DEFAULTS] = injectee.args or ()
+        injectee.__dict__[_DI_KW_DEFAULTS] = injectee.keywords or {}
+        injectee.__dict__[_DI_INJECTED] = True
+        return inject_deps_wrapped
     if isinstance(injectee, BuiltinFunctionType):
         raise DependInitError(f"内建函数 {injectee} 不支持依赖注入")
 
     raise DependInitError(
         f"{injectee} 对象不属于以下类别中的任何一种："
-        "{同步函数，异步函数，匿名函数，同步生成器函数，异步生成器函数，"
+        "{同步函数，异步函数，匿名函数，partial 对象，同步生成器函数，异步生成器函数，"
         "实例方法、类方法、静态方法}，因此不能被注入依赖"
     )
