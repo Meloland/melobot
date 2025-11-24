@@ -17,7 +17,9 @@ HookEnumT = TypeVar("HookEnumT", bound=Enum)
 class HookRunner(Generic[HookEnumT]):
     def __init__(self, type: HookEnumT, func: AsyncCallable[..., None], once: bool = False) -> None:
         self.type = type
-        self.callback: AsyncCallable[..., None] = inject_deps(func, manual_arg=True)
+        self.callback: AsyncCallable[..., None] = inject_deps(
+            func, manual_arg=True, avoid_repeat=True
+        )
         self.once = once
         self._valid = True
         self._lock = asyncio.Lock()

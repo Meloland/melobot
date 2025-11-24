@@ -30,10 +30,12 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
         self.name = name
         self.__safe_ctx = RWContext()
         self.__reflect: AsyncCallable[[], T] | None = (
-            inject_deps(reflector) if reflector is not None else None
+            inject_deps(reflector, avoid_repeat=True) if reflector is not None else None
         )
         self.__callback: AsyncCallable[[T], None] | None = (
-            inject_deps(callabck, manual_arg=True) if callabck is not None else None
+            inject_deps(callabck, manual_arg=True, avoid_repeat=True)
+            if callabck is not None
+            else None
         )
         self.static = static
 
@@ -50,7 +52,7 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
         """
         if self.__reflect is not None:
             raise PluginIpcError("共享对象已经有获取值的反射方法，不能再次绑定")
-        self.__reflect = inject_deps(func)
+        self.__reflect = inject_deps(func, avoid_repeat=True)
         return self
 
     def setter(self, func: AsyncCallable[[T], None]) -> AsyncShare[T]:
@@ -63,7 +65,7 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
             raise PluginIpcError(f"{self} 作为静态的共享对象，不能绑定用于更新值的回调方法")
         if self.__callback is not None:
             raise PluginIpcError("共享对象已经有更新值的回调方法，不能再次绑定")
-        self.__callback = inject_deps(func, manual_arg=True)
+        self.__callback = inject_deps(func, manual_arg=True, avoid_repeat=True)
         return self
 
     async def get(self) -> T:

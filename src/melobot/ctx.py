@@ -10,6 +10,7 @@ from typing_extensions import (
     Callable,
     Generator,
     Generic,
+    Hashable,
     Self,
     Union,
     cast,
@@ -22,11 +23,11 @@ from .typ.cls import SingletonMeta
 
 if TYPE_CHECKING:
     from . import adapter
-    from .adapter import Adapter, model
+    from .adapter import model
     from .bot.base import Bot
     from .handle.base import Flow, FlowNode
     from .io import base as io_base
-    from .io.base import AbstractInSource, OutSourceT
+    from .io.base import OutSourceT
     from .log.base import GenericLogger
     from .session.base import Session, SessionStore
     from .session.option import Rule
@@ -154,7 +155,7 @@ class FlowRecords(list[FlowRecord]):
         super().append(snapshot)
 
 
-class FlowStore(dict[str, Any]):
+class FlowStore(dict[Hashable, Any]):
     """流存储，将会在流运行前初始化，运行结束后销毁"""
 
 

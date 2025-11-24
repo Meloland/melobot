@@ -19,20 +19,6 @@ from .graph import DAGMapping
 _FLOW_CTX = FlowCtx()
 
 
-def node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
-    """处理结点装饰器，将当前异步可调用对象装饰为一个处理结点"""
-    return FlowNode(func)
-
-
-def no_deps_node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
-    """与 :func:`node` 类似，但是不自动为结点标记依赖注入。
-
-    需要后续使用 :func:`.inject_deps` 手动标记依赖注入，
-    这适用于某些对处理结点进行再装饰的情况
-    """
-    return FlowNode(func, no_deps=True)
-
-
 class FlowNode:
     """处理流结点"""
 
@@ -53,7 +39,7 @@ class FlowNode:
         else:
             self.name = name
         self.processor: AsyncCallable[..., bool | None] = (
-            to_async(func) if no_deps else inject_deps(func)
+            to_async(func) if no_deps else inject_deps(func, avoid_repeat=True)
         )
 
     def __repr__(self) -> str:
