@@ -14,10 +14,12 @@ from .._run import (
     register_closed_hook,
     register_started_hook,
 )
-from ..typ import P, T, VoidType
+from ..typ import P, T
 
 if TYPE_CHECKING:
     from .base import LogInfo
+
+_NO_LOG_OBJ_SIGN = object()
 
 
 class FastStreamHandler(StreamHandler):
@@ -186,7 +188,7 @@ class RecordRender:
         if legacy:
             record.legacy_msg_str, record.colored_msg_str, record.msg_str = msg, "", msg
 
-            if obj is VoidType.VOID:
+            if obj is _NO_LOG_OBJ_SIGN:
                 record.legacy_obj, record.obj = "", ""
             else:
                 record.legacy_obj = record.obj = get_rich_object(obj, no_color=True)[1]
@@ -203,7 +205,7 @@ class RecordRender:
         else:
             record.colored_msg_str, record.msg_str = get_rich_repr(msg)
 
-        if obj is VoidType.VOID:
+        if obj is _NO_LOG_OBJ_SIGN:
             record.colored_obj, record.obj = "", ""
         elif red_error and record.levelno >= ERROR:
             record.legacy_obj = record.obj = get_rich_object(obj, no_color=True)[1]
@@ -229,14 +231,14 @@ class RecordRender:
         msg = log_info.msg
         obj = (
             self._to_easy_serialize(log_info.obj)
-            if log_info.obj is not VoidType.VOID
-            else VoidType.VOID
+            if log_info.obj is not _NO_LOG_OBJ_SIGN
+            else _NO_LOG_OBJ_SIGN
         )
 
         if legacy:
             record.legacy_msg_str, record.colored_msg_str, record.msg_str = msg, "", msg
 
-            if obj is VoidType.VOID:
+            if obj is _NO_LOG_OBJ_SIGN:
                 record.legacy_obj, record.obj = "", ""
             else:
                 record.legacy_obj = record.obj = (
@@ -259,7 +261,7 @@ class RecordRender:
         else:
             record.colored_msg_str, record.msg_str = await self.runner.run(get_rich_repr, msg)
 
-        if obj is VoidType.VOID:
+        if obj is _NO_LOG_OBJ_SIGN:
             record.colored_obj, record.obj = "", ""
         elif red_error and record.levelno >= ERROR:
             record.legacy_obj = record.obj = (

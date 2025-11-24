@@ -16,11 +16,11 @@ from typing_extensions import Any, Callable, Generator, Literal, cast
 
 from .._lazy import singleton
 from .._render import get_rich_exception
-from ..typ._enum import LogLevel, VoidType
+from ..typ._enum import LogLevel
 from ..typ.base import T
 from ..typ.cls import BetterABC
 from ..utils.common import find_caller_stack
-from .handler import FastRotatingFileHandler, FastStreamHandler
+from .handler import _NO_LOG_OBJ_SIGN, FastRotatingFileHandler, FastStreamHandler
 
 # 取消 better-exceptions 的猴子补丁
 logging._loggerClass = (  # type:ignore[attr-defined]
@@ -385,7 +385,7 @@ class _MeloLogFilter(logging.Filter):
     ) -> None:
 
         super().__init__(name)
-        self._obj: Any = VoidType.VOID
+        self._obj: Any = _NO_LOG_OBJ_SIGN
         self._enable_yellow_warn = yellow_warn
         self._enable_red_error = red_error
         self._legacy = legacy
@@ -394,7 +394,7 @@ class _MeloLogFilter(logging.Filter):
         self._obj = obj
 
     def clear_obj(self) -> None:
-        self._obj = VoidType.VOID
+        self._obj = _NO_LOG_OBJ_SIGN
 
     @contextmanager
     def on_obj(self, obj: Any) -> Generator[None, None, None]:
