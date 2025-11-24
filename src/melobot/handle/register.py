@@ -4,7 +4,7 @@ from functools import partial, wraps
 from typing_extensions import Any, Callable, Hashable, Iterable, Sequence, cast, overload
 
 from ..adapter.model import Event, EventT, TextEvent
-from ..ctx import FlowCtx, ParseArgsCtx
+from ..ctx import EventCompletion, FlowCtx, ParseArgsCtx
 from ..di import Depends, inject_deps
 from ..session.base import enter_session
 from ..session.option import DefaultRule, Rule
@@ -37,7 +37,7 @@ def node(f: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
 @overload
 def node(
     *,
-    etype: EventT | None = None,
+    etype: type[EventT] | None = None,
     checker: Checker | None | SyncOrAsyncCallable[[EventT], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
@@ -60,7 +60,7 @@ def node(
 def node(
     f: SyncOrAsyncCallable[..., bool | None] | None = None,
     *,
-    etype: EventT | None = None,
+    etype: type[EventT] | None = None,
     checker: Checker | None | SyncOrAsyncCallable[[EventT], bool] = None,
     matcher: Matcher | None = None,
     parser: Parser | None = None,
@@ -68,10 +68,11 @@ def node(
     legacy_session: bool = False,
 ) -> FlowNode | Callable[[SyncOrAsyncCallable[..., bool | None]], FlowNode]:
     checker = Checker.new(checker) if callable(checker) else checker
+    rule = DefaultRule()
 
     async def node_wrapped(func: AsyncCallable[..., bool | None]) -> bool | None:
         event = _FLOW_CTX.get_event()
-        if etype is not None and not isinstance(event, etype):  # type: ignore[arg-type]
+        if etype is not None and not isinstance(event, etype):
             return False
 
         if checker:
@@ -85,6 +86,7 @@ def node(
             if not status:
                 return False
 
+        args: AbstractParseArgs | None = None
         if parser:
             event = cast(TextEvent, event)
             args = await parser.parse(event.text)
@@ -101,7 +103,6 @@ def node(
 
         try:
             if legacy_session:
-                rule = DefaultRule()
                 async with enter_session(rule):
                     return await func()
             else:
@@ -114,7 +115,7 @@ def node(
         func: SyncOrAsyncCallable[..., bool | None],
     ) -> FlowNode:
         func = inject_deps(func, avoid_repeat=True)
-        return FlowNode(partial(node_wrapped, func))
+        return FlowNode(partial(node_wrapped, func), no_deps=True)
 
     if f is None:
         return node_wrapper
@@ -196,30 +197,33 @@ class FlowDecorator:
             self._flow.dismiss()
             return None
 
-        event = FlowCtx().get().completion.event
+        completion = FlowCtx().get().completion
         if not self._temp:
-            passed, args = await self._parse(event)
+            passed, args = await self._parse(completion.event)
             if not passed:
                 return None
-            return await self._process(func, event, args)
+            return await self._process(func, completion, args)
 
         async with self._lock:
             if self._invalid:
                 self._flow.dismiss()
                 return None
 
-            passed, args = await self._parse(event)
+            passed, args = await self._parse(completion.event)
             if not passed:
                 return None
             self._invalid = True
 
-        return await self._process(func, event, args)
+        return await self._process(func, completion, args)
 
     async def _process(
-        self, func: AsyncCallable[..., bool | None], event: Event, args: AbstractParseArgs | None
+        self,
+        func: AsyncCallable[..., bool | None],
+        completion: EventCompletion,
+        args: AbstractParseArgs | None,
     ) -> bool | None:
         if self._block:
-            event.spread = False
+            completion.event.spread = False
         parse_args_ctx = ParseArgsCtx()
         if args is not None:
             args_token = parse_args_ctx.add(args)

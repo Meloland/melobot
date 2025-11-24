@@ -46,7 +46,6 @@ class FlowNode:
         return f"{self.__class__.__name__}(name={self.name})"
 
     async def process(self, flow: Flow, completion: EventCompletion) -> None:
-        event = completion.event
         try:
             status = _FLOW_CTX.get()
             records, store = status.records, status.store
@@ -55,11 +54,15 @@ class FlowNode:
 
         with _FLOW_CTX.unfold(FlowStatus(flow, self, True, completion, records, store)):
             try:
-                records.append(FlowRecord(RecordStage.NODE_START, flow.name, self.name, event))
+                records.append(
+                    FlowRecord(RecordStage.NODE_START, flow.name, self.name, completion.event)
+                )
 
                 try:
                     ret = await self.processor()
-                    records.append(FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, event))
+                    records.append(
+                        FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, completion.event)
+                    )
                 except DependNotMatched as e:
                     ret = False
                     records.append(
@@ -67,7 +70,7 @@ class FlowNode:
                             RecordStage.DEPENDS_NOT_MATCH,
                             flow.name,
                             self.name,
-                            event,
+                            completion.event,
                             f"Real({e.real_type}) <=> Annotation({e.hint})",
                         )
                     )
@@ -256,24 +259,23 @@ class Flow:
         if self._guard is not None:
             try:
                 if not await self._guard(completion.event):
-                    return self._try_set_completed(completion)
+                    return self._try_complete(completion)
             except Exception as e:
                 log_exc(
                     e,
                     msg=f"事件处理流 {self.name} 守卫函数发生异常",
                     obj={
                         "event_id": completion.event.id,
-                        "event": completion.event,
+                        "completion": completion.__dict__,
                         "guard": self._guard,
                     },
                 )
-                return self._try_set_completed(completion)
+                return self._try_complete(completion)
 
         starts = self.graph.starts
         if not len(starts):
-            return self._try_set_completed(completion)
+            return self._try_complete(completion)
 
-        event = completion.event
         try:
             status = _FLOW_CTX.get()
             records, store = status.records, status.store
@@ -282,10 +284,10 @@ class Flow:
 
         with _FLOW_CTX.unfold(FlowStatus(self, starts[0], True, completion, records, store)):
             try:
-                if not self.graph._verified:
-                    self.graph.verify()
-
-                records.append(FlowRecord(RecordStage.FLOW_START, self.name, starts[0].name, event))
+                self.graph.verify()
+                records.append(
+                    FlowRecord(RecordStage.FLOW_START, self.name, starts[0].name, completion.event)
+                )
 
                 idx = 0
                 while idx < len(starts):
@@ -296,7 +298,7 @@ class Flow:
                         pass
 
                 records.append(
-                    FlowRecord(RecordStage.FLOW_FINISH, self.name, starts[0].name, event)
+                    FlowRecord(RecordStage.FLOW_FINISH, self.name, starts[0].name, completion.event)
                 )
 
             except FlowBroke:
@@ -307,23 +309,20 @@ class Flow:
                     e,
                     msg=f"事件处理流 {self.name} 发生异常",
                     obj={
-                        "event_id": event.id,
-                        "event": event,
+                        "event_id": completion.event.id,
                         "completion": completion.__dict__,
                         "cur_flow": self,
                     },
                 )
 
             finally:
-                self._try_set_completed(completion)
+                self._try_complete(completion)
 
-    def _try_set_completed(self, completion: EventCompletion) -> None:
-        if (
-            completion.owner_flow is self
-            and not completion.under_session
-            and not completion.completed.done()
-        ):
-            completion.completed.set_result(None)
+    def _try_complete(self, completion: EventCompletion) -> None:
+        if completion.creator is self:
+            if not completion.ctrl_by_session and not completion.completed.done():
+                completion.completed.set_result(None)
+            completion.flow_ended = True
 
 
 class _FlowSignal(BaseException): ...
@@ -441,4 +440,6 @@ async def rewind() -> NoReturn:
 async def flow_to(flow: Flow) -> None:
     """立即进入一个其他处理流（在处理流中使用）"""
     status = _FLOW_CTX.get()
-    await flow._run(status.completion)
+    if flow is status.flow:
+        raise FlowError("无法在处理流中进入自身处理流")
+    await flow._run(status.completion.copy())

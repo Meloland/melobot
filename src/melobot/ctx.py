@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from asyncio import Future
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
@@ -11,7 +13,6 @@ from typing_extensions import (
     Generator,
     Generic,
     Hashable,
-    Self,
     Union,
     cast,
     overload,
@@ -276,9 +277,9 @@ class EventOrigin:
         event.flag_set(cls._FLAG_KEYS[0], cls._FLAG_KEYS[1], origin)
 
     @classmethod
-    def get_origin(cls, event: "model.Event") -> Self:
+    def get_origin(cls, event: "model.Event") -> EventOrigin:
         origin = event.flag_get(cls._FLAG_KEYS[0], cls._FLAG_KEYS[1])
-        return cast(Self, origin)
+        return cast(EventOrigin, origin)
 
 
 # 不使用 dataclass，不用重写任何方法就可哈希
@@ -292,8 +293,12 @@ class EventCompletion:
     ) -> None:
         self.event = event
         self.completed = completed
-        self.owner_flow = owner_flow
-        self.under_session = under_session
+        self.creator = owner_flow
+        self.ctrl_by_session = under_session
+        self.flow_ended = False
+
+    def copy(self) -> EventCompletion:
+        return EventCompletion(self.event, self.completed, self.creator, self.ctrl_by_session)
 
 
 class ActionAutoExecCtx(Context[bool]):
