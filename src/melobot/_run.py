@@ -120,6 +120,7 @@ class AsyncRunner:
         pre_loop_sig_handlers: list[tuple[int, Callable[..., object]]] | None,
     ) -> Generator[None, None, None]:
         if debug is not None:
+            pre_dbg_status = loop.get_debug()
             loop.set_debug(debug)
         if set_exc_handler:
             from .log.report import _log_loop_exception
@@ -129,6 +130,7 @@ class AsyncRunner:
         if eager_task:
             # TODO: 在升级最低支持到 3.12 后简化条件判断
             if sys.version_info >= (3, 12):
+                pre_loop_factory = loop.get_task_factory()
                 loop.set_task_factory(asyncio.eager_task_factory)
 
         if sys.platform != "win32":
@@ -154,8 +156,12 @@ class AsyncRunner:
             signal.signal(signal.SIGTERM, pre_signal_hs[1])
             signal.signal(signal.SIGBREAK, pre_signal_hs[2])
 
+        if eager_task and sys.version_info >= (3, 12):
+            loop.set_task_factory(pre_loop_factory)  # type: ignore[name-defined]
         if set_exc_handler:
             loop.set_exception_handler(pre_exc_handler)
+        if debug is not None:
+            loop.set_debug(pre_dbg_status)
 
     def _prepare_next_works(self) -> None:
         global _RUNNER
