@@ -339,7 +339,7 @@ reveal_type(bot.get_adapter(ObAdapter)) # infer: ObAdapter | None
 
 - [core] 移除所有原本预计在 `3.1.1` 版本移除的组件 ([4b14ed5](https://github.com/Meloland/melobot/commit/4b14ed5))
 
-- [core] 内置日志器现在启用 `two_steam`，warning 级别的日志也将被分流到 `xxxxx.err.log` 中 ([8a2f1d7](https://github.com/Meloland/melobot/commit/8a2f1d7))
+- [core] 内置日志器现在启用 `two_stream`，warning 级别的日志也将被分流到 `xxxxx.err.log` 中 ([8a2f1d7](https://github.com/Meloland/melobot/commit/8a2f1d7))
 
 - [core] 更新了插件共享对象获取的逻辑，无需更新任何代码。但新的插件初始化过程生成的 `__init__.py` 将采用新的运行逻辑 ([a207f27](https://github.com/Meloland/melobot/commit/a207f27))
 
