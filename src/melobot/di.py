@@ -316,7 +316,8 @@ class Reflect:
     .. code:: python
 
         # 注入一个依赖时进一步包装为反射依赖
-        event_proxy = Annotated[Event, Reflect()]
+        ReflectedEvent = Annotated[Event, Reflect()]
+        event_proxy: RefelectedEvent
         # 就像使用 event 一样使用 event_proxy
         event_proxy.attr_xxx
         event_proxy.method_xxx()
