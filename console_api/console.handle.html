@@ -340,8 +340,50 @@
         <article role="main" id="furo-main-content">
           <section id="console-handle">
 <h1>console.handle<a class="headerlink" href="#console-handle" title="Link to this heading">¶</a></h1>
-<section id="id1">
-<h2>处理流相关接口<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<section id="module-melobot.protocols.console.handle">
+<span id="id1"></span><h2>处理流相关接口<a class="headerlink" href="#module-melobot.protocols.console.handle" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.protocols.console.handle.on_event">
+<span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.handle.</span></span><span class="sig-name descname"><span class="pre">on_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">checker:</span> <span class="pre">~melobot.utils.check.base.Checker</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~melobot.typ.base.SyncOrAsyncCallable[(&lt;class</span> <span class="pre">'melobot.protocols.console.adapter.event.Event'&gt;,),</span> <span class="pre">bool]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">priority:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">block:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">temp:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">decos:</span> <span class="pre">~typing.Sequence[~typing.Callable[[~typing.Callable],</span> <span class="pre">~typing.Callable]]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">rule:</span> <span class="pre">~melobot.session.option.Rule[~melobot.protocols.console.adapter.event.Event]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../api/melobot.handle.html#melobot.handle.FlowDecorator" title="melobot.handle.register.FlowDecorator"><span class="pre">FlowDecorator</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/handle.html#on_event"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.handle.on_event" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>checker</strong> (<a class="reference internal" href="../api/melobot.utils.html#melobot.utils.check.Checker" title="melobot.utils.check.base.Checker"><em>Checker</em></a><em> | </em><em>None</em><em> | </em><a class="reference internal" href="../api/melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><em>SyncOrAsyncCallable</em></a><em>[</em><em>(</em><em>&lt;class 'melobot.protocols.console.adapter.event.Event'&gt;</em><em>,</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a><em>]</em>)</p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><em>int</em></a>)</p></li>
+<li><p><strong>block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>)</p></li>
+<li><p><strong>temp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>)</p></li>
+<li><p><strong>decos</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.14）"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.14）"><em>Callable</em></a><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.14）"><em>Callable</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.14）"><em>Callable</em></a><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>rule</strong> (<a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule" title="melobot.session.option.Rule"><em>Rule</em></a><em>[</em><a class="reference internal" href="console.adapter.html#melobot.protocols.console.adapter.event.Event" title="melobot.protocols.console.adapter.event.Event"><em>Event</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../api/melobot.handle.html#melobot.handle.FlowDecorator" title="melobot.handle.register.FlowDecorator"><em>FlowDecorator</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="melobot.protocols.console.handle.on_input">
+<span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.handle.</span></span><span class="sig-name descname"><span class="pre">on_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">checker:</span> <span class="pre">~melobot.utils.check.base.Checker</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~melobot.typ.base.SyncOrAsyncCallable[(&lt;class</span> <span class="pre">'melobot.protocols.console.adapter.event.StdinEvent'&gt;,),</span> <span class="pre">bool]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">matcher:</span> <span class="pre">~melobot.utils.match.base.Matcher</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">parser:</span> <span class="pre">~melobot.utils.parse.base.Parser</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">priority:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">block:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">temp:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">decos:</span> <span class="pre">~typing.Sequence[~typing.Callable[[~typing.Callable],</span> <span class="pre">~typing.Callable]]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">rule:</span> <span class="pre">~melobot.session.option.Rule[~melobot.protocols.console.adapter.event.Event]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../api/melobot.handle.html#melobot.handle.FlowDecorator" title="melobot.handle.register.FlowDecorator"><span class="pre">FlowDecorator</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/handle.html#on_input"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.handle.on_input" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>checker</strong> (<a class="reference internal" href="../api/melobot.utils.html#melobot.utils.check.Checker" title="melobot.utils.check.base.Checker"><em>Checker</em></a><em> | </em><em>None</em><em> | </em><a class="reference internal" href="../api/melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><em>SyncOrAsyncCallable</em></a><em>[</em><em>(</em><em>&lt;class 'melobot.protocols.console.adapter.event.StdinEvent'&gt;</em><em>,</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a><em>]</em>)</p></li>
+<li><p><strong>matcher</strong> (<a class="reference internal" href="../api/melobot.utils.html#melobot.utils.match.Matcher" title="melobot.utils.match.base.Matcher"><em>Matcher</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>parser</strong> (<a class="reference internal" href="../api/melobot.utils.html#melobot.utils.parse.Parser" title="melobot.utils.parse.base.Parser"><em>Parser</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><em>int</em></a>)</p></li>
+<li><p><strong>block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>)</p></li>
+<li><p><strong>temp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>)</p></li>
+<li><p><strong>decos</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="（在 Python v3.14）"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.14）"><em>Callable</em></a><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.14）"><em>Callable</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="（在 Python v3.14）"><em>Callable</em></a><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>rule</strong> (<a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule" title="melobot.session.option.Rule"><em>Rule</em></a><em>[</em><a class="reference internal" href="console.adapter.html#melobot.protocols.console.adapter.event.Event" title="melobot.protocols.console.adapter.event.Event"><em>Event</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../api/melobot.handle.html#melobot.handle.FlowDecorator" title="melobot.handle.register.FlowDecorator"><em>FlowDecorator</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -408,7 +450,11 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">console.handle</a><ul>
-<li><a class="reference internal" href="#id1">处理流相关接口</a></li>
+<li><a class="reference internal" href="#module-melobot.protocols.console.handle">处理流相关接口</a><ul>
+<li><a class="reference internal" href="#melobot.protocols.console.handle.on_event"><code class="docutils literal notranslate"><span class="pre">on_event()</span></code></a></li>
+<li><a class="reference internal" href="#melobot.protocols.console.handle.on_input"><code class="docutils literal notranslate"><span class="pre">on_input()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -342,19 +342,155 @@
 <h1>console.adapter<a class="headerlink" href="#console-adapter" title="Link to this heading">¶</a></h1>
 <section id="id1">
 <h2>适配器<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.Adapter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.adapter.</span></span><span class="sig-name descname"><span class="pre">Adapter</span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/base.html#Adapter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.Adapter" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.Adapter" title="melobot.adapter.base.Adapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Adapter</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">EventFactory</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">OutputFactory</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">EchoFactory</span></code>, <a class="reference internal" href="#melobot.protocols.console.adapter.action.Action" title="melobot.protocols.console.adapter.action.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a>, <a class="reference internal" href="console.io.html#melobot.protocols.console.io.ConsoleIO" title="melobot.protocols.console.io.src.ConsoleIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConsoleIO</span></code></a>, <a class="reference internal" href="console.io.html#melobot.protocols.console.io.ConsoleIO" title="melobot.protocols.console.io.src.ConsoleIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConsoleIO</span></code></a>]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.Adapter.send">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_prompt_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.ActionHandleGroup" title="melobot.adapter.model.ActionHandleGroup"><span class="pre">ActionHandleGroup</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.protocols.console.adapter.echo.Echo" title="melobot.protocols.console.adapter.echo.Echo"><span class="pre">Echo</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/base.html#Adapter.send"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.Adapter.send" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a>)</p></li>
+<li><p><strong>stderr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>)</p></li>
+<li><p><strong>next_prompt_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.ActionHandleGroup" title="melobot.adapter.model.ActionHandleGroup"><em>ActionHandleGroup</em></a>[<a class="reference internal" href="#melobot.protocols.console.adapter.echo.Echo" title="melobot.protocols.console.adapter.echo.Echo"><em>Echo</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.Adapter.raw_output">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">raw_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_prompt_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.ActionHandleGroup" title="melobot.adapter.model.ActionHandleGroup"><span class="pre">ActionHandleGroup</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#melobot.protocols.console.adapter.echo.Echo" title="melobot.protocols.console.adapter.echo.Echo"><span class="pre">Echo</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/base.html#Adapter.raw_output"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.Adapter.raw_output" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>executor</strong> (<a class="reference internal" href="../api/melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><em>SyncOrAsyncCallable</em></a><em>[</em><em>(</em><em>)</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>next_prompt_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.ActionHandleGroup" title="melobot.adapter.model.ActionHandleGroup"><em>ActionHandleGroup</em></a>[<a class="reference internal" href="#melobot.protocols.console.adapter.echo.Echo" title="melobot.protocols.console.adapter.echo.Echo"><em>Echo</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="id2">
 <h2>事件<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.event.Event">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.adapter.event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/event.html#Event"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.event.Event" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.Event" title="melobot.adapter.model.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">InputDataT</span></code>]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.event.Event.is_stdin">
+<span class="sig-name descname"><span class="pre">is_stdin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/event.html#Event.is_stdin"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.event.Event.is_stdin" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.event.StdinEvent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.adapter.event.</span></span><span class="sig-name descname"><span class="pre">StdinEvent</span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/event.html#StdinEvent"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.event.StdinEvent" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.TextEvent" title="melobot.adapter.model.TextEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextEvent</span></code></a>, <a class="reference internal" href="#melobot.protocols.console.adapter.event.Event" title="melobot.protocols.console.adapter.event.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">StdinInputData</span></code>]</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.event.StdinEvent.spread">
+<span class="sig-name descname"><span class="pre">spread</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></em><a class="headerlink" href="#melobot.protocols.console.adapter.event.StdinEvent.spread" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="id3">
 <h2>行为（动作）<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>一般来说，无需手动通过这些原始的行为类构建行为，直接调用 <code class="xref py py-class docutils literal notranslate"><span class="pre">Adapter</span></code> 的输出方法即可。</p>
+<p>一般来说，无需手动通过这些原始的行为类构建行为，直接调用 <a class="reference internal" href="#melobot.protocols.console.adapter.Adapter" title="melobot.protocols.console.adapter.base.Adapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Adapter</span></code></a> 的输出方法即可。</p>
 <p>但仍然提供这些接口用于高级操作。</p>
+<dl class="py class" id="module-melobot.protocols.console.adapter.action">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.action.Action">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.adapter.action.</span></span><span class="sig-name descname"><span class="pre">Action</span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/action.html#Action"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.action.Action" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.Action" title="melobot.adapter.model.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.action.Action.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">OutputType</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/action.html#Action.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.action.Action.__init__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>type</strong> (<em>OutputType</em>)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.action.NormalOutputAction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.adapter.action.</span></span><span class="sig-name descname"><span class="pre">NormalOutputAction</span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/action.html#NormalOutputAction"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.action.NormalOutputAction" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.protocols.console.adapter.action.Action" title="melobot.protocols.console.adapter.action.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.action.NormalOutputAction.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.14）"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'stdout'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'stderr'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stdout'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_prompt_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/action.html#NormalOutputAction.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.action.NormalOutputAction.__init__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a>)</p></li>
+<li><p><strong>stream</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="（在 Python v3.14）"><em>Literal</em></a><em>[</em><em>'stdout'</em><em>, </em><em>'stderr'</em><em>]</em>)</p></li>
+<li><p><strong>next_prompt_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.action.RawOutputAction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.adapter.action.</span></span><span class="sig-name descname"><span class="pre">RawOutputAction</span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/action.html#RawOutputAction"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.action.RawOutputAction" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="#melobot.protocols.console.adapter.action.Action" title="melobot.protocols.console.adapter.action.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.action.RawOutputAction.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><span class="pre">SyncOrAsyncCallable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_prompt_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/action.html#RawOutputAction.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.action.RawOutputAction.__init__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>executor</strong> (<a class="reference internal" href="../api/melobot.typ.html#melobot.typ.SyncOrAsyncCallable" title="melobot.typ.base.SyncOrAsyncCallable"><em>SyncOrAsyncCallable</em></a><em>[</em><em>(</em><em>)</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>next_prompt_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="id4">
 <h2>回应<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p>此协议无需回应，因此目前不会创建回应对象。</p>
 <p>以下所有对象不会被行为操作方法返回。但仍然提供用于类型注解。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="melobot.protocols.console.adapter.echo.Echo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.protocols.console.adapter.echo.</span></span><span class="sig-name descname"><span class="pre">Echo</span></span><a class="reference internal" href="../_modules/melobot/protocols/console/adapter/echo.html#Echo"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.protocols.console.adapter.echo.Echo" title="Link to this definition">¶</a></dt>
+<dd><p>基类：<a class="reference internal" href="../api/melobot.adapter.html#melobot.adapter.Echo" title="melobot.adapter.model.Echo"><code class="xref py py-class docutils literal notranslate"><span class="pre">Echo</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoDataT</span></code>]</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -421,10 +557,25 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">console.adapter</a><ul>
-<li><a class="reference internal" href="#id1">适配器</a></li>
-<li><a class="reference internal" href="#id2">事件</a></li>
-<li><a class="reference internal" href="#id3">行为（动作）</a></li>
-<li><a class="reference internal" href="#id4">回应</a></li>
+<li><a class="reference internal" href="#id1">适配器</a><ul>
+<li><a class="reference internal" href="#melobot.protocols.console.adapter.Adapter"><code class="docutils literal notranslate"><span class="pre">Adapter</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">事件</a><ul>
+<li><a class="reference internal" href="#melobot.protocols.console.adapter.event.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li><a class="reference internal" href="#melobot.protocols.console.adapter.event.StdinEvent"><code class="docutils literal notranslate"><span class="pre">StdinEvent</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">行为（动作）</a><ul>
+<li><a class="reference internal" href="#melobot.protocols.console.adapter.action.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a></li>
+<li><a class="reference internal" href="#melobot.protocols.console.adapter.action.NormalOutputAction"><code class="docutils literal notranslate"><span class="pre">NormalOutputAction</span></code></a></li>
+<li><a class="reference internal" href="#melobot.protocols.console.adapter.action.RawOutputAction"><code class="docutils literal notranslate"><span class="pre">RawOutputAction</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">回应</a><ul>
+<li><a class="reference internal" href="#melobot.protocols.console.adapter.echo.Echo"><code class="docutils literal notranslate"><span class="pre">Echo</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
