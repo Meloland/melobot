@@ -46,7 +46,7 @@ _TEST_ECHO_DICT = {
 
 async def put_input(s: str):
     async with aiohttp._ClientSession() as session:
-        async with session.post("http://localhost:9090", json=json.loads(s)) as resp:
+        async with session.post("http://localhost:10090", json=json.loads(s)) as resp:
             return
 
 
@@ -68,7 +68,7 @@ class MockClientSession:
 async def test_http(monkeypatch) -> None:
     aiohttp._ClientSession = aiohttp.ClientSession
     monkeypatch.setattr(aiohttp, "ClientSession", lambda: MockClientSession())
-    io = HttpIO("http://localhost:80", "localhost", 9090)
+    io = HttpIO("http://localhost:80", "localhost", 10090)
     create_task(put_input(json.dumps(_TEST_EVENT_DICT)))
 
     async with io:

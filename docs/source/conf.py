@@ -44,6 +44,7 @@ autodoc_default_options = {
     "undoc-members": True,
 }
 autodoc_typehints = "both"
+autodoc_inherit_docstrings = False
 
 templates_path = ["_templates"]
 exclude_patterns = []

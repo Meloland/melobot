@@ -5,14 +5,22 @@ import contextvars
 from asyncio import Queue, Task
 from collections import deque
 
-from .._run import is_async_running, register_loop_started_hook
+from typing_extensions import TYPE_CHECKING
+
+from .._run import is_runner_running, register_started_hook
 from ..adapter.base import Event
 from ..handle.base import Flow
 from ..log.base import LogLevel
 from ..log.reflect import logger
 
+if TYPE_CHECKING:
+    from .base import Bot
+
 
 class Dispatcher:
+    HANDLED_FLOWS_FLAG = "HANDLED_FLOWS"
+    DISPATCHED_FLAG = "DISPATCHED"
+
     def __init__(self) -> None:
         self.first_chan: EventChannel | None = None
         self._channel_ctx = contextvars.Context()
@@ -78,10 +86,15 @@ class Dispatcher:
         )
 
     def broadcast(self, event: Event) -> None:
+        event.flag_set(self, self.HANDLED_FLOWS_FLAG, set())
         if self.first_chan is not None:
             self.first_chan.event_que.put_nowait(event)
         else:
             logger.debug(f"此刻没有可用的事件处理流，事件 {event.id} 将被丢弃")
+            self._mark_dispatched(event)
+
+    def _mark_dispatched(self, event: Event) -> None:
+        event.flag_set(self, self.DISPATCHED_FLAG)
 
 
 class EventChannel:
@@ -95,11 +108,11 @@ class EventChannel:
         self.next: EventChannel | None = None
 
         # 不要把 channel_ctx 先赋值给其他变量，后续再引用此变量，会导致上下文丢失
-        if is_async_running():
+        if is_runner_running():
             self.owner._channel_ctx.run(asyncio.create_task, self.run())
             logger.debug(f"pri={self.priority} 的通道已生成")
         else:
-            register_loop_started_hook(
+            register_started_hook(
                 lambda: self.owner._channel_ctx.run(asyncio.create_task, self.run())
             )
             logger.debug(f"pri={self.priority} 的通道已安排生成")
@@ -129,7 +142,6 @@ class EventChannel:
 
             logger.debug(f"pri={self.priority} 通道开始处理 {len(events)} 个事件")
             for ev in events:
-                ev.flag_set_default(self.owner, self.owner, set())
                 handle_tasks.clear()
                 valid_flows.clear()
 
@@ -138,7 +150,7 @@ class EventChannel:
                     return
 
                 for _ in range(len(self.flow_que)):
-                    handled_fs: set[Flow] = ev.flag_get(self.owner, self.owner)
+                    handled_fs: set[Flow] = ev.flag_get(self.owner, self.owner.HANDLED_FLOWS_FLAG)
                     f = self.flow_que.popleft()
                     if f._active and f.priority == self.priority:
                         if f not in handled_fs:
@@ -160,32 +172,42 @@ class EventChannel:
             self.pre.set_next(self.next)
         if self.next is not None:
             for ev in events:
-                self.next.event_que.put_nowait(ev)
+                self._try_pass_event(ev)
         if self is self.owner.first_chan:
             self.owner.first_chan = self.next
 
         logger.debug(f"pri={self.priority} 通道没有可用处理流，已销毁")
 
-    async def _determine_spread(self, ev: Event, handle_tasks: list[Task]) -> None:
+    async def _determine_spread(self, event: Event, handle_tasks: list[Task]) -> None:
         if not len(handle_tasks):
-            if self.next is not None:
-                self.next.event_que.put_nowait(ev)
+            self._try_pass_event(event)
             return
 
         logger.generic_lazy(
-            f"pri={self.priority} 通道启动了 {len(handle_tasks)} 个处理流，事件：%s",
-            lambda: repr(ev),
+            "%s",
+            lambda: f"pri={self.priority} 通道启动了 {len(handle_tasks)} 个处理流，事件：{repr(event)}",
             level=LogLevel.DEBUG,
         )
         await asyncio.wait(handle_tasks)
         logger.generic_lazy(
-            f"pri={self.priority} 通道处理完成，事件：%s", lambda: repr(ev), level=LogLevel.DEBUG
+            "%s",
+            lambda: f"pri={self.priority} 通道处理完成，事件：{repr(event)}",
+            level=LogLevel.DEBUG,
         )
+        self._try_pass_event(event)
 
-        if self.next is not None and ev.spread:
+    def _try_pass_event(self, event: Event) -> None:
+        if self.next is not None and event.spread:
+            self.next.event_que.put_nowait(event)
+            chan = self.next
             logger.generic_lazy(
-                f"事件向下一优先级 pri={self.next.priority} 传播，事件：%s",
-                lambda: repr(ev),
+                "%s",
+                lambda: f"事件向下一优先级 pri={chan.priority} 传播，事件：{repr(event)}",
                 level=LogLevel.DEBUG,
             )
-            self.next.event_que.put_nowait(ev)
+        else:
+            self.owner._mark_dispatched(event)
+
+
+async def wait_dispatched(event: Event, bot: "Bot") -> None:
+    await event.flag_wait(bot._dispatcher, bot._dispatcher.DISPATCHED_FLAG, check_val=False)

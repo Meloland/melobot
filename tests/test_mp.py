@@ -1,6 +1,5 @@
 import asyncio
 from functools import partial
-from multiprocessing import SimpleQueue
 from pathlib import Path
 
 from melobot._render import get_rich_repr

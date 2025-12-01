@@ -53,7 +53,9 @@ melobot.adapter
 
 .. autofunction:: melobot.adapter.lazy_action
 
-通用实体内容
+.. _generic_content_entities:
+
+通用内容实体
 ---------------
 
 .. autoclass:: melobot.adapter.content.Content
@@ -85,6 +87,8 @@ melobot.adapter
 
 .. autoclass:: melobot.adapter.content.ResourceContent
     :members:
+
+.. _adapter_generic_methods:
 
 通用输出方法
 --------------

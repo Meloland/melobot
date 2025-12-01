@@ -112,8 +112,5 @@ async def test_adapter_base():
     flow = Flow("test_adapter_base", [process])
     mbot.load_plugin(PluginPlanner("1.0.0", flows=[flow]))
     mbot.on_started(after_bot_started)
-
-    with loop_manager():
-        asyncio.create_task(mbot._run())
-        await mbot._rip_signal.wait()
-        await _SUCCESS_SIGNAL.wait()
+    await mbot.run_async()
+    await _SUCCESS_SIGNAL.wait()

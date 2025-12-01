@@ -273,7 +273,7 @@ class PluginLoader:
         else:
             p_dir = Path(plugin)
         try:
-            p_dir.resolve(strict=True)
+            p_dir = p_dir.resolve(strict=True)
         except FileNotFoundError:
             raise PluginLoadError(f"插件目录不存在，无法加载。对应插件：{p_dir}") from None
 

@@ -3,7 +3,7 @@ from asyncio import Queue
 
 from melobot.bot import Bot
 from melobot.handle import on_start_match
-from melobot.log import Logger, LogLevel, logger
+from melobot.log import logger
 from melobot.plugin import PluginPlanner
 from melobot.protocols.onebot.v11.adapter.base import Adapter
 from melobot.protocols.onebot.v11.io.base import BaseIOSource
@@ -91,8 +91,5 @@ async def test_handle():
     mbot.add_io(TempIO())
     mbot.add_adapter(Adapter())
     mbot.load_plugin(PluginPlanner("1.0.0", flows=[_flow]))
-
-    with loop_manager():
-        asyncio.create_task(mbot._run())
-        await mbot._rip_signal.wait()
-        await _SUCCESS_SIGNAL.wait()
+    await mbot.run_async()
+    await _SUCCESS_SIGNAL.wait()

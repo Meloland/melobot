@@ -1,19 +1,33 @@
+from __future__ import annotations
+
 import re
-from dataclasses import dataclass
 from functools import lru_cache
 from types import TracebackType
 
-from typing_extensions import Any, Callable, Iterable, Iterator, NamedTuple, Optional, Sequence
+from typing_extensions import (
+    Any,
+    Callable,
+    Hashable,
+    Iterable,
+    Iterator,
+    NamedTuple,
+    Sequence,
+    cast,
+)
 
+from ...ctx import ParseArgsCtx
+from ...di import Depends
 from ...exceptions import UtilError
 from ...log.reflect import logger
-from ...typ._enum import VoidType
-from ...typ.base import SyncOrAsyncCallable
+from ...typ.base import AsyncCallable, SyncOrAsyncCallable
 from ...utils.base import to_async
 from .base import AbstractParseArgs, Parser
 
 
 class CmdParseError(UtilError): ...
+
+
+class CmdArgSetError(CmdParseError): ...
 
 
 class FormatError(CmdParseError): ...
@@ -25,35 +39,101 @@ class ArgValidateFailed(FormatError): ...
 class ArgLackError(FormatError): ...
 
 
-@dataclass
 class CmdArgs(AbstractParseArgs):
     """命令参数对象"""
 
-    name: str
-    tag: str | None
-    vals: list[Any]
+    def __init__(
+        self, name: str, tag: str | None, kv_pairs: Iterable[tuple[Hashable, Any]]
+    ) -> None:
+        self.name = name
+        self.tag = tag
+        self._map = dict(kv_pairs)
+        self._fmtted = False
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(vals: {len(self)})"
+
+    @property
+    def vals(self) -> tuple[Any, ...]:
+        return tuple(self._map.values())
+
+    @property
+    def keys(self) -> tuple[Hashable, ...]:
+        return tuple(self._map.keys())
+
+    @property
+    def items(self) -> tuple[tuple[Hashable, Any], ...]:
+        return tuple(self._map.items())
+
+    def __iter__(self) -> Iterable[Hashable]:
+        return iter(self._map)
+
+    def __getitem__(self, key: Hashable) -> Any:
+        return self._map[key]
+
+    def __contains__(self, key: Hashable) -> bool:
+        return key in self._map
+
+    def __len__(self) -> int:
+        return len(self._map)
+
+    def __bool__(self) -> bool:
+        return True
+
+    def pop(self, key: Hashable) -> Any:
+        return self._map.pop(key)
+
+    def get(self, key: Hashable, default: Any = None) -> Any:
+        return self._map.get(key, default)
+
+    def set(self, key: Hashable, val: Any) -> None:
+        self._map[key] = val
+
+    async def _format(
+        self,
+        cmd_name: str,
+        fmtters: Sequence[CmdArgFormatter | None],
+        interactive: AsyncCallable[[CmdArgFormatInfo], str] | bool,
+    ) -> bool:
+        if self._fmtted:
+            raise FormatError("命令参数对象已被格式化，不能重复格式化")
+
+        flag = True
+        for idx, fmt in enumerate(fmtters):
+            if fmt is None:
+                continue
+            res = await fmt.format(cmd_name, self, idx, interactive)
+            if not res:
+                flag = False
+                break
+
+        rm_keys = tuple(k for idx, k in enumerate(self.keys) if idx >= len(fmtters))
+        for k in rm_keys:
+            self.pop(k)
+        self._fmtted = True
+        return flag
 
 
 class CmdArgFormatInfo:
     """命令参数格式化信息对象
 
-    用于在命令参数格式化异常时传递信息。
+    用于在命令参数格式化时传递信息。
     """
 
     def __init__(
         self,
-        src: str | VoidType,
-        src_desc: Optional[str],
-        src_expect: Optional[str],
+        src: Any,
+        src_desc: str | None,
+        src_expect: str | None,
         idx: int,
-        exc: Exception,
-        exc_tb: Optional[TracebackType],
+        exc: Exception | None,
+        exc_tb: TracebackType | None,
         name: str,
     ) -> None:
         #: 命令参数所属命令的命令名
         self.name: str = name
-        #: 命令参数格式化前的原值，参数缺失时是 VoidType.VOID
-        self.src: str | VoidType = src
+        #: 命令参数格式化前的原值，访问前使用 :meth:`~.CmdArgFormatInfo.is_arg_lack` 判断是否缺失值
+        self.src: Any = src
         #: 命令参数值的功能描述
         self.src_desc: str | None = src_desc
         #: 命令参数值的值期待描述
@@ -61,9 +141,16 @@ class CmdArgFormatInfo:
         #: 命令参数值的顺序（从 0 开始索引）
         self.idx: int = idx
         #: 命令参数格式化异常时的异常对象
-        self.exc: Exception = exc
+        self.exc: Exception | None = exc
         #: 命令参数格式化异常时的调用栈信息
         self.exc_tb: TracebackType | None = exc_tb
+
+    def is_arg_lack(self) -> bool:
+        """判断当前命令参数是否为缺失状态"""
+        return self.src is EMPTY_SIGN
+
+
+EMPTY_SIGN = object()
 
 
 class CmdArgFormatter:
@@ -74,15 +161,17 @@ class CmdArgFormatter:
 
     def __init__(
         self,
-        convert: Optional[Callable[[str], Any]] = None,
-        validate: Optional[Callable[[Any], bool]] = None,
-        src_desc: Optional[str] = None,
-        src_expect: Optional[str] = None,
-        default: Any = VoidType.VOID,
-        default_replace_flag: Optional[str] = None,
-        convert_fail: Optional[SyncOrAsyncCallable[[CmdArgFormatInfo], None]] = None,
-        validate_fail: Optional[SyncOrAsyncCallable[[CmdArgFormatInfo], None]] = None,
-        arg_lack: Optional[SyncOrAsyncCallable[[CmdArgFormatInfo], None]] = None,
+        convert: Callable[[str], Any] | None = None,
+        validate: Callable[[Any], bool] | None = None,
+        src_desc: str | None = None,
+        src_expect: str | None = None,
+        default: Any = EMPTY_SIGN,
+        default_replace_flag: str | None = None,
+        convert_fail: SyncOrAsyncCallable[[CmdArgFormatInfo], None] | None = None,
+        validate_fail: SyncOrAsyncCallable[[CmdArgFormatInfo], None] | None = None,
+        arg_lack: SyncOrAsyncCallable[[CmdArgFormatInfo], None] | None = None,
+        key: Hashable | None = None,
+        i_timeout: float = 20,
     ) -> None:
         """初始化一个命令参数格式化器
 
@@ -90,11 +179,13 @@ class CmdArgFormatter:
         :param validate: 值验证方法，为空则不对值进行验证
         :param src_desc: 命令参数值的功能描述
         :param src_expect: 命令参数值的值期待描述
-        :param default: 命令参数值的默认值（默认值 :class:`.Void` 表示无值，而不是 :obj:`None` 表达的空值）
+        :param default: 命令参数值的默认值（默认值表示无值，而不是 :obj:`None` 表达的空值）
         :param default_replace_flag: 命令参数使用默认值的标志
         :param convert_fail: 类型转换失败的回调，为空则使用默认回调
         :param validate_fail: 值验证失败的回调，为空则使用默认回调
         :param arg_lack: 参数缺失的回调，为空则执行默认规则
+        :param key: 命令参数的键名，为空则使用自增索引（类似列表）
+        :param i_timeout: 交互式获取参数时的超时时间（秒），仅在解析器启用交互式功能时有效
         """
         self.convert = convert
         self.validate = validate
@@ -103,28 +194,67 @@ class CmdArgFormatter:
 
         self.default = default
         self.default_replace_flag = default_replace_flag
-        if self.default is VoidType.VOID and self.default_replace_flag is not None:
+        if self.default is EMPTY_SIGN and self.default_replace_flag is not None:
             raise CmdParseError("初始化参数格式化器时，使用“默认值替换标记”必须同时设置默认值")
 
         self.convert_fail = to_async(convert_fail) if convert_fail is not None else None
         self.validate_fail = to_async(validate_fail) if validate_fail is not None else None
         self.arg_lack = to_async(arg_lack) if arg_lack is not None else None
+        self.key = key
+        self.i_timeout = i_timeout
 
-    def _get_val(self, args: CmdArgs, idx: int) -> Any:
-        if self.default is VoidType.VOID:
-            if len(args.vals) < idx + 1:
+    async def _get_val(
+        self,
+        args: CmdArgs,
+        idx: int,
+        interactive: AsyncCallable[[CmdArgFormatInfo], str] | bool,
+    ) -> Any:
+        if idx >= len(args):
+            if interactive:
+                args.set(idx, await self._iget_val(args, idx, interactive))
+            elif self.default is not EMPTY_SIGN:
+                args.set(idx, self.default)
+            else:
                 raise ArgLackError
-            return args.vals[idx]
-
-        if len(args.vals) < idx + 1:
-            args.vals.append(self.default)
-
         return args.vals[idx]
 
-    async def format(self, group_id: str, args: CmdArgs, idx: int) -> bool:
+    async def _iget_val(
+        self,
+        args: CmdArgs,
+        idx: int,
+        interactive: AsyncCallable[[CmdArgFormatInfo], str] | bool,
+    ) -> str:
+        from ...adapter.generic import send_text
+        from ...adapter.model import TextEvent
+        from ...ctx import FlowCtx
+        from ...session.base import suspend
+
+        if isinstance(interactive, bool):
+            tip = f"请提供参数 {self.src_desc}（{self.src_expect}）："
+        else:
+            tip = await interactive(
+                CmdArgFormatInfo(
+                    EMPTY_SIGN, self.src_desc, self.src_expect, idx, None, None, args.name
+                )
+            )
+        await send_text(tip)
+
+        if not await suspend(timeout=self.i_timeout):
+            raise ArgLackError
+        else:
+            val = cast(TextEvent, FlowCtx().get_event()).text
+        return val
+
+    async def format(
+        self,
+        cmd_name: str,
+        args: CmdArgs,
+        idx: int,
+        interactive: AsyncCallable[[CmdArgFormatInfo], str] | bool,
+    ) -> bool:
         # 格式化参数为对应类型的变量
         try:
-            src = self._get_val(args, idx)
+            src = await self._get_val(args, idx, interactive)
             if self.default_replace_flag is not None and src == self.default_replace_flag:
                 src = self.default
             res = self.convert(src) if self.convert is not None else src
@@ -133,12 +263,17 @@ class CmdArgFormatter:
                 pass
             else:
                 raise ArgValidateFailed
-            args.vals[idx] = res
+
+            if self.key is None:
+                args.set(idx, res)
+            else:
+                args.pop(idx)
+                args.set(self.key, res)
             return True
 
         except ArgValidateFailed as e:
             info = CmdArgFormatInfo(
-                src, self.src_desc, self.src_expect, idx, e, e.__traceback__, group_id
+                src, self.src_desc, self.src_expect, idx, e, e.__traceback__, cmd_name
             )
             if self.validate_fail:
                 await self.validate_fail(info)
@@ -148,13 +283,13 @@ class CmdArgFormatter:
 
         except ArgLackError as e:
             info = CmdArgFormatInfo(
-                VoidType.VOID,
+                EMPTY_SIGN,
                 self.src_desc,
                 self.src_expect,
                 idx,
                 e,
                 e.__traceback__,
-                group_id,
+                cmd_name,
             )
             if self.arg_lack:
                 await self.arg_lack(info)
@@ -164,7 +299,7 @@ class CmdArgFormatter:
 
         except Exception as e:
             info = CmdArgFormatInfo(
-                src, self.src_desc, self.src_expect, idx, e, e.__traceback__, group_id
+                src, self.src_desc, self.src_expect, idx, e, e.__traceback__, cmd_name
             )
             if self.convert_fail:
                 await self.convert_fail(info)
@@ -258,9 +393,10 @@ class CmdParser(Parser):
         cmd_start: str | Iterable[str],
         cmd_sep: str | Iterable[str],
         targets: str | Sequence[str],
-        fmtters: Optional[Sequence[Optional[CmdArgFormatter]]] = None,
+        fmtters: Sequence[CmdArgFormatter | None] | None = None,
         tag: str | None = None,
         strict: bool = False,
+        interactive: SyncOrAsyncCallable[[CmdArgFormatInfo], str] | bool = False,
     ) -> None:
         """初始化一个命令解析器
 
@@ -273,9 +409,10 @@ class CmdParser(Parser):
         :param cmd_start: 命令起始符（可以是字符串或字符串列表）
         :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
         :param targets: 匹配的命令名
-        :param formatters: 格式化器（可以包含空值，即此位置的参数无格式化）
+        :param fmtters: 格式化器（可以包含空值，即此位置的参数无格式化）
         :param tag: 标签，此标签将被填充给本解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
-        :param strict: 是否启用严格模式（解析前不去除字符串两端的空白字符）
+        :param strict: 是否启用严格模式（保留字符串两端的空白字符）
+        :param interactive: 是否启用交互式功能（参数缺失时尝试交互式获取参数），提供函数用于从格式化信息生成提示文本
         """
         super().__init__()
         if isinstance(targets, str):
@@ -312,17 +449,29 @@ class CmdParser(Parser):
         self.sep_regex = re.compile(cmd_seps)
         self.start_regex = re.compile(cmd_starts)
 
-    async def parse(self, text: str) -> Optional[CmdArgs]:
+        self._interactive = (
+            to_async(interactive) if not isinstance(interactive, bool) else interactive
+        )
+        self._rule: Any | None
+        if self._interactive is not False:
+            from ...session.option import DefaultRule
+
+            self._rule = DefaultRule()
+        else:
+            self._rule = None
+
+    async def _parse(self, text: str) -> CmdArgs | None:
         cmd_dict, pure_text = _cmd_parse(text, self.start_regex, self.sep_regex, self.need_strip)
         if not pure_text.startswith(self.start_tokens):
             return None
 
         args_dict = {
-            cmd_name: CmdArgs(cmd_name, self.arg_tag, vals) for cmd_name, vals in cmd_dict.items()
+            cmd_name: CmdArgs(cmd_name, self.arg_tag, enumerate(vals))
+            for cmd_name, vals in cmd_dict.items()
         }
 
-        for group_id in self.targets:
-            args = args_dict.get(group_id)
+        for cmd_name in self.targets:
+            args = args_dict.get(cmd_name)
             if args is not None:
                 break
         else:
@@ -331,15 +480,17 @@ class CmdParser(Parser):
         if self.fmtters is None:
             return args
 
-        for idx, fmt in enumerate(self.fmtters):
-            if fmt is None:
-                continue
-            status = await fmt.format(group_id, args, idx)
-            if not status:
-                return None
+        status = await args._format(cmd_name, self.fmtters, self._interactive)
+        return args if status else None
 
-        args.vals = args.vals[: len(self.fmtters)]
-        return args
+    async def parse(self, text: str) -> CmdArgs | None:
+        if self._rule:
+            from ...session.base import enter_session
+
+            async with enter_session(self._rule):
+                return await self._parse(text)
+        else:
+            return await self._parse(text)
 
 
 class CmdParserFactory:
@@ -366,9 +517,10 @@ class CmdParserFactory:
     def get(
         self,
         targets: str | Sequence[str],
-        formatters: Optional[Sequence[Optional[CmdArgFormatter]]] = None,
+        formatters: Sequence[CmdArgFormatter | None] | None = None,
         tag: str | None = None,
         strict: bool = False,
+        interactive: SyncOrAsyncCallable[[CmdArgFormatInfo], str] | bool = False,
     ) -> CmdParser:
         """生成匹配指定命令名的命令解析器
 
@@ -376,5 +528,38 @@ class CmdParserFactory:
         :param formatters: 格式化器（列表可以包含空值，即此位置的参数无格式化选项）
         :param tag: 标签，此标签将被填充给解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
         :param strict: 是否启用严格模式（解析前不去除字符串两端的空白字符）
+        :param interactive: 是否启用交互式功能（参数缺失时尝试交互式获取参数），提供函数用于从格式化信息生成提示文本
+        :return: 命令解析器对象
         """
-        return CmdParser(self.cmd_start, self.cmd_sep, targets, formatters, tag, strict)
+        return CmdParser(
+            self.cmd_start, self.cmd_sep, targets, formatters, tag, strict, interactive
+        )
+
+
+class CmdArgDepend(Depends):
+    def __init__(self, arg_idx: Hashable) -> None:
+        self.arg_idx = arg_idx
+        super().__init__(self._getter)
+
+    def _getter(self) -> Any:
+        args = ParseArgsCtx().try_get()
+        if args is None:
+            raise CmdParseError("未在有效的上下文中。无法获取命令参数对象，无法进行依赖注入")
+        if not isinstance(args, CmdArgs):
+            raise CmdParseError(f"解析参数对象类型不为 {CmdArgs.__name__}, 无法进行依赖注入")
+        empty = object()
+        val = args.get(self.arg_idx, empty)
+        if val is empty:
+            raise CmdParseError(
+                f"命令参数对象中不存在索引 {self.arg_idx} 对应的参数，无法进行依赖注入"
+            )
+        return val
+
+
+def get_cmd_arg(arg_idx: Hashable) -> Any:
+    """获取命令参数某一索引对应的值
+
+    :param arg_idx: 参数索引
+    :return: 对应的参数值
+    """
+    return CmdArgDepend(arg_idx)

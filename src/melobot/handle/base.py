@@ -19,34 +19,33 @@ from .graph import DAGMapping
 _FLOW_CTX = FlowCtx()
 
 
-def node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
-    """处理结点装饰器，将当前异步可调用对象装饰为一个处理结点"""
-    return FlowNode(func)
-
-
-def no_deps_node(func: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
-    """与 :func:`node` 类似，但是不自动为结点标记依赖注入。
-
-    需要后续使用 :func:`.inject_deps` 手动标记依赖注入，
-    这适用于某些对处理结点进行再装饰的情况
-    """
-    return FlowNode(func, no_deps=True)
-
-
 class FlowNode:
     """处理流结点"""
 
-    def __init__(self, func: SyncOrAsyncCallable[..., bool | None], no_deps: bool = False) -> None:
-        self.name = get_obj_name(func, otype="callable")
+    def __init__(
+        self,
+        func: SyncOrAsyncCallable[..., bool | None],
+        no_deps: bool = False,
+        name: str | None = None,
+    ) -> None:
+        """初始化处理结点
+
+        :param func: 处理结点的处理逻辑（函数）
+        :param no_deps: 是否关闭内部的依赖注入支持
+        :param name: 结点名称，为空时获取函数名作为结点名
+        """
+        if name is None:
+            self.name = get_obj_name(func, otype="callable")
+        else:
+            self.name = name
         self.processor: AsyncCallable[..., bool | None] = (
-            to_async(func) if no_deps else inject_deps(func)
+            to_async(func) if no_deps else inject_deps(func, avoid_repeat=True)
         )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
     async def process(self, flow: Flow, completion: EventCompletion) -> None:
-        event = completion.event
         try:
             status = _FLOW_CTX.get()
             records, store = status.records, status.store
@@ -55,11 +54,15 @@ class FlowNode:
 
         with _FLOW_CTX.unfold(FlowStatus(flow, self, True, completion, records, store)):
             try:
-                records.append(FlowRecord(RecordStage.NODE_START, flow.name, self.name, event))
+                records.append(
+                    FlowRecord(RecordStage.NODE_START, flow.name, self.name, completion.event)
+                )
 
                 try:
                     ret = await self.processor()
-                    records.append(FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, event))
+                    records.append(
+                        FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, completion.event)
+                    )
                 except DependNotMatched as e:
                     ret = False
                     records.append(
@@ -67,7 +70,7 @@ class FlowNode:
                             RecordStage.DEPENDS_NOT_MATCH,
                             flow.name,
                             self.name,
-                            event,
+                            completion.event,
                             f"Real({e.real_type}) <=> Annotation({e.hint})",
                         )
                     )
@@ -95,7 +98,7 @@ class Flow:
         """初始化处理流
 
         :param name: 处理流的标识
-        :param edge_maps: 边映射，遵循 melobot 的 graph edges 表示方法
+        :param edge_maps: 对应的 DAG 路径结构
         :param priority: 处理流的优先级
         :param guard: 守卫函数。在处理流运行前调用，返回 `True` 不再继续运行处理流。默认不启用
         """
@@ -157,16 +160,17 @@ class Flow:
         """
         self._guard = to_async(guard) if guard is not None else None
 
-    def link(self, flow: Flow, priority: int | None = None) -> Flow:
+    def link(self, flow: Flow, priority: int | None = None, new_name: str | None = None) -> Flow:
         """连接另一处理流返回新处理流，并设置新优先级
 
         新处理流守卫函数为空，使用 :meth:`set_guard` 自行添加
 
-        :param flow: 连接的新流
+        :param flow: 连接到末尾的流
         :param priority: 新优先级，若为空，则使用两者中较小的优先级
+        :param new_name: 新处理流名称，为空时使用 `f"{flow1.name} ~ {flow2.name}"`
         :return: 新的处理流
         """
-        name = f"{self.name} ~ {flow.name}"
+        name = f"{self.name} ~ {flow.name}" if new_name is None else new_name
         new_flow = Flow.from_graph(
             name,
             self.graph.link(flow.graph, name),
@@ -174,14 +178,25 @@ class Flow:
         )
         return new_flow
 
-    def start(self, node: FlowNode) -> FlowNode:
-        """设置处理流起始结点的装饰器
+    def add(self, node: FlowNode) -> FlowNode:
+        """添加结点的装饰器
 
-        :param node: 起始结点
-        :return: 起始结点
+        :param node: 添加的结点
+        :return: 结点本身
         """
         self.graph.add(node, None)
         return node
+
+    def start(self, node: FlowNode) -> FlowNode:
+        """与 :meth:`add` 方法功能完全一致
+
+        但此方法语义上更明确地表示添加的是起始结点。
+        建议使用此方法装饰的结点，不要再添加前驱结点。
+
+        :param node: 添加的结点
+        :return: 结点本身
+        """
+        return self.add(node)
 
     def after(self, node: FlowNode) -> Callable[[FlowNode], FlowNode]:
         """在处理流某一参照结点后，添加新结点的装饰器函数
@@ -244,24 +259,23 @@ class Flow:
         if self._guard is not None:
             try:
                 if not await self._guard(completion.event):
-                    return self._try_set_completed(completion)
+                    return self._try_complete(completion)
             except Exception as e:
                 log_exc(
                     e,
                     msg=f"事件处理流 {self.name} 守卫函数发生异常",
                     obj={
                         "event_id": completion.event.id,
-                        "event": completion.event,
+                        "completion": completion.__dict__,
                         "guard": self._guard,
                     },
                 )
-                return self._try_set_completed(completion)
+                return self._try_complete(completion)
 
         starts = self.graph.starts
         if not len(starts):
-            return self._try_set_completed(completion)
+            return self._try_complete(completion)
 
-        event = completion.event
         try:
             status = _FLOW_CTX.get()
             records, store = status.records, status.store
@@ -270,10 +284,10 @@ class Flow:
 
         with _FLOW_CTX.unfold(FlowStatus(self, starts[0], True, completion, records, store)):
             try:
-                if not self.graph._verified:
-                    self.graph.verify()
-
-                records.append(FlowRecord(RecordStage.FLOW_START, self.name, starts[0].name, event))
+                self.graph.verify()
+                records.append(
+                    FlowRecord(RecordStage.FLOW_START, self.name, starts[0].name, completion.event)
+                )
 
                 idx = 0
                 while idx < len(starts):
@@ -284,7 +298,7 @@ class Flow:
                         pass
 
                 records.append(
-                    FlowRecord(RecordStage.FLOW_FINISH, self.name, starts[0].name, event)
+                    FlowRecord(RecordStage.FLOW_FINISH, self.name, starts[0].name, completion.event)
                 )
 
             except FlowBroke:
@@ -295,23 +309,20 @@ class Flow:
                     e,
                     msg=f"事件处理流 {self.name} 发生异常",
                     obj={
-                        "event_id": event.id,
-                        "event": event,
+                        "event_id": completion.event.id,
                         "completion": completion.__dict__,
                         "cur_flow": self,
                     },
                 )
 
             finally:
-                self._try_set_completed(completion)
+                self._try_complete(completion)
 
-    def _try_set_completed(self, completion: EventCompletion) -> None:
-        if (
-            completion.owner_flow is self
-            and not completion.under_session
-            and not completion.completed.done()
-        ):
-            completion.completed.set_result(None)
+    def _try_complete(self, completion: EventCompletion) -> None:
+        if completion.creator is self:
+            if not completion.ctrl_by_session and not completion.completed.done():
+                completion.completed.set_result(None)
+            completion.flow_ended = True
 
 
 class _FlowSignal(BaseException): ...
@@ -429,4 +440,6 @@ async def rewind() -> NoReturn:
 async def flow_to(flow: Flow) -> None:
     """立即进入一个其他处理流（在处理流中使用）"""
     status = _FLOW_CTX.get()
-    await flow._run(status.completion)
+    if flow is status.flow:
+        raise FlowError("无法在处理流中进入自身处理流")
+    await flow._run(status.completion.copy())

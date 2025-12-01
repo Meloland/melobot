@@ -4,19 +4,6 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from typing_extensions import Any, Callable, assert_never
 
 
-class VoidType(Enum):
-    """空类型，需要区别于 `None` 时使用
-
-    .. code:: python
-
-        # 有些时候 `None` 也是合法值，因此需要一个额外的哨兵值：
-        def foo(val: Any | VoidType = VoidType.VOID) -> None:
-            ...
-    """
-
-    VOID = type("_VOID", (), {})
-
-
 class ExitCode(Enum):
     NORMAL = 0
     ERROR = 1

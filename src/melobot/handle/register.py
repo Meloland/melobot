@@ -1,11 +1,11 @@
 from asyncio import Lock
 from functools import partial, wraps
 
-from typing_extensions import Any, Callable, Iterable, Sequence, cast
+from typing_extensions import Any, Callable, Hashable, Iterable, Sequence, cast, overload
 
-from ..adapter.model import Event, TextEvent
-from ..ctx import FlowCtx, ParseArgsCtx
-from ..di import inject_deps
+from ..adapter.model import Event, EventT, TextEvent
+from ..ctx import EventCompletion, FlowCtx, ParseArgsCtx
+from ..di import Depends, inject_deps
 from ..session.base import enter_session
 from ..session.option import DefaultRule, Rule
 from ..typ._enum import LogicMode
@@ -21,7 +21,106 @@ from ..utils.match import (
     StartMatcher,
 )
 from ..utils.parse import AbstractParseArgs, CmdArgFormatter, CmdParser, Parser
-from .base import Flow, no_deps_node
+from .base import Flow, FlowNode
+
+
+@overload
+def node(f: SyncOrAsyncCallable[..., bool | None]) -> FlowNode:
+    """创建一个流结点
+
+    :param f: 被装饰函数
+    :return: 流结点
+    """
+    ...
+
+
+@overload
+def node(
+    *,
+    etype: type[EventT] | None = None,
+    checker: Checker | None | SyncOrAsyncCallable[[EventT], bool] = None,
+    matcher: Matcher | None = None,
+    parser: Parser | None = None,
+    block: bool = False,
+    legacy_session: bool = False,
+) -> Callable[[SyncOrAsyncCallable[..., bool | None]], FlowNode]:
+    """返回一个装饰器，用于创建流结点
+
+    :param etype: 事件类型，为空时不先校验类型
+    :param checker: 检查器对象
+    :param matcher: 匹配器对象（需要自行验证是文本事件）
+    :param parser: 解析器对象（需要自行验证是文本事件）
+    :param block: 是否阻断事件向更低优先级的传播
+    :param legacy_session: 是否启用传统会话
+    :return: 流结点装饰器
+    """
+    ...
+
+
+def node(
+    f: SyncOrAsyncCallable[..., bool | None] | None = None,
+    *,
+    etype: type[EventT] | None = None,
+    checker: Checker | None | SyncOrAsyncCallable[[EventT], bool] = None,
+    matcher: Matcher | None = None,
+    parser: Parser | None = None,
+    block: bool = False,
+    legacy_session: bool = False,
+) -> FlowNode | Callable[[SyncOrAsyncCallable[..., bool | None]], FlowNode]:
+    checker = Checker.new(checker) if callable(checker) else checker
+    rule = DefaultRule()
+
+    async def node_wrapped(func: AsyncCallable[..., bool | None]) -> bool | None:
+        event = _FLOW_CTX.get_event()
+        if etype is not None and not isinstance(event, etype):
+            return False
+
+        if checker:
+            status = await cast(Checker, checker).check(event)
+            if not status:
+                return False
+
+        if matcher:
+            event = cast(TextEvent, event)
+            status = await matcher.match(event.text)
+            if not status:
+                return False
+
+        args: AbstractParseArgs | None = None
+        if parser:
+            event = cast(TextEvent, event)
+            args = await parser.parse(event.text)
+            if args is None:
+                return False
+
+        if block:
+            event.spread = False
+        parse_args_ctx = ParseArgsCtx()
+        if args is not None:
+            args_token = parse_args_ctx.add(args)
+        else:
+            args_token = None
+
+        try:
+            if legacy_session:
+                async with enter_session(rule):
+                    return await func()
+            else:
+                return await func()
+        finally:
+            if args_token:
+                parse_args_ctx.remove(args_token)
+
+    def node_wrapper(
+        func: SyncOrAsyncCallable[..., bool | None],
+    ) -> FlowNode:
+        func = inject_deps(func, avoid_repeat=True)
+        return FlowNode(partial(node_wrapped, func), no_deps=True)
+
+    if f is None:
+        return node_wrapper
+    else:
+        return FlowNode(f)
 
 
 class FlowDecorator:
@@ -39,8 +138,8 @@ class FlowDecorator:
         """处理流装饰器
 
         :param checker: 检查器
-        :param matcher: 匹配器（指定匹配器，需要先验证已经是文本事件）
-        :param parser: 解析器（指定解析器，需要先验证已经是文本事件）
+        :param matcher: 匹配器（指定匹配器，需要自行验证是文本事件）
+        :param parser: 解析器（指定解析器，需要自行验证是文本事件）
         :param priority: 优先级
         :param block: 是否阻断向低优先级传播
         :param temp: 是否临时使用（处理一次事件后停用）
@@ -67,15 +166,15 @@ class FlowDecorator:
         self._flow: Flow
 
     def __call__(self, func: SyncOrAsyncCallable[..., bool | None]) -> Flow:
-        func = inject_deps(func)
+        func = inject_deps(func, avoid_repeat=True)
         if self._decos is not None:
             for deco in reversed(self._decos):
                 func = deco(func)
 
-        n = no_deps_node(wraps(func)(partial(self._flow_wrapped, func)))
+        n = FlowNode(wraps(func)(partial(self._flow_wrapped, func)))
         n.name = get_obj_name(func, otype="callable")
         self._flow = Flow(
-            f"FlowDecorator[{n.name}]", (n,), priority=self._priority, guard=self._guard
+            f"{FlowDecorator.__name__}[{n.name}]", (n,), priority=self._priority, guard=self._guard
         )
         return self._flow
 
@@ -98,29 +197,33 @@ class FlowDecorator:
             self._flow.dismiss()
             return None
 
-        event = FlowCtx().get().completion.event
+        completion = FlowCtx().get().completion
         if not self._temp:
-            passed, args = await self._parse(event)
+            passed, args = await self._parse(completion.event)
             if not passed:
                 return None
-            return await self._process(func, event, args)
+            return await self._process(func, completion, args)
 
         async with self._lock:
             if self._invalid:
                 self._flow.dismiss()
                 return None
 
-            passed, args = await self._parse(event)
+            passed, args = await self._parse(completion.event)
             if not passed:
                 return None
             self._invalid = True
 
-        return await self._process(func, event, args)
+        return await self._process(func, completion, args)
 
     async def _process(
-        self, func: AsyncCallable[..., bool | None], event: Event, args: AbstractParseArgs | None
+        self,
+        func: AsyncCallable[..., bool | None],
+        completion: EventCompletion,
+        args: AbstractParseArgs | None,
     ) -> bool | None:
-        event.spread = not self._block
+        if self._block:
+            completion.event.spread = False
         parse_args_ctx = ParseArgsCtx()
         if args is not None:
             args_token = parse_args_ctx.add(args)
@@ -141,7 +244,7 @@ class FlowDecorator:
         if self.parser:
             event = cast(TextEvent, event)
             args = await self.parser.parse(event.text)
-            if args:
+            if args is not None:
                 return (True, args)
             return (False, None)
 
@@ -438,3 +541,29 @@ def on_regex_match(
         decos,
         DefaultRule() if legacy_session else None,
     )
+
+
+_FLOW_CTX = FlowCtx()
+
+
+class FlowArgDepend(Depends):
+    def __init__(self, arg_idx: Hashable) -> None:
+        self.arg_idx = arg_idx
+        super().__init__(self._getter)
+
+    def _getter(self) -> Any:
+        f_store = _FLOW_CTX.get_store()
+        empty = object()
+        val = f_store.get(self.arg_idx, empty)
+        if val is empty:
+            raise KeyError(f"流存储中没有键为 {self.arg_idx!r} 的值")
+        return val
+
+
+def get_flow_arg(arg_idx: Hashable) -> Any:
+    """获取处理流存储中的值
+
+    :param arg_idx: 键索引
+    :return: 对应的依赖项
+    """
+    return FlowArgDepend(arg_idx)

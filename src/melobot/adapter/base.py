@@ -99,9 +99,15 @@ EchoFactoryT = TypeVar("EchoFactoryT", bound=AbstractEchoFactory)
 class AdapterLifeSpan(Enum):
     """适配器生命周期阶段的枚举"""
 
+    #: 适配器将一个事件投入分发器之前（提供首参数类型为 Event 的依赖注入，你可以自行细化类型）
     BEFORE_EVENT_HANDLE = "beh"
+    #: 适配器将一个行为投入执行之前（提供首参数类型为 Action 的依赖注入，你可以自行细化类型）
     BEFORE_ACTION_EXEC = "bae"
+    #: 适配器启动完成之后（此时所有同协议的源已经开始工作）
     STARTED = "sta"
+    #: 适配器停止即将发生前（出现异常可能不会调用此类型）
+    CLOSE = "clo"
+    #: 适配器停止完成后（包含任何情况导致的停止）
     STOPPED = "sto"
 
 
@@ -184,6 +190,14 @@ class Adapter(
 
     @asynccontextmanager
     @final
+    async def __wait_close_hook__(self) -> AsyncGenerator[None, None]:
+        try:
+            yield
+        finally:
+            await self._hook_bus.emit(AdapterLifeSpan.CLOSE, True)
+
+    @asynccontextmanager
+    @final
     async def __adapter_launch__(self) -> AsyncGenerator[Self, None]:
         if self._inited:
             raise AdapterError(f"适配器 {self} 已在运行，不能重复启动")
@@ -211,6 +225,7 @@ class Adapter(
                 for src in self.in_srcs:
                     create_task(self.__adapter_input_loop__(src))
 
+                await stack.enter_async_context(self.__wait_close_hook__())
                 self._inited = True
                 await self._hook_bus.emit(AdapterLifeSpan.STARTED)
                 yield self

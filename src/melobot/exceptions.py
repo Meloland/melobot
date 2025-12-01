@@ -98,8 +98,8 @@ class DependInitError(DependError):
     """melobot 依赖注入项初始化失败"""
 
 
-class DependBindError(DependError):
-    """melobot 依赖注入项值绑定失败"""
+class DependRuntimeError(DependError):
+    """melobot 依赖注入的运行时失败"""
 
 
 class DynamicImpError(BotException):

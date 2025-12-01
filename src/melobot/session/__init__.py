@@ -1,7 +1,7 @@
 from typing_extensions import Any
 
 from ..ctx import SessionCtx as _SessionCtx
-from .base import Session, SessionStore, enter_session, suspend
+from .base import Session, SessionStore, enter_session, get_session_arg, suspend
 from .option import CompareInfo, DefaultRule, Rule
 
 

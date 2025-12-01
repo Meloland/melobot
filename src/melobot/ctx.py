@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from asyncio import Future
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
@@ -10,7 +12,7 @@ from typing_extensions import (
     Callable,
     Generator,
     Generic,
-    Self,
+    Hashable,
     Union,
     cast,
     overload,
@@ -22,11 +24,11 @@ from .typ.cls import SingletonMeta
 
 if TYPE_CHECKING:
     from . import adapter
-    from .adapter import Adapter, model
+    from .adapter import model
     from .bot.base import Bot
     from .handle.base import Flow, FlowNode
     from .io import base as io_base
-    from .io.base import AbstractInSource, OutSourceT
+    from .io.base import OutSourceT
     from .log.base import GenericLogger
     from .session.base import Session, SessionStore
     from .session.option import Rule
@@ -154,7 +156,7 @@ class FlowRecords(list[FlowRecord]):
         super().append(snapshot)
 
 
-class FlowStore(dict[str, Any]):
+class FlowStore(dict[Hashable, Any]):
     """流存储，将会在流运行前初始化，运行结束后销毁"""
 
 
@@ -197,6 +199,9 @@ class FlowCtx(Context[FlowStatus]):
 
     def get_records(self) -> tuple[FlowRecord, ...]:
         return tuple(self.get().records)
+
+    def get_records_type(self) -> type[tuple[FlowRecord, ...]]:
+        return tuple[FlowRecord, ...]
 
     def get_completion(self) -> "EventCompletion":
         return self.get().completion
@@ -272,9 +277,9 @@ class EventOrigin:
         event.flag_set(cls._FLAG_KEYS[0], cls._FLAG_KEYS[1], origin)
 
     @classmethod
-    def get_origin(cls, event: "model.Event") -> Self:
+    def get_origin(cls, event: "model.Event") -> EventOrigin:
         origin = event.flag_get(cls._FLAG_KEYS[0], cls._FLAG_KEYS[1])
-        return cast(Self, origin)
+        return cast(EventOrigin, origin)
 
 
 # 不使用 dataclass，不用重写任何方法就可哈希
@@ -288,8 +293,12 @@ class EventCompletion:
     ) -> None:
         self.event = event
         self.completed = completed
-        self.owner_flow = owner_flow
-        self.under_session = under_session
+        self.creator = owner_flow
+        self.ctrl_by_session = under_session
+        self.flow_ended = False
+
+    def copy(self) -> EventCompletion:
+        return EventCompletion(self.event, self.completed, self.creator, self.ctrl_by_session)
 
 
 class ActionAutoExecCtx(Context[bool]):

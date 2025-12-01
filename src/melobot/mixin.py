@@ -134,7 +134,7 @@ class FlagMixin:
         namespace: Any,
         flag: Any,
         val: Any = None,
-        wait_val: bool = True,
+        check_val: bool = True,
         use_id: bool = False,
     ) -> None:
         """等待标记
@@ -144,15 +144,15 @@ class FlagMixin:
         :param namespace: 命名空间
         :param flag: 标记
         :param val: 标记值
-        :param wait_val: 为 `True` 则需要值也一致
+        :param check_val: 为 `True` 则需要值也一致
         :param use_id: 为 `True` 则使用 `is` 判断 `val`，否则调用 `==` 判断 `val`
         """
-        if self.flag_check(namespace, flag, val, wait_val, use_id):
+        if self.flag_check(namespace, flag, val, check_val, use_id):
             return None
 
         signal: Future[None] = get_running_loop().create_future()
         waitings = self.__flag_mixin_waitings__.setdefault((namespace, flag), [])
-        waitings.append((val, signal, use_id, wait_val))
+        waitings.append((val, signal, use_id, check_val))
         await signal
         waitings = list(filter(lambda x: not x[1].done(), waitings))
         if not len(waitings):

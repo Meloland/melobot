@@ -120,7 +120,7 @@ class MessageEvent(RootTextEvent, Event):
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}(text={self.text!r},"
-            f" user_id={self.user_id}), sub_type={self.sub_type})"
+            f" user_id={self.user_id}, sub_type={self.sub_type})"
         )
 
     @classmethod
