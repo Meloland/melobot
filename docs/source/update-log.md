@@ -5,6 +5,177 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.3.0
+
+### ⏩变更
+
+- [core] 内置日志器 {class}`~.melobot.log.Logger` 的初始化参数 `is_parellel` 已改为正确的名称 `is_parallel`，请更改代码以匹配正确的参数名
+
+- [core] `if_not()` 由于名称与行为不匹配令人困惑，现已更名为 {func}`.if_`。原始名称依然可以用于导入，但文档中将使用新名称 {func}`.if_`，且不排除未来移除旧名称支持
+
+- [core] {class}`.BotLifeSpan.RELOADED` 的名称令人困惑，现已更名为 {class}`.BotLifeSpan.RESTARTED`。旧名称仍可以继续使用，但不再推荐。同时建议更改 {meth}`.Bot.on_reloaded` 为 {meth}`.Bot.on_restarted`
+
+- [core] 改进了依赖注入的实现。事件绑定函数（流装饰器）绝大多数情况下不再需要提供 `decos` 参数，与此相关的新用法请参考：[依赖注入与多层装饰](di_with_multiple_deco)
+
+- [core] 命令解析器 {class}`.CmdParser` 的解析参数 {class}`.CmdArgs` 现提供更丰富的接口。但过去的接口依然保持兼容
+
+- [core] 流存储对象 {class}`.FlowStore` 和会话存储对象 {class}`.SessionStore` 现支持任意可哈希对象作为键，而不是过去的仅支持字符串
+
+- [core] 所有事件绑定函数（流装饰器）的 `block` 参数的含义发生变化。当 `block=False` 时，不再重设事件的传播状态为 `True`，而是对于传播状态不做任何修改
+
+- [core] 移除了令人困惑、极少使用的 `CustomLogger` 依赖注入元数据标记类
+
+- [core] 由于存在潜在问题，用于特定情景的哨兵类型 `VoidType` 已移除。请使用自定义哨兵对象替代，例如：`sentinel = object()`
+
+- [core] {meth}`.Bot.add_flows` 方法任何时刻均可使用，无需等待特定的生命周期阶段
+
+- [core] 处理流链接方法 {meth}`.Flow.link` 现支持为返回的新流设置自定义名称
+
+- [core] 会话对象的 `set_completed()` 方法现已更名为 {meth}`~.Session.release`，但用法没有发生变化
+
+### ✨新增
+
+- [Console] 新增协议适配 `melobot.protocols.console`，请参考 [相关文档](./console_api/index)
+
+- [core] {func}`.suspend` 方法提供新参数 `auto_stop` 用于简化以下流程：
+
+```python
+from melobot.handle import stop
+from melobot.session import suspend
+
+if not await suspend(timeout=10):
+    await stop()
+
+# 现在简化为：
+await suspend(timeout=10, auto_stop=True)
+```
+
+- [core] 命令解析器 {class}`.CmdParser` 支持为参数设置自定义索引名称。但需要通过格式化器设置：
+
+```python
+from melobot.utils.parse import CmdArgFormatter, CmdParserFactory
+
+PARSER_FACTORY = CmdParserFactory(".", " ")
+TRANSLATE_CMD_PARSER = PARSER_FACTORY.get(
+    targets=["translate", "trans", "翻译"],
+    formatters=[
+        CmdArgFormatter(
+            validate=lambda x: x in ["en", "zh", "jp"],
+            src_desc="翻译目标语种",
+            src_expect="值为 [en, zh, jp] 其中之一",
+            # 设置自定义索引名称
+            key="lang",
+        ),
+    ],
+)
+```
+
+```python
+# 使用时：
+lang = args["lang"]
+# 当然过去的用法依然可以使用
+lang = args.vals[0]
+```
+
+- [core] 命令解析器 {class}`.CmdParser` 支持交互式模式。在参数缺失时自动发出交互式询问，以尝试补全参数。但对应参数必须启用格式化器：
+
+```python
+from melobot.utils.parse import CmdArgFormatter, CmdParserFactory
+
+PARSER_FACTORY = CmdParserFactory(".", " ")
+TRANSLATE_CMD_PARSER = PARSER_FACTORY.get(
+    targets=["translate", "trans", "翻译"],
+    # 启用交互式功能
+    interactive=True
+    formatters=[
+        # 设置交互式问询的超时时间
+        CmdArgFormatter(..., i_timeout=30),
+        ...
+    ]
+)
+
+# 或在解析器初始化时提供
+parser = CmdParser(..., interactive=True)
+```
+
+- [core] 新增依赖注入接口 {func}`.get_flow_arg`, {func}`.get_session_arg`, {func}`.get_cmd_arg`。它们本质上都是返回一个依赖项。因此你可以按以下方式进行使用：（关于依赖项，参考 [依赖注入文档](./dive_in/dependency_injection)）
+
+```python
+from melobot.utils.parse import get_cmd_arg
+
+@on_xxx(...)
+# lang 标注为当时存入的类型，melobot 不做限制
+async def f(lang: str = get_cmd_arg("lang")) -> None:
+    # 等价于首先通过注解获取 args（类型 CmdArgs）
+    # 然后：lang = args["lang"]
+    ...
+# 或者使用 Annotated 风格的写法
+async def f(lang: Annotated[str, get_cmd_arg("lang")])
+# 如果你不理解这种风格的写法，请参考上面提到的依赖注入文档
+```
+
+```python
+from melobot.handle import get_flow_arg
+
+@on_xxx(...)
+# arg1 标注为当时存入的类型，melobot 不做限制
+async def f(arg1: str = get_flow_arg("flow_arg1")) -> None:
+    # 等价于： arg1 = melobot.handle.get_flow_store()["flow_arg1"]
+    ...
+# 或者使用 Annotated 风格的写法
+async def f(arg1: Annotated[str, get_flow_arg("flow_arg1")])
+```
+
+```python
+from melobot.session import get_session_arg
+
+@on_xxx(...)
+# arg1 标注为当时存入的类型，melobot 不做限制
+async def f(arg1: int = get_session_arg("s_arg_1")) -> None:
+    # 等价于： arg1 = melobot.session.get_session_store()["s_arg_1"]
+    ...
+# 或者使用 Annotated 风格的写法
+async def f(arg1: Annotated[int, get_session_arg("s_arg_1")])
+```
+
+- [core] 新增**适配器关闭前**的生命周期枚举 {class}`.AdapterLifeSpan.CLOSE`，和 **源关闭前** 的生命周期枚举 {class}`.SourceLifeSpan.CLOSE`
+
+- [core] {meth}`.Bot.add_protocol` 方法支持传递协议栈类，内部将自动运行无参实例化
+
+- [core] {func}`.node` 装饰器提供带参形式，可在创建处理流结点时添加常用功能
+
+- [core] 新增方法 {meth}`.Bot.run_async`，用于在已经创建的事件循环中异步地运行 bot，仅推荐在测试环境中使用
+
+- [core] 新增方法 {meth}`.Bot.wait_finish`，用于等待事件被 bot 所有处理流处理完成
+
+- [core] 现在支持对 `functools.partial` 对象使用依赖注入
+
+- [core] 处理流新增接口 {meth}`.Flow.add` 方法，{meth}`.Flow.start` 和它是等价形式，具体用法参考 [相关文档](./dive_in/process_flow)
+
+### 👍修复
+
+- [core] 修复了某些情景下，通过依赖注入获取适配器失败的问题 ([#43](https://github.com/Meloland/melobot/issues/43))
+
+- [core] 修复了在 Python 3.14 下的适配问题
+
+- [core] 修复了空日志器 {class}`.NullLogger` 在调用懒惰日志方法时的错误
+
+- [core] 修复了在 bot 实例销毁后仍然无法创建同名 bot 的问题
+
+- [core] 修复了加载插件时，无法正确解析部分相对路径的问题
+
+- [core] 修复了某些可调用对象在依赖注入时的错误
+
+- [core] 修复了会话结束时，若处理流未结束将错误设置事件状态的问题
+
+- [core] 修复了进入子流方法 {func}`.flow_to` 对当前上下文的污染问题
+
+- [OneBot] 修复 {class}`.MessageEvent` 返回有误 `repr` 字符串的问题
+
+### 其他
+
+文档勘误及不重要变更，参考完整记录：[3.2.2...3.3.0](https://github.com/Meloland/melobot/compare/3.2.2...3.3.0)
+
 ## v3.2.2
 
 ### ⏩变更

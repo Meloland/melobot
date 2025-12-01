@@ -35,6 +35,11 @@ melobot.session
 
 .. autofunction:: melobot.session.get_session_store
 
+依赖注入项
+----------------
+
+.. autofunction:: melobot.session.get_session_arg
+
 上下文动态变量
 ----------------
 

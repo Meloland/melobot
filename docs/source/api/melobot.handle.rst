@@ -13,12 +13,10 @@ melobot.handle
     :members:
     :exclude-members: process
 
-处理结点
------------
+处理结点装饰器
+--------------
 
 .. autofunction:: melobot.handle.node
-
-.. autofunction:: melobot.handle.no_deps_node
 
 流装饰器
 ----------
@@ -81,6 +79,11 @@ melobot.handle
 .. autofunction:: melobot.handle.get_event
 
 .. autofunction:: melobot.handle.try_get_event
+
+依赖注入项
+----------------
+
+.. autofunction:: melobot.handle.get_flow_arg
 
 上下文动态变量
 ----------------
