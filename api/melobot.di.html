@@ -462,7 +462,8 @@
 <p>数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理</p>
 <p>这适用于希望依赖会随着上下文改变，而动态变化的情况。例如动态引用会话流程中的事件对象</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 注入一个依赖时进一步包装为反射依赖</span>
-<span class="n">event_proxy</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Event</span><span class="p">,</span> <span class="n">Reflect</span><span class="p">()]</span>
+<span class="n">ReflectedEvent</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Event</span><span class="p">,</span> <span class="n">Reflect</span><span class="p">()]</span>
+<span class="n">event_proxy</span><span class="p">:</span> <span class="n">RefelectedEvent</span>
 <span class="c1"># 就像使用 event 一样使用 event_proxy</span>
 <span class="n">event_proxy</span><span class="o">.</span><span class="n">attr_xxx</span>
 <span class="n">event_proxy</span><span class="o">.</span><span class="n">method_xxx</span><span class="p">()</span>

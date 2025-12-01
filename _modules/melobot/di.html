@@ -666,7 +666,8 @@
 <span class="sd">    .. code:: python</span>
 
 <span class="sd">        # 注入一个依赖时进一步包装为反射依赖</span>
-<span class="sd">        event_proxy = Annotated[Event, Reflect()]</span>
+<span class="sd">        ReflectedEvent = Annotated[Event, Reflect()]</span>
+<span class="sd">        event_proxy: RefelectedEvent</span>
 <span class="sd">        # 就像使用 event 一样使用 event_proxy</span>
 <span class="sd">        event_proxy.attr_xxx</span>
 <span class="sd">        event_proxy.method_xxx()</span>
