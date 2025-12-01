@@ -29,8 +29,8 @@ repos:
     hooks:
       - id: uv-export
         name: docs-export
-        args: ["--frozen", "--no-editable", "--no-emit-project", "--extra", "onebot", "--group", "docs", "-o", "./docs/requirements.txt"]
+        args: ["--frozen", "--no-editable", "--no-emit-project", "--extra", "onebot", "--extra", "console", "--group", "docs", "-o", "./docs/requirements.txt"]
 
       - id: uv-export
         name: test-export
-        args: ["--frozen", "--no-editable", "--no-emit-project", "--extra", "onebot", "--group", "test", "-o", "./tests/requirements.txt"]
+        args: ["--frozen", "--no-editable", "--no-emit-project", "--extra", "onebot", "--extra", "console", "--group", "test", "-o", "./tests/requirements.txt"]
