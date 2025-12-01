@@ -17,11 +17,12 @@ from typing_extensions import (
     cast,
     get_args,
     get_origin,
+    overload,
 )
 
 from .ctx import BotCtx, EventOrigin, FlowCtx, ParseArgsCtx, SessionCtx, get_logger_type
 from .exceptions import DependInitError, DependRuntimeError
-from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, is_subhint, is_type
+from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, U, is_subhint, is_type
 from .typ.cls import BetterABC
 from .utils.base import to_async
 from .utils.common import get_obj_name
@@ -41,13 +42,31 @@ class DependNotMatched(BaseException):
         self.hint = hint
 
 
-class Depends(Generic[T]):
+class Depends(Generic[T, U]):
     _EMPTY = object()
 
+    @overload
     def __init__(
         self,
         dep: SyncOrAsyncCallable[[], T] | Depends[T],
-        sub_getter: SyncOrAsyncCallable[[T], T] | None = None,
+        sub_getter: None = None,
+        cache: bool = False,
+        recursive: bool = True,
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        dep: SyncOrAsyncCallable[[], U] | Depends[U],
+        sub_getter: SyncOrAsyncCallable[[U], T],
+        cache: bool = False,
+        recursive: bool = True,
+    ) -> None: ...
+
+    def __init__(
+        self,
+        dep: SyncOrAsyncCallable[[], Any] | Depends[Any],
+        sub_getter: SyncOrAsyncCallable[[Any], Any] | None = None,
         cache: bool = False,
         recursive: bool = True,
     ) -> None:
@@ -56,7 +75,7 @@ class Depends(Generic[T]):
         :param dep: 依赖来源（可调用对象，异步可调用对象，或依赖项）
         :param sub_getter: 子获取器（可调用对象，异步可调用对象或空），在获得依赖之后，于其上继续获取
         :param cache: 是否启用缓存
-        :param recursive: 是否启用递归满足（默认启用，如果当前依赖来源中存在依赖项，会被递归满足；关闭可节约性能）
+        :param recursive: 是否启用递归满足（默认启用，如果 `dep` 和 `sub_getter` 为可调用对象，会自动被 {func}`.inject_deps` 装饰；关闭可节约性能）
         """
         super().__init__()
         self.ref: Depends[T] | None
@@ -68,9 +87,9 @@ class Depends(Generic[T]):
         else:
             self.ref = None
             if recursive:
-                self.getter = inject_deps(dep)
+                self.getter = inject_deps(dep)  # type: ignore[arg-type]
             else:
-                self.getter = to_async(dep)
+                self.getter = to_async(dep)  # type: ignore[arg-type]
 
         if sub_getter is None:
             self.sub_getter = None

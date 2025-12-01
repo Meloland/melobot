@@ -409,7 +409,7 @@ class CmdParser(Parser):
         :param cmd_start: 命令起始符（可以是字符串或字符串列表）
         :param cmd_sep: 命令间隔符（可以是字符串或字符串列表）
         :param targets: 匹配的命令名
-        :param formatters: 格式化器（可以包含空值，即此位置的参数无格式化）
+        :param fmtters: 格式化器（可以包含空值，即此位置的参数无格式化）
         :param tag: 标签，此标签将被填充给本解析器产生的 :class:`.CmdArgs` 对象的 `tag` 属性
         :param strict: 是否启用严格模式（保留字符串两端的空白字符）
         :param interactive: 是否启用交互式功能（参数缺失时尝试交互式获取参数），提供函数用于从格式化信息生成提示文本

@@ -161,6 +161,8 @@ def lazy_load(
     .. code:: python
 
         # 典型的使用方法：
+        from typing import TYPE_CHECKING
+
         if TYPE_CHECKING:
             import matplotlib as mpl
             import matplotlib.font_manager as fm
