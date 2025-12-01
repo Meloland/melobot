@@ -8,7 +8,7 @@ melobot.di
     :members:
     :exclude-members: fulfill
 
-.. autoclass:: melobot.di.DependsHook
+.. autoclass:: melobot.di.CbDepends
     :members:
     :exclude-members: fulfill
 
@@ -17,13 +17,9 @@ melobot.di
 依赖注入元数据标记
 -------------------
 
-依赖注入时用作 :data:`~.typing.Annotated` 元数据
+依赖注入时用作 :data:`~.typing.Annotated` 元数据，只能对自动依赖使用。也就是说不能和 :class:`.Depends` 同时放在 :data:`~.typing.Annotated` 中。
 
 .. autoclass:: melobot.di.Exclude
-    :members:
-    :exclude-members: __init__
-
-.. autoclass:: melobot.di.CustomLogger
     :members:
     :exclude-members: __init__
 

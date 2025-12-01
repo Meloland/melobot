@@ -11,3 +11,4 @@ melobot.protocols
 --------------
 
 - :doc:`melobot.protocols.onebot <../ob_api/index>`
+- :doc:`melobot.protocols.console <../console_api/index>`

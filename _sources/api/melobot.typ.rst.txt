@@ -23,9 +23,6 @@ melobot.typ
 .. autoclass:: melobot.typ.SingletonBetterABCMeta
     :exclude-members: __call__
 
-.. autoclass:: melobot.typ.VoidType
-    :members:
-
 .. autoclass:: melobot.typ.AsyncCallable
     :exclude-members: __call__, __init__
 

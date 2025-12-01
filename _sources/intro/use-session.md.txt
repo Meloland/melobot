@@ -36,14 +36,16 @@
 from typing import Annotated
 
 from melobot import send_text
-from melobot.handle import on_start_match
+from melobot.handle import on_text, TextEvent
 from melobot.session import suspend
 from melobot.di import Reflect
-from melobot.protocols.onebot.v11 import MessageEvent
 
-# 简化一下，先做成只适用于 OneBot 协议的处理逻辑
-@on_start_match(["天气", "weather", "查天气"], legacy_session=True)
-async def query_weather(event: Annotated[MessageEvent, Reflect()]) -> None:
+@on_text(legacy_session=True)
+async def query_weather(event: Annotated[TextEvent, Reflect()]) -> None:
+    # 不以这些词起始，不运行后续过程
+    if not event.text.startswith(("天气", "weather", "查天气")):
+        return
+
     await send_text("输入您想要查询的城市哦，亲~")
     # 十秒没有下一条消息就结束事件处理
     if not await suspend(timeout=10):
@@ -71,10 +73,10 @@ async def query_weather(event: Annotated[MessageEvent, Reflect()]) -> None:
 先来看看最开始的装饰器：
 
 ```python
-@on_start_match(["天气", "weather", "查天气"], legacy_session=True)
+@on_text(legacy_session=True)
 ```
 
-第一参数 `target` 可以接受一个列表，看一眼 api 文档就懂了，应该不难。后续将 `legacy_session` 参数置为 `True`，这是告诉 melobot，这个处理过程需要启用一个“传统会话”的规则。
+将 `legacy_session` 参数置为 `True`，这是告诉 melobot，这个处理过程需要启用一个“传统会话”的规则。
 
 什么是规则？首先我们说过，会话的重要特性是**暂时停止，并稍后恢复**，稍候是什么时候？当然是出现**一个可以让会话恢复的事件**的时候，因为不是所有事件都能让会话“恢复”。
 
@@ -85,7 +87,7 @@ melobot 如何知道哪些事件可以让某个会话恢复？就是凭借“会
 ### 依赖注入 + 反射
 
 ```python
-async def query_weather(event: Annotated[MessageEvent, Reflect()]) -> None:
+async def query_weather(event: Annotated[TextEvent, Reflect()]) -> None:
 ```
 
 在使用依赖注入时，我们使用了 [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated) + {class}`.Reflect` 附加项的方式，这是告诉 melobot 对 `event` 进行反射式的依赖注入。处理流在启用会话后，内部的“当前事件”记录会被更新。如果使用常规的依赖注入，那么 `event` 实参在会话暂停、又恢复后并不会自动被更新。而使用反射式的获取，就可以实时映射到最新的事件。
@@ -189,4 +191,4 @@ city = event.text
 
 **这便是 melobot 的全部了吗？实际上，一切才刚刚开始 :)**
 
-从下一章开始，我们将深入了解 melobot 的各层架构与各种机制。从而解锁**无序插件加载、自定义会话**等高级玩法，并**使用裸处理流像搭积木一样，实现多路输入输出**等独家玩法，以及**使用 melobot 妙妙小工具，便捷完成各种需求**等有趣玩法。
+从下一章开始，我们将深入了解 melobot 的各层架构与各种机制。从而解锁**无序插件加载、自定义会话**等高级玩法，并**使用处理流像搭积木一样，实现多路输入输出**等独家玩法，以及**使用 melobot 妙妙小工具，便捷完成各种需求**等有趣玩法。

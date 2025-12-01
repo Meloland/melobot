@@ -19,7 +19,7 @@ melobot.utils
 
 .. autofunction:: melobot.utils.to_sync
 
-.. autofunction:: melobot.utils.if_not
+.. autofunction:: melobot.utils.if_
 
 .. autofunction:: melobot.utils.unfold_ctx
 
@@ -104,7 +104,7 @@ melobot.utils
     :exclude-members: format, parse
 
 .. autoclass:: melobot.utils.parse.CmdArgs
-    :exclude-members: __init__, vals
+    :exclude-members: __init__, pop, set, append
 
 .. autoclass:: melobot.utils.parse.CmdParserFactory
 
@@ -112,3 +112,8 @@ melobot.utils
 
 .. autoclass:: melobot.utils.parse.CmdArgFormatInfo
     :exclude-members: __init__
+
+依赖注入项
+----------------
+
+.. autofunction:: melobot.utils.parse.get_cmd_arg
