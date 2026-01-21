@@ -128,7 +128,7 @@ class Bot(HookMixin[BotLifeSpan]):
 
         self._inited = False
         self._running = False
-        self._rip_signal = asyncio.Event()
+        self._ready_close = asyncio.Event()
 
     def __repr__(self) -> str:
         return f'Bot(name="{self.name}")'
@@ -350,7 +350,7 @@ class Bot(HookMixin[BotLifeSpan]):
                     await asyncio.wait(ts)
 
                 await self._hook_bus.emit(BotLifeSpan.STARTED)
-                await self._rip_signal.wait()
+                await self._ready_close.wait()
 
         finally:
             async with self._common_async_ctx() as stack:
@@ -381,7 +381,9 @@ class Bot(HookMixin[BotLifeSpan]):
         """
         logger.info("当前模式：事件循环由内部创建")
         set_loop_exc_log(strict_log)
-        self._runner.run(self._run(), debug, use_exc_handler, loop_factory, eager_task)
+        self._runner.run(
+            self._run(), self._ready_close, debug, use_exc_handler, loop_factory, eager_task
+        )
         _end_log()
 
     async def run_async(
@@ -416,6 +418,7 @@ class Bot(HookMixin[BotLifeSpan]):
         set_loop_exc_log(strict_log)
         await self._runner.run_async(
             self._run(),
+            self._ready_close,
             reserved_tasks,
             use_exc_handler,
             pre_loop_sig_handlers,
@@ -424,37 +427,13 @@ class Bot(HookMixin[BotLifeSpan]):
         )
         _end_log()
 
-    @classmethod
-    def start(cls, *bots: Bot, debug: bool = False, strict_log: bool = False) -> None:
-        """安全地同时运行多个 bot 的阻塞方法
-
-        :param bots: 要运行的 bot 对象
-        :param debug: 参见 :func:`run` 同名参数
-        :param strict_log: 参见 :func:`run` 同名参数
-        """
-
-        async def bots_run() -> None:
-            tasks: list[asyncio.Task] = []
-            try:
-                for bot in bots:
-                    tasks.append(asyncio.create_task(bot._run()))
-                    if len(tasks):
-                        await asyncio.wait(tasks)
-            except asyncio.CancelledError:
-                for t in tasks:
-                    t.cancel()
-
-        set_loop_exc_log(strict_log)
-        AsyncRunner().run(bots_run(), debug)
-        _end_log()
-
     async def close(self) -> None:
         """停止并关闭当前 bot"""
         if not self._running:
             raise BotError(f"{self} 未在运行中，不能停止运行")
 
         await self._hook_bus.emit(BotLifeSpan.CLOSE, True)
-        self._rip_signal.set()
+        self._ready_close.set()
 
     def is_restartable(self) -> bool:
         """判断当前 bot 是否可以重启

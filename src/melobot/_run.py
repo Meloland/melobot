@@ -26,7 +26,7 @@ class AsyncRunner:
 
         self.started = False
         self.closed = False
-        self.stop_accepted = False
+        self._end: asyncio.Event | None = None
         self._loop_auto_set: bool = False
         self._started_in_loop: bool = False
         self._next_runner: AsyncRunner
@@ -38,12 +38,14 @@ class AsyncRunner:
     def run(
         self,
         coro: Coroutine[Any, Any, None],
+        end_signal: asyncio.Event,
         debug: bool,
         use_exc_handler: bool = True,
         loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
         eager_task: bool = True,
     ) -> None:
         self._run_check()
+        self._end = end_signal
 
         # TODO: 在升级支持到 3.16 后，需要重新验证代码，
         # 因为 3.16 底层实现不再依赖于 policy，需要根据低级 loop 方法的新实现来调整
@@ -56,13 +58,14 @@ class AsyncRunner:
             loop = loop_factory()
 
         with self._loop_options(loop, debug, use_exc_handler, eager_task, None):
+            wrapper = loop.create_task(self._loop_main(coro))
             try:
-                main = self._loop_main(coro)
-                loop.run_until_complete(main)
-            except asyncio.CancelledError:
-                pass
-            except KeyboardInterrupt:
-                pass
+                loop.run_until_complete(wrapper)
+            except (asyncio.CancelledError, KeyboardInterrupt, SystemExit) as e:
+                if not wrapper.done():
+                    loop.run_until_complete(wrapper)
+                if isinstance(e, SystemExit):
+                    raise
             finally:
                 try:
                     self._cancel_all(loop)
@@ -77,6 +80,7 @@ class AsyncRunner:
     async def run_async(
         self,
         coro: Coroutine[Any, Any, None],
+        end_signal: asyncio.Event,
         reserved_tasks: set[asyncio.Task] | None = None,
         use_exc_handler: bool = True,
         pre_loop_sig_handlers: list[tuple[int, Callable[..., object]]] | None = None,
@@ -84,16 +88,19 @@ class AsyncRunner:
         shutdown_default_executor: bool = False,
     ) -> None:
         self._run_check()
+        self._end = end_signal
         self._started_in_loop = True
         loop = asyncio.get_running_loop()
 
         with self._loop_options(loop, None, use_exc_handler, None, pre_loop_sig_handlers):
+            t = asyncio.create_task(self._loop_main(coro))
             try:
-                await self._loop_main(coro)
-            except asyncio.CancelledError:
-                pass
-            except KeyboardInterrupt:
-                pass
+                await t
+            except (asyncio.CancelledError, KeyboardInterrupt, SystemExit) as e:
+                if not t.done():
+                    await t
+                if isinstance(e, SystemExit):
+                    raise
             finally:
                 try:
                     await self._cancel_all_async(loop, reserved_tasks)
@@ -176,16 +183,18 @@ class AsyncRunner:
         for hook in self.started_hooks:
             hook()
 
-        if CLI_RUN_FLAG in os.environ:
-            while True:
-                if self.stop_accepted or self.root_task.done():
-                    break
-                if not os.path.exists(os.environ[CLI_RUN_ALIVE_FLAG]):
-                    self.root_task.cancel()
-                    break
-                await asyncio.sleep(0.45)
-        else:
+        if CLI_RUN_FLAG not in os.environ:
             await self.root_task
+            return
+
+        while True:
+            if self.root_task.done():
+                break
+            if not os.path.exists(os.environ[CLI_RUN_ALIVE_FLAG]):
+                self.stop()
+                await self.root_task
+                break
+            await asyncio.sleep(0.45)
 
     def _cancel_all(self, loop: asyncio.AbstractEventLoop) -> None:
         self.closed = True
@@ -256,14 +265,11 @@ class AsyncRunner:
                 )
 
     def stop(self, *_: Any, **__: Any) -> None:
-        if self.stop_accepted:
-            return
-        self.stop_accepted = True
-        if self.root_task is not None and not self.root_task.done():
-            asyncio.get_running_loop().call_soon(self.root_task.cancel)
+        if self._end is not None:
+            asyncio.get_running_loop().call_soon(self._end.set)
 
     def restart(self) -> NoReturn:
-        sys.exit(ExitCode.RESTART.value)
+        raise SystemExit(ExitCode.RESTART.value)
 
     def is_from_restart(self) -> bool:
         return (
