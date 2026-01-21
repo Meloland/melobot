@@ -118,10 +118,7 @@ class MessageEvent(RootTextEvent, Event):
         ).split("\n")
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(text={self.text!r},"
-            f" user_id={self.user_id}, sub_type={self.sub_type})"
-        )
+        return f"{self.__class__.__name__}(text={self.text!r}, sub_type={self.sub_type})"
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> MessageEvent:
@@ -320,11 +317,7 @@ class GroupMessageEvent(MessageEvent):
         self.sub_type: Literal["normal", "anonymous", "notice", "group_self"]
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(text={self.text!r},"
-            f" user_id={self.user_id}, group_id={self.group_id},"
-            f" sub_type={self.sub_type})"
-        )
+        return f"{self.__class__.__name__}(text={self.text!r}, sub_type={self.sub_type})"
 
 
 class MetaEvent(Event):
