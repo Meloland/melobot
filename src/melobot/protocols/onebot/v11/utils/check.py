@@ -132,11 +132,12 @@ class MsgChecker(Checker[Event]):
     async def check(self, event: Event) -> bool:
         status = is_msg = False
         try:
-            ret, is_msg = event.flag_get(
+            _status, _is_msg = event.flag_get(
                 self.__class__, self._hash_tag, raise_exc=False, default=(None, False)
             )
-            if ret is not None:
-                return cast(bool, ret)
+            if _status is not None:
+                status, is_msg = _status, _is_msg
+                return status
 
             # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
             if not event.is_message():
@@ -346,11 +347,12 @@ class AtMsgChecker(Checker):
         # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
         status = is_msg = False
         try:
-            ret, is_msg = event.flag_get(
+            _status, _is_msg = event.flag_get(
                 self.__class__, self._hash_tag, raise_exc=False, default=(None, False)
             )
-            if ret is not None:
-                return cast(bool, ret)
+            if _status is not None:
+                status, is_msg = _status, _is_msg
+                return status
 
             if not event.is_message():
                 status = is_msg = False
