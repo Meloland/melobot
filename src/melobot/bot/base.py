@@ -53,9 +53,9 @@ class BotLifeSpan(Enum):
     STARTED = "sta"
     #: bot 重新启动完成之后
     RESTARTED = "r"
-    #: bot 手动停止即将发生前（仅限 bot.close() 发起的，信号触发不会调用此类型，出现异常可能不会调用此类型）
+    #: bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号处理不会触发此类型，出现异常可能不触发此类型）
     CLOSE = "c"
-    #: bot 停止完成后（包含任何情况导致的停止）
+    #: bot 停止完成后（包含任何情况导致的停止，请在这里处理清理工作）
     STOPPED = "sto"
 
     RELOADED: Literal["r"]
@@ -125,10 +125,13 @@ class Bot(HookMixin[BotLifeSpan]):
         self._loader = PluginLoader()
         self._plugins: dict[str, Plugin] = {}
         self._dispatcher = Dispatcher()
-
         self._inited = False
         self._running = False
-        self._ready_close = asyncio.Event()
+        self._closed = False
+
+        self.__life: asyncio.Task | None = None
+        self.__terminated = False
+        self.__happy_end = asyncio.Event()
 
     def __repr__(self) -> str:
         return f'Bot(name="{self.name}")'
@@ -210,6 +213,8 @@ class Bot(HookMixin[BotLifeSpan]):
         return self
 
     def _core_init(self) -> None:
+        if self._inited:
+            return
         _start_log()
 
         for protocol, srcs in self._in_srcs.items():
@@ -250,9 +255,7 @@ class Bot(HookMixin[BotLifeSpan]):
             此参数只在 `plugin` 参数为插件的目录路径时有效。
         :return: bot 对象，因此支持链式调用
         """
-        if not self._inited:
-            self._core_init()
-
+        self._core_init()
         with self._common_sync_ctx():
             p, is_loaded = self._loader.load(plugin, load_depth)
             if is_loaded:
@@ -320,12 +323,13 @@ class Bot(HookMixin[BotLifeSpan]):
             self.load_plugins_dir(pdir, load_depth)
 
     async def _run(self) -> None:
-        if not self._inited:
-            self._core_init()
-
+        if self._closed:
+            raise BotError(f"{self} 已停止运行，无法再次运行")
+        self._core_init()
         if self._running:
             raise BotError(f"{self} 已在运行中，不能再次启动运行")
         self._running = True
+        self.__life = asyncio.current_task()
 
         logger.debug(f"当前事件循环类型：{type(asyncio.get_running_loop())}")
         try:
@@ -350,7 +354,7 @@ class Bot(HookMixin[BotLifeSpan]):
                     await asyncio.wait(ts)
 
                 await self._hook_bus.emit(BotLifeSpan.STARTED)
-                await self._ready_close.wait()
+                await self.__happy_end.wait()
 
         finally:
             async with self._common_async_ctx() as stack:
@@ -382,7 +386,7 @@ class Bot(HookMixin[BotLifeSpan]):
         logger.info("当前模式：事件循环由内部创建")
         set_loop_exc_log(strict_log)
         self._runner.run(
-            self._run(), self._ready_close, debug, use_exc_handler, loop_factory, eager_task
+            self._run(), self._terminator, debug, use_exc_handler, loop_factory, eager_task
         )
         _end_log()
 
@@ -418,7 +422,7 @@ class Bot(HookMixin[BotLifeSpan]):
         set_loop_exc_log(strict_log)
         await self._runner.run_async(
             self._run(),
-            self._ready_close,
+            self._terminator,
             reserved_tasks,
             use_exc_handler,
             pre_loop_sig_handlers,
@@ -433,7 +437,7 @@ class Bot(HookMixin[BotLifeSpan]):
             raise BotError(f"{self} 未在运行中，不能停止运行")
 
         await self._hook_bus.emit(BotLifeSpan.CLOSE, True)
-        self._ready_close.set()
+        self.__happy_end.set()
 
     def is_restartable(self) -> bool:
         """判断当前 bot 是否可以重启
@@ -453,13 +457,24 @@ class Bot(HookMixin[BotLifeSpan]):
 
         另外请注意，重启功能只在启动了一个 bot 时生效，多个 bot 同时运行时无法重启
         """
-        if len(self.__class__.__instances__) > 1:
-            raise BotError("使用重启功能，同一时刻只能有一个 bot 在运行")
         if not self._runner.is_restartable():
             raise BotError("使用重启功能，需要用以下命令运行 bot：python -m melobot run xxx.py")
 
         await self.close()
         self._runner.restart()
+
+    def _terminator(self) -> None:
+        # signal handle 及手动调用保持幂等性
+        if self.__terminated or self._closed or not self._running:
+            return
+        if self.get_hook_evoke_time(BotLifeSpan.STARTED) != -1:
+            self.__happy_end.set()
+            self.__terminated = True
+            return
+        if self.__life is None:
+            return
+        self.__life.cancel()
+        self.__terminated = True
 
     @overload
     def get_adapter(self, type: type[AdapterT], filter: None = None) -> AdapterT | None: ...

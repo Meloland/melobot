@@ -26,7 +26,7 @@ class AsyncRunner:
 
         self.started = False
         self.closed = False
-        self._end: asyncio.Event | None = None
+        self._terminator: Callable[[], Any] | None = None
         self._loop_auto_set: bool = False
         self._started_in_loop: bool = False
         self._next_runner: AsyncRunner
@@ -38,14 +38,14 @@ class AsyncRunner:
     def run(
         self,
         coro: Coroutine[Any, Any, None],
-        end_signal: asyncio.Event,
+        terminator: Callable[[], Any],
         debug: bool,
         use_exc_handler: bool = True,
         loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
         eager_task: bool = True,
     ) -> None:
         self._run_check()
-        self._end = end_signal
+        self._terminator = terminator
 
         # TODO: 在升级支持到 3.16 后，需要重新验证代码，
         # 因为 3.16 底层实现不再依赖于 policy，需要根据低级 loop 方法的新实现来调整
@@ -80,7 +80,7 @@ class AsyncRunner:
     async def run_async(
         self,
         coro: Coroutine[Any, Any, None],
-        end_signal: asyncio.Event,
+        terminator: Callable[[], Any],
         reserved_tasks: set[asyncio.Task] | None = None,
         use_exc_handler: bool = True,
         pre_loop_sig_handlers: list[tuple[int, Callable[..., object]]] | None = None,
@@ -88,7 +88,7 @@ class AsyncRunner:
         shutdown_default_executor: bool = False,
     ) -> None:
         self._run_check()
-        self._end = end_signal
+        self._terminator = terminator
         self._started_in_loop = True
         loop = asyncio.get_running_loop()
 
@@ -265,8 +265,8 @@ class AsyncRunner:
                 )
 
     def stop(self, *_: Any, **__: Any) -> None:
-        if self._end is not None:
-            asyncio.get_running_loop().call_soon(self._end.set)
+        if self._terminator is not None:
+            asyncio.get_running_loop().call_soon(self._terminator)
 
     def restart(self) -> NoReturn:
         raise SystemExit(ExitCode.RESTART.value)
