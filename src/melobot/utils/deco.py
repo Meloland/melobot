@@ -12,7 +12,7 @@ from .base import to_async
 
 def if_(
     condition: SyncOrAsyncCallable[[], U] | U,
-    reject: SyncOrAsyncCallable[[], None],
+    reject: SyncOrAsyncCallable[[], None] | None = None,
     give_up: bool = False,
     accept: SyncOrAsyncCallable[[U], None] | None = None,
 ) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | None]]:
@@ -20,11 +20,11 @@ def if_(
 
     :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）
     :param reject: 当条件为 `False` 时，执行的回调
-    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数
+    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数。当然，此选项不影响 `reject` 的执行
     :param accept: 当条件为 `True` 时，执行的回调
     """
     _condition = to_async(condition) if callable(condition) else condition
-    _reject = to_async(reject)
+    _reject = to_async(reject) if reject is not None else reject
     _accept = to_async(accept) if accept is not None else accept
 
     def if_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
@@ -39,14 +39,14 @@ def if_(
                 cond = await obj if inspect.isawaitable(obj) else obj
 
             if not cond:
-                await _reject()
-
-            if cond or not give_up:
+                if _reject is not None:
+                    await _reject()
+                if give_up:
+                    return None
+            else:
                 if _accept is not None:
                     await _accept(cond)
-
-                return await _func(*args, **kwargs)
-            return None
+            return await _func(*args, **kwargs)
 
         return if_wrapped
 
