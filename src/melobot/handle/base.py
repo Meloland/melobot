@@ -5,7 +5,7 @@ from asyncio import create_task, get_running_loop
 from typing_extensions import Callable, Iterable, NoReturn
 
 from ..adapter.base import Event
-from ..ctx import BotCtx, EventCompletion, FlowCtx, FlowRecord, FlowRecords
+from ..ctx import BotCtx, EventCompletion, FlowCtx, FlowRecords
 from ..ctx import FlowRecordStage as RecordStage
 from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
@@ -45,34 +45,23 @@ class FlowNode:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
-    async def process(self, flow: Flow, completion: EventCompletion) -> None:
-        try:
-            status = _FLOW_CTX.get()
-            records, store = status.records, status.store
-        except _FLOW_CTX.lookup_exc_cls:
-            records, store = FlowRecords(), FlowStore()
-
-        with _FLOW_CTX.unfold(FlowStatus(flow, self, True, completion, records, store)):
+    async def process(
+        self, flow: Flow, completion: EventCompletion, records: FlowRecords, store: FlowStore
+    ) -> None:
+        # 对于每个处理结点，运行时都需要新的状态，但是依然复用必要的信息
+        status = FlowStatus(flow, self, completion, records, store)
+        with _FLOW_CTX.unfold(status):
             try:
-                records.append(
-                    FlowRecord(RecordStage.NODE_START, flow.name, self.name, completion.event)
-                )
-
+                records.add(RecordStage.NODE_START, status=status)
                 try:
                     ret = await self.processor()
-                    records.append(
-                        FlowRecord(RecordStage.NODE_FINISH, flow.name, self.name, completion.event)
-                    )
+                    records.add(RecordStage.NODE_FINISH, status=status)
                 except DependNotMatched as e:
                     ret = False
-                    records.append(
-                        FlowRecord(
-                            RecordStage.DEPENDS_NOT_MATCH,
-                            flow.name,
-                            self.name,
-                            completion.event,
-                            f"Real({e.real_type}) <=> Annotation({e.hint})",
-                        )
+                    records.add(
+                        RecordStage.DEPENDS_NOT_MATCH,
+                        status=status,
+                        prompt=f"Real({e.real_type}) <=> Annotation({e.hint})",
                     )
 
                 if ret in (None, True) and _FLOW_CTX.get().next_valid:
@@ -108,6 +97,7 @@ class Flow:
 
         self._active = True
         self._guard = to_async(guard) if guard is not None else None
+        self._recordable = False
 
     @staticmethod
     def from_graph(
@@ -159,6 +149,73 @@ class Flow:
         :param guard: 守卫函数
         """
         self._guard = to_async(guard) if guard is not None else None
+
+    async def _handle(self, event: Event) -> None:
+        fut = get_running_loop().create_future()
+        create_task(self._run(EventCompletion(event, fut, self)))
+        await fut
+
+    async def _run(
+        self,
+        completion: EventCompletion,
+        records: FlowRecords | None = None,
+        store: FlowStore | None = None,
+    ) -> None:
+        status = FlowStatus(self, None, completion, records, store)
+        if self._guard is not None:
+            try:
+                with _FLOW_CTX.unfold(status):
+                    if not await self._guard(completion.event):
+                        return self._try_complete(completion)
+            except Exception as e:
+                log_exc(
+                    e,
+                    msg=f"事件处理流 {self.name} 守卫函数发生异常",
+                    obj={
+                        "event_id": completion.event.id,
+                        "completion": completion.__dict__,
+                        "guard": self._guard,
+                    },
+                )
+                return self._try_complete(completion)
+
+        starts = self.graph.starts
+        if not len(starts):
+            return self._try_complete(completion)
+        try:
+            self.graph.verify()
+            status.records.add(RecordStage.FLOW_START, status=status)
+            idx = 0
+            while idx < len(starts):
+                try:
+                    await starts[idx].process(self, completion, status.records, status.store)
+                    idx += 1
+                except FlowRewound:
+                    pass
+            status.records.add(RecordStage.FLOW_FINISH, status=status)
+
+        except FlowBroke:
+            pass
+
+        except Exception as e:
+            log_exc(
+                e,
+                msg=f"事件处理流 {self.name} 发生异常",
+                obj={
+                    "event_id": completion.event.id,
+                    "completion": completion.__dict__,
+                    "cur_flow": self,
+                },
+            )
+
+        finally:
+            self._try_complete(completion)
+
+    def _try_complete(self, completion: EventCompletion) -> None:
+        if completion.creator is self:
+            if not completion.ctrl_by_session and not completion.completed.done():
+                completion.completed.set_result(None)
+            completion.flow_ended = True
 
     def link(self, flow: Flow, priority: int | None = None, new_name: str | None = None) -> Flow:
         """连接另一处理流返回新处理流，并设置新优先级
@@ -250,79 +307,8 @@ class Flow:
 
         return fork_wrapped
 
-    async def _handle(self, event: Event) -> None:
-        fut = get_running_loop().create_future()
-        create_task(self._run(EventCompletion(event, fut, self)))
-        await fut
-
-    async def _run(self, completion: EventCompletion) -> None:
-        if self._guard is not None:
-            try:
-                if not await self._guard(completion.event):
-                    return self._try_complete(completion)
-            except Exception as e:
-                log_exc(
-                    e,
-                    msg=f"事件处理流 {self.name} 守卫函数发生异常",
-                    obj={
-                        "event_id": completion.event.id,
-                        "completion": completion.__dict__,
-                        "guard": self._guard,
-                    },
-                )
-                return self._try_complete(completion)
-
-        starts = self.graph.starts
-        if not len(starts):
-            return self._try_complete(completion)
-
-        try:
-            status = _FLOW_CTX.get()
-            records, store = status.records, status.store
-        except _FLOW_CTX.lookup_exc_cls:
-            records, store = FlowRecords(), FlowStore()
-
-        with _FLOW_CTX.unfold(FlowStatus(self, starts[0], True, completion, records, store)):
-            try:
-                self.graph.verify()
-                records.append(
-                    FlowRecord(RecordStage.FLOW_START, self.name, starts[0].name, completion.event)
-                )
-
-                idx = 0
-                while idx < len(starts):
-                    try:
-                        await starts[idx].process(self, completion)
-                        idx += 1
-                    except FlowRewound:
-                        pass
-
-                records.append(
-                    FlowRecord(RecordStage.FLOW_FINISH, self.name, starts[0].name, completion.event)
-                )
-
-            except FlowBroke:
-                pass
-
-            except Exception as e:
-                log_exc(
-                    e,
-                    msg=f"事件处理流 {self.name} 发生异常",
-                    obj={
-                        "event_id": completion.event.id,
-                        "completion": completion.__dict__,
-                        "cur_flow": self,
-                    },
-                )
-
-            finally:
-                self._try_complete(completion)
-
-    def _try_complete(self, completion: EventCompletion) -> None:
-        if completion.creator is self:
-            if not completion.ctrl_by_session and not completion.completed.done():
-                completion.completed.set_result(None)
-            completion.flow_ended = True
+    def enable_record(self) -> None:
+        self._recordable = True
 
 
 class _FlowSignal(BaseException): ...
@@ -341,20 +327,25 @@ async def nextn() -> None:
     """运行下一处理结点（在处理流中使用）"""
     try:
         status = _FLOW_CTX.get()
-        nexts = status.flow.graph[status.node].nexts
-        if not status.next_valid:
-            return
+    except _FLOW_CTX.lookup_exc_cls:
+        raise FlowError("此时不在活动的事件处理流中，无法调用下一处理结点") from None
 
+    n = status.node
+    if n is None:
+        raise FlowError("此时不在活动的处理结点中，无法调用下一处理结点")
+    if not status.next_valid:
+        return
+    try:
+        nexts = status.flow.graph[n].nexts
         idx = 0
         while idx < len(nexts):
             try:
-                await nexts[idx].process(status.flow, status.completion)
+                await nexts[idx].process(
+                    status.flow, status.completion, status.records, status.store
+                )
                 idx += 1
             except FlowRewound:
                 pass
-
-    except _FLOW_CTX.lookup_exc_cls:
-        raise FlowError("此时不在活动的事件处理流中，无法调用下一处理结点") from None
     finally:
         status.next_valid = False
 
@@ -362,33 +353,18 @@ async def nextn() -> None:
 async def block() -> None:
     """阻止当前事件向更低优先级的处理流传播（在处理流中使用）"""
     status = _FLOW_CTX.get()
-    status.records.append(
-        FlowRecord(RecordStage.BLOCK, status.flow.name, status.node.name, status.completion.event)
-    )
+    status.records.add(RecordStage.BLOCK, status=status)
     status.completion.event.spread = False
 
 
 async def stop() -> NoReturn:
     """立即停止当前处理流（在处理流中使用）"""
     status = _FLOW_CTX.get()
-    status.records.append(
-        FlowRecord(RecordStage.STOP, status.flow.name, status.node.name, status.completion.event)
-    )
-    status.records.append(
-        FlowRecord(
-            RecordStage.NODE_EARLY_FINISH,
-            status.flow.name,
-            status.node.name,
-            status.completion.event,
-        )
-    )
-    status.records.append(
-        FlowRecord(
-            RecordStage.FLOW_EARLY_FINISH,
-            status.flow.name,
-            status.node.name,
-            status.completion.event,
-        )
+    status.records.add(
+        RecordStage.STOP,
+        RecordStage.NODE_EARLY_FINISH,
+        RecordStage.FLOW_EARLY_FINISH,
+        status=status,
     )
     raise FlowBroke("事件处理流被安全地提早结束，请无视这个内部工作信号")
 
@@ -396,50 +372,20 @@ async def stop() -> NoReturn:
 async def bypass() -> NoReturn:
     """立即跳过当前处理结点剩下的步骤，运行下一处理结点（在处理流中使用）"""
     status = _FLOW_CTX.get()
-    status.records.append(
-        FlowRecord(
-            RecordStage.BYPASS,
-            status.flow.name,
-            status.node.name,
-            status.completion.event,
-        )
-    )
-    status.records.append(
-        FlowRecord(
-            RecordStage.NODE_EARLY_FINISH,
-            status.flow.name,
-            status.node.name,
-            status.completion.event,
-        )
-    )
+    status.records.add(RecordStage.BYPASS, RecordStage.NODE_EARLY_FINISH, status=status)
     raise FlowContinued("事件处理流安全地跳过结点执行，请无视这个内部工作信号")
 
 
 async def rewind() -> NoReturn:
     """立即重新运行当前处理结点（在处理流中使用）"""
     status = _FLOW_CTX.get()
-    status.records.append(
-        FlowRecord(
-            RecordStage.REWIND,
-            status.flow.name,
-            status.node.name,
-            status.completion.event,
-        )
-    )
-    status.records.append(
-        FlowRecord(
-            RecordStage.NODE_EARLY_FINISH,
-            status.flow.name,
-            status.node.name,
-            status.completion.event,
-        )
-    )
+    status.records.add(RecordStage.REWIND, status=status)
     raise FlowRewound("事件处理流安全地重复执行处理结点，请无视这个内部工作信号")
 
 
-async def flow_to(flow: Flow) -> None:
+async def flow_to(flow: Flow, share_store: bool = False) -> None:
     """立即进入一个其他处理流（在处理流中使用）"""
     status = _FLOW_CTX.get()
     if flow is status.flow:
         raise FlowError("无法在处理流中进入自身处理流")
-    await flow._run(status.completion.copy())
+    await flow._run(status.completion.copy(), status.records, status.store if share_store else None)

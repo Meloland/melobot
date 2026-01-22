@@ -3,7 +3,7 @@ from __future__ import annotations
 from asyncio import Future
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 from typing_extensions import (
@@ -126,6 +126,8 @@ class OutSrcFilterCtx(Context[_OutSrcFilterType]):
 class FlowRecordStage(Enum):
     """流记录阶段的枚举"""
 
+    FLOW_GUARD_START = "fgs"
+    FLOW_GUARD_FINISH = "fgf"
     FLOW_START = "fs"
     FLOW_EARLY_FINISH = "fef"
     FLOW_FINISH = "ff"
@@ -146,28 +148,53 @@ class FlowRecord:
 
     stage: FlowRecordStage
     flow_name: str
+    # 没有有效结点时，为空字符串
     node_name: str
+    # 如果在会话中则返回会话当前事件，否则返回触发流的事件
     event: "model.Event"
+    in_session: bool
     prompt: str = ""
 
 
 class FlowRecords(list[FlowRecord]):
-    def append(self, snapshot: FlowRecord) -> None:
-        super().append(snapshot)
+    def add(self, *stages: FlowRecordStage, status: FlowStatus, prompt: str = "") -> None:
+        if not status.flow._recordable:
+            return
+        for stage in stages:
+            node_name = "" if status.node is None else status.node.name
+            _event = FlowCtx().try_get_event()
+            event = status.completion.event if _event is None else _event
+            self.append(
+                FlowRecord(
+                    stage,
+                    status.flow.name,
+                    node_name,
+                    event,
+                    status.completion.ctrl_by_session,
+                    prompt,
+                )
+            )
 
 
 class FlowStore(dict[Hashable, Any]):
     """流存储，将会在流运行前初始化，运行结束后销毁"""
 
 
-@dataclass
 class FlowStatus:
-    flow: "Flow"
-    node: "FlowNode"
-    next_valid: bool
-    completion: "EventCompletion"
-    records: FlowRecords = field(default_factory=FlowRecords)
-    store: FlowStore = field(default_factory=FlowStore)
+    def __init__(
+        self,
+        flow: "Flow",
+        node: "FlowNode | None",
+        completion: "EventCompletion",
+        records: FlowRecords | None = None,
+        store: FlowStore | None = None,
+    ) -> None:
+        self.flow = flow
+        self.node = node
+        self.next_valid = True
+        self.completion = completion
+        self.records = FlowRecords() if records is None else records
+        self.store = FlowStore() if store is None else store
 
 
 class FlowCtx(Context[FlowStatus]):
