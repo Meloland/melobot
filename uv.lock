@@ -746,7 +746,7 @@ wheels = [
 
 [[package]]
 name = "melobot"
-version = "3.3.0"
+version = "3.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "beartype" },
@@ -782,6 +782,7 @@ lint = [
     { name = "flake8" },
     { name = "isort" },
     { name = "mypy" },
+    { name = "pyflakes" },
 ]
 manage = [
     { name = "ipython", version = "8.34.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -828,6 +829,7 @@ lint = [
     { name = "flake8", specifier = ">=7.0.0" },
     { name = "isort", specifier = ">=5.13.2" },
     { name = "mypy", specifier = ">=1.11.1" },
+    { name = "pyflakes", specifier = ">=3.2.0" },
 ]
 manage = [
     { name = "ipython", specifier = ">=8.32.0" },

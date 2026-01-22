@@ -55,7 +55,13 @@ docs = [
     "myst-parser>=2.0.0",
     "sphinx-copybutton>=0.5.2",
 ]
-lint = ["black>=24.2.0", "isort>=5.13.2", "flake8>=7.0.0", "mypy>=1.11.1"]
+lint = [
+    "black>=24.2.0",
+    "isort>=5.13.2",
+    "flake8>=7.0.0",
+    "mypy>=1.11.1",
+    "pyflakes>=3.2.0",
+]
 manage = ["toml>=0.10.2", "pre-commit>=4.0.1", "ipython>=8.32.0", "poethepoet>=0.33.1"]
 
 [tool.poe.tasks]
