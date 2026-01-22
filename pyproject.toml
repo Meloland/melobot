@@ -41,7 +41,7 @@ Repository = "https://github.com/Meloland/melobot.git"
 Issues = "https://github.com/Meloland/melobot/issues"
 
 [project.optional-dependencies]
-onebot = ["pydantic>=2.9.2,<3", "websockets>=14.1,<15", "aiohttp>=3.12.15,<4"]
+onebot = ["pydantic>=2.9.2,<3", "websockets>=14.1,<15", "aiohttp>=3.13.3,<4"]
 cli = ["watchdog>=6.0.0,<7"]
 console = ["prompt_toolkit>=3.0.52"]
 
@@ -65,6 +65,8 @@ check = "flake8 src/melobot"
 analyse = "mypy src/melobot"
 test = "pytest -c pytest.ini"
 deps = "pydeps src/melobot -o pydeps.png -T png --only melobot --rankdir BT --max-module-depth 2 --start-color 160"
+gen_docs_req = "uv export --frozen --no-editable --no-emit-project --extra onebot --extra console --group docs -o ./docs/requirements.txt"
+gen_tests_req = "uv export --frozen --no-editable --no-emit-project --extra onebot --extra console --group test -o ./tests/requirements.txt"
 docs.script = "docs.make:main()"
 all_lint = ["isort", "format", "check", "analyse"]
 
