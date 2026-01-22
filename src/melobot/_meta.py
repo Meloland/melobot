@@ -6,7 +6,7 @@ from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoRet
 
 from .typ.base import T
 
-__version__ = "3.3.0"
+__version__ = "3.4.0"
 
 
 def _version_str_to_info(s: str) -> VersionInfo:
