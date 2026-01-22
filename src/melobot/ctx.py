@@ -228,9 +228,7 @@ class BotCtx(Context["Bot"]):
 
 class SessionCtx(Context["Session"]):
     def __init__(self) -> None:
-        super().__init__(
-            "MELOBOT_SESSION", SessionError, "此时不在活动的事件处理流中，无法获取会话信息"
-        )
+        super().__init__("MELOBOT_SESSION", SessionError, "此时不在活动的会话中，无法获取会话信息")
 
     def get_store(self) -> "SessionStore":
         return self.get().store
