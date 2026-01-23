@@ -8,7 +8,7 @@ from melobot.adapter import TextEvent as RootTextEvent
 from melobot.adapter import content
 
 from ..const import PROTOCOL_IDENTIFIER
-from .segment import Segment, TextSegment, segs_to_contents
+from .segment import Segment, TextSegment, seg_to_content
 
 
 class Event(RootEvent):
@@ -92,7 +92,7 @@ class MessageEvent(RootTextEvent, Event):
             self.message = Segment.__resolve_cq__(data["raw_message"])
         else:
             self.message = [Segment.resolve(dic["type"], dic["data"]) for dic in data["message"]]
-        self.contents = segs_to_contents(self.message)
+        self.contents = list(c for c in map(seg_to_content, self.message) if c is not None)
 
         #: 消息类型
         self.message_type: Literal["private", "group"] | str = self._model.message_type

@@ -37,7 +37,7 @@ from ..io.base import (
 from ..log import log_exc
 from ..mixin import HookMixin
 from ..typ.cls import BetterABC
-from .content import Content
+from .content import Content, TextContent
 from .model import ActionHandle, ActionHandleGroup, ActionT, EchoT, Event, EventT
 
 if TYPE_CHECKING:
@@ -277,12 +277,12 @@ class Adapter(
         return ActionHandleGroup(*hs)
 
     @abstractmethod
-    async def __send_text__(self, text: str) -> ActionHandleGroup:
+    async def __send_text__(self, *texts: str | TextContent) -> ActionHandleGroup:
         """输出文本
 
         抽象方法。所有适配器子类应该实现此方法
 
-        :param text: 文本
+        :param texts: 文本
         :return: :class:`.ActionHandleGroup` 对象
         """
         raise NotImplementedError

@@ -16,7 +16,6 @@ from typing_extensions import (
     Match,
     NotRequired,
     Self,
-    Sequence,
     TypedDict,
     TypeVar,
     cast,
@@ -145,90 +144,83 @@ def base64_encode(data: bytes) -> str:
     return code
 
 
-def segs_to_contents(message: Sequence[Segment]) -> list[mbcontent.Content]:
-    contents: list[mbcontent.Content] = []
-    for seg in message:
-        if isinstance(seg, TextSegment):
-            contents.append(mbcontent.TextContent(seg.data["text"]))
+def seg_to_content(seg: Segment) -> mbcontent.Content | None:
+    c: mbcontent.Content | None
+    if isinstance(seg, TextSegment):
+        c = mbcontent.TextContent(seg.data["text"])
 
-        elif isinstance(seg, ImageRecvSegment):
-            contents.append(mbcontent.ImageContent(name=seg.data["file"], url=str(seg.data["url"])))
+    elif isinstance(seg, ImageRecvSegment):
+        c = mbcontent.ImageContent(name=seg.data["file"], url=str(seg.data["url"]))
 
-        elif isinstance(seg, RecordRecvSegment):
-            contents.append(mbcontent.VoiceContent(name=seg.data["file"], url=str(seg.data["url"])))
+    elif isinstance(seg, RecordRecvSegment):
+        c = mbcontent.VoiceContent(name=seg.data["file"], url=str(seg.data["url"]))
 
-        elif isinstance(seg, VideoRecvSegment):
-            contents.append(mbcontent.VideoContent(name=seg.data["file"], url=str(seg.data["url"])))
+    elif isinstance(seg, VideoRecvSegment):
+        c = mbcontent.VideoContent(name=seg.data["file"], url=str(seg.data["url"]))
 
-        elif isinstance(seg, AtSegment):
-            contents.append(
-                mbcontent.ReferContent(prompt=str(seg.data["qq"]), flag=seg.data["qq"], contents=())
-            )
+    elif isinstance(seg, AtSegment):
+        c = mbcontent.ReferContent(prompt=str(seg.data["qq"]), flag=seg.data["qq"], contents=())
 
-        elif isinstance(seg, ShareSegment):
-            contents.append(
-                mbcontent.ResourceContent(name=seg.data["title"], url=str(seg.data["url"]))
-            )
+    elif isinstance(seg, ShareSegment):
+        c = mbcontent.ResourceContent(name=seg.data["title"], url=str(seg.data["url"]))
 
+    else:
+        c = None
+    return c
+
+
+def content_to_seg(content: mbcontent.Content) -> Segment | None:
+    c = content
+    seg: Segment | None
+    if isinstance(c, mbcontent.TextContent):
+        seg = TextSegment(c.text)
+
+    elif isinstance(c, mbcontent.ImageContent):
+        if c.val:
+            file = base64_encode(c.val)
+            seg = ImageSendSegment(file=file, cache=0)
         else:
-            continue
+            seg = ImageSendSegment(file=cast(str, c.url), cache=0)
 
-    return contents
-
-
-def contents_to_segs(contents: Sequence[mbcontent.Content]) -> list[Segment]:
-    segments: list[Segment] = []
-    for c in contents:
-        if isinstance(c, mbcontent.TextContent):
-            segments.append(TextSegment(c.text))
-
-        elif isinstance(c, mbcontent.ImageContent):
-            if c.val:
-                file = base64_encode(c.val)
-                segments.append(ImageSendSegment(file=file, cache=0))
-            else:
-                segments.append(ImageSendSegment(file=cast(str, c.url), cache=0))
-
-        elif isinstance(c, mbcontent.VoiceContent):
-            if c.val:
-                file = base64_encode(c.val)
-                segments.append(RecordSendSegment(file=file, cache=0))
-            else:
-                segments.append(RecordSendSegment(file=cast(str, c.url), cache=0))
-
-        elif isinstance(c, mbcontent.AudioContent):
-            if c.val:
-                file = base64_encode(c.val)
-                segments.append(RecordSendSegment(file=file, cache=0))
-            else:
-                segments.append(RecordSendSegment(file=cast(str, c.url), cache=0))
-
-        elif isinstance(c, mbcontent.VideoContent):
-            if c.val:
-                file = base64_encode(c.val)
-                segments.append(VideoSendSegment(file=file, cache=0))
-            else:
-                segments.append(VideoSendSegment(file=cast(str, c.url), cache=0))
-
-        elif isinstance(c, mbcontent.MediaContent):
-            if c.val:
-                segments.append(TextSegment(f"[OneBot v11 media: {c.name}]"))
-            else:
-                segments.append(ShareSegment(url=cast(str, c.url), title=c.name))
-
-        elif isinstance(c, mbcontent.FileContent):
-            segments.append(TextSegment(repr(c)))
-
-        elif isinstance(c, mbcontent.ReferContent):
-            segments.append(TextSegment(repr(c)))
-
-        elif isinstance(c, mbcontent.ResourceContent):
-            segments.append(ShareSegment(url=c.url, title=c.name))
-
+    elif isinstance(c, mbcontent.VoiceContent):
+        if c.val:
+            file = base64_encode(c.val)
+            seg = RecordSendSegment(file=file, cache=0)
         else:
-            continue
+            seg = RecordSendSegment(file=cast(str, c.url), cache=0)
 
-    return segments
+    elif isinstance(c, mbcontent.AudioContent):
+        if c.val:
+            file = base64_encode(c.val)
+            seg = RecordSendSegment(file=file, cache=0)
+        else:
+            seg = RecordSendSegment(file=cast(str, c.url), cache=0)
+
+    elif isinstance(c, mbcontent.VideoContent):
+        if c.val:
+            file = base64_encode(c.val)
+            seg = VideoSendSegment(file=file, cache=0)
+        else:
+            seg = VideoSendSegment(file=cast(str, c.url), cache=0)
+
+    elif isinstance(c, mbcontent.MediaContent):
+        if c.val:
+            seg = TextSegment(f"[OneBot v11 media: {c.name}]")
+        else:
+            seg = ShareSegment(url=cast(str, c.url), title=c.name)
+
+    elif isinstance(c, mbcontent.FileContent):
+        seg = TextSegment(repr(c))
+
+    elif isinstance(c, mbcontent.ReferContent):
+        seg = TextSegment(repr(c))
+
+    elif isinstance(c, mbcontent.ResourceContent):
+        seg = ShareSegment(url=c.url, title=c.name)
+
+    else:
+        seg = None
+    return seg
 
 
 TypeT = TypeVar("TypeT", bound=str, default=Any)

@@ -129,9 +129,9 @@ from .segment import (
     VideoSendSegment,
     XmlSegment,
     base64_encode,
-    contents_to_segs,
+    content_to_seg,
     cq_anti_escape,
     cq_escape,
     cq_filter_text,
-    segs_to_contents,
+    seg_to_content,
 )

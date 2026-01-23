@@ -12,9 +12,6 @@ from melobot.adapter import (
     ActionHandleGroup,
 )
 from melobot.adapter import Adapter as RootAdapter
-from melobot.adapter import (
-    Content,
-)
 from melobot.adapter import content as mc
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
@@ -104,95 +101,13 @@ class Adapter(
 
         return when_validate_error_wrapper
 
-    async def __send_text__(self, text: str) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(text)
-
-    async def __send_media__(
+    async def send_custom(
         self,
-        name: str,
-        raw: bytes | None = None,
-        url: str | None = None,
-        mimetype: str | None = None,
+        msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict],
+        user_id: Optional[int] = None,
+        group_id: Optional[int] = None,
     ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(
-            se.contents_to_segs([mc.MediaContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
-                0
-            ]
-        )
-
-    async def __send_image__(
-        self,
-        name: str,
-        raw: bytes | None = None,
-        url: str | None = None,
-        mimetype: str | None = None,
-    ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(
-            se.contents_to_segs([mc.ImageContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
-                0
-            ]
-        )
-
-    async def __send_audio__(
-        self,
-        name: str,
-        raw: bytes | None = None,
-        url: str | None = None,
-        mimetype: str | None = None,
-    ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(
-            se.contents_to_segs([mc.AudioContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
-                0
-            ]
-        )
-
-    async def __send_voice__(
-        self,
-        name: str,
-        raw: bytes | None = None,
-        url: str | None = None,
-        mimetype: str | None = None,
-    ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(
-            se.contents_to_segs([mc.VoiceContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
-                0
-            ]
-        )
-
-    async def __send_video__(
-        self,
-        name: str,
-        raw: bytes | None = None,
-        url: str | None = None,
-        mimetype: str | None = None,
-    ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(
-            se.contents_to_segs([mc.VideoContent(name=name, url=url, raw=raw, mimetype=mimetype)])[
-                0
-            ]
-        )
-
-    async def __send_file__(
-        self, name: str, path: str | PathLike[str]
-    ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(se.contents_to_segs([mc.FileContent(name=name, flag=str(path))])[0])
-
-    async def __send_refer__(
-        self, event: ev.RootEvent, contents: Sequence[Content] | None = None
-    ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        if not isinstance(event, ev.MessageEvent):
-            raise AdapterError(
-                f"提供的事件不是 {ev.MessageEvent.__qualname__} 类型，无法用于发送 refer 消息"
-            )
-
-        segs = se.contents_to_segs(list(contents)) if contents else []
-        segs.insert(0, se.ReplySegment(str(event.message_id)))
-        if isinstance(event, ev.GroupMessageEvent):
-            return await self.send_custom(segs, group_id=event.group_id)
-        return await self.send_custom(segs, user_id=event.user_id)
-
-    async def __send_resource__(self, name: str, url: str) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.send(se.contents_to_segs([mc.ResourceContent(name, url)])[0])
+        return await self.call_output(ac.SendMsgAction(msgs, user_id, group_id))
 
     async def send(
         self, msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict]
@@ -225,14 +140,6 @@ class Adapter(
         else:
             kwargs["user_id"] = event.user_id
         return await self.call_output(ac.SendMsgAction(**kwargs))
-
-    async def send_custom(
-        self,
-        msgs: str | se.Segment | Iterable[se.Segment] | dict | Iterable[dict],
-        user_id: Optional[int] = None,
-        group_id: Optional[int] = None,
-    ) -> ActionHandleGroup[ec.SendMsgEcho]:
-        return await self.call_output(ac.SendMsgAction(msgs, user_id, group_id))
 
     async def send_forward(
         self, msgs: Iterable[se.NodeSegment]
@@ -407,3 +314,108 @@ class Adapter(
 
     async def clean_cache(self) -> ActionHandleGroup[ec.EmptyEcho]:
         return await self.call_output(ac.CleanCacheAction())
+
+    async def __send_text__(
+        self, *texts: str | mc.TextContent
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        s = "".join(t if isinstance(t, str) else t.text for t in texts)
+        if s == "":
+            raise AdapterError("发送文本消息时，内容不能为空")
+        return await self.send(s)
+
+    async def __send_media__(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        seg: se.Segment
+        if url is None:
+            seg = se.TextSegment(f"[OneBot v11 media: {name}]")
+        else:
+            seg = se.ShareSegment(url=url, title=name)
+        return await self.send(seg)
+
+    async def __send_image__(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        seg: se.Segment
+        if raw is not None:
+            raw_str = se.base64_encode(raw)
+            seg = se.ImageSendSegment(file=raw_str, cache=0)
+        else:
+            if url is None:
+                raise AdapterError("发送图片时，url 和 raw 不能同时为 None")
+            seg = se.ImageSendSegment(file=url, cache=0)
+        return await self.send(seg)
+
+    async def __send_audio__(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        seg: se.Segment
+        if raw is not None:
+            raw_str = se.base64_encode(raw)
+            seg = se.RecordSendSegment(file=raw_str, cache=0)
+        else:
+            if url is None:
+                raise AdapterError("发送音频时，url 和 raw 不能同时为 None")
+            seg = se.RecordSendSegment(file=url, cache=0)
+        return await self.send(seg)
+
+    async def __send_voice__(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        return await self.__send_audio__(name, raw, url, mimetype)
+
+    async def __send_video__(
+        self,
+        name: str,
+        raw: bytes | None = None,
+        url: str | None = None,
+        mimetype: str | None = None,
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        seg: se.Segment
+        if raw is not None:
+            raw_str = se.base64_encode(raw)
+            seg = se.VideoSendSegment(file=raw_str, cache=0)
+        else:
+            if url is None:
+                raise AdapterError("发送视频时，url 和 raw 不能同时为 None")
+            seg = se.VideoSendSegment(file=url, cache=0)
+        return await self.send(seg)
+
+    async def __send_file__(
+        self, name: str, path: str | PathLike[str]
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        return await self.send(se.TextSegment(f"[OneBot v11 file: {name!r} at {path}]"))
+
+    async def __send_resource__(self, name: str, url: str) -> ActionHandleGroup[ec.SendMsgEcho]:
+        return await self.send(se.ShareSegment(url=url, title=name))
+
+    async def __send_refer__(
+        self, event: ev.RootEvent, contents: Sequence[mc.Content] | None = None
+    ) -> ActionHandleGroup[ec.SendMsgEcho]:
+        if not isinstance(event, ev.MessageEvent):
+            raise AdapterError(
+                f"提供的事件不是 {ev.MessageEvent.__qualname__} 类型，无法用于发送 refer 消息"
+            )
+
+        _segs = () if contents is None else map(se.content_to_seg, contents)
+        segs = tuple(s for s in _segs if s is not None)
+        segs = (se.ReplySegment(str(event.message_id)),) + segs
+        if isinstance(event, ev.GroupMessageEvent):
+            return await self.send_custom(segs, group_id=event.group_id)
+        return await self.send_custom(segs, user_id=event.user_id)

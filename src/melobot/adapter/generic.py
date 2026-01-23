@@ -4,15 +4,15 @@ from typing_extensions import Sequence
 
 from ..ctx import EventOrigin, FlowCtx
 from .base import Adapter
-from .content import Content
+from .content import Content, TextContent
 from .model import ActionHandleGroup, Event
 
 _CTX = FlowCtx()
 
 
-async def send_text(text: str) -> ActionHandleGroup:
+async def send_text(*texts: str | TextContent) -> ActionHandleGroup:
     """通用文本输出方法"""
-    return await _ctx_adapter().__send_text__(text)
+    return await _ctx_adapter().__send_text__(*texts)
 
 
 async def send_media(

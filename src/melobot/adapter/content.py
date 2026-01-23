@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import mimetypes
+from dataclasses import dataclass
 
 from typing_extensions import Hashable, Sequence, TypeVar
+
+from ..typ._enum import Color
 
 
 class Content:
@@ -12,16 +15,42 @@ class Content:
 ContentT = TypeVar("ContentT", bound=Content)
 
 
+@dataclass(frozen=True)
+class TextStyle:
+    mime_type: str = "text/plain"
+    bold: bool = False
+    italic: bool = False
+    underline: bool = False
+    strikethrough: bool = False
+    color: Color | None = None
+    # 如果有值，则是链接锚点
+    link_to: str | None = None
+    # 防剧透模糊
+    spoiler: bool = False
+    # 是否为引用块
+    quote: bool = False
+    # 是否为回复当前事件的格式
+    reply_current: bool = False
+    # 行内代码
+    code: bool = False
+    follow_theme: bool = True
+
+
+_DEFAULT_TEXT_STYLE = TextStyle()
+
+
 class TextContent(Content):
     """文本内容"""
 
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str, style: TextStyle | None = None) -> None:
         """初始化文本内容
 
         :param text: 文本
+        :param style: 文本样式
         """
         super().__init__()
         self.text = text
+        self.style = _DEFAULT_TEXT_STYLE if style is None else style
 
 
 class MediaContent(Content):
