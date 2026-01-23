@@ -56,7 +56,7 @@ class WorkingSessionState(SessionState):
             cond.notify()
 
     async def suspend(self, timeout: float | None) -> bool:
-        if self.session.auto_release:
+        if not self.session._keep and self.session.auto_release:
             self.session.release()
         if self.session.rule is None:
             raise SessionRuleLacked("缺少会话规则，会话无法从“运行态”转为“挂起态”")
@@ -86,7 +86,8 @@ class WorkingSessionState(SessionState):
             cond = self.session._refresh_cond
             async with cond:
                 cond.notify()
-        self.session.release()
+        if not self.session._keep:
+            self.session.release()
 
 
 class SuspendSessionState(SessionState):
@@ -195,7 +196,7 @@ class Session:
         remained_events = given_events - matched_events
         if len(remained_events) > 0:
             raise SessionError(
-                f"会话历史中不存在指定的事件，或这些事件已经标记完成：{remained_events!r}"
+                f"会话历史中不存在指定的事件，或这些事件已经被释放：{remained_events!r}"
             )
 
         for c in rm_comps:
