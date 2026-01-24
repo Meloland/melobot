@@ -112,8 +112,8 @@ class Bot(HookMixin[BotLifeSpan]):
             可使用 melobot 内置的 :class:`.Logger`，或经过 :func:`.logger_patch` 修补的日志器
         """
         super().__init__(hook_type=BotLifeSpan, hook_tag=name)
-
         self.name = name
+        self._hook_bus.set_tag(repr(self))
         self.logger = logger
 
         self.adapters: dict[str, Adapter] = {}
@@ -134,7 +134,7 @@ class Bot(HookMixin[BotLifeSpan]):
         self.__happy_end = asyncio.Event()
 
     def __repr__(self) -> str:
-        return f'Bot(name="{self.name}")'
+        return f"Bot(name={self.name!r})"
 
     @contextmanager
     def _common_sync_ctx(self) -> Generator[ExitStack, None, None]:

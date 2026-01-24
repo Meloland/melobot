@@ -82,6 +82,7 @@ class Adapter(
 ):
     def __init__(self) -> None:
         super().__init__(PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory())
+        self._hook_bus.set_tag("OB11 适配器")
 
     def when_validate_error(self, validate_type: Literal["event", "echo"]) -> Callable[
         [SyncOrAsyncCallable[[dict[str, Any], Exception], None]],
