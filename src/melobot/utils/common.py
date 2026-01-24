@@ -16,7 +16,22 @@ from typing_extensions import Any, AsyncGenerator, Callable, Literal, cast
 
 # 导入用作重导出（兼容过去的布局）
 from .._lazy import singleton
-from ..typ.base import P, T
+from ..typ.base import P, StrOrBytes, T
+
+
+def truncate(s: StrOrBytes, placeholder: StrOrBytes | None = None, maxlen: int = 512) -> StrOrBytes:
+    """超长则截断
+
+    :param s: 原始序列
+    :param maxlen: 最大长度
+    :param placeholder: 截断后替换的序列，为空时设置为 "..." 或 b"..."
+    :return: 处理后的序列
+    """
+    if len(s) <= maxlen:
+        return s
+    if placeholder is None:
+        placeholder = "..." if isinstance(s, str) else b"..."
+    return s[:maxlen] + placeholder
 
 
 def get_obj_name(
