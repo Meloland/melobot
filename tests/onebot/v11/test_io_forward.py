@@ -4,7 +4,7 @@ from asyncio import Queue, create_task
 import websockets
 
 from melobot.protocols.onebot.v11.adapter import action
-from melobot.protocols.onebot.v11.io.forward import ForwardWebSocketIO
+from melobot.protocols.onebot.v11.io.forward import ForwardIO
 from melobot.protocols.onebot.v11.io.packet import OutPacket
 from melobot.utils import singleton
 from tests.base import *
@@ -70,7 +70,7 @@ class MockWebsocket:
 
 async def test_forward_ws(monkeypatch) -> None:
     monkeypatch.setattr(websockets, "connect", MockWebsocket.get)
-    io = ForwardWebSocketIO("ws://example.com", max_retry=3, retry_delay=1)
+    io = ForwardIO("ws://example.com", max_retry=3, retry_delay=1)
     async with io:
         await _IN_BUF.put(json.dumps(_TEST_EVENT_DICT))
         pak = await io.input()

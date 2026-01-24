@@ -5,7 +5,7 @@ import aiohttp
 import aiohttp.web
 
 from melobot.protocols.onebot.v11.adapter import action
-from melobot.protocols.onebot.v11.io.duplex_http import HttpIO
+from melobot.protocols.onebot.v11.io.http import HttpIO
 from melobot.protocols.onebot.v11.io.packet import OutPacket
 from melobot.utils import singleton, to_async
 from tests.base import *

@@ -5,7 +5,7 @@ import websockets
 
 from melobot.protocols.onebot.v11.adapter import action
 from melobot.protocols.onebot.v11.io.packet import OutPacket
-from melobot.protocols.onebot.v11.io.reverse import ReverseWebSocketIO
+from melobot.protocols.onebot.v11.io.reverse import ReverseIO
 from melobot.utils import singleton
 from tests.base import *
 
@@ -75,7 +75,7 @@ class MockWebsocket:
 
 async def test_reverse_ws(monkeypatch) -> None:
     monkeypatch.setattr(websockets, "serve", MockWebsocket.get)
-    io = ReverseWebSocketIO("localhost", 8080)
+    io = ReverseIO("localhost", 8080)
     async with io:
 
         await _IN_BUF.put(json.dumps(_TEST_EVENT_DICT))
