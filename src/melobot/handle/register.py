@@ -133,7 +133,7 @@ class FlowDecorator:
         block: bool = False,
         temp: bool = False,
         decos: Sequence[Callable[[Callable], Callable]] | None = None,
-        rule: Rule[Event] | None = None,
+        rule: Rule[Event] | type[Rule[Event]] | None = None,
     ) -> None:
         """处理流装饰器
 
@@ -144,7 +144,9 @@ class FlowDecorator:
         :param block: 是否阻断向低优先级传播
         :param temp: 是否临时使用（处理一次事件后停用）
         :param decos: 装饰器组
-        :param rule: 会话规则
+        :param rule:
+            会话规则或会话规则类（提供类对象时运行无参实例化并缓存单例，
+            因此不要在多次调用中使用同一类对象，除非这是你的本意）
         """
         self.checker: Checker | None
         if callable(checker):
@@ -257,7 +259,7 @@ def on_event(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     """绑定任意事件的处理流装饰方法
 
@@ -268,7 +270,9 @@ def on_event(
     :param block: 是否阻断向低优先级传播
     :param temp: 是否临时使用（处理一次事件后停用）
     :param decos: 装饰器组
-    :param rule: 会话规则
+    :param rule:
+        会话规则或会话规则类（提供类对象时运行无参实例化并缓存单例，
+        因此不要在多次调用中使用同一类对象，除非这是你的本意）
     :return: 处理流装饰器
     """
     return FlowDecorator(checker, None, None, priority, block, temp, decos, rule)

@@ -25,7 +25,7 @@ def on_event(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, Event), checker),  # type: ignore[arg-type]
@@ -89,7 +89,7 @@ def on_request(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, RequestEvent), checker),  # type: ignore[arg-type]
@@ -107,7 +107,7 @@ def on_notice(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, NoticeEvent), checker),  # type: ignore[arg-type]
@@ -125,7 +125,7 @@ def on_meta(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, MetaEvent), checker),  # type: ignore[arg-type]
@@ -143,7 +143,7 @@ def on_downstream_call(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, DownstreamCallEvent), checker),  # type: ignore[arg-type]
@@ -161,7 +161,7 @@ def on_upstream_ret(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, UpstreamRetEvent), checker),  # type: ignore[arg-type]
