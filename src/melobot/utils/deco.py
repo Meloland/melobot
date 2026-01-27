@@ -53,7 +53,7 @@ def if_(
     return if_wrapper
 
 
-def unfold_ctx(
+def ctx(
     getter: SyncOrAsyncCallable[[], ContextManager | AsyncContextManager],
 ) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T]]:
     """上下文装饰器
@@ -66,16 +66,16 @@ def unfold_ctx(
 
     _getter = to_async(getter)
 
-    def unfold_ctx_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T]:
+    def ctx_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T]:
         _func = to_async(func)
 
         @wraps(func)
-        async def unfold_ctx_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        async def ctx_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
             try:
                 manager = await _getter()
             except Exception as e:
                 raise UtilValidateError(
-                    f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它获取上下文管理器失败：{e}"
+                    f"{ctx.__name__} 的 getter 参数为：{getter}，调用它获取上下文管理器失败：{e}"
                 ) from e
 
             if isinstance(manager, ContextManager):
@@ -86,12 +86,12 @@ def unfold_ctx(
                     return await _func(*args, **kwargs)
             else:
                 raise UtilValidateError(
-                    f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它返回了无效的上下文管理器"
+                    f"{ctx.__name__} 的 getter 参数为：{getter}，调用它返回了无效的上下文管理器"
                 )
 
-        return unfold_ctx_wrapped
+        return ctx_wrapped
 
-    return unfold_ctx_wrapper
+    return ctx_wrapper
 
 
 def lock(
