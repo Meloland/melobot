@@ -53,7 +53,7 @@ class BotLifeSpan(Enum):
     STARTED = "sta"
     #: bot 重新启动完成之后
     RESTARTED = "r"
-    #: bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号处理不会触发此类型，出现异常可能不触发此类型）
+    #: bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号结束进程或出现异常可能不触发此类型）
     CLOSE = "c"
     #: bot 停止完成后（包含任何情况导致的停止，请在这里处理清理工作）
     STOPPED = "sto"

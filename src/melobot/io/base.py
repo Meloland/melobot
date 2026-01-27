@@ -81,9 +81,9 @@ class SourceLifeSpan(Enum):
     STARTED = "sta"
     #: 源重新启动完成之后（未实现重启的源，自然不会调用这个）
     RESTARTED = "res"
-    #: 源停止即将发生前（出现异常可能不会调用此类型）
+    #: 源停止操作发生前（出现异常可能不会调用此类型），具体何时触发请参考具体的源实现（例如一些源重启前发出此信号，但其他一些源则不一定）
     CLOSE = "clo"
-    #: 源停止完成后（包含任何情况导致的停止）
+    #: bot 关闭时触发的源对象停止。可以在这里安全地运行清理操作
     STOPPED = "sto"
 
 
@@ -127,10 +127,9 @@ class AbstractSource(HookMixin[SourceLifeSpan], BetterABC):
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> None:
-        if not self.opened():
-            return None
-
         try:
+            if not self.opened():
+                return None
             await self._hook_bus.emit(SourceLifeSpan.CLOSE, True)
             await self.close()
         finally:
