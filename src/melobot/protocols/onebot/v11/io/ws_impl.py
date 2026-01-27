@@ -146,7 +146,7 @@ class WSClientImpl:
 
     async def _on_get_output(self) -> str | bytes | None:
         # 子类不实现则没有输出功能，这样设置避免自旋
-        logger.warning(f"{self.name} 未实现输出功能，输出请求将被丢弃")
+        logger.warning(f"{self.name} 未实现输出功能，无法发送任何数据")
         await asyncio.get_running_loop().create_future()
         return None
 
@@ -276,7 +276,7 @@ class WSServerImpl:
 
     async def _on_get_output(self) -> str | bytes | None:
         # 子类不实现则没有输出功能，这样设置避免自旋
-        logger.warning(f"{self.name} 未实现输出功能，输出请求将被丢弃")
+        logger.warning(f"{self.name} 未实现输出功能，无法发送任何数据")
         await asyncio.get_running_loop().create_future()
         return None
 
