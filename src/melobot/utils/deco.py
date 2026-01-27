@@ -13,7 +13,7 @@ from .base import to_async
 def if_(
     condition: SyncOrAsyncCallable[[], U] | U,
     reject: SyncOrAsyncCallable[[], None] | None = None,
-    give_up: bool = False,
+    give_up: bool = True,
     accept: SyncOrAsyncCallable[[U], None] | None = None,
 ) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | None]]:
     """条件判断装饰器
