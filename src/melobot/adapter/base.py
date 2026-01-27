@@ -36,6 +36,7 @@ from ..io.base import (
 )
 from ..log.reflect import logger
 from ..mixin import HookMixin
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from ..typ.cls import BetterABC
 from .content import Content, TextContent
 from .model import ActionHandle, ActionHandleGroup, ActionT, EchoT, Event, EventT
@@ -425,6 +426,41 @@ class Adapter(
         :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(f"[melobot resource: {name} at {url}]")
+
+    @property
+    def on_before_event_handle(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.BEFORE_EVENT_HANDLE` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.BEFORE_EVENT_HANDLE)
+
+    @property
+    def on_before_action_exec(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.BEFORE_ACTION_EXEC` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.BEFORE_ACTION_EXEC)
+
+    @property
+    def on_started(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.STARTED` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.STARTED)
+
+    @property
+    def on_close(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.CLOSE` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.CLOSE)
+
+    @property
+    def on_stopped(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.STOPPED` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.STOPPED)
 
 
 AdapterT = TypeVar("AdapterT", bound=Adapter)

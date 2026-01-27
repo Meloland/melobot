@@ -9,7 +9,7 @@ from typing_extensions import Callable, Iterable, final, overload
 from ..exceptions import PluginLoadError
 from ..handle.base import Flow
 from ..mixin import HookMixin
-from ..typ.base import P, T
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
 from .ipc import AsyncShare, SyncShare
 
 
@@ -108,6 +108,11 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
         else:
             raise PluginLoadError(f"插件无法使用 {type(obj)} 类型的对象")
         return obj
+
+    @property
+    def on_inited(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给插件注册 :obj:`.PluginLifeSpan.INITED` 阶段 hook 的装饰器"""
+        return self.on(PluginLifeSpan.INITED)
 
 
 class Plugin:

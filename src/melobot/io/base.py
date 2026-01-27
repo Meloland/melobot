@@ -6,9 +6,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
 
-from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
+from typing_extensions import Any, Callable, Generic, LiteralString, Self, TypeVar
 
 from ..mixin import HookMixin
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from ..typ.cls import BetterABC, abstractattr
 from ..utils.common import get_id
 
@@ -135,6 +136,26 @@ class AbstractSource(HookMixin[SourceLifeSpan], BetterABC):
         finally:
             await self._hook_bus.emit(SourceLifeSpan.STOPPED, True)
         return None
+
+    @property
+    def on_started(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.STARTED` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.STARTED)
+
+    @property
+    def on_restarted(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.RESTARTED` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.RESTARTED)
+
+    @property
+    def on_close(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.CLOSE` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.CLOSE)
+
+    @property
+    def on_stopped(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.STOPPED` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.STOPPED)
 
 
 class AbstractInSource(AbstractSource, Generic[InPacketT]):
