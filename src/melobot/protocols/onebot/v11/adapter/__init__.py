@@ -66,6 +66,7 @@ from .echo import (
     SendMsgEcho,
 )
 from .event import (
+    DownstreamCallEvent,
     Event,
     FriendAddNoticeEvent,
     FriendRecallNoticeEvent,
@@ -89,6 +90,7 @@ from .event import (
     PokeNotifyEvent,
     PrivateMessageEvent,
     RequestEvent,
+    UpstreamRetEvent,
 )
 from .segment import (
     AnonymousSegment,

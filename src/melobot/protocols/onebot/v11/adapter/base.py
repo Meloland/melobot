@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from os import PathLike
 
-from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence
+from typing_extensions import Any, Callable, Iterable, Literal, Optional, Sequence, cast
 
 from melobot.adapter import (
     AbstractEchoFactory,
@@ -13,6 +13,7 @@ from melobot.adapter import (
 )
 from melobot.adapter import Adapter as RootAdapter
 from melobot.adapter import content as mc
+from melobot.bot import get_bot
 from melobot.exceptions import AdapterError
 from melobot.handle import try_get_event
 from melobot.typ import AsyncCallable, SyncOrAsyncCallable
@@ -20,7 +21,14 @@ from melobot.utils import to_async, to_coro
 
 from ..const import ACTION_TYPE_KEY_NAME, PROTOCOL_IDENTIFIER, T
 from ..io.base import BaseIOSource
-from ..io.packet import EchoPacket, InPacket, OutPacket
+from ..io.packet import (
+    DownstreamCallInPacket,
+    EchoPacket,
+    InPacket,
+    OutPacket,
+    ShareToDownstreamInPacket,
+    UpstreamRetInPacket,
+)
 from . import action as ac
 from . import echo as ec
 from . import event as ev
@@ -54,7 +62,25 @@ class ValidateHandleMixin:
 
 class EventFactory(AbstractEventFactory[InPacket, ev.Event], ValidateHandleMixin):
     async def create(self, packet: InPacket) -> ev.Event:
-        return await self.validate_handle(packet.data, ev.Event.resolve)
+        try:
+            event = await self.validate_handle(packet.data, ev.Event.resolve)
+            if isinstance(packet, DownstreamCallInPacket):
+                asyncio.create_task(get_bot().wait_finish(event)).add_done_callback(
+                    lambda _: packet.to_upstream.set_result(
+                        cast(ev.DownstreamCallEvent, event).to_upstream
+                    )
+                )
+            elif isinstance(packet, (UpstreamRetInPacket, ShareToDownstreamInPacket)):
+                asyncio.create_task(get_bot().wait_finish(event)).add_done_callback(
+                    lambda _: packet.to_downstream.set_result(event.to_downstream)  # type: ignore[arg-type]
+                )
+            return event
+        except Exception as e:
+            if isinstance(packet, DownstreamCallInPacket):
+                packet.to_upstream.set_exception(e)
+            elif isinstance(packet, (UpstreamRetInPacket, ShareToDownstreamInPacket)):
+                packet.to_downstream.set_exception(e)
+            raise
 
 
 class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):

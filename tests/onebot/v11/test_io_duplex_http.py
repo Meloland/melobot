@@ -5,7 +5,7 @@ import aiohttp
 import aiohttp.web
 
 from melobot.protocols.onebot.v11.adapter import action
-from melobot.protocols.onebot.v11.io.http import HttpIO
+from melobot.protocols.onebot.v11.io.http import HTTPDuplex
 from melobot.protocols.onebot.v11.io.packet import OutPacket
 from melobot.utils import singleton, to_async
 from tests.base import *
@@ -68,7 +68,7 @@ class MockClientSession:
 async def test_http(monkeypatch) -> None:
     aiohttp._ClientSession = aiohttp.ClientSession
     monkeypatch.setattr(aiohttp, "ClientSession", lambda: MockClientSession())
-    io = HttpIO("http://localhost:80", "localhost", 10090)
+    io = HTTPDuplex("http://localhost:80", "localhost", 10090)
     create_task(put_input(json.dumps(_TEST_EVENT_DICT)))
 
     async with io:

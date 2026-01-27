@@ -8,24 +8,16 @@ from asyncio import Future
 
 import aiohttp
 import aiohttp.web
-from typing_extensions import Any
 
 from melobot.io import SourceLifeSpan
 from melobot.log import LogLevel, log_exc, logger
 from melobot.utils import truncate
 
-from .base import BaseIOSource
+from .base import BaseIOSource, InstCounter
 from .packet import EchoPacket, InPacket, OutPacket
 
 
-class HttpIO(BaseIOSource):
-    INSTANCE_COUNT = 0
-
-    def __new__(cls, *args: Any, **kwargs: Any) -> HttpIO:
-        o = super().__new__(cls)
-        cls.INSTANCE_COUNT += 1
-        return o
-
+class HTTPDuplex(InstCounter, BaseIOSource):
     def __init__(
         self,
         onebot_url: str,
@@ -34,6 +26,7 @@ class HttpIO(BaseIOSource):
         secret: str | None = None,
         access_token: str | None = None,
         cd_time: float = 0,
+        *,
         name: str | None = None,
     ) -> None:
         super().__init__(cd_time)
@@ -89,7 +82,7 @@ class HttpIO(BaseIOSource):
             logger.generic_lazy(
                 f"{self.name} 收到数据：\n%s", lambda: truncate(str(raw)), level=LogLevel.DEBUG
             )
-            await self._in_buf.put(InPacket(time=raw["time"], data=raw))
+            self._in_buf.put_nowait(InPacket(time=raw["time"], data=raw))
 
         except Exception as e:
             local_vars = locals()
@@ -205,10 +198,18 @@ class HttpIO(BaseIOSource):
         return await self._in_buf.get()
 
     async def output(self, packet: OutPacket) -> EchoPacket:
-        await self._out_buf.put(packet)
+        if self._out_buf.qsize() > 100:
+            logger.warning(f"{self.name} 输出缓冲区积压过多数据，请保证连接畅通或减少操作请求频率")
+            raise RuntimeError("输出缓冲区溢出，操作请求被丢弃")
+        self._out_buf.put_nowait(packet)
         if packet.echo_id is None:
             return EchoPacket(noecho=True)
 
         fut: Future[EchoPacket] = asyncio.get_running_loop().create_future()
+        if len(self._echo_table) > 256:
+            logger.warning(
+                f"{self.name} echo 标识映射表溢出，开始丢弃操作请求。请保证连接畅通或减少操作请求频率"
+            )
+            raise RuntimeError("echo 标识映射表溢出，操作请求被丢弃")
         self._echo_table[packet.echo_id] = (packet.action_type, fut)
         return await fut

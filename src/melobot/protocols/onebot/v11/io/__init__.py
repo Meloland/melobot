@@ -1,9 +1,9 @@
-from .base import BaseInSource, BaseIOSource, BaseOutSource, BaseSource
-from .forward import ForwardIO
-from .http import HttpIO
-from .packet import InPacket
-from .reverse import ReverseIO
+from .base import BaseIOSource
+from .http import HTTPDuplex
+from .ws import WSClient, WSServer
+from .ws_rproxy import RProxyWSClient, RProxyWSServer
 
 # 兼容旧版本命名
-ForwardWebSocketIO = ForwardIO
-ReverseWebSocketIO = ReverseIO
+ForwardWebSocketIO = WSClient
+ReverseWebSocketIO = WSServer
+HttpIO = HTTPDuplex
