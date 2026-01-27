@@ -122,9 +122,9 @@ class Session:
     :ivar Rule rule: 当前会话上下文的会话规则
     """
 
+    __rule_singletons__: dict[type[Rule], Rule] = {}
     __instances__: dict[Rule, set["Session"]] = {}
     __instance_locks__: dict[Rule, Lock] = {}
-    __cls_lock__ = Lock()
 
     def __init__(
         self,
@@ -231,13 +231,16 @@ class Session:
     async def get(
         cls,
         completion: EventCompletion,
-        rule: Rule | None = None,
+        rule: Rule | type[Rule] | None = None,
         wait: bool = True,
         nowait_cb: SyncOrAsyncCallable[[], None] | None = None,
         keep: bool = False,
         auto_release: bool = True,
     ) -> Session | None:
         completion.ctrl_by_session = True
+        if isinstance(rule, type):
+            cls.__rule_singletons__.setdefault(rule, rule())
+            rule = cls.__rule_singletons__[rule]
         if rule is None:
             return Session(
                 rule=None,
@@ -245,9 +248,7 @@ class Session:
                 keep=keep,
                 auto_release=auto_release,
             )
-
-        async with cls.__cls_lock__:
-            cls.__instance_locks__.setdefault(rule, Lock())
+        cls.__instance_locks__.setdefault(rule, Lock())
 
         async with cls.__instance_locks__[rule]:
             try:
@@ -317,12 +318,18 @@ class Session:
                 expires = tuple(filter(lambda s: s.__is_state__(ExpireSessionState), _set))
                 for session in expires:
                     Session.__instances__[rule].remove(session)
+                expire_rules = tuple(
+                    filter(lambda r: len(Session.__instances__[r]) == 0, Session.__instances__)
+                )
+                for r in expire_rules:
+                    Session.__instances__.pop(r)
+                    Session.__instance_locks__.pop(r)
 
     @classmethod
     @asynccontextmanager
     async def enter(
         cls,
-        rule: Rule,
+        rule: Rule | type[Rule],
         wait: bool = True,
         nowait_cb: SyncOrAsyncCallable[[], None] | None = None,
         keep: bool = False,
@@ -372,7 +379,7 @@ async def suspend(timeout: float | None = None, auto_stop: bool = False) -> bool
 
 
 def enter_session(
-    rule: Rule,
+    rule: Rule | type[Rule],
     wait: bool = True,
     nowait_cb: SyncOrAsyncCallable[[], None] | None = None,
     keep: bool = False,
@@ -380,7 +387,9 @@ def enter_session(
 ) -> _AsyncGeneratorContextManager[Session]:
     """上下文管理器，提供一个会话上下文，在此上下文中可使用会话的高级特性
 
-    :param rule: 会话规则
+    :param rule:
+        会话规则或会话规则类（提供类对象时运行无参实例化并缓存单例，
+        因此不要在多次调用中使用同一类对象，除非这是你的本意）
     :param wait: 当出现会话冲突时，是否需要等待
     :param nowait_cb: 指定了 `wait=False` 后，会话冲突时执行的回调
     :param keep: 会话在退出会话上下文后是否继续保持
