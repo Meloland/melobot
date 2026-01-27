@@ -7,7 +7,6 @@ from .patch import LazyLogMethod, LoguruPatch, StandardPatch, StructlogPatch, lo
 from .reflect import get_global_logger
 from .reflect import reflect_logger as _reflect_logger
 from .reflect import set_global_logger, set_module_logger
-from .report import log_exc
 
 
 def get_logger() -> GenericLogger:

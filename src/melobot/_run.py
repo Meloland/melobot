@@ -130,10 +130,10 @@ class AsyncRunner:
             pre_dbg_status = loop.get_debug()
             loop.set_debug(debug)
         if set_exc_handler:
-            from .log.report import _log_loop_exception
+            from .log.report import log_loop_exception
 
             pre_exc_handler = loop.get_exception_handler()
-            loop.set_exception_handler(_log_loop_exception)
+            loop.set_exception_handler(log_loop_exception)
         if eager_task:
             # TODO: 在升级最低支持到 3.12 后简化条件判断
             if sys.version_info >= (3, 12):

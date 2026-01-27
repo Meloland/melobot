@@ -7,7 +7,6 @@ from typing_extensions import Any, Generic, TypeVar
 
 from .di import inject_deps
 from .log.reflect import logger
-from .log.report import log_exc
 from .typ.base import AsyncCallable, SyncOrAsyncCallable
 from .utils import to_async, to_sync
 
@@ -27,10 +26,9 @@ class HookRunner(Generic[HookEnumT]):
     async def _run(self, *args: Any, **kwargs: Any) -> None:
         try:
             await self.callback(*args, **kwargs)
-        except Exception as e:
-            log_exc(
-                e,
-                msg=f"{self.type} 类型的 hook 方法 {self.callback} 发生异常",
+        except Exception:
+            logger.generic_exc(
+                f"{self.type} 类型的 hook 方法 {self.callback} 发生异常",
                 obj={"callback": self.callback, "args": args, "kwargs": kwargs},
             )
 

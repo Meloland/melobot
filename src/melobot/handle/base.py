@@ -10,7 +10,7 @@ from ..ctx import FlowRecordStage as RecordStage
 from ..ctx import FlowStatus, FlowStore
 from ..di import DependNotMatched, inject_deps
 from ..exceptions import FlowError
-from ..log.report import log_exc
+from ..log.reflect import logger
 from ..typ.base import AsyncCallable, SyncOrAsyncCallable
 from ..utils.base import to_async
 from ..utils.common import get_obj_name
@@ -167,10 +167,9 @@ class Flow:
                 with _FLOW_CTX.unfold(status):
                     if not await self._guard(completion.event):
                         return self._try_complete(completion)
-            except Exception as e:
-                log_exc(
-                    e,
-                    msg=f"事件处理流 {self.name} 守卫函数发生异常",
+            except Exception:
+                logger.generic_exc(
+                    f"事件处理流 {self.name} 守卫函数发生异常",
                     obj={
                         "event_id": completion.event.id,
                         "completion": completion.__dict__,
@@ -197,10 +196,9 @@ class Flow:
         except FlowBroke:
             pass
 
-        except Exception as e:
-            log_exc(
-                e,
-                msg=f"事件处理流 {self.name} 发生异常",
+        except Exception:
+            logger.generic_exc(
+                f"事件处理流 {self.name} 发生异常",
                 obj={
                     "event_id": completion.event.id,
                     "completion": completion.__dict__,

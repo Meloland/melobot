@@ -11,7 +11,7 @@ from websockets.asyncio.server import Server, ServerConnection
 from websockets.exceptions import ConnectionClosed
 from websockets.http11 import Request, Response
 
-from melobot.log import LogLevel, log_exc, logger
+from melobot.log import LogLevel, logger
 from melobot.utils import truncate
 
 
@@ -54,11 +54,11 @@ class WSClientImpl:
                     self._restarting.set()
                     asyncio.create_task(self._stop())
                 break
-            except Exception as e:
+            except Exception:
                 local_vars = locals()
                 if (val := local_vars.pop("raw", None)) is not None:
                     local_vars["raw"] = truncate(val)
-                log_exc(e, msg=f"{self.name} 接收数据时抛出异常", obj=local_vars)
+                logger.generic_exc(f"{self.name} 接收数据时抛出异常", obj=local_vars)
 
     async def _output_loop(self) -> None:
         while True:
@@ -76,11 +76,11 @@ class WSClientImpl:
                 await self._on_sent(out)
             except asyncio.CancelledError:
                 raise
-            except Exception as e:
+            except Exception:
                 local_vars = locals()
                 if (val := local_vars.pop("out", None)) is not None:
                     local_vars["out"] = truncate(val)
-                log_exc(e, msg=f"{self.name} 发送数据时抛出异常", obj=local_vars)
+                logger.generic_exc(f"{self.name} 发送数据时抛出异常", obj=local_vars)
 
     async def _start(self) -> None:
         if self._opened.is_set():
@@ -200,11 +200,11 @@ class WSServerImpl:
                 self._restarting.set()
                 await self._on_unlinked(ws)
                 break
-            except Exception as e:
+            except Exception:
                 local_vars = locals()
                 if (val := local_vars.pop("raw", None)) is not None:
                     local_vars["raw"] = truncate(val)
-                log_exc(e, msg=f"{self.name} 接收数据时抛出异常", obj=local_vars)
+                logger.generic_exc(f"{self.name} 接收数据时抛出异常", obj=local_vars)
 
     async def _output_loop(self) -> None:
         while True:
@@ -222,11 +222,11 @@ class WSServerImpl:
                 await self._on_sent(out)
             except asyncio.CancelledError:
                 raise
-            except Exception as e:
+            except Exception:
                 local_vars = locals()
                 if (val := local_vars.pop("out", None)) is not None:
                     local_vars["out"] = truncate(val)
-                log_exc(e, msg=f"{self.name} 发送数据时抛出异常", obj=local_vars)
+                logger.generic_exc(f"{self.name} 发送数据时抛出异常", obj=local_vars)
 
     async def _start(self) -> None:
         if self._opened.is_set():

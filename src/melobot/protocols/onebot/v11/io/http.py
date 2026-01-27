@@ -10,7 +10,7 @@ import aiohttp
 import aiohttp.web
 
 from melobot.io import SourceLifeSpan
-from melobot.log import LogLevel, log_exc, logger
+from melobot.log import LogLevel, logger
 from melobot.utils import truncate
 
 from .base import BaseIOSource, InstCounter
@@ -84,14 +84,14 @@ class HTTPDuplex(InstCounter, BaseIOSource):
             )
             self._in_buf.put_nowait(InPacket(time=raw["time"], data=raw))
 
-        except Exception as e:
+        except Exception:
             local_vars = locals()
             local_vars.pop("sign", None)
             local_vars.pop("recv_sign", None)
             local_vars.pop("raw", None)
             if (val := local_vars.pop("data", None)) is not None:
                 local_vars["data"] = truncate(val)
-            log_exc(e, msg=f"{self.name} 接收数据时抛出异常", obj=local_vars)
+            logger.generic_exc(f"{self.name} 接收数据时抛出异常", obj=local_vars)
 
         return aiohttp.web.Response(status=204)
 
@@ -108,10 +108,9 @@ class HTTPDuplex(InstCounter, BaseIOSource):
             except asyncio.CancelledError:
                 raise
 
-            except Exception as e:
-                log_exc(
-                    e,
-                    msg=f"{self.name} 发送数据时抛出异常",
+            except Exception:
+                logger.generic_exc(
+                    f"{self.name} 发送数据时抛出异常",
                     obj={k: truncate(str(v)) for k, v in locals().items()},
                 )
 
@@ -146,8 +145,10 @@ class HTTPDuplex(InstCounter, BaseIOSource):
             )
         except aiohttp.ContentTypeError:
             logger.error(f"{self.name} 无法解析收到的数据。可能是 access_token 未配置或错误")
-        except Exception as e:
-            log_exc(e, msg=f"{self.name} 发送数据并等待响应时抛出异常", obj=truncate(packet.data))
+        except Exception:
+            logger.generic_exc(
+                f"{self.name} 发送数据并等待响应时抛出异常", obj=truncate(packet.data)
+            )
 
     async def open(self) -> None:
         if self.opened():

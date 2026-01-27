@@ -34,7 +34,7 @@ from ..io.base import (
     OutPacketT,
     OutSourceT,
 )
-from ..log import log_exc
+from ..log.reflect import logger
 from ..mixin import HookMixin
 from ..typ.cls import BetterABC
 from .content import Content, TextContent
@@ -177,10 +177,9 @@ class Adapter(
                 EventOrigin.set_origin(event, EventOrigin(self, src))
                 await self._hook_bus.emit(AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,))
                 self.dispatcher.broadcast(event)
-            except Exception as e:
-                log_exc(
-                    e,
-                    msg=f"适配器 {self} 处理输入源 {src} 时发生异常",
+            except Exception:
+                logger.generic_exc(
+                    f"适配器 {self} 处理输入源 {src} 时发生异常",
                     obj={
                         "in_factory": self._event_factory,
                         "dispatcher": self.dispatcher,

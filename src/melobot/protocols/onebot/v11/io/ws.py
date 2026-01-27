@@ -12,7 +12,7 @@ from websockets.http11 import Request, Response
 
 from melobot._hook import HookBus
 from melobot.io import SourceLifeSpan
-from melobot.log import log_exc, logger
+from melobot.log import logger
 from melobot.utils import get_id
 
 from ..const import ACTION_TYPE_KEY_NAME
@@ -142,8 +142,8 @@ class GenericIOLayer:
             ret = await fut
             if not ret.is_forbidden() and self._rproxy is not None:
                 self._rproxy.to_downstream(ret.get_json())
-        except Exception as e:
-            log_exc(e, f"{self.name} 传递数据给下游时发生异常", obj={"fut": fut})
+        except Exception:
+            logger.generic_exc(f"{self.name} 传递数据给下游时发生异常", obj={"fut": fut})
 
     async def _to_upstream(self, raw: str | bytes) -> None:
         try:
@@ -181,8 +181,8 @@ class GenericIOLayer:
                 raise RuntimeError(f"{self.name} 反代 echo 标识映射表溢出，操作请求被丢弃")
             self._echo_mapping[up_seen_echo] = (out_pak.action_type, down_seen_echo)
             self._out_buf.put_nowait(out_pak)
-        except Exception as e:
-            log_exc(e, f"{self.name} 传递数据给上游时发生异常", obj={"raw": raw})
+        except Exception:
+            logger.generic_exc(f"{self.name} 传递数据给上游时发生异常", obj={"raw": raw})
 
     async def open(self) -> None:
         await self._start()

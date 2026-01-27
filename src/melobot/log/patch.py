@@ -5,7 +5,7 @@ from functools import partial
 from typing_extensions import Any, Callable, Protocol, assert_never, cast
 
 from ..typ._enum import LogLevel
-from .base import GenericLogger, Logger, generic_obj_meth
+from .base import PATCHED_LOGGER_TAG, GenericLogger, Logger
 
 
 class LazyLogMethod(Protocol):
@@ -27,6 +27,17 @@ class LazyLogMethod(Protocol):
         raise NotImplementedError
 
 
+def generic_obj_meth(
+    logger: GenericLogger,
+    msg: str,
+    obj: Any,
+    *arg_getters: Callable[[], str],
+    level: LogLevel = LogLevel.INFO,
+) -> None:
+    _getters = arg_getters + (lambda: str(obj),)
+    logger.generic_lazy(msg + "\n%s", *_getters, level=level)
+
+
 def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
     """对指定的日志器进行修补操作，使其可以被用于 melobot 内部的日志记录
 
@@ -35,6 +46,8 @@ def logger_patch(logger: Any, lazy_meth: LazyLogMethod) -> GenericLogger:
     """
     setattr(logger, Logger.generic_lazy.__name__, lazy_meth)
     setattr(logger, Logger.generic_obj.__name__, partial(generic_obj_meth, logger))
+    setattr(logger, Logger.generic_exc.__name__, partial(Logger.generic_exc, logger))
+    setattr(logger, PATCHED_LOGGER_TAG, True)
     return cast(GenericLogger, logger)
 
 

@@ -30,7 +30,7 @@ def set_loop_exc_log(strict: bool) -> None:
     _STRICT_LOOP_LOG = strict
 
 
-def _log_loop_exception(loop: asyncio.AbstractEventLoop, context: dict[str, Any]) -> None:
+def log_loop_exception(loop: asyncio.AbstractEventLoop, context: dict[str, Any]) -> None:
     ctx = cast(LoopExcCtx, context)
     with_loop_ctx = {"loop": loop} | ctx
     exc = ctx.get("exception")
@@ -71,18 +71,3 @@ def _log_loop_exception(loop: asyncio.AbstractEventLoop, context: dict[str, Any]
     else:
         logger.error(f"事件循环出现预期外的状况：{msg}")
         logger.generic_obj("相关变量信息：", with_loop_ctx, level=LogLevel.ERROR)
-
-
-def log_exc(exc: BaseException, msg: str, obj: Any = None) -> None:
-    """使用 melobot 内部的异常报告日志器报告异常
-
-    :param exc: 异常对象
-    :param msg: 日志消息
-    :param obj: 需要打印的相关变量，为空时不打印
-    """
-    try:
-        raise exc
-    except BaseException:
-        logger.exception(msg)
-        if obj is not None:
-            logger.generic_obj("相关变量信息：", obj, level=LogLevel.ERROR)
