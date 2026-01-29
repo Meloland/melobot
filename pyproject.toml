@@ -39,6 +39,7 @@ Homepage = "https://github.com/Meloland/melobot"
 Documentation = "https://docs.melobot.org"
 Repository = "https://github.com/Meloland/melobot.git"
 Issues = "https://github.com/Meloland/melobot/issues"
+Changelog = "https://docs.melobot.org/update-log.html"
 
 [project.optional-dependencies]
 onebot = ["pydantic>=2.9.2,<3", "websockets>=14.1,<15", "aiohttp>=3.12.15,<4"]
@@ -63,6 +64,9 @@ lint = [
     "pyflakes>=3.2.0",
 ]
 manage = ["toml>=0.10.2", "pre-commit>=4.0.1", "ipython>=8.32.0", "poethepoet>=0.33.1"]
+
+[project.scripts]
+mb = "melobot._cli.main:main"
 
 [tool.poe.tasks]
 isort = "isort --profile black src/melobot tests docs"
