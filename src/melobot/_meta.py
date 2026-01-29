@@ -6,7 +6,10 @@ from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoRet
 
 from .typ.base import T
 
-__version__ = "3.4.0"
+try:
+    from ._version import VERSION as __version__  # pyright: ignore[reportMissingModuleSource]
+except ImportError:
+    __version__ = "0.0.0+internalfallback"
 
 
 def _version_str_to_info(s: str) -> VersionInfo:

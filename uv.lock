@@ -746,7 +746,6 @@ wheels = [
 
 [[package]]
 name = "melobot"
-version = "3.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "beartype" },
@@ -815,7 +814,7 @@ requires-dist = [
     { name = "watchdog", marker = "extra == 'cli'", specifier = ">=6.0.0,<7" },
     { name = "websockets", marker = "extra == 'onebot'", specifier = ">=14.1,<15" },
 ]
-provides-extras = ["onebot", "cli", "console"]
+provides-extras = ["cli", "console", "onebot"]
 
 [package.metadata.requires-dev]
 docs = [
