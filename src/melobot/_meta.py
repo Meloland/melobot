@@ -1,15 +1,30 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 from typing_extensions import Any, ClassVar, Generic, Literal, NamedTuple, NoReturn
 
 from .typ.base import T
 
+
+def get_latest_version() -> str:
+    try:
+        result = subprocess.check_output(
+            ["git", "describe", "--tags", "--abbrev=0"], stderr=subprocess.STDOUT
+        )
+        tag_str = result.decode("utf-8").strip()
+        if tag_str.startswith("v"):
+            return tag_str[1:]
+        return tag_str
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return "0.0.0+internalfallback"
+
+
 try:
     from ._version import VERSION as __version__  # pyright: ignore[reportMissingModuleSource]
 except ImportError:
-    __version__ = "0.0.0+internalfallback"
+    __version__ = get_latest_version()
 
 
 def _version_str_to_info(s: str) -> VersionInfo:
