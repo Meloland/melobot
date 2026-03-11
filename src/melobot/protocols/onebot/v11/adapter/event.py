@@ -3,6 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing_extensions import Any, Literal, NoReturn, Sequence, cast
 
+import melobot.protocols.onebot.v11.adapter.echo
 from melobot.adapter import Event as RootEvent
 from melobot.adapter import TextEvent as RootTextEvent
 from melobot.adapter import content
@@ -1008,7 +1009,7 @@ class DownstreamCallEvent(Event):
         #: 下游调用回声标识，需要自行判断是否为空字符串
         self.calling_echo: str = "" if self._model.echo is None else self._model.echo
         #: 传递对象，操作此对象来修改上游收到的内容
-        self.to_upstream = ActionToUpstream(
+        self.to_upstream: ActionToUpstream = ActionToUpstream(
             self.calling_type, self.calling_params, self.calling_echo
         )
 
@@ -1049,7 +1050,7 @@ class UpstreamRetEvent(Event):
         from .echo import Echo
 
         #: 下游调用后得到的上游返回结果
-        self.ret = Echo.resolve(event_data["ret"])
+        self.ret: melobot.protocols.onebot.v11.adapter.echo.Echo = Echo.resolve(event_data["ret"])
         self.raw = self.ret.raw
         #: 下游调用类型
         self.calling_type: str = self.ret.action_type

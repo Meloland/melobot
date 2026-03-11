@@ -4,26 +4,23 @@ v11.io
 v11 输出输出层抽象类
 --------------------
 
-.. autoclass:: melobot.protocols.onebot.v11.io.BaseSource
-    :exclude-members: __init__, open, opened, close
-
-.. autoclass:: melobot.protocols.onebot.v11.io.BaseInSource
-    :exclude-members: __init__, open, opened, close, input
-
-.. autoclass:: melobot.protocols.onebot.v11.io.BaseOutSource
-    :exclude-members: __init__, open, opened, close, output
-
 .. autoclass:: melobot.protocols.onebot.v11.io.BaseIOSource
     :exclude-members: __init__, open, opened, close, input, output
 
 v11 输出输出层实现类
 --------------------
 
-.. autoclass:: melobot.protocols.onebot.v11.io.ForwardWebSocketIO
+.. autoclass:: melobot.protocols.onebot.v11.io.WSClient
     :exclude-members: open, close, input, output
 
-.. autoclass:: melobot.protocols.onebot.v11.io.ReverseWebSocketIO
+.. autoclass:: melobot.protocols.onebot.v11.io.WSServer
     :exclude-members: open, close, input, output
 
-.. autoclass:: melobot.protocols.onebot.v11.io.HttpIO
+.. autoclass:: melobot.protocols.onebot.v11.io.HTTPDuplex
+    :exclude-members: open, close, input, output, opened
+
+.. autoclass:: melobot.protocols.onebot.v11.io.RProxyWSClient 
+    :exclude-members: open, close, input, output
+
+.. autoclass:: melobot.protocols.onebot.v11.io.RProxyWSServer 
     :exclude-members: open, close, input, output

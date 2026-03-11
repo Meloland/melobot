@@ -58,6 +58,9 @@ melobot.adapter
 通用内容实体
 ---------------
 
+.. autoclass:: melobot.adapter.content.TextStyle
+    :members:
+
 .. autoclass:: melobot.adapter.content.Content
     :members:
 

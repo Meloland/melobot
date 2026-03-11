@@ -138,11 +138,11 @@ class ToDownstream:
         self._raw = new_dic
 
     def is_forbidden(self) -> bool:
-        """检查数据是否被阻止传递给上游"""
+        """检查数据是否被阻止传递给下游"""
         return self._forbidden
 
     def forbidden(self) -> None:
-        """阻止数据传递给上游"""
+        """阻止数据传递给下游"""
         self._forbidden = True
 
     def get_dict(self, deepcopy: bool = True) -> dict[str, Any]:

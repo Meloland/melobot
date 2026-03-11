@@ -100,6 +100,27 @@ v11 事件
 .. autoclass:: melobot.protocols.onebot.v11.adapter.event.GroupRequestEvent
     :exclude-members: Model, __init__, resolve
 
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.DownstreamCallEvent
+    :exclude-members: Model, __init__, resolve
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.event.UpstreamRetEvent
+    :exclude-members: Model, __init__, resolve
+
+v11 上下游对象
+-----------------
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.ToDownstream
+    :exclude-members: __init__
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.EventToDownstream
+    :exclude-members: __init__
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.EchoToDownstream
+    :exclude-members: __init__
+
+.. autoclass:: melobot.protocols.onebot.v11.adapter.ActionToUpstream
+    :exclude-members: __init__
+
 .. _onebot_v11_segment:
 
 v11 消息段

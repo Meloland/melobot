@@ -306,6 +306,7 @@ class Flow:
         return fork_wrapped
 
     def enable_record(self) -> None:
+        """启用流记录功能"""
         self._recordable = True
 
 

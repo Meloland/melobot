@@ -6,6 +6,9 @@ melobot.typ
 .. autoclass:: melobot.typ.LogicMode
     :members:
 
+.. autoclass:: melobot.typ.Color
+    :members:
+
 .. autofunction:: melobot.typ.is_type
 
 .. autoclass:: melobot.typ.BetterABCMeta

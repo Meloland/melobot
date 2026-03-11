@@ -458,7 +458,7 @@ class Bot(HookMixin[BotLifeSpan]):
         另外请注意，重启功能只在启动了一个 bot 时生效，多个 bot 同时运行时无法重启
         """
         if not self._runner.is_restartable():
-            raise BotError("使用重启功能，需要用以下命令运行 bot：python -m melobot run xxx.py")
+            raise BotError("使用重启功能，需要用以下命令运行 bot：mb run xxx.py")
 
         await self.close()
         self._runner.restart()

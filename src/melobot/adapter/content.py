@@ -17,6 +17,8 @@ ContentT = TypeVar("ContentT", bound=Content)
 
 @dataclass(frozen=True)
 class TextStyle:
+    """跨平台文本格式选项"""
+
     mime_type: str = "text/plain"
     bold: bool = False
     italic: bool = False

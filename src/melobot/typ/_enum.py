@@ -100,6 +100,16 @@ class Color:
     def __init__(
         self, arg1: CommonColorType | str | int, arg2: int | None = None, arg3: int | None = None
     ) -> None:
+        """三种初始化模式：
+
+        1. 通过常用颜色名称字符串初始化，例如 "red"、"bright_blue" 等。
+        2. 通过十六进制颜色字符串初始化，例如 "#ff0000"
+        3. 通过 RGB 三参数初始化，例如 255, 0, 0
+
+        :param arg1: 第一参数，可以是常用颜色名称字符串、十六进制颜色字符串，或者 RGB 的 R 分量整数
+        :param arg2: 第二参数，如果 arg1 是 RGB 的 R 分量，则 arg2 是 G 分量整数，否则为 None
+        :param arg3: 第三参数，如果 arg1 是 RGB 的 R 分量，则 arg3 是 B 分量整数，否则为 None
+        """
         if isinstance(arg1, str):
             if arg1 in CommonColors:
                 self.is_common = True

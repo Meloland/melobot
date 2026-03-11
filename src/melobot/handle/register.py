@@ -146,7 +146,7 @@ class FlowDecorator:
         :param decos: 装饰器组
         :param rule:
             会话规则或会话规则类（提供类对象时运行无参实例化并缓存单例，
-            因此不要在多次调用中使用同一类对象，除非这是你的本意）
+            因此不要在多个流装饰器中使用同一个类对象，除非这是你的本意）
         """
         self.checker: Checker | None
         if callable(checker):
@@ -272,7 +272,7 @@ def on_event(
     :param decos: 装饰器组
     :param rule:
         会话规则或会话规则类（提供类对象时运行无参实例化并缓存单例，
-        因此不要在多次调用中使用同一类对象，除非这是你的本意）
+        因此不要在多个流装饰器中使用同一个类对象，除非这是你的本意）
     :return: 处理流装饰器
     """
     return FlowDecorator(checker, None, None, priority, block, temp, decos, rule)
