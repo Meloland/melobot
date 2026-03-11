@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import hmac
 import json
@@ -8,13 +10,14 @@ import aiohttp
 import aiohttp.web
 
 from melobot.io import SourceLifeSpan
-from melobot.log import LogLevel, log_exc, logger
+from melobot.log import LogLevel, logger
+from melobot.utils import truncate
 
-from .base import BaseIOSource
+from .base import BaseIOSource, InstCounter
 from .packet import EchoPacket, InPacket, OutPacket
 
 
-class HttpIO(BaseIOSource):
+class HTTPDuplex(InstCounter, BaseIOSource):
     def __init__(
         self,
         onebot_url: str,
@@ -23,8 +26,13 @@ class HttpIO(BaseIOSource):
         secret: str | None = None,
         access_token: str | None = None,
         cd_time: float = 0,
+        *,
+        name: str | None = None,
     ) -> None:
         super().__init__(cd_time)
+        self.name = f"[OB11 双向 http #{self.INSTANCE_COUNT}]" if name is None else name
+        self._hook_bus.set_tag(self.name)
+
         self.onebot_url = onebot_url
         self.host: str = serve_host
         self.port: int = serve_port
@@ -55,8 +63,11 @@ class HttpIO(BaseIOSource):
             recv_sign = request.headers["X-Signature"][len("sha1=") :]
 
             if sign != recv_sign:
-                logger.warning("OneBot 实现程序鉴权不通过，本次上报数据将不会被处理")
-                logger.generic_obj("试图上报的数据", data, level=LogLevel.WARNING)
+                logger.generic_lazy(
+                    f"{self.name} 拒绝了收到的数据，因为签名验证失败：\n%s",
+                    lambda: truncate(str(data)),
+                    level=LogLevel.WARNING,
+                )
                 return aiohttp.web.Response(status=403)
 
         try:
@@ -68,11 +79,19 @@ class HttpIO(BaseIOSource):
                 and raw.get("sub_type") == "connect"
             ):
                 await self._hook_bus.emit(SourceLifeSpan.RESTARTED, False)
-            logger.generic_obj("收到上报，未格式化的字典", str(raw), level=LogLevel.DEBUG)
-            await self._in_buf.put(InPacket(time=raw["time"], data=raw))
+            logger.generic_lazy(
+                f"{self.name} 收到数据：\n%s", lambda: truncate(str(raw)), level=LogLevel.DEBUG
+            )
+            self._in_buf.put_nowait(InPacket(time=raw["time"], data=raw))
 
-        except Exception as e:
-            log_exc(e, msg="OneBot v11 HTTP IO 源输入异常", obj=raw)
+        except Exception:
+            local_vars = locals()
+            local_vars.pop("sign", None)
+            local_vars.pop("recv_sign", None)
+            local_vars.pop("raw", None)
+            if (val := local_vars.pop("data", None)) is not None:
+                local_vars["data"] = truncate(val)
+            logger.generic_exc(f"{self.name} 接收数据时抛出异常", obj=local_vars)
 
         return aiohttp.web.Response(status=204)
 
@@ -80,7 +99,6 @@ class HttpIO(BaseIOSource):
         while True:
             try:
                 await self._opened.wait()
-
                 out_packet = await self._out_buf.get()
                 wait_time = self.cd_time - ((time.time_ns() - self._pre_send_time) / 1e9)
                 await asyncio.sleep(wait_time)
@@ -90,8 +108,11 @@ class HttpIO(BaseIOSource):
             except asyncio.CancelledError:
                 raise
 
-            except Exception as e:
-                log_exc(e, msg="OneBot v11 HTTP IO 源输出异常", obj=locals())
+            except Exception:
+                logger.generic_exc(
+                    f"{self.name} 发送数据时抛出异常",
+                    obj={k: truncate(str(v)) for k, v in locals().items()},
+                )
 
     async def _handle_output(self, packet: OutPacket) -> None:
         try:
@@ -123,9 +144,11 @@ class HttpIO(BaseIOSource):
                 )
             )
         except aiohttp.ContentTypeError:
-            logger.error("OneBot v11 HTTP IO 源无法解析上报数据。可能是 access_token 未配置或错误")
-        except Exception as e:
-            log_exc(e, msg="OneBot v11 HTTP IO 源输出异常", obj=packet.data)
+            logger.error(f"{self.name} 无法解析收到的数据。可能是 access_token 未配置或错误")
+        except Exception:
+            logger.generic_exc(
+                f"{self.name} 发送数据并等待响应时抛出异常", obj=truncate(packet.data)
+            )
 
     async def open(self) -> None:
         if self.opened():
@@ -136,18 +159,19 @@ class HttpIO(BaseIOSource):
                 return
 
             self.client_session = aiohttp.ClientSession()
+            logger.info(f"{self.name} 已设置向 OB 实现端 ({self.onebot_url}) 发送数据")
             app = aiohttp.web.Application()
             app.add_routes([aiohttp.web.post("/", self._respond)])
             runner = aiohttp.web.AppRunner(app)
-
             await runner.setup()
             self.serve_site = aiohttp.web.TCPSite(runner, self.host, self.port)
             await self.serve_site.start()
+            logger.info(f"{self.name} 启动了 http 服务端 (http://{self.host}:{self.port})")
             self._tasks.append(asyncio.create_task(self._output_loop()))
 
-            logger.info("OneBot v11 HTTP IO 源就绪，等待实现端上线中")
+            logger.info(f"{self.name} 准备就绪，等待 OB 实现端上线中")
             await self._opened.wait()
-            logger.info("OneBot v11 HTTP IO 源双向通信已建立")
+            logger.info(f"{self.name} 双向通信已建立")
 
     def opened(self) -> bool:
         return self._opened.is_set()
@@ -169,16 +193,24 @@ class HttpIO(BaseIOSource):
             self._tasks.clear()
 
             self._opened.clear()
-            logger.info("OneBot v11 HTTP IO 源已停止运行")
+            logger.info(f"{self.name} 已停止工作")
 
     async def input(self) -> InPacket:
         return await self._in_buf.get()
 
     async def output(self, packet: OutPacket) -> EchoPacket:
-        await self._out_buf.put(packet)
+        if self._out_buf.qsize() > 100:
+            logger.warning(f"{self.name} 输出缓冲区积压过多数据，请保证连接畅通或减少操作请求频率")
+            raise RuntimeError("输出缓冲区溢出，操作请求被丢弃")
+        self._out_buf.put_nowait(packet)
         if packet.echo_id is None:
             return EchoPacket(noecho=True)
 
         fut: Future[EchoPacket] = asyncio.get_running_loop().create_future()
+        if len(self._echo_table) > 256:
+            logger.warning(
+                f"{self.name} echo 标识映射表溢出，开始丢弃操作请求。请保证连接畅通或减少操作请求频率"
+            )
+            raise RuntimeError("echo 标识映射表溢出，操作请求被丢弃")
         self._echo_table[packet.echo_id] = (packet.action_type, fut)
         return await fut

@@ -34,10 +34,11 @@ from ..io.base import (
     OutPacketT,
     OutSourceT,
 )
-from ..log import log_exc
+from ..log.reflect import logger
 from ..mixin import HookMixin
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from ..typ.cls import BetterABC
-from .content import Content
+from .content import Content, TextContent
 from .model import ActionHandle, ActionHandleGroup, ActionT, EchoT, Event, EventT
 
 if TYPE_CHECKING:
@@ -177,10 +178,9 @@ class Adapter(
                 EventOrigin.set_origin(event, EventOrigin(self, src))
                 await self._hook_bus.emit(AdapterLifeSpan.BEFORE_EVENT_HANDLE, True, args=(event,))
                 self.dispatcher.broadcast(event)
-            except Exception as e:
-                log_exc(
-                    e,
-                    msg=f"适配器 {self} 处理输入源 {src} 时发生异常",
+            except Exception:
+                logger.generic_exc(
+                    f"适配器 {self} 处理输入源 {src} 时发生异常",
                     obj={
                         "in_factory": self._event_factory,
                         "dispatcher": self.dispatcher,
@@ -277,12 +277,12 @@ class Adapter(
         return ActionHandleGroup(*hs)
 
     @abstractmethod
-    async def __send_text__(self, text: str) -> ActionHandleGroup:
+    async def __send_text__(self, *texts: str | TextContent) -> ActionHandleGroup:
         """输出文本
 
         抽象方法。所有适配器子类应该实现此方法
 
-        :param text: 文本
+        :param texts: 文本
         :return: :class:`.ActionHandleGroup` 对象
         """
         raise NotImplementedError
@@ -426,6 +426,41 @@ class Adapter(
         :return: :class:`.ActionHandleGroup` 对象
         """
         return await self.__send_text__(f"[melobot resource: {name} at {url}]")
+
+    @property
+    def on_before_event_handle(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.BEFORE_EVENT_HANDLE` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.BEFORE_EVENT_HANDLE)
+
+    @property
+    def on_before_action_exec(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.BEFORE_ACTION_EXEC` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.BEFORE_ACTION_EXEC)
+
+    @property
+    def on_started(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.STARTED` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.STARTED)
+
+    @property
+    def on_close(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.CLOSE` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.CLOSE)
+
+    @property
+    def on_stopped(
+        self,
+    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给适配器注册 :obj:`.AdapterLifeSpan.STOPPED` 阶段 hook 的装饰器"""
+        return self.on(AdapterLifeSpan.STOPPED)
 
 
 AdapterT = TypeVar("AdapterT", bound=Adapter)

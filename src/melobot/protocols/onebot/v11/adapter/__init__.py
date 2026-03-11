@@ -1,3 +1,4 @@
+from ..io.packet import ActionToUpstream, EchoToDownstream, EventToDownstream, ToDownstream
 from .action import (
     Action,
     CanSendImageAction,
@@ -66,6 +67,7 @@ from .echo import (
     SendMsgEcho,
 )
 from .event import (
+    DownstreamCallEvent,
     Event,
     FriendAddNoticeEvent,
     FriendRecallNoticeEvent,
@@ -89,6 +91,7 @@ from .event import (
     PokeNotifyEvent,
     PrivateMessageEvent,
     RequestEvent,
+    UpstreamRetEvent,
 )
 from .segment import (
     AnonymousSegment,
@@ -129,9 +132,9 @@ from .segment import (
     VideoSendSegment,
     XmlSegment,
     base64_encode,
-    contents_to_segs,
+    content_to_seg,
     cq_anti_escape,
     cq_escape,
     cq_filter_text,
-    segs_to_contents,
+    seg_to_content,
 )

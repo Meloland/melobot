@@ -1,21 +1,26 @@
 from __future__ import annotations
 
 from pydantic import BaseModel
-from typing_extensions import Any, Literal, Sequence, cast
+from typing_extensions import Any, Literal, NoReturn, Sequence, cast
 
+import melobot.protocols.onebot.v11.adapter.echo
 from melobot.adapter import Event as RootEvent
 from melobot.adapter import TextEvent as RootTextEvent
 from melobot.adapter import content
 
 from ..const import PROTOCOL_IDENTIFIER
-from .segment import Segment, TextSegment, segs_to_contents
+from ..io.packet import ActionToUpstream, EchoToDownstream, EventToDownstream
+from .segment import Segment, TextSegment, seg_to_content
 
 
 class Event(RootEvent):
     class Model(BaseModel):
         time: int
         self_id: int
-        post_type: Literal["message", "notice", "request", "meta_event"] | str
+        post_type: (
+            Literal["message", "notice", "request", "meta_event", "downstream_call", "upstream_ret"]
+            | str
+        )
 
     def __init__(self, **event_data: Any) -> None:
         self._model = self.Model(**event_data)
@@ -26,11 +31,16 @@ class Event(RootEvent):
         #: 机器人自己的 qq 号
         self.self_id: int = self._model.self_id
         #: 事件类型
-        self.post_type: Literal["message", "notice", "request", "meta_event"] | str = (
-            self._model.post_type
-        )
+        self.post_type: (
+            Literal["message", "notice", "request", "meta_event", "downstream_call", "upstream_ret"]
+            | str
+        ) = self._model.post_type
         #: 事件原始数据
         self.raw: dict[str, Any] = event_data
+
+        if not isinstance(self, DownstreamCallEvent):
+            #: 传递对象，操作此对象来修改下游收到的内容
+            self.to_downstream: EventToDownstream | EchoToDownstream = EventToDownstream(self.raw)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(post_type={self.post_type})"
@@ -42,6 +52,8 @@ class Event(RootEvent):
             "notice": NoticeEvent,
             "request": RequestEvent,
             "meta_event": MetaEvent,
+            "downstream_call": DownstreamCallEvent,
+            "upstream_ret": UpstreamRetEvent,
         }
         if (etype := event_data.get("post_type")) in cls_map:
             return cls_map[etype].resolve(event_data)
@@ -58,6 +70,12 @@ class Event(RootEvent):
 
     def is_meta(self) -> bool:
         return self.post_type == "meta_event"
+
+    def is_downstream_call(self) -> bool:
+        return self.post_type == "downstream_call"
+
+    def is_upstream_ret(self) -> bool:
+        return self.post_type == "upstream_ret"
 
 
 class MessageEvent(RootTextEvent, Event):
@@ -76,6 +94,8 @@ class MessageEvent(RootTextEvent, Event):
         super().__init__(**event_data)
 
         self._model: MessageEvent.Model
+        self.post_type: Literal["message"]
+        self.to_downstream: EventToDownstream
         #: 消息内容（消息段表示）
         self.message: list[Segment]
         #: 消息发送者
@@ -92,7 +112,7 @@ class MessageEvent(RootTextEvent, Event):
             self.message = Segment.__resolve_cq__(data["raw_message"])
         else:
             self.message = [Segment.resolve(dic["type"], dic["data"]) for dic in data["message"]]
-        self.contents = segs_to_contents(self.message)
+        self.contents = list(c for c in map(seg_to_content, self.message) if c is not None)
 
         #: 消息类型
         self.message_type: Literal["private", "group"] | str = self._model.message_type
@@ -118,10 +138,7 @@ class MessageEvent(RootTextEvent, Event):
         ).split("\n")
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(text={self.text!r},"
-            f" user_id={self.user_id}, sub_type={self.sub_type})"
-        )
+        return f"{self.__class__.__name__}(text={self.text!r}, sub_type={self.sub_type})"
 
     @classmethod
     def resolve(cls, event_data: dict[str, Any]) -> MessageEvent:
@@ -320,11 +337,7 @@ class GroupMessageEvent(MessageEvent):
         self.sub_type: Literal["normal", "anonymous", "notice", "group_self"]
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(text={self.text!r},"
-            f" user_id={self.user_id}, group_id={self.group_id},"
-            f" sub_type={self.sub_type})"
-        )
+        return f"{self.__class__.__name__}(text={self.text!r}, sub_type={self.sub_type})"
 
 
 class MetaEvent(Event):
@@ -337,6 +350,8 @@ class MetaEvent(Event):
         super().__init__(**event_data)
 
         self._model: MetaEvent.Model
+        self.post_type: Literal["meta_event"]
+        self.to_downstream: EventToDownstream
         #: 元事件类型
         self.meta_event_type: Literal["lifecycle", "heartbeat"] | str = self._model.meta_event_type
 
@@ -446,6 +461,8 @@ class NoticeEvent(Event):
         super().__init__(**event_data)
 
         self._model: NoticeEvent.Model
+        self.post_type: Literal["notice"]
+        self.to_downstream: EventToDownstream
         #: 通知事件类型
         self.notice_type: (
             Literal[
@@ -884,6 +901,8 @@ class RequestEvent(Event):
         super().__init__(**event_data)
 
         self._model: RequestEvent.Model
+        self.post_type: Literal["request"]
+        self.to_downstream: EventToDownstream
         #: 请求事件类型
         self.request_type: Literal["friend", "group"] | str = self._model.request_type
 
@@ -964,3 +983,94 @@ class GroupRequestEvent(RequestEvent):
 
     def is_invite(self) -> bool:
         return self.sub_type == "invite"
+
+
+class DownstreamCallEvent(Event):
+
+    class Model(Event.Model):
+        post_type: Literal["downstream_call"]
+        action: str
+        params: dict[str, Any]
+        echo: str | None = None
+
+    def __init__(self, **event_data: Any) -> None:
+        self._model: DownstreamCallEvent.Model
+        self.post_type: Literal["downstream_call"]
+        self.self_id: Literal[-1]
+        super().__init__(**event_data)
+        self.raw.pop("post_type")
+        self.raw.pop("time")
+        self.raw.pop("self_id")
+
+        #: 下游调用类型
+        self.calling_type: str = self._model.action
+        #: 下游调用参数
+        self.calling_params: dict[str, Any] = self._model.params
+        #: 下游调用回声标识，需要自行判断是否为空字符串
+        self.calling_echo: str = "" if self._model.echo is None else self._model.echo
+        #: 传递对象，操作此对象来修改上游收到的内容
+        self.to_upstream: ActionToUpstream = ActionToUpstream(
+            self.calling_type, self.calling_params, self.calling_echo
+        )
+
+    @property  # type: ignore[override]
+    def to_downstream(self) -> NoReturn:  # type: ignore[override]
+        # 不要使用此属性，这是无意义的
+        raise NotImplementedError(f"不要对 {self.__class__.__name__} 对象使用此属性，这是无意义的")
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(calling_type={self.calling_type}, "
+            f"calling_echo={self.calling_echo!r})"
+        )
+
+    @classmethod
+    def resolve(cls, event_data: dict[str, Any]) -> DownstreamCallEvent:
+        return cls(**event_data)
+
+    def is_match_type(self, type: str) -> bool:
+        return self.calling_type == type
+
+    def is_match_echo(self, echo: str) -> bool:
+        return self.calling_echo == echo
+
+
+class UpstreamRetEvent(Event):
+
+    class Model(Event.Model):
+        post_type: Literal["upstream_ret"]
+        ret: dict[str, Any]
+
+    def __init__(self, **event_data: Any) -> None:
+        self._model: UpstreamRetEvent.Model
+        self.post_type: Literal["upstream_ret"]
+        self.self_id: Literal[-1]
+        super().__init__(**event_data)
+
+        from .echo import Echo
+
+        #: 下游调用后得到的上游返回结果
+        self.ret: melobot.protocols.onebot.v11.adapter.echo.Echo = Echo.resolve(event_data["ret"])
+        self.raw = self.ret.raw
+        #: 下游调用类型
+        self.calling_type: str = self.ret.action_type
+        #: 下游调用时的回声标识，需要自行判断是否为空字符串
+        self.calling_echo: str = event_data["ret"]["echo"]
+        #: 传递对象，操作此对象来修改下游收到的内容
+        self.to_downstream = EchoToDownstream(self.ret.raw)
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(calling_type={self.calling_type}, "
+            f"calling_echo={self.calling_echo!r})"
+        )
+
+    @classmethod
+    def resolve(cls, event_data: dict[str, Any]) -> UpstreamRetEvent:
+        return cls(**event_data)
+
+    def is_match_type(self, type: str) -> bool:
+        return self.calling_type == type
+
+    def is_match_echo(self, echo: str) -> bool:
+        return self.calling_echo == echo

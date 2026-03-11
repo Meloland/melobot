@@ -208,10 +208,10 @@ class TestUnfoldCtx:
         async def func() -> None:
             assert cls.VAL == 1
 
-        f = unfold_ctx(cls.SyncCtx)(func)
+        f = ctx(cls.SyncCtx)(func)
         await f()
         assert cls.VAL == 0
-        f = unfold_ctx(cls.AsyncCtx)(func)
+        f = ctx(cls.AsyncCtx)(func)
         await f()
         assert cls.VAL == 0
 

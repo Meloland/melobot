@@ -11,6 +11,8 @@ from melobot.adapter import (
     ActionHandleGroup,
 )
 from melobot.adapter import Adapter as RootAdapter
+from melobot.adapter import content as mc
+from melobot.exceptions import AdapterError
 from melobot.typ import SyncOrAsyncCallable
 
 from ..const import PROTOCOL_IDENTIFIER
@@ -66,9 +68,6 @@ class Adapter(
     def __init__(self) -> None:
         super().__init__(PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory())
 
-    async def __send_text__(self, text: str) -> ActionHandleGroup[ec.Echo]:
-        return await self.send(text)
-
     async def send(
         self,
         msg: str,
@@ -83,3 +82,9 @@ class Adapter(
         self, executor: SyncOrAsyncCallable[[], Any], next_prompt_args: dict[str, Any] | None = None
     ) -> ActionHandleGroup[ec.Echo]:
         return await self.call_output(ac.RawOutputAction(executor, next_prompt_args))
+
+    async def __send_text__(self, *texts: str | mc.TextContent) -> ActionHandleGroup[ec.Echo]:
+        s = "".join(t if isinstance(t, str) else t.text for t in texts)
+        if s == "":
+            raise AdapterError("发送文本消息时，内容不能为空")
+        return await self.send(s)

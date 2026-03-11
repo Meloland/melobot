@@ -12,19 +12,19 @@ from .base import to_async
 
 def if_(
     condition: SyncOrAsyncCallable[[], U] | U,
-    reject: SyncOrAsyncCallable[[], None],
-    give_up: bool = False,
+    reject: SyncOrAsyncCallable[[], None] | None = None,
+    give_up: bool = True,
     accept: SyncOrAsyncCallable[[U], None] | None = None,
 ) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T | None]]:
     """条件判断装饰器
 
     :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）
     :param reject: 当条件为 `False` 时，执行的回调
-    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数
+    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数。当然，此选项不影响 `reject` 的执行
     :param accept: 当条件为 `True` 时，执行的回调
     """
     _condition = to_async(condition) if callable(condition) else condition
-    _reject = to_async(reject)
+    _reject = to_async(reject) if reject is not None else reject
     _accept = to_async(accept) if accept is not None else accept
 
     def if_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T | None]:
@@ -39,21 +39,21 @@ def if_(
                 cond = await obj if inspect.isawaitable(obj) else obj
 
             if not cond:
-                await _reject()
-
-            if cond or not give_up:
+                if _reject is not None:
+                    await _reject()
+                if give_up:
+                    return None
+            else:
                 if _accept is not None:
                     await _accept(cond)
-
-                return await _func(*args, **kwargs)
-            return None
+            return await _func(*args, **kwargs)
 
         return if_wrapped
 
     return if_wrapper
 
 
-def unfold_ctx(
+def ctx(
     getter: SyncOrAsyncCallable[[], ContextManager | AsyncContextManager],
 ) -> Callable[[SyncOrAsyncCallable[P, T]], AsyncCallable[P, T]]:
     """上下文装饰器
@@ -66,16 +66,16 @@ def unfold_ctx(
 
     _getter = to_async(getter)
 
-    def unfold_ctx_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T]:
+    def ctx_wrapper(func: SyncOrAsyncCallable[P, T]) -> AsyncCallable[P, T]:
         _func = to_async(func)
 
         @wraps(func)
-        async def unfold_ctx_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        async def ctx_wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
             try:
                 manager = await _getter()
             except Exception as e:
                 raise UtilValidateError(
-                    f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它获取上下文管理器失败：{e}"
+                    f"{ctx.__name__} 的 getter 参数为：{getter}，调用它获取上下文管理器失败：{e}"
                 ) from e
 
             if isinstance(manager, ContextManager):
@@ -86,12 +86,12 @@ def unfold_ctx(
                     return await _func(*args, **kwargs)
             else:
                 raise UtilValidateError(
-                    f"{unfold_ctx.__name__} 的 getter 参数为：{getter}，调用它返回了无效的上下文管理器"
+                    f"{ctx.__name__} 的 getter 参数为：{getter}，调用它返回了无效的上下文管理器"
                 )
 
-        return unfold_ctx_wrapped
+        return ctx_wrapped
 
-    return unfold_ctx_wrapper
+    return ctx_wrapper
 
 
 def lock(

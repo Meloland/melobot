@@ -14,11 +14,19 @@ if TYPE_CHECKING:
     from .adapter.generic import send_image, send_text
     from .bot import Bot, get_bot
     from .ctx import Context
-    from .di import Depends
+    from .di import Depends, Exclude, MatchEvent, Reflect, inject_deps
     from .handle import (
         Flow,
         FlowDecorator,
+        FlowNode,
         FlowStore,
+        block,
+        bypass,
+        flow_to,
+        get_event,
+        get_flow_arg,
+        get_flow_store,
+        nextn,
         node,
         on_command,
         on_contain_match,
@@ -30,11 +38,22 @@ if TYPE_CHECKING:
         on_text,
         rewind,
         stop,
+        try_get_event,
     )
     from .log import GenericLogger, Logger, get_logger
     from .plugin import AsyncShare, PluginInfo, PluginLifeSpan, PluginPlanner, SyncShare
-    from .session import DefaultRule, Rule, Session, SessionStore, enter_session, suspend
-    from .typ._enum import LogicMode, LogLevel
+    from .session import (
+        DefaultRule,
+        Rule,
+        Session,
+        SessionStore,
+        enter_session,
+        get_session,
+        get_session_arg,
+        get_session_store,
+        suspend,
+    )
+    from .typ._enum import Color, LogicMode, LogLevel
 else:
     _lazy_import(
         globals(),
@@ -45,11 +64,19 @@ else:
             ".adapter.generic": ("send_image", "send_text"),
             ".bot": ("Bot", "get_bot"),
             ".ctx": ("Context",),
-            ".di": ("Depends",),
+            ".di": ("Depends", "Exclude", "MatchEvent", "Reflect", "inject_deps"),
             ".handle": (
                 "Flow",
                 "FlowDecorator",
+                "FlowNode",
                 "FlowStore",
+                "block",
+                "bypass",
+                "flow_to",
+                "get_event",
+                "get_flow_arg",
+                "get_flow_store",
+                "nextn",
                 "node",
                 "on_command",
                 "on_contain_match",
@@ -61,6 +88,7 @@ else:
                 "on_text",
                 "rewind",
                 "stop",
+                "try_get_event",
             ),
             ".log": ("GenericLogger", "Logger", "get_logger"),
             ".plugin": ("AsyncShare", "PluginInfo", "PluginLifeSpan", "PluginPlanner", "SyncShare"),
@@ -70,9 +98,12 @@ else:
                 "Session",
                 "SessionStore",
                 "enter_session",
+                "get_session",
+                "get_session_arg",
+                "get_session_store",
                 "suspend",
             ),
-            ".typ._enum": ("LogicMode", "LogLevel"),
+            ".typ._enum": ("Color", "LogicMode", "LogLevel"),
         },
         deprecations={},
     )

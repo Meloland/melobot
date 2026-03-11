@@ -6,9 +6,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
 
-from typing_extensions import Any, Generic, LiteralString, Self, TypeVar
+from typing_extensions import Any, Callable, Generic, LiteralString, Self, TypeVar
 
 from ..mixin import HookMixin
+from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable
 from ..typ.cls import BetterABC, abstractattr
 from ..utils.common import get_id
 
@@ -81,9 +82,9 @@ class SourceLifeSpan(Enum):
     STARTED = "sta"
     #: 源重新启动完成之后（未实现重启的源，自然不会调用这个）
     RESTARTED = "res"
-    #: 源停止即将发生前（出现异常可能不会调用此类型）
+    #: 源停止操作发生前（出现异常可能不会调用此类型），具体何时触发请参考具体的源实现（例如一些源重启前发出此信号，但其他一些源则不一定）
     CLOSE = "clo"
-    #: 源停止完成后（包含任何情况导致的停止）
+    #: bot 关闭时触发的源对象停止。可以在这里安全地运行清理操作
     STOPPED = "sto"
 
 
@@ -127,15 +128,34 @@ class AbstractSource(HookMixin[SourceLifeSpan], BetterABC):
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> None:
-        if not self.opened():
-            return None
-
         try:
+            if not self.opened():
+                return None
             await self._hook_bus.emit(SourceLifeSpan.CLOSE, True)
             await self.close()
         finally:
             await self._hook_bus.emit(SourceLifeSpan.STOPPED, True)
         return None
+
+    @property
+    def on_started(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.STARTED` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.STARTED)
+
+    @property
+    def on_restarted(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.RESTARTED` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.RESTARTED)
+
+    @property
+    def on_close(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.CLOSE` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.CLOSE)
+
+    @property
+    def on_stopped(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给源注册 :obj:`.SourceLifeSpan.STOPPED` 阶段 hook 的装饰器"""
+        return self.on(SourceLifeSpan.STOPPED)
 
 
 class AbstractInSource(AbstractSource, Generic[InPacketT]):

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing_extensions import TYPE_CHECKING, Any, Awaitable, ParamSpec, Protocol, TypeIs, TypeVar
 
 from .._lazy import singleton
@@ -17,6 +19,7 @@ V = TypeVar("V", default=Any)
 T_co = TypeVar("T_co", covariant=True, default=Any)
 #: :obj:`~typing.ParamSpec` 泛型 P，无约束
 P = ParamSpec("P", default=Any)
+StrOrBytes = TypeVar("StrOrBytes", str, bytes)
 
 
 class AsyncCallable(Protocol[P, T_co]):

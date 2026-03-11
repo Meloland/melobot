@@ -75,13 +75,12 @@ bot.add_adapter(...)
 例如 OneBot 协议的协议栈对象，允许你直接添加源对象，内部自动添加适配器：
 
 ```python
-from melobot.protocols.onebot.v11 import OneBotV11Protocol, ForwardWebSocketIO, \
-    ReverseWebSocketIO
+from melobot.protocols.onebot.v11 import OneBotV11Protocol, WSClient, WSServer
 
 # 添加指定数量的源
 protocol = OneBotV11Protocol(
-    ForwardWebSocketIO(...), 
-    ReverseWebSocketIO(...), 
+    WSClient(...), 
+    WSServer(...),
     ...
 )
 # 随后把协议栈对象提供给 bot 实例
@@ -126,9 +125,9 @@ async def _(adapter: Adapter) -> None: ...
 很自然的，可以在源对象创建时获取：
 
 ```python
-from melobot.protocols.onebot.v11 import ForwardWebSocketIO
+from melobot.protocols.onebot.v11 import WSClient
 # 但一般只会在主脚本创建源
-src = ForwardWebSocketIO(...)
+src = WSClient(...)
 # 因为随后要提供给 bot 实例
 bot.add_io(src)
 ```
@@ -154,9 +153,9 @@ async def _(event: Event) -> None:
 所有源对象和适配器对象，都拥有 `protocol` 属性，为协议字符串。表示了所适用的协议类型。
 
 ```python
-from melobot.protocols.onebot.v11 import ForwardWebSocketIO, Adapter
+from melobot.protocols.onebot.v11 import WSClient, Adapter
 
-src = ForwardWebSocketIO(...)
+src = WSClient(...)
 adapter = Adapter(...)
 assert src.protocol == "OneBot-v11@Meloland"
 assert adapter.protocol == "OneBot-v11@Meloland"

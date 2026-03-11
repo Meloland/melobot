@@ -4,6 +4,8 @@ melobot.utils
 基础工具
 ----------
 
+.. autofunction:: melobot.utils.truncate
+
 .. autofunction:: melobot.utils.get_obj_name
 
 .. autofunction:: melobot.utils.singleton
@@ -21,7 +23,7 @@ melobot.utils
 
 .. autofunction:: melobot.utils.if_
 
-.. autofunction:: melobot.utils.unfold_ctx
+.. autofunction:: melobot.utils.ctx
 
 .. autofunction:: melobot.utils.lock
 

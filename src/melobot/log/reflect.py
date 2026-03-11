@@ -102,8 +102,16 @@ class LogReflector:
         return path
 
 
+def get_global_logger() -> GenericLogger | None:
+    """获取顶级域对应的日志器，非主模块建议不要调用此函数
+
+    :return: 日志器，可以为空
+    """
+    return LogReflector.global_logger
+
+
 def set_global_logger(logger: GenericLogger | None) -> None:
-    """设置顶级域对应的日志器
+    """设置顶级域对应的日志器，非主模块建议不要调用此函数
 
     :param logger: 日志器，可以为空
     """
@@ -113,7 +121,7 @@ def set_global_logger(logger: GenericLogger | None) -> None:
 def set_module_logger(
     module: str | PathLike[str] | ModuleType, logger: GenericLogger | None
 ) -> None:
-    """设置模块域对应的日志器
+    """设置模块域对应的日志器，非主模块建议不要调用此函数
 
     :param module: 模块名、模块相对或绝对路径、模块对象
     :param logger: 日志器，可以为空
@@ -128,7 +136,7 @@ def reflect_logger(stack_depth: int = 3) -> GenericLogger:
     try:
         caller_path = Path(caller_path_str).resolve(strict=True)
     except FileNotFoundError as e:
-        raise FileNotFoundError("自动决定日志器时，尝试解析调用模块的路径失败") from e
+        raise FileNotFoundError("获取日志器代理对象时，尝试解析调用模块的路径失败") from e
 
     cur_node = LogReflector.root_node
     for part in caller_path.parts:
@@ -143,7 +151,7 @@ class GenericLogProxy(GenericLogger):
         self.__cache_logger__: GenericLogger | None = None
 
     @property
-    def __logger__(self) -> GenericLogger | None:
+    def __origin__(self) -> GenericLogger | None:
         return self.__get_logger__()
 
     def __get_logger__(self) -> GenericLogger | None:
@@ -162,7 +170,7 @@ class GenericLogProxy(GenericLogger):
         return logger
 
     def __log_meth__(self, meth_name: str, *_: Any, **kwargs: Any) -> None:
-        logger = self.__logger__
+        logger = self.__origin__
         if logger is not None:
             if isinstance(logger, logging.Logger):
                 kwargs["stacklevel"] = 3

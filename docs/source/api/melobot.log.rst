@@ -28,10 +28,6 @@ melobot.log
     # 再为插件目录下的所有插件设置一个单独的日志器
     set_module_logger("./plugin_dir", Logger(...))
 
-另外 3.2.0 版本开始，提供 :func:`.log_exc` 方法用于向 melobot 核心模块报告异常信息，并体现在日志或异常回溯栈信息中。
-
-该方法所在模块为：`melobot.log.report`，此信息可用于调整 :func:`.log_exc` 使用的日志器。
-
 注意：通过依赖注入获取 `logger` 的方式依旧可用，并且该特性计划长期支持：
 
 .. code-block:: python
@@ -96,5 +92,3 @@ melobot.log
 .. autofunction:: melobot.log.set_global_logger
 
 .. autofunction:: melobot.log.set_module_logger
-
-.. autofunction:: melobot.log.log_exc

@@ -7,7 +7,15 @@ from melobot.utils.check import Checker, checker_join
 from melobot.utils.match import Matcher
 from melobot.utils.parse import Parser
 
-from .adapter.event import Event, MessageEvent, MetaEvent, NoticeEvent, RequestEvent
+from .adapter.event import (
+    DownstreamCallEvent,
+    Event,
+    MessageEvent,
+    MetaEvent,
+    NoticeEvent,
+    RequestEvent,
+    UpstreamRetEvent,
+)
 from .utils import check
 
 
@@ -17,7 +25,7 @@ def on_event(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, Event), checker),  # type: ignore[arg-type]
@@ -81,7 +89,7 @@ def on_request(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, RequestEvent), checker),  # type: ignore[arg-type]
@@ -99,7 +107,7 @@ def on_notice(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, NoticeEvent), checker),  # type: ignore[arg-type]
@@ -117,10 +125,46 @@ def on_meta(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, MetaEvent), checker),  # type: ignore[arg-type]
+        priority=priority,
+        block=block,
+        temp=temp,
+        decos=decos,
+        rule=rule,  # type: ignore[arg-type]
+    )
+
+
+def on_downstream_call(
+    checker: Checker | None | SyncOrAsyncCallable[[DownstreamCallEvent], bool] = None,
+    priority: int = 0,
+    block: bool = False,
+    temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
+) -> FlowDecorator:
+    return FlowDecorator(
+        checker=checker_join(lambda e: isinstance(e, DownstreamCallEvent), checker),  # type: ignore[arg-type]
+        priority=priority,
+        block=block,
+        temp=temp,
+        decos=decos,
+        rule=rule,  # type: ignore[arg-type]
+    )
+
+
+def on_upstream_ret(
+    checker: Checker | None | SyncOrAsyncCallable[[UpstreamRetEvent], bool] = None,
+    priority: int = 0,
+    block: bool = False,
+    temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
+) -> FlowDecorator:
+    return FlowDecorator(
+        checker=checker_join(lambda e: isinstance(e, UpstreamRetEvent), checker),  # type: ignore[arg-type]
         priority=priority,
         block=block,
         temp=temp,

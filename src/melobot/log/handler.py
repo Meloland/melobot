@@ -62,19 +62,18 @@ class FastRotatingFileHandler(RotatingFileHandler):
             super().emit(record)
 
 
-@singleton
-def get_exc_report_func() -> Callable[[BaseException, str], None]:
-    from .report import log_exc
-
-    return log_exc
-
-
 def _format_cb(
     record: LogRecord, super_emit: Callable[[LogRecord], None], t: asyncio.Task[None]
 ) -> None:
     exc = t.exception()
     if exc is not None:
-        get_exc_report_func()(exc, f"日志格式化渲染出现异常，内容：{record.msg}")
+        try:
+            raise exc
+        except Exception:
+            from traceback import print_exc
+
+            print_exc()
+            print(f"日志格式化渲染出现异常，内容：{record.msg}")
         return
     super_emit(record)
 
@@ -160,7 +159,10 @@ class LogRenderRunner:
                 setattr(obj, attr_name, new_runner)
                 new_runner.add_ref(obj, attr_name)
             except Exception as e:
-                get_exc_report_func()(e, f"清理 {self.__class__.__name__} 引用时发生异常")
+                from traceback import print_exc
+
+                print_exc()
+                print(f"清理 {self.__class__.__name__} 引用时发生异常")
 
 
 class RecordRender:
@@ -283,8 +285,8 @@ class RecordRender:
             return obj
         if obj in (None, True, False, Ellipsis, NotImplemented):
             return obj
-        if isinstance(obj, (tuple, list, set)):
+        if isinstance(obj, (tuple, list, set)) and len(obj) <= 100:
             return type(obj)(map(self._to_easy_serialize, obj))
-        if isinstance(obj, dict):
+        if isinstance(obj, dict) and len(obj) <= 100:
             return {self._to_easy_serialize(k): self._to_easy_serialize(v) for k, v in obj.items()}
         return str(obj)

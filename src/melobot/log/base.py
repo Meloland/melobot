@@ -18,7 +18,7 @@ from .._lazy import singleton
 from .._render import get_rich_exception
 from ..typ._enum import LogLevel
 from ..typ.base import T
-from ..typ.cls import BetterABC
+from ..typ.cls import BetterABCMeta
 from ..utils.common import find_caller_stack
 from .handler import _NO_LOG_OBJ_SIGN, FastRotatingFileHandler, FastStreamHandler
 
@@ -27,8 +27,17 @@ logging._loggerClass = (  # type:ignore[attr-defined]
     logging.Logger
 )
 
+PATCHED_LOGGER_TAG = "__melobot_patched_logger__"
 
-class GenericLogger(BetterABC):
+
+class LoggerMeta(BetterABCMeta):
+    def __instancecheck__(cls, instance: Any) -> bool:
+        if hasattr(instance, PATCHED_LOGGER_TAG):
+            return True
+        return super().__instancecheck__(instance)
+
+
+class GenericLogger(metaclass=LoggerMeta):
     """通用日志器抽象类
 
     任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，
@@ -98,6 +107,16 @@ class GenericLogger(BetterABC):
         :param level: 日志等级
         """
         raise NotImplementedError
+
+    def generic_exc(self, msg: str, obj: Any = None) -> None:
+        """通用异常记录方法（同时可打印对象）
+
+        :param msg: 消息
+        :param obj: 需要记录的对象
+        """
+        self.exception(msg)
+        if obj is not None:
+            self.generic_obj("相关变量信息：", obj, level=LogLevel.ERROR)
 
 
 @singleton
@@ -430,15 +449,4 @@ def is_logging_frame(frame: types.FrameType) -> bool:
     )
 
 
-def generic_obj_meth(
-    logger: GenericLogger,
-    msg: str,
-    obj: T,
-    *arg_getters: Callable[[], str],
-    level: LogLevel = LogLevel.INFO,
-) -> None:
-    _getters = arg_getters + (lambda: str(obj),)
-    logger.generic_lazy(msg + "\n%s", *_getters, level=level)
-
-
-_FILE = os.path.normcase(generic_obj_meth.__code__.co_filename)
+_FILE = os.path.normcase(is_logging_frame.__code__.co_filename)

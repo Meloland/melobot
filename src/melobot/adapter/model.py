@@ -233,7 +233,7 @@ class ActionHandle(Generic[EchoT]):
         self.status: Literal["PENDING", "EXECUTING", "DONE"] = "PENDING"
         self.out_src = out_src
 
-        self._echo_fut: asyncio.Future[EchoT | None] = asyncio.Future()
+        self._echo_fut: asyncio.Future[EchoT | None] = asyncio.get_running_loop().create_future()
         self._output_factory = output_factory
         self._echo_factory = echo_factory
 

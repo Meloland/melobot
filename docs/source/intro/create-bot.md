@@ -26,7 +26,7 @@
 :number-lines:
 
 from melobot import Bot, PluginPlanner, on_start_match, send_text
-from melobot.protocols.onebot.v11 import ForwardWebSocketIO, OneBotV11Protocol
+from melobot.protocols.onebot.v11 import WSClient, OneBotV11Protocol
 
 @on_start_match(".sayhi")
 async def echo_hi() -> None:
@@ -36,7 +36,7 @@ test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 
 if __name__ == "__main__":
     bot = Bot(__name__)
-    bot.add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
+    bot.add_protocol(OneBotV11Protocol(WSClient("ws://127.0.0.1:8080")))
     bot.load_plugin(test_plugin)
     bot.run()
 ```
@@ -71,7 +71,7 @@ test_plugin = PluginPlanner(version="1.0.0", flows=[echo_hi])
 
 ```python
 bot = Bot(__name__)
-bot.add_protocol(OneBotV11Protocol(ForwardWebSocketIO("ws://127.0.0.1:8080")))
+bot.add_protocol(OneBotV11Protocol(WSClient("ws://127.0.0.1:8080")))
 bot.load_plugin(test_plugin)
 bot.run()
 ```

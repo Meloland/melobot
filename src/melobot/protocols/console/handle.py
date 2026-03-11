@@ -16,7 +16,7 @@ def on_event(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, Event), checker),  # type: ignore[arg-type]
@@ -36,7 +36,7 @@ def on_input(
     block: bool = False,
     temp: bool = False,
     decos: Sequence[Callable[[Callable], Callable]] | None = None,
-    rule: Rule[Event] | None = None,
+    rule: Rule[Event] | type[Rule[Event]] | None = None,
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, StdinEvent), checker),  # type: ignore[arg-type]
