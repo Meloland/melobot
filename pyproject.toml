@@ -43,7 +43,7 @@ Changelog = "https://docs.melobot.org/update-log.html"
 
 [project.optional-dependencies]
 onebot = ["pydantic>=2.9.2,<3", "websockets>=14.1,<15", "aiohttp>=3.12.15,<4"]
-cli = ["watchdog>=6.0.0,<7"]
+cli = ["jinja2>=3.1.6", "watchdog>=6.0.0,<7"]
 console = ["prompt_toolkit>=3.0.52"]
 
 

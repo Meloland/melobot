@@ -187,6 +187,7 @@ def get_requires() -> tuple[Callable, Callable]:
 
     except ModuleNotFoundError:
         print(
-            f"部分功能需要额外的依赖。安装这些额外依赖：pip install 'melobot[cli]>={__version__}'"
+            f"部分功能需要额外的依赖。安装这些额外依赖：pip install 'melobot[cli]>={__version__}'",
+            file=sys.stderr,
         )
         sys.exit(1)
