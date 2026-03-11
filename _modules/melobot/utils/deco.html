@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.utils.deco - melobot 3.3.0</title>
+        <title>melobot.utils.deco - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -334,19 +335,19 @@
 <a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.if_">[文档]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">if_</span><span class="p">(</span>
     <span class="n">condition</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="n">U</span><span class="p">]</span> <span class="o">|</span> <span class="n">U</span><span class="p">,</span>
-    <span class="n">reject</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span>
-    <span class="n">give_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">reject</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">give_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">accept</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="n">U</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;条件判断装饰器</span>
 
 <span class="sd">    :param condition: 用于判断的条件（如果是可调用对象，则先求值再转为 bool 值）</span>
 <span class="sd">    :param reject: 当条件为 `False` 时，执行的回调</span>
-<span class="sd">    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数</span>
+<span class="sd">    :param give_up: 在条件为 `False` 时，是否放弃执行被装饰函数。当然，此选项不影响 `reject` 的执行</span>
 <span class="sd">    :param accept: 当条件为 `True` 时，执行的回调</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_condition</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="k">else</span> <span class="n">condition</span>
-    <span class="n">_reject</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">reject</span><span class="p">)</span>
+    <span class="n">_reject</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">reject</span><span class="p">)</span> <span class="k">if</span> <span class="n">reject</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reject</span>
     <span class="n">_accept</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">accept</span><span class="p">)</span> <span class="k">if</span> <span class="n">accept</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">accept</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">if_wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
@@ -361,14 +362,14 @@
                 <span class="n">cond</span> <span class="o">=</span> <span class="k">await</span> <span class="n">obj</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">else</span> <span class="n">obj</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cond</span><span class="p">:</span>
-                <span class="k">await</span> <span class="n">_reject</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">cond</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">give_up</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_reject</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">_reject</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">give_up</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">_accept</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">await</span> <span class="n">_accept</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
-
-                <span class="k">return</span> <span class="k">await</span> <span class="n">_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">if_wrapped</span>
 
@@ -376,9 +377,9 @@
 
 
 
-<div class="viewcode-block" id="unfold_ctx">
-<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.unfold_ctx">[文档]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">unfold_ctx</span><span class="p">(</span>
+<div class="viewcode-block" id="ctx">
+<a class="viewcode-back" href="../../../api/melobot.utils.html#melobot.utils.ctx">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ctx</span><span class="p">(</span>
     <span class="n">getter</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[],</span> <span class="n">ContextManager</span> <span class="o">|</span> <span class="n">AsyncContextManager</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;上下文装饰器</span>
@@ -391,16 +392,16 @@
 
     <span class="n">_getter</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">unfold_ctx_wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ctx_wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
         <span class="n">_func</span> <span class="o">=</span> <span class="n">to_async</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">unfold_ctx_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ctx_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">manager</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_getter</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">UtilValidateError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unfold_ctx</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 的 getter 参数为：</span><span class="si">{</span><span class="n">getter</span><span class="si">}</span><span class="s2">，调用它获取上下文管理器失败：</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 的 getter 参数为：</span><span class="si">{</span><span class="n">getter</span><span class="si">}</span><span class="s2">，调用它获取上下文管理器失败：</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">):</span>
@@ -411,12 +412,12 @@
                     <span class="k">return</span> <span class="k">await</span> <span class="n">_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">UtilValidateError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unfold_ctx</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 的 getter 参数为：</span><span class="si">{</span><span class="n">getter</span><span class="si">}</span><span class="s2">，调用它返回了无效的上下文管理器&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 的 getter 参数为：</span><span class="si">{</span><span class="n">getter</span><span class="si">}</span><span class="s2">，调用它返回了无效的上下文管理器&quot;</span>
                 <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">unfold_ctx_wrapped</span>
+        <span class="k">return</span> <span class="n">ctx_wrapped</span>
 
-    <span class="k">return</span> <span class="n">unfold_ctx_wrapper</span></div>
+    <span class="k">return</span> <span class="n">ctx_wrapper</span></div>
 
 
 
@@ -731,7 +732,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

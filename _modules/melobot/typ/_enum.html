@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.typ._enum - melobot 3.3.0</title>
+        <title>melobot.typ._enum - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -318,10 +319,12 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.typ._enum 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRITICAL</span><span class="p">,</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">WARNING</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">assert_never</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">assert_never</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ExitCode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -370,6 +373,170 @@
                 <span class="n">assert_never</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;不正确的逻辑类型 </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 </div>
 
+
+
+<span class="n">CommonColorType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="c1"># 标准色 (Standard, 0-7)</span>
+    <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;green&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yellow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cyan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+    <span class="c1"># 以此类推的高亮色 (Bright/High Intensity, 8-15)</span>
+    <span class="s2">&quot;bright_black&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_red&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_green&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_yellow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_blue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_magenta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_cyan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_white&quot;</span><span class="p">,</span>
+    <span class="c1"># 复位</span>
+    <span class="s2">&quot;reset&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">CommonColors</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;green&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yellow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cyan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_black&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_red&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_green&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_yellow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_blue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_magenta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_cyan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bright_white&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reset&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Color">
+<a class="viewcode-back" href="../../../api/melobot.typ.html#melobot.log.Color">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;颜色表示类&quot;&quot;&quot;</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">CommonColorType</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="nd">@overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">arg2</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">arg3</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+<div class="viewcode-block" id="Color.__init__">
+<a class="viewcode-back" href="../../../api/melobot.typ.html#melobot.log.Color.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">CommonColorType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">arg2</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">arg3</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;三种初始化模式：</span>
+
+<span class="sd">        1. 通过常用颜色名称字符串初始化，例如 &quot;red&quot;、&quot;bright_blue&quot; 等。</span>
+<span class="sd">        2. 通过十六进制颜色字符串初始化，例如 &quot;#ff0000&quot;</span>
+<span class="sd">        3. 通过 RGB 三参数初始化，例如 255, 0, 0</span>
+
+<span class="sd">        :param arg1: 第一参数，可以是常用颜色名称字符串、十六进制颜色字符串，或者 RGB 的 R 分量整数</span>
+<span class="sd">        :param arg2: 第二参数，如果 arg1 是 RGB 的 R 分量，则 arg2 是 G 分量整数，否则为 None</span>
+<span class="sd">        :param arg3: 第三参数，如果 arg1 是 RGB 的 R 分量，则 arg3 是 B 分量整数，否则为 None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">arg1</span> <span class="ow">in</span> <span class="n">CommonColors</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_common</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">arg1</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;十六进制颜色值必须以&#39;#&#39;开头&quot;</span><span class="p">)</span>
+                <span class="n">hex_s</span> <span class="o">=</span> <span class="n">arg1</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hex_s</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mh">0xFFFFFF</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;十六进制颜色值必须在 #000000 到 #FFFFFF 之间&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hex_s</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_common</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">arg2</span><span class="p">),</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">arg3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RGB 值必须都在 [0, 255] 之间，但是提供了 </span><span class="si">{</span><span class="n">arg1</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">arg2</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">arg3</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_common</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_common</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;常用颜色没有十六进制表示&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">02x</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">rgb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">02x</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">rgb</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_common</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;常用颜色没有 HSL 表示&quot;</span><span class="p">)</span>
+
+        <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mf">255.0</span>
+        <span class="n">c_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">c_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">c_max</span> <span class="o">-</span> <span class="n">c_min</span>
+        <span class="n">li</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_max</span> <span class="o">+</span> <span class="n">c_min</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">h</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">li</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">c_max</span> <span class="o">==</span> <span class="n">r</span><span class="p">:</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="p">((</span><span class="n">g</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta</span><span class="p">)</span> <span class="o">%</span> <span class="mi">6</span>
+            <span class="k">elif</span> <span class="n">c_max</span> <span class="o">==</span> <span class="n">g</span><span class="p">:</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># c_max == b</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="n">g</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta</span> <span class="o">+</span> <span class="mi">4</span>
+            <span class="n">h</span> <span class="o">*=</span> <span class="mi">60</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">s</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">li</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">CommonColors</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;不能在实例上获取常用颜色枚举，请使用类对象&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">black</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">red</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">green</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">yellow</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">blue</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">magenta</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">cyan</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">white</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_black</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_red</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_green</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_yellow</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_blue</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_magenta</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_cyan</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">bright_white</span><span class="p">:</span> <span class="n">Color</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Color</span></div>
+
+
+
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;black&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;green&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;yellow&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;magenta&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;cyan&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_black&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_black&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_red&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_red&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_green&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_green&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_yellow&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_yellow&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_blue&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_blue&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_magenta&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_magenta&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_cyan&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_cyan&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;bright_white&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;bright_white&quot;</span><span class="p">))</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="s2">&quot;reset&quot;</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;reset&quot;</span><span class="p">))</span>
 </pre></div>
         </article>
       </div>
@@ -409,7 +576,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

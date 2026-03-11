@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>依赖注入与特性 - melobot 3.3.0</title>
+        <title>依赖注入与特性 - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -195,7 +195,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -240,6 +240,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -683,15 +684,15 @@
 <p>流装饰器和 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.node" title="melobot.handle.node"><code class="xref py py-func docutils literal notranslate"><span class="pre">node()</span></code></a> 装饰器，识别到装饰链上已经存在依赖注入时，会自动放弃内部的依赖注入。</p>
 <p>例如以下典型例子：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.handle</span><span class="w"> </span><span class="kn">import</span> <span class="n">stop</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">if_</span><span class="p">,</span> <span class="n">unfold_ctx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">if_</span><span class="p">,</span> <span class="n">ctx</span>
 
 <span class="c1"># 创建一个消息事件的处理流</span>
 <span class="nd">@on_message</span><span class="p">(</span><span class="n">checker</span><span class="o">=</span><span class="n">OWNER_CHECKER</span><span class="p">)</span>
 <span class="c1"># 当解析器解析成功时，继续运行，否则停止处理流</span>
 <span class="nd">@if_</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">PARSER</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">get_event</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">),</span> <span class="n">reject</span><span class="o">=</span><span class="n">stop</span><span class="p">)</span>
 <span class="c1"># 随即展开一个会话</span>
-<span class="nd">@unfold_ctx</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="p">))</span>
-<span class="c1"># 下面的参数需要会话，但会话在 unfold_ctx 前不存在，所以要调整依赖注入的时机</span>
+<span class="nd">@ctx</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="p">))</span>
+<span class="c1"># 下面的参数需要会话，但会话在 enter_session 前不存在，所以要调整依赖注入的时机</span>
 <span class="nd">@inject_deps</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">session_test</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">SessionStore</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
@@ -797,7 +798,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

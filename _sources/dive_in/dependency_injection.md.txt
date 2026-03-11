@@ -380,15 +380,15 @@ async def f1(...) -> None: ...
 
 ```python
 from melobot.handle import stop
-from melobot.utils import if_, unfold_ctx
+from melobot.utils import if_, ctx
 
 # 创建一个消息事件的处理流
 @on_message(checker=OWNER_CHECKER)
 # 当解析器解析成功时，继续运行，否则停止处理流
 @if_(lambda: PARSER.parse(get_event().text), reject=stop)
 # 随即展开一个会话
-@unfold_ctx(lambda: enter_session(rule))
-# 下面的参数需要会话，但会话在 unfold_ctx 前不存在，所以要调整依赖注入的时机
+@ctx(lambda: enter_session(rule))
+# 下面的参数需要会话，但会话在 enter_session 前不存在，所以要调整依赖注入的时机
 @inject_deps
 async def session_test(session: Session, store: SessionStore) -> None:
     ...

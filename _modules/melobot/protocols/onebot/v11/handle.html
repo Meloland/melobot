@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.protocols.onebot.v11.handle - melobot 3.3.0</title>
+        <title>melobot.protocols.onebot.v11.handle - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../../../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -327,7 +328,15 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils.match</span><span class="w"> </span><span class="kn">import</span> <span class="n">Matcher</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parser</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">,</span> <span class="n">RequestEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.adapter.event</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DownstreamCallEvent</span><span class="p">,</span>
+    <span class="n">Event</span><span class="p">,</span>
+    <span class="n">MessageEvent</span><span class="p">,</span>
+    <span class="n">MetaEvent</span><span class="p">,</span>
+    <span class="n">NoticeEvent</span><span class="p">,</span>
+    <span class="n">RequestEvent</span><span class="p">,</span>
+    <span class="n">UpstreamRetEvent</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check</span>
 
 
@@ -339,7 +348,7 @@
     <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">FlowDecorator</span><span class="p">(</span>
         <span class="n">checker</span><span class="o">=</span><span class="n">checker_join</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Event</span><span class="p">),</span> <span class="n">checker</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -412,7 +421,7 @@
     <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">FlowDecorator</span><span class="p">(</span>
         <span class="n">checker</span><span class="o">=</span><span class="n">checker_join</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">RequestEvent</span><span class="p">),</span> <span class="n">checker</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -433,7 +442,7 @@
     <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">FlowDecorator</span><span class="p">(</span>
         <span class="n">checker</span><span class="o">=</span><span class="n">checker_join</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">NoticeEvent</span><span class="p">),</span> <span class="n">checker</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -454,10 +463,52 @@
     <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">FlowDecorator</span><span class="p">(</span>
         <span class="n">checker</span><span class="o">=</span><span class="n">checker_join</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">MetaEvent</span><span class="p">),</span> <span class="n">checker</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span>
+        <span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">,</span>
+        <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span>
+        <span class="n">decos</span><span class="o">=</span><span class="n">decos</span><span class="p">,</span>
+        <span class="n">rule</span><span class="o">=</span><span class="n">rule</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="on_downstream_call">
+<a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_downstream_call">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_downstream_call</span><span class="p">(</span>
+    <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="n">DownstreamCallEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">FlowDecorator</span><span class="p">(</span>
+        <span class="n">checker</span><span class="o">=</span><span class="n">checker_join</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">DownstreamCallEvent</span><span class="p">),</span> <span class="n">checker</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span>
+        <span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">,</span>
+        <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span>
+        <span class="n">decos</span><span class="o">=</span><span class="n">decos</span><span class="p">,</span>
+        <span class="n">rule</span><span class="o">=</span><span class="n">rule</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="on_upstream_ret">
+<a class="viewcode-back" href="../../../../../ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_upstream_ret">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_upstream_ret</span><span class="p">(</span>
+    <span class="n">checker</span><span class="p">:</span> <span class="n">Checker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">SyncOrAsyncCallable</span><span class="p">[[</span><span class="n">UpstreamRetEvent</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">temp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">decos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowDecorator</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">FlowDecorator</span><span class="p">(</span>
+        <span class="n">checker</span><span class="o">=</span><span class="n">checker_join</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">UpstreamRetEvent</span><span class="p">),</span> <span class="n">checker</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span>
         <span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">,</span>
         <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span>
@@ -504,7 +555,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

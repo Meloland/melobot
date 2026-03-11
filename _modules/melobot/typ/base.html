@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.typ.base - melobot 3.3.0</title>
+        <title>melobot.typ.base - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -318,7 +319,9 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>melobot.typ.base 源代码</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TypeIs</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TypeIs</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.._lazy</span><span class="w"> </span><span class="kn">import</span> <span class="n">singleton</span>
 
@@ -337,6 +340,7 @@
 <span class="n">T_co</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T_co&quot;</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
 <span class="c1">#: :obj:`~typing.ParamSpec` 泛型 P，无约束</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Any</span><span class="p">)</span>
+<span class="n">StrOrBytes</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;StrOrBytes&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="AsyncCallable">
@@ -436,7 +440,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

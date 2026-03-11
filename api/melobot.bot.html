@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.bot - melobot 3.3.0</title>
+        <title>melobot.bot - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -195,7 +195,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -240,6 +240,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -576,24 +577,6 @@ Python 3.14 版本开始弃用事件循环策略，替代方案为事件循环�
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="melobot.bot.Bot.start">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">bots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><span class="pre">Bot</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.start"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.start" title="Link to this definition">¶</a></dt>
-<dd><p>安全地同时运行多个 bot 的阻塞方法</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>bots</strong> (<a class="reference internal" href="#melobot.bot.Bot" title="melobot.bot.base.Bot"><em>Bot</em></a>) -- 要运行的 bot 对象</p></li>
-<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>) -- 参见 <a class="reference internal" href="#melobot.bot.Bot.run" title="melobot.bot.Bot.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a> 同名参数</p></li>
-<li><p><strong>strict_log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>) -- 参见 <a class="reference internal" href="#melobot.bot.Bot.run" title="melobot.bot.Bot.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a> 同名参数</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回类型<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="melobot.bot.Bot.close">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/bot/base.html#Bot.close"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.bot.Bot.close" title="Link to this definition">¶</a></dt>
 <dd><p>停止并关闭当前 bot</p>
@@ -831,13 +814,13 @@ Python 3.14 版本开始弃用事件循环策略，替代方案为事件循环�
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.bot.BotLifeSpan.CLOSE">
 <span class="sig-name descname"><span class="pre">CLOSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'c'</span></em><a class="headerlink" href="#melobot.bot.BotLifeSpan.CLOSE" title="Link to this definition">¶</a></dt>
-<dd><p>bot 手动停止即将发生前（仅限 bot.close() 发起的，信号触发不会调用此类型，出现异常可能不会调用此类型）</p>
+<dd><p>bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号结束进程或出现异常可能不触发此类型）</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="melobot.bot.BotLifeSpan.STOPPED">
 <span class="sig-name descname"><span class="pre">STOPPED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sto'</span></em><a class="headerlink" href="#melobot.bot.BotLifeSpan.STOPPED" title="Link to this definition">¶</a></dt>
-<dd><p>bot 停止完成后（包含任何情况导致的停止）</p>
+<dd><p>bot 停止完成后（包含任何情况导致的停止，请在这里处理清理工作）</p>
 </dd></dl>
 
 </dd></dl>
@@ -945,7 +928,6 @@ Python 3.14 版本开始弃用事件循环策略，替代方案为事件循环�
 <li><a class="reference internal" href="#melobot.bot.Bot.load_plugins_dirs"><code class="docutils literal notranslate"><span class="pre">Bot.load_plugins_dirs()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.run"><code class="docutils literal notranslate"><span class="pre">Bot.run()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.run_async"><code class="docutils literal notranslate"><span class="pre">Bot.run_async()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.bot.Bot.start"><code class="docutils literal notranslate"><span class="pre">Bot.start()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.close"><code class="docutils literal notranslate"><span class="pre">Bot.close()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.is_restartable"><code class="docutils literal notranslate"><span class="pre">Bot.is_restartable()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.bot.Bot.restart"><code class="docutils literal notranslate"><span class="pre">Bot.restart()</span></code></a></li>
@@ -991,7 +973,7 @@ Python 3.14 版本开始弃用事件循环策略，替代方案为事件循环�
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

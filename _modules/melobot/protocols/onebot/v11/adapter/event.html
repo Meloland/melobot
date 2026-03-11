@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.protocols.onebot.v11.adapter.event - melobot 3.3.0</title>
+        <title>melobot.protocols.onebot.v11.adapter.event - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../../../../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../../../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -321,14 +322,16 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11.adapter.echo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span> <span class="k">as</span> <span class="n">RootEvent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextEvent</span> <span class="k">as</span> <span class="n">RootTextEvent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">content</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..const</span><span class="w"> </span><span class="kn">import</span> <span class="n">PROTOCOL_IDENTIFIER</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">TextSegment</span><span class="p">,</span> <span class="n">segs_to_contents</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..io.packet</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionToUpstream</span><span class="p">,</span> <span class="n">EchoToDownstream</span><span class="p">,</span> <span class="n">EventToDownstream</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.segment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">TextSegment</span><span class="p">,</span> <span class="n">seg_to_content</span>
 
 
 <div class="viewcode-block" id="Event">
@@ -337,7 +340,10 @@
     <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
         <span class="n">time</span><span class="p">:</span> <span class="nb">int</span>
         <span class="n">self_id</span><span class="p">:</span> <span class="nb">int</span>
-        <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
+        <span class="n">post_type</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">,</span> <span class="s2">&quot;downstream_call&quot;</span><span class="p">,</span> <span class="s2">&quot;upstream_ret&quot;</span><span class="p">]</span>
+            <span class="o">|</span> <span class="nb">str</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
@@ -348,11 +354,16 @@
         <span class="c1">#: 机器人自己的 qq 号</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">self_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">self_id</span>
         <span class="c1">#: 事件类型</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">post_type</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_event&quot;</span><span class="p">,</span> <span class="s2">&quot;downstream_call&quot;</span><span class="p">,</span> <span class="s2">&quot;upstream_ret&quot;</span><span class="p">]</span>
+            <span class="o">|</span> <span class="nb">str</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">post_type</span>
         <span class="c1">#: 事件原始数据</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">event_data</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DownstreamCallEvent</span><span class="p">):</span>
+            <span class="c1">#: 传递对象，操作此对象来修改下游收到的内容</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_downstream</span><span class="p">:</span> <span class="n">EventToDownstream</span> <span class="o">|</span> <span class="n">EchoToDownstream</span> <span class="o">=</span> <span class="n">EventToDownstream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(post_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -364,6 +375,8 @@
             <span class="s2">&quot;notice&quot;</span><span class="p">:</span> <span class="n">NoticeEvent</span><span class="p">,</span>
             <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">RequestEvent</span><span class="p">,</span>
             <span class="s2">&quot;meta_event&quot;</span><span class="p">:</span> <span class="n">MetaEvent</span><span class="p">,</span>
+            <span class="s2">&quot;downstream_call&quot;</span><span class="p">:</span> <span class="n">DownstreamCallEvent</span><span class="p">,</span>
+            <span class="s2">&quot;upstream_ret&quot;</span><span class="p">:</span> <span class="n">UpstreamRetEvent</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">etype</span> <span class="o">:=</span> <span class="n">event_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;post_type&quot;</span><span class="p">))</span> <span class="ow">in</span> <span class="n">cls_map</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">cls_map</span><span class="p">[</span><span class="n">etype</span><span class="p">]</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">event_data</span><span class="p">)</span>
@@ -391,6 +404,18 @@
 <a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event.is_meta">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span> <span class="o">==</span> <span class="s2">&quot;meta_event&quot;</span></div>
+
+
+<div class="viewcode-block" id="Event.is_downstream_call">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event.is_downstream_call">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_downstream_call</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span> <span class="o">==</span> <span class="s2">&quot;downstream_call&quot;</span></div>
+
+
+<div class="viewcode-block" id="Event.is_upstream_ret">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.Event.is_upstream_ret">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_upstream_ret</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span> <span class="o">==</span> <span class="s2">&quot;upstream_ret&quot;</span></div>
 </div>
 
 
@@ -413,6 +438,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="o">.</span><span class="n">Model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_downstream</span><span class="p">:</span> <span class="n">EventToDownstream</span>
         <span class="c1">#: 消息内容（消息段表示）</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span>
         <span class="c1">#: 消息发送者</span>
@@ -429,7 +456,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">Segment</span><span class="o">.</span><span class="n">__resolve_cq__</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;raw_message&quot;</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="p">[</span><span class="n">Segment</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">dic</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">dic</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">dic</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="n">segs_to_contents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">seg_to_content</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="c1">#: 消息类型</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;private&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">message_type</span>
@@ -455,10 +482,7 @@
         <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(text=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">!r}</span><span class="s2">,&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; user_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">, sub_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(text=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">!r}</span><span class="s2">, sub_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span><span class="si">}</span><span class="s2">)&quot;</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MessageEvent</span><span class="p">:</span>
@@ -717,11 +741,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="s2">&quot;anonymous&quot;</span><span class="p">,</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span> <span class="s2">&quot;group_self&quot;</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(text=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">!r}</span><span class="s2">,&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; user_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">, group_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="si">}</span><span class="s2">,&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; sub_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(text=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">!r}</span><span class="s2">, sub_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
 
 
@@ -737,6 +757,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">MetaEvent</span><span class="o">.</span><span class="n">Model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;meta_event&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_downstream</span><span class="p">:</span> <span class="n">EventToDownstream</span>
         <span class="c1">#: 元事件类型</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">meta_event_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lifecycle&quot;</span><span class="p">,</span> <span class="s2">&quot;heartbeat&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">meta_event_type</span>
 
@@ -873,6 +895,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">NoticeEvent</span><span class="o">.</span><span class="n">Model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;notice&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_downstream</span><span class="p">:</span> <span class="n">EventToDownstream</span>
         <span class="c1">#: 通知事件类型</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">notice_type</span><span class="p">:</span> <span class="p">(</span>
             <span class="n">Literal</span><span class="p">[</span>
@@ -1425,6 +1449,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">RequestEvent</span><span class="o">.</span><span class="n">Model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_downstream</span><span class="p">:</span> <span class="n">EventToDownstream</span>
         <span class="c1">#: 请求事件类型</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">request_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;friend&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">request_type</span>
 
@@ -1524,6 +1550,115 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;invite&quot;</span></div>
 </div>
 
+
+
+<div class="viewcode-block" id="DownstreamCallEvent">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.DownstreamCallEvent">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownstreamCallEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+        <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;downstream_call&quot;</span><span class="p">]</span>
+        <span class="n">action</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+        <span class="n">echo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">DownstreamCallEvent</span><span class="o">.</span><span class="n">Model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;downstream_call&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">self_id</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;post_type&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;self_id&quot;</span><span class="p">)</span>
+
+        <span class="c1">#: 下游调用类型</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calling_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">action</span>
+        <span class="c1">#: 下游调用参数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calling_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">params</span>
+        <span class="c1">#: 下游调用回声标识，需要自行判断是否为空字符串</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calling_echo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">echo</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">echo</span>
+        <span class="c1">#: 传递对象，操作此对象来修改上游收到的内容</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_upstream</span><span class="p">:</span> <span class="n">ActionToUpstream</span> <span class="o">=</span> <span class="n">ActionToUpstream</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calling_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calling_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calling_echo</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>  <span class="c1"># type: ignore[override]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_downstream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="c1"># 不要使用此属性，这是无意义的</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;不要对 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> 对象使用此属性，这是无意义的&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(calling_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calling_type</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;calling_echo=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calling_echo</span><span class="si">!r}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DownstreamCallEvent</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownstreamCallEvent.is_match_type">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.DownstreamCallEvent.is_match_type">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_match_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calling_type</span> <span class="o">==</span> <span class="nb">type</span></div>
+
+
+<div class="viewcode-block" id="DownstreamCallEvent.is_match_echo">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.DownstreamCallEvent.is_match_echo">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_match_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calling_echo</span> <span class="o">==</span> <span class="n">echo</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UpstreamRetEvent">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.UpstreamRetEvent">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UpstreamRetEvent</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+        <span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;upstream_ret&quot;</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span> <span class="n">UpstreamRetEvent</span><span class="o">.</span><span class="n">Model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;upstream_ret&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">self_id</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.echo</span><span class="w"> </span><span class="kn">import</span> <span class="n">Echo</span>
+
+        <span class="c1">#: 下游调用后得到的上游返回结果</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ret</span><span class="p">:</span> <span class="n">melobot</span><span class="o">.</span><span class="n">protocols</span><span class="o">.</span><span class="n">onebot</span><span class="o">.</span><span class="n">v11</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">echo</span><span class="o">.</span><span class="n">Echo</span> <span class="o">=</span> <span class="n">Echo</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">event_data</span><span class="p">[</span><span class="s2">&quot;ret&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ret</span><span class="o">.</span><span class="n">raw</span>
+        <span class="c1">#: 下游调用类型</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calling_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ret</span><span class="o">.</span><span class="n">action_type</span>
+        <span class="c1">#: 下游调用时的回声标识，需要自行判断是否为空字符串</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calling_echo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">event_data</span><span class="p">[</span><span class="s2">&quot;ret&quot;</span><span class="p">][</span><span class="s2">&quot;echo&quot;</span><span class="p">]</span>
+        <span class="c1">#: 传递对象，操作此对象来修改下游收到的内容</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_downstream</span> <span class="o">=</span> <span class="n">EchoToDownstream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ret</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(calling_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calling_type</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;calling_echo=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calling_echo</span><span class="si">!r}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">UpstreamRetEvent</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">event_data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="UpstreamRetEvent.is_match_type">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.UpstreamRetEvent.is_match_type">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_match_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calling_type</span> <span class="o">==</span> <span class="nb">type</span></div>
+
+
+<div class="viewcode-block" id="UpstreamRetEvent.is_match_echo">
+<a class="viewcode-back" href="../../../../../../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.UpstreamRetEvent.is_match_echo">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_match_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calling_echo</span> <span class="o">==</span> <span class="n">echo</span></div>
+</div>
+
 </pre></div>
         </article>
       </div>
@@ -1563,7 +1698,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../../../../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

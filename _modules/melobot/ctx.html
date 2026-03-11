@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.ctx - melobot 3.3.0</title>
+        <title>melobot.ctx - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -323,7 +324,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Future</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextvars</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextVar</span><span class="p">,</span> <span class="n">Token</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -469,6 +470,8 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">FlowRecordStage</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;流记录阶段的枚举&quot;&quot;&quot;</span>
 
+    <span class="n">FLOW_GUARD_START</span> <span class="o">=</span> <span class="s2">&quot;fgs&quot;</span>
+    <span class="n">FLOW_GUARD_FINISH</span> <span class="o">=</span> <span class="s2">&quot;fgf&quot;</span>
     <span class="n">FLOW_START</span> <span class="o">=</span> <span class="s2">&quot;fs&quot;</span>
     <span class="n">FLOW_EARLY_FINISH</span> <span class="o">=</span> <span class="s2">&quot;fef&quot;</span>
     <span class="n">FLOW_FINISH</span> <span class="o">=</span> <span class="s2">&quot;ff&quot;</span>
@@ -492,15 +495,33 @@
 
     <span class="n">stage</span><span class="p">:</span> <span class="n">FlowRecordStage</span>
     <span class="n">flow_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1"># 没有有效结点时，为空字符串</span>
     <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1"># 如果在会话中则返回会话当前事件，否则返回触发流的事件</span>
     <span class="n">event</span><span class="p">:</span> <span class="s2">&quot;model.Event&quot;</span>
+    <span class="n">in_session</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
 
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">FlowRecords</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">FlowRecord</span><span class="p">]):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">:</span> <span class="n">FlowRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">stages</span><span class="p">:</span> <span class="n">FlowRecordStage</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">FlowStatus</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">_recordable</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">:</span>
+            <span class="n">node_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">status</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">_event</span> <span class="o">=</span> <span class="n">FlowCtx</span><span class="p">()</span><span class="o">.</span><span class="n">try_get_event</span><span class="p">()</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">event</span> <span class="k">if</span> <span class="n">_event</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_event</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">FlowRecord</span><span class="p">(</span>
+                    <span class="n">stage</span><span class="p">,</span>
+                    <span class="n">status</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">node_name</span><span class="p">,</span>
+                    <span class="n">event</span><span class="p">,</span>
+                    <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">ctrl_by_session</span><span class="p">,</span>
+                    <span class="n">prompt</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
 
 <div class="viewcode-block" id="FlowStore">
@@ -510,14 +531,21 @@
 
 
 
-<span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FlowStatus</span><span class="p">:</span>
-    <span class="n">flow</span><span class="p">:</span> <span class="s2">&quot;Flow&quot;</span>
-    <span class="n">node</span><span class="p">:</span> <span class="s2">&quot;FlowNode&quot;</span>
-    <span class="n">next_valid</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">completion</span><span class="p">:</span> <span class="s2">&quot;EventCompletion&quot;</span>
-    <span class="n">records</span><span class="p">:</span> <span class="n">FlowRecords</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FlowRecords</span><span class="p">)</span>
-    <span class="n">store</span><span class="p">:</span> <span class="n">FlowStore</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FlowStore</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">flow</span><span class="p">:</span> <span class="s2">&quot;Flow&quot;</span><span class="p">,</span>
+        <span class="n">node</span><span class="p">:</span> <span class="s2">&quot;FlowNode | None&quot;</span><span class="p">,</span>
+        <span class="n">completion</span><span class="p">:</span> <span class="s2">&quot;EventCompletion&quot;</span><span class="p">,</span>
+        <span class="n">records</span><span class="p">:</span> <span class="n">FlowRecords</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">store</span><span class="p">:</span> <span class="n">FlowStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="n">flow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_valid</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completion</span> <span class="o">=</span> <span class="n">completion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="n">FlowRecords</span><span class="p">()</span> <span class="k">if</span> <span class="n">records</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">records</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">FlowStore</span><span class="p">()</span> <span class="k">if</span> <span class="n">store</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">store</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">FlowCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="n">FlowStatus</span><span class="p">]):</span>
@@ -578,9 +606,7 @@
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SessionCtx</span><span class="p">(</span><span class="n">Context</span><span class="p">[</span><span class="s2">&quot;Session&quot;</span><span class="p">]):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="s2">&quot;MELOBOT_SESSION&quot;</span><span class="p">,</span> <span class="n">SessionError</span><span class="p">,</span> <span class="s2">&quot;此时不在活动的事件处理流中，无法获取会话信息&quot;</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;MELOBOT_SESSION&quot;</span><span class="p">,</span> <span class="n">SessionError</span><span class="p">,</span> <span class="s2">&quot;此时不在活动的会话中，无法获取会话信息&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SessionStore&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">store</span>
@@ -712,7 +738,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

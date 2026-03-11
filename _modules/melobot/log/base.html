@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.log.base - melobot 3.3.0</title>
+        <title>melobot.log.base - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -338,7 +339,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.._render</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_rich_exception</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typ._enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typ.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">T</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.cls</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetterABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.cls</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetterABCMeta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_caller_stack</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NO_LOG_OBJ_SIGN</span><span class="p">,</span> <span class="n">FastRotatingFileHandler</span><span class="p">,</span> <span class="n">FastStreamHandler</span>
 
@@ -347,10 +348,19 @@
     <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span>
 <span class="p">)</span>
 
+<span class="n">PATCHED_LOGGER_TAG</span> <span class="o">=</span> <span class="s2">&quot;__melobot_patched_logger__&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LoggerMeta</span><span class="p">(</span><span class="n">BetterABCMeta</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__instancecheck__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">PATCHED_LOGGER_TAG</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__instancecheck__</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="GenericLogger">
 <a class="viewcode-back" href="../../../api/melobot.log.html#melobot.log.GenericLogger">[文档]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GenericLogger</span><span class="p">(</span><span class="n">BetterABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GenericLogger</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">LoggerMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;通用日志器抽象类</span>
 
 <span class="sd">    任何日志器实现本类接口，或通过 :func:`.logger_patch` 修补后，</span>
@@ -443,6 +453,19 @@
 <span class="sd">        :param level: 日志等级</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="GenericLogger.generic_exc">
+<a class="viewcode-back" href="../../../api/melobot.log.html#melobot.log.GenericLogger.generic_exc">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generic_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;通用异常记录方法（同时可打印对象）</span>
+
+<span class="sd">        :param msg: 消息</span>
+<span class="sd">        :param obj: 需要记录的对象</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generic_obj</span><span class="p">(</span><span class="s2">&quot;相关变量信息：&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
 </div>
 
 
@@ -798,18 +821,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">generic_obj_meth</span><span class="p">(</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">,</span>
-    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">obj</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">arg_getters</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="n">level</span><span class="p">:</span> <span class="n">LogLevel</span> <span class="o">=</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">_getters</span> <span class="o">=</span> <span class="n">arg_getters</span> <span class="o">+</span> <span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">),)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">generic_lazy</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">_getters</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
-
-
-<span class="n">_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">generic_obj_meth</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_filename</span><span class="p">)</span>
+<span class="n">_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">is_logging_frame</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_filename</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>
@@ -849,7 +861,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

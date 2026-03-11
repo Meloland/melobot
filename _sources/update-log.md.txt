@@ -5,6 +5,78 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.4.0
+
+### ⏩变更
+
+- [OneBot] 旧命名 `ForwardWebSocketIO`, `ReverseWebSocketIO`, `HttpIO` 已不再推荐，现在推荐使用新名称导入：{class}`.WSClient`, {class}`.WSServer`, {class}`.HTTPDuplex`。但依然计划支持旧命名
+
+- [core] 工具函数 {func}`.if_` 的参数 `give_up` 默认值已变为 `True`。绝大多数使用场景应该不受影响，但可以让你省略 `reject=stop` 的参数配置：
+
+```python
+from melobot.handle import stop
+from melobot.utils import if_
+
+# 过去，我们习惯使用 stop 来提前结束处理过程
+@if_(..., reject=stop)
+async def func() -> None: ...
+# 但现在只要条件为假，则自动放弃 func 的运行，因此不再需要 reject=stop
+@if_(...)
+async def func() -> None: ...
+```
+
+- [core] 旧命令 `unfold_ctx` 已不再推荐，现在推荐使用新名称导入：{func}`.ctx`。但依然计划支持旧命名
+
+- [core] 所有事件绑定函数（流装饰器）的 `rule` 参数现支持提供 {class}`.Rule` 类对象，会在内部自动运行无参实例化。但**内部只会运行一次无参实例化，保证获得的规则对象是单例**。因此**不要在多个流装饰器中使用同一个类对象，除非这是你的本意**
+
+- [core] 现在在流上下文中运行流守卫函数，可以正常使用 {func}`.get_event` 等上下文方法。但注意**守卫函数本身仍然不支持自动依赖注入**
+
+- [core] `melobot.log.log_exc` 已移除。请使用通用日志记录方法 {meth}`.GenericLogger.generic_exc` 方法替代
+
+- [core] 默认不再启用流记录，需要通过 {meth}`.Flow.enable_record` 启用
+
+### ✨新增
+
+- [cli] 从此版本开始，melobot 安装后将会添加命令 `mb`，等价于 `python -m melobot`
+
+- [cli] 添加了子命令 `mb init` 用于从模板创建一个新扩展，具体用法参考：`mb init --help`
+
+- [cli] 添加了命令选项 `mb --version` 用于获取命令行工具和 melobot 的版本信息
+
+- [OneBot] 添加了反向代理功能，具体用法参考：[OneBot 反向代理](./ob_refer/reverse-proxy)
+
+- [core] 更多组件已可以通过顶级命名空间 `melobot` 导入，参考：[顶级命令空间](./api/index)
+
+- [core] {class}`.PluginPlanner` 添加了生命周期方法 {meth}`~.PluginPlanner.on_inited`
+
+- [core] 适配器类添加了生命周期方法 {meth}`~melobot.adapter.Adapter.on_before_event_handle`, {meth}`~melobot.adapter.Adapter.on_before_action_exec`, {meth}`~melobot.adapter.Adapter.on_started`, {meth}`~melobot.adapter.Adapter.on_close`, {meth}`~melobot.adapter.Adapter.on_stopped`
+
+- [core] 源类添加了生命周期方法 {meth}`~.AbstractSource.on_started`, {meth}`~.AbstractSource.on_restarted`, {meth}`~.AbstractSource.on_close`, {meth}`~.AbstractSource.on_stopped`
+
+- [core] 添加新的工具函数 {func}`.truncate`，用于截断字符串或字节串
+
+- [core] 通用内容实体 {class}`.TextContent` 支持通过 {class}`.TextStyle`, {class}`.Color` 实现更精细的跨平台格式控制，但具体实现需要各种协议自行支持
+
+- [core] 流记录阶段枚举 {class}`.FlowRecordStage` 增加了新的字段
+
+### 👍修复
+
+- [OneBot] 修复了提供权限检查失败回调时，权限检查有误的问题
+
+- [core] 修复了通过命令行工具重启 bot 程序时，未妥善处理内部异常导致的资源泄露问题
+
+- [core] 修复了设置保持会话时，事件处理结束后依然会运行会话释放的问题
+
+- [core] 修复了修补后的第三方日志器（如 `loguru` 日志器）无法通过 {class}`.GenericLogger` 进行依赖注入的问题
+
+### ⚙️内部
+
+- [core] 改进版本号变更机制，现在基于 git tags 自动变更版本号
+
+### 其他
+
+文档勘误及不重要变更，参考完整记录：[3.3.0...3.4.0](https://github.com/Meloland/melobot/compare/3.3.0...3.4.0)
+
 ## v3.3.0
 
 ### ⏩变更

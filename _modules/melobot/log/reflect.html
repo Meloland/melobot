@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.log.reflect - melobot 3.3.0</title>
+        <title>melobot.log.reflect - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.3.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 0.0.0+internalfallback</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="../../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">melobot 3.3.0</span>
+  <span class="sidebar-brand-text">melobot 0.0.0+internalfallback</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
@@ -422,10 +423,18 @@
         <span class="k">return</span> <span class="n">path</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">get_global_logger</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GenericLogger</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取顶级域对应的日志器，非主模块建议不要调用此函数</span>
+
+<span class="sd">    :return: 日志器，可以为空</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">LogReflector</span><span class="o">.</span><span class="n">global_logger</span>
+
+
 <div class="viewcode-block" id="set_global_logger">
 <a class="viewcode-back" href="../../../api/melobot.log.html#melobot.log.set_global_logger">[文档]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_global_logger</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置顶级域对应的日志器</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置顶级域对应的日志器，非主模块建议不要调用此函数</span>
 
 <span class="sd">    :param logger: 日志器，可以为空</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -438,7 +447,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">set_module_logger</span><span class="p">(</span>
     <span class="n">module</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">ModuleType</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置模块域对应的日志器</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;设置模块域对应的日志器，非主模块建议不要调用此函数</span>
 
 <span class="sd">    :param module: 模块名、模块相对或绝对路径、模块对象</span>
 <span class="sd">    :param logger: 日志器，可以为空</span>
@@ -454,7 +463,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">caller_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">caller_path_str</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;自动决定日志器时，尝试解析调用模块的路径失败&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;获取日志器代理对象时，尝试解析调用模块的路径失败&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
     <span class="n">cur_node</span> <span class="o">=</span> <span class="n">LogReflector</span><span class="o">.</span><span class="n">root_node</span>
     <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">caller_path</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
@@ -469,7 +478,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__cache_logger__</span><span class="p">:</span> <span class="n">GenericLogger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__logger__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericLogger</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__origin__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericLogger</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_logger__</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__get_logger__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericLogger</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -488,7 +497,7 @@
         <span class="k">return</span> <span class="n">logger</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__log_meth__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meth_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__logger__</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__origin__</span>
         <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
                 <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;stacklevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
@@ -565,7 +574,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=b7276bb8"></script>
+</div><script src="../../../_static/documentation_options.js?v=bbf8d099"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

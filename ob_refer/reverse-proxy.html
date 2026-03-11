@@ -3,8 +3,8 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="v11" href="v11.html" /><link rel="prev" title="melobot.mixin" href="../api/melobot.mixin.html" />
-        <link rel="canonical" href="/melobot/ob_api/index.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="melobot API" href="../api/index.html" /><link rel="prev" title="OneBot 事件预处理" href="preprocess.html" />
+        <link rel="canonical" href="/melobot/ob_refer/reverse-proxy.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>protocols.onebot API - melobot 0.0.0+internalfallback</title>
+        <title>OneBot 反向代理 - melobot 0.0.0+internalfallback</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -182,7 +182,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -232,20 +232,20 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">相关知识</span></p>
-<ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_refer/index.html">OneBot 相关</a><input aria-label="Toggle navigation of OneBot 相关" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../ob_refer/onebot.html">OneBot 协议和实现</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ob_refer/impl.html">OneBot 协议实现端类型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ob_refer/event-action.html">OneBot 事件、行为和回应</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">OneBot 相关</a><input aria-label="Toggle navigation of OneBot 相关" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="impl.html">OneBot 协议实现端类型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event-action.html">OneBot 事件、行为和回应</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msg.html">OneBot 消息内容的数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forward-msg.html">OneBot 转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">OneBot 反向代理</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API</a><input aria-label="Toggle navigation of melobot API" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
@@ -265,13 +265,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">protocols.onebot API</a><input aria-label="Toggle navigation of protocols.onebot API" checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="v11.html">v11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="v11.const.html">v11.const</a></li>
-<li class="toctree-l2"><a class="reference internal" href="v11.adapter.html">v11.adapter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="v11.io.html">v11.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="v11.handle.html">v11.handle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="v11.utils.html">v11.utils</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input aria-label="Toggle navigation of protocols.onebot API" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.handle.html">v11.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.utils.html">v11.utils</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../console_api/index.html">protocols.console API</a><input aria-label="Toggle navigation of protocols.console API" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -307,12 +307,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/ob_api/index.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/ob_refer/reverse-proxy.md.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/ob_api/index.rst" rel="edit" title="Edit this page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/ob_refer/reverse-proxy.md" rel="edit" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -324,38 +324,133 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="protocols-onebot-api">
-<h1>protocols.onebot API<a class="headerlink" href="#protocols-onebot-api" title="Link to this heading">¶</a></h1>
-<div class="tip admonition">
-<p class="admonition-title">提示</p>
-<ul class="simple">
-<li><p>如无特别说明，文档中所有与时间有关的参数，单位都为秒（s）</p></li>
-<li><p>如无特别说明，API 文档中没有给出 __init__ 方法的类，用户不应该手动初始化</p></li>
-</ul>
+          <section id="onebot">
+<h1>OneBot 反向代理<a class="headerlink" href="#onebot" title="Link to this heading">¶</a></h1>
+<section id="id1">
+<h2>前置知识<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>建议了解 <a class="reference internal" href="../intro/index.html"><span class="doc std std-doc">起步</span></a> 和 <a class="reference internal" href="../dive_in/index.html"><span class="doc std std-doc">深入与最佳实践</span></a> 的内容后再阅读此章。</p>
+</section>
+<section id="id2">
+<h2>简介<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>melobot 从 <code class="docutils literal notranslate"><span class="pre">3.4.0</span></code> 版本开始，OneBot 协议支持反向代理模式。作为真正的 OneBot 实现端与其他 OneBot 应用（例如 nonebot, koishi 等）的中间层。在反代模式中，你可以修改来自实现端或下游应用的数据内容，或拦截特定的数据，以实现各种自定义功能，例如：</p>
+<ol class="arabic simple">
+<li><p>复用其他 OneBot 应用的功能，而不是在 melobot 中完全重写。</p></li>
+<li><p>在复用功能的基础上，编写拦截修改代码以实现自定义功能。这是一种过渡方案。</p></li>
+<li><p>或直接通过反代完成一些经典的需求（例如下游负载均衡）</p></li>
+</ol>
+<p>具体架构如下图所示：</p>
+<a class="reference internal image-reference" href="../_images/ob-rproxy.svg"><img alt="ob-rproxy" class="align-center" src="../_images/ob-rproxy.svg" style="width: 100%;" />
+</a>
+</section>
+<section id="id3">
+<h2>配置<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>反代功能需要在源对象上进行配置。通过以下方式，在一个源上启用反代功能：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">RProxyWSServer</span><span class="p">,</span> <span class="n">WSServer</span>
+
+<span class="n">bot</span><span class="o">.</span><span class="n">add_io</span><span class="p">(</span>
+    <span class="n">WSServer</span><span class="p">(</span>
+        <span class="c1"># 这里我们创建一个 ws 服务端的源，运行在 127.0.0.1:8091 上</span>
+        <span class="c1"># 这是与实现端建立的通信渠道，因此实现端需要作为 ws 客户端与我们建立连接</span>
+        <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8091</span><span class="p">,</span>
+        <span class="c1"># 在此基础上，我们再建立与下游 OneBot 应用的通信渠道</span>
+        <span class="c1"># 在这一渠道上，我们作为另一个 ws 服务端，运行在 127.0.0.1:8092 上</span>
+        <span class="c1"># 因此下游应用，需要作为 ws 客户端来与此服务端建立连接</span>
+        <span class="n">rproxy</span><span class="o">=</span><span class="n">RProxyWSServer</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8092</span><span class="p">),</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
 </div>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
+<p>与实现端的通信方式、与下游应用的通信方式，这两者没有固定搭配。你可以自由选择：</p>
 <ul class="simple">
-<li><p>目前只支持 OneBot v11，以下所有 API 均为 v11 的 API</p></li>
+<li><p>与实现端通信，作为客户端使用 <a class="reference internal" href="../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.WSClient" title="melobot.protocols.onebot.v11.io.WSClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">WSClient</span></code></a></p></li>
+<li><p>与实现端通信，作为服务端使用 <a class="reference internal" href="../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.WSServer" title="melobot.protocols.onebot.v11.io.WSServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">WSServer</span></code></a></p></li>
+<li><p>与下游应用通信，作为客户端使用 <a class="reference internal" href="../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.RProxyWSClient" title="melobot.protocols.onebot.v11.io.RProxyWSClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">RProxyWSClient</span></code></a></p></li>
+<li><p>与下游应用通信，作为服务端使用 <a class="reference internal" href="../ob_api/v11.io.html#melobot.protocols.onebot.v11.io.RProxyWSServer" title="melobot.protocols.onebot.v11.io.RProxyWSServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">RProxyWSServer</span></code></a></p></li>
 </ul>
+<p>需要特别注意：一个源对象只能与一个 OneBot 实现端建立连接。若启用反代功能，也最多只能与一个下游的 OneBot 应用建立连接。</p>
 </div>
-<p>所有公开的组件都可以从 <cite>melobot.protocols.onebot.v11</cite> 直接导入。</p>
-<p>各模块 API 文档索引：</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="v11.html">v11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="v11.const.html">v11.const</a></li>
-<li class="toctree-l1"><a class="reference internal" href="v11.adapter.html">v11.adapter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="v11.io.html">v11.io</a></li>
-<li class="toctree-l1"><a class="reference internal" href="v11.handle.html">v11.handle</a></li>
-<li class="toctree-l1"><a class="reference internal" href="v11.utils.html">v11.utils</a></li>
-</ul>
+</section>
+<section id="id4">
+<h2>使用<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>当一个源对象启用反代模式后，它依然会优先完成 melobot 内置的工作流程，再运行反代相关处理。</p>
+<section id="event">
+<h3>修改传递给下游的 event<a class="headerlink" href="#event" title="Link to this heading">¶</a></h3>
+<p>当收到一个 <code class="docutils literal notranslate"><span class="pre">event</span></code> 的数据，会先完成 melobot 内部所有事件处理。</p>
+<p>在这些事件处理过程中，可以进行“传递修改”，这会决定下游是否能收到此 <code class="docutils literal notranslate"><span class="pre">event</span></code> 的数据，或收到什么样的数据。示例：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_message</span><span class="p">,</span> <span class="n">MessageEvent</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.0.1&quot;</span><span class="p">)</span>
+
+<span class="nd">@p</span><span class="o">.</span><span class="n">use</span>
+<span class="nd">@on_message</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;.hi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">MessageEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 你可以先执行其他逻辑，例如 melobot 层级的处理 &quot;.hi&quot; 的行为</span>
+    <span class="o">...</span>
+
+    <span class="c1"># 再指定对于此 event 数据的反代行为：</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;收到 .hi 指令，准备修改后再传递给下游&quot;</span><span class="p">)</span>
+    <span class="c1"># 修改传递给下游的 event dict 中的特定字段</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;.hello&quot;</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="s2">&quot;raw_message&quot;</span><span class="p">,</span> <span class="s2">&quot;.hello&quot;</span><span class="p">)</span>
+    <span class="c1"># 当然，你也可以直接覆盖整个 event dict</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">override</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
+    <span class="c1"># 如果完全不想传递给下游</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">forbidden</span><span class="p">()</span>
+</pre></div>
 </div>
+</section>
+<section id="api-call-result">
+<h3>修改传递给下游的 api call result<a class="headerlink" href="#api-call-result" title="Link to this heading">¶</a></h3>
+<p>当收到一个 <code class="docutils literal notranslate"><span class="pre">api</span> <span class="pre">call</span> <span class="pre">result</span></code> 的数据，会在内部形成 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.UpstreamRetEvent" title="melobot.protocols.onebot.v11.adapter.event.UpstreamRetEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">UpstreamRetEvent</span></code></a> 事件，随后通过类似的方式处理：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_upstream_ret</span><span class="p">,</span> <span class="n">UpstreamRetEvent</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.0.1&quot;</span><span class="p">)</span>
+
+<span class="nd">@p</span><span class="o">.</span><span class="n">use</span>
+<span class="nd">@on_upstream_ret</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">calling_type</span> <span class="o">==</span> <span class="s2">&quot;get_version_info&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">UpstreamRetEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;收到上游返回的版本信息，正在拦截并修改响应&quot;</span><span class="p">)</span>
+    <span class="c1"># 修改传递给下游的 api call result dict 中的字段</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">set_data_param</span><span class="p">(</span><span class="s2">&quot;app_name&quot;</span><span class="p">,</span> <span class="s2">&quot;melobot ob11 reverse proxy&quot;</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">set_data_param</span><span class="p">(</span><span class="s2">&quot;app_version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">)</span>
+    <span class="c1"># 当然，也可以直接覆盖整个 dict</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">override</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
+    <span class="c1"># 如果完全不想传递给下游</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_downstream</span><span class="o">.</span><span class="n">forbidden</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="api-call">
+<h3>修改传递给实现端（上游）的 api call<a class="headerlink" href="#api-call" title="Link to this heading">¶</a></h3>
+<p>当收到一个下游 <code class="docutils literal notranslate"><span class="pre">api</span> <span class="pre">call</span></code> 的数据，会在内部形成 <a class="reference internal" href="../ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.DownstreamCallEvent" title="melobot.protocols.onebot.v11.adapter.event.DownstreamCallEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">DownstreamCallEvent</span></code></a> 事件，随后通过类似的方式处理：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_downstream_call</span><span class="p">,</span> <span class="n">DownstreamCallEvent</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.0.1&quot;</span><span class="p">)</span>
+
+<span class="nd">@p</span><span class="o">.</span><span class="n">use</span>
+<span class="nd">@on_downstream_call</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">calling_type</span> <span class="o">==</span> <span class="s2">&quot;get_version_info&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">DownstreamCallEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;收到下游获取版本信息的请求，正在拦截并修改请求&quot;</span><span class="p">)</span>
+    <span class="c1"># 修改或添加传递给实现端（上游）的 api call dict 中的字段</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_upstream</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">)</span>
+    <span class="c1"># 当然，也可以直接覆盖整个 dict</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_upstream</span><span class="o">.</span><span class="n">override</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
+    <span class="c1"># 如果完全不想传递给实现端（上游）</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">to_upstream</span><span class="o">.</span><span class="n">forbidden</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
         </article>
@@ -363,23 +458,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="v11.html">
+          <a class="next-page" href="../api/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">v11</div>
+                <div class="title">melobot API</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../api/melobot.mixin.html">
+          <a class="prev-page" href="preprocess.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">melobot.mixin</div>
+                <div class="title">OneBot 事件预处理</div>
                 
               </div>
             </a>
@@ -408,8 +503,35 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">OneBot 反向代理</a><ul>
+<li><a class="reference internal" href="#id1">前置知识</a></li>
+<li><a class="reference internal" href="#id2">简介</a></li>
+<li><a class="reference internal" href="#id3">配置</a></li>
+<li><a class="reference internal" href="#id4">使用</a><ul>
+<li><a class="reference internal" href="#event">修改传递给下游的 event</a></li>
+<li><a class="reference internal" href="#api-call-result">修改传递给下游的 api call result</a></li>
+<li><a class="reference internal" href="#api-call">修改传递给实现端（上游）的 api call</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
