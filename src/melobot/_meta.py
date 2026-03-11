@@ -20,6 +20,8 @@ def _version_str_to_info(s: str) -> VersionInfo:
     remains = parts[2]
     flag: Literal["alpha", "beta", "pre-release", "final"]
 
+    if "+" in remains:
+        remains = remains.split("+")[0]
     if "a" in remains:
         _parts = remains.split("a")
         flag = "alpha"
