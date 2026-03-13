@@ -1,5 +1,4 @@
 <div align="center">
-  <img width=256 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
   <h1>melobot</h1>
   <p>
     <strong>支持多协议、多路 IO 与其他高级特性的机器人开发框架</strong>
@@ -34,7 +33,7 @@ v3 目前可用的协议实现：
 - **qq 官方协议**
 - ...
 
-有任何对 melobot 项目的意见或建议，欢迎加入 qq 群与我们讨论：`535705163`
+有任何对 melobot 项目的意见或建议，欢迎加入 qq 群与我们讨论：`1092245892`
 
 ## ⚠️ 声明
 
@@ -139,12 +138,6 @@ uv build
 特别感谢由 [JetBrains](https://www.jetbrains.com/?from=melobot) 提供的 [PyCharm](https://www.jetbrains.com/pycharm/?from=melobot) 等相关软件/程序的免费授权许可证。这些软件/程序用于本项目的开发与 IDE 兼容性测试。
 
 <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/PyCharm.png" alt="PyCharm logo." style="width: 310px">
-
-> 此外特别感谢 [@mldkouo](https://github.com/mldkouo) 为 melobot 项目绘制 logo 图标。
-
-<img width=192 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
-
-此图标版权归属于 [@meloland](https://github.com/meloland) 组织，在非商业盈利情景下可自由使用，但请标注版权所属。其他使用情景请致电邮件：[contact@meloland.org](mailto:contact@meloland.org)
 
 ## ✨ 项目动态
 
