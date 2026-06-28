@@ -53,6 +53,14 @@ class PluginIpcError(PluginError):
     """melobot 插件间通信异常"""
 
 
+class ShareObjectCallbackFailed(PluginError):
+    """melobot 共享对象回调失败异常"""
+
+    def __init__(self, result: object) -> None:
+        self.result = result
+        super().__init__(f"共享对象回调执行失败，结果：{result}")
+
+
 class SessionError(BotException):
     """melobot 会话异常"""
 

@@ -16,14 +16,14 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
         self,
         name: str,
         reflector: AsyncCallable[[], T] | None = None,
-        callabck: AsyncCallable[[T], None] | None = None,
+        callback: AsyncCallable[[T], None] | None = None,
         static: bool = False,
     ) -> None:
         """初始化异步共享对象
 
         :param name: 异步共享对象的名称
         :param reflector: 获取共享值的异步可调用方法
-        :param callabck: 修改共享值的异步可调用方法
+        :param callback: 修改共享值的异步可调用方法
         :param static: 是否使用静态模式
         """
         super().__init__()
@@ -33,8 +33,8 @@ class AsyncShare(Generic[T], LocateMixin, AttrReprMixin):
             inject_deps(reflector, avoid_repeat=True) if reflector is not None else None
         )
         self.__callback: AsyncCallable[[T], None] | None = (
-            inject_deps(callabck, manual_arg=True, avoid_repeat=True)
-            if callabck is not None
+            inject_deps(callback, manual_arg=True, avoid_repeat=True)
+            if callback is not None
             else None
         )
         self.static = static
@@ -96,20 +96,20 @@ class SyncShare(Generic[T], LocateMixin, AttrReprMixin):
         self,
         name: str,
         reflector: Callable[[], T] | None = None,
-        callabck: Callable[[T], None] | None = None,
+        callback: Callable[[T], None] | None = None,
         static: bool = False,
     ) -> None:
         """初始化同步共享对象
 
         :param name: 同步共享对象的名称
         :param reflector: 获取共享值的可调用方法
-        :param callabck: 修改共享值的可调用方法
+        :param callback: 修改共享值的可调用方法
         :param static: 是否使用静态模式
         """
         super().__init__()
         self.name = name
         self.__reflect = reflector
-        self.__callback = callabck
+        self.__callback = callback
         self.static = static
 
         if self.name.startswith("_"):
