@@ -1,4 +1,4 @@
-from typing_extensions import TYPE_CHECKING
+from typing_extensions import TYPE_CHECKING, Self
 
 if TYPE_CHECKING:
     from .adapter.model import ActionHandle
@@ -110,14 +110,30 @@ class DependRuntimeError(DependError):
     """melobot 依赖注入的运行时失败"""
 
 
-class DynamicImpError(BotException):
+class DynImportError(BotException):
     """melobot 动态导入组件异常"""
 
     def __init__(self, *args: object, name: str | None = None, path: str | None = None) -> None:
         super().__init__(*args)
+        self.args = args
         self.name = name
         self.path = path
 
 
-class DynamicImpSpecEmpty(DynamicImpError):
+class ImportNameConflict(DynImportError):
+    """melobot 动态导入时，命名空间名称冲突"""
+
+    def __init__(self, *args: object, name: str, path: str) -> None:
+        super().__init__(*args, name=name, path=path)
+        self.name: str
+        self.path: str
+
+    def derive(self, *, name: str, path: str) -> Self:
+        return self.__class__(*self.args, name=name, path=path)
+
+    def __str__(self) -> str:
+        return f"{super().__str__()} (本次目标: {self.name!r}, 在以下目录中搜索: {self.path})"
+
+
+class ImportSpecEmpty(DynImportError):
     """melobot 动态导入时，模块的 spec 为空"""

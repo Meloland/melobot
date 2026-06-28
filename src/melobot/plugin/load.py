@@ -8,7 +8,7 @@ from typing_extensions import Any, Iterable, cast
 from .._imp import ALL_EXTS, Importer
 from .._lazy import singleton
 from ..ctx import BotCtx
-from ..exceptions import DynamicImpSpecEmpty, PluginLoadError
+from ..exceptions import ImportSpecEmpty, PluginLoadError
 from ..log.reflect import logger
 from .base import Plugin, PluginPlanner
 
@@ -47,11 +47,11 @@ class PluginLoader:
             try:
                 tmp_mod = Importer.import_mod(plugin)
                 plugin = tmp_mod
-            except DynamicImpSpecEmpty:
+            except ImportSpecEmpty:
                 pass
 
         if isinstance(plugin, ModuleType):
-            p_dir = self._get_mod_plugin_dir(plugin)
+            p_dir = self._get_plugin_dir(plugin)
         else:
             p_dir = Path(plugin)
         try:
@@ -115,7 +115,8 @@ class PluginLoader:
             return p, True
 
         if entry is not None:
-            p_dir = self._get_mod_plugin_dir(entry).resolve()
+            # 此时 entry 为 __plugin__.py 对应模块，因此一定有 __file__ 属性
+            p_dir = Path(cast(str, entry.__file__)).resolve()
             self._auto_import(p_name, entry.__name__, p_dir, planner.auto_import)
 
         planner._pname = p_name
@@ -163,7 +164,8 @@ class PluginLoader:
             path = p_dir.joinpath(path).resolve()
             Importer.import_mod(mod_name, path.parent.as_posix())
 
-    def _get_mod_plugin_dir(self, mod: ModuleType) -> Path:
+    def _get_plugin_dir(self, mod: ModuleType) -> Path:
+        # mod 是插件目录模块
         if mod.__file__ is None:
             p_dir = Path(mod.__path__[0])
         else:
