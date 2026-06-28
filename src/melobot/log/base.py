@@ -23,9 +23,7 @@ from ..utils.common import find_caller_stack
 from .handler import _NO_LOG_OBJ_SIGN, FastRotatingFileHandler, FastStreamHandler
 
 # 取消 better-exceptions 的猴子补丁
-logging._loggerClass = (  # type:ignore[attr-defined]
-    logging.Logger
-)
+logging._loggerClass = logging.Logger  # type: ignore[attr-defined]
 
 PATCHED_LOGGER_TAG = "__melobot_patched_logger__"
 
@@ -193,7 +191,7 @@ class Logger(_Logger, GenericLogger):
         two_stream: bool = False,
         is_parallel: bool = False,
     ) -> None:
-        """初始化日志器
+        """创建一个日志器
 
         :param name: 日志器的名称（唯一）
         :param level: 日志等级
@@ -211,7 +209,7 @@ class Logger(_Logger, GenericLogger):
             `legacy` 选项为 `True` 时此参数无效
 
         :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件
-        :param is_parallel: 日志渲染是否启用并行优化（可能导致日志小范围行间乱序）
+        :param is_parallel: 是否使用并行日志渲染。这可能导致日志小范围行间乱序，且如果日志器在多个线程共享，此选项仅在主线程中生效
         """
         super().__init__(name, LogLevel.DEBUG)
         self._handler_arr: list[logging.Handler] = []
