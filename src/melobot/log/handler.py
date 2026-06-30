@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from functools import partial
 from logging import ERROR, WARNING, LogRecord, StreamHandler
 from logging.handlers import RotatingFileHandler
@@ -25,17 +26,32 @@ _NO_LOG_OBJ_SIGN = object()
 
 class FastStreamHandler(StreamHandler):
     def __init__(self, is_parellel: bool) -> None:
-        super().__init__()
+        super().__init__(sys.stdout)
         self.is_parellel = is_parellel
         self.render = RecordRender(is_parellel)
+        self.super_emit = super(FastStreamHandler, self).emit
 
     def emit(self, record: LogRecord) -> None:
+        if record.levelno >= ERROR:
+            self.stream = sys.stderr
+
         if is_runner_running() and self.is_parellel and current_thread() is main_thread():
             t = create_immunity_task(self.render.async_format(record))
-            t.add_done_callback(partial(_format_cb, record, super(FastStreamHandler, self).emit))
+            t.add_done_callback(partial(self._emit_with_stream_fix, record, self.super_emit))
         else:
-            self.render.sync_format(record)
-            super().emit(record)
+            try:
+                self.render.sync_format(record)
+                super().emit(record)
+            finally:
+                self.stream = sys.stdout
+
+    def _emit_with_stream_fix(
+        self, record: LogRecord, super_emit: Callable[[LogRecord], None], t: asyncio.Task[None]
+    ) -> None:
+        try:
+            _format_cb(record, super_emit, t)
+        finally:
+            self.stream = sys.stdout
 
 
 class FastRotatingFileHandler(RotatingFileHandler):
@@ -53,13 +69,12 @@ class FastRotatingFileHandler(RotatingFileHandler):
         super().__init__(filename, mode, maxBytes, backupCount, encoding, delay, errors)
         self.is_parellel = is_parellel
         self.render = RecordRender(is_parellel)
+        self.super_emit = super(FastRotatingFileHandler, self).emit
 
     def emit(self, record: LogRecord) -> None:
         if is_runner_running() and self.is_parellel and current_thread() is main_thread():
             t = create_immunity_task(self.render.async_format(record))
-            t.add_done_callback(
-                partial(_format_cb, record, super(FastRotatingFileHandler, self).emit)
-            )
+            t.add_done_callback(partial(_format_cb, record, self.super_emit))
         else:
             self.render.sync_format(record)
             super().emit(record)
