@@ -17,5 +17,6 @@ from .model import (
     Event,
     EventT,
     TextEvent,
+    filter_out,
     lazy_action,
 )

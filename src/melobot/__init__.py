@@ -10,7 +10,7 @@ from ._lazy import lazy_load
 if TYPE_CHECKING:
     from ._meta import MetaInfo, __version__
     from ._render import install_exc_hook, set_traceback_style, uninstall_exc_hook
-    from .adapter import Action, Adapter, Echo, Event
+    from .adapter import Action, Adapter, Echo, Event, TextEvent, filter_out, lazy_action
     from .adapter.generic import send_image, send_text
     from .bot import Bot, get_bot
     from .ctx import Context
@@ -60,7 +60,15 @@ else:
         map={
             "._meta": ("MetaInfo", "__version__"),
             "._render": ("install_exc_hook", "set_traceback_style", "uninstall_exc_hook"),
-            ".adapter": ("Action", "Adapter", "Echo", "Event"),
+            ".adapter": (
+                "Action",
+                "Adapter",
+                "Echo",
+                "Event",
+                "TextEvent",
+                "filter_out",
+                "lazy_action",
+            ),
             ".adapter.generic": ("send_image", "send_text"),
             ".bot": ("Bot", "get_bot"),
             ".ctx": ("Context",),
