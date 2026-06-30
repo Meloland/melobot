@@ -58,11 +58,18 @@ class FlowNode:
                     records.add(RecordStage.NODE_FINISH, status=status)
                 except DependNotMatched as e:
                     ret = False
-                    records.add(
-                        RecordStage.DEPENDS_NOT_MATCH,
-                        status=status,
-                        prompt=f"Real({e.real_type}) <=> Annotation({e.hint})",
-                    )
+                    if e.real_type is DependNotMatched._EMPTY:
+                        records.add(
+                            RecordStage.DEPENDS_NOT_MATCH,
+                            status=status,
+                            prompt=f"Not exists <=> Annotation({e.hint})",
+                        )
+                    else:
+                        records.add(
+                            RecordStage.DEPENDS_NOT_MATCH,
+                            status=status,
+                            prompt=f"Real({e.real_type}) <=> Annotation({e.hint})",
+                        )
 
                 if ret in (None, True) and _FLOW_CTX.get().next_valid:
                     await nextn()

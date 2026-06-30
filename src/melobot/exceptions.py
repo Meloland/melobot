@@ -103,11 +103,11 @@ class DependError(BotException):
 
 
 class DependInitError(DependError):
-    """melobot 依赖注入项初始化失败"""
+    """melobot 依赖注入项初始化失败（特定场景下无影响）"""
 
 
-class DependRuntimeError(DependError):
-    """melobot 依赖注入的运行时失败"""
+class DependResolveFailed(DependError):
+    """melobot 依赖注入解析失败（不可恢复）"""
 
 
 class DynImportError(BotException):

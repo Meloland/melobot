@@ -21,7 +21,7 @@ from typing_extensions import (
 )
 
 from .ctx import BotCtx, EventOrigin, FlowCtx, ParseArgsCtx, SessionCtx, get_logger_type
-from .exceptions import DependInitError, DependRuntimeError
+from .exceptions import DependInitError, DependResolveFailed
 from .typ.base import AsyncCallable, P, SyncOrAsyncCallable, T, U, is_subhint, is_type
 from .typ.cls import BetterABC
 from .utils.base import to_async
@@ -32,12 +32,10 @@ if TYPE_CHECKING:
 
 
 class DependNotMatched(BaseException):
-    def __init__(
-        self, msg: str, func_name: str, arg_name: str, real_type: type | None, hint: Any
-    ) -> None:
+    _EMPTY = object()
+
+    def __init__(self, msg: str, real_type: Any, hint: Any) -> None:
         super().__init__(msg)
-        self.func_name = func_name
-        self.arg_name = arg_name
         self.real_type = real_type
         self.hint = hint
 
@@ -163,11 +161,10 @@ class CbDepends(Depends, BetterABC, Generic[T]):
         return new_val
 
 
-class AutoDepends(CbDepends):
-    def __init__(self, func: Callable, name: str, hint: Any) -> None:
+class HintDepends(CbDepends):
+    def __init__(self, hint: Any, name: str = "", callable_name: str = "") -> None:
         self.hint = hint
-        self.func = func
-        self.func_name = get_obj_name(func, otype="callable")
+        self.callable_name = callable_name
         self.arg_name = name
 
         self._match_event = False
@@ -175,7 +172,7 @@ class AutoDepends(CbDepends):
         if get_origin(hint) is Annotated:
             args = get_args(hint)
             if not len(args):
-                raise DependRuntimeError("可依赖注入的函数若使用 Annotated 注解，必须附加元数据")
+                raise DependResolveFailed("可依赖注入的函数若使用 Annotated 注解，必须附加元数据")
             self.metadatas = args
         else:
             self.metadatas = ()
@@ -218,8 +215,7 @@ class AutoDepends(CbDepends):
 
         if self.orig_getter is None:
             raise DependInitError(
-                f"函数 {self.func_name} 的参数 {name} 提供的类型注解"
-                f" {hint} 无法用于注入任何依赖，请检查是否有误"
+                f"{self._get_error_prefix()}提供的类型注解 {hint} 无法用于注入任何依赖，请检查是否有误"
             )
 
         for data in self.metadatas:
@@ -229,23 +225,21 @@ class AutoDepends(CbDepends):
 
         super().__init__(self.orig_getter, cache=False, recursive=False)
 
+    def _get_error_prefix(self) -> str:
+        s = f"可调用对象 {self.callable_name!r} 的" if self.callable_name != "" else "可调用对象的"
+        s += f"参数 {self.arg_name!r} " if self.arg_name != "" else "参数"
+        return s
+
     def _unmatch_exc(self, real_type: Any) -> DependNotMatched:
         if real_type is Depends._EMPTY:
             return DependNotMatched(
-                f"函数 {self.func_name} 的参数 {self.arg_name} 对应的依赖项，"
-                f"在当前上下文中不存在",
-                self.func_name,
-                self.arg_name,
-                None,
+                f"{self._get_error_prefix()}对应的依赖项在当前上下文中不存在",
+                DependNotMatched._EMPTY,
                 self.hint,
             )
         else:
             return DependNotMatched(
-                f"函数 {self.func_name} 的参数 {self.arg_name} 与注解 {self.hint} 不匹配",
-                self.func_name,
-                self.arg_name,
-                real_type,
-                self.hint,
+                f"{self._get_error_prefix()}与注解 {self.hint} 不匹配", real_type, self.hint
             )
 
     async def deps_callback(self, val: Any) -> Any:
@@ -268,12 +262,12 @@ def _get_adapter_type() -> type["Adapter"]:
     return Adapter
 
 
-def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
+def _adapter_get(deps: HintDepends, hint: Any) -> "Adapter":
     if not deps._match_event:
         if get_origin(hint) is Annotated:
             args = get_args(hint)
             if not len(args):
-                raise DependRuntimeError("可依赖注入的函数若使用 Annotated 注解，必须附加元数据")
+                raise DependResolveFailed("可依赖注入的函数若使用 Annotated 注解，必须附加元数据")
             adapter_type = args[0]
         else:
             adapter_type = hint
@@ -292,8 +286,20 @@ def _adapter_get(deps: AutoDepends, hint: Any) -> "Adapter":
             raise deps._unmatch_exc(Depends._EMPTY) from None
 
 
+SENTINEL = object()
+
+
 @dataclass
-class Exclude:
+class DepsOption: ...
+
+
+@dataclass
+class PendingDepsOption:
+    option: DepsOption
+
+
+@dataclass
+class Exclude(DepsOption):
     """数据类。`types` 指定的类别会在依赖注入时被排除
 
     .. code:: python
@@ -307,8 +313,20 @@ class Exclude:
     types: Sequence[type]
 
 
+def exclude(base_type: type[T] | object = SENTINEL, *types: type[T]) -> T:
+    """与使用 :class:`.Exclude` 基本等价
+
+    :param types: 需要排除的类型
+    :return: 对应类型
+    """
+    if base_type is SENTINEL:
+        return cast(T, PendingDepsOption(Exclude(types=types)))
+    else:
+        return cast(T, HintDepends(Annotated[base_type, Exclude(types=types)]))
+
+
 @dataclass
-class Reflect:
+class Reflect(DepsOption):
     """数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理
 
     这适用于希望依赖会随着上下文改变，而动态变化的情况。例如动态引用会话流程中的事件对象
@@ -330,8 +348,19 @@ class Reflect:
     """
 
 
+def ref(base_type: type[T] | object = SENTINEL) -> T:
+    """与使用 :class:`.Reflect` 基本等价
+
+    :return: 对应类型
+    """
+    if base_type is SENTINEL:
+        return cast(T, PendingDepsOption(Reflect()))
+    else:
+        return cast(T, HintDepends(Annotated[base_type, Reflect()]))
+
+
 @dataclass
-class MatchEvent:
+class MatchEvent(DepsOption):
     """数据类。指定从当前事件的上下文中获取依赖
 
     默认情况下，获取 Adapter 依赖都会直接尝试遍历所有可能的对象。
@@ -361,6 +390,17 @@ class MatchEvent:
     """
 
 
+def match_event(base_type: type[T] | object = SENTINEL) -> T:
+    """与使用 :class:`.MatchEvent` 基本等价
+
+    :return: 对应类型
+    """
+    if base_type is SENTINEL:
+        return cast(T, PendingDepsOption(MatchEvent()))
+    else:
+        return cast(T, HintDepends(Annotated[base_type, MatchEvent()]))
+
+
 class Reflection:
     def __init__(self, getter: Callable[[], Any]) -> None:
         super().__setattr__("__obj_getter__", getter)
@@ -372,7 +412,7 @@ class Reflection:
     def __getattr__(self, name: str) -> Any:
         getter = self.__obj_getter__
         if name.startswith("_"):
-            raise AttributeError(f"在反射对象上，不允许访问名称以 _ 开头的属性：{name}")
+            raise AttributeError(f"在反射对象上，不允许访问名称以 _ 开头的属性：{name!r}")
 
         return getattr(getter(), name)
 
@@ -381,7 +421,7 @@ class Reflection:
         if name == "__obj_getter__":
             return getter
         if name.startswith("_"):
-            raise AttributeError(f"在反射对象上，不允许修改名称以 _ 开头的属性：{name}")
+            raise AttributeError(f"在反射对象上，不允许修改名称以 _ 开头的属性：{name!r}")
 
         return setattr(getter(), name, value)
 
@@ -404,12 +444,23 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
         if param.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
             continue
 
-        # 有默认值的情况，保存默认值并跳过
+        # 有默认值的情况，处理默认值并跳过
         if param.default is not empty:
+            default = param.default
+            if isinstance(default, PendingDepsOption):
+                if param.annotation is empty:
+                    _option_name = default.option.__class__
+                    raise DependResolveFailed(
+                        f"使用 {_option_name} 对应的简略方法进行依赖注入时："
+                        "函数参数需要提供类型注解，或将类型注解作为参数提供给 "
+                        f"{_option_name} 对应的简略方法"
+                    )
+                default = HintDepends(Annotated[param.annotation, default.option])
+
             if param.kind is Parameter.KEYWORD_ONLY:
-                kwargs[name] = param.default
+                kwargs[name] = default
             else:
-                args.append(param.default)
+                args.append(default)
             continue
 
         # 没有默认值，没有注解的参数，跳过
@@ -423,7 +474,7 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
             if get_origin(param.annotation) is Annotated:
                 anno_args = get_args(param.annotation)
                 if not len(anno_args):
-                    raise DependRuntimeError(
+                    raise DependResolveFailed(
                         "可依赖注入的函数若使用 Annotated 注解，必须附加元数据"
                     )
                 for v in anno_args:
@@ -431,7 +482,7 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
                         dep = v
                         break
             if dep is None:
-                dep = AutoDepends(func, name, param.annotation)
+                dep = HintDepends(param.annotation, name, get_obj_name(func, otype="callable"))
         except DependInitError:
             # 如果允许手动传参，无法识别的依赖显然是允许的
             if allow_manual_arg:
@@ -488,8 +539,8 @@ def inject_deps(
             ret = injectee(*_args, **_kwargs)  # type: ignore[arg-type]
         except TypeError as e:
             fname = get_obj_name(injectee, otype="callable")
-            raise DependRuntimeError(
-                f"依赖注入下的函数 {fname} 调用时发生错误：{e}。"
+            raise DependResolveFailed(
+                f"依赖注入下的函数 {fname!r} 调用时发生错误：{e}。"
                 "可能是参数存在问题：传参个数不匹配，或提供了错误的类型注解；"
                 "或是函数内部逻辑错误。"
             ) from None
@@ -522,10 +573,10 @@ def inject_deps(
         injectee.__dict__[_DI_INJECTED] = True
         return inject_deps_wrapped
     if isinstance(injectee, BuiltinFunctionType):
-        raise DependInitError(f"内建函数 {injectee} 不支持依赖注入")
+        raise DependInitError(f"内建函数 {injectee!r} 不支持依赖注入")
 
     raise DependInitError(
-        f"{injectee} 对象不属于以下类别中的任何一种："
+        f"{injectee!r} 对象不属于以下类别中的任何一种："
         "{同步函数，异步函数，匿名函数，partial 对象，同步生成器函数，异步生成器函数，"
         "实例方法、类方法、静态方法}，因此不能被注入依赖"
     )
