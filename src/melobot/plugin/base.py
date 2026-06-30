@@ -16,7 +16,7 @@ from .ipc import AsyncShare, SyncShare
 class PluginLifeSpan(Enum):
     """插件生命周期的枚举"""
 
-    INITED = "i"
+    READY = "i"
 
 
 @dataclass(frozen=True)
@@ -110,9 +110,9 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
         return obj
 
     @property
-    def on_inited(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给插件注册 :obj:`.PluginLifeSpan.INITED` 阶段 hook 的装饰器"""
-        return self.on(PluginLifeSpan.INITED)
+    def on_ready(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给插件注册 :obj:`.PluginLifeSpan.READY` 阶段 hook 的装饰器"""
+        return self.on(PluginLifeSpan.READY)
 
 
 class Plugin:

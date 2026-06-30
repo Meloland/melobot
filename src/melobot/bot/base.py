@@ -18,7 +18,6 @@ from typing_extensions import (
     Callable,
     Generator,
     Iterable,
-    Literal,
     LiteralString,
     NoReturn,
     overload,
@@ -47,22 +46,15 @@ from .dispatch import Dispatcher, wait_dispatched
 class BotLifeSpan(Enum):
     """bot 生命周期阶段的枚举"""
 
-    #: 所有插件加载之后
-    LOADED = "l"
     #: bot 启动完成之后（此时所有适配器和源已经开始工作）
     STARTED = "sta"
-    #: bot 重新启动完成之后
+    #: bot 重新启动完成之后（此时所有适配器和源已经开始工作）
     RESTARTED = "r"
-    #: bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号结束进程或出现异常可能不触发此类型）
+    #: bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号结束进程或出现异常不触发此类型）
     CLOSE = "c"
-    #: bot 停止完成后（包含任何情况导致的停止，请在这里处理清理工作）
+    #: bot 停止完成后（包含任何情况导致的停止，请在这里处理清理工作，此时所有适配器和源已停止工作）
     STOPPED = "sto"
 
-    RELOADED: Literal["r"]
-
-
-# 兼容旧版本
-BotLifeSpan.RELOADED = BotLifeSpan.RESTARTED  # type: ignore[assignment]
 
 _BOT_CTX = BotCtx()
 _LUCKY_VALUE = random()
@@ -271,7 +263,7 @@ class Bot(HookMixin[BotLifeSpan]):
             if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
                 asyncio.create_task(
                     p.hook_bus.emit(
-                        PluginLifeSpan.INITED,
+                        PluginLifeSpan.READY,
                         callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
                     )
                 )
@@ -335,14 +327,9 @@ class Bot(HookMixin[BotLifeSpan]):
         try:
             async with self._common_async_ctx() as stack:
                 self._dispatcher.set_channel_ctx(contextvars.copy_context())
-
-                await self._hook_bus.emit(BotLifeSpan.LOADED)
-                if self._runner.is_from_restart():
-                    await self._hook_bus.emit(BotLifeSpan.RESTARTED)
-
                 for p in self._plugins.values():
                     await p.hook_bus.emit(
-                        PluginLifeSpan.INITED,
+                        PluginLifeSpan.READY,
                         callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
                     )
 
@@ -353,6 +340,8 @@ class Bot(HookMixin[BotLifeSpan]):
                 if len(ts):
                     await asyncio.wait(ts)
 
+                if self._runner.is_from_restart():
+                    await self._hook_bus.emit(BotLifeSpan.RESTARTED)
                 await self._hook_bus.emit(BotLifeSpan.STARTED)
                 await self.__happy_end.wait()
 
@@ -370,7 +359,7 @@ class Bot(HookMixin[BotLifeSpan]):
         loop_factory: Callable[[], asyncio.AbstractEventLoop] | None = None,
         eager_task: bool = True,
     ) -> None:
-        """运行 bot 的阻塞方法（将在内部创建事件循环），这适用于只运行单一 bot 的情况
+        """运行 bot 的阻塞方法（将在内部创建事件循环）
 
         :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级
         :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
@@ -399,9 +388,9 @@ class Bot(HookMixin[BotLifeSpan]):
         shutdown_asyncgens: bool = False,
         shutdown_default_executor: bool = False,
     ) -> None:
-        """运行 bot 的异步方法（将在已有的事件循环中运行），这适用于只运行单一 bot 的情况
+        """运行 bot 的异步方法（将在已有的事件循环中运行）
 
-        我们仅推荐在测试环境中使用此方法，因为部分测试框架的异步测试会先运行一个事件循环（如 pytest-asyncio）。
+        仅推荐在测试环境中使用此方法，因为部分测试框架的异步测试会先运行一个事件循环（如 pytest-asyncio）。
         在复杂的生产环境中，无法 100% 保证运行前后事件循环的状态不被破坏
 
         :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志
@@ -553,20 +542,6 @@ class Bot(HookMixin[BotLifeSpan]):
         :param event: 事件对象
         """
         await wait_dispatched(event, self)
-
-    @property
-    def on_loaded(
-        self,
-    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 :obj:`.BotLifeSpan.LOADED` 阶段 hook 的装饰器"""
-        return self.on(BotLifeSpan.LOADED)
-
-    @property
-    def on_reloaded(
-        self,
-    ) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给 bot 注册 :obj:`.BotLifeSpan.RESTARTED` 阶段 hook 的装饰器"""
-        return self.on(BotLifeSpan.RESTARTED)
 
     @property
     def on_restarted(
