@@ -674,6 +674,61 @@ async def func(...) -> None:
 
 同理，此时显然也无法使用 {func}`.get_event`, {func}`.get_flow_store` 等方法。
 
+## 多路输入与多路输出
+
+使用不同的依赖注入组合，就可以实现选择满足特定条件的事件，从而有效地处理“多路输入”。
+
+接下来讨论多路输出。在此之前，需要先了解默认的输出逻辑。
+
+**协议特定行为操作方法**：自动获取产生该事件的输入源，如果它也为**该协议的输出源**则使用它进行输出。否则使用**该协议的所有输出源**进行输出。
+
+```python
+# 协议特定行为操作
+await ob_adapter.send_reply(...)
+```
+
+**通用行为操作方法**：本质是先获取当前事件对应协议的适配器。然后调用协议特定行为操作方法。
+
+```python
+# 通用行为操作
+await send_text(...)
+```
+
+如果要精准控制行为操作在特定输出源上发生，使用 {meth}`~.melobot.adapter.model.filter_out` 方法：
+
+```python
+from melobot import filter_out
+from melobot.adapter import ActionHandleGroup
+
+# 筛选函数接受输出源对象，返回 bool 值
+filter_func = lambda out_src: ...
+
+# 使用此方法展开一个筛选输出源的上下文
+with filter_out(filter_func):
+    # 对于通用行为操作方法，会对当前事件对应协议的所有输出源进行筛选
+    # 通过筛选的输出源将会执行此行为
+    await send_text(...)
+
+    # 对于协议特定行为操作方法，会对指定协议的所有输出源进行筛选
+    # 通过筛选的输出源将会执行此行为
+    hg：ActionHandleGroup = await ob_adapter.get_friend_list()
+```
+
+对于筛选函数，一个良好的习惯是从基类型 {class}`~.melobot.io.base.AbstractOutSource` 逐步收窄类型，再执行真正的筛选逻辑：
+
+```python
+from melobot.io import AbstractOutSource
+from melobot.protocols.onebot.v11 import WSClient, WSServer
+
+def filter_func(out: AbstractOutSource) -> bool:
+    if not isinstance(out, (WSClient, WSServer)):
+        return False
+    # 开始执行筛选逻辑
+    ...
+```
+
+这样可以保证最大兼容性。
+
 ## 总结
 
 本篇主要说明了 melobot 事件处理流及其机制。
