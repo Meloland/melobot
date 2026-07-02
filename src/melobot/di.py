@@ -101,7 +101,7 @@ class Depends(Generic[T, U]):
 
     def __repr__(self) -> str:
         getter_str = f"getter={self.getter}" if self.getter is not None else ""
-        ref_str = f"ref={self.ref}" if self.ref is not None else ""
+        ref_str = f"depends={self.ref}" if self.ref is not None else ""
         return f"{self.__class__.__name__}({ref_str if ref_str != '' else getter_str})"
 
     async def _get(self, dep_scope: dict[Depends, Any]) -> T:
@@ -313,7 +313,7 @@ class Exclude(DepsOption):
     types: Sequence[type]
 
 
-def exclude(base_type: type[T] | object = SENTINEL, *types: type[T]) -> T:
+def exclude(*types: type[T], base_type: type[T] | object = SENTINEL) -> T:
     """与使用 :class:`.Exclude` 基本等价
 
     :param types: 需要排除的类型

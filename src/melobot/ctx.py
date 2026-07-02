@@ -176,7 +176,7 @@ class FlowRecords(list[FlowRecord]):
             )
 
 
-class FlowStore(dict[Hashable, Any]):
+class FlowStore(dict):
     """流存储，将会在流运行前初始化，运行结束后销毁"""
 
 

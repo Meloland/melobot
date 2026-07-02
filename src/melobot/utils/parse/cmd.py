@@ -546,7 +546,7 @@ class CmdArgDepend(Depends):
         if args is None:
             raise CmdParseError("未在有效的上下文中。无法获取命令参数对象，无法进行依赖注入")
         if not isinstance(args, CmdArgs):
-            raise CmdParseError(f"解析参数对象类型不为 {CmdArgs.__name__}, 无法进行依赖注入")
+            raise CmdParseError(f"解析参数对象类型不为 {CmdArgs}, 无法进行依赖注入")
         empty = object()
         val = args.get(self.arg_idx, empty)
         if val is empty:
