@@ -5,6 +5,8 @@ from typing import Any as _VAR3
 from melobot.plugin.base import PluginInfo as _VAR8
 from melobot.plugin.load import plugin_get_attr as _VAR4
 
+"$import_pargs"
+
 _VAR5 = _VAR2(__file__).parent
 _VAR6 = set(fname.split(".")[0] for fname in _VAR1(_VAR5))
 _VAR7 = _VAR5.parts[-1]
@@ -15,4 +17,4 @@ def __getattr__(name: str) -> _VAR3:
 
 
 __plugin_info__: _VAR8
-__auto_gen_version__ = "2"
+__auto_gen_version__ = "3"

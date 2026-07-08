@@ -4,13 +4,16 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from typing_extensions import Callable, Iterable, final, overload
+from typing_extensions import TYPE_CHECKING, Any, Callable, Iterable, TypedDict, final, overload
 
 from ..exceptions import PluginLoadError
 from ..handle.base import Flow
 from ..mixin import HookMixin
 from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
 from .ipc import AsyncShare, SyncShare
+
+if TYPE_CHECKING:
+    from ..bot.dispatch import Dispatcher
 
 
 class PluginLifeSpan(Enum):
@@ -116,11 +119,20 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
 
 
 class Plugin:
-    def __init__(self, planner: PluginPlanner) -> None:
+    def __init__(self, planner: PluginPlanner, init_args: dict[str, Any]) -> None:
         self.planner = planner
         self.name = planner._pname
-        self.hook_bus = planner._hook_bus
-
         self.shares = planner.shares
         self.funcs = planner.funcs
         self.init_flows = planner.init_flows
+        self.init_args = init_args
+
+    async def run_ready_hook(self, dispatcher: "Dispatcher") -> None:
+        await self.planner._hook_bus.emit(
+            PluginLifeSpan.READY,
+            kwargs=self.init_args,
+            callback=lambda _: dispatcher.add(*self.init_flows),
+        )
+
+
+class PluginArgs(TypedDict): ...

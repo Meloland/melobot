@@ -17,9 +17,9 @@ from typing_extensions import (
     AsyncGenerator,
     Callable,
     Generator,
-    Iterable,
     LiteralString,
     NoReturn,
+    Sequence,
     overload,
 )
 
@@ -35,7 +35,7 @@ from ..log.base import GenericLogger
 from ..log.reflect import logger
 from ..log.report import set_loop_exc_log
 from ..mixin import HookMixin
-from ..plugin.base import Plugin, PluginLifeSpan, PluginPlanner
+from ..plugin.base import Plugin, PluginPlanner
 from ..plugin.ipc import AsyncShare, IPCManager, SyncShare
 from ..plugin.load import PluginLoader
 from ..protocols.base import ProtocolStack
@@ -237,6 +237,8 @@ class Bot(HookMixin[BotLifeSpan]):
         self,
         plugin: ModuleType | str | PathLike[str] | PluginPlanner,
         load_depth: int = 1,
+        /,
+        **init_args: Any,
     ) -> Bot:
         """加载插件，非线程安全
 
@@ -245,11 +247,12 @@ class Bot(HookMixin[BotLifeSpan]):
             插件加载时的相对引用深度，默认值 1 只支持向上引用到插件目录一级。
             增加为 2 可以引用到插件目录的父目录一级，依此类推。
             此参数只在 `plugin` 参数为插件的目录路径时有效。
+        :param init_args: 传递给插件的初始化参数
         :return: bot 对象，因此支持链式调用
         """
         self._core_init()
         with self._common_sync_ctx():
-            p, is_loaded = self._loader.load(plugin, load_depth)
+            p, is_loaded = self._loader.load(plugin, load_depth, **init_args)
             if is_loaded:
                 return self
 
@@ -261,36 +264,48 @@ class Bot(HookMixin[BotLifeSpan]):
             logger.info(f"成功加载插件：{p.name}")
 
             if self._hook_bus.get_evoke_time(BotLifeSpan.STARTED) != -1:
-                asyncio.create_task(
-                    p.hook_bus.emit(
-                        PluginLifeSpan.READY,
-                        callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
-                    )
-                )
+                asyncio.create_task(p.run_ready_hook(self._dispatcher))
             return self
 
     def load_plugins(
         self,
-        plugins: Iterable[ModuleType | str | PathLike[str] | PluginPlanner],
+        plugins: Sequence[ModuleType | str | PathLike[str] | PluginPlanner],
         load_depth: int = 1,
+        init_args: Sequence[dict[str, Any]] | None = None,
     ) -> None:
         """与 :func:`load_plugin` 行为类似，但是参数变为可迭代对象
 
         此方法同样不是线程安全的
 
+        当 `plugins` 中某一项不需要初始化参数时，
+        `init_args` 对应的位置使用 `{}` 占空
+
         :param plugins: 可迭代对象，包含：可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）
         :param load_depth: 参见 :func:`load_plugin` 同名参数
+        :param init_args: 传递给插件的初始化参数
         """
-        for p in plugins:
-            self.load_plugin(p, load_depth)
+        if init_args is None:
+            for p in plugins:
+                self.load_plugin(p, load_depth)
+        else:
+            for idx, p in enumerate(plugins):
+                self.load_plugin(p, load_depth, **init_args[idx])
 
-    def load_plugins_dir(self, pdir: str | PathLike[str], load_depth: int = 1) -> None:
+    def load_plugins_dir(
+        self,
+        pdir: str | PathLike[str],
+        load_depth: int = 1,
+        init_args: Sequence[dict[str, Any]] | None = None,
+    ) -> None:
         """与 :func:`load_plugin` 行为类似，但是参数变为插件目录的父目录，本方法可以加载单个目录下的多个插件
 
         此方法同样不是线程安全的
 
         :param pdir: 插件所在父目录的路径
         :param load_depth: 参见 :func:`load_plugin` 同名参数
+        :param init_args:
+            传递给插件的初始化参数，请匹配 `os.listdir(pdir)` 给出的目录顺序。
+            某一项不需要初始化参数时，使用 `{}` 占空
         """
         parent_dir = Path(pdir).resolve()
         plugin_dirs: list[Path] = []
@@ -300,9 +315,14 @@ class Bot(HookMixin[BotLifeSpan]):
             if path.is_dir() and path.parts[-1] != "__pycache__":
                 plugin_dirs.append(path)
 
-        self.load_plugins(plugin_dirs, load_depth)
+        self.load_plugins(plugin_dirs, load_depth, init_args)
 
-    def load_plugins_dirs(self, pdirs: Iterable[str | PathLike[str]], load_depth: int = 1) -> None:
+    def load_plugins_dirs(
+        self,
+        pdirs: Sequence[str | PathLike[str]],
+        load_depth: int = 1,
+        init_args: Sequence[Sequence[dict[str, Any]]] | None = None,
+    ) -> None:
         """与 :func:`load_plugins_dir` 行为类似，但是参数变为可迭代对象，每个元素为包含插件目录的父目录。
         本方法可以加载多个目录下的多个插件
 
@@ -310,9 +330,16 @@ class Bot(HookMixin[BotLifeSpan]):
 
         :param pdirs: 可迭代对象，包含：插件所在父目录的路径
         :param load_depth: 参见 :func:`load_plugin` 同名参数
+        :param init_args:
+            传递给插件的初始化参数，请匹配 `os.listdir(插件目录)` 给出的目录顺序。
+            某一项不需要初始化参数时，使用 `{}` 占空
         """
-        for pdir in pdirs:
-            self.load_plugins_dir(pdir, load_depth)
+        if init_args is None:
+            for pdir in pdirs:
+                self.load_plugins_dir(pdir, load_depth)
+        else:
+            for idx, pdir in enumerate(pdirs):
+                self.load_plugins_dir(pdir, load_depth, init_args[idx])
 
     async def _run(self) -> None:
         if self._closed:
@@ -328,10 +355,7 @@ class Bot(HookMixin[BotLifeSpan]):
             async with self._common_async_ctx() as stack:
                 self._dispatcher.set_channel_ctx(contextvars.copy_context())
                 for p in self._plugins.values():
-                    await p.hook_bus.emit(
-                        PluginLifeSpan.READY,
-                        callback=lambda _, p=p: self._dispatcher.add(*p.init_flows),
-                    )
+                    await p.run_ready_hook(self._dispatcher)
 
                 ts = tuple(
                     asyncio.create_task(stack.enter_async_context(adapter.__adapter_launch__()))
