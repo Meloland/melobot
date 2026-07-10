@@ -31,13 +31,20 @@ if TYPE_CHECKING:
     from .adapter.base import Adapter
 
 
-class DependNotMatched(BaseException):
-    _EMPTY = object()
+SENTINEL = object()
 
-    def __init__(self, msg: str, real_type: Any, hint: Any) -> None:
+
+class DependNotMatched(BaseException):
+    def __init__(self, msg: str, hint: Any, real_type: Any = SENTINEL) -> None:
         super().__init__(msg)
         self.real_type = real_type
         self.hint = hint
+
+    def __str__(self) -> str:
+        if self.real_type is SENTINEL:
+            return f"依赖不匹配：<不存在> <=> 注解要求的类型({self.hint})"
+        else:
+            return f"依赖不匹配：真实类型({self.real_type}) <=> 注解要求的类型({self.hint})"
 
 
 class Depends(Generic[T, U]):
@@ -233,13 +240,11 @@ class HintDepends(CbDepends):
     def _unmatch_exc(self, real_type: Any) -> DependNotMatched:
         if real_type is Depends._EMPTY:
             return DependNotMatched(
-                f"{self._get_error_prefix()}对应的依赖项在当前上下文中不存在",
-                DependNotMatched._EMPTY,
-                self.hint,
+                f"{self._get_error_prefix()}对应的依赖项在当前上下文中不存在", self.hint
             )
         else:
             return DependNotMatched(
-                f"{self._get_error_prefix()}与注解 {self.hint} 不匹配", real_type, self.hint
+                f"{self._get_error_prefix()}与注解 {self.hint} 不匹配", self.hint, real_type
             )
 
     async def deps_callback(self, val: Any) -> Any:
@@ -284,9 +289,6 @@ def _adapter_get(deps: HintDepends, hint: Any) -> "Adapter":
             return EventOrigin.get_origin(event).adapter
         except flow_ctx.lookup_exc_cls:
             raise deps._unmatch_exc(Depends._EMPTY) from None
-
-
-SENTINEL = object()
 
 
 @dataclass

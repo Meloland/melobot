@@ -119,7 +119,7 @@ class PluginLoader:
 
         if entry is not None:
             # 此时 entry 为 __plugin__.py 对应模块，因此一定有 __file__ 属性
-            p_dir = Path(cast(str, entry.__file__)).resolve()
+            p_dir = Path(cast(str, entry.__file__)).parent.resolve()
             self._auto_import(p_name, entry.__name__, p_dir, planner.auto_import)
 
         planner._pname = p_name

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from typing_extensions import TYPE_CHECKING, Any, Callable, Iterable, TypedDict, final, overload
+from typing_extensions import TYPE_CHECKING, Any, Callable, Iterable, final, overload
 
 from ..exceptions import PluginLoadError
 from ..handle.base import Flow
@@ -133,6 +133,3 @@ class Plugin:
             kwargs=self.init_args,
             callback=lambda _: dispatcher.add(*self.init_flows),
         )
-
-
-class PluginArgs(TypedDict): ...

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from asyncio import create_task, get_running_loop
 
-from typing_extensions import Callable, Iterable, NoReturn
+from typing_extensions import Any, Callable, Iterable, NoReturn
 
 from ..adapter.base import Event
 from ..ctx import BotCtx, EventCompletion, FlowCtx, FlowRecords
@@ -58,18 +58,7 @@ class FlowNode:
                     records.add(RecordStage.NODE_FINISH, status=status)
                 except DependNotMatched as e:
                     ret = False
-                    if e.real_type is DependNotMatched._EMPTY:
-                        records.add(
-                            RecordStage.DEPENDS_NOT_MATCH,
-                            status=status,
-                            prompt=f"Not exists <=> Annotation({e.hint})",
-                        )
-                    else:
-                        records.add(
-                            RecordStage.DEPENDS_NOT_MATCH,
-                            status=status,
-                            prompt=f"Real({e.real_type}) <=> Annotation({e.hint})",
-                        )
+                    records.add(RecordStage.DEPENDS_NOT_MATCH, status=status, prompt=str(e))
 
                 if ret in (None, True) and _FLOW_CTX.get().next_valid:
                     await nextn()
@@ -240,25 +229,21 @@ class Flow:
         )
         return new_flow
 
-    def add(self, node: FlowNode) -> FlowNode:
-        """添加结点的装饰器
-
-        :param node: 添加的结点
-        :return: 结点本身
-        """
-        self.graph.add(node, None)
-        return node
+    def _safe_add(self, _from: FlowNode, to: FlowNode | None) -> None:
+        if not isinstance(_from, FlowNode):
+            raise FlowError(f"{_from} 不是有效的流结点")
+        if to is not None and not isinstance(to, FlowNode):
+            raise FlowError(f"{to} 既不是有效的流结点，又不是空值")
+        return self.graph.add(_from, to)
 
     def start(self, node: FlowNode) -> FlowNode:
-        """与 :meth:`add` 方法功能完全一致
-
-        但此方法语义上更明确地表示添加的是起始结点。
-        建议使用此方法装饰的结点，不要再添加前驱结点。
+        """将某一结点标记为流起始结点的装饰器函数
 
         :param node: 添加的结点
         :return: 结点本身
         """
-        return self.add(node)
+        self._safe_add(node, None)
+        return node
 
     def after(self, node: FlowNode) -> Callable[[FlowNode], FlowNode]:
         """在处理流某一参照结点后，添加新结点的装饰器函数
@@ -268,7 +253,7 @@ class Flow:
         """
 
         def after_wrapped(next_node: FlowNode) -> FlowNode:
-            self.graph.add(node, next_node)
+            self._safe_add(node, next_node)
             return next_node
 
         return after_wrapped
@@ -281,7 +266,7 @@ class Flow:
         """
 
         def before_wrapped(pre_node: FlowNode) -> FlowNode:
-            self.graph.add(pre_node, node)
+            self._safe_add(pre_node, node)
             return pre_node
 
         return before_wrapped
@@ -294,7 +279,7 @@ class Flow:
 
         def merge_wrapped(next_node: FlowNode) -> FlowNode:
             for node in nodes:
-                self.graph.add(node, next_node)
+                self._safe_add(node, next_node)
             return next_node
 
         return merge_wrapped
@@ -307,7 +292,7 @@ class Flow:
 
         def fork_wrapped(pre_node: FlowNode) -> FlowNode:
             for node in nodes:
-                self.graph.add(pre_node, node)
+                self._safe_add(pre_node, node)
             return pre_node
 
         return fork_wrapped
@@ -389,9 +374,19 @@ async def rewind() -> NoReturn:
     raise FlowRewound("事件处理流安全地重复执行处理结点，请无视这个内部工作信号")
 
 
-async def flow_to(flow: Flow, share_store: bool = False) -> None:
-    """立即进入一个其他处理流（在处理流中使用）"""
+async def flow_to(flow: Flow, share_store: bool = False, /, **init_args: Any) -> None:
+    """立即进入一个其他处理流（在处理流中使用）
+
+    :param flow: 要进入的新处理流（不能是自身处理流）
+    :param share_store: 是否共享当前处理流的存储给新处理流
+    :param init_args: 传递给新处理流的流存储的键值对（`share_store=True` 时此参数无效）
+    """
     status = _FLOW_CTX.get()
     if flow is status.flow:
         raise FlowError("无法在处理流中进入自身处理流")
-    await flow._run(status.completion.copy(), status.records, status.store if share_store else None)
+
+    await flow._run(
+        status.completion.copy(),
+        status.records,
+        status.store if share_store else FlowStore(**init_args),
+    )
