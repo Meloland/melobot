@@ -179,6 +179,9 @@ class FlowRecords(list[FlowRecord]):
 class FlowStore(dict):
     """流存储，将会在流运行前初始化，运行结束后销毁"""
 
+    def set(self, key: Hashable, value: Any) -> None:
+        self[key] = value
+
 
 class FlowStatus:
     def __init__(

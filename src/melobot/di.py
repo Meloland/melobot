@@ -34,22 +34,31 @@ if TYPE_CHECKING:
 SENTINEL = object()
 
 
+def _get_prefix(callable_name: str = "", arg_name: str = "") -> str:
+    s = f"可调用对象 {callable_name!r} 的" if callable_name != "" else "可调用对象的"
+    s += f"参数 {arg_name!r} " if arg_name != "" else "参数"
+    return s
+
+
 class DependNotMatched(BaseException):
-    def __init__(self, msg: str, hint: Any, real_type: Any = SENTINEL) -> None:
-        super().__init__(msg)
+    def __init__(
+        self, hint: Any, real_type: Any = SENTINEL, callable_name: str = "", arg_name: str = ""
+    ) -> None:
+        super().__init__()
         self.real_type = real_type
         self.hint = hint
+        self.callable_name = callable_name
+        self.arg_name = arg_name
 
     def __str__(self) -> str:
+        prefix = f"{_get_prefix(self.callable_name, self.arg_name)}对应的依赖项不匹配："
         if self.real_type is SENTINEL:
-            return f"依赖不匹配：<不存在> <=> 注解要求的类型({self.hint})"
+            return f"{prefix}不存在 <=> 注解要求的类型({self.hint})"
         else:
-            return f"依赖不匹配：真实类型({self.real_type}) <=> 注解要求的类型({self.hint})"
+            return f"{prefix}真实类型({self.real_type}) <=> 注解要求的类型({self.hint})"
 
 
 class Depends(Generic[T, U]):
-    _EMPTY = object()
-
     @overload
     def __init__(
         self,
@@ -104,20 +113,20 @@ class Depends(Generic[T, U]):
             self.sub_getter = to_async(sub_getter)
 
         self._lock = Lock() if cache else None
-        self._cached: Any = self._EMPTY
+        self._cached: Any = SENTINEL
 
     def __repr__(self) -> str:
         getter_str = f"getter={self.getter}" if self.getter is not None else ""
         ref_str = f"depends={self.ref}" if self.ref is not None else ""
         return f"{self.__class__.__name__}({ref_str if ref_str != '' else getter_str})"
 
-    async def _get(self, dep_scope: dict[Depends, Any]) -> T:
+    async def _fulfill(self, dep_scope: dict[Depends, Any]) -> T:
         if self.getter is not None:
             val = await self.getter()
         else:
             ref = cast(Depends[T], self.ref)
-            val = dep_scope.get(ref, self._EMPTY)
-            if val is self._EMPTY:
+            val = dep_scope.get(ref, SENTINEL)
+            if val is SENTINEL:
                 val = await ref.fulfill(dep_scope)
 
         if self.sub_getter is not None:
@@ -126,13 +135,13 @@ class Depends(Generic[T, U]):
 
     async def fulfill(self, dep_scope: dict[Depends, Any]) -> T:
         if self._lock is None:
-            val = await self._get(dep_scope)
-        elif self._cached is not self._EMPTY:
+            val = await self._fulfill(dep_scope)
+        elif self._cached is not SENTINEL:
             val = self._cached
         else:
             async with self._lock:
-                if self._cached is self._EMPTY:
-                    self._cached = await self._get(dep_scope)
+                if self._cached is SENTINEL:
+                    self._cached = await self._fulfill(dep_scope)
                 val = self._cached
 
         dep_scope[self] = val
@@ -147,11 +156,11 @@ class CbDepends(Depends, BetterABC, Generic[T]):
 
     def __init__(
         self,
-        dep: SyncOrAsyncCallable[[], Any],
+        getter: SyncOrAsyncCallable[[], Any],
         cache: bool = False,
         recursive: bool = False,
     ) -> None:
-        super().__init__(dep, cache=cache, recursive=recursive)
+        super().__init__(getter, cache=cache, recursive=recursive)
 
     @abstractmethod
     async def deps_callback(self, val: Any) -> T:
@@ -222,7 +231,7 @@ class HintDepends(CbDepends):
 
         if self.orig_getter is None:
             raise DependInitError(
-                f"{self._get_error_prefix()}提供的类型注解 {hint} 无法用于注入任何依赖，请检查是否有误"
+                f"{_get_prefix(self.callable_name, self.arg_name)}提供的类型注解 {hint} 无法用于注入任何依赖，请检查是否有误"
             )
 
         for data in self.metadatas:
@@ -232,21 +241,6 @@ class HintDepends(CbDepends):
 
         super().__init__(self.orig_getter, cache=False, recursive=False)
 
-    def _get_error_prefix(self) -> str:
-        s = f"可调用对象 {self.callable_name!r} 的" if self.callable_name != "" else "可调用对象的"
-        s += f"参数 {self.arg_name!r} " if self.arg_name != "" else "参数"
-        return s
-
-    def _unmatch_exc(self, real_type: Any) -> DependNotMatched:
-        if real_type is Depends._EMPTY:
-            return DependNotMatched(
-                f"{self._get_error_prefix()}对应的依赖项在当前上下文中不存在", self.hint
-            )
-        else:
-            return DependNotMatched(
-                f"{self._get_error_prefix()}与注解 {self.hint} 不匹配", self.hint, real_type
-            )
-
     async def deps_callback(self, val: Any) -> Any:
         ret = val
         if isinstance(val, Reflection):
@@ -255,9 +249,11 @@ class HintDepends(CbDepends):
         for data in self.metadatas:
             if isinstance(data, Exclude):
                 if any(isinstance(val, t) for t in data.types):
-                    raise self._unmatch_exc(type(val))
+                    raise DependNotMatched(
+                        Annotated[self.hint, data], type(val), self.callable_name, self.arg_name
+                    )
         if not is_type(val, self.hint):
-            raise self._unmatch_exc(type(val))
+            raise DependNotMatched(self.hint, type(val), self.callable_name, self.arg_name)
         return ret
 
 
@@ -279,7 +275,7 @@ def _adapter_get(deps: HintDepends, hint: Any) -> "Adapter":
 
         adapter = BotCtx().get().get_adapter(adapter_type)
         if adapter is None:
-            raise deps._unmatch_exc(Depends._EMPTY) from None
+            raise DependNotMatched(hint) from None
         return cast("Adapter", adapter)
 
     else:
@@ -288,20 +284,85 @@ def _adapter_get(deps: HintDepends, hint: Any) -> "Adapter":
             event = flow_ctx.get_event()
             return EventOrigin.get_origin(event).adapter
         except flow_ctx.lookup_exc_cls:
-            raise deps._unmatch_exc(Depends._EMPTY) from None
+            raise DependNotMatched(hint) from None
+
+
+class BindDepends(Depends, Generic[T]):
+    def __init__(
+        self,
+        getter: SyncOrAsyncCallable[[], Any] | Depends,
+        check_type: bool = True,
+        hint: Any = SENTINEL,
+        default: Any = SENTINEL,
+    ) -> None:
+        super().__init__(getter, sub_getter=None, cache=False, recursive=False)
+        self.check_type = check_type
+        self.default = default
+        self.callable_name: str
+        self.arg_name: str
+
+        self._given_hint = hint
+        self._anno_hint = SENTINEL
+
+    def bind(self, hint: Any, arg_name: str, callable_name: str) -> None:
+        self._anno_hint = hint
+        self.arg_name = arg_name
+        self.callable_name = callable_name
+
+    @property
+    def hint(self) -> Any:
+        if self._given_hint is not SENTINEL:
+            return self._given_hint
+        return self._anno_hint
+
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> T:
+        try:
+            val = await super().fulfill(dep_scope)
+        except Exception:
+            if self.default is SENTINEL:
+                raise
+            else:
+                val = self.default
+
+        if self.check_type:
+            if self.hint is SENTINEL:
+                raise DependResolveFailed(
+                    f"{_get_prefix(self.callable_name, self.arg_name)}对应依赖项"
+                    "启用了类型检查，必须在参数中提供类型或通过类型注解标明类型"
+                )
+            if not is_type(val, self.hint):
+                raise DependNotMatched(self.hint, type(val), self.callable_name, self.arg_name)
+        return cast(T, val)
 
 
 @dataclass
-class DepsOption: ...
+class DepOption: ...
+
+
+class PendingHintDepends(BindDepends):
+    def __init__(self, option: DepOption) -> None:
+        self.dep_option = option
+        # getter 为何并不重要，后续会将获取逻辑代理给其他依赖项
+        super().__init__(lambda: None, check_type=False)
+
+    def bind(self, hint: Any, arg_name: str, callable_name: str) -> None:
+        super().bind(hint, arg_name, callable_name)
+        if hint is SENTINEL:
+            raise DependResolveFailed(
+                f"{_get_prefix(self.callable_name, self.arg_name)}对应依赖项"
+                f"使用 {self.dep_option.__class__} 对应的简略方法"
+                "未通过函数参数提供类型时，必须使用类型注解标明类型"
+            )
+        self.hint_dep = HintDepends(
+            Annotated[self.hint, self.dep_option], self.arg_name, self.callable_name
+        )
+
+    async def fulfill(self, dep_scope: dict[Depends, Any]) -> Any:
+        return await self.hint_dep.fulfill(dep_scope)
 
 
 @dataclass
-class PendingDepsOption:
-    option: DepsOption
-
-
-@dataclass
-class Exclude(DepsOption):
+class Exclude(DepOption):
     """数据类。`types` 指定的类别会在依赖注入时被排除
 
     .. code:: python
@@ -322,13 +383,13 @@ def exclude(*types: type[T], base_type: type[T] | object = SENTINEL) -> T:
     :return: 对应类型
     """
     if base_type is SENTINEL:
-        return cast(T, PendingDepsOption(Exclude(types=types)))
+        return cast(T, PendingHintDepends(Exclude(types=types)))
     else:
         return cast(T, HintDepends(Annotated[base_type, Exclude(types=types)]))
 
 
 @dataclass
-class Reflect(DepsOption):
+class Reflect(DepOption):
     """数据类。指定不直接获取当前依赖项，而是获取对应的一个反射代理
 
     这适用于希望依赖会随着上下文改变，而动态变化的情况。例如动态引用会话流程中的事件对象
@@ -356,13 +417,13 @@ def ref(base_type: type[T] | object = SENTINEL) -> T:
     :return: 对应类型
     """
     if base_type is SENTINEL:
-        return cast(T, PendingDepsOption(Reflect()))
+        return cast(T, PendingHintDepends(Reflect()))
     else:
         return cast(T, HintDepends(Annotated[base_type, Reflect()]))
 
 
 @dataclass
-class MatchEvent(DepsOption):
+class MatchEvent(DepOption):
     """数据类。指定从当前事件的上下文中获取依赖
 
     默认情况下，获取 Adapter 依赖都会直接尝试遍历所有可能的对象。
@@ -398,7 +459,7 @@ def match_event(base_type: type[T] | object = SENTINEL) -> T:
     :return: 对应类型
     """
     if base_type is SENTINEL:
-        return cast(T, PendingDepsOption(MatchEvent()))
+        return cast(T, PendingHintDepends(MatchEvent()))
     else:
         return cast(T, HintDepends(Annotated[base_type, MatchEvent()]))
 
@@ -440,6 +501,7 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
     empty = Parameter.empty
     args: list[Any] = []
     kwargs = {}
+    f_name = get_obj_name(func, otype="callable")
 
     for name, param in sign.parameters.items():
         # 可变位置参数或可变关键字参数时，无需任何操作
@@ -448,21 +510,14 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
 
         # 有默认值的情况，处理默认值并跳过
         if param.default is not empty:
-            default = param.default
-            if isinstance(default, PendingDepsOption):
-                if param.annotation is empty:
-                    _option_name = default.option.__class__
-                    raise DependResolveFailed(
-                        f"使用 {_option_name} 对应的简略方法进行依赖注入时："
-                        "函数参数需要提供类型注解，或将类型注解作为参数提供给 "
-                        f"{_option_name} 对应的简略方法"
-                    )
-                default = HintDepends(Annotated[param.annotation, default.option])
-
+            if isinstance(param.default, BindDepends):
+                param.default.bind(
+                    SENTINEL if param.annotation is empty else param.annotation, name, f_name
+                )
             if param.kind is Parameter.KEYWORD_ONLY:
-                kwargs[name] = default
+                kwargs[name] = param.default
             else:
-                args.append(default)
+                args.append(param.default)
             continue
 
         # 没有默认值，没有注解的参数，跳过
@@ -484,7 +539,7 @@ def _init_auto_deps(func: Callable[P, T], allow_manual_arg: bool) -> None:
                         dep = v
                         break
             if dep is None:
-                dep = HintDepends(param.annotation, name, get_obj_name(func, otype="callable"))
+                dep = HintDepends(param.annotation, name, f_name)
         except DependInitError:
             # 如果允许手动传参，无法识别的依赖显然是允许的
             if allow_manual_arg:
