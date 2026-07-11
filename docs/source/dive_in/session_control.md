@@ -535,6 +535,7 @@ some_external_func(event.__origin__)
 # ⚠️ 不要对反射对象使用 == 比较或作为字典键
 ```
 
+(get_session_arg_doc)=
 ### 注入会话存储的值
 
 如果你的处理流中，前几个结点已经将数据存入了 {class}`.SessionStore`，后续结点可以直接通过 {func}`.get_session_arg` 将指定键的值注入为参数：
@@ -553,7 +554,7 @@ async def step3(
 
 {func}`.get_session_arg` 让依赖注入系统从当前会话存储中查找指定键。如果键不存在，依赖注入失败，结点被自动跳过——**这又是一种"区分调用"的实现方式**。
 
-需要注意的是，{func}`.get_session_arg` 在进入函数前取值。从暂停中恢复后应该从会话存储手动取值：
+需要注意的是，{func}`.get_session_arg` 在进入函数前取值。如果需要最新的值，从暂停中恢复后应该从会话存储手动再取值：
 
 ```python
 @node
@@ -563,6 +564,8 @@ async def handler(store: SessionStore) -> None:
     # 恢复后手动获取
     current_step = store["step"]
 ```
+
+{func}`.get_session_arg` 函数的其他参数类似于 {func}`.get_flow_arg`，参考：[对应用法](#get_flow_arg_doc)
 
 ### 依赖注入可用情况
 

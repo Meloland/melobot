@@ -12,11 +12,11 @@ melobot API
 - :class:`.MetaInfo`, :func:`.lazy_load`, :data:`.MODULE_EXTS`, :func:`.add_import_fallback`, :func:`.install_exc_hook`, :func:`.uninstall_exc_hook`, :func:`.set_traceback_style`
 - :class:`.Bot`, :func:`.get_bot`
 - :class:`.PluginPlanner`, :class:`.PluginInfo`, :class:`.PluginLifeSpan`, :class:`.AsyncShare`, :class:`.SyncShare`
-- :class:`~melobot.adapter.base.Adapter`, :class:`~melobot.adapter.model.Event`, :class:`~melobot.adapter.model.Action`, :class:`~melobot.adapter.model.Echo`, :class:`~melobot.adapter.model.TextEvent`, :func:`~melobot.adapter.model.filter_out`, :func:`~melobot.adapter.model.lazy_action`
+- :class:`~melobot.adapter.base.Adapter`, :class:`~melobot.adapter.model.Event`, :class:`~melobot.adapter.model.Action`, :class:`~melobot.adapter.model.Echo`, :class:`~melobot.adapter.model.TextEvent`, :func:`~melobot.adapter.filter_out`, :func:`~melobot.adapter.lazy_action`
 - :func:`.send_text`, :func:`.send_image`
 - :func:`.node`, :func:`.nextn`, :func:`.stop`, :func:`.block`, :func:`.bypass`, :func:`.flow_to`, :func:`.rewind`, :func:`.get_event`, :func:`.try_get_event`, :func:`.get_flow_arg`, :func:`.get_flow_store`
 - :class:`.Flow`, :class:`.FlowDecorator`, :class:`.FlowNode`, :class:`.FlowStore`, :func:`~melobot.handle.on_event`, :func:`.on_text`, :func:`.on_start_match`, :func:`.on_contain_match`, :func:`.on_full_match`, :func:`.on_end_match`, :func:`.on_regex_match`, :func:`.on_command`
-- :class:`.Depends`, :func:`.inject_deps`, :class:`.Reflect`, :class:`.MatchEvent`, :class:`.Exclude`
+- :class:`.Depends`, :func:`.inject_deps`, :class:`.Reflect`, :class:`.MatchEvent`, :class:`.Exclude`, :func:`.ref`, :func:`.match_event`, :func:`.exclude`
 - :class:`.Session`, :class:`.Rule`, :class:`.DefaultRule`, :func:`.enter_session`, :func:`.suspend`, :class:`.SessionStore`, :func:`.get_session`, :func:`.get_session_arg`, :func:`.get_session_store`
 - :class:`.GenericLogger`, :class:`.Logger`, :func:`.get_logger`
 - :class:`.LogicMode`, :class:`.LogLevel`, :class:`.Color`

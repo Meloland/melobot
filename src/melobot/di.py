@@ -379,6 +379,15 @@ class Exclude(DepOption):
 def exclude(*types: type[T], base_type: type[T] | object = SENTINEL) -> T:
     """与使用 :class:`.Exclude` 基本等价
 
+    .. code:: python
+
+        # 元数据注解风格的类型排除：
+        arg: Annotated[A, Exclude(types=[B, C])]
+        # 它的等价写法：
+        arg: A = exclude(B, C)
+        # 在 lambda 中使用：
+        arg = exclude(B, C, base_type=A)
+
     :param types: 需要排除的类型
     :return: 对应类型
     """
@@ -413,6 +422,15 @@ class Reflect(DepOption):
 
 def ref(base_type: type[T] | object = SENTINEL) -> T:
     """与使用 :class:`.Reflect` 基本等价
+
+    .. code:: python
+
+        # 元数据注解风格的反射依赖：
+        arg: Annotated[Event, Reflect()]
+        # 它的等价写法：
+        arg: Event = ref()
+        # 在 lambda 中使用：
+        arg = ref(Event)
 
     :return: 对应类型
     """
@@ -455,6 +473,15 @@ class MatchEvent(DepOption):
 
 def match_event(base_type: type[T] | object = SENTINEL) -> T:
     """与使用 :class:`.MatchEvent` 基本等价
+
+    .. code:: python
+
+        # 元数据注解风格的匹配事件依赖：
+        arg: Annotated[ObAdapter, MatchEvent()]
+        # 它的等价写法：
+        arg: ObAdapter = match_event()
+        # 在 lambda 中使用：
+        arg = match_event(ObAdapter)
 
     :return: 对应类型
     """

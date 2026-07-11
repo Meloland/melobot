@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .adapter.generic import send_image, send_text
     from .bot import Bot, get_bot
     from .ctx import Context
-    from .di import Depends, Exclude, MatchEvent, Reflect, inject_deps
+    from .di import Depends, Exclude, MatchEvent, Reflect, exclude, inject_deps, match_event, ref
     from .handle import (
         Flow,
         FlowDecorator,
@@ -72,7 +72,16 @@ else:
             ".adapter.generic": ("send_image", "send_text"),
             ".bot": ("Bot", "get_bot"),
             ".ctx": ("Context",),
-            ".di": ("Depends", "Exclude", "MatchEvent", "Reflect", "inject_deps"),
+            ".di": (
+                "Depends",
+                "Exclude",
+                "MatchEvent",
+                "Reflect",
+                "exclude",
+                "inject_deps",
+                "match_event",
+                "ref",
+            ),
             ".handle": (
                 "Flow",
                 "FlowDecorator",

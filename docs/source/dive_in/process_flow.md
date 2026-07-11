@@ -600,6 +600,54 @@ async def test_node(records: tuple[FlowRecord, ...]) -> None:
 流存储和流记录不会在主流、子流间共享。无法使用这些功能完成跨流信息传递。
 ```
 
+(get_flow_arg_doc)=
+## 注入流存储的值
+
+通过 {class}`.FlowStore` 类型注解直接获取整个 store 对于简单的情景来说已经足够。但当你有众多参数需要接收、验证和使用时，直接获取整个 store 再操作就非常不便了。
+
+melobot 允许你通过 {func}`.get_flow_arg` 获取流存储中的某一参数，并执行某些常用操作：
+
+```python
+from melobot.handle import get_flow_arg
+
+# 假设此前在流存储中已添加键值对 "greeting_str": "Hello melobot!"
+@node
+async def simple_step(greeting: str = get_flow_arg("greeting_str")) -> None:
+    ...
+```
+
+对于 lambda 函数来说，类型注解是不现实的。为了让静态类型分析正确工作，可以把类型注解直接塞给 `type` 参数：
+
+```python
+n1 = node(lambda n=get_flow_arg("num", type=str | int): ...)
+```
+
+值得注意的是，类型注解或 `type` 参数此时没有施加强制类型验证。若需要验证类型，设置 `verify=True`：
+
+```python
+@node
+async def simple_step(greeting: str = get_flow_arg("greeting_str", verify=True)) -> None:
+    ...
+
+n1 = node(lambda n=get_flow_arg("num", type=str | int, verify=True): ...)
+```
+
+当类型注解和 `type` 参数同时存在时，类型验证逻辑仅认可 `type` 参数指定的类型。
+
+出于各种原因，流存储中可能不存在我们想要的值。可以设置默认值，用于在获取值失败时使用：
+
+```python
+@node
+async def simple_step(
+    greeting: str = get_flow_arg("greeting_str", verify=True, default="Hello World!")
+):
+    ...
+```
+
+`verify=True` 时，默认值仍会参与类型验证。默认值类型验证失败时会发出异常，而不是继续执行。
+
+{func}`.get_flow_arg` 不具有类似 Pydantic 的自动类型转换逻辑。但你可以结合使用：对流存储先进行 Pydantic Validation，再简单地使用 {func}`.get_flow_arg` 获取。
+
 ## 流的上下文传播
 
 常规的同步函数调用，或异步函数的直接 `await`，不会影响事件处理流上下文的传播。
@@ -674,6 +722,29 @@ async def func(...) -> None:
 
 同理，此时显然也无法使用 {func}`.get_event`, {func}`.get_flow_store` 等方法。
 
+(flow_to_with_init_args)=
+## 进入子流的初始化参数
+
+使用 {func}`.flow_to` 方法进入子流时，可以共享流存储：
+
+```python
+# 第二参数 share_store=True 时，子流和当前流将会使用同一份 FlowStore
+await flow_to(sub_flow, True)
+```
+
+并不推荐广泛使用此方法，可能导致很多微妙的 bug。更安全地传递数据的方式是使用**初始化参数**：
+
+```python
+# 此时 share_store 必须为 False
+# 后续的关键字参数将传递到 sub_flow 的流存储中
+await flow_to(sub_flow, a=1, b=["2"])
+
+# 在 sub_flow 中，显然可以通过流存储访问它们：
+assert store["a"] == 1
+assert store["b"] == ["2"]
+```
+
+(filter_out_doc)=
 ## 多路输入与多路输出
 
 使用不同的依赖注入组合，就可以实现选择满足特定条件的事件，从而有效地处理“多路输入”。
@@ -694,7 +765,7 @@ await ob_adapter.send_reply(...)
 await send_text(...)
 ```
 
-如果要精准控制行为操作在特定输出源上发生，使用 {meth}`~.melobot.adapter.model.filter_out` 方法：
+如果要精准控制行为操作在特定输出源上发生，使用 {func}`.filter_out` 方法：
 
 ```python
 from melobot import filter_out
@@ -711,7 +782,7 @@ with filter_out(filter_func):
 
     # 对于协议特定行为操作方法，会对指定协议的所有输出源进行筛选
     # 通过筛选的输出源将会执行此行为
-    hg：ActionHandleGroup = await ob_adapter.get_friend_list()
+    hg: ActionHandleGroup = await ob_adapter.get_friend_list()
 ```
 
 对于筛选函数，一个良好的习惯是从基类型 {class}`~.melobot.io.base.AbstractOutSource` 逐步收窄类型，再执行真正的筛选逻辑：
