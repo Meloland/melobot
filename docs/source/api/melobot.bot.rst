@@ -11,7 +11,6 @@ bot 层组件
 
 .. autoclass:: melobot.bot.BotLifeSpan
     :members:
-    :exclude-members: RELOADED
 
 .. autofunction:: melobot.bot.get_bot
 

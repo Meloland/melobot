@@ -8,7 +8,7 @@ from ._lazy import lazy_load
 # TODO: 考虑在最低支持 3.11 后，使用 asyncio.TaskGroup 替代多数任务生成场景
 
 if TYPE_CHECKING:
-    from ._meta import MetaInfo, __version__
+    from ._meta import MetaInfo, VersionInfo, __version__
     from ._render import install_exc_hook, set_traceback_style, uninstall_exc_hook
     from .adapter import Action, Adapter, Echo, Event, TextEvent, filter_out, lazy_action
     from .adapter.generic import send_image, send_text
@@ -58,7 +58,7 @@ else:
     _lazy_import(
         globals(),
         map={
-            "._meta": ("MetaInfo", "__version__"),
+            "._meta": ("MetaInfo", "VersionInfo", "__version__"),
             "._render": ("install_exc_hook", "set_traceback_style", "uninstall_exc_hook"),
             ".adapter": (
                 "Action",

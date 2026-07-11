@@ -100,7 +100,7 @@ bot = get_bot()
 async def _(bot: Bot) -> None: ...
 ```
 
-所有源对象和适配器对象都是可 hook 的。使用 {meth}`~.HookMixin.on` 方法，配合 {class}`.BotLifeSpan` 可以绑定一个 hook 函数：
+使用 {meth}`~.HookMixin.on` 方法，配合 {class}`.BotLifeSpan` 可以绑定一个 hook 函数：
 
 ```python
 async def f1() -> None: ...
@@ -108,15 +108,15 @@ def f2() -> None: ...
 
 from melobot.bot import BotLifeSpan
 # 直接使用
-bot.on(BotLifeSpan.LOADED)(f1)
+bot.on(BotLifeSpan.STARTED)(f1)
 
 # 或取得装饰器
-on_my_bot_loaded = bot.on(BotLifeSpan.LOADED)
-on_my_bot_loaded(f1)
-on_my_bot_loaded(f2)
+on_my_bot_started = bot.on(BotLifeSpan.STARTED)
+on_my_bot_started(f1)
+on_my_bot_started(f2)
 
 # 或直接使用装饰器语法
-@bot.on(BotLifeSpan.LOADED)
+@bot.on(BotLifeSpan.STARTED)
 async def f3() -> None: ...
 ```
 
@@ -125,11 +125,13 @@ async def f3() -> None: ...
 实际上，bot 对象还有专属的语法糖：
 
 ```python
-# 使用属性，绑定在 LOADED 生命周期的 hook
-@bot.on_loaded
+# 使用属性，绑定在 STARTED 生命周期的 hook
+@bot.on_started
 async def _() -> None: ...
 # 其他 hook 类型类似
 ```
+
+你可以输入 `bot.on_` 查看 tab 补全提供的其他属性，本质上和使用 {class}`.BotLifeSpan` 没有太大区别。
 
 所有可 hook 对象，可以使用 {meth}`~melobot.mixin.HookMixin.get_hook_evoke_time` 获取最后一次触发 hook 的时间戳：
 

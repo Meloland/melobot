@@ -9,7 +9,7 @@ melobot API
 
 以下组件可从 melobot 命名空间直接导入：
 
-- :class:`.MetaInfo`, :func:`.lazy_load`, :data:`.MODULE_EXTS`, :func:`.add_import_fallback`, :func:`.install_exc_hook`, :func:`.uninstall_exc_hook`, :func:`.set_traceback_style`
+- :class:`.MetaInfo`, :class:`.VersionInfo`, :func:`.lazy_load`, :data:`.MODULE_EXTS`, :func:`.add_import_fallback`, :func:`.install_exc_hook`, :func:`.uninstall_exc_hook`, :func:`.set_traceback_style`
 - :class:`.Bot`, :func:`.get_bot`
 - :class:`.PluginPlanner`, :class:`.PluginInfo`, :class:`.PluginLifeSpan`, :class:`.AsyncShare`, :class:`.SyncShare`
 - :class:`~melobot.adapter.base.Adapter`, :class:`~melobot.adapter.model.Event`, :class:`~melobot.adapter.model.Action`, :class:`~melobot.adapter.model.Echo`, :class:`~melobot.adapter.model.TextEvent`, :func:`~melobot.adapter.filter_out`, :func:`~melobot.adapter.lazy_action`

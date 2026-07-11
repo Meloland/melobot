@@ -23,7 +23,10 @@ ROOT_MODULE_DIR = MetaInfo.pkg_path.parent.as_posix()
 
 
 def in_main_process() -> bool:
-    """判断当前进程是否为主进程"""
+    """判断当前进程是否为主进程
+
+    :return: 判断结果
+    """
     return current_process().name == "MainProcess"
 
 
@@ -178,7 +181,10 @@ class SpawnProcess(get_context("spawn").Process):  # type: ignore[name-defined,m
 
 
 def in_melobot_sub_process() -> bool:
-    """判断当前进程是否为 melobot 管理的子进程"""
+    """判断当前进程是否为 melobot 管理的子进程
+
+    :return: 判断结果
+    """
     return SpawnProcess.owned(current_process().name)
 
 
