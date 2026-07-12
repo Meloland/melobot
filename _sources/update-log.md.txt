@@ -55,7 +55,7 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 ### 其他
 
-文档勘误及不重要变更，参考完整记录：[3.4.0...3.5.0](https://github.com/Meloland/melobot/compare/3.4.0...3.5.0)
+文档勘误及不重要变更，参考完整记录：[变更记录](https://github.com/Meloland/melobot/compare/v3.4.0...v3.5.0)
 
 ## v3.4.0
 
@@ -127,7 +127,7 @@ async def func() -> None: ...
 
 ### 其他
 
-文档勘误及不重要变更，参考完整记录：[3.3.0...3.4.0](https://github.com/Meloland/melobot/compare/3.3.0...3.4.0)
+文档勘误及不重要变更，参考完整记录：[3.3.0...3.4.0](https://github.com/Meloland/melobot/compare/3.3.0...v3.4.0)
 
 ## v3.3.0
 
