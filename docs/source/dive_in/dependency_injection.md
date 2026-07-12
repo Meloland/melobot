@@ -45,8 +45,6 @@ def func(s = Depends(a_get_val)) -> None:
 不过，更鼓励使用 [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated)，让依赖注入与类型注解完全兼容:
 
 ```python
-...
-
 from typing import Annotated
 
 @inject_deps
@@ -330,7 +328,7 @@ async def func(...) -> None: ...
 但是需要满足以下条件：
 
 1. {func}`.inject_deps` 以下，`func` 以上的所有装饰器（以下简称夹层装饰器），必须使用 `functools.wraps` 包装。否则将丢失 `func` 的注解信息，无法进行注入。
-2. 夹层装饰器，不能修改 `func` 的参数性质（参数类型、个数、位置或名称）
+2. 夹层装饰器，不能修改 `func` 的函数签名（参数类型、个数、位置或名称）
 3. `func` 所有依赖，要在夹层装饰运行前就可被满足。因为 {func}`.inject_deps` 尝试满足依赖时，夹层装饰还尚未运行。
 
 因此，如果可以，更建议将 {func}`.inject_deps` 始终置于函数装饰的最内层。此时无需考虑以上限制：
@@ -402,4 +400,4 @@ async def session_test(session: Session, store: SessionStore) -> None:
 
 本篇主要说明了 melobot 的依赖注入机制与特性。
 
-下一篇将重点说明：会话控制。
+下一篇将重点说明：[会话控制与管理](./session_control)。

@@ -30,3 +30,16 @@ melobot.di
 .. autoclass:: melobot.di.MatchEvent
     :members:
     :exclude-members: __init__
+
+.. _di_simplified_func:
+
+依赖注入简略方法
+-------------------
+
+这基本是上面元数据标记的简略方法。
+
+.. autofunction:: melobot.di.exclude
+
+.. autofunction:: melobot.di.ref
+
+.. autofunction:: melobot.di.match_event

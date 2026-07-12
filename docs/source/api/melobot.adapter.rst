@@ -53,6 +53,8 @@ melobot.adapter
 
 .. autofunction:: melobot.adapter.lazy_action
 
+.. autofunction:: melobot.adapter.filter_out
+
 .. _generic_content_entities:
 
 通用内容实体

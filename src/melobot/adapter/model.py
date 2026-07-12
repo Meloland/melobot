@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import create_task
-from contextlib import contextmanager
+from contextlib import _GeneratorContextManager, contextmanager
 from time import time_ns
 
 from typing_extensions import (
     TYPE_CHECKING,
     Any,
     AsyncIterator,
+    Callable,
     Generator,
     Generic,
     Hashable,
@@ -21,7 +22,7 @@ from typing_extensions import (
     cast,
 )
 
-from ..ctx import ActionAutoExecCtx, EventOrigin
+from ..ctx import ActionAutoExecCtx, EventOrigin, OutSrcFilterCtx
 from ..exceptions import ActionHandleError
 from ..io.base import AbstractOutSource
 from ..mixin import AttrReprMixin, FlagMixin
@@ -280,3 +281,16 @@ def lazy_action() -> Generator[None, None, None]:
     """
     with ActionAutoExecCtx().unfold(False):
         yield
+
+
+_OUT_SRC_FILTER_CTX = OutSrcFilterCtx()
+
+
+def filter_out(
+    filter: Callable[[AbstractOutSource], bool],
+) -> _GeneratorContextManager[Callable[[AbstractOutSource], bool]]:
+    """上下文管理器，提供由 `filter` 控制输出的输出上下文
+
+    :param filter: 过滤函数，为 `True` 时允许该输出源输出
+    """
+    return _OUT_SRC_FILTER_CTX.unfold(filter)

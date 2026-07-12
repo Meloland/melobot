@@ -5,11 +5,11 @@ from typing_extensions import Any, Callable, Hashable, Iterable, Sequence, cast,
 
 from ..adapter.model import Event, EventT, TextEvent
 from ..ctx import EventCompletion, FlowCtx, ParseArgsCtx
-from ..di import Depends, inject_deps
+from ..di import SENTINEL, BindDepends, inject_deps
 from ..session.base import enter_session
 from ..session.option import DefaultRule, Rule
 from ..typ._enum import LogicMode
-from ..typ.base import AsyncCallable, SyncOrAsyncCallable
+from ..typ.base import AsyncCallable, SyncOrAsyncCallable, T
 from ..utils.check import Checker, checker_join
 from ..utils.common import get_obj_name
 from ..utils.match import (
@@ -550,10 +550,12 @@ def on_regex_match(
 _FLOW_CTX = FlowCtx()
 
 
-class FlowArgDepend(Depends):
-    def __init__(self, arg_idx: Hashable) -> None:
+class FlowArg(BindDepends):
+    def __init__(
+        self, arg_idx: Hashable, verify: bool = False, type: Any = SENTINEL, default: Any = SENTINEL
+    ) -> None:
         self.arg_idx = arg_idx
-        super().__init__(self._getter)
+        super().__init__(self._getter, check_type=verify, hint=type, default=default)
 
     def _getter(self) -> Any:
         f_store = _FLOW_CTX.get_store()
@@ -564,10 +566,18 @@ class FlowArgDepend(Depends):
         return val
 
 
-def get_flow_arg(arg_idx: Hashable) -> Any:
+def get_flow_arg(
+    arg_idx: Hashable, verify: bool = False, type: type[T] | Any = SENTINEL, default: Any = SENTINEL
+) -> T:
     """获取处理流存储中的值
 
     :param arg_idx: 键索引
+    :param verify: 是否验证类型（启用此选项，必须通过类型注解或 `type` 参数提供类型）
+    :param type: 作用如 `verify` 参数所述（此参数甚至可以是类型注解）
+    :param default:
+        默认值。在获取值失败时不发出异常转而返回该值。
+        但如果 `verify=True`，默认值仍然会参与类型验证过程。
+        默认值类型验证失败时，将会发出类型验证失败异常，而不是继续执行
     :return: 对应的依赖项
     """
-    return FlowArgDepend(arg_idx)
+    return cast(T, FlowArg(arg_idx, verify, type, default))

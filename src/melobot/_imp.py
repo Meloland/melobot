@@ -27,7 +27,7 @@ from types import ModuleType
 from typing_extensions import Any, Sequence, cast
 
 from ._lazy import singleton
-from .exceptions import DynamicImpError, DynamicImpSpecEmpty
+from .exceptions import DynImportError, ImportNameConflict, ImportSpecEmpty
 
 # 扩展名的优先级顺序非常重要
 ALL_EXTS = tuple(EXTENSION_SUFFIXES + SOURCE_SUFFIXES + BYTECODE_SUFFIXES)
@@ -99,15 +99,15 @@ class SpecFinder(MetaPathFinder):
 
                     if spec is not None:
                         if spec.origin is None or spec.origin == "":
-                            raise DynamicImpError(
-                                f"zip file from {entry_path}, module named {fullname} from {target}, "
+                            raise DynImportError(
+                                f"zip file from {entry_path!s}, module named {fullname!r} from {target}, "
                                 "failed to get spec origin",
                                 name=fullname,
                                 path=entry_path.as_posix(),
                             )
                         if spec.loader is None:
-                            raise DynamicImpError(
-                                f"zip file from {entry_path}, module named {fullname} from {target}, "
+                            raise DynImportError(
+                                f"zip file from {entry_path!s}, module named {fullname!r} from {target}, "
                                 "spec has no loader",
                                 name=fullname,
                                 path=entry_path.as_posix(),
@@ -138,8 +138,8 @@ class SpecFinder(MetaPathFinder):
                     )
 
                     if spec is None:
-                        raise DynamicImpSpecEmpty(
-                            f"package from {dir_path} without __init__ file create spec failed",
+                        raise ImportSpecEmpty(
+                            f"package from {dir_path!s} without __init__ file create spec failed",
                             name=fullname,
                             path=dir_path.as_posix(),
                         )
@@ -309,8 +309,8 @@ class Importer:
         :return: 模块
         """
         if name.startswith(_IMP_FALLBACKS):
-            raise DynamicImpError(
-                f"模块 {name} 被标记为回退默认导入机制，无法使用动态导入",
+            raise DynImportError(
+                f"模块 {name!r} 被标记为回退默认导入机制，无法使用动态导入",
                 name=name,
                 path=str(path),
             )
@@ -321,23 +321,50 @@ class Importer:
             except ValueError:
                 pass
             else:
-                Importer.import_mod(name[:sep], Path(path).parent)
+                try:
+                    Importer.import_mod(name[:sep], Path(path).parent)
+                except ImportNameConflict as e:
+                    # 重新派生异常，对外返回最上层的模块名和搜索目录，同时减少栈帧数量
+                    raise e.derive(name=name, path=str(path)) from None
 
         if cache and name in sys.modules:
-            return sys.modules[name]
+            mod = sys.modules[name]
+            if path is None:
+                return mod
+
+            if mod.__file__ is None:
+                # 此时对应没有 __init__.* 的包
+                existed_dir = Path(mod.__path__[0]).parent
+            else:
+                fp = Path(mod.__file__)
+                existed_dir = fp.parent.parent if fp.parts[-1] in PKG_INIT_FILENAMES else fp.parent
+            request_dir = Path(path).resolve()
+
+            if request_dir != existed_dir:
+                raise ImportNameConflict(
+                    f"位于 {existed_dir!s} 中的模块 {name!r} 已被导入。"
+                    f"但新的导入指定它位于 {request_dir!s} 中，发现名称冲突。"
+                    "请调整导入深度或父目录名称避免此问题",
+                    name=name,
+                    path=str(path),
+                )
+            else:
+                return mod
 
         spec = SpecFinder().find_spec(name, (str(path),) if path is not None else None, cache=cache)
         if spec is None:
-            raise DynamicImpSpecEmpty(
-                f"名为 {name} 的模块无法加载，指定的位置：{path}",
+            raise ImportSpecEmpty(
+                f"名为 {name!r} 的模块无法加载，指定的位置：{path!s}",
                 name=name,
                 path=str(path),
             )
 
         mod = module_from_spec(spec)
         if spec.loader is None:
-            raise DynamicImpError(
-                f"module named {name} and path from {path} has no loader", name=name, path=str(path)
+            raise DynImportError(
+                f"module named {name!r} and path from {path!s} has no loader",
+                name=name,
+                path=str(path),
             )
         spec.loader.exec_module(mod)
         return mod

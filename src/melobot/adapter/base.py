@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from abc import abstractmethod
 from asyncio import create_task
-from contextlib import AsyncExitStack, _GeneratorContextManager, asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from enum import Enum
 from os import PathLike
 
@@ -45,8 +45,8 @@ if TYPE_CHECKING:
     from ..bot.dispatch import Dispatcher
 
 
-_OUT_SRC_FILTER_CTX = OutSrcFilterCtx()
 _FLOW_CTX = FlowCtx()
+_OUT_SRC_FILTER_CTX = OutSrcFilterCtx()
 
 
 class AbstractEventFactory(BetterABC, Generic[InPacketT, EventT]):
@@ -233,16 +233,6 @@ class Adapter(
         finally:
             if self._inited:
                 await self._hook_bus.emit(AdapterLifeSpan.STOPPED, True)
-
-    @final
-    def filter_out(
-        self, filter: Callable[[OutSourceT], bool]
-    ) -> _GeneratorContextManager[Callable[[OutSourceT], bool]]:
-        """上下文管理器，提供由 `filter` 控制输出的输出上下文
-
-        :param filter: 过滤函数，为 `True` 时允许该输出源输出
-        """
-        return _OUT_SRC_FILTER_CTX.unfold(filter)
 
     async def call_output(self, action: ActionT) -> ActionHandleGroup:
         """输出行为，返回 :class:`.ActionHandleGroup`

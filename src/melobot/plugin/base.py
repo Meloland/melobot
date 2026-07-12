@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from typing_extensions import Callable, Iterable, final, overload
+from typing_extensions import TYPE_CHECKING, Any, Callable, Iterable, final, overload
 
 from ..exceptions import PluginLoadError
 from ..handle.base import Flow
@@ -12,11 +12,14 @@ from ..mixin import HookMixin
 from ..typ.base import AsyncCallable, P, SyncOrAsyncCallable, T
 from .ipc import AsyncShare, SyncShare
 
+if TYPE_CHECKING:
+    from ..bot.dispatch import Dispatcher
+
 
 class PluginLifeSpan(Enum):
     """插件生命周期的枚举"""
 
-    INITED = "i"
+    READY = "i"
 
 
 @dataclass(frozen=True)
@@ -110,17 +113,23 @@ class PluginPlanner(HookMixin[PluginLifeSpan]):
         return obj
 
     @property
-    def on_inited(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
-        """给插件注册 :obj:`.PluginLifeSpan.INITED` 阶段 hook 的装饰器"""
-        return self.on(PluginLifeSpan.INITED)
+    def on_ready(self) -> Callable[[SyncOrAsyncCallable[P, None]], AsyncCallable[P, None]]:
+        """给插件注册 :obj:`.PluginLifeSpan.READY` 阶段 hook 的装饰器"""
+        return self.on(PluginLifeSpan.READY)
 
 
 class Plugin:
-    def __init__(self, planner: PluginPlanner) -> None:
+    def __init__(self, planner: PluginPlanner, init_args: dict[str, Any]) -> None:
         self.planner = planner
         self.name = planner._pname
-        self.hook_bus = planner._hook_bus
-
         self.shares = planner.shares
         self.funcs = planner.funcs
         self.init_flows = planner.init_flows
+        self.init_args = init_args
+
+    async def run_ready_hook(self, dispatcher: "Dispatcher") -> None:
+        await self.planner._hook_bus.emit(
+            PluginLifeSpan.READY,
+            kwargs=self.init_args,
+            callback=lambda _: dispatcher.add(*self.init_flows),
+        )

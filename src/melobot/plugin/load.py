@@ -8,7 +8,7 @@ from typing_extensions import Any, Iterable, cast
 from .._imp import ALL_EXTS, Importer
 from .._lazy import singleton
 from ..ctx import BotCtx
-from ..exceptions import DynamicImpSpecEmpty, PluginLoadError
+from ..exceptions import ImportSpecEmpty, PluginLoadError
 from ..log.reflect import logger
 from .base import Plugin, PluginPlanner
 
@@ -33,11 +33,15 @@ class PluginLoader:
         self._dir_caches: dict[str, Path] = {}
 
     def load(
-        self, plugin: ModuleType | str | PathLike[str] | PluginPlanner, load_depth: int
+        self,
+        plugin: ModuleType | str | PathLike[str] | PluginPlanner,
+        load_depth: int,
+        /,
+        **init_args: Any,
     ) -> tuple[Plugin, bool]:
         if isinstance(plugin, PluginPlanner):
             p_name = f"_DynamicPlugin_0x{id(plugin):0x}"
-            return self._build_dynamic(p_name, plugin)
+            return self._build_dynamic(p_name, plugin, **init_args)
 
         if (
             isinstance(plugin, str)
@@ -47,11 +51,11 @@ class PluginLoader:
             try:
                 tmp_mod = Importer.import_mod(plugin)
                 plugin = tmp_mod
-            except DynamicImpSpecEmpty:
+            except ImportSpecEmpty:
                 pass
 
         if isinstance(plugin, ModuleType):
-            p_dir = self._get_mod_plugin_dir(plugin)
+            p_dir = self._get_plugin_dir(plugin)
         else:
             p_dir = Path(plugin)
         try:
@@ -61,12 +65,16 @@ class PluginLoader:
 
         p_name = p_dir.parts[-1]
         logger.debug(f"尝试加载来自 {p_dir!r} 的插件：{p_name}")
-        return self._build_from_dir(p_name, p_dir, load_depth)
+        return self._build_from_dir(p_name, p_dir, load_depth, **init_args)
 
-    def _build_dynamic(self, p_name: str, planner: PluginPlanner) -> tuple[Plugin, bool]:
-        return self._create_plugin(p_name, planner, None)
+    def _build_dynamic(
+        self, p_name: str, planner: PluginPlanner, /, **init_args: Any
+    ) -> tuple[Plugin, bool]:
+        return self._create_plugin(p_name, planner, None, **init_args)
 
-    def _build_from_dir(self, p_name: str, p_dir: Path, load_depth: int) -> tuple[Plugin, bool]:
+    def _build_from_dir(
+        self, p_name: str, p_dir: Path, load_depth: int, /, **init_args: Any
+    ) -> tuple[Plugin, bool]:
         if p_name in sys.stdlib_module_names:
             raise PluginLoadError(
                 f"尝试加载的插件 {p_name} 与 Python 内置模块重名，"
@@ -79,13 +87,8 @@ class PluginLoader:
                 f"试图加载一个与已加载插件同名的插件，名称：{p_name}，尝试加载的插件：{p_dir}"
             )
 
-        p_mod = Importer.get_cache(p_dir)
-        if p_mod is not None:
-            p_entry_mod_name = f"{p_mod.__name__}.__plugin__"
-        else:
-            prefix = ".".join(p_dir.parts[-load_depth:])
-            p_entry_mod_name = f"{prefix}.__plugin__"
-        entry = Importer.import_mod(p_entry_mod_name, p_dir)
+        prefix = ".".join(p_dir.parts[-load_depth:])
+        entry = Importer.import_mod(f"{prefix}.__plugin__", p_dir)
 
         if not hasattr(entry, P_PLANNER_ATTR):
             for k in dir(entry):
@@ -100,14 +103,14 @@ class PluginLoader:
                 )
 
         planner = cast(PluginPlanner, getattr(entry, P_PLANNER_ATTR))
-        p, is_repeat = self._create_plugin(p_name, planner, entry)
+        p, is_repeat = self._create_plugin(p_name, planner, entry, **init_args)
         if not is_repeat:
             self._dir_caches[p_name] = p_dir.resolve()
             setattr(entry, P_INFO_ATTR, planner.info)
         return p, is_repeat
 
     def _create_plugin(
-        self, p_name: str, planner: PluginPlanner, entry: ModuleType | None
+        self, p_name: str, planner: PluginPlanner, entry: ModuleType | None, /, **init_args: Any
     ) -> tuple[Plugin, bool]:
         if planner._built:
             p = planner._plugin
@@ -115,12 +118,13 @@ class PluginLoader:
             return p, True
 
         if entry is not None:
-            p_dir = self._get_mod_plugin_dir(entry).resolve()
+            # 此时 entry 为 __plugin__.py 对应模块，因此一定有 __file__ 属性
+            p_dir = Path(cast(str, entry.__file__)).parent.resolve()
             self._auto_import(p_name, entry.__name__, p_dir, planner.auto_import)
 
         planner._pname = p_name
         planner._hook_bus.set_tag(p_name)
-        p = planner._plugin = Plugin(planner)
+        p = planner._plugin = Plugin(planner, init_args)
         planner._built = True
         return p, False
 
@@ -163,7 +167,8 @@ class PluginLoader:
             path = p_dir.joinpath(path).resolve()
             Importer.import_mod(mod_name, path.parent.as_posix())
 
-    def _get_mod_plugin_dir(self, mod: ModuleType) -> Path:
+    def _get_plugin_dir(self, mod: ModuleType) -> Path:
+        # mod 是插件目录模块
         if mod.__file__ is None:
             p_dir = Path(mod.__path__[0])
         else:

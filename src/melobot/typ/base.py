@@ -1,6 +1,15 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING, Any, Awaitable, ParamSpec, Protocol, TypeIs, TypeVar
+from typing_extensions import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    ParamSpec,
+    Protocol,
+    TypeIs,
+    TypeVar,
+    cast,
+)
 
 from .._lazy import singleton
 
@@ -56,7 +65,7 @@ def is_type(obj: T, hint: type[Any]) -> TypeIs[T]:
     """
     from beartype.door import is_bearable
 
-    ret = is_bearable(obj, hint, conf=_get_beartype_conf())
+    ret = is_bearable(obj, cast(Any, hint), conf=_get_beartype_conf())
     return ret  # type: ignore[no-any-return]
 
 

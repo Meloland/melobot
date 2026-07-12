@@ -5,14 +5,14 @@ import inspect
 from asyncio import Condition, Lock
 from contextlib import _AsyncGeneratorContextManager, asynccontextmanager
 
-from typing_extensions import Any, AsyncGenerator, Hashable
+from typing_extensions import Any, AsyncGenerator, Hashable, cast
 
 from ..adapter.model import Event
 from ..ctx import FlowCtx, SessionCtx
-from ..di import Depends
+from ..di import SENTINEL, BindDepends
 from ..exceptions import SessionError, SessionRuleLacked, SessionStateFailed
 from ..handle.base import EventCompletion, stop
-from ..typ.base import SyncOrAsyncCallable
+from ..typ.base import SyncOrAsyncCallable, T
 from .option import CompareInfo, Rule
 
 _SESSION_CTX = SessionCtx()
@@ -108,7 +108,7 @@ class SuspendSessionState(SessionState):
 class ExpireSessionState(SessionState): ...
 
 
-class SessionStore(dict[Hashable, Any]):
+class SessionStore(dict):
     """会话存储，生命周期伴随会话对象"""
 
     def set(self, key: Hashable, value: Any) -> None:
@@ -399,10 +399,12 @@ def enter_session(
     return Session.enter(rule, wait, nowait_cb, keep, auto_release)
 
 
-class SessionArgDepend(Depends):
-    def __init__(self, arg_idx: Hashable) -> None:
+class SessionArg(BindDepends):
+    def __init__(
+        self, arg_idx: Hashable, verify: bool = False, type: Any = SENTINEL, default: Any = SENTINEL
+    ) -> None:
         self.arg_idx = arg_idx
-        super().__init__(self._getter)
+        super().__init__(self._getter, check_type=verify, hint=type, default=default)
 
     def _getter(self) -> Any:
         s_store = _SESSION_CTX.get_store()
@@ -413,10 +415,18 @@ class SessionArgDepend(Depends):
         return val
 
 
-def get_session_arg(arg_idx: Hashable) -> Any:
+def get_session_arg(
+    arg_idx: Hashable, verify: bool = False, type: type[T] | Any = SENTINEL, default: Any = SENTINEL
+) -> T:
     """获取会话存储中的值
 
     :param arg_idx: 键索引
+    :param verify: 是否验证类型（启用此选项，必须通过类型注解或 `type` 参数提供类型）
+    :param type: 作用如 `verify` 参数所述（此参数甚至可以是类型注解）
+    :param default:
+        默认值。在获取值失败时不发出异常转而返回该值。
+        但如果 `verify=True`，默认值仍然会参与类型验证过程。
+        默认值类型验证失败时，将会发出类型验证失败异常，而不是继续执行
     :return: 对应的依赖项
     """
-    return SessionArgDepend(arg_idx)
+    return cast(T, SessionArg(arg_idx, verify, type, default))

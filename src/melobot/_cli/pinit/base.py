@@ -7,7 +7,7 @@ from os import PathLike, listdir, remove
 from pathlib import Path
 from time import time
 
-from typing_extensions import Callable, Iterable
+from typing_extensions import Callable, Iterable, is_typeddict
 
 from melobot._imp import Importer
 from melobot.bot.base import Bot
@@ -40,12 +40,16 @@ class PluginInitHelper:
     )
 
     @classmethod
-    def _get_init_py_str(cls, p_planner: PluginPlanner) -> str:
+    def _get_init_py_str(cls, p_planner: PluginPlanner, has_pargs_cls: bool) -> str:
         output = re.sub(
             r"_VAR(\d+)",
             lambda matched: f"_{int(time()):#x}{matched.group(1)}",
             cls._BASE_INIT_PY_STR,
         )
+        if has_pargs_cls:
+            output = output.replace('"$import_pargs"', "from .__pargs__ import Args")
+        else:
+            output = output.replace('"$import_pargs"\n\n', "")
 
         output = f'{output}__version__ = "{p_planner.version}"\n'
         if p_planner.info.author != "":
@@ -60,9 +64,13 @@ class PluginInitHelper:
         plugin_dir: Path,
         shares: Iterable[AsyncShare | SyncShare],
         funcs: Iterable[Callable],
+        has_pargs_cls: bool,
     ) -> str:
         refs: dict[str, list[str]] = {}
         varnames: list[str] = []
+        if has_pargs_cls:
+            refs[".__pargs__"] = ["Args"]
+            varnames.append("Args")
         autoget_varnames: list[str] = []
 
         for share in shares:
@@ -166,7 +174,7 @@ class PluginInitHelper:
                 raise PluginAutoGenError(f"插件目录不存在。对应插件：{p_dir}") from None
 
             p_name = p_dir.parts[-1]
-            p_conflicts = set(fname.split(".")[0] for fname in listdir(p_dir))
+            p_conflicts = set(fname.rsplit(".", maxsplit=1)[0] for fname in listdir(p_dir))
             pinit_path = p_dir.joinpath("__init__.py")
             pinit_typ_path = p_dir.joinpath("__init__.pyi")
 
@@ -186,8 +194,38 @@ class PluginInitHelper:
 
             with ExitStack() as ctx_stack:
                 ctx_stack.enter_context(BotCtx().unfold(Bot()))
-
                 prefix = ".".join(p_dir.parts[-load_depth:])
+
+                has_pargs_cls = False
+                if p_dir.joinpath("__pargs__.py").exists():
+                    pre_mod_len = len(sys.modules)
+                    pargs_mod_name = f"{prefix}.__pargs__"
+                    pargs_mod = Importer.import_mod(pargs_mod_name, p_dir)
+                    imp_names = set(tuple(sys.modules.keys())[pre_mod_len:])
+                    imp_names.remove(prefix)
+                    imp_names.remove(pargs_mod_name)
+                    if any(name.startswith(f"{prefix}.") for name in imp_names):
+                        raise PluginAutoGenError(
+                            "__pargs__.py 尝试导入本插件内的其他模块，这是不允许的。"
+                            f"对应插件：{p_dir}"
+                        )
+
+                    args_cls = getattr(pargs_mod, "Args", None)
+                    if is_typeddict(args_cls):
+                        if "Args" in p_conflicts:
+                            raise PluginAutoGenError(
+                                "插件根目录下存在名为 Args 的目录或文件，"
+                                "此时与 __pargs__.py 中的 Args 类名称冲突。"
+                                f"对应插件：{p_dir}"
+                            )
+                        p_conflicts.add("Args")
+                        has_pargs_cls = True
+                    else:
+                        raise PluginAutoGenError(
+                            f"插件的 __pargs__.py 不存在名为 Args 的类，"
+                            f"或它不是 TypedDict 类。对应插件：{p_dir}"
+                        )
+
                 p_entry_mod_name = f"{prefix}.__plugin__"
                 p_entry_mod = Importer.import_mod(p_entry_mod_name, p_dir)
                 for k in dir(p_entry_mod):
@@ -206,25 +244,27 @@ class PluginInitHelper:
                 for share in p_shares:
                     if share.name in p_conflicts:
                         raise PluginAutoGenError(
-                            f"插件的共享对象名 {share.name} 与插件根目录下的文件/目录名重复，"
+                            f"插件的共享对象名 {share.name} 可能与以下名称重复："
+                            "(根目录下文件名 | 根目录下目录名 | 初始化参数类名)，"
                             "这将导致导入混淆，请修改共享对象名。"
                             f"对应插件：{p_dir}"
                         )
                 for func in p_funcs:
                     if func.__name__ in p_conflicts:
                         raise PluginAutoGenError(
-                            f"插件的导出函数名 {func.__name__} 与插件根目录下的文件/目录名重复，"
-                            "这将导致导入混淆，请修改导出函数名"
+                            f"插件的导出函数名 {func.__name__} 可能与以下名称重复："
+                            "(根目录下文件名 | 根目录下目录名 | 初始化参数类名)，"
+                            "这将导致导入混淆，请修改导出函数名。"
                             f"对应插件：{p_dir}"
                         )
 
             try:
-                pyi_content = cls._get_init_pyi_str(p_dir, p_shares, p_funcs)
+                pyi_content = cls._get_init_pyi_str(p_dir, p_shares, p_funcs, has_pargs_cls)
                 if pyi_content != "":
                     with open(pinit_typ_path, "w", encoding="utf-8") as fp:
                         fp.write(_AUTOGEN_COMMENT + pyi_content)
                 with open(pinit_path, "w", encoding="utf-8") as fp:
-                    fp.write(_AUTOGEN_COMMENT + cls._get_init_py_str(p_planner))
+                    fp.write(_AUTOGEN_COMMENT + cls._get_init_py_str(p_planner, has_pargs_cls))
 
             except BaseException:
                 if pinit_path.exists():

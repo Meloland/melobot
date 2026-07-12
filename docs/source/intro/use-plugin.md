@@ -58,7 +58,6 @@ async def echo_hi() -> None:
     ...
 
 # 变量命名为任意名称都可以，这并不影响加载过程
-# 但我们建议使用常量命名规范，并为："XXX_PLUGIN" 或 "PLUGIN"
 ECHO_PLUGIN = PluginPlanner(version="1.0.0", flows=[echo_hi])
 ```
 
@@ -89,6 +88,13 @@ ECHO_PLUGIN = PluginPlanner(
 )
 ```
 
+```{admonition} 注意
+:class: caution
+插件目录中的所有模块，互相引用要使用相对导入。不要使用绝对导入，这可能会导致 melobot 加载错误。
+
+在之后的教程中会详细说明。以及与此相关的**插件加载机制**与**插件高级用法**。
+```
+
 在某些情况下，先通过 {class}`.PluginPlanner` 创建插件管理器对象，再使用会较为方便。
 
 但问题是，如果先创建插件管理器，此时处理流显然尚未就位。因此我们提供了 {meth}`~.PluginPlanner.use` 装饰器用于解决此问题：
@@ -117,6 +123,33 @@ async def echo_hi() -> None:
 一般情况下，**请勿在插件目录内手动创建 `__init__.py` 文件**。
 
 在之后的教程中会详细说明为什么不要这样做，以及与此相关的**插件加载机制**与**插件高级用法**。
+```
+
+## 资源初始化与清理
+
+耗时的异步初始化操作，通过就绪 hook 完成：
+
+```python
+p = PluginPlanner(version="1.0.0")
+
+@p.on_ready
+async def setup() -> None:
+    await connect_db()
+    ...
+```
+
+耗时的同步初始化操作：通过线程池或进程池运行，再在就绪 hook 中异步等待。**否则可能直接卡住整个 bot 进程**。
+
+插件停止运行时的资源清理，通过 bot 相关 hook 接口完成：
+
+```python
+from melobot import get_bot
+
+bot = get_bot()
+@bot.on_stopped
+async def uninstall() -> None:
+    await close_db()
+    ...
 ```
 
 ## 模块级插件的加载

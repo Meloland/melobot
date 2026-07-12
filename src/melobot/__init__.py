@@ -8,13 +8,13 @@ from ._lazy import lazy_load
 # TODO: 考虑在最低支持 3.11 后，使用 asyncio.TaskGroup 替代多数任务生成场景
 
 if TYPE_CHECKING:
-    from ._meta import MetaInfo, __version__
+    from ._meta import MetaInfo, VersionInfo, __version__
     from ._render import install_exc_hook, set_traceback_style, uninstall_exc_hook
-    from .adapter import Action, Adapter, Echo, Event
+    from .adapter import Action, Adapter, Echo, Event, TextEvent, filter_out, lazy_action
     from .adapter.generic import send_image, send_text
     from .bot import Bot, get_bot
     from .ctx import Context
-    from .di import Depends, Exclude, MatchEvent, Reflect, inject_deps
+    from .di import Depends, Exclude, MatchEvent, Reflect, exclude, inject_deps, match_event, ref
     from .handle import (
         Flow,
         FlowDecorator,
@@ -58,13 +58,30 @@ else:
     _lazy_import(
         globals(),
         map={
-            "._meta": ("MetaInfo", "__version__"),
+            "._meta": ("MetaInfo", "VersionInfo", "__version__"),
             "._render": ("install_exc_hook", "set_traceback_style", "uninstall_exc_hook"),
-            ".adapter": ("Action", "Adapter", "Echo", "Event"),
+            ".adapter": (
+                "Action",
+                "Adapter",
+                "Echo",
+                "Event",
+                "TextEvent",
+                "filter_out",
+                "lazy_action",
+            ),
             ".adapter.generic": ("send_image", "send_text"),
             ".bot": ("Bot", "get_bot"),
             ".ctx": ("Context",),
-            ".di": ("Depends", "Exclude", "MatchEvent", "Reflect", "inject_deps"),
+            ".di": (
+                "Depends",
+                "Exclude",
+                "MatchEvent",
+                "Reflect",
+                "exclude",
+                "inject_deps",
+                "match_event",
+                "ref",
+            ),
             ".handle": (
                 "Flow",
                 "FlowDecorator",
